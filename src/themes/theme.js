@@ -24,7 +24,7 @@ const themeDefault = createTheme({
     fontWeight: "400",
     h1: {
       fontSize: "3.125rem",
-      fontFamily: '"Rowdies", cursive,"Roboto" ,sans-serif',
+      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
       fontWeight: "300",
       "@media (max-width:550px)": {
         fontSize: "2rem",
@@ -40,7 +40,7 @@ const themeDefault = createTheme({
     },
     h3: {
       fontSize: "1.6875rem",
-      fontFamily: '"Rowdies", cursive,"Roboto" ,sans-serif',
+      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
       fontWeight: "300",
       letterSpacing: "0px",
       "@media (max-width:550px)": {
@@ -49,7 +49,7 @@ const themeDefault = createTheme({
     },
     h4: {
       fontSize: "1.5rem",
-      fontFamily: '"Rowdies", cursive,"Roboto" ,sans-serif',
+      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
       fontWeight: "300",
       "@media (max-width:550px)": {
         fontSize: "0.9rem",
@@ -57,7 +57,7 @@ const themeDefault = createTheme({
     },
     h5: {
       fontSize: "1.3125rem",
-      fontFamily: '"Rowdies", cursive,"Roboto" ,sans-serif',
+      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
       fontWeight: "300",
       "@media (max-width:550px)": {
         fontSize: "1rem",
@@ -65,7 +65,7 @@ const themeDefault = createTheme({
     },
     h6: {
       fontSize: "1.125rem",
-      fontFamily: '"Rowdies", cursive,"Roboto" ,sans-serif',
+      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
       fontWeight: "300",
       paddingTop: "4px",
       "@media (max-width:550px)": {
@@ -74,12 +74,12 @@ const themeDefault = createTheme({
     },
     body1: {
       fontSize: "1.25rem",
-      fontFamily: '"Roboto", sans-serif ,sans-serif',
+      fontFamily: '"Roboto", sans-serif ,"sans-serif"',
       fontWeight: "400",
     },
     body2: {
       fontSize: "0.875rem",
-      fontFamily: '"Roboto", sans-serif',
+      fontFamily: '"Roboto", "sans-serif"',
       fontWeight: "400",
       color: "#0C0F0F",
       lineHeight: "22px",
@@ -100,7 +100,7 @@ const themeDefault = createTheme({
     },
     subtitle2: {
       fontSize: "1rem",
-      fontFamily: '"Rowdies", cursive,"Roboto" ,sans-serif',
+      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
       fontWeight: "300",
       "@media (max-width:550px)": {
         fontSize: ".7rem",
@@ -162,7 +162,7 @@ const themeDefault = createTheme({
         root: {
           backgroundColor: "white",
           width: "80%",
-          fontFamily: '"Roboto" ,sans-serif',
+          fontFamily: '"Roboto" ,"sans-serif"',
         },
         checkboxFormControl: {
           minWidth: "200px",
@@ -182,7 +182,7 @@ const themeDefault = createTheme({
     MuiList: {
       styleOverrides: {
         root: {
-          fontFamily: '"Roboto" ,sans-serif',
+          fontFamily: '"Roboto" ,"sans-serif"',
         },
         padding: {
           "@media (max-width:670px)": {
@@ -301,7 +301,7 @@ const themeDefault = createTheme({
           height: "36px",
         },
         label: {
-          fontFamily: '"Roboto" ,sans-serif',
+          fontFamily: '"Roboto" ,"sans-serif"',
           fontSize: "0.875rem",
           "@media (max-width:640px)": {
             fontSize: "10px",
@@ -434,7 +434,7 @@ const themeDefault = createTheme({
       root: {
         backgroundColor: "white",
         width: "80%",
-        fontFamily: '"Roboto" ,sans-serif',
+        fontFamily: '"Roboto" ,"sans-serif"',
       },
       checkboxFormControl: {
         minWidth: "200px",

@@ -1,6 +1,5 @@
 'use client';
-import { Button, Grid, Typography, Card, Tab, Tabs, Box, ThemeProvider } from "@mui/material"
-import themeDefault from "@/themes/theme";
+import { Button, Grid, Typography, Card, Tab, Tabs, Box } from "@mui/material"
 import { useState } from 'react'
 import DatasetStyle from "@/styles/Dataset";
 import MUIDataTable from "mui-datatables";
@@ -119,12 +118,12 @@ export default function Organization() {
     jumpToPage: true,
   };
 
-  const workspaceData = [{"id":1, "workspace_name":"workspace 1", "managers":[{"username":"manager 1"},{"username":"manager 2"},{"username":"manager 3"}], "created_by":{"username":"Admin 1"}},
-  {"id":2, "workspace_name":"workspace 2", "managers":[{"username":"manager 2"},{"username":"manager 3"}], "created_by":{"username":"Admin 2"}},
-  {"id":3, "workspace_name":"workspace 3", "managers":[{"username":"manager 1"},{"username":"manager 2"},{"username":"manager 3"}], "created_by":{"username":"Admin 3"}},
-  {"id":4, "workspace_name":"workspace 4", "managers":[{"username":"manager 1"},{"username":"manager 3"}], "created_by":{"username":"Admin 4"}},
-  {"id":5, "workspace_name":"workspace 5", "managers":[{"username":"manager 1"},{"username":"manager 3"}], "created_by":{"username":"Admin 5"}},
-  {"id":6, "workspace_name":"workspace 6", "managers":[{"username":"manager 2"},{"username":"manager 3"}], "created_by":{"username":"Admin 6"}}]
+  const workspaceData = [{ "id": 1, "workspace_name": "workspace 1", "managers": [{ "username": "manager 1" }, { "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 1" } },
+  { "id": 2, "workspace_name": "workspace 2", "managers": [{ "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 2" } },
+  { "id": 3, "workspace_name": "workspace 3", "managers": [{ "username": "manager 1" }, { "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 3" } },
+  { "id": 4, "workspace_name": "workspace 4", "managers": [{ "username": "manager 1" }, { "username": "manager 3" }], "created_by": { "username": "Admin 4" } },
+  { "id": 5, "workspace_name": "workspace 5", "managers": [{ "username": "manager 1" }, { "username": "manager 3" }], "created_by": { "username": "Admin 5" } },
+  { "id": 6, "workspace_name": "workspace 6", "managers": [{ "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 6" } }]
 
   const pageSearch = () => {
     return workspaceData.filter((el) => {
@@ -151,70 +150,68 @@ export default function Organization() {
   }) : [];
 
   return (
-    <ThemeProvider theme={themeDefault}>
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Card className={classes.workspaceCard}>
-          <Typography variant="h2" gutterBottom component="div">
-            AI4Bharat
-          </Typography>
+    <Grid
+      container
+      direction="row"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Card className={classes.workspaceCard}>
+        <Typography variant="h2" gutterBottom component="div">
+          AI4Bharat
+        </Typography>
 
-          <Typography variant="body1" gutterBottom component="div">
-            Created by : Anudesh
-          </Typography>
-          <Box>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-            >
-              <Tab
-                label="Workspaces"
-                sx={{ fontSize: 16, fontWeight: "700" }}
-              />
-              <Tab
-                label="Members"
-                sx={{ fontSize: 16, fontWeight: "700" }}
-              />
-              <Tab
-                label="Invites"
-                sx={{ fontSize: 16, fontWeight: "700" }}
-              />
-              <Tab
-                label="Reports"
-                sx={{ fontSize: 16, fontWeight: "700" }}
-              />
-              <Tab
-                label="Organization Settings"
-                sx={{ fontSize: 16, fontWeight: "700" }}
-              />
-            </Tabs>
-          </Box>
-          <TabPanel
+        <Typography variant="body1" gutterBottom component="div">
+          Created by : Anudesh
+        </Typography>
+        <Box>
+          <Tabs
             value={value}
-            index={0}
-            style={{ textAlign: "center", maxWidth: "100%" }}
+            onChange={handleChange}
+            aria-label="basic tabs example"
           >
-            <CustomButton
-              label="Add New Workspace"
-              sx={{ width: "100%", mb: 2 }}
+            <Tab
+              label="Workspaces"
+              sx={{ fontSize: 16, fontWeight: "700" }}
             />
-            {/* <Grid sx={{ mb: 1 }}>
+            <Tab
+              label="Members"
+              sx={{ fontSize: 16, fontWeight: "700" }}
+            />
+            <Tab
+              label="Invites"
+              sx={{ fontSize: 16, fontWeight: "700" }}
+            />
+            <Tab
+              label="Reports"
+              sx={{ fontSize: 16, fontWeight: "700" }}
+            />
+            <Tab
+              label="Organization Settings"
+              sx={{ fontSize: 16, fontWeight: "700" }}
+            />
+          </Tabs>
+        </Box>
+        <TabPanel
+          value={value}
+          index={0}
+          style={{ textAlign: "center", maxWidth: "100%" }}
+        >
+          <CustomButton
+            label="Add New Workspace"
+            sx={{ width: "100%", mb: 2 }}
+          />
+          {/* <Grid sx={{ mb: 1 }}>
                 <Search />
             </Grid> */}
-            <MUIDataTable
-              title={""}
-              data={data}
-              columns={columns}
-              options={options}
-            />
-          </TabPanel>
-        </Card>
-      </Grid>
-    </ThemeProvider>
+          <MUIDataTable
+            title={""}
+            data={data}
+            columns={columns}
+            options={options}
+          />
+        </TabPanel>
+      </Card>
+    </Grid>
   )
 }
