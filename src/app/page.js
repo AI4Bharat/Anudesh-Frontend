@@ -1,7 +1,8 @@
 export default function Home() {
   return (
     <main>
-      Anudesh
+      <h1>Anudesh</h1>
+      <a href="/organizations">Organization</a>
     </main>
   )
-}
+}  
