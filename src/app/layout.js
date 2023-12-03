@@ -1,17 +1,21 @@
-import { Inter } from 'next/font/google'
-// import './globals.css'
+'use client';
+import themeDefault from "@/themes/theme"
+import { ThemeProvider } from "@emotion/react"
+import "./index.css";
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata = {
-  title: 'Anudesh',
-  description: 'anudesh-frontend',
-}
+// export const metadata = {
+//   title: 'Anudesh',
+//   description: 'anudesh-frontend',
+// }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>
+        <ThemeProvider theme={themeDefault}>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }
