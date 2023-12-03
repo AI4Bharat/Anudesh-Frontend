@@ -4,6 +4,8 @@ import themeDefault from "@/themes/theme";
 import { useState } from 'react'
 import DatasetStyle from "@/styles/Dataset";
 import MUIDataTable from "mui-datatables";
+import Link from 'next/link';
+import workspaceAPI from "../Api/workspaceAPI"
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -37,8 +39,16 @@ export default function Organization() {
       {label}
     </Button>
   );
+  
+//   const getWorkspaceData = () => {
+//     const workspaceObj = new workspaceAPI();
+//     dispatch(APITransport(workspaceObj));
+// }
 
 
+//   useEffect(() => {
+//     getWorkspaceData();
+// }, []);
   const columns = [
     {
       name: "id",
@@ -129,7 +139,7 @@ export default function Organization() {
   const pageSearch = () => {
     return workspaceData.filter((el) => {
       return el;
-    })
+  })
 
   }
   const data = workspaceData && workspaceData.length > 0 ? pageSearch().map((el, i) => {
@@ -140,13 +150,13 @@ export default function Organization() {
         return manager.username
       }).join(", "),
       el.created_by && el.created_by.username,
-      <div>view</div>
-      // <Link to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
-      //   <CustomButton
-      //     sx={{ borderRadius: 2 }}
-      //     label="View"
-      //   />
-      // </Link>
+      // <div>view</div>
+      <Link href={`/workspace`} style={{ textDecoration: "none" }}>
+        <CustomButton
+          sx={{ borderRadius: 2 }}
+          label="View"
+        />
+      </Link>
     ]
   }) : [];
 
