@@ -1,3 +1,4 @@
+'use client';
 import {
     Box,
     Card,
@@ -25,8 +26,8 @@ import DatasetStyle from "@/styles/Dataset";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
 //   import componentType from "../../../../config/pageType";
   import ProjectTable from "../workspace/ProjectTable";
-//   import AnnotatorsTable from "../Tabs/Annotators";
-//   import ManagersTable from "../Tabs/ManagersTable";
+  import AnnotatorsTable from "../components/Tabs/AnnotatorTable";
+  import ManagersTable from "../components/Tabs/ManagersTable";
 //   import Workspaces from "../Tabs/Workspaces";
 //   import CustomButton from "../../component/common/Button";
 //   import { translate } from "../../../../config/localisation";
@@ -319,22 +320,22 @@ import DatasetStyle from "@/styles/Dataset";
                     rowSpacing={2}
                   >
                     <Grid item xs={12} sm={6}>
-                      <a to='/'>
+                      <Link href={`/create-annotation-project`}>
                         <CustomButton
                           className={classes.projectButton}
-                          sx={{ width: "25%", mb: 2 }}
+                          sx={{ width: "100%", mb: 2 }}
                           label="Add New Annotation Project"
                         />
-                      </a>
+                      </Link>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <a to='/'>
+                      <Link href={`/create-collection-project`}>
                         <CustomButton
                           className={classes.projectButton}
-                          sx={{ width: "25%", mb: 2 }}
+                          sx={{ width: "100%", mb: 2 }}
                           label="Add New Collection Project"
                         />
-                      </a>
+                      </Link>
                     </Grid>
                   </Grid>
                   <div className={classes.workspaceTables}>
@@ -358,53 +359,53 @@ import DatasetStyle from "@/styles/Dataset";
                 {/* </> */}
               {/* )} */}
             </TabPanel>
-            {/* <TabPanel value={value} index={1}> */}
+            <TabPanel value={value} index={1}>
               {/* {pageType === componentType.Type_Workspace && ( */}
-                {/* <> */}
-                  {/* <Button
+                 <> 
+                   <CustomButton
                     className={classes.annotatorsButton}
                     label={"Add Members to Workspace"}
                     sx={{ width: "100%", mb: 2 }}
                     onClick={handleAnnotatorDialogOpen}
-                  /> */}
-                  {/* <AnnotatorsTable
-                    onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
-                  /> */}
+                  /> 
+                  <AnnotatorsTable
+                    // onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
+                  /> 
                   {/* <AddUsersDialog
                     handleDialogClose={handleAnnotatorDialogClose}
                     isOpen={addAnnotatorsDialogOpen}
                     userType={addUserTypes.ANNOTATOR}
                     id={id}
-                  /> */}
-                {/* </> */}
-              {/* )} */}
-              {/* {pageType === componentType.Type_Organization && ( */}
-                {/* <>
+                  />  */}
+                 </>
+               {/* )}  */}
+              {/* {pageType === componentType.Type_Organization && ( 
+                 <>
                   <Members />
-                </> */}
-              {/* )} */}
-            {/* </TabPanel> */}
-            {/* <TabPanel value={value} index={2}> */}
+                </> 
+               )} */}
+             </TabPanel> 
+            <TabPanel value={value} index={2}>
               {/* {pageType === componentType.Type_Workspace && ( */}
-                {/* <>
+                <>
                   <CustomButton
                     label="Assign Managers"
                     sx={{ width: "100%", mb: 2 }}
                     onClick={handleManagerDialogOpen}
-                  /> */}
-                  {/* <ManagersTable />
-                  <AddUsersDialog
+                  />
+                  <ManagersTable />
+                  {/* <AddUsersDialog
                     handleDialogClose={handleManagerDialogClose}
                     isOpen={addManagersDialogOpen}
                     userType={addUserTypes.MANAGER}
                     id={id}
                   /> */}
-                {/* </> */}
+                </>
               {/* )} */}
               {/* {pageType === componentType.Type_Organization && ( */}
                 {/* <Invites hideButton={true} reSendButton={true} /> */}
               {/* )} */}
-            {/* </TabPanel> */}
+            </TabPanel>
             {/* <TabPanel value={value} index={3}> */}
               {/* {pageType === componentType.Type_Organization && ( */}
                 {/* <OrganizationReports /> */}

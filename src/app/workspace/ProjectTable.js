@@ -10,7 +10,7 @@ import MUIDataTable from "mui-datatables";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
 import tableTheme from "../../themes/TableTheme";
 // import Search from "../../component/common/Search";
-import UserMappedByRole from "../../utils/UserMappedByRole";
+import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 const ProjectTable = (props) => {
 
@@ -171,7 +171,7 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
   workspacesproject && workspacesproject.length > 0
       ? pageSearch().map((el, i) => {
         console.log(el.project_stage);
-        const userRole = el.project_stage && UserMappedByRole(el.project_stage).element;
+        const userRole = el.project_stage && UserMappedByProjectStage(el.project_stage).element;
           return [
             el.id,
             el.title,
