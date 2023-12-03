@@ -26,8 +26,6 @@ const LoginStyle = makeStyles({
         "@media (max-width:650px)": {
           margin: "0% 0% 00% 90%",
           color: "black",
-         
-         
         },
       
     
