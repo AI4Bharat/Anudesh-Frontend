@@ -4,9 +4,9 @@ import Card from "@/assets/Card.svg";
 const themeDefault = createTheme({
   palette: {
     primary: {
-      light: "#60568d",
-      main: "#2C2799",
-      dark: "#271e4f",
+      light: "#fa723e",
+      main: "#ee6633",
+      dark: "#b33a0c",
       contrastText: "#FFFFFF",
     },
     secondary: {
@@ -16,7 +16,7 @@ const themeDefault = createTheme({
       contrastText: "#000000",
     },
     background: {
-      default: "#2C2799",
+      default: "#ee6633",
     },
   },
   typography: {
@@ -111,7 +111,7 @@ const themeDefault = createTheme({
     // MuiButtonBase:{
     //   styleOverrides:{
     //     root:{
-    //       backgroundColor: "#2C2799",
+    //       backgroundColor: "#ee6633",
     //       borderRadius: "20px",
     //       color: "#FFFFFF" 
     //     },
@@ -266,7 +266,7 @@ const themeDefault = createTheme({
     MuiAvatar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#271e4f",
+          backgroundColor: "#b33a0c",
           color: "#FFFFFF"
         }
       }
