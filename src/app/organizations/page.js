@@ -135,7 +135,7 @@ export default function Organization() {
     return [
       el.id,
       el.workspace_name,
-      el.managers.map((manager, index) => {
+      el.managers.map((manager) => {
         return manager.username
       }).join(", "),
       el.created_by && el.created_by.username,
