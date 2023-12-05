@@ -135,11 +135,11 @@ export default function Organization() {
     return [
       el.id,
       el.workspace_name,
-      el.managers.map((manager, index) => {
+      el.managers.map((manager) => {
         return manager.username
       }).join(", "),
       el.created_by && el.created_by.username,
-      <div key={index}>view</div>
+      <div key={i}>view</div>
       // <Link to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
       //   <CustomButton
       //     sx={{ borderRadius: 2 }}
