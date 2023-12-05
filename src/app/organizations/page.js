@@ -139,7 +139,7 @@ export default function Organization() {
         return manager.username
       }).join(", "),
       el.created_by && el.created_by.username,
-      <div key={index}>view</div>
+      <div key={i}>view</div>
       // <Link to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
       //   <CustomButton
       //     sx={{ borderRadius: 2 }}
