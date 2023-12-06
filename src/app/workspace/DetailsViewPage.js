@@ -24,20 +24,20 @@ import themeDefault from "@/themes/theme";
 //   import OutlinedTextField from "../../component/common/OutlinedTextField";
 import DatasetStyle from "@/styles/Dataset";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
-//   import componentType from "../../../../config/pageType";
+  import componentType from "../../config/PageType";
   import ProjectTable from "../workspace/ProjectTable";
   import AnnotatorsTable from "../components/Tabs/AnnotatorTable";
   import ManagersTable from "../components/Tabs/ManagersTable";
-//   import Workspaces from "../Tabs/Workspaces";
+  import Workspaces from "../components/common/Workspace";
 //   import CustomButton from "../../component/common/Button";
-//   import { translate } from "../../../../config/localisation";
+  import { translate } from "../../config/localisation";
 //   import MembersTable from "../Project/MembersTable";
-//   import Members from "../Tabs/Members";
-//   import Invites from "../Tabs/Invites";
-//   import OrganizationSettings from "../Tabs/OrganizationSettings";
-//   import OrganizationReports from "../Organization/OrganizationReports";
-//   import WorkspaceReports from "./WorkspaceReports";
-//   import AddUsersDialog from "./AddUsersDialog";
+  import Members from "../components/Tabs/Members";
+  import Invites from "../components/Tabs/Invites";
+  import OrganizationSettings from "../components/Tabs/OrganizationSettings";
+  import OrganizationReports from "../components/Tabs/organizationReports";
+  import WorkspaceReports from "../components/common/WorkspaceReports";
+  // import AddUsersDialog from "../components/common/AddUsersDialog";
 //   import addUserTypes from "../../../../constants/addUserTypes";
 //   import AddWorkspaceDialog from "../Workspace/AddWorkspaceDialog";
 //   import Spinner from "../../component/common/Spinner";
@@ -80,7 +80,7 @@ import DatasetStyle from "@/styles/Dataset";
           {label}
         </Button>
       );
-    // const { pageType, title, createdBy, onArchiveWorkspace } = props;
+    const { pageType, title, createdBy, onArchiveWorkspace } = props;
     // const { id, orgId } = useParams();
     const classes = DatasetStyle();
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
@@ -215,216 +215,215 @@ import DatasetStyle from "@/styles/Dataset";
               Created by : 
             </Typography>
             <Box>
-              <Tabs
-                value={value}
-                onChange={handleChange}
-                aria-label="basic tabs example"
-              >
-                {/* {pageType === componentType.Type_Workspace && ( */}
-                  <Tab
-                    label="Projects"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  />
-                {/* )} */}
-                {/* {pageType === componentType.Type_Organization && ( */}
-                  {/* <Tab
-                    label="label.workspaces"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  /> */}
-                {/* )} */}
-  
-                {/* {pageType === componentType.Type_Workspace && ( */}
-                  <Tab
-                    label="Members"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  />
-                {/* )} */}
-                {/* {pageType === componentType.Type_Organization && ( */}
-                  {/* <Tab
-                    label="label.members"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  /> */}
-                {/* )} */}
-  
-                {/* {pageType === componentType.Type_Workspace && ( */}
-                  <Tab
-                    label="Managers"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  />
-                {/* )} */}
-                {/* {pageType === componentType.Type_Organization && ( */}
-                  {/* <Tab
-                    label="label.invites"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  /> */}
-                {/* )} */}
-  
-                {/* {pageType === componentType.Type_Workspace && ( */}
-                  <Tab
-                    label="Reports"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  />
-                {/* )} */}
-                {/* {pageType === componentType.Type_Organization && ( */}
-                  {/* <Tab
-                    label="label.reports"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  /> */}
-                {/* )} */}
-  
-                {/* {pageType === componentType.Type_Workspace && ( */}
-             
-                  <Tab
-                  label={ <div style={{display:"flex",marginTop:"5px"}}> Analytics <KeyboardArrowDownIcon style={{paddingBottom:"1px"}} /> </div>}
-                  aria-controls="menu"
-                  aria-haspopup="true"
-                  onClick={handleMenuOpen}
-                  sx={{ fontSize: 16, fontWeight: "700"}}  
-                  />
-              
-                {/* )} */}
-                  
-                {/* {pageType === componentType.Type_Organization && ( */}
-                  
-                  {/* <Tab
-                    label="label.settings"
-                    sx={{ fontSize: 16, fontWeight: "700" }}
-                  />  */}
-                {/* )} */}
-                 
-              </Tabs>
-            </Box>
-            <Menu
-              id="menu"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem selected={selectmenu=== "TaskAnalytics"} onClick={() => handleClickMenu("TaskAnalytics")}> Task Analytics </MenuItem>
-              <MenuItem selected={ selectmenu=== "MetaAnalytics"} onClick={() => handleClickMenu("MetaAnalytics")}>Meta Analytics</MenuItem>
-              <MenuItem selected={selectmenu=== "AdvanceAnalytics"} onClick={() => handleClickMenu("AdvanceAnalytics")}>Advance Analytics</MenuItem>
-            </Menu>
-            <TabPanel
+            <Tabs
               value={value}
-              index={0}
-              style={{ textAlign: "center", maxWidth: "100%" }}
+              onChange={handleChange}
+              aria-label="basic tabs example"
             >
-              {/* {pageType === componentType.Type_Workspace && ( */}
-                <>
-                  <Grid
-                    container
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="center"
-                    columnSpacing={4}
-                    rowSpacing={2}
-                  >
-                    <Grid item xs={12} sm={6}>
-                      <Link href={`/create-annotation-project`}>
-                        <CustomButton
-                          className={classes.projectButton}
-                          sx={{ width: "100%", mb: 2 }}
-                          label="Add New Annotation Project"
-                        />
-                      </Link>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Link href={`/create-collection-project`}>
-                        <CustomButton
-                          className={classes.projectButton}
-                          sx={{ width: "100%", mb: 2 }}
-                          label="Add New Collection Project"
-                        />
-                      </Link>
-                    </Grid>
+              {pageType === componentType.Type_Workspace && (
+                <Tab
+                  label={translate("label.projects")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+              {pageType === componentType.Type_Organization && (
+                <Tab
+                  label={translate("label.workspaces")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+
+              {pageType === componentType.Type_Workspace && (
+                <Tab
+                  label={translate("label.members")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+              {pageType === componentType.Type_Organization && (
+                <Tab
+                  label={translate("label.members")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+
+              {pageType === componentType.Type_Workspace && (
+                <Tab
+                  label={translate("label.managers")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+              {pageType === componentType.Type_Organization && (
+                <Tab
+                  label={translate("label.invites")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+
+              {pageType === componentType.Type_Workspace && (
+                <Tab
+                  label={translate("label.reports")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+              {pageType === componentType.Type_Organization && (
+                <Tab
+                  label={translate("label.reports")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                />
+              )}
+
+              {pageType === componentType.Type_Workspace && (
+           
+                <Tab
+                label={ <div style={{display:"flex",marginTop:"5px"}}> {translate("label.analytics")} <KeyboardArrowDownIcon style={{paddingBottom:"1px"}} /> </div>}
+                aria-controls="menu"
+                aria-haspopup="true"
+                onClick={handleMenuOpen}
+                sx={{ fontSize: 16, fontWeight: "700"}}  
+                />
+            
+              )}
+                
+              {pageType === componentType.Type_Organization && (
+                
+                <Tab
+                  label={"Organization " + translate("label.settings")}
+                  sx={{ fontSize: 16, fontWeight: "700" }}
+                /> 
+              )}
+               
+            </Tabs>
+          </Box>
+          <Menu
+            id="menu"
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem selected={selectmenu=== "TaskAnalytics"} onClick={() => handleClickMenu("TaskAnalytics")}> Task Analytics </MenuItem>
+            <MenuItem selected={ selectmenu=== "MetaAnalytics"} onClick={() => handleClickMenu("MetaAnalytics")}>Meta Analytics</MenuItem>
+            <MenuItem selected={selectmenu=== "AdvanceAnalytics"} onClick={() => handleClickMenu("AdvanceAnalytics")}>Advance Analytics</MenuItem>
+          </Menu>
+          <TabPanel
+            value={value}
+            index={0}
+            style={{ textAlign: "center", maxWidth: "100%" }}
+          >
+            {pageType === componentType.Type_Workspace && (
+              <>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="center"
+                  columnSpacing={4}
+                  rowSpacing={2}
+                >
+                  <Grid item xs={12} sm={6}>
+                    <Link href={`/create-annotation-project/`}>
+                      <CustomButton
+                      sx={{ width: "100%", mb: 2 }}
+                        className={classes.projectButton}
+                        label={"Add New Annotation Project"}
+                      />
+                    </Link>
                   </Grid>
-                  <div className={classes.workspaceTables}>
-                    <ProjectTable />
-                  </div>
-                </>
-              {/* )} */}
-              {/* {pageType === componentType.Type_Organization && ( */}
-                {/* <>
-                  <CustomButton
-                    label="Add New Workspace"
-                    sx={{ width: "100%", mb: 2 }}
-                    onClick={handleWorkspaceDialogOpen}
-                  /> */}
-                  {/* <Workspaces />
-                  <AddWorkspaceDialog
-                    dialogCloseHandler={handleWorkspaceDialogClose}
-                    isOpen={addWorkspacesDialogOpen}
-                    orgId={orgId}
-                  /> */}
-                {/* </> */}
-              {/* )} */}
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              {/* {pageType === componentType.Type_Workspace && ( */}
-                 <> 
-                   <CustomButton
-                    className={classes.annotatorsButton}
-                    label={"Add Members to Workspace"}
-                    sx={{ width: "100%", mb: 2 }}
-                    onClick={handleAnnotatorDialogOpen}
-                  /> 
-                  <AnnotatorsTable
-                    // onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
-                  /> 
-                  {/* <AddUsersDialog
-                    handleDialogClose={handleAnnotatorDialogClose}
-                    isOpen={addAnnotatorsDialogOpen}
-                    userType={addUserTypes.ANNOTATOR}
-                    id={id}
-                  />  */}
-                 </>
-               {/* )}  */}
-              {/* {pageType === componentType.Type_Organization && ( 
-                 <>
-                  <Members />
-                </> 
-               )} */}
-             </TabPanel> 
-            <TabPanel value={value} index={2}>
-              {/* {pageType === componentType.Type_Workspace && ( */}
-                <>
-                  <CustomButton
-                    label="Assign Managers"
-                    sx={{ width: "100%", mb: 2 }}
-                    onClick={handleManagerDialogOpen}
-                  />
-                  <ManagersTable />
-                  {/* <AddUsersDialog
-                    handleDialogClose={handleManagerDialogClose}
-                    isOpen={addManagersDialogOpen}
-                    userType={addUserTypes.MANAGER}
-                    id={id}
-                  /> */}
-                </>
-              {/* )} */}
-              {/* {pageType === componentType.Type_Organization && ( */}
-                {/* <Invites hideButton={true} reSendButton={true} /> */}
-              {/* )} */}
-            </TabPanel>
-            {/* <TabPanel value={value} index={3}> */}
-              {/* {pageType === componentType.Type_Organization && ( */}
-                {/* <OrganizationReports /> */}
-              {/* )} */}
-              {/* {pageType === componentType.Type_Workspace && <WorkspaceReports />} */}
-            {/* </TabPanel> */}
-            {/* <TabPanel value={value} index={4}>
-              {pageType === componentType.Type_Workspace && selectmenu=== "TaskAnalytics" && <TaskAnalytics />}
-              {pageType === componentType.Type_Workspace && selectmenu=== "MetaAnalytics" && <MetaAnalytics />}
-              {pageType === componentType.Type_Workspace && selectmenu=== "AdvanceAnalytics" && <ProgressAnalytics />}
-              {pageType === componentType.Type_Organization && ( */}
-                {/* // <OrganizationSettings /> */}
-              {/* )}
-            </TabPanel> */}
-          </Card>
-        </Grid>
-      </ThemeProvider>
-    );
-  };
-  
-  export default DetailsViewPage;
-  
+                  <Grid item xs={12} sm={6}>
+                    <Link href={`/create-collection-project/`}>
+                      <CustomButton
+                      sx={{ width: "100%", mb: 2 }}
+                        className={classes.projectButton}
+                        label={"Add New Collection Project"}
+                      />
+                    </Link>
+                  </Grid>
+                </Grid>
+                <div className={classes.workspaceTables}>
+                  <ProjectTable />
+                </div>
+              </>
+            )}
+            {pageType === componentType.Type_Organization && (
+              <>
+                <CustomButton
+                  label={translate("button.addNewWorkspace")}
+                  sx={{ width: "100%", mb: 2 }}
+                  onClick={handleWorkspaceDialogOpen}
+                />
+                <Workspaces />
+                {/* <AddWorkspaceDialog
+                  dialogCloseHandler={handleWorkspaceDialogClose}
+                  isOpen={addWorkspacesDialogOpen}
+                  orgId={orgId}
+                /> */}
+              </>
+            )}
+          </TabPanel>
+          <TabPanel value={value} index={1}>
+            {pageType === componentType.Type_Workspace && (
+              <>
+                <CustomButton
+                  className={classes.annotatorsButton}
+                  label={"Add Members to Workspace"}
+                  sx={{ width: "100%", mb: 2 }}
+                  onClick={handleAnnotatorDialogOpen}
+                />
+                <AnnotatorsTable
+                  // onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
+                />
+                {/* <AddUsersDialog
+                  handleDialogClose={handleAnnotatorDialogClose}
+                  isOpen={addAnnotatorsDialogOpen}
+                  userType={addUserTypes.ANNOTATOR}
+                  id={id}
+                /> */}
+              </>
+            )}
+            {pageType === componentType.Type_Organization && (
+              <>
+                <Members />
+              </>
+            )}
+          </TabPanel>
+          <TabPanel value={value} index={2}>
+            {pageType === componentType.Type_Workspace && (
+              <>
+                <CustomButton
+                  label={"Assign Managers"}
+                  sx={{ width: "100%", mb: 2 }}
+                  onClick={handleManagerDialogOpen}
+                />
+                <ManagersTable />
+                {/* <AddUsersDialog
+                  handleDialogClose={handleManagerDialogClose}
+                  isOpen={addManagersDialogOpen}
+                  userType={addUserTypes.MANAGER}
+                  id={id}
+                /> */}
+              </>
+            )}
+            {pageType === componentType.Type_Organization && (
+              <Invites hideButton={true} reSendButton={true} />
+            )}
+          </TabPanel>
+          <TabPanel value={value} index={3}>
+            {pageType === componentType.Type_Organization && (
+              <OrganizationReports />
+            )}
+            {pageType === componentType.Type_Workspace && <WorkspaceReports />}
+          </TabPanel>
+          <TabPanel value={value} index={4}>
+            {/* {pageType === componentType.Type_Workspace && selectmenu=== "TaskAnalytics" && <TaskAnalytics />}
+            {pageType === componentType.Type_Workspace && selectmenu=== "MetaAnalytics" && <MetaAnalytics />}
+            {pageType === componentType.Type_Workspace && selectmenu=== "AdvanceAnalytics" && <ProgressAnalytics />} */}
+            {pageType === componentType.Type_Organization && (
+              <OrganizationSettings />
+            )}
+          </TabPanel>
+        </Card>
+      </Grid>
+    </ThemeProvider>
+  );
+};
+
+export default DetailsViewPage;

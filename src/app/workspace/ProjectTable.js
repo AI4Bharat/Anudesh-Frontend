@@ -9,7 +9,7 @@ import MUIDataTable from "mui-datatables";
 // import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
 import tableTheme from "../../themes/TableTheme";
-// import Search from "../../component/common/Search";
+import Search from "../components/common/Search";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 const ProjectTable = (props) => {
@@ -178,7 +178,7 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
             userRole ? userRole :  el.project_stage,
             el.tgt_language == null ?"-": el.tgt_language,
             el.project_type,
-            <Link href={`/projects`} style={{ textDecoration: "none" }}>
+            <Link href={`/projectdetails`} style={{ textDecoration: "none" }}>
               <CustomButton sx={{ borderRadius: 2 }} label="View" />
             </Link>,
           ];
@@ -215,9 +215,9 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
 
   return (
     <div>
-      {/* <Grid sx={{ mb: 1 }}>
+      <Grid sx={{ mb: 1 }}>
         <Search />
-      </Grid> */}
+      </Grid>
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           // title={""}

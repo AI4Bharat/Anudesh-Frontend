@@ -9,6 +9,7 @@ export default function Home() {
       <h3><Link href="/invite/500">Sign-Up</Link></h3>
       <h3><Link href="/forgot-password">Forgot Password</Link></h3>
       <h3><Link href="/dataset">Dataset</Link></h3>
+      <h3><Link href="/projects">Projects</Link></h3>
     </main>
   )
 }  

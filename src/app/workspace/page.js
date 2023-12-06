@@ -13,7 +13,7 @@ import DatasetStyle from "@/styles/Dataset";
 // import SettingsTable from "./Tabs/SettingsTable";
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 // import GetWorkspacesDetailsAPI from "../../../../redux/actions/api/WorkspaceDetails/GetWorkspaceDetails";
-// import componentType from "../../../../config/pageType";
+import componentType from "../../config/PageType";
 
 
 import DetailsViewPage from "../workspace/DetailsViewPage";
@@ -77,7 +77,12 @@ const Workspace = (props) => {
         
     return (
         <ThemeProvider theme={themeDefault}>
-            <DetailsViewPage/>
+             <DetailsViewPage 
+                // title={workspaceDtails && workspaceDtails.workspace_name}
+                // createdBy={workspaceDtails && workspaceDtails.created_by ?.username}
+                pageType = {componentType.Type_Workspace}
+                // onArchiveWorkspace={()=>getWorkspaceDetails()}
+            />
             {/* <Grid
                 container
                 direction='row'

@@ -17,7 +17,7 @@ import Link from 'next/link';
 
 // import RemoveWorkspaceManagerAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceManager";
 import CustomizedSnackbars from "../../components/common/Snackbar";
-// import Search from "../../component/common/Search";
+import Search from "../common/Search";
 import TextField from '@mui/material/TextField';
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
 
@@ -373,9 +373,9 @@ const workspaceManagers = [
                   </Button>
                 </DialogActions>
               </Dialog>
-            {/* <Grid sx={{mb:1}}>
+            <Grid sx={{mb:1}}>
                 <Search />
-            </Grid> */}
+            </Grid>
             <ThemeProvider theme={tableTheme}>
 				<MUIDataTable
                     // title={""}
