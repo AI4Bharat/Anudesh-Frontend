@@ -49,8 +49,7 @@ function a11yProps(index) {
 }
 
 
-const Workspace = (props) => {
-
+export default Workspace(props){
     const classes = DatasetStyle();
    
 
@@ -139,4 +138,3 @@ const Workspace = (props) => {
     )
 }
 
-export default Workspace;

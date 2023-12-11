@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import DatasetStyle from "../../../styles/Dataset";
+import { translate } from "../../../config/localisation";
+
 
 const ColumnList = (props) => {
   const classes = DatasetStyle();

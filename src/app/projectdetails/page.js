@@ -201,126 +201,26 @@ import {
       "prefer_cl_ui": false,
       "is_active": true
   }
-    const ProjectDetails = [{
-      "id": 1375,
-      "title": "English Nepali Conversation Translation - AI4B Inhouse",
-      "description": "English Nepali Conversation Translation - AI4B Inhouse",
+    const ProjectDetails = {
+      "id": 2279,
+      "title": "test ocr ce 2",
+      "description": "test",
       "created_by": null,
       "is_archived": false,
       "is_published": true,
       "annotators": [
           {
-              "id": 148,
-              "username": "dhakaram.kafle@gmail.com",
-              "email": "dhakaram.kafle@gmail.com",
-              "languages": [
-                  "Nepali"
-              ],
-              "availability_status": 1,
-              "enable_mail": false,
-              "first_name": "Dhaka Ram",
-              "last_name": "Kafle",
-              "phone": "",
-              "profile_photo": "",
-              "role": 2,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-05-09T04:59:26.793053Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 146,
-              "username": "Tika Bhai",
-              "email": "tikabhai123@gmail.com",
-              "languages": [
-                  "Nepali",
-                  "English"
-              ],
-              "availability_status": 1,
-              "enable_mail": false,
-              "first_name": "Tika Ram",
-              "last_name": "Rai",
-              "phone": "8695319811",
-              "profile_photo": "",
-              "role": 3,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-05-09T04:59:26.684137Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 189,
-              "username": "D. Ghimiray",
-              "email": "deoghims@gmail.com",
-              "languages": [
-                  "Nepali"
-              ],
-              "availability_status": 1,
-              "enable_mail": true,
-              "first_name": "Deobrata",
-              "last_name": "Ghimiray",
-              "phone": "9547793421",
-              "profile_photo": "",
-              "role": 1,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-05-09T10:30:52.972601Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 140,
-              "username": "OTR2TX58Z2O5",
-              "email": "khagen.sharma@gmail.com",
+              "id": 1,
+              "username": "shoonya",
+              "email": "shoonya@ai4bharat.org",
               "languages": [],
               "availability_status": 1,
               "enable_mail": false,
-              "first_name": "",
-              "last_name": "",
+              "first_name": "Admin",
+              "last_name": "AI4B",
               "phone": "",
               "profile_photo": "",
-              "role": 1,
+              "role": 6,
               "organization": {
                   "id": 1,
                   "title": "AI4Bharat",
@@ -334,210 +234,39 @@ import {
                   },
                   "created_at": "2022-04-24T13:11:30.339610Z"
               },
-              "unverified_email": "",
-              "date_joined": "2022-05-09T04:58:01Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 70,
-              "username": "sunita_nepali",
-              "email": "suni.ntmorg@gmail.com",
-              "languages": [
-                  "English",
-                  "Nepali"
-              ],
-              "availability_status": 1,
-              "enable_mail": false,
-              "first_name": "Sunita",
-              "last_name": "Dahal",
-              "phone": "7829069192",
-              "profile_photo": "",
-              "role": 4,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-04-28T08:42:42Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 147,
-              "username": "Lekhnath Chhetri",
-              "email": "lekhnathchhetri960@gmail.com",
-              "languages": [
-                  "Nepali",
-                  "English"
-              ],
-              "availability_status": 1,
-              "enable_mail": false,
-              "first_name": "Lekhnath",
-              "last_name": "Chhetri",
-              "phone": "+919593092284",
-              "profile_photo": "",
-              "role": 2,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-05-09T04:59:26.738863Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 334,
-              "username": "Bikash Chandra",
-              "email": "pragyam.foundation@gmail.com",
-              "languages": [
-                  "Bodo",
-                  "Assamese",
-                  "Nepali"
-              ],
-              "availability_status": 1,
-              "enable_mail": true,
-              "first_name": "",
-              "last_name": "",
-              "phone": "",
-              "profile_photo": "",
-              "role": 5,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-08-07T12:45:59.421079Z",
-              "participation_type": 3,
-              "prefer_cl_ui": false,
-              "is_active": true
-          },
-          {
-              "id": 333,
-              "username": "Avinash Kumar",
-              "email": "avinash.kumar@aripanafoundation.org",
-              "languages": [],
-              "availability_status": 1,
-              "enable_mail": false,
-              "first_name": "",
-              "last_name": "",
-              "phone": "",
-              "profile_photo": "",
-              "role": 4,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-08-07T12:45:59Z",
+              "unverified_email": "shoonya@ai4bharat.org",
+              "date_joined": "2022-04-24T07:40:11Z",
               "participation_type": 3,
               "prefer_cl_ui": false,
               "is_active": true
           }
       ],
-      "annotation_reviewers": [
-          {
-              "id": 146,
-              "username": "Tika Bhai",
-              "email": "tikabhai123@gmail.com",
-              "languages": [
-                  "Nepali",
-                  "English"
-              ],
-              "availability_status": 1,
-              "enable_mail": false,
-              "first_name": "Tika Ram",
-              "last_name": "Rai",
-              "phone": "8695319811",
-              "profile_photo": "",
-              "role": 3,
-              "organization": {
-                  "id": 1,
-                  "title": "AI4Bharat",
-                  "email_domain_name": "ai4bharat.org",
-                  "created_by": {
-                      "username": "shoonya",
-                      "email": "shoonya@ai4bharat.org",
-                      "first_name": "Admin",
-                      "last_name": "AI4B",
-                      "role": 6
-                  },
-                  "created_at": "2022-04-24T13:11:30.339610Z"
-              },
-              "unverified_email": "",
-              "date_joined": "2022-05-09T04:59:26.684137Z",
-              "participation_type": 1,
-              "prefer_cl_ui": false,
-              "is_active": true
-          }
-      ],
+      "annotation_reviewers": [],
       "review_supercheckers": [],
       "frozen_users": [],
-      "workspace_id": 10,
+      "workspace_id": 1,
       "organization_id": 1,
-      "filter_string": "language=English&conversation_quality_status=Clean",
+      "filter_string": null,
       "sampling_mode": "f",
       "sampling_parameters_json": {},
-      "project_type": "ConversationTranslation",
-      "label_config": "<View>\n\n</View>",
-      "variable_parameters": {
-          "language": "Nepali"
-      },
+      "project_type": "OCRSegmentCategorizationEditing",
+      "label_config": "<View>\n  <Image name=\"image_url\" value=\"$image_url\"/>\n  \n  <Labels name=\"annotation_labels\" toName=\"image_url\" className=\"ignore_assertion\">\n    \n    <Label value=\"title\" background=\"green\" name=\"title\" className=\"ignore_assertion\"/>\n    <Label value=\"text\" background=\"blue\" name=\"text\" className=\"ignore_assertion\"/>\n    <Label value=\"image\" background=\"red\" name=\"image\" className=\"ignore_assertion\"/>\n    <Label value=\"unord-list\" background=\"yellow\" name=\"unord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"ord-list\" background=\"black\" name=\"ord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"placeholder\" background=\"orange\" name=\"placeholder\" className=\"ignore_assertion\"/>\n    <Label value=\"table\" background=\"violet\" name=\"table\" className=\"ignore_assertion\"/>\n    <Label value=\"dateline\" background=\"cyan\" name=\"dateline\" className=\"ignore_assertion\"/>\n    <Label value=\"byline\" background=\"brown\" name=\"byline\" className=\"ignore_assertion\"/>\n    <Label value=\"page-number\" background=\"purple\" name=\"page-number\" className=\"ignore_assertion\"/>\n    <Label value=\"footer\" background=\"indigo\" name=\"footer\" className=\"ignore_assertion\"/>\n    <Label value=\"footnote\" background=\"pink\" name=\"footnote\" className=\"ignore_assertion\"/>\n    <Label value=\"header\" background=\"olive\" name=\"header\" className=\"ignore_assertion\"/>\n    <Label value=\"social-media-handle\" background=\"aqua\" name=\"social-media-handle\" className=\"ignore_assertion\"/>\n    <Label value=\"website-link\" background=\"teal\" name=\"website-link\" className=\"ignore_assertion\"/>\n    <Label value=\"caption\" background=\"maroon\" name=\"caption\" className=\"ignore_assertion\"/>\n    <Label value=\"table-header\" background=\"aquamarine\" name=\"table-header\" className=\"ignore_assertion\"/>\n    \n  </Labels>\n\n  <Rectangle name=\"annotation_bboxes\" toName=\"image_url\" strokeWidth=\"3\" className=\"ignore_assertion\"/>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"title\" name=\"title_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"h1\" className=\"ignore_assertion\"/>\n    <Choice value=\"h2\" className=\"ignore_assertion\"/>\n    <Choice value=\"h3\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"text\" name=\"text_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"paragraph\" className=\"ignore_assertion\"/>\n    <Choice value=\"foreign-language-text\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"image\" name=\"image_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"img\" className=\"ignore_assertion\"/>\n    <Choice value=\"logo\" className=\"ignore_assertion\"/>\n    <Choice value=\"formula\" className=\"ignore_assertion\"/>\n    <Choice value=\"equation\" className=\"ignore_assertion\"/>\n    <Choice value=\"bg-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"placeholder\" name=\"placeholder_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"placeholder-txt\" className=\"ignore_assertion\"/>\n    <Choice value=\"placeholder-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"caption\" name=\"caption_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"fig-caption\" className=\"ignore_assertion\"/>\n    <Choice value=\"table-caption\" className=\"ignore_assertion\"/>\n  </Choices>\n    \n</View>\n\n\n",
+      "variable_parameters": {},
       "project_mode": "Annotation",
       "required_annotators_per_task": 1,
       "tasks_pull_count_per_batch": 10,
       "max_pending_tasks_per_user": 60,
-      "src_language": "English",
-      "tgt_language": "Nepali",
-      "created_at": "2023-06-27T02:27:59.508396Z",
-      "project_stage": 2,
+      "src_language": null,
+      "tgt_language": null,
+      "created_at": "2023-12-06T06:37:58.364413Z",
+      "project_stage": 1,
       "revision_loop_count": 3,
       "k_value": 100,
       "metadata_json": null,
       "datasets": [
           {
-              "instance_id": 253,
-              "instance_name": "Conversations Data - AI4B Inhouse - Regular tasks - - New"
+              "instance_id": 295,
+              "instance_name": "Test OCR"
           }
       ],
       "status": "Published",
@@ -549,10 +278,11 @@ import {
       "last_pull_date": "Synchronously Completed. No Date.",
       "last_pull_time": "Synchronously Completed. No Time.",
       "last_pull_result": "No result.",
-      "unassigned_task_count": 5,
-      "labeled_task_count": 1,
-      "reviewed_task_count": 796
-  }]
+      "unassigned_task_count": 29,
+      "labeled_task_count": 0,
+      "reviewed_task_count": 0
+  }
+  console.log(ProjectDetails);
     useEffect(() => {
       // getProjectDetails();
       const projectStatus = ProjectDetails.is_archived

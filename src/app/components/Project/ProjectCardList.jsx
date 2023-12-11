@@ -6,12 +6,12 @@ import { Grid, ThemeProvider, Tooltip, Button } from "@mui/material";
 import tableTheme from "../../../themes/tableTheme";
 import Search from "../../components/common/Search";
 // import { useDispatch, useSelector } from "react-redux";
-// import ProjectFilterList from "../../component/common/ProjectFilterList";
+import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../../utils/UserMappedByProjectStage";
 
 const ProjectCardList = (props) => {
-//   const { projectData, selectedFilters, setsSelectedFilters } = props;
+  const { projectData, selectedFilters, setsSelectedFilters } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -25,12 +25,6 @@ const ProjectCardList = (props) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const projectData = [{"id":1, "title":"workspace 1", "project_stage":"1", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":2, "title":"workspace 2", "project_stage":"2", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":3, "title":"workspace 3", "project_stage":"3", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":4, "title":"workspace 4", "project_stage":"1", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":5, "title":"workspace 5", "project_stage":"3", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":6, "title":"workspace 6", "project_stage":"2", "tgt_language":"hindi", "project_type":"AudioTranscription"}]
 
   const pageSearch = () => {
     return projectData.filter((el) => {
@@ -249,14 +243,14 @@ const ProjectCardList = (props) => {
           options={options}
         />
       </ThemeProvider>
-      {/* <ProjectFilterList
+      <ProjectFilterList
         id={filterId}
         open={popoverOpen}
         anchorEl={anchorEl}
         handleClose={handleClose}
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
-      /> */}
+      />
     </>
   );
 };

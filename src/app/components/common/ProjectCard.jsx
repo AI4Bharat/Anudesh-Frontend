@@ -7,7 +7,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { Box, Chip, Divider, Grid, ThemeProvider } from "@mui/material";
 import themeDefault from "../../../themes/theme";
-import { Link, useNavigate, useParams } from "react-router-dom";
+// import { Link, useNavigate, useParams } from "react-router-dom";
+import Link from 'next/link'
 import DatasetStyle from "../../../styles/Dataset";
 import UserMappedByProjectStage from "../../../utils/UserMappedByProjectStage";
 
@@ -18,9 +19,10 @@ const ProjectCard = (props) => {
 
   const classes = DatasetStyle();
   const { projectObj } = props;
+  console.log(projectObj );
   const userRole =projectObj.project_stage && UserMappedByProjectStage(projectObj.project_stage).name;
   return (
-    <Link to={`/projects/${projectObj.id}`} style={{ textDecoration: "none" }}>
+    <Link href={`/projectdetails`} style={{ textDecoration: "none" }}>
       <Grid
         elevation={2}
         className={props.classAssigned}
