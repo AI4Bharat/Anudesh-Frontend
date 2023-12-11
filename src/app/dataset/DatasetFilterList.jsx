@@ -133,9 +133,10 @@ const DatasetFilterList = (props) => {
             Dataset Visibility :
             </Typography>
             <FormGroup>
-              {datasetvisibility.map((type) => {
+              {datasetvisibility.map((type, index) => {
                 return (
                   <FormControlLabel
+                    key={index}
                     control={
                       <Radio
                         checked={ selectDatasetVisibility === type }

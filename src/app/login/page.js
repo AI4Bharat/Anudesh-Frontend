@@ -7,6 +7,7 @@ import OutlinedTextField from "@/app/components/common/OutlinedTextField";
 import { useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
+import { Visibility } from "@material-ui/icons";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import CustomButton from "@/app/components/common/Button";
 import { useRouter } from 'next/navigation';

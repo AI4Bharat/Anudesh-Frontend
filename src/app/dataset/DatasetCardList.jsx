@@ -99,6 +99,7 @@ const DatasetCardList = (props) => {
             el.instance_name,
             el.dataset_type,
             <Link
+              key={i}
               href={`/datasets/${el.instance_id}`}
               style={{ textDecoration: "none" }}
             >
