@@ -21,95 +21,209 @@ import {
     // const { id } = useParams();
     // const dispatch = useDispatch();
     const [taskType, setTaskType] = useState(TASK_TYPES[0]);
-    const [columns, setColumns] = useState([]);
+    // const [columns, setColumns] = useState([]);
     const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
-  
-    // const RecentTasks = useSelector((state) => state.getRecentTasks.data)
+    const SearchWorkspace =[];
+
 
     const RecentTasks = {
-      "count": 68576,
-      "next": "http://backend.dev.shoonya.ai4bharat.org/task/annotated_and_reviewed_tasks/get_users_recent_tasks/?page=2&records=10",
+      "count": 68578,
+      "next": "http://backend.dev.shoonya.ai4bharat.org/task/annotated_and_reviewed_tasks/get_users_recent_tasks/?page=2&records=10&search_Project+ID=2284&task_type=annotation",
       "previous": null,
       "results": [
           {
+              "Project ID": 2284,
+              "Task ID": 3606603,
+              "Updated at": "07-12-2023 16:04:04",
+              "Annotated at": "07-12-2023 16:03:01",
+              "Created at": "07-12-2023 15:59:50"
+          },
+          {
+              "Project ID": 2284,
+              "Task ID": 3606607,
+              "Updated at": "07-12-2023 15:59:50",
+              "Annotated at": null,
+              "Created at": "07-12-2023 15:59:50"
+          },
+          {
+              "Project ID": 2284,
+              "Task ID": 3606606,
+              "Updated at": "07-12-2023 15:59:50",
+              "Annotated at": null,
+              "Created at": "07-12-2023 15:59:50"
+          },
+          {
+              "Project ID": 2284,
+              "Task ID": 3606605,
+              "Updated at": "07-12-2023 15:59:50",
+              "Annotated at": null,
+              "Created at": "07-12-2023 15:59:50"
+          },
+          {
+              "Project ID": 2284,
+              "Task ID": 3606604,
+              "Updated at": "07-12-2023 15:59:50",
+              "Annotated at": null,
+              "Created at": "07-12-2023 15:59:50"
+          },
+          {
               "Project ID": 2279,
               "Task ID": 3606417,
-              "Updated at": "06-12-2023 14:12:12"
+              "Updated at": "06-12-2023 14:12:12",
+              "Annotated at": null,
+              "Created at": "06-12-2023 14:12:12"
           },
           {
               "Project ID": 2279,
               "Task ID": 3606416,
-              "Updated at": "06-12-2023 14:12:12"
+              "Updated at": "06-12-2023 14:12:12",
+              "Annotated at": null,
+              "Created at": "06-12-2023 14:12:12"
           },
           {
               "Project ID": 2279,
               "Task ID": 3606415,
-              "Updated at": "06-12-2023 14:12:12"
+              "Updated at": "06-12-2023 14:12:12",
+              "Annotated at": null,
+              "Created at": "06-12-2023 14:12:12"
           },
           {
               "Project ID": 2279,
               "Task ID": 3606414,
-              "Updated at": "06-12-2023 14:12:12"
+              "Updated at": "06-12-2023 14:12:12",
+              "Annotated at": null,
+              "Created at": "06-12-2023 14:12:12"
           },
           {
               "Project ID": 2279,
               "Task ID": 3606413,
-              "Updated at": "06-12-2023 14:12:12"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606410,
-              "Updated at": "06-12-2023 12:11:57"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606412,
-              "Updated at": "06-12-2023 12:08:17"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606411,
-              "Updated at": "06-12-2023 12:08:17"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606409,
-              "Updated at": "06-12-2023 12:08:17"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606408,
-              "Updated at": "06-12-2023 12:08:17"
+              "Updated at": "06-12-2023 14:12:12",
+              "Annotated at": null,
+              "Created at": "06-12-2023 14:12:12"
           }
       ]
   }
-  
-    // useEffect(() => {
-    //   const taskObj = new FetchRecentTasksAPI(id, taskType, currentPageNumber, currentRowPerPage);
-    //   dispatch(APITransport(taskObj));
-    // }, [id, taskType, currentPageNumber, currentRowPerPage])
-  
-    useEffect(() => {
-      if (RecentTasks?.results?.length > 0) {
-        let tempColumns = []
-        Object.keys(RecentTasks.results[0]).forEach((key) => {
-          tempColumns.push({
-            name: key,
-            label: key,
-            options: {
-              filter: false,
-              sort: false,
-              align: "center",
-            },
-          })
-        })
-        setColumns(tempColumns)
-      } else {
-        setColumns([])
+
+
+  const pageSearch = () => {
+
+    return RecentTasks?.results?.filter((el) => {
+      console.log(el.ProjectID);
+
+        if (SearchWorkspace == "") {
+
+            return el;
+        } else if (
+            el['Project ID']
+                ?.toString()?.toLowerCase()
+                .includes(SearchWorkspace?.toLowerCase())
+        ) {
+
+            return el;
+        }
+        else if (
+          el["Task ID"]
+              .toString()?.toLowerCase()
+              .includes(SearchWorkspace?.toLowerCase())
+      ) {
+
+          return el;
       }
-    }, [RecentTasks])
-  
+      else if (
+        el["Created at"]
+            ?.toLowerCase()
+            .includes(SearchWorkspace?.toLowerCase())
+    ) {
+
+        return el;
+    }
+    else if (
+      el["Updated at"]
+          ?.toLowerCase()
+          .includes(SearchWorkspace?.toLowerCase())
+  ) {
+
+      return el;
+  }else if (
+    el["Annotated at"]
+        ?.toLowerCase()
+        .includes(SearchWorkspace?.toLowerCase())
+) {
+
+    return el;
+}
+    })
+
+}
+const columns = [
+  {
+    name: "Project ID",
+    label: "Project ID",
+    options: {
+                filter: false,
+                sort: false,
+                align: "center",
+              },
+  },
+  {
+    name: "Task ID",
+    label: "Task ID",
+    options: {
+                filter: false,
+                sort: false,
+                align: "center",
+              },
+  },
+  {
+    name: "Created At",
+    label: "Created At",
+    options: {
+                filter: false,
+                sort: false,
+                align: "center",
+              },
+  },
+  {
+    name: "Updated At",
+    label: "Updated At",
+    options: {
+                filter: false,
+                sort: false,
+                align: "center",
+              },
+  },
+
+  {
+    name: "Annotated At",
+    label: "Annotated At",
+    options: {
+                filter: false,
+                sort: false,
+                align: "center",
+              },
+  },
+];
+
+  const data = RecentTasks && RecentTasks?.results?.length > 0 ?pageSearch().map((el, i) => {
+  return [
+      el['Project ID'],
+      el["Task ID"],
+      el["Updated at"],
+      el["Created at"],
+      el["Annotated at"]
+      // el.managers.map((manager, index) => {
+      //     return manager.username
+      // }).join(", "),
+      // el.created_by && el.created_by.username,
+      // <Link to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
+      //     <CustomButton
+      //         sx={{ borderRadius: 2 }}
+      //         label="View"
+      //     />
+      // </Link>
+  ]
+})  : [];
     const tableOptions = {
       count: RecentTasks?.count,
         rowsPerPage: currentRowPerPage,

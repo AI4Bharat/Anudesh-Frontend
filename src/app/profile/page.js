@@ -4,8 +4,11 @@ import React, { useState,useEffect } from 'react';
 // import FetchUserByIdAPI from '../../../../redux/actions/api/UserManagement/FetchUserById';
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 // import { useDispatch, useSelector } from "react-redux";
-import { Avatar, IconButton, Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper } from '@mui/material';
+import { Avatar,Select,OutlinedInput,MenuItem, IconButton, ThemeProvider,Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper,InputLabel } from '@mui/material';
 import { Input, inputClasses } from '@mui/base/Input';
+import themeDefault from "../../themes/theme";
+
+import OutlinedTextField from "../components/common/OutlinedTextField";
 // import MyProgress from '../progress/page';
 // import RecentTasks from '../components/Tabs/RecentTasks';
 import CustomButton from "../components/common/Button";
@@ -13,6 +16,7 @@ import Spinner from "../components/common/Spinner";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import UserMappedByRole from '../../utils/UserMappedByRole';
+import {participationType} from '../../config/dropDownValues';
 // import ToggleMailsAPI from '../../../../redux/actions/api/UserManagement/ToggleMails';
 // import UpdateProfileImageAPI from '../../../../redux/actions/api/UserManagement/UpdateProfileImage'
 import CustomizedSnackbars from "../components/common/Snackbar";
@@ -26,14 +30,18 @@ export default function ProfilePage () {
   const id=1;
 //   const dispatch = useDispatch();
 //   const navigate = useNavigate();
-  const [userDetails, setUserDetails] = useState(null);
+  // const [userDetails, setUserDetails] = useState(null);
+  const [newDetails, setNewDetails] = useState();
+  const [email, setEmail] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [initLangs, setInitLangs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
-  const UserDetails= {
+  const userDetails= {
     "id": 1,
     "username": "shoonya",
     "email": "shoonya@ai4bharat.org",
@@ -96,90 +104,10 @@ const loggedInUserData= {
     "prefer_cl_ui": false,
     "is_active": true
 };
-//   const UserDetails = useSelector((state) => state.fetchUserById.data);
-//   const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
-//   const loggedInUserData = useSelector((state) => state.fetchLoggedInUserData.data);
-//   const handleEmailToggle = async () => {
-//     setLoading(true);
-//     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
-//     const res = await fetch(mailObj.apiEndPoint(), {
-//       method: "POST",
-//       body: JSON.stringify(mailObj.getBody()),
-//       headers: mailObj.getHeaders().headers,
-//     });
-//     const resp = await res.json();
-//     setLoading(false);
-//     if (res.ok) {
-//       setSnackbarInfo({
-//         open: true,
-//         message: resp?.message,
-//         variant: "success",
-//       })
-//       const userObj = new FetchUserByIdAPI(id);
-//       dispatch(APITransport(userObj));
-//     } else {
-//       setSnackbarInfo({
-//         open: true,
-//         message: resp?.message,
-//         variant: "error",
-//       })
-//     }
-//   }
-console.log("kkkkkkkkkkk");
-
-  const renderSnackBar = () => {
-    return (
-      <CustomizedSnackbars
-        open={snackbar.open}
-        handleClose={() =>
-          setSnackbarInfo({ open: false, message: "", variant: "" })
-        }
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        variant={snackbar.variant}
-        message={snackbar.message}
-      />
-    );
-  };
-
-//   const onImageChangeHandler=async (event)=>{
-//     if(event.target.files && event.target.files.length!==0){
-//       setLoading(true);
-//       let pickedFile=event.target.files[0];
-//       const updateProfileImageAPIObj = new UpdateProfileImageAPI(LoggedInUserId,pickedFile);
-//       await axios.post(updateProfileImageAPIObj.apiEndPoint(), updateProfileImageAPIObj.getBody(), updateProfileImageAPIObj.getHeaders())
-//         .then(response => {
-//           console.log(response.status)
-//           if (response.status == 200 || response.status == 201) {
-//             const userObj = new FetchUserByIdAPI(id);
-//             dispatch(APITransport(userObj));
-//             setLoading(false);
-//             console.log("updateProfileImageData -----", response);
-//           } else {
-//             setLoading(false);
-//           }
-//         })
-//         .catch(err => {
-//           setLoading(false);
-//           console.log("err - ", err);
-//         })
-//       }
-//   }
-
-//   useEffect(() => {
-//     setLoading(true);
-//     const userObj = new FetchUserByIdAPI(id);
-//     dispatch(APITransport(userObj));
-//   }, [id]);
-
-  useEffect(() => {
-    console.log('useEffect triggered with userDetails:', "vvvvvvvvvvv");
-    if (UserDetails && UserDetails.id == id) {
-      setUserDetails(UserDetails);
-      setLoading(false);
-    }
-  }, [UserDetails,id]);
 
   return (
+    <ThemeProvider theme={themeDefault}>
+
     <Grid container spacing={2}>
       {loading && <Spinner />}
       {/* {renderSnackBar()} */}
@@ -279,20 +207,202 @@ console.log("kkkkkkkkkkk");
                 }   */}
             <Card sx={{ borderRadius: "5px", mb: 2 }}>
               {/* <ProfileDetails/> */}
-              MyProfile
+              <Grid
+        container
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Card
+          sx={{
+            // width: window.innerWidth * 0.8,
+            width: "100%",
+            minHeight: 500,
+            padding: 5,
+            border: 0,
+          }}
+        >
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <Typography variant="h3" align="center">
+                Profile Details
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="First Name"
+                name="first_name"
+                value={newDetails?.first_name}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Last Name"
+                name="last_name"
+                value={newDetails?.last_name}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Email"
+                value={email}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Phone"
+                name="phone"
+                value={newDetails?.phone}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Role"
+                value={UserMappedByRole(userDetails.role)?.name}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                required
+                fullWidth
+                label="Username"
+                name="username"
+                value={newDetails?.username}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Organization"
+                value={userDetails.organization?.title}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            
+            {/* <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <InputLabel id="availability-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Availability Status</InputLabel>
+              <Select
+                fullWidth
+                labelId="availability-label"
+                name="availability_status"
+                value={newDetails?.availability_status}
+                InputLabelProps={{ shrink: true }}
+              >
+                <MenuItem value="1">Available</MenuItem>
+                <MenuItem value="2">Unavailable</MenuItem>
+              </Select>
+            </Grid> */}
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Languages</InputLabel>
+              <Select
+                disabled
+                multiple
+                fullWidth
+                labelId="lang-label"
+                name="languages"
+                value={newDetails?.languages? newDetails.languages : []}
+                style={{zIndex: "0"}}
+                // MenuProps={MenuProps}
+                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} />
+                    ))}
+                  </Box>
+                )}
+              >
+                {initLangs?.length && initLangs.map((lang) => (
+                  <MenuItem
+                    key={lang}
+                    value={lang}
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Availability Status"
+                name="availability_status"
+                value={newDetails?.availability_status}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Participation Type</InputLabel>
+              <Select
+                disabled
+                fullWidth
+                labelId="lang-label"
+                name="participation_type"
+                value={newDetails?.participation_type? newDetails.participation_type : []}
+                style={{zIndex: "0"}}
+                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+              >
+                {participationType?.length && participationType.map((type,i) => (
+                  <MenuItem
+                    key={i+1}
+                    value={i+1}
+                  >
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid 
+                container 
+                direction="row"
+                justifyContent="flex-end"
+                style={{marginTop: 20}}
+            >
+                {LoggedInUserId === userDetails.id &&
+                    <Grid item>
+                        <CustomButton
+                        label="Edit Profile"
+                        // onClick={() => navigate("/edit-profile")}
+                        />
+                    </Grid> }
+            </Grid>
+          </Grid>
+        </Card>
+      </Grid>
+
             </Card>
           </Grid>
           {LoggedInUserId === userDetails?.id && (userRole.WorkspaceManager === loggedInUserData?.role || userRole.OrganizationOwner === loggedInUserData?.role || userRole.Admin === loggedInUserData?.role) &&
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
               <Card sx={{ borderRadius: "5px", mb: 2 }}>
-                {/* <ScheduleMails /> */}
-                ScheduleMails
+                <ScheduleMails />
               </Card>
             </Grid>
           }
         </>
       )}
     </Grid>
+    </ThemeProvider>
+
   )
 }
 

@@ -6,7 +6,7 @@ import { useState } from 'react';
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 // import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper } from '@mui/material';
-import MyProgress from '../progress/page';
+import MyProgress from '../components/Tabs/MyProgress';
 import RecentTasks from '../components/Tabs/RecentTasks';
 // import CustomButton from "../../component/common/Button";
 // import Spinner from "../../component/common/Spinner";
@@ -95,62 +95,6 @@ export default function ProgressPage () {
     "is_active": true
 };
 
-//   const UserDetails = useSelector((state) => state.fetchUserById.data);
-//   const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
-//   const loggedInUserData = useSelector((state) => state.fetchLoggedInUserData.data);
-//   const handleEmailToggle = async () => {
-//     setLoading(true);
-//     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
-//     const res = await fetch(mailObj.apiEndPoint(), {
-//         method: "POST",
-//         body: JSON.stringify(mailObj.getBody()),
-//         headers: mailObj.getHeaders().headers,
-//     });
-//     const resp = await res.json();
-//     setLoading(false);
-//     if (res.ok) {
-//         setSnackbarInfo({
-//             open: true,
-//             message: resp?.message,
-//             variant: "success",
-//         })
-//         const userObj = new FetchUserByIdAPI(id);
-//         dispatch(APITransport(userObj));
-//     } else {
-//         setSnackbarInfo({
-//             open: true,
-//             message: resp?.message,
-//             variant: "error",
-//         })
-//     }
-//   }
-
-//   const renderSnackBar = () => {
-//     return (
-//         <CustomizedSnackbars
-//             open={snackbar.open}
-//             handleClose={() =>
-//                 setSnackbarInfo({ open: false, message: "", variant: "" })
-//             }
-//             anchorOrigin={{ vertical: "top", horizontal: "right" }}
-//             variant={snackbar.variant}
-//             message={snackbar.message}
-//         />
-//     );
-//   };
-  
-//   useEffect(() => {
-//     setLoading(true);
-//     const userObj = new FetchUserByIdAPI(id);
-//     dispatch(APITransport(userObj));
-//   }, [id]);
-
-//   useEffect(() => {
-//     if(UserDetails && UserDetails.id == id) {
-//       setUserDetails(UserDetails);
-//       setLoading(false);
-//     }
-//   }, [UserDetails]);
 
   return (
       <Grid container spacing={2}>
@@ -172,7 +116,7 @@ export default function ProgressPage () {
                   <Card>
                     <CardContent>
                       <Typography variant="h4" sx={{mb: 1}}>Recent Tasks</Typography>
-                      {/* <RecentTasks />... */}
+                      <RecentTasks />
                     </CardContent>
                   </Card> 
               </Grid>
@@ -180,7 +124,7 @@ export default function ProgressPage () {
                 <Card sx={{ minWidth: 275, borderRadius: "5px" }}>
                   <CardContent>
                     <Typography variant="h4" sx={{mb: 1}}>My Progress</Typography>
-                    {/* <MyProgress />p */}
+                    <MyProgress />
                   </CardContent>
                 </Card>
               

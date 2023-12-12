@@ -108,9 +108,6 @@ const loggedInUserData= {
     "prefer_cl_ui": false,
     "is_active": true
 };
-
-//   const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-//   const workspaceData = useSelector(state => state.GetWorkspace.data);
   const workspaceData = [
 
     {
@@ -284,194 +281,69 @@ const loggedInUserData= {
     }
     
 ]
-//   const scheduledMails = useSelector(state => state.getScheduledMails.data);
 const scheduledMails = []
-  //const [requested, setRequested] = useState({ get: false, create: false, update: false, delete: false });
 
-//   const getWorkspaceData = () => {
-//     const workspaceObj = new GetWorkspaceAPI();
-//     dispatch(APITransport(workspaceObj));
-//   }
 
-//   const getScheduledMails = () => {
-//     const scheduledMailsObj = new GetScheduledMailsAPI(id);
-//     dispatch(APITransport(scheduledMailsObj));
-//   };
+  // useEffect(() => {
+  //   workspaceData && workspaceData.length > 0 && setWorkspaces(workspaceData);
+  // }, [workspaceData]);
 
-//   const createScheduledMail = () => {
-//     if (!reportLevel || !schedule || !selectedProjectType || (reportLevel === 2 && workspaceId === 0)) {
-//       setSnackbarState({
-//         open: true,
-//         message: "Invalid input",
-//         variant: "error",
-//       });
-//       return;
-//     }
-//     if (schedule === "Monthly" && (scheduleDay > 28 || scheduleDay < 1)) {
-//       setSnackbarState({
-//         open: true,
-//         message: "Day of month not in range",
-//         variant: "error",
-//       });
-//       return;
-//     }
-//     if (schedule === "Weekly" && (scheduleDay > 6 || scheduleDay < 0)) {
-//       setSnackbarState({
-//         open: true,
-//         message: "Day of week not in range",
-//         variant: "error",
-//       });
-//       return;
-//     }
-//     const scheduledMailsObj = new CreateScheduledMailsAPI(
-//       id,
-//       reportLevel === 1 ? userDetails?.organization?.id : workspaceId,
-//       reportLevel,
-//       selectedProjectType,
-//       schedule,
-//       scheduleDay
-//     );
-//     fetch(scheduledMailsObj.apiEndPoint(), {
-//       method: "POST",
-//       headers: scheduledMailsObj.getHeaders().headers,
-//       body: JSON.stringify(scheduledMailsObj.getBody()),
-//     })
-//       .then(async (res) => {
-//         if (!res.ok) throw res.status === 500 ? res : await res.json();
-//         else return res;
-//       })
-//       .then((res) => {
-//         setSnackbarState({
-//           open: true,
-//           message: "Scheduled mail request sent",
-//           variant: "success",
-//         });
-//         getScheduledMails();
-//       })
-//       .catch((err) => {
-//         setSnackbarState({ open: true, message: err.status === 500 ? "Unexpected error occurred" : err.message, variant: "error" });
-//       });
-//   };
-
-//   const updateScheduledMail = (mail) => {
-//     const scheduledMailsObj = new UpdateScheduledMailsAPI(
-//       id,
-//       mail.id,
-//     );
-//     fetch(scheduledMailsObj.apiEndPoint(), {
-//       method: "PATCH",
-//       headers: scheduledMailsObj.getHeaders().headers,
-//       body: JSON.stringify(scheduledMailsObj.getBody()),
-//     })
-//       .then(async (res) => {
-//         if (!res.ok) throw res.status === 500 ? res : await res.json();
-//         else return res;
-//       })
-//       .then((res) => {
-//         setSnackbarState({
-//           open: true,
-//           message: "Mail schedule updated",
-//           variant: "success",
-//         });
-//         getScheduledMails();
-//       })
-//       .catch((err) => {
-//         setSnackbarState({ open: true, message: err.status === 500 ? "Unexpected error occurred" : err.message, variant: "error" });
-//       });
-//   };
-
-//   const deleteScheduledMail = (mail) => {
-//     const scheduledMailsObj = new DeleteScheduledMailsAPI(
-//       id,
-//       mail.id,
-//     );
-//     fetch(scheduledMailsObj.apiEndPoint(), {
-//       method: "POST",
-//       headers: scheduledMailsObj.getHeaders().headers,
-//       body: JSON.stringify(scheduledMailsObj.getBody()),
-//     })
-//       .then(async (res) => {
-//         if (!res.ok) throw res.status === 500 ? res : await res.json();
-//         else return res;
-//       })
-//       .then((res) => {
-//         setSnackbarState({
-//           open: true,
-//           message: "Mail schedule deleted",
-//           variant: "success",
-//         });
-//         getScheduledMails();
-//       })
-//       .catch((err) => {
-//         setSnackbarState({ open: true, message: err.status === 500 ? "Unexpected error occurred" : err.message, variant: "error" });
-//       });
-//   };
-
-//   useEffect(() => {
-//     getWorkspaceData();
-//     getScheduledMails();
-//   }, []);
-
-  useEffect(() => {
-    workspaceData && workspaceData.length > 0 && setWorkspaces(workspaceData);
-  }, [workspaceData]);
-
-  useEffect(() => {
-    if (scheduledMails?.length) {
-      let tempColumns = [];
-      let tempSelected = [];
-      Object.keys(scheduledMails[0]).forEach((key) => {
-        tempColumns.push({
-          name: key,
-          label: key,
-          options: {
-            filter: false,
-            sort: true,
-            align: "center",
-          },
-        });
-        key !== "id" && tempSelected.push(key);
-      });
-      tempColumns.push({
-        name: "Actions",
-        label: "Actions",
-        options: {
-          filter: false,
-          sort: true,
-          align: "center",
-        },
-      });
-      tempSelected.push("Actions");
-      scheduledMails.map((mail) => {
-        mail.Actions = (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 2,
-            }}
-          >
-            <CustomButton
-              label={mail["Status"] === "Enabled" ? "Pause" : "Resume"}
-              onClick={() => updateScheduledMail(mail)} />
-            <CustomButton
-              label="Delete"
-              sx={{ backgroundColor: "#EC0000" }}
-              onClick={() => deleteScheduledMail(mail)} />
-          </Box>
-        );
-        return mail;
-      });
-      setColumns(tempColumns);
-      setTableData(scheduledMails);
-      setSelectedColumns(tempSelected);
-    } else {
-      setColumns([]);
-      setTableData([]);
-      setSelectedColumns([]);
-    }
-    setShowSpinner(false);
-  }, [scheduledMails]);
+  // useEffect(() => {
+  //   if (scheduledMails?.length) {
+  //     let tempColumns = [];
+  //     let tempSelected = [];
+  //     Object.keys(scheduledMails[0]).forEach((key) => {
+  //       tempColumns.push({
+  //         name: key,
+  //         label: key,
+  //         options: {
+  //           filter: false,
+  //           sort: true,
+  //           align: "center",
+  //         },
+  //       });
+  //       key !== "id" && tempSelected.push(key);
+  //     });
+  //     tempColumns.push({
+  //       name: "Actions",
+  //       label: "Actions",
+  //       options: {
+  //         filter: false,
+  //         sort: true,
+  //         align: "center",
+  //       },
+  //     });
+  //     tempSelected.push("Actions");
+  //     scheduledMails.map((mail) => {
+  //       mail.Actions = (
+  //         <Box
+  //           sx={{
+  //             display: "flex",
+  //             justifyContent: "space-between",
+  //             gap: 2,
+  //           }}
+  //         >
+  //           <CustomButton
+  //             label={mail["Status"] === "Enabled" ? "Pause" : "Resume"}
+  //             onClick={() => updateScheduledMail(mail)} />
+  //           <CustomButton
+  //             label="Delete"
+  //             sx={{ backgroundColor: "#EC0000" }}
+  //             onClick={() => deleteScheduledMail(mail)} />
+  //         </Box>
+  //       );
+  //       return mail;
+  //     });
+  //     setColumns(tempColumns);
+  //     setTableData(scheduledMails);
+  //     setSelectedColumns(tempSelected);
+  //   } else {
+  //     setColumns([]);
+  //     setTableData([]);
+  //     setSelectedColumns([]);
+  //   }
+  //   setShowSpinner(false);
+  // }, [scheduledMails]);
 
   const renderToolBar = () => {
     return (
