@@ -3,6 +3,8 @@ import { Button, Grid, Typography, Card, Tab, Tabs, Box } from "@mui/material"
 import { useState } from 'react'
 import DatasetStyle from "@/styles/Dataset";
 import MUIDataTable from "mui-datatables";
+import CustomButton from "../components/common/Button";
+import Link from "next/link";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -139,13 +141,12 @@ export default function Organization() {
         return manager.username
       }).join(", "),
       el.created_by && el.created_by.username,
-      <div key={i}>view</div>
-      // <Link to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
-      //   <CustomButton
-      //     sx={{ borderRadius: 2 }}
-      //     label="View"
-      //   />
-      // </Link>
+      <Link key={i} href={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
+        <CustomButton
+          sx={{ borderRadius: 2 }}
+          label="View"
+        />
+      </Link>
     ]
   }) : [];
 
