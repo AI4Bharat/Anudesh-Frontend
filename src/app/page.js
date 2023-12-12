@@ -10,6 +10,10 @@ export default function Home() {
       <h3><Link href="/invite">Sign-Up</Link></h3>
       <h3><Link href="/forgot-password">Forgot Password</Link></h3>
       <h3><Link href="/dataset">Dataset</Link></h3>
+      <h3><Link href="/projects">Projects</Link></h3>
+      <h3><Link href="/change-password">Change Password</Link></h3>
+      <h3><Link href="/profile">My Profile</Link></h3>
+      <h3><Link href="/progress">My Progress</Link></h3>
     </main>
   )
 }  
