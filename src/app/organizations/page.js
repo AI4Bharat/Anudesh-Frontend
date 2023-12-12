@@ -1,5 +1,5 @@
 'use client';
-import { Button, Grid, Typography, Card, Tab, Tabs, Box, Dialog, DialogTitle, DialogContent, TextField, FormControlLabel, Switch, DialogActions } from "@mui/material"
+import { Button, Grid, Typojgraphy, Card, Tab, Tabs, Box, Dialog, DialogTitle, DialogContent, TextField, FormControlLabel, Switch, DialogActions } from "@mui/material"
 import { useState } from 'react'
 import DatasetStyle from "@/styles/Dataset";
 import MUIDataTable from "mui-datatables";
@@ -230,3 +230,5 @@ export default function Organization() {
     </Grid>
   )
 }
+
+export default MyOrganization;
