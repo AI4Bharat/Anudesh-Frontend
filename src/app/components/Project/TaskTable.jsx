@@ -1296,9 +1296,9 @@ const userDetails= {
     }
   }
 
-  useEffect(() => {
-    localStorage.setItem("Stage", props.type);
-  },[]);
+  // useEffect(() => {
+  //   localStorage.setItem("Stage", props.type);
+  // },[]);
   
   const customColumnHead = (col) => {
     return (
@@ -1347,214 +1347,214 @@ const userDetails= {
   //       : selectedFilters.review_status
   //   );
   // }, [selectedFilters]);
-  useEffect(() => {
-    if (taskList?.length > 0 && taskList[0]?.data) {
-      const data = taskList.map((el) => {
-        const email = props.type === "review" ? el.annotator_mail : "";
-        let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
-        row.push(
-          ...Object.keys(el.data)
-            .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key])
-        );
-        props.type === "annotation" &&
-          taskList[0].annotation_status &&
-          row.push(el.annotation_status);
-        props.type === "review" &&
-          taskList[0].review_status &&
-          row.push(el.review_status);
-        props.type === "annotation" &&
-          row.push(
-            <Link
-              to={ProjectDetails?.project_type?.includes("Acoustic")
-              ? `AudioTranscriptionLandingPage/${el.id}` : `task/${el.id}`} className={classes.link}>
-              <CustomButton
-                onClick={() => {
-                  console.log("task id === ", el.id);
-                  localStorage.removeItem("labelAll");
-                }}
-                disabled={ ProjectDetails.is_archived }
-                sx={{ p: 1, borderRadius: 2 }}
-                label={
-                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
-                    {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
-                      (ProjectDetails.project_mode === "Annotation"
-                        ? "Annotate"
-                        : "Edit")
-                      : "View"
-                    }
-                  </Typography>
-                }
-              />
-            </Link>
-          );
-        props.type === "review" &&
-          row.push(
-            <Link
-              to={ProjectDetails?.project_type?.includes("Acoustic")
-              ? `ReviewAudioTranscriptionLandingPage/${el.id}` : `review/${el.id}`} className={classes.link}>
-              <CustomButton
-                disabled={ ProjectDetails.is_archived}
-                onClick={() => {
-                  console.log("task id === ", el.id);
-                  localStorage.removeItem("labelAll");
-                }}
-                sx={{ p: 1, borderRadius: 2 }}
-                label={
-                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
-                    Review
-                  </Typography>
-                }
-              />
-            </Link>
-          );
-        return row;
-      });
+  // useEffect(() => {
+  //   if (taskList?.length > 0 && taskList[0]?.data) {
+  //     const data = taskList.map((el) => {
+  //       const email = props.type === "review" ? el.annotator_mail : "";
+  //       let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
+  //       row.push(
+  //         ...Object.keys(el.data)
+  //           .filter((key) => !excludeCols.includes(key))
+  //           .map((key) => el.data[key])
+  //       );
+  //       props.type === "annotation" &&
+  //         taskList[0].annotation_status &&
+  //         row.push(el.annotation_status);
+  //       props.type === "review" &&
+  //         taskList[0].review_status &&
+  //         row.push(el.review_status);
+  //       props.type === "annotation" &&
+  //         row.push(
+  //           <Link
+  //             to={ProjectDetails?.project_type?.includes("Acoustic")
+  //             ? `AudioTranscriptionLandingPage/${el.id}` : `task/${el.id}`} className={classes.link}>
+  //             <CustomButton
+  //               onClick={() => {
+  //                 console.log("task id === ", el.id);
+  //                 localStorage.removeItem("labelAll");
+  //               }}
+  //               disabled={ ProjectDetails.is_archived }
+  //               sx={{ p: 1, borderRadius: 2 }}
+  //               label={
+  //                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+  //                   {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
+  //                     (ProjectDetails.project_mode === "Annotation"
+  //                       ? "Annotate"
+  //                       : "Edit")
+  //                     : "View"
+  //                   }
+  //                 </Typography>
+  //               }
+  //             />
+  //           </Link>
+  //         );
+  //       props.type === "review" &&
+  //         row.push(
+  //           <Link
+  //             to={ProjectDetails?.project_type?.includes("Acoustic")
+  //             ? `ReviewAudioTranscriptionLandingPage/${el.id}` : `review/${el.id}`} className={classes.link}>
+  //             <CustomButton
+  //               disabled={ ProjectDetails.is_archived}
+  //               onClick={() => {
+  //                 console.log("task id === ", el.id);
+  //                 localStorage.removeItem("labelAll");
+  //               }}
+  //               sx={{ p: 1, borderRadius: 2 }}
+  //               label={
+  //                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+  //                   Review
+  //                 </Typography>
+  //               }
+  //             />
+  //           </Link>
+  //         );
+  //       return row;
+  //     });
       // let colList = ["id"];
       // colList.push(...Object.keys(taskList[0].data).filter(el => !excludeCols.includes(el) && !el.includes("_json")));
 
-      const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail")
-      const email = props.type === "review" && annotatorEmail ? "Annotator Email" : "";
-      let colList = ["id", ...(!!email ? [email] : [])];
-      colList.push(
-        ...Object.keys(taskList[0].data).filter(
-          (el) => !excludeCols.includes(el)
-        )
-      );
-      taskList[0].task_status && colList.push("status");
-      colList.push("actions");
-      const cols = colList.map((col) => {
-        return {
-          name: col,
-          label: snakeToTitleCase(col),
-          options: {
-            filter: false,
-            sort: false,
-            align: "center",
-            customHeadLabelRender: customColumnHead,
-          },
-        };
-      });
-      console.log("colss", cols);
-      setColumns(cols);
-      setSelectedColumns(colList);
-      setTasks(data);
-      console.log(colList, "colListcolList");
-    } else {
-      setTasks([]);
-    }
-  }, [taskList, ProjectDetails]);
+  //     const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail")
+  //     const email = props.type === "review" && annotatorEmail ? "Annotator Email" : "";
+  //     let colList = ["id", ...(!!email ? [email] : [])];
+  //     colList.push(
+  //       ...Object.keys(taskList[0].data).filter(
+  //         (el) => !excludeCols.includes(el)
+  //       )
+  //     );
+  //     taskList[0].task_status && colList.push("status");
+  //     colList.push("actions");
+  //     const cols = colList.map((col) => {
+  //       return {
+  //         name: col,
+  //         label: snakeToTitleCase(col),
+  //         options: {
+  //           filter: false,
+  //           sort: false,
+  //           align: "center",
+  //           customHeadLabelRender: customColumnHead,
+  //         },
+  //       };
+  //     });
+  //     console.log("colss", cols);
+  //     setColumns(cols);
+  //     setSelectedColumns(colList);
+  //     setTasks(data);
+  //     console.log(colList, "colListcolList");
+  //   } else {
+  //     setTasks([]);
+  //   }
+  // }, [taskList, ProjectDetails]);
 
-  useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-    console.log("columnss", newCols);
-  }, [selectedColumns]);
+  // useEffect(() => {
+  //   const newCols = columns.map((col) => {
+  //     col.options.display = selectedColumns.includes(col.name)
+  //       ? "true"
+  //       : "false";
+  //     return col;
+  //   });
+  //   setColumns(newCols);
+  //   console.log("columnss", newCols);
+  // }, [selectedColumns]);
 
-  useEffect(() => {
-    if (ProjectDetails) {
-      if (props.type === "review" && ProjectDetails.labeled_task_count === 0 ||  ProjectDetails.is_archived )
-        setPullDisabled("No more unassigned tasks in this project");
-      else if (pullDisabled === "No more unassigned tasks in this project")
-        setPullDisabled("");
-    }
-  }, [ProjectDetails.labeled_task_count]);
+  // useEffect(() => {
+  //   if (ProjectDetails) {
+  //     if (props.type === "review" && ProjectDetails.labeled_task_count === 0 ||  ProjectDetails.is_archived )
+  //       setPullDisabled("No more unassigned tasks in this project");
+  //     else if (pullDisabled === "No more unassigned tasks in this project")
+  //       setPullDisabled("");
+  //   }
+  // }, [ProjectDetails.labeled_task_count]);
 
-  useEffect(() => {
-    if (ProjectDetails) {
-      if (
-        props.type === "annotation" &&
-        ProjectDetails.unassigned_task_count === 0 || ProjectDetails.is_archived
-      )
-        setPullDisabled("No more unassigned tasks in this project");
-      else if (pullDisabled === "No more unassigned tasks in this project")
-        setPullDisabled("");
+  // useEffect(() => {
+  //   if (ProjectDetails) {
+  //     if (
+  //       props.type === "annotation" &&
+  //       ProjectDetails.unassigned_task_count === 0 || ProjectDetails.is_archived
+  //     )
+  //       setPullDisabled("No more unassigned tasks in this project");
+  //     else if (pullDisabled === "No more unassigned tasks in this project")
+  //       setPullDisabled("");
 
-      ProjectDetails.frozen_users?.forEach((user) => {
-        if (user.id === userDetails?.id)
-          setPullDisabled("You're no more a part of this project");
-        else if (pullDisabled === "You're no more a part of this project")
-          setPullDisabled("");
-      });
-      setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
-    }
-  }, [
-    ProjectDetails.unassigned_task_count,
-    ProjectDetails.frozen_users,
-    ProjectDetails.tasks_pull_count_per_batch,
-    userDetails,
-  ]);
+  //     ProjectDetails.frozen_users?.forEach((user) => {
+  //       if (user.id === userDetails?.id)
+  //         setPullDisabled("You're no more a part of this project");
+  //       else if (pullDisabled === "You're no more a part of this project")
+  //         setPullDisabled("");
+  //     });
+  //     setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
+  //   }
+  // }, [
+  //   ProjectDetails.unassigned_task_count,
+  //   ProjectDetails.frozen_users,
+  //   ProjectDetails.tasks_pull_count_per_batch,
+  //   userDetails,
+  // ]);
 
-  useEffect(() => {
-    if (
-      totalTaskCount &&
-      ((props.type === "annotation" &&
-        selectedFilters.annotation_status === "unlabeled") ||
-        (props.type === "review" &&
-          selectedFilters.review_status === "unreviewed")) &&
-      totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
-      Object.keys(selectedFilters).filter((key) =>
-        key.startsWith("search_")
-      ) === []
-    ) {
-      setPullDisabled(
-        `You have too many ${
-          props.type === "annotation"
-          ? selectedFilters.annotation_status
-          : selectedFilters.review_status
-        } tasks`
-      );
-    } else if (
-      pullDisabled === "You have too many unlabeled tasks" ||
-      pullDisabled === "You have too many labeled tasks"
-    ) {
-      setPullDisabled("");
-    }
-  }, [
-    totalTaskCount,
-    ProjectDetails.max_pending_tasks_per_user,
-    selectedFilters,
-  ]);
+  // useEffect(() => {
+  //   if (
+  //     totalTaskCount &&
+  //     ((props.type === "annotation" &&
+  //       selectedFilters.annotation_status === "unlabeled") ||
+  //       (props.type === "review" &&
+  //         selectedFilters.review_status === "unreviewed")) &&
+  //     totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
+  //     Object.keys(selectedFilters).filter((key) =>
+  //       key.startsWith("search_")
+  //     ) === []
+  //   ) {
+  //     setPullDisabled(
+  //       `You have too many ${
+  //         props.type === "annotation"
+  //         ? selectedFilters.annotation_status
+  //         : selectedFilters.review_status
+  //       } tasks`
+  //     );
+  //   } else if (
+  //     pullDisabled === "You have too many unlabeled tasks" ||
+  //     pullDisabled === "You have too many labeled tasks"
+  //   ) {
+  //     setPullDisabled("");
+  //   }
+  // }, [
+  //   totalTaskCount,
+  //   ProjectDetails.max_pending_tasks_per_user,
+  //   selectedFilters,
+  // ]);
 
-  useEffect(() => {
-    if (
-      ((props.type === "annotation" &&
-        selectedFilters.annotation_status === "unlabeled") ||
-        (props.type === "review" &&
-          selectedFilters.review_status === "unreviewed")) &&
-      totalTaskCount === 0 ||   ProjectDetails.is_archived
-    ) {
-      setDeallocateDisabled("No more tasks to deallocate");
-    } else if (deallocateDisabled === "No more tasks to deallocate") {
-      setDeallocateDisabled("");
-    }
-  }, [totalTaskCount, selectedFilters,ProjectDetails]);
+  // useEffect(() => {
+  //   if (
+  //     ((props.type === "annotation" &&
+  //       selectedFilters.annotation_status === "unlabeled") ||
+  //       (props.type === "review" &&
+  //         selectedFilters.review_status === "unreviewed")) &&
+  //     totalTaskCount === 0 ||   ProjectDetails.is_archived
+  //   ) {
+  //     setDeallocateDisabled("No more tasks to deallocate");
+  //   } else if (deallocateDisabled === "No more tasks to deallocate") {
+  //     setDeallocateDisabled("");
+  //   }
+  // }, [totalTaskCount, selectedFilters,ProjectDetails]);
 
-  useEffect(() => {
-    if (ProjectDetails?.project_type?.includes("Acoustic")) {
-      if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-        navigate(
-          `/projects/${id}/${props.type === "annotation" ? "AudioTranscriptionLandingPage" : "ReviewAudioTranscriptionLandingPage"}/${
-            NextTask?.id
-          }`
-        );
-      }
-    }else{
-      if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-        navigate(
-          `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
-          NextTask?.id
-          }`
-        );
-      }
-    }
-    //TODO: display no more tasks message
-  }, [NextTask]);
+  // useEffect(() => {
+  //   if (ProjectDetails?.project_type?.includes("Acoustic")) {
+  //     if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+  //       navigate(
+  //         `/projects/${id}/${props.type === "annotation" ? "AudioTranscriptionLandingPage" : "ReviewAudioTranscriptionLandingPage"}/${
+  //           NextTask?.id
+  //         }`
+  //       );
+  //     }
+  //   }else{
+  //     if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+  //       navigate(
+  //         `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
+  //         NextTask?.id
+  //         }`
+  //       );
+  //     }
+  //   }
+  //   //TODO: display no more tasks message
+  // }, [NextTask]);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -1576,74 +1576,7 @@ const userDetails= {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
-        {/* {props.ProjectDetails?.project_type ===
-          "ContextualTranslationEditing" && (
-          <>
-            {(props.type === "annotation" || props.type === "review") &&
-              ((props.type === "annotation" &&
-                selectedFilters.annotation_status === "labeled") ||
-                selectedFilters.review_status === "accepted" ||
-                selectedFilters.accepted_with_changes ===
-                  "accepted_with_changes") && (
-                <Grid container justifyContent="start" alignItems="center">
-                  <Grid>
-                    <Typography
-                      variant="body2"
-                      fontWeight="700"
-                      label="Required"
-                    >
-                      Find :
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <OutlinedTextField
-                      size="small"
-                      name="find"
-                      InputProps={{
-                        style: { fontSize: "14px", width: "150px" },
-                      }}
-                      value={find}
-                      onChange={(e) => setFind(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid>
-                    <Typography
-                      variant="body2"
-                      fontWeight="700"
-                      label="Required"
-                    >
-                      Replace :
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <OutlinedTextField
-                      size="small"
-                      name="replace"
-                      InputProps={{
-                        style: { fontSize: "14px", width: "150px" },
-                      }}
-                      value={replace}
-                      onChange={(e) => setReplace(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid>
-                    <CustomButton
-                      sx={{
-                        inlineSize: "max-content",
-                        width: "50px",
-                        borderRadius: "20px",
-                        
-                      }}
-                      onClick={handleOpenFindAndReplace}
-                      label="Submit"
-                      disabled={find && replace  ? false : true}
-
-                    />
-                  </Grid>
-                </Grid>
-              )}
-          </>
-        )} */}
+        
 
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role || roles?.OrganizationOwner === userDetails?.role || roles?.Admin === userDetails?.role )  &&

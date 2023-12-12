@@ -25,22 +25,6 @@ export default function ProjectList() {
     project_user_type: "",
     archived_projects: "",
   });
-//   const apiLoading = useSelector((state) => state.apiStatus.loading);
-//   const projectData = useSelector((state) => state.getProjects.data);
-  
-//   const getDashboardprojectData = () => {
-//     setLoading(true);
-//     const projectObj = new GetProjectsAPI(selectedFilters);
-//     dispatch(APITransport(projectObj));
-//   };
-
-//   useEffect(() => {
-//     setLoading(false);
-//   }, [projectData]);
-
-//   useEffect(() => {
-//     getDashboardprojectData();
-//   }, [selectedFilters]);
 
   const handleProjectlist = () => {
     setRadiobutton(true);

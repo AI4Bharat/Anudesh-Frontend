@@ -126,17 +126,7 @@ import {
     const handleClose = () => {
       setAnchorEl(null);
     };
-    // const dispatch = useDispatch();
-    // const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-    // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-    // const loggedInUserData = useSelector(
-    //   (state) => state.fetchLoggedInUserData.data
-    // );
-    // const getProjectDetails = () => {
-    //   const projectObj = new GetProjectDetailsAPI(id);
-  
-    //   dispatch(APITransport(projectObj));
-    // };
+
     
     const userDetails= {
       "id": 1,
@@ -283,52 +273,12 @@ import {
       "reviewed_task_count": 0
   }
   console.log(ProjectDetails);
-    useEffect(() => {
-      // getProjectDetails();
-      const projectStatus = ProjectDetails.is_archived
-        ? "Archived"
-        : ProjectDetails.is_published
-          ? "Published"
-           :"Draft";
-      setProjectData([
-        {
-          name: "Project ID",
-          value: ProjectDetails.id,
-        },
-        {
-          name: "Description",
-          value: ProjectDetails.description,
-        },
-        {
-          name: "Project Type",
-          value: ProjectDetails.project_type,
-        },
-        {
-          name: "Status",
-          value: projectStatus,
-        },
-        {
-          name: "Unassigned Annotation Tasks",
-          value: ProjectDetails.unassigned_task_count,
-        },
-        {
-          name: "Unassigned Review Tasks",
-          value: ProjectDetails.labeled_task_count,
-        },
-  
-        {
-          name: "Unassigned Super Check Tasks",
-          value: ProjectDetails.reviewed_task_count,
-        },
-      ]);
-    }, [ProjectDetails.id]);
     const [loading, setLoading] = useState(false);
-    const [annotationreviewertype, setAnnotationreviewertype] = useState();
+    const [annotationreviewertype, setAnnotationreviewertype] = useState("Annotation Reports");
     const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
       setValue(newValue);
     };
-    // const apiLoading = useSelector((state) => state.apiStatus.loading);
   
     const isAnnotators =
       (userRole.WorkspaceManager === loggedInUserData?.role ||
@@ -356,10 +306,7 @@ import {
       userRole.OrganizationOwner === loggedInUserData?.role ||
       userRole.Admin === loggedInUserData?.role;
   
-  
-    // useEffect(() => {
-    //   setLoading(apiLoading);
-    // }, [apiLoading]);
+
   
     let projectdata = ProjectDetails?.annotators?.filter((x) => {
       return ProjectDetails?.annotation_reviewers?.find(
@@ -377,13 +324,6 @@ import {
     let reviewerdata = ProjectDetails?.annotation_reviewers?.filter(
       (x) => x.id == userDetails.id
     );
-    useEffect(() => {
-      if (annotationdata?.length && !reviewerdata?.length) {
-        setAnnotationreviewertype("Annotation Reports");
-      } else if (reviewerdata?.length && !annotationdata?.length) {
-        setAnnotationreviewertype("Reviewer Reports");
-      }
-    }, [annotationdata, reviewerdata]);
   
     const handleOpenSettings = () => {
       navigate(`/projects/${id}/projectsetting`);
