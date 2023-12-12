@@ -9,7 +9,7 @@ export default function Home() {
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
                 <div className="pt-8 pb-16 flex justify-between px-16">
                     <img src="https://i.imgur.com/56Ut9oz.png" width="90px"></img>
-                    <div className="flex gap-4">
+                    <div className="flex gap-6">
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
                     </div>

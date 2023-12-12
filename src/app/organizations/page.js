@@ -1,10 +1,11 @@
 'use client';
-import { Button, Grid, Typography, Card, Tab, Tabs, Box } from "@mui/material"
+import { Button, Grid, Typography, Card, Tab, Tabs, Box, Dialog, DialogTitle, DialogContent, TextField, FormControlLabel, Switch, DialogActions } from "@mui/material"
 import { useState } from 'react'
 import DatasetStyle from "@/styles/Dataset";
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../components/common/Button";
 import Link from "next/link";
+import AddWorkspaceDialog from "./AddWorkspaceDialog";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -33,12 +34,19 @@ export default function Organization() {
     setValue(newValue);
   };
   const classes = DatasetStyle();
+  const [addWorkspacesDialogOpen, setAddWorkspacesDialogOpen] = useState(false);
   const CustomButton = ({ label, buttonVariant, color, disabled = false, ...rest }) => (
     <Button {...rest} variant={buttonVariant ? buttonVariant : "contained"} color={color ? color : "primary"} disabled={disabled}>
       {label}
     </Button>
   );
+  const handleWorkspaceDialogClose = () => {
+    setAddWorkspacesDialogOpen(false);
+  };
 
+  const handleWorkspaceDialogOpen = () => {
+    setAddWorkspacesDialogOpen(true);
+  };
 
   const columns = [
     {
@@ -200,7 +208,13 @@ export default function Organization() {
         >
           <CustomButton
             label="Add New Workspace"
+            onClick={handleWorkspaceDialogOpen}
             sx={{ width: "100%", mb: 2 }}
+          />
+          <AddWorkspaceDialog
+            dialogCloseHandler={handleWorkspaceDialogClose}
+            isOpen={addWorkspacesDialogOpen}
+            orgId={0} //to be changed
           />
           {/* <Grid sx={{ mb: 1 }}>
                 <Search />
