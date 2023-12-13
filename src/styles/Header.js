@@ -4,14 +4,14 @@ import { padding } from '@mui/system';
 const headerStyle = makeStyles({
     parentContainer: {
         // flexGrow : 1,
-        marginBottom : window.innerHeight*0.13,
-        width : window.innerWidth*0.98,
+        // marginBottom : window.innerHeight*0.13,
+        // width : window.innerWidth*0.98,
       
        
     },
     AudioparentContainers:{
-        marginBottom : window.innerHeight*0.1,
-        width : window.innerWidth*0.98,
+        // marginBottom : window.innerHeight*0.1,
+        // width : window.innerWidth*0.98,
     },
     appBar: {
         // backgroundColor: "#ffffff", 
