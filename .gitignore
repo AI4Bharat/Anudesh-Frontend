@@ -23,3 +23,5 @@ npm-debug.log*
 
 # vercel
 .vercel
+
+/src/firebase.js

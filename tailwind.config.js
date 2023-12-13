@@ -2,6 +2,7 @@
 module.exports = {
   content: [
     './src/app/home/page.js',
+    './src/app/login/page.js',
   ],
   theme: {
     extend: {
