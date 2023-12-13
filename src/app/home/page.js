@@ -9,7 +9,7 @@ export default function Home() {
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
                 <div className="pt-8 pb-16 flex justify-between px-16">
                     <img src="https://i.imgur.com/56Ut9oz.png" width="90px"></img>
-                    <div className="flex gap-4">
+                    <div className="flex gap-6">
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
                     </div>
@@ -105,14 +105,14 @@ export default function Home() {
                     </svg>
                     <div className="pr-40 my-auto">
                         <div className="text-4xl font-semibold text-gray-700 mb-12">Rate Model Performance</div>
-                        <div className="text-2xl text-gray-500 font-light px-20">How does it work? It's simple yet extraordinary! Our chatbot draws responses from three distinct models, each with its unique capabilities. These models are meticulously crafted and fine-tuned to provide you with the most informative, engaging, and relevant conversations.</div>
+                        <div className="text-2xl text-gray-500 font-light px-20">How does it work? It&apos;s simple yet extraordinary! Our chatbot draws responses from three distinct models, each with its unique capabilities. These models are meticulously crafted and fine-tuned to provide you with the most informative, engaging, and relevant conversations.</div>
                     </div>
                 </div>
             </div>
 
             <div className="text-center py-20">
                 <div className="text-orange-600 text-6xl font-medium">What is Anudesh?</div>
-                <div className="text-2xl text-gray-500 font-light pt-20 px-96">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</div>
+                <div className="text-2xl text-gray-500 font-light pt-20 px-96">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&apos;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</div>
             </div>
             <div className="text-center bg-stone-800 py-6">
                 <div className="text-white text-2xl font-medium">ANUDESH - Developed at AI4Bharat Lab</div>

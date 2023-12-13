@@ -6,10 +6,12 @@ import { useState } from "react";
 import CustomButton from "../components/common/Button";
 import DatasetCardList from "./DatasetCardList";
 import DatasetCard from "./DatasetCard";
+import { useRouter } from "next/navigation";
 
 export default function Dataset() {
     const classes = DatasetStyle();
     const [radiobutton, setRadiobutton] = useState(true);
+    const router = useRouter();
 
     const handleProjectlist = () => {
         setRadiobutton(true);
@@ -17,36 +19,42 @@ export default function Dataset() {
     const handleProjectcard = () => {
         setRadiobutton(false);
     };
+    const handleCreateProject = (e) => {
+        router.push(`/dataset/create-dataset/`);
+    };
+    const handleAutomateButton = (e) => {
+        navigate("/datasets/automate");
+    };
 
     const datasetList = [{
         "instance_id": 1,
         "instance_name": "English-Wikipedia-History-1",
         "dataset_type": "SentenceText"
-    },{
+    }, {
         "instance_id": 2,
         "instance_name": "English-Wikipedia-History-2",
         "dataset_type": "TranslationPair"
-    },{
+    }, {
         "instance_id": 3,
         "instance_name": "English-Wikipedia-History-3",
         "dataset_type": "SentenceText"
-    },{
+    }, {
         "instance_id": 4,
         "instance_name": "English-Wikipedia-History-4",
         "dataset_type": "TranslationPair"
-    },{
+    }, {
         "instance_id": 5,
         "instance_name": "English-Wikipedia-History-5",
         "dataset_type": "SentenceText"
-    },{
+    }, {
         "instance_id": 6,
         "instance_name": "English-Wikipedia-History-6",
         "dataset_type": "TranslationPair"
-    },{
+    }, {
         "instance_id": 7,
         "instance_name": "English-Wikipedia-History-7",
         "dataset_type": "SentenceText"
-    },{
+    }, {
         "instance_id": 8,
         "instance_name": "English-Wikipedia-History-8",
         "dataset_type": "TranslationPair"
@@ -55,7 +63,7 @@ export default function Dataset() {
     const [selectedFilters, setsSelectedFilters] = useState({
         dataset_visibility: "",
         dataset_type: "",
-      });
+    });
 
     return (
         <>
@@ -101,7 +109,7 @@ export default function Dataset() {
                         mb: 2,
                         justifyContent: "flex-end",
                     }}
-                    // onClick={handleCreateProject}
+                    onClick={handleCreateProject}
                     label="Create New Dataset Instance"
                 />
                 <CustomButton
@@ -114,7 +122,7 @@ export default function Dataset() {
                         justifyContent: "flex-end",
                     }}
                     // disabled={userRole.Admin === loggedInUserData?.role ? false : true}
-                    // onClick={handleAutomateButton}
+                    onClick={handleAutomateButton}
                     label="Automate Datasets"
                 />
                 <Box sx={{ p: 1 }}>
