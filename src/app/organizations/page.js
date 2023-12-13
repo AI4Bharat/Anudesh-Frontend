@@ -1,9 +1,8 @@
 'use client';
-import { Button, Grid, Typojgraphy, Card, Tab, Tabs, Box, Dialog, DialogTitle, DialogContent, TextField, FormControlLabel, Switch, DialogActions } from "@mui/material"
+import { Button, Grid, Typography, Card, Tab, Tabs, Box} from "@mui/material"
 import { useState } from 'react'
 import DatasetStyle from "@/styles/Dataset";
 import MUIDataTable from "mui-datatables";
-import CustomButton from "../components/common/Button";
 import Link from "next/link";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
 
@@ -230,5 +229,3 @@ export default function Organization() {
     </Grid>
   )
 }
-
-export default MyOrganization;
