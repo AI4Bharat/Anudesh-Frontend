@@ -1,36 +1,23 @@
 'use client';
 import React, { useState,useEffect } from 'react';
-// import { useNavigate, useParams } from 'react-router-dom';
-// import FetchUserByIdAPI from '../../../../redux/actions/api/UserManagement/FetchUserById';
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
-// import { useDispatch, useSelector } from "react-redux";
-import { Avatar,Select,OutlinedInput,MenuItem, IconButton, ThemeProvider,Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper,InputLabel } from '@mui/material';
+import { Avatar,Select,OutlinedInput,MenuItem, IconButton, Box,ThemeProvider,Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper,InputLabel } from '@mui/material';
 import { Input, inputClasses } from '@mui/base/Input';
 import themeDefault from "../../themes/theme";
-
 import OutlinedTextField from "../components/common/OutlinedTextField";
-// import MyProgress from '../progress/page';
-// import RecentTasks from '../components/Tabs/RecentTasks';
 import CustomButton from "../components/common/Button";
 import Spinner from "../components/common/Spinner";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import UserMappedByRole from '../../utils/UserMappedByRole';
 import {participationType} from '../../config/dropDownValues';
-// import ToggleMailsAPI from '../../../../redux/actions/api/UserManagement/ToggleMails';
-// import UpdateProfileImageAPI from '../../../../redux/actions/api/UserManagement/UpdateProfileImage'
 import CustomizedSnackbars from "../components/common/Snackbar";
 import userRole from "../../utils/Role";
 import ProfileDetails from "../components/UserManagement/ProfileDetails"
 import ScheduleMails from "../components/UserManagement/ScheduleMails"
-// import axios from 'axios';
 
 export default function ProfilePage () {
 
   const id=1;
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-  // const [userDetails, setUserDetails] = useState(null);
   const [newDetails, setNewDetails] = useState();
   const [email, setEmail] = useState("");
   const [originalEmail, setOriginalEmail] = useState("");
@@ -297,19 +284,7 @@ const loggedInUserData= {
               ></OutlinedTextField>
             </Grid>
             
-            {/* <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <InputLabel id="availability-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Availability Status</InputLabel>
-              <Select
-                fullWidth
-                labelId="availability-label"
-                name="availability_status"
-                value={newDetails?.availability_status}
-                InputLabelProps={{ shrink: true }}
-              >
-                <MenuItem value="1">Available</MenuItem>
-                <MenuItem value="2">Unavailable</MenuItem>
-              </Select>
-            </Grid> */}
+          
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
               <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Languages</InputLabel>
               <Select

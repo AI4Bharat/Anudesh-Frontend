@@ -7,7 +7,6 @@ import {
   ListItemText,
   makeStyles,
   Grid,
-  Link,
   AppBar, 
   Divider,
   Avatar,
@@ -16,9 +15,10 @@ import {
   FormControlLabel,
   Checkbox
 } from "@material-ui/core";
+import Link from "next/link";
+import Image from "next/image";
 import MenuIcon from "@material-ui/icons/Menu";
-// import { NavLink } from "react-router-dom";
-// import Shoonya_Logo from "../../../../assets/Shoonya_Logo.png";
+
 import headerStyle from "../../../styles/Header";
 
 const useStyles = makeStyles(() => ({
@@ -69,7 +69,7 @@ function MobileNavbar(props) {
             }}
         >
             <Box>
-                <NavLink to="/profile" onClick={() => setOpenDrawer(false)} style={{
+                <Link href="/profile" onClick={() => setOpenDrawer(false)} style={{
                     textDecoration: "none"
                 }}>
                     <Box
@@ -95,7 +95,7 @@ function MobileNavbar(props) {
                             {loggedInUserData.username}
                         </Typography>
                     </Box>
-                </NavLink>
+                </Link>
                 <Divider />
             </Box>
             <Box>
@@ -160,7 +160,7 @@ function MobileNavbar(props) {
         > 
             <Grid item sx={{ display: "flex", alignItems: "center" }}>
                 <Link to="/projects">
-                    <img src={Shoonya_Logo} alt="logo" className={classes.headerLogo} style={{marginBottom: "5%"}} />
+                    <Image src={Shoonya_Logo} alt="logo" className={classes.headerLogo} style={{marginBottom: "5%"}} />
                 </Link>
                 <Typography
                   variant="h4"

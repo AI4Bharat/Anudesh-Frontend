@@ -1,12 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import Link from 'next/link';
-// import CustomButton from "../common/Button";
-// import { Link, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
-// import GetWorkspacesProjectDetailsAPI from "../../../../redux/actions/api/WorkspaceDetails/GetWorkspaceProject";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
-// import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
 import tableTheme from "../../themes/TableTheme";
 import Search from "../components/common/Search";
@@ -19,25 +14,6 @@ const ProjectTable = (props) => {
       {label}
     </Button>
   )
-//   const dispatch = useDispatch();
-
-//   const { id } = useParams();
-//   const getWorkspaceProjectData = () => {
-//     const workspaceObjs = new GetWorkspacesProjectDetailsAPI(id);
-
-//     dispatch(APITransport(workspaceObjs));
-//   };
-
-//   useEffect(() => {
-//     getWorkspaceProjectData();
-//   }, []);
-
-//   const workspacesproject = useSelector(
-//     (state) => state.getWorkspacesProjectData.data
-//   );
-//   const SearchWorkspaceProjects = useSelector(
-//     (state) => state.SearchProjectCards.data
-//   );
 const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", "tgt_language":"hindi", "project_type":"AudioTranscription"},
   {"id":2, "title":"workspace 2", "project_stage":"2", "tgt_language":"hindi", "project_type":"AudioTranscription"},
   {"id":3, "title":"workspace 3", "project_stage":"3", "tgt_language":"hindi", "project_type":"AudioTranscription"},
@@ -48,35 +24,6 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
     return workspacesproject.filter((el) => {
       return el;
   })}
-
-//   const pageSearch = () => {
-//     return workspacesproject.filter((el) => {
-//       if (SearchWorkspaceProjects == "") {
-//         return el;
-//       } else if (
-//         el.title?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
-//       ) {
-//         return el;
-//       } else if (
-//         el.id.toString()?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
-//       ) {
-//         return el;
-//       } else if (
-//         el.tgt_language?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
-//       ) {
-//         return el;
-//       } else if (
-//         el.project_type?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
-//       ) {
-//         return el;
-//       }
-//       else if (
-//         UserMappedByProjectStage(el.project_stage)?.name?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
-//       ) {
-//         return el;
-//       }
-//     });
-//   };
 
   const columns = [
     {
@@ -104,19 +51,7 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
       },
     },
 
-    // {
-    //   name: "Created By",
-    //   label: "Created By",
-    //   options: {
-    //     filter: false,
-    //     sort: false,
-    //     align: "center",
-    //     display: 'false', 
-    //     setCellHeaderProps: (sort) => ({
-    //         style: { height: "70px",  },
-    //       }),
-    //   },
-    // },
+
     {
       name: "project_stage",
       label: "Project Stage",
@@ -170,7 +105,6 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
   const data =
   workspacesproject && workspacesproject.length > 0
       ? pageSearch().map((el, i) => {
-        console.log(el.project_stage);
         const userRole = el.project_stage && UserMappedByProjectStage(el.project_stage).element;
           return [
             el.id,
@@ -178,7 +112,7 @@ const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", 
             userRole ? userRole :  el.project_stage,
             el.tgt_language == null ?"-": el.tgt_language,
             el.project_type,
-            <Link href={`/projectdetails`} style={{ textDecoration: "none" }}>
+            <Link key={i} href={`/projectdetails`} style={{ textDecoration: "none" }}>
               <CustomButton sx={{ borderRadius: 2 }} label="View" />
             </Link>,
           ];

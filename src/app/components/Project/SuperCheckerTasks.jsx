@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams,useLocation } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
-// import { useDispatch, useSelector } from "react-redux";
-// import GetAllTasksAPI from "../../../../redux/actions/api/Tasks/GetAllTasks";
-// import PullNewSuperCheckerBatchAPI from "../../../../redux/actions/api/Tasks/PullNewSuperCheckerBatch";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
-// import DeallocateSuperCheckerTasksAPI from "../../../../redux/actions/api/Tasks/DeAllocateSuperCheckerTasks";
 import CustomizedSnackbars from "../../components/common/Snackbar";
-// import GetTasksByProjectIdAPI from "../../../../redux/actions/api/Tasks/GetTasksByProjectId";
-// import GetProjectDetailsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDetails";
 
 import {
   ThemeProvider,
@@ -38,8 +31,7 @@ import CustomButton from '../common/Button';
 import SearchIcon from '@mui/icons-material/Search';
 import AllTaskSearchPopup from './AllTasksSearchpopup';
 import SuperCheckerFilter from './SuperCheckerFilter';
-// import GetNextTaskAPI from "../../../../redux/actions/api/Tasks/GetNextTask";
-// import SetTaskFilter from "../../../../redux/actions/Tasks/SetTaskFilter";
+
 import roles from "../../../utils/Role";
 import TextField from '@mui/material/TextField';
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
@@ -93,10 +85,6 @@ const SuperCheckerTasks = (props) => {
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const totalTaskCount = useSelector((state) => state.getTasksByProjectId.data.total_count);
-  const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-  const NextTask = useSelector((state) => state?.getNextTask?.data);
   
   const filterData = {
     Status: ["unvalidated","validated","validated_with_changes","skipped","draft","rejected"],
@@ -134,94 +122,91 @@ const SuperCheckerTasks = (props) => {
     dispatch(APITransport(taskObj));
   };
 
-  useEffect(() => {
-    getTaskListData();
-  }, [currentPageNumber, currentRowPerPage]);
 
-  useEffect(() => {
-    if (
-      (
-        (props.type === "superChecker" &&
-          selectedFilters.supercheck_status === "unvalidated")) &&
-      totalTaskCount === 0 || ProjectDetails.is_archived
-    ) {
-      setDeallocateDisabled("No more tasks to deallocate");
-    } else if (deallocateDisabled === "No more tasks to deallocate") {
-      setDeallocateDisabled("");
-    }
-  }, [totalTaskCount, selectedFilters,ProjectDetails]);
+  const ProjectDetails = {
+    "id": 2279,
+    "title": "test ocr ce 2",
+    "description": "test",
+    "created_by": null,
+    "is_archived": false,
+    "is_published": true,
+    "annotators": [
+        {
+            "id": 1,
+            "username": "shoonya",
+            "email": "shoonya@ai4bharat.org",
+            "languages": [],
+            "availability_status": 1,
+            "enable_mail": false,
+            "first_name": "Admin",
+            "last_name": "AI4B",
+            "phone": "",
+            "profile_photo": "",
+            "role": 6,
+            "organization": {
+                "id": 1,
+                "title": "AI4Bharat",
+                "email_domain_name": "ai4bharat.org",
+                "created_by": {
+                    "username": "shoonya",
+                    "email": "shoonya@ai4bharat.org",
+                    "first_name": "Admin",
+                    "last_name": "AI4B",
+                    "role": 6
+                },
+                "created_at": "2022-04-24T13:11:30.339610Z"
+            },
+            "unverified_email": "shoonya@ai4bharat.org",
+            "date_joined": "2022-04-24T07:40:11Z",
+            "participation_type": 3,
+            "prefer_cl_ui": false,
+            "is_active": true
+        }
+    ],
+    "annotation_reviewers": [],
+    "review_supercheckers": [],
+    "frozen_users": [],
+    "workspace_id": 1,
+    "organization_id": 1,
+    "filter_string": null,
+    "sampling_mode": "f",
+    "sampling_parameters_json": {},
+    "project_type": "OCRSegmentCategorizationEditing",
+    "label_config": "<View>\n  <Image name=\"image_url\" value=\"$image_url\"/>\n  \n  <Labels name=\"annotation_labels\" toName=\"image_url\" className=\"ignore_assertion\">\n    \n    <Label value=\"title\" background=\"green\" name=\"title\" className=\"ignore_assertion\"/>\n    <Label value=\"text\" background=\"blue\" name=\"text\" className=\"ignore_assertion\"/>\n    <Label value=\"image\" background=\"red\" name=\"image\" className=\"ignore_assertion\"/>\n    <Label value=\"unord-list\" background=\"yellow\" name=\"unord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"ord-list\" background=\"black\" name=\"ord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"placeholder\" background=\"orange\" name=\"placeholder\" className=\"ignore_assertion\"/>\n    <Label value=\"table\" background=\"violet\" name=\"table\" className=\"ignore_assertion\"/>\n    <Label value=\"dateline\" background=\"cyan\" name=\"dateline\" className=\"ignore_assertion\"/>\n    <Label value=\"byline\" background=\"brown\" name=\"byline\" className=\"ignore_assertion\"/>\n    <Label value=\"page-number\" background=\"purple\" name=\"page-number\" className=\"ignore_assertion\"/>\n    <Label value=\"footer\" background=\"indigo\" name=\"footer\" className=\"ignore_assertion\"/>\n    <Label value=\"footnote\" background=\"pink\" name=\"footnote\" className=\"ignore_assertion\"/>\n    <Label value=\"header\" background=\"olive\" name=\"header\" className=\"ignore_assertion\"/>\n    <Label value=\"social-media-handle\" background=\"aqua\" name=\"social-media-handle\" className=\"ignore_assertion\"/>\n    <Label value=\"website-link\" background=\"teal\" name=\"website-link\" className=\"ignore_assertion\"/>\n    <Label value=\"caption\" background=\"maroon\" name=\"caption\" className=\"ignore_assertion\"/>\n    <Label value=\"table-header\" background=\"aquamarine\" name=\"table-header\" className=\"ignore_assertion\"/>\n    \n  </Labels>\n\n  <Rectangle name=\"annotation_bboxes\" toName=\"image_url\" strokeWidth=\"3\" className=\"ignore_assertion\"/>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"title\" name=\"title_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"h1\" className=\"ignore_assertion\"/>\n    <Choice value=\"h2\" className=\"ignore_assertion\"/>\n    <Choice value=\"h3\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"text\" name=\"text_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"paragraph\" className=\"ignore_assertion\"/>\n    <Choice value=\"foreign-language-text\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"image\" name=\"image_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"img\" className=\"ignore_assertion\"/>\n    <Choice value=\"logo\" className=\"ignore_assertion\"/>\n    <Choice value=\"formula\" className=\"ignore_assertion\"/>\n    <Choice value=\"equation\" className=\"ignore_assertion\"/>\n    <Choice value=\"bg-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"placeholder\" name=\"placeholder_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"placeholder-txt\" className=\"ignore_assertion\"/>\n    <Choice value=\"placeholder-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"caption\" name=\"caption_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"fig-caption\" className=\"ignore_assertion\"/>\n    <Choice value=\"table-caption\" className=\"ignore_assertion\"/>\n  </Choices>\n    \n</View>\n\n\n",
+    "variable_parameters": {},
+    "project_mode": "Annotation",
+    "required_annotators_per_task": 1,
+    "tasks_pull_count_per_batch": 10,
+    "max_pending_tasks_per_user": 60,
+    "src_language": null,
+    "tgt_language": null,
+    "created_at": "2023-12-06T06:37:58.364413Z",
+    "project_stage": 1,
+    "revision_loop_count": 3,
+    "k_value": 100,
+    "metadata_json": null,
+    "datasets": [
+        {
+            "instance_id": 295,
+            "instance_name": "Test OCR"
+        }
+    ],
+    "status": "Published",
+    "task_creation_status": "Tasks Creation Process Successful",
+    "last_project_export_status": "Success",
+    "last_project_export_date": "Synchronously Completed. No Date.",
+    "last_project_export_time": "Synchronously Completed. No Time.",
+    "last_pull_status": "Success",
+    "last_pull_date": "Synchronously Completed. No Date.",
+    "last_pull_time": "Synchronously Completed. No Time.",
+    "last_pull_result": "No result.",
+    "unassigned_task_count": 29,
+    "labeled_task_count": 0,
+    "reviewed_task_count": 0
+}
 
-  useEffect(() => {
-    if (ProjectDetails) {
-      if (props.type === "superChecker" && ProjectDetails.reviewed_task_count === 0 ||  ProjectDetails.is_archived)
-        setPullDisabled("No more unassigned tasks in this project");
-      else if (pullDisabled === "No more unassigned tasks in this project")
-        setPullDisabled("");
-    }
-  }, [ProjectDetails.reviewed_task_count]);
 
-
-  useEffect(() => {
-    if (ProjectDetails) {
-      if (
-        props.type === "superChecker" &&
-        ProjectDetails.reviewed_task_count === 0 
-      )
-        setPullDisabled("No more unassigned tasks in this project");
-      else if (pullDisabled === "No more unassigned tasks in this project")
-        setPullDisabled("");
-
-      ProjectDetails.frozen_users?.forEach((user) => {
-        if (user.id === userDetails?.id)
-          setPullDisabled("You're no more a part of this project");
-        else if (pullDisabled === "You're no more a part of this project")
-          setPullDisabled("");
-      });
-      setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
-    }
-  }, [
-    ProjectDetails.reviewed_task_count,
-    ProjectDetails.frozen_users,
-    ProjectDetails.tasks_pull_count_per_batch,
-    userDetails,
-  ]);
-
-  useEffect(() => {
-    if (ProjectDetails?.project_type?.includes("Acoustic")) {
-      if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-        navigate(
-          `/projects/${id}/SuperCheckerAudioTranscriptionLandingPage/${
-            NextTask?.id
-          }`
-        );
-      }
-    }else{
-    if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-      navigate(
-        `/projects/${id}/SuperChecker/${
-          NextTask?.id
-        }`
-      );
-    }
-  }
-  }, [NextTask]);
-
-  useEffect(() => {
-    localStorage.setItem("SuperCheckerStage", props.type);
-  },[]);
-
-  useEffect(() => {
-    dispatch(SetTaskFilter(id, selectedFilters, props.type));
-    if (currentPageNumber !== 1) {
-      setCurrentPageNumber(1);
-    } else {
-      getTaskListData();
-    }
-    localStorage.setItem(
-      "labellingMode", selectedFilters.supercheck_status
-    );
-  }, [selectedFilters]);
-
+ 
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -275,17 +260,6 @@ const SuperCheckerTasks = (props) => {
       setTasks([]);
     }
   }, [taskList]);
-
-  useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-    console.log("columnss", newCols);
-  }, [selectedColumns]);
 
 
   const handleShowFilter = (event) => {

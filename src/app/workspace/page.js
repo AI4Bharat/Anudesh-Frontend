@@ -2,17 +2,7 @@
 import { Box, Card, Grid, Tab, Tabs, ThemeProvider, Typography} from "@mui/material";
 import React, { useState, useEffect } from "react";
 import themeDefault from  "@/themes/theme";
-// import { Link, useNavigate, useParams } from 'react-router-dom';
-// import Button from "../../component/common/Button"
-// import OutlinedTextField from "../../component/common/OutlinedTextField";
 import DatasetStyle from "@/styles/Dataset";
-// import TextareaAutosize from '@mui/material/TextareaAutosize';
-// import ProjectTable from './Tabs/ProjectTable';
-// import AnnotatorsTable from "./Tabs/Annotators";
-// import ManagersTable from "./Tabs/ManagersTable";
-// import SettingsTable from "./Tabs/SettingsTable";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
-// import GetWorkspacesDetailsAPI from "../../../../redux/actions/api/WorkspaceDetails/GetWorkspaceDetails";
 import componentType from "../../config/PageType";
 
 
@@ -60,20 +50,7 @@ export default function Workspace(props){
         setValue(newValue);
     };
     
-     
-   
-   
-    // const workspaceDtails = useSelector(state=>state.getWorkspaceDetails.data);
-    // const getWorkspaceDetails = ()=>{
-    //     const workspaceObj = new GetWorkspacesDetailsAPI(id);
-    //     dispatch(APITransport(workspaceObj));
-    //   }
-     
-      
-    //   useEffect(()=>{
-    //     getWorkspaceDetails();
-    //   },[]);
-        
+    
     return (
         <ThemeProvider theme={themeDefault}>
              <DetailsViewPage 

@@ -272,7 +272,6 @@ import {
       "labeled_task_count": 0,
       "reviewed_task_count": 0
   }
-  console.log(ProjectDetails);
     const [loading, setLoading] = useState(false);
     const [annotationreviewertype, setAnnotationreviewertype] = useState("Annotation Reports");
     const [value, setValue] = React.useState(0);
@@ -365,7 +364,7 @@ import {
             sx={{ fontSize: 16, fontWeight: "700" }}
           />
         ),
-        tabPanelEle: <SuperCheckerTasks type="superChecker" />,
+        // tabPanelEle: <SuperCheckerTasks type="superChecker" />,
         showTab: isSuperChecker,
       },
   
@@ -536,7 +535,7 @@ import {
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (
-                  <Grid item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
+                  <Grid key={i} item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
                     <ProjectDescription
                       name={des.name}
                       value={des.value}

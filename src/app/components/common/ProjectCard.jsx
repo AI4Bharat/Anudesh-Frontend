@@ -19,7 +19,6 @@ const ProjectCard = (props) => {
 
   const classes = DatasetStyle();
   const { projectObj } = props;
-  console.log(projectObj );
   const userRole =projectObj.project_stage && UserMappedByProjectStage(projectObj.project_stage).name;
   return (
     <Link href={`/projectdetails`} style={{ textDecoration: "none" }}>
