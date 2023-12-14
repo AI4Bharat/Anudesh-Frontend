@@ -101,7 +101,7 @@ const loggedInUserData= {
              
             >
               {projectTypes.map((type, index) => (
-                <MenuItem value={type} key={index}>
+                <MenuItem key={index} value={type} >
                   {type}
                 </MenuItem>
               ))}
@@ -119,9 +119,10 @@ const loggedInUserData= {
               Project User Type :
             </Typography>
             <FormGroup>
-              {UserType.map((type) => {
+              {UserType.map((type,i) => {
                 return (
                   <FormControlLabel
+                    key={i}
                     control={
                       <Radio
                         checked={selectedUserType === type }

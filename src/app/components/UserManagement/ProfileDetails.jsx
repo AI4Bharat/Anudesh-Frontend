@@ -25,11 +25,6 @@ const ProfileDetails = () => {
   const [enableVerifyEmail, setEnableVerifyEmail] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [emailVerifyLoading, setEmailVerifyLoading] = useState(false);
-//   const navigate = useNavigate();
-
-  // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-//   const userDetails = useSelector((state) => state.fetchUserById.data);
-//   const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
 
 const userDetails= {
     "id": 1,
@@ -94,40 +89,9 @@ const loggedInUserData= {
     "prefer_cl_ui": false,
     "is_active": true
 };
-//   const dispatch = useDispatch();
-//   const LanguageList = useSelector(state => state.fetchLanguages.data);
 const LanguageList =[]
-//   console.log(userDetails)
-//   const getLanguageList = () => {
-//       const langObj = new FetchLanguagesAPI();
 
-//       dispatch(APITransport(langObj));
-//   }
-
-//   useEffect(() => {
-//     getLanguageList();
-//   }, []);
-
-//   useEffect(() => {
-//     if (LanguageList) {
-//       setInitLangs(LanguageList.language);
-//     }
-//   }, [LanguageList]);
-
-  useEffect(() => {
-    console.log('useEffect triggered with userDetails:', userDetails);
-    setNewDetails({
-      username: userDetails.username,
-      first_name: userDetails.first_name,
-      last_name: userDetails.last_name,
-      languages: userDetails.languages,
-      phone: userDetails.phone,
-      availability_status:userDetails.availability_status,
-      participation_type: userDetails.participation_type
-    });
-    setEmail(userDetails.email);
-    setOriginalEmail(userDetails.email);
-  }, [userDetails,userDetails.id]);
+ 
   
   return (
     <ThemeProvider theme={themeDefault}>
@@ -159,7 +123,7 @@ const LanguageList =[]
                 fullWidth
                 label="First Name"
                 name="first_name"
-                value={newDetails?.first_name}
+                value={userDetails?.first_name}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
@@ -169,7 +133,7 @@ const LanguageList =[]
                 fullWidth
                 label="Last Name"
                 name="last_name"
-                value={newDetails?.last_name}
+                value={userDetails?.last_name}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
@@ -178,7 +142,7 @@ const LanguageList =[]
                 disabled
                 fullWidth
                 label="Email"
-                value={email}
+                value={userDetails?.email}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
@@ -188,7 +152,7 @@ const LanguageList =[]
                 fullWidth
                 label="Phone"
                 name="phone"
-                value={newDetails?.phone}
+                value={userDetails?.phone}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
@@ -208,7 +172,7 @@ const LanguageList =[]
                 fullWidth
                 label="Username"
                 name="username"
-                value={newDetails?.username}
+                value={userDetails?.username}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
@@ -243,7 +207,7 @@ const LanguageList =[]
                 fullWidth
                 labelId="lang-label"
                 name="languages"
-                value={newDetails?.languages? newDetails.languages : []}
+                value={userDetails?.languages? userDetails.languages : []}
                 style={{zIndex: "0"}}
                 // MenuProps={MenuProps}
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
@@ -271,7 +235,7 @@ const LanguageList =[]
                 fullWidth
                 label="Availability Status"
                 name="availability_status"
-                value={newDetails?.availability_status}
+                value={userDetails?.availability_status}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
               </Grid>
@@ -282,7 +246,7 @@ const LanguageList =[]
                 fullWidth
                 labelId="lang-label"
                 name="participation_type"
-                value={newDetails?.participation_type? newDetails.participation_type : []}
+                value={userDetails?.participation_type? userDetails.participation_type : []}
                 style={{zIndex: "0"}}
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
               >

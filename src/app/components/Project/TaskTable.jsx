@@ -1613,7 +1613,7 @@ const userDetails= {
               >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.Annotators.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -1654,7 +1654,7 @@ const userDetails= {
               >
                 <MenuItem value="">All</MenuItem>
                 {filterData.Reviewers?.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i}  value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>

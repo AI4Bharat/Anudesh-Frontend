@@ -100,8 +100,8 @@ function MobileNavbar(props) {
             </Box>
             <Box>
                 <List>
-                    {tabs.map((tab) => (
-                        <ListItem onClick={() => setOpenDrawer(false)}>
+                    {tabs.map((tab,i) => (
+                        <ListItem key={i} onClick={() => setOpenDrawer(false)}>
                             {tab}
                         </ListItem>
                     ))}

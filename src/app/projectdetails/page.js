@@ -31,9 +31,7 @@ import {
   import DatasetStyle from "../../styles/Dataset";
   import ProjectDescription from "../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-  import AllTaskTable from "../components/Project/AllTaskTable";
   import userRole from "../../utils/UsersRolesList";
-  import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
   import SuperChecker from "../components/Project/SuperChecker";
   
   const menuOptions = [
@@ -104,9 +102,8 @@ import {
       },
     },
   }));
-  const Projects = () => {
-    // console.log("props", props)
-    // const { id } = useParams();
+  export default function Projects () {
+
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -117,7 +114,6 @@ import {
       { name: "Total Labeled Task", value: null },
       { name: "Reviewed Task Count", value: null },
     ]);
-    // let navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -446,7 +442,7 @@ import {
         tabEle: (
           <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
         ),
-        tabPanelEle: <AllTaskTable />,
+        // tabPanelEle: <AllTaskTable />,
         showTab: allTask,
       },
     ];
@@ -552,5 +548,4 @@ import {
     );
   };
   
-  export default Projects;
   
