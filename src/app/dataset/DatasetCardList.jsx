@@ -3,7 +3,7 @@ import Link from "next/link";
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../components/common/Button";
 import { ThemeProvider,Tooltip, Button } from "@mui/material";
-import tableTheme from "@/themes/tableTheme";
+import tableTheme from "../../themes/tableTheme";
 // import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DatasetFilterList from "./DatasetFilterList";

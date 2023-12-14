@@ -1,8 +1,8 @@
 'use client';
 import { Box, Card, Grid, Tab, Tabs, ThemeProvider, Typography} from "@mui/material";
 import React, { useState, useEffect } from "react";
-import themeDefault from  "@/themes/theme";
-import DatasetStyle from "@/styles/Dataset";
+import themeDefault from  "../../themes/theme";
+import DatasetStyle from "../../styles/Dataset";
 import componentType from "../../config/PageType";
 
 

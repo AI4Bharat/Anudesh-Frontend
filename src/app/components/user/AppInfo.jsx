@@ -1,6 +1,6 @@
 
 import { Grid, Typography, Hidden, ThemeProvider } from "@mui/material";
-import LoginStyle from "@/styles/loginStyle";
+import LoginStyle from "../../../styles/loginStyle";
 
 export default function AppInfo() {
   const classes = LoginStyle();

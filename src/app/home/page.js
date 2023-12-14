@@ -1,5 +1,6 @@
 "use client";
 import "./home.css";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -8,7 +9,7 @@ export default function Home() {
         <>
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
                 <div className="pt-8 pb-16 flex justify-between px-16">
-                    <img src="https://i.imgur.com/56Ut9oz.png" width="90px"></img>
+                    <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width="90px"></Image>
                     <div className="flex gap-6">
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
@@ -24,7 +25,7 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="pr-40">
-                        <img src="https://i.imgur.com/56Ut9oz.png" width="900px"></img>
+                        <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width="900px"></Image>
                     </div>
                 </div>
             </div>
