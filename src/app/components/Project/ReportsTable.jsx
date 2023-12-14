@@ -8,14 +8,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 // import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-// import GetProjectReportAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectReport";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
 import DatasetStyle from "../../../styles/Dataset";
 import ColumnList from '../common/ColumnList';
-// import 'react-date-range/dist/styles.css';
-// import 'react-date-range/dist/theme/default.css';
-// import { isSameDay, format } from 'date-fns/esm';
-// import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+
+import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import tableTheme from "../../../themes/tableTheme";
@@ -26,9 +22,6 @@ import userRole from "../../../utils/Role";
 
 const ReportsTable = (props) => {
     const {isSuperChecker,isReviewer,isAnnotators}=props
-    // const ProjectDetails = useSelector(state => state.getProjectDetails.data);
-   
-    // const [rangeValue, setRangeValue] = useState([format(Date.parse(ProjectDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), 'yyyy-MM-dd'), Date.now()]);
     const [showPicker, setShowPicker] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState([]);
@@ -41,8 +34,7 @@ const ReportsTable = (props) => {
     });
 
 
-    // const { id } = useParams();
-    // const dispatch = useDispatch();
+
     const ProjectReport = [];
     const classes = DatasetStyle();
     const [radiobutton, setRadiobutton] = useState(isAnnotators?"AnnotatationReports":isReviewer?"ReviewerReports":"SuperCheckerReports");
@@ -196,33 +188,6 @@ const ReportsTable = (props) => {
         endDate: new Date(),
         key: "selection"
     }]);
-    // const loggedInUserData = useSelector(
-    //     (state) => state.fetchLoggedInUserData.data
-    // );
-    // useEffect(() => {
-    //     if (reportRequested && ProjectReport?.length > 0) {
-    //         let cols = [];
-    //         let selected = [];
-    //         Object.keys(ProjectReport[0]).forEach((key) => {
-    //             cols.push({
-    //                 name: key,
-    //                 label: key,
-    //                 options: {
-    //                     filter: false,
-    //                     sort: false,
-    //                 }
-    //             })
-    //             selected.push(key);
-    //         });
-    //         setSelectedColumns(selected);
-    //         setColumns(cols);
-    //     } else {
-    //         setColumns([]);
-    //         setSelectedColumns([]);
-    //     }
-    //     setShowSpinner(false);
-    // }, [ProjectReport]);
-
 
     const handleChangeReports = (e) => {
         setRadiobutton(e.target.value)

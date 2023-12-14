@@ -31,9 +31,7 @@ import {
   import DatasetStyle from "../../styles/Dataset";
   import ProjectDescription from "../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-  import AllTaskTable from "../components/Project/AllTaskTable";
   import userRole from "../../utils/UsersRolesList";
-  import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
   import SuperChecker from "../components/Project/SuperChecker";
   
   const menuOptions = [
@@ -104,9 +102,8 @@ import {
       },
     },
   }));
-  const Projects = () => {
-    // console.log("props", props)
-    // const { id } = useParams();
+  export default function Projects () {
+
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -117,7 +114,6 @@ import {
       { name: "Total Labeled Task", value: null },
       { name: "Reviewed Task Count", value: null },
     ]);
-    // let navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -272,7 +268,6 @@ import {
       "labeled_task_count": 0,
       "reviewed_task_count": 0
   }
-  console.log(ProjectDetails);
     const [loading, setLoading] = useState(false);
     const [annotationreviewertype, setAnnotationreviewertype] = useState("Annotation Reports");
     const [value, setValue] = React.useState(0);
@@ -365,7 +360,7 @@ import {
             sx={{ fontSize: 16, fontWeight: "700" }}
           />
         ),
-        tabPanelEle: <SuperCheckerTasks type="superChecker" />,
+        // tabPanelEle: <SuperCheckerTasks type="superChecker" />,
         showTab: isSuperChecker,
       },
   
@@ -447,7 +442,7 @@ import {
         tabEle: (
           <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
         ),
-        tabPanelEle: <AllTaskTable />,
+        // tabPanelEle: <AllTaskTable />,
         showTab: allTask,
       },
     ];
@@ -536,7 +531,7 @@ import {
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (
-                  <Grid item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
+                  <Grid key={i} item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
                     <ProjectDescription
                       name={des.name}
                       value={des.value}
@@ -553,5 +548,4 @@ import {
     );
   };
   
-  export default Projects;
   

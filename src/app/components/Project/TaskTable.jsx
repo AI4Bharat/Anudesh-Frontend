@@ -1058,7 +1058,6 @@ const userDetails= {
   "prefer_cl_ui": false,
   "is_active": true
 }
-  console.log(ProjectDetails.project_stage == 2 ,ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id),"hhhhhhhhh")
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
 
@@ -1614,7 +1613,7 @@ const userDetails= {
               >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.Annotators.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -1655,7 +1654,7 @@ const userDetails= {
               >
                 <MenuItem value="">All</MenuItem>
                 {filterData.Reviewers?.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i}  value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -1734,9 +1733,7 @@ const userDetails= {
     serverSide: true,
     customToolbar: renderToolBar,
   };
-  console.log(props.type === "review" ,
-    ProjectDetails?.annotation_reviewers,
-    userDetails?.id,"valuesdata")
+
 
   const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
@@ -2038,17 +2035,7 @@ const userDetails= {
           pullvalue={pullvalue}
         />
       )}
-      {OpenFindAndReplaceDialog && (
-        <FindAndReplaceDialog
-          OpenFindAndReplaceDialog={OpenFindAndReplaceDialog}
-          handleCloseFindAndReplace={handleCloseFindAndReplace}
-          find={find}
-          replace={replace}
-          selectedFilters={selectedFilters}
-          Type={props.type}
-          submit={() => handleSubmitFindAndReplace()}
-        />
-      )}
+     
 
       {renderSnackBar()}
       {loading && <Spinner />}

@@ -2,7 +2,6 @@
 import themeDefault from "@/themes/theme"
 import { ThemeProvider } from "@emotion/react"
 import "./index.css";
-import Header from "./components/common/Header";
 // export const metadata = {
 //   title: 'Anudesh',
 //   description: 'anudesh-frontend',

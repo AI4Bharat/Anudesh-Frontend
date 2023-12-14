@@ -109,7 +109,6 @@ import {
   const pageSearch = () => {
 
     return RecentTasks?.results?.filter((el) => {
-      console.log(el.ProjectID);
 
         if (SearchWorkspace == "") {
 

@@ -10,28 +10,15 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-// import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-// import GetProjectDomainsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDomains";
-// import GetOrganizationUserReportsAPI from "../../../../redux/actions/api/Organization/GetOrganizationUserReports";
-// import GetOrganizationProjectReportsAPI from "../../../../redux/actions/api/Organization/GetOrganizationProjectReports";
-// import GetOrganizationAnnotatorQualityAPI from "../../../../redux/actions/api/Organization/GetOrganizationAnnotatorQuality";
-// import SendOrganizationUserReports from "../../../../redux/actions/api/Organization/SendOrganizationUserReports";
-// import FetchLanguagesAPI from "../../../../redux/actions/api/UserManagement/FetchLanguages.js";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
 import DatasetStyle from "../../../styles/Dataset";
-// import ColumnList from '../common/ColumnList';
-// import CircularProgress from '@material-ui/core/CircularProgress';
-// import { isSameDay, format } from 'date-fns/esm';
-// import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+
+import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { styled } from '@mui/material/styles';
 // import { addDays } from 'date-fns';
 import CustomizedSnackbars from "../common/Snackbar";
-// import { snakeToTitleCase } from "../../../../utils/utils";
-// import GetOrganizationDetailedProjectReportsAPI from "../../../../redux/actions/api/Organization/GetOrganizationDetailedProjectReports";
-
 
 const ProgressType = ["Annotation Stage", "Review Stage", "Super Check Stage", "All Stage"]
 const ITEM_HEIGHT = 38;

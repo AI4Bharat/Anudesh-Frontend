@@ -7,9 +7,6 @@ import FormControl from "@mui/material/FormControl";
 import ProjectCardList from "../components/Project/ProjectCardList";
 import ProjectCard from "../components/Project/ProjectCard";
 import Spinner from "../components/common/Spinner";
-// import GetProjectsAPI from "../../../../redux/actions/api/Dashboard/GetProjects";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
-// import { useDispatch, useSelector } from "react-redux";
 import Search from "../components/common/Search";
 import DatasetStyle from "../../styles/Dataset";
 import themeDefault from "../../themes/theme";
@@ -235,30 +232,11 @@ const projectData = [
           </FormControl>
         </Grid>
 
-        {/* <Grid  >
-                    <FormControl >
-                        <RadioGroup
-                            row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
-                            defaultValue="ProjectList"
-                            sx={{ marginLeft: "10px" }}
-                        >
-
-                            <FormControlLabel value="ProjectList" control={<Radio />} label="List view" onClick={handleProjectlist} />
-                            <FormControlLabel value="ProjectCard" control={<Radio />} label="Card view" onClick={handleProjectcard} />
-
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-            </Grid> */}
         <Grid xs={3} item className={classes.fixedWidthContainer}>
           <Search />
         </Grid>
       </Grid>
-      {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Search />
-            </Grid> */}
+
       <Box>
         <Box sx={{ marginTop: "20px" }}>
           {radiobutton ? (

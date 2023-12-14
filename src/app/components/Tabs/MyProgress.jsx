@@ -22,7 +22,7 @@ import {
   // import Snackbar from "../common/Snackbar";
   // import UserMappedByRole from "../../../../utils/UserMappedByRole/UserMappedByRole";
   // import { LocalizationProvider } from "@mui/x-date-pickers";
-  // import { DateRangePicker } from "@mui/x-date-pickers-pro";
+  import { DateRangePicker } from "@mui/x-date-pickers-pro";
   // import {
   //   addDays,
   //   addWeeks,
@@ -32,9 +32,6 @@ import {
   //   startOfWeek,
   // } from "date-fns";
 //   import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-//   import GetWorkspacesAPI from "../../../../redux/actions/api/Dashboard/GetWorkspaces";
-//   import GetProjectDomainsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDomains";
-//   import GetUserAnalyticsAPI from "../../../../redux/actions/api/UserManagement/GetUserAnalytics";
   import MUIDataTable from "mui-datatables";
   import DatasetStyle from "../../../styles/Dataset";
   import ColumnList from "../common/ColumnList";
@@ -48,17 +45,7 @@ import {
   import { MenuProps } from "../../../utils/utils";
   
   const MyProgress = () => {
-    // const { id } = useParams();
-    // const UserDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-    
-    // console.log(UserDetails?.date_joined, "UserDetails?.date_joined")
-    // const [rangeValue, setRangeValue] = useState([
-    //   format(
-    //     Date.parse(UserDetails?.date_joined, "yyyy-MM-ddTHH:mm:ss.SSSZ"),
-    //     "yyyy-MM-dd"
-    //   ),
-    //   Date.now(),
-    // ]);
+ 
     const [showPicker, setShowPicker] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarText, setSnackbarText] = useState("");
@@ -644,59 +631,7 @@ const ProjectTypes={
         key: "selection"
       }]);
     const classes = DatasetStyle();
-    // useEffect(() => {
-    //   const typesObj = new GetProjectDomainsAPI();
-    //   dispatch(APITransport(typesObj));
-    //   // const workspacesObj = new GetWorkspacesAPI(1, 9999);
-    //   // dispatch(APITransport(workspacesObj));
-  
-    // }, []);
-  
-  
-    // useEffect(() => {
-    //   if (ProjectTypes) {
-    //     let types = [];
-    //     Object.keys(ProjectTypes).forEach((key) => {
-    //       let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
-    //       types.push(...subTypes);
-    //     });
-    //     setProjectTypes(types);
-    //     types?.length && setSelectedType(types[3]);
-    //   }
-    // }, [ProjectTypes]);
-  
-    // useEffect(() => {
-    //   if (UserAnalytics?.message) {
-    //     setSnackbarText(UserAnalytics?.message);
-    //     showSnackbar();
-    //     return;
-    //   }
-    //   if (UserAnalytics?.length) {
-    //     let tempColumns = [];
-    //     let tempSelected = [];
-    //     Object.keys(UserAnalytics[0]).forEach((key) => {
-    //       tempColumns.push({
-    //         name: key,
-    //         label: key,
-    //         options: {
-    //           filter: false,
-    //           sort: false,
-    //           align: "center",
-    //         },
-    //       });
-    //       tempSelected.push(key);
-    //     });
-    //     setColumns(tempColumns);
-    //     setReportData(UserAnalytics);
-    //     setSelectedColumns(tempSelected);
-    //   } else {
-    //     setColumns([]);
-    //     setReportData([]);
-    //     setSelectedColumns([]);
-    //   }
-    //   setShowSpinner(false);
-    // }, [UserAnalytics]);
-  
+
     const handleRangeChange = (ranges) => {
       const { selection } = ranges;
       if (selection.endDate > new Date()) selection.endDate = new Date();
@@ -855,28 +790,7 @@ const ProjectTypes={
                 Pick Dates
               </Button>
             </Grid>
-            {/* <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="workspace-label" sx={{ fontSize: "16px" }}>
-                  Workspace
-                </InputLabel>
-                <Select
-                  labelId="workspace-label"
-                  id="workspace-select"
-                  value={selectedWorkspaces}
-                  multiple
-                  label="Project Type"
-                  // onSelect={(e,)}
-                  onChange={(e) => setSelectedWorkspaces(e.target.value)}
-                >
-                  {Workspaces.map((Workspaces, index) => (
-                    <MenuItem value={Workspaces.id} key={Workspaces.id}>
-                      {Workspaces.workspace_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid> */}
+
             <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
               <Button
                 fullWidth
