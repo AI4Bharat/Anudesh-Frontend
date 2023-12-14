@@ -20,8 +20,7 @@ npm-debug.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
-
-/src/firebase.js
