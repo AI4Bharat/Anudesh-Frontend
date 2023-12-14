@@ -308,7 +308,7 @@ const workspaceManagers = [
         const [confirmationDialog, setConfirmationDialog] = useState(false);
         const [elEmail, setElEmail] = useState("");
         const [elId, setElId] = useState("");
-        const emailId = localStorage.getItem("email_id");
+        // const emailId = localStorage.getItem("email_id");
         const [password, setPassword] = useState("");
         const handleConfirm = async () => {
           const apiObj = new LoginAPI(emailId, password);

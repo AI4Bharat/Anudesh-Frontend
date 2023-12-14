@@ -1,7 +1,7 @@
 import { Box, Grid ,Button,Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import DatasetCard from "../components/common/DatasetCard";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "../../styles/Dataset";
 // import { useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
 import TablePaginationActions from "../components/common/TablePaginationActions";

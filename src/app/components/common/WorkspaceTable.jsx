@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 import CustomButton from '../common/Button'
 // import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
-// import WorkspaceTable from "../common/WorkspaceTable";
-// import GetWorkspaceAPI from "../../../../redux/actions/api/Organization/GetWorkspace";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
+
 import { ThemeProvider, Grid } from "@mui/material";
 import tableTheme from "../../../themes/tableTheme";
 import DatasetStyle from "../../../styles/Dataset";
@@ -18,56 +16,21 @@ const WorkspaceTable = (props) => {
     const classes = DatasetStyle();
     // const dispatch = useDispatch();
     const { showManager, showCreatedBy } = props;
-    // const workspaceData = useSelector(state => state.GetWorkspace.data);
-    // const SearchWorkspace = useSelector((state) => state.SearchProjectCards.data);
+
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
     const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
     const [totalWorkspaces, setTotalWorkspaces] = useState(10);
 
-    // const totalWorkspaceCount = useSelector(state => state.GetWorkspace.data.count);
-
-    // const getWorkspaceData = () => {
-    //     const workspaceObj = new GetWorkspaceAPI(currentPageNumber);
-    //     dispatch(APITransport(workspaceObj));
-    // }
-
-    // useEffect(() => {
-    //     getWorkspaceData();
-    //     // console.log("fired now")
-    // }, [currentPageNumber]);
-
-    // // useEffect(() => {
-    // //     getWorkspaceData();
-    // // }, [currentRowPerPage]);
-
-    // useEffect(() => {
-    //     getWorkspaceData();
-    // }, []);
+   
 
     const pageSearch = () => {
 
         return workspaceData.filter((el) => {
 
-            // if (SearchWorkspace == "") {
-
-            //     return el;
-            // } else if (
-            //     el.workspace_name
-            //         ?.toLowerCase()
-            //         .includes(SearchWorkspace?.toLowerCase())
-            // ) {
-
-            //     return el;
-            // }
-            // else if (
-            //     el.managers?.some(val => val.username
-            //         ?.toLowerCase().includes(SearchWorkspace?.toLowerCase()) ))           
-                    
-            //      {
+        
 
                 return el;
-            // }
         })
 
     }

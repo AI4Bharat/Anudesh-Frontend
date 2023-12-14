@@ -1233,8 +1233,6 @@ const userDetails= {
         return acc;
       }, {});
 
-    localStorage.setItem("searchFilters", JSON.stringify(search_filters));
-    localStorage.setItem("labelAll", true);
     const datavalue = {
       annotation_status: selectedFilters?.annotation_status,
       mode: "annotation",

@@ -390,7 +390,6 @@ const MembersTable = (props) => {
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [elEmail, setElEmail] = useState("");
   const [elId, setElId] = useState("");
-  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
   const [memberOrReviewer, setMemberOrReviewer] = useState("");
