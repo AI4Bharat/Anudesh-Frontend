@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
-// import { useDispatch, useSelector } from "react-redux";
+
 import { ThemeProvider, Grid, Button } from "@mui/material";
 import tableTheme from "../../../themes/tableTheme";
 import CustomizedSnackbars from "../../components/common/Snackbar";
@@ -21,105 +20,6 @@ const SuperChecker = (props) => {
   });
  
 
-  
-//   const columns = [
-//     {
-//       name: "id",
-//       label: "Id",
-//       options: {
-//         display: false,
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//       },
-//     },
-//     {
-//       name: "email",
-//       label: "Email",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//       },
-//     },
-//     {
-//       name: "first_name",
-//       label: "First Name",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//       },
-//     },
-
-//     {
-//       name: "last_name",
-//       label: "Last Name",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//         setCellProps: () => ({ style: { paddingLeft: "30px" } }),
-//       },
-//     },
-//     {
-//       name: "languages",
-//       label: "Languages",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//         setCellProps: () => ({ style: { paddingLeft: "30px" } }),
-//       },
-//     },
-//     {
-//       name: "participation_type",
-//       label: "Participation Type",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//         setCellProps: () => ({ style: { paddingLeft: "70px" } }),
-//       },
-//     },
-//     {
-//       name: "role",
-//       label: "Role",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//       },
-//     },
-//     {
-//       name: "Actions",
-//       label: "Actions",
-//       options: {
-//         filter: false,
-//         sort: false,
-//         align: "center",
-//         setCellProps: () => ({ style: { paddingLeft: "30px" } }),
-//       },
-//     },
-//   ];
-
-//   const data =
-//     UserDetail && UserDetail.length > 0
-//       ? pageSearch().map((el, i) => {
-//           const userRoleFromList =
-//             el.role && UserMappedByRole(el.role)?.element;
-
-//           return [
-//             el.id,
-//             el.email,
-          
-           
-//           ];
-//         })
-//       : [];
-
-    
- 
 
   const options = {
     textLabels: {

@@ -1,30 +1,16 @@
 'use client';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-// import { useNavigate, useParams } from 'react-router-dom';
-// import FetchUserByIdAPI from '../../../../redux/actions/api/UserManagement/FetchUserById';
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
-// import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper } from '@mui/material';
 import MyProgress from '../components/Tabs/MyProgress';
 import RecentTasks from '../components/Tabs/RecentTasks';
-// import CustomButton from "../../component/common/Button";
-// import Spinner from "../../component/common/Spinner";
-// import MailOutlineIcon from '@mui/icons-material/MailOutline';
-// import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
-// import UserMappedByRole from '../../../../utils/UserMappedByRole/UserMappedByRole';
-// import ToggleMailsAPI from '../../../../redux/actions/api/UserManagement/ToggleMails';
-// import CustomizedSnackbars from "../../component/common/Snackbar";
+import Spinner from "../components/common/Spinner";
 import userRole from "../../utils/Role";
 
 
 export default function ProgressPage () {
 
 
-//   const { id } = useParams();
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -99,7 +85,6 @@ export default function ProgressPage () {
   return (
       <Grid container spacing={2}>
         {loading && <Spinner />} 
-        {/* {renderSnackBar()}  */}
           {userDetails && (
             <>
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>

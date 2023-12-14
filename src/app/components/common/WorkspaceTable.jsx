@@ -140,7 +140,7 @@ const WorkspaceTable = (props) => {
                 return manager.username
             }).join(", "),
             el.created_by && el.created_by.username,
-            <Link href={`/workspace`} style={{ textDecoration: "none" }}>
+            <Link key={i} href={`/workspace`} style={{ textDecoration: "none" }}>
                 <CustomButton
                     sx={{ borderRadius: 2 }}
                     label="View"

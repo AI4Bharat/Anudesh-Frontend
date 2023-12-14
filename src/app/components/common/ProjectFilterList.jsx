@@ -18,10 +18,6 @@ import {
 } from "@mui/material";
 import { translate } from "../../../config/localisation";
 import DatasetStyle from "../../../styles/Dataset";
-// import { useDispatch, useSelector } from "react-redux";
-// import { snakeToTitleCase } from "../../../../utils/utils";
-// import GetProjectDomainsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDomains";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
 import roles from "../../../utils/Role";
 
 const UserType = ["annotator", "reviewer","superchecker"];
@@ -41,48 +37,6 @@ const ProjectFilterList = (props) => {
   const [selectedType, setSelectedType] = useState("");
   const [selectedUserType, setSelectedUserType] = useState("");
   const [selectedArchivedProject, setSelectedArchivedProject] = useState("");
-//   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
-//   const loggedInUserData = useSelector(
-//     (state) => state.fetchLoggedInUserData.data
-//   );
-//   useEffect(() => {
-//     const typesObj = new GetProjectDomainsAPI();
-//     dispatch(APITransport(typesObj));
-//   }, []);
-
-//   useEffect(() => {
-//     if (ProjectTypes) {
-//       let types = [];
-//       Object.keys(ProjectTypes).forEach((key) => {
-//         let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
-//         types.push(...subTypes);
-//       });
-//       setProjectTypes(types);
-//     }
-//   }, [ProjectTypes]);
-
-//   const handleChange = (e) => {
-//     updateFilters({
-//       ...currentFilters,
-//       project_type: selectedType,
-//       project_user_type: selectedUserType,
-//       archived_projects: selectedArchivedProject,
-//     });
-//     props.handleClose();
-//   };
-
-//   const handleChangeCancelAll = () => {
-//     updateFilters({
-//         project_type: "",
-//         project_user_type: "",
-//         archived_projects: "",
-     
-//     });
-//     setSelectedType("")
-//     setSelectedUserType("")
-//     setSelectedArchivedProject("")
-//     props.handleClose();
-//   };
 
 
 const loggedInUserData= {
@@ -147,41 +101,14 @@ const loggedInUserData= {
              
             >
               {projectTypes.map((type, index) => (
-                <MenuItem value={type} key={index}>
+                <MenuItem key={index} value={type} >
                   {type}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
           
-            {/* <Typography
-              variant="body2"
-              sx={{ mr: 5, mb: 1, fontWeight: "900" }}
-              className={classes.filterTypo}
-            >
-              Project Type :
-            </Typography>
-            <FormGroup>
-              {projectTypes.map((type) => {
-                return (
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={selectedType === type }
-                        name={type}
-                        color="primary"
-                      />
-                    }
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    value={type}
-                    label={snakeToTitleCase(type)}
-                    sx={{
-                      fontSize: "1rem",
-                    }}
-                  />
-                );
-              })}
-            </FormGroup> */}
+
           </Grid>
        
           <Grid item xs={6} sm={6} md={6} lg={6} xl={6} sx={{mt:2}}>
@@ -192,9 +119,10 @@ const loggedInUserData= {
               Project User Type :
             </Typography>
             <FormGroup>
-              {UserType.map((type) => {
+              {UserType.map((type,i) => {
                 return (
                   <FormControlLabel
+                    key={i}
                     control={
                       <Radio
                         checked={selectedUserType === type }
@@ -222,29 +150,6 @@ const loggedInUserData= {
             >
               Archived Projects :
             </Typography>
-            {/* <FormGroup>
-              {archivedProjects.map((type) => {
-                return (
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={
-                          selectedArchivedProject === type 
-                        }
-                        name={type}
-                        color="primary"
-                      />
-                    }
-                    onChange={(e) => setSelectedArchivedProject(e.target.value)}
-                    value={type}
-                    label={snakeToTitleCase(type)}
-                    sx={{
-                      fontSize: "1rem",
-                    }}
-                  />
-                ); */}
-              {/* })}
-            </FormGroup> */}
           </Grid>}
         </Grid>
         <Divider />

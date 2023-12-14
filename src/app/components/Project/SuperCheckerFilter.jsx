@@ -57,9 +57,10 @@ console.log(currentFilters,"currentFilters")
               {translate("label.filter.status")} :
             </Typography>
             <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
-              {filterStatusData.Status.map((type) => {
+              {filterStatusData.Status.map((type,i) => {
                 return (
                   <FormControlLabel
+                  key={i}
                     control={
                       <Radio
                         checked={selectedStatus === type ? true : false}

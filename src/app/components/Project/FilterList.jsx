@@ -99,9 +99,10 @@ const FilterList = (props) => {
             <Typography variant="body2" sx={{ ml: 1, fontWeight: "700",fontSize:"16px" }} className={classes.filterTypo}>
               {translate("label.filter.status")} 
             </Typography>
-              {filterStatusData.Status.map((type) => {
+              {filterStatusData.Status.map((type,i) => {
                 return (
                   <FormControlLabel
+                  key={i}
                     control={
                       <Radio
                         checked={selectedStatus === type ? true : false}

@@ -1,4 +1,4 @@
-export default {
+const rolesList={
     1: "Annotator",
     2: "Reviewer",
     3: "SuperChecker",
@@ -6,3 +6,4 @@ export default {
     5: "OrganizationOwner",
     6: "Admin"
 }
+export default rolesList;

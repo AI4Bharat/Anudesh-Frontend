@@ -17,41 +17,24 @@ import {
 
 //   import InputAdornment from "@material-ui/core/InputAdornment";
   import React, { useState, useEffect } from "react";
-//   import Header from "../../component/common/Header";
 import themeDefault from "@/themes/theme";
-//   import { Link, useNavigate, useParams } from "react-router-dom";
-//   import Button from "../../component/common/Button";
-//   import OutlinedTextField from "../../component/common/OutlinedTextField";
 import DatasetStyle from "@/styles/Dataset";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";
-  import ProjectTable from "../workspace/ProjectTable";
+  import ProjectTable from "./ProjectTable";
   import AnnotatorsTable from "../components/Tabs/AnnotatorTable";
   import ManagersTable from "../components/Tabs/ManagersTable";
   import Workspaces from "../components/common/Workspace";
-//   import CustomButton from "../../component/common/Button";
   import { translate } from "../../config/localisation";
-//   import MembersTable from "../Project/MembersTable";
   import Members from "../components/Tabs/Members";
   import Invites from "../components/Tabs/Invites";
   import OrganizationSettings from "../components/Tabs/OrganizationSettings";
   import OrganizationReports from "../components/Tabs/organizationReports";
   import WorkspaceReports from "../components/common/WorkspaceReports";
-  // import AddUsersDialog from "../components/common/AddUsersDialog";
-//   import addUserTypes from "../../../../constants/addUserTypes";
-//   import AddWorkspaceDialog from "../Workspace/AddWorkspaceDialog";
-//   import Spinner from "../../component/common/Spinner";
+  import Spinner from "../components/common/Spinner";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-//   import { useSelector, useDispatch } from "react-redux";
-//   import WorkspaceSetting from "../Tabs/WorkspaceSetting";
-//   import userRole from "../../../../utils/UserMappedByRole/Roles";
-//   import GetWorkspacesDetailsAPI from "../../../../redux/actions/api/WorkspaceDetails/GetWorkspaceDetails";
-//   import APITransport from "../../../../redux/actions/apitransport/apitransport";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-//   import TaskAnalytics from "../../container/Progress/Workspace/TaskAnalytics";
-//   import MetaAnalytics from "../../container/Progress/Workspace/MetaAnalytics";
-//   import ProgressAnalytics from "../../container/Progress/Workspace/ProgressAnalytics";
-//   import { DriveEta } from "@material-ui/icons";
+
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -106,29 +89,13 @@ import DatasetStyle from "@/styles/Dataset";
     const handleChange = (event, newValue) => {
       setValue(newValue);
     };
-    // const apiLoading = useSelector((state) => state.apiStatus.loading);
-    // const workspaceData = useSelector(state=>state.getWorkspaces.data);
-    // const getDashboardWorkspaceData = ()=>{
-    //     const workspaceObj = new GetWorkspacesAPI(1);
-    //     dispatch(APITransport(workspaceObj));
-    //   }
-  
-    // useEffect(() => {
-    //   // getDashboardWorkspaceData();
-    // }, []);
+
     const getWorkspaceDetails = () => {
       const workspaceObj = new GetWorkspacesDetailsAPI(orgId);
       dispatch(APITransport(workspaceObj));
     };
   
-    //  useEffect(() => {
-    //   if( pageType === "organization"){
-    //     getWorkspaceDetails();
-    //   }
-      
-    // }, []);
   
-    // let navigate = useNavigate();
   
     const handleAnnotatorDialogClose = () => {
       setAddAnnotatorsDialogOpen(false);
@@ -154,9 +121,7 @@ import DatasetStyle from "@/styles/Dataset";
       setAddWorkspacesDialogOpen(true);
     };
   
-    // useEffect(() => {
-    //   setLoading(apiLoading);
-    // }, [apiLoading]);
+
     const handleOpenSettings = () => {
       navigate(`/workspaces/${id}/workspacesetting`);
     };
@@ -369,14 +334,7 @@ import DatasetStyle from "@/styles/Dataset";
                   onClick={handleAnnotatorDialogOpen}
                 />
                 <AnnotatorsTable
-                  // onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
                 />
-                {/* <AddUsersDialog
-                  handleDialogClose={handleAnnotatorDialogClose}
-                  isOpen={addAnnotatorsDialogOpen}
-                  userType={addUserTypes.ANNOTATOR}
-                  id={id}
-                /> */}
               </>
             )}
             {pageType === componentType.Type_Organization && (
@@ -394,12 +352,6 @@ import DatasetStyle from "@/styles/Dataset";
                   onClick={handleManagerDialogOpen}
                 />
                 <ManagersTable />
-                {/* <AddUsersDialog
-                  handleDialogClose={handleManagerDialogClose}
-                  isOpen={addManagersDialogOpen}
-                  userType={addUserTypes.MANAGER}
-                  id={id}
-                /> */}
               </>
             )}
             {pageType === componentType.Type_Organization && (

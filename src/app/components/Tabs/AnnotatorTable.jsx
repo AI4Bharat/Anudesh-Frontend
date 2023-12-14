@@ -297,25 +297,7 @@ const AnnotatorsTable = (props) => {
 
         return workspaceAnnotators.filter((el) => {
 
-            // if (SearchWorkspaceMembers == "") {
-
-            //     return el;
-            // } else if (
-            //     el.username
-            //         ?.toLowerCase()
-            //         .includes(SearchWorkspaceMembers?.toLowerCase())
-            // ) {
-
-            //     return el;
-            // } else if (
-            //     el.email
-            //         ?.toLowerCase()
-            //         .includes(SearchWorkspaceMembers?.toLowerCase())
-            // ) {
-
                 return el;
-            // }
-
 
         })
 
@@ -371,21 +353,10 @@ const AnnotatorsTable = (props) => {
             }
         }];
 
-        // const projectlist = (el) => {
-        //     let temp = false;
-        //     workspaceDtails?.frozen_users?.forEach((em) => {
-        //       if (el == em.id) {
-        //         temp = true;
-        //       }
-        //     });
-        //     return temp;
-        //   };
-
           
 
     const data = workspaceAnnotators && workspaceAnnotators.length > 0 ? pageSearch().map((el, i) => {
         const userRole = el.role && UserMappedByRole(el.role)?.element;
-        console.log("userRole", userRole);
         return [
             el.id,
             el.username,

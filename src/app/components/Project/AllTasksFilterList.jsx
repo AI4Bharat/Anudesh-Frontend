@@ -29,12 +29,6 @@ console.log(currentFilters,"selectedStatus")
     props.handleClose();
    
   };
-  useEffect(() => {
-    updateFilters({
-        ...currentFilters,
-        task_status: selectedStatus,
-      })
-}, [selectedStatus])
 
   
 
@@ -59,9 +53,10 @@ console.log(currentFilters,"selectedStatus")
               {translate("label.filter.status")} :
             </Typography>
             <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
-              {filterStatusData.Status.map((item) => {
+              {filterStatusData.Status.map((item,i) => {
                 return (
                   <FormControlLabel
+                    key={i}
                     control={
                         <Checkbox
                         overlay
