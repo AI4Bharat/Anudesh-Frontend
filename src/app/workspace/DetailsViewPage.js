@@ -14,11 +14,9 @@ import {
     MenuItem,
   } from "@mui/material";
   import Link from 'next/link';
-
-//   import InputAdornment from "@material-ui/core/InputAdornment";
-  import React, { useState, useEffect } from "react";
-import themeDefault from "@/themes/theme";
-import DatasetStyle from "@/styles/Dataset";
+    import React, { useState, useEffect } from "react";
+import themeDefault from "../../themes/theme";
+import DatasetStyle from "../../styles/Dataset";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";
   import ProjectTable from "./ProjectTable";
@@ -28,7 +26,7 @@ import DatasetStyle from "@/styles/Dataset";
   import { translate } from "../../config/localisation";
   import Members from "../components/Tabs/Members";
   import Invites from "../components/Tabs/Invites";
-  import OrganizationSettings from "../components/Tabs/OrganizationSettings";
+  import OrganizationSettings from "../components/Tabs/organizationSettings";
   import OrganizationReports from "../components/Tabs/organizationReports";
   import WorkspaceReports from "../components/common/WorkspaceReports";
   import Spinner from "../components/common/Spinner";

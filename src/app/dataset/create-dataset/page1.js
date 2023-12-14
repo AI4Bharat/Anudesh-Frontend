@@ -30,7 +30,7 @@ const CollectionProject = (props) => {
     const [parent_Instance_Id, setParent_Instance_Id] = useState(null)
     const [instance_Description, setInstance_Description] = useState("")
     const [organisation_Id, setOrganisation_Id] = useState("")
-    const [users, setUsers] = useState("")
+    const [users, setUsers] = useState("1")
     const [datasettype, setDatasettype] = useState("");
     const [type, setType] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -42,9 +42,9 @@ const CollectionProject = (props) => {
         (state) => state.fetchLoggedInUserData.data
     );
 
-    useEffect(() => {
-        setUsers([loggedInUserData.id])
-    },)
+    // useEffect(() => {
+    //     setUsers([loggedInUserData.id])
+    // },)
 
     const handleCreate = () => {
         setLoading(true);
@@ -82,10 +82,10 @@ const CollectionProject = (props) => {
         dispatch(APITransport(projectObj));
     }
 
-    useEffect(() => {
-        getProjectDetails();
+    // useEffect(() => {
+    //     getProjectDetails();
 
-    }, []);
+    // }, []);
 
     useEffect(() => {
         if (datasetType && datasetType.length > 0) {

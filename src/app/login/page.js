@@ -1,15 +1,15 @@
 'use client';
 import { Grid, Link } from "@mui/material";
-import LoginStyle from "@/styles/loginStyle";
+import LoginStyle from "../../styles/loginStyle";
 import AppInfo from "../components/user/AppInfo";
-import CustomCard from "@/app/components/common/Card";
-import OutlinedTextField from "@/app/components/common/OutlinedTextField";
+import CustomCard from "../components/common/Card";
+import OutlinedTextField from "../components/common/OutlinedTextField";
 import { useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import { Visibility } from "@material-ui/icons";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import CustomButton from "@/app/components/common/Button";
+import CustomButton from "../components/common/Button";
 import { useRouter } from 'next/navigation';
 import { translate } from "@/config/localisation";
 import CustomizedSnackbars from "@/app/components/common/Snackbar";
@@ -59,7 +59,8 @@ export default function Login() {
                         name="email"
                         onChange={handleFieldChange}
                         value={credentials["email"]}
-                        placeholder={translate("enterEmailId")}
+                        placeholder={
+                          ("enterEmailId")}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>

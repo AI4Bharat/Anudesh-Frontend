@@ -1,11 +1,11 @@
 'use client';
 import { Grid, Link, Typography } from "@mui/material";
-import LoginStyle from "@/styles/loginStyle";
+import LoginStyle from "../../styles/loginStyle";
 import AppInfo from "../components/user/AppInfo";
-import OutlinedTextField from "@/app/components/common/OutlinedTextField";
+import OutlinedTextField from "../components/common/OutlinedTextField";
 import { useState } from "react";
 import Button from "../components/common/Button";
-import CustomizedSnackbars from "@/app/components/common/Snackbar";
+import CustomizedSnackbars from "../components/common/Snackbar";
 
 export default function ForgotPassword() {
     const handleChange = (prop) => (event) => {

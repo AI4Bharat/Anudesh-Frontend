@@ -1,5 +1,5 @@
 'use client';
-import themeDefault from "@/themes/theme"
+import themeDefault from "../themes/theme"
 import { ThemeProvider } from "@emotion/react"
 import "./index.css";
 // export const metadata = {

@@ -1,7 +1,7 @@
 'use client';
 import { Grid, Typography, FormControl, FormControlLabel, Radio, Box } from "@mui/material"
 import RadioGroup from "@mui/material/RadioGroup";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "../../styles/Dataset";
 import { useState } from "react";
 import CustomButton from "../components/common/Button";
 import DatasetCardList from "./DatasetCardList";
