@@ -8,9 +8,8 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["develop"]
-  pull_request:
+  pull_request:  
     branches: ["develop"]
-
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -91,6 +90,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
