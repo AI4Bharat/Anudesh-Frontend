@@ -16,6 +16,7 @@ import CustomizedSnackbars from "@/app/components/common/Snackbar";
 import "./login.css";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
     const router = useRouter()
@@ -101,7 +102,7 @@ export default function Login() {
                         borderRadius: "20px",
                         color: "#FFFFFF"
                     }} fullWidth
-                        // onClick={createToken} 
+                        onClick={handleSubmit} 
                         label={"Login"} />
                 </Grid>
             </Grid>
@@ -145,6 +146,34 @@ export default function Login() {
                   });
             });
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          signInWithEmailAndPassword(auth, credentials.email, credentials.password)
+          .then(async (result) => {
+            setSnackbarInfo({
+                open: true,
+                message: "login successfull",
+                variant: "success",
+              });
+            const { user } = result;
+            const idTokenResult = await user.getIdTokenResult();
+            window.localStorage.setItem("email", user.email);
+            window.localStorage.setItem("authtoken", idTokenResult.token);
+            router.push("/");
+          })
+        }
+        catch (err) {
+          console.log(err.message);
+          setSnackbarInfo({
+            open: true,
+            message: err.message,
+            variant: "error",
+          });
+        }
+      };
+    
 
     return (
         <>
