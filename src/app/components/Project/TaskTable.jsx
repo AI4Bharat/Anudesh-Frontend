@@ -74,14 +74,8 @@ const excludeCols = [
 
 const TaskTable = (props) => {
   const classes = DatasetStyle();
-  // const { id } = useParams();
   const id = 2279
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  // let location = useLocation();
-  // const taskList = useSelector(
-  //   (state) => state.getTasksByProjectId.data.result
-  // );
+
   const taskList = [{
     "total_count": 9,
     "result": [
@@ -1247,9 +1241,7 @@ const userDetails= {
     setLabellingStarted(true);
   };
 
-  // const totalTaskCount = useSelector(
-  //   (state) => state.getTasksByProjectId.data.total_count
-  // );
+ 
   const totalTaskCount=9
   const handleShowSearch = (col, event) => {
     setSearchAnchor(event.currentTarget);
@@ -1733,7 +1725,6 @@ const userDetails= {
   };
 
 
-  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
