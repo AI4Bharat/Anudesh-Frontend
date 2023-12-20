@@ -1,18 +1,19 @@
 'use client';
-import { Grid, Link, Typography } from "@mui/material";
-import LoginStyle from "@/styles/loginStyle";
-import AppInfo from "../../components/user/AppInfo";
-import OutlinedTextField from "@/app/components/common/OutlinedTextField";
+import { Grid, Link, Typography, FormHelperText } from "@mui/material";
+import LoginStyle from "../../styles/loginStyle";
+import AppInfo from "../components/user/AppInfo";
+import OutlinedTextField from "../components/common/OutlinedTextField";
 import { useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
+import { Visibility } from "@material-ui/icons";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { useRouter } from 'next/navigation';
-import CustomizedSnackbars from "@/app/components/common/Snackbar";
+import CustomizedSnackbars from "../components/common/OutlinedTextField";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-import Button from "../../components/common/Button";
+import Button from "../components/common/Button";
 
 export default function SignUp() {
     const router = useRouter()

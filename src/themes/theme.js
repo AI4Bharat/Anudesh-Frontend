@@ -1,5 +1,5 @@
 import { createTheme } from "@mui/material/styles";
-import Card from "@/assets/Card.svg";
+import Card from "../assets/Card.svg";
 
 const themeDefault = createTheme({
   palette: {

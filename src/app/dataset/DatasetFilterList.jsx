@@ -15,7 +15,7 @@ import {
   Box,
 
 } from "@mui/material";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "../../styles/Dataset";
 // import { useDispatch, useSelector } from "react-redux";
 // import GetDatasetTypeAPI from "../../../../redux/actions/api/Dataset/GetDatasetType";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
@@ -133,9 +133,10 @@ const DatasetFilterList = (props) => {
             Dataset Visibility :
             </Typography>
             <FormGroup>
-              {datasetvisibility.map((type) => {
+              {datasetvisibility.map((type, index) => {
                 return (
                   <FormControlLabel
+                    key={index}
                     control={
                       <Radio
                         checked={ selectDatasetVisibility === type }

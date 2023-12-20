@@ -1,8 +1,7 @@
 'use client';
-import themeDefault from "@/themes/theme"
+import themeDefault from "../themes/theme"
 import { ThemeProvider } from "@emotion/react"
 import "./index.css";
-
 // export const metadata = {
 //   title: 'Anudesh',
 //   description: 'anudesh-frontend',
@@ -13,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <ThemeProvider theme={themeDefault}>
-          {children}
+        {children}
         </ThemeProvider>
       </body>
     </html>

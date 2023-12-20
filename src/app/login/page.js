@@ -1,17 +1,22 @@
 'use client';
 import { Grid, Link } from "@mui/material";
-import LoginStyle from "@/styles/loginStyle";
+import LoginStyle from "../../styles/loginStyle";
 import AppInfo from "../components/user/AppInfo";
-import CustomCard from "@/app/components/common/Card";
-import OutlinedTextField from "@/app/components/common/OutlinedTextField";
+import CustomCard from "../components/common/Card";
+import OutlinedTextField from "../components/common/OutlinedTextField";
 import { useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
+import { Visibility } from "@material-ui/icons";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import CustomButton from "@/app/components/common/Button";
+import CustomButton from "../components/common/Button";
 import { useRouter } from 'next/navigation';
 import { translate } from "@/config/localisation";
 import CustomizedSnackbars from "@/app/components/common/Snackbar";
+import "./login.css";
+import { auth, googleAuthProvider } from "@/firebase";
+import { signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
     const router = useRouter()
@@ -54,7 +59,8 @@ export default function Login() {
                         name="email"
                         onChange={handleFieldChange}
                         value={credentials["email"]}
-                        placeholder={translate("enterEmailId")}
+                        placeholder={
+                          ("enterEmailId")}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -97,7 +103,7 @@ export default function Login() {
                         borderRadius: "20px",
                         color: "#FFFFFF"
                     }} fullWidth
-                        // onClick={createToken} 
+                        onClick={handleSubmit} 
                         label={"Login"} />
                 </Grid>
             </Grid>
@@ -118,6 +124,58 @@ export default function Login() {
         );
     };
 
+    const googleLogin = () => {
+        signInWithPopup(auth, googleAuthProvider)
+            .then(async (result) => {
+                setSnackbarInfo({
+                    open: true,
+                    message: "login successfull",
+                    variant: "success",
+                  });
+                const { user } = result;
+                const idTokenResult = await user.getIdTokenResult();
+                window.localStorage.setItem("email", user.email);
+                window.localStorage.setItem("authtoken", idTokenResult.token);
+                router.push("/");
+            })
+            .catch((err) => {
+                console.log(err);
+                setSnackbarInfo({
+                    open: true,
+                    message: err,
+                    variant: "error",
+                  });
+            });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          signInWithEmailAndPassword(auth, credentials.email, credentials.password)
+          .then(async (result) => {
+            setSnackbarInfo({
+                open: true,
+                message: "login successfull",
+                variant: "success",
+              });
+            const { user } = result;
+            const idTokenResult = await user.getIdTokenResult();
+            window.localStorage.setItem("email", user.email);
+            window.localStorage.setItem("authtoken", idTokenResult.token);
+            router.push("/");
+          })
+        }
+        catch (err) {
+          console.log(err.message);
+          setSnackbarInfo({
+            open: true,
+            message: err.message,
+            variant: "error",
+          });
+        }
+      };
+    
+
     return (
         <>
             {renderSnackBar()}
@@ -136,6 +194,23 @@ export default function Login() {
                 <Grid item xs={12} sm={9} md={9} lg={9} className={classes.parent}>
                     <form autoComplete="off">{renderCardContent()}
                     </form>
+                    <div className="w-1/3 flex items-center justify-between my-4">
+                        <span className="border-b w-1/4"></span>
+                        <a href="#" className="text-xs text-center text-gray-500 uppercase">or login with google</a>
+                        <span className="border-b w-1/4"></span>
+                    </div>
+
+                    <button onClick={() => googleLogin()} className="w-2/5 flex items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg hover:bg-gray-50">
+                        <div className="px-4 py-2">
+                            <svg className="w-6 h-6" viewBox="0 0 40 40">
+                                <path d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z" fill="#FFC107" />
+                                <path d="M5.25497 12.2425L10.7308 16.2583C12.2125 12.59 15.8008 9.99999 20 9.99999C22.5491 9.99999 24.8683 10.9617 26.6341 12.5325L31.3483 7.81833C28.3716 5.04416 24.39 3.33333 20 3.33333C13.5983 3.33333 8.04663 6.94749 5.25497 12.2425Z" fill="#FF3D00" />
+                                <path d="M20 36.6667C24.305 36.6667 28.2167 35.0192 31.1742 32.34L26.0159 27.975C24.3425 29.2425 22.2625 30 20 30C15.665 30 11.9842 27.2359 10.5975 23.3784L5.16254 27.5659C7.92087 32.9634 13.5225 36.6667 20 36.6667Z" fill="#4CAF50" />
+                                <path d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.7592 25.1975 27.56 26.805 26.0133 27.9758C26.0142 27.975 26.015 27.975 26.0158 27.9742L31.1742 32.3392C30.8092 32.6708 36.6667 28.3333 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z" fill="#1976D2" />
+                            </svg>
+                        </div>
+                        <span className="w-5/6 px-4 py-3 font-bold text-center">Sign in with Google</span>
+                    </button>
                 </Grid>
             </Grid>
         </>
