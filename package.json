@@ -18,15 +18,21 @@
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
     "@mui/styles": "^5.14.18",
+    "@mui/x-date-pickers-pro": "^6.18.4",
+    "axios": "^1.6.3",
     "firebase": "^10.7.1",
     "firebase-auth": "^0.1.2",
-    "@mui/x-date-pickers-pro": "^6.18.4",
     "mui-datatables": "^4.3.0",
     "next": "14.0.3",
     "react": "^18",
     "react-date-range": "^1.4.0",
     "react-dom": "^18",
-    "react-router-dom": "^6.20.1"
+    "react-router-dom": "^6.20.1",
+    "redux": "^5.0.1",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-logger": "^3.0.6",
+    "redux-persist": "^6.0.0",
+    "redux-thunk": "^3.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
