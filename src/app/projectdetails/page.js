@@ -28,6 +28,10 @@ import {
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import userRole from "../../utils/UsersRolesList";
   import SuperChecker from "../components/Project/SuperChecker";
+  import { useRouter } from "next/navigation";
+  
+
+  
 
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -266,8 +270,10 @@ debugger
     let reviewerdata = ProjectDetails?.annotation_reviewers?.filter(
       (x) => x.id == userDetails.id
     );
-  
-
+    const router = useRouter();
+    const handleOpenSettings = () => {
+       router.push('/ProjectSettings');
+    };
   
     let projectValue = "Unassigned Super Check Tasks"
     const filterdata = projectData.filter(item => item.name !== projectValue)
@@ -452,19 +458,20 @@ debugger
                 <Typography variant="h3">{ProjectDetails.title}</Typography>
               </Grid>
   
-              {(userRole.WorkspaceManager === loggedInUserData?.role ||
-                userRole.OrganizationOwner === loggedInUserData?.role ||
-                userRole.Admin === loggedInUserData?.role) && (
+              {(
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                     <Tooltip title={translate("label.showProjectSettings")}>
+                    <Link href="/ProjectSettings" passHref>
                       <IconButton
                         sx={{ marginLeft: "140px" }}
+                        onClick={handleOpenSettings}
                       >
                         <SettingsOutlinedIcon
                           color="primary.dark"
                           fontSize="large"
                         />
                       </IconButton>
+                      </Link>
                     </Tooltip>
                   </Grid>
                 )}

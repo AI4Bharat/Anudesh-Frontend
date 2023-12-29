@@ -9,7 +9,7 @@ import Link from 'next/link';
 import UserMappedByRole from "../../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
 import { ThemeProvider,Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
-import tableTheme from "../../../themes/TableTheme";
+import tableTheme from "../../../themes/tableTheme";
 // import RemoveWorkspaceMemberAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceMember";
 import Search from "../common/Search";
 // import RemoveWorkspaceFrozenUserAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceFrozenUser";
