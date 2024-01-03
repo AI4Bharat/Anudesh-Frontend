@@ -2,13 +2,10 @@
 import { useState, useEffect } from 'react';
 import { Card, Box, Grid, Typography, Tabs, Tab, Divider } from '@mui/material';
 import BasicSettings from '../components/Tabs/BasicSettings';
-// import AdvancedOperation from '../components/Tabs/AdvancedOperation';
-// import ReadOnlyConfigurations from '../components/Tabs/ReadonlyConfigurations';
+import AdvancedOperation from '../components/Tabs/AdvancedOperation';
+import ReadonlyConfigurations from '../components/Tabs/ReadonlyConfigurations';
+import ProjectLogs from '../projects/ProjectLogs';
 import dynamic from 'next/dynamic';
-
-// Import other necessary components here
-
-
 
 function TabPanel({ children, value, index, ...other}) {
   return (
@@ -39,7 +36,7 @@ const ProjectSettings = () => {
   const tabsLabels = ['Basic', 'Advanced', 'Read-only', 'Logs'];
 
   return (
-    <Card sx={{ width: '100%', minHeight: 500, padding: 5 }}>
+    <Card sx={{ width: 'full', minHeight: 500, padding: 5 }}>
       <Box>
       <Grid
                         item
@@ -67,15 +64,15 @@ const ProjectSettings = () => {
                 <TabPanel value={tabValue} index={0}>
                 <BasicSettings/>  
                 </TabPanel>
-                {/* <TabPanel value={tabValue} index={1}>
+                <TabPanel value={tabValue} index={1}>
                     <AdvancedOperation />
                 </TabPanel>
                 <TabPanel value={tabValue} index={2}>
-                <ReadOnlyConfigurations />
-                </TabPanel> */}
-                {/* <TabPanel value={tabValue} index={3}>
+                <ReadonlyConfigurations />
+                </TabPanel>
+                <TabPanel value={tabValue} index={3}>
                     <ProjectLogs />
-                </TabPanel> */}
+                </TabPanel>
             </Box>
       </Box>
     </Card>

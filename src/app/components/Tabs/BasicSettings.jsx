@@ -1,4 +1,4 @@
-import { Grid, Typography, TextField,ThemeProvider } from "@mui/material";
+import { Grid, Typography, TextField,ThemeProvider,Autocomplete } from "@mui/material";
 import themeDefault from '../../../themes/theme';
 import OutlinedTextField from "../common/OutlinedTextField";
 import DatasetStyle from "../../../styles/Dataset";
@@ -15,6 +15,7 @@ const BasicSettings = () => {
     });
     const [sourceLanguage, setSourceLanguage] = useState("");
     const [targetLanguage, setTargetLanguage] = useState("");
+    const [languageOptions, setLanguageOptions] = useState("");
     const [loading, setLoading] = useState(false);
     const [newDetails, setNewDetails] = useState();
     const classes = DatasetStyle();
@@ -122,6 +123,55 @@ const BasicSettings = () => {
                         />
                     </Grid>
                 </Grid>
+
+                
+
+                <Grid
+                            container
+                            direction='row'
+                            sx={{
+                                alignItems: "center",
+                                // justifyContent: "space-between",
+                                mt: 2
+                            }}
+                        >
+                            <Grid
+                                items
+                                xs={12}
+                                sm={12}
+                                md={12}
+                                lg={2}
+                                xl={2}
+                            >
+                                <Typography variant="body2" fontWeight='700' label="Required">
+                                {"Target Language"}
+                                </Typography>
+                            </Grid>
+                            <Grid
+                                item
+                                xs={12}
+                                md={12}
+                                lg={9}
+                                xl={9}
+                                sm={12}
+                            >
+                                <Autocomplete
+                                    onChange={(e, newVal) => setTargetLanguage(newVal)}
+                                    options={languageOptions}
+                                    value={targetLanguage}
+                                    style={{ fontSize: "14px", width: "500px" }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            inputProps={{ ...params.inputProps, style: { fontSize: "14px" } }}
+                                            placeholder={"Enter target language"}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                        </Grid>
+
 
 
 
