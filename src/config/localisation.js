@@ -1,12 +1,12 @@
 const localisation = {
-  landlingPageLabel: "Shoonya by AI4Bharat",
+  landlingPageLabel: "Anudesh by AI4Bharat",
   enterEmailId: "Enter your Email ID*",
   enterPassword: "Enter your Password*",
   forgotPassword: "Forgot Password?",
   newPassword:"Enter your New Password*",
   currentPassword:"Enter your Current Password*",
-  "label.shoonyaInfo":
-    "Shoonya is an open source platform to annotate and label data at scale, built with a vision to enhance digital presence of under-represented languages in India.",
+  "label.anudeshInfo":
+    "Anudesh is an open source platform to ...",
     "button.clearAll" : "Clear All",
     "button.clear" : "Clear",
     "button.Filter" : "Filter",

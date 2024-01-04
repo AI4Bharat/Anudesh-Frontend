@@ -9,7 +9,7 @@ export default function Home() {
         <>
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
                 <div className="pt-8 pb-16 flex justify-between px-16">
-                    <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width="90px"></Image>
+                    <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={90} height={90}></Image>
                     <div className="flex gap-6">
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
@@ -25,7 +25,7 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="pr-40">
-                        <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width="900px"></Image>
+                        <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={900} height={900}></Image>
                     </div>
                 </div>
             </div>
