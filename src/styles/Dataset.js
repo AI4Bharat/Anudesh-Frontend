@@ -30,7 +30,7 @@ const DatasetStyle = makeStyles({
   },
   settingsButton: {
     width: "100%",
-    backgroundColor: "red"
+    color: "#ee6633"
   },
   workspaceCard: {
     width: "100%",

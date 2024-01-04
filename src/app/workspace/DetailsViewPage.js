@@ -14,9 +14,12 @@ import {
     MenuItem,
   } from "@mui/material";
   import Link from 'next/link';
+  import { useRouter } from "next/navigation";
+  import axios from 'axios';
     import React, { useState, useEffect } from "react";
 import themeDefault from "../../themes/theme";
 import DatasetStyle from "../../styles/Dataset";
+import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";
   import ProjectTable from "./ProjectTable";
@@ -32,7 +35,8 @@ import DatasetStyle from "../../styles/Dataset";
   import Spinner from "../components/common/Spinner";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-
+import AddUsersDialog from "../components/common/AddUsersDialog";
+import addUserTypes from "../Constants/addUserTypes"
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -55,18 +59,19 @@ import DatasetStyle from "../../styles/Dataset";
   }
   
   const DetailsViewPage = (props) => {
-
+    const router = useRouter();
     const CustomButton = ({ label, buttonVariant, color, disabled = false, ...rest }) => (
         <Button {...rest} variant={buttonVariant ? buttonVariant : "contained"} color={color ? color : "primary"} disabled={disabled}>
           {label}
         </Button>
       );
-    const { pageType, title, createdBy, onArchiveWorkspace } = props;
+    const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
     // const { id, orgId } = useParams();
     const classes = DatasetStyle();
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
     // const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
+    const [user,setuser] = useState(initialUserData)
     const [loading, setLoading] = useState(false);
     const [addAnnotatorsDialogOpen, setAddAnnotatorsDialogOpen] =
       React.useState(false);
@@ -92,7 +97,6 @@ import DatasetStyle from "../../styles/Dataset";
       const workspaceObj = new GetWorkspacesDetailsAPI(orgId);
       dispatch(APITransport(workspaceObj));
     };
-  
   
   
     const handleAnnotatorDialogClose = () => {
@@ -121,7 +125,7 @@ import DatasetStyle from "../../styles/Dataset";
   
 
     const handleOpenSettings = () => {
-      navigate(`/workspaces/${id}/workspacesetting`);
+      router.push(`/workspace/workspacesetting`);
     };
   
     const handleClickMenu = (data)  =>{
@@ -159,7 +163,7 @@ import DatasetStyle from "../../styles/Dataset";
                   userRole.Reviewer !== userDetails?.role ||
                   userRole.SuperChecker !== userDetails?.role) && ( */}
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
-                    <Tooltip title="label.showProjectSettings">
+                    <Tooltip title={translate("label.showProjectSettings")}>
                       <IconButton
                         onClick={handleOpenSettings}
                         sx={{ marginLeft: "140px" }}
@@ -314,11 +318,11 @@ import DatasetStyle from "../../styles/Dataset";
                   onClick={handleWorkspaceDialogOpen}
                 />
                 <Workspaces />
-                {/* <AddWorkspaceDialog
+                <AddWorkspaceDialog
                   dialogCloseHandler={handleWorkspaceDialogClose}
                   isOpen={addWorkspacesDialogOpen}
-                  orgId={orgId}
-                /> */}
+                  // orgId={orgId}
+                />
               </>
             )}
           </TabPanel>
@@ -332,6 +336,12 @@ import DatasetStyle from "../../styles/Dataset";
                   onClick={handleAnnotatorDialogOpen}
                 />
                 <AnnotatorsTable
+                />
+                <AddUsersDialog
+                  handleDialogClose={handleAnnotatorDialogClose}
+                  isOpen={addAnnotatorsDialogOpen}
+                  userType={addUserTypes.ANNOTATOR}
+                  // id={id}
                 />
               </>
             )}
@@ -350,6 +360,12 @@ import DatasetStyle from "../../styles/Dataset";
                   onClick={handleManagerDialogOpen}
                 />
                 <ManagersTable />
+                <AddUsersDialog
+                  handleDialogClose={handleManagerDialogClose}
+                  isOpen={addManagersDialogOpen}
+                  userType={addUserTypes.MANAGER}
+                  // id={id}
+                />
               </>
             )}
             {pageType === componentType.Type_Organization && (
@@ -375,5 +391,24 @@ import DatasetStyle from "../../styles/Dataset";
     </ThemeProvider>
   );
 };
+
+
+export async function getServerSideProps() {
+  try {
+    const response = await axios.get('https://backend.dev.anudesh.ai4bharat.org//users/account/me/fetch');
+
+    const initialUserData = response.data;
+
+    return {
+      props: { initialUserData },
+    };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return {
+      props: { initialUserData: null }, 
+    };
+  }
+}
+
 
 export default DetailsViewPage;

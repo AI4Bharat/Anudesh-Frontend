@@ -14,7 +14,7 @@ import CustomizedSnackbars from "../components/common/Snackbar";
 import userRole from "../../utils/Role";
 import ProfileDetails from "../components/UserManagement/ProfileDetails"
 import ScheduleMails from "../components/UserManagement/ScheduleMails"
-
+import { useRouter } from 'next/navigation';
 export default function ProfilePage () {
 
   const id=1;
@@ -28,6 +28,7 @@ export default function ProfilePage () {
     message: "",
     variant: "success",
   });
+  const router = useRouter()
   const userDetails= {
     "id": 1,
     "username": "shoonya",
@@ -175,7 +176,7 @@ const loggedInUserData= {
                     <Grid item>
                       <CustomButton
                         label="View Progress"
-                        // onClick={() => navigate(`/progress/${UserDetails.id}`)}
+                        onClick={() => router.push(`/progress/`)}
                       />
                     </Grid>
                   </Grid>
