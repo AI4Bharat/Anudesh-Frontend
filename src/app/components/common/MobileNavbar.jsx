@@ -37,21 +37,6 @@ function MobileNavbar(props) {
   const [openDrawer, setOpenDrawer] = useState(false);
   const classes = headerStyle();
 
-  const handleRTLChange = (event) => {
-    let style;
-    if (event.target.checked) {
-        localStorage.setItem("rtl", true);
-        style = document.createElement("style");
-        style.innerHTML = "input, textarea { direction: RTL; }";
-        document.head.appendChild(style);
-    } else {
-        localStorage.setItem("rtl", false);
-        style = document.createElement("style");
-        style.innerHTML = "input, textarea { direction: unset; }";
-        document.head.appendChild(style);
-    }
-  };
-
   return (
     <>
       <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} PaperProps={{
