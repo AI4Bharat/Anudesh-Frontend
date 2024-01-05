@@ -14,6 +14,7 @@ import { ThemeProvider, Grid,
     DialogContentText } from "@mui/material";
 import tableTheme from "../../../themes/TableTheme";
 import Link from 'next/link';
+import {useRouter} from 'next/navigation'
 
 // import RemoveWorkspaceManagerAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceManager";
 import CustomizedSnackbars from "../../components/common/Snackbar";
@@ -30,7 +31,7 @@ const ManagersTable = (props) => {
         message: "",
         variant: "success",
       });
-    
+    const router = useRouter()
     // const {id} = useParams();
     // const orgId = useSelector(state=>state.getWorkspacesProjectData?.data?.[0]?.organization_id);
 //     const getWorkspaceManagersData = ()=>{
@@ -252,6 +253,8 @@ const workspaceManagers = [
                     <CustomButton
                         sx={{borderRadius : 2,marginRight: 2}}
                         label = "View"
+                        onClick={()=>{router.push(`/profile/`)}}
+
                     />
                    
                 </Link>
@@ -308,7 +311,6 @@ const workspaceManagers = [
         const [confirmationDialog, setConfirmationDialog] = useState(false);
         const [elEmail, setElEmail] = useState("");
         const [elId, setElId] = useState("");
-        // const emailId = localStorage.getItem("email_id");
         const [password, setPassword] = useState("");
         const handleConfirm = async () => {
           const apiObj = new LoginAPI(emailId, password);
