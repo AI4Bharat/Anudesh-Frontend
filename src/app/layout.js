@@ -2,7 +2,7 @@
 import themeDefault from "../themes/theme"
 import { ThemeProvider } from "@emotion/react"
 import {Provider} from 'react-redux';
-import store from "./redux/store/store";
+// import store from "./redux/store/store";
 import "./index.css";
 // export const metadata = {
 //   title: 'Anudesh',
@@ -13,11 +13,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Provider store={store}>
+        {/* <Provider store={store}> */}
         <ThemeProvider theme={themeDefault}>
         {children}
         </ThemeProvider>
-        </Provider>
+        {/* </Provider> */}
       </body>
     </html>
   )
