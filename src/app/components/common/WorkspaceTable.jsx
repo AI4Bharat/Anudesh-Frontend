@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import CustomButton from '../common/Button'
 // import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
-
+import { GetWorkspaceData } from "@/app/actions/user/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
 import tableTheme from "../../../themes/tableTheme";
 import DatasetStyle from "../../../styles/Dataset";
@@ -17,31 +17,32 @@ const WorkspaceTable = (props) => {
     // const dispatch = useDispatch();
     const { showManager, showCreatedBy } = props;
 
+    const [workspaceData, setWorkspaceData] = useState([]);
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
     const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
     const [totalWorkspaces, setTotalWorkspaces] = useState(10);
 
-   
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const data = await GetWorkspaceData();
+            setWorkspaceData(data);
+          } catch (error) {
+            console.error('Error fetching workspace data:', error);
+          }
+        };
+    
+        fetchData();
+      }, [])
 
     const pageSearch = () => {
 
         return workspaceData.filter((el) => {
-
-        
-
                 return el;
         })
 
     }
-
-    const workspaceData = [{ "id": 1, "workspace_name": "workspace 1", "managers": [{ "username": "manager 1" }, { "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 1" } },
-    { "id": 2, "workspace_name": "workspace 2", "managers": [{ "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 2" } },
-    { "id": 3, "workspace_name": "workspace 3", "managers": [{ "username": "manager 1" }, { "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 3" } },
-    { "id": 4, "workspace_name": "workspace 4", "managers": [{ "username": "manager 1" }, { "username": "manager 3" }], "created_by": { "username": "Admin 4" } },
-    { "id": 5, "workspace_name": "workspace 5", "managers": [{ "username": "manager 1" }, { "username": "manager 3" }], "created_by": { "username": "Admin 5" } },
-    { "id": 6, "workspace_name": "workspace 6", "managers": [{ "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 6" } }]
-  
    
     const columns = [
         {

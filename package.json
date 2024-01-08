@@ -24,6 +24,7 @@
     "firebase-auth": "^0.1.2",
     "mui-datatables": "^4.3.0",
     "next": "14.0.3",
+    "next-redux-wrapper": "^8.1.0",
     "react": "^18",
     "react-date-range": "^1.4.0",
     "react-dom": "^18",
