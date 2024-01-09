@@ -19,6 +19,7 @@
     "@mui/material": "^5.14.18",
     "@mui/styles": "^5.14.18",
     "@mui/x-date-pickers-pro": "^6.18.4",
+    "@reduxjs/toolkit": "^2.0.1",
     "axios": "^1.6.3",
     "firebase": "^10.7.1",
     "firebase-auth": "^0.1.2",
