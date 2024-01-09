@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import CustomButton from "../components/common/Button";
-import DatasetStyle from "../../styles/Dataset";
-import CustomizedSnackbars from "../components/common/Snackbar";
+import CustomButton from "../../components/common/Button";
+import  "../../styles/Dataset.css";
+import CustomizedSnackbars from "../../components/common/Snackbar";
 import Dialog from "@mui/material/Dialog";
 import { Button,Grid } from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";
@@ -12,7 +12,7 @@ import TextField from '@mui/material/TextField';
 function WorkspaceSetting(props) {
   const { onArchiveWorkspace } = props
   console.log(props, "props")
-  const classes = DatasetStyle();
+  
   const [loading, setLoading] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [snackbar, setSnackbarInfo] = useState({
@@ -94,7 +94,7 @@ function WorkspaceSetting(props) {
       <CustomButton
        fullWidth
         sx={{ backgroundColor: "#ee6633", color:"white","&:hover": { backgroundColor: "#ee6633"} }}
-        // className={classes.settingsButton}
+        // className="settingsButton"
         onClick={handleClickOpen}
         label={"Archive Workspace"}
         buttonVariant="contained"
@@ -112,7 +112,7 @@ function WorkspaceSetting(props) {
         <CustomButton
       sx={{backgroundColor : "#ee6633", "&:hover" : {backgroundColor : "#ee6633",}}} 
       label={"Download All Projects"}
-    //   className={classes.settingsButton}
+    //   className="settingsButton"
       fullWidth
         variant="contained"
         onClick={handleDownloadProject}

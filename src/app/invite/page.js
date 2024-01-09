@@ -1,23 +1,21 @@
 'use client';
-import { Grid, Link, Typography, FormHelperText } from "@mui/material";
-import LoginStyle from "../../styles/loginStyle";
-import AppInfo from "../components/user/AppInfo";
-import OutlinedTextField from "../components/common/OutlinedTextField";
 import { useState } from "react";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import { Visibility } from "@material-ui/icons";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { useRouter } from 'next/navigation';
-import CustomizedSnackbars from "../components/common/OutlinedTextField";
+import { Grid, Link, Typography, FormHelperText, InputAdornment, IconButton } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-import Button from "../components/common/Button";
+
+import AppInfo from "../../components/user/AppInfo";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
+import CustomizedSnackbars from "../../components/common/OutlinedTextField";
+import Button from "../../components/common/Button";
+import "../../styles/Dataset.css";
 
 export default function SignUp() {
     const router = useRouter()
-    const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -186,10 +184,10 @@ export default function SignUp() {
                     }} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}  >
-                    <div className={classes.createLogin}>
-                        <Typography variant={"body2"} className={classes.Typo}>Already have an account ?</Typography>
+                    <div className="createLogin">
+                        <Typography variant={"body2"} className="Typo">Already have an account ?</Typography>
                         <Typography variant={"body2"}>
-                            <Link className={classes.link} href="/login" style={{ fontSize: "14px" }} >
+                            <Link className="link" href="/login" style={{ fontSize: "14px" }} >
                                 {" "}
                                 Sign in
                             </Link>
@@ -216,11 +214,11 @@ export default function SignUp() {
 
     return (
         <>
-            <Grid container className={classes.loginGrid} >
-                <Grid item xs={12} sm={3} md={3} lg={3} color={"primary"} className={classes.appInfo}>
+            <Grid container className="loginGrid" >
+                <Grid item xs={12} sm={3} md={3} lg={3} color={"primary"} className="appInfo">
                     <AppInfo />
                 </Grid>
-                <Grid item xs={12} sm={9} md={9} lg={9} className={classes.parent} >
+                <Grid item xs={12} sm={9} md={9} lg={9} className="parent" >
                     {TextFields()}
                 </Grid>
             </Grid>

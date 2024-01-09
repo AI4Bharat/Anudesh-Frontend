@@ -18,25 +18,25 @@ import {
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
 import themeDefault from "../../themes/theme";
-import DatasetStyle from "../../styles/Dataset";
+import  "../../styles/Dataset.css";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";
   import ProjectTable from "./ProjectTable";
-  import AnnotatorsTable from "../components/Tabs/AnnotatorTable";
-  import ManagersTable from "../components/Tabs/ManagersTable";
-  import Workspaces from "../components/common/Workspace";
+  import AnnotatorsTable from "../../components/Tabs/AnnotatorTable";
+  import ManagersTable from "../../components/Tabs/ManagersTable";
+  import Workspaces from "../../components/common/Workspace";
   import { translate } from "../../config/localisation";
-  import Members from "../components/Tabs/Members";
-  import Invites from "../components/Tabs/Invites";
-  import OrganizationSettings from "../components/Tabs/organizationSettings";
-  import OrganizationReports from "../components/Tabs/organizationReports";
-  import WorkspaceReports from "../components/common/WorkspaceReports";
-  import Spinner from "../components/common/Spinner";
+  import Members from "../../components/Tabs/Members";
+  import Invites from "../../components/Tabs/Invites";
+  import OrganizationSettings from "../../components/Tabs/organizationSettings";
+  import OrganizationReports from "../../components/Tabs/organizationReports";
+  import WorkspaceReports from "../../components/common/WorkspaceReports";
+  import Spinner from "../../components/common/Spinner";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import AddUsersDialog from "../components/common/AddUsersDialog";
-import addUserTypes from "../Constants/addUserTypes"
+import AddUsersDialog from "../../components/common/AddUsersDialog";
+import addUserTypes from "../../Constants/addUserTypes"
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -67,7 +67,7 @@ import addUserTypes from "../Constants/addUserTypes"
       );
     const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
     // const { id, orgId } = useParams();
-    const classes = DatasetStyle();
+    
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
     // const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
@@ -141,7 +141,7 @@ import addUserTypes from "../Constants/addUserTypes"
           justifyContent="center"
           alignItems="center"
         >
-          <Card className={classes.workspaceCard}>
+          <Card className="workspaceCard">
             {/* {pageType === componentType.Type_Organization && ( */}
               <Typography variant="h2" gutterBottom component="div">
                 title
@@ -289,8 +289,8 @@ import addUserTypes from "../Constants/addUserTypes"
                   <Grid item xs={12} sm={6}>
                     <Link href={`/create-annotation-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2 }}
-                        className={classes.projectButton}
+                      sx={{ width: "100%", mb: 2, textDecoration: "none" }}
+                        className="projectButton"
                         label={"Add New Annotation Project"}
                       />
                     </Link>
@@ -298,14 +298,14 @@ import addUserTypes from "../Constants/addUserTypes"
                   <Grid item xs={12} sm={6}>
                     <Link href={`/create-collection-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2 }}
-                        className={classes.projectButton}
+                      sx={{ width: "100%", mb: 2, textDecoration: "none" }}
+                        className="projectButton"
                         label={"Add New Collection Project"}
                       />
                     </Link>
                   </Grid>
                 </Grid>
-                <div className={classes.workspaceTables}>
+                <div>
                   <ProjectTable />
                 </div>
               </>
@@ -330,7 +330,6 @@ import addUserTypes from "../Constants/addUserTypes"
             {pageType === componentType.Type_Workspace && (
               <>
                 <CustomButton
-                  className={classes.annotatorsButton}
                   label={"Add Members to Workspace"}
                   sx={{ width: "100%", mb: 2 }}
                   onClick={handleAnnotatorDialogOpen}

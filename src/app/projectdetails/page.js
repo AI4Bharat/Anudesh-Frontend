@@ -14,20 +14,20 @@ import {
   import React, { useEffect, useState } from "react";
   import themeDefault from "../../themes/theme";
   import Link from "next/link";
-  import TaskTable from "../components/Project/TaskTable";
-  import MembersTable from "../components/Project/MembersTable";
-  import ReportsTable from "../components/Project/ReportsTable";
+  import TaskTable from "../../components/Project/TaskTable";
+  import MembersTable from "../../components/Project/MembersTable";
+  import ReportsTable from "../../components/Project/ReportsTable";
   import { translate } from "../../config/localisation";
-  import addUserTypes from "../Constants/addUserTypes";
-  import Spinner from "../components/common/Spinner";
+  import addUserTypes from "../../Constants/addUserTypes";
+  import Spinner from "../../components/common/Spinner";
   import Menu from "@mui/material/Menu";
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-  import DatasetStyle from "../../styles/Dataset";
-  import ProjectDescription from "../components/Tabs/ProjectDescription";
+  import  "../../styles/Dataset.css";
+  import ProjectDescription from "../../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import userRole from "../../utils/UsersRolesList";
-  import SuperChecker from "../components/Project/SuperChecker";
+  import SuperChecker from "../../components/Project/SuperChecker";
 
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -52,7 +52,7 @@ import {
 debugger
   export default function ProjectDetails () {
 
-    const classes = DatasetStyle();
+    
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
       { name: "Description", value: null },

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import MUIDataTable from "mui-datatables";
-import CustomButton from "../components/common/Button";
+import CustomButton from "../../components/common/Button";
 import { ThemeProvider,Tooltip, Button } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 // import { useSelector } from "react-redux";

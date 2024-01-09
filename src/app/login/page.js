@@ -1,18 +1,15 @@
 'use client';
-import { Grid, Link } from "@mui/material";
-import LoginStyle from "../../styles/loginStyle";
-import AppInfo from "../components/user/AppInfo";
-import CustomCard from "../components/common/Card";
-import OutlinedTextField from "../components/common/OutlinedTextField";
+import { Grid, Link, InputAdornment, IconButton } from "@mui/material";
+import "../../styles/Dataset.css";
+import AppInfo from "../../components/user/AppInfo";
+import CustomCard from "../../components/common/Card";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
 import { useState } from "react";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import { Visibility } from "@material-ui/icons";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import CustomButton from "../components/common/Button";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import CustomButton from "../../components/common/Button";
 import { useRouter } from 'next/navigation';
 import { translate } from "@/config/localisation";
-import CustomizedSnackbars from "@/app/components/common/Snackbar";
+import CustomizedSnackbars from "../../components/common/Snackbar";
 import "./login.css";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
@@ -20,7 +17,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
     const router = useRouter()
-    const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -187,11 +183,11 @@ export default function Login() {
                     md={3}
                     lg={3}
                     color={"primary"}
-                    className={classes.appInfo}
+                    className="appInfo"
                 >
                     <AppInfo />
                 </Grid>
-                <Grid item xs={12} sm={9} md={9} lg={9} className={classes.parent}>
+                <Grid item xs={12} sm={9} md={9} lg={9} className="parent">
                     <form autoComplete="off">{renderCardContent()}
                     </form>
                     <div className="w-1/3 flex items-center justify-between my-4">

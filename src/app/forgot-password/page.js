@@ -1,11 +1,11 @@
 'use client';
 import { Grid, Link, Typography } from "@mui/material";
-import LoginStyle from "../../styles/loginStyle";
-import AppInfo from "../components/user/AppInfo";
-import OutlinedTextField from "../components/common/OutlinedTextField";
+import "../../styles/Dataset.css";
+import AppInfo from "../../components/user/AppInfo";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
 import { useState } from "react";
-import Button from "../components/common/Button";
-import CustomizedSnackbars from "../components/common/Snackbar";
+import Button from "../../components/common/Button";
+import CustomizedSnackbars from "../../components/common/Snackbar";
 
 export default function ForgotPassword() {
     const handleChange = (prop) => (event) => {
@@ -18,7 +18,6 @@ export default function ForgotPassword() {
     const [error, setError] = useState({
         email: false,
     });
-    const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -54,7 +53,7 @@ export default function ForgotPassword() {
                     <Typography variant="h3">Forgot password?</Typography>
                 </Grid>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <Typography variant="body2" className={classes.subTypo}>
+                    <Typography variant="body2" className="subTypo">
                         Enter you email address and we will send a link to reset your
                         password.
                     </Typography>
@@ -105,7 +104,7 @@ export default function ForgotPassword() {
 
     return (
         <>
-            <Grid container className={classes.loginGrid}>
+            <Grid container className="loginGrid">
                 <Grid
                     item
                     xs={12}
@@ -113,11 +112,11 @@ export default function ForgotPassword() {
                     md={3}
                     lg={3}
                     color={"primary"}
-                    className={classes.appInfo}
+                    className="appInfo"
                 >
                     <AppInfo />
                 </Grid>
-                <Grid item xs={12} sm={9} md={9} lg={9} className={classes.parent}>
+                <Grid item xs={12} sm={9} md={9} lg={9} className="parent">
                     {TextFields()}
                 </Grid>
             </Grid >

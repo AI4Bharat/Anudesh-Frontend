@@ -120,10 +120,10 @@ const themeDefault = createTheme({
     MuiTableRow: {
       styleOverrides: {
         root: {
-          "&:nth-child(odd)": {
+          "&:nth-of-type(odd)": {
             backgroundColor: "#D6EAF8",
           },
-          "&:nth-child(even)": {
+          "&:nth-of-type(even)": {
             backgroundColor: "#E9F7EF",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(odd)": {

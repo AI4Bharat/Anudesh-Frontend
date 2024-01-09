@@ -8,24 +8,21 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Button from "@/app/components/common/Button";
-import OutlinedTextField from "@/app/components/common/OutlinedTextField";
-import Spinner from "@/app/components/common/Spinner";
-import CustomizedSnackbars from "@/app/components/common/Snackbar";
-import DatasetStyle from "@/styles/Dataset";
+import { useParams } from 'next/navigation'
+import Button from "../components/common/Button";
+import OutlinedTextField from "../components/common/OutlinedTextField";
+import Spinner from "../components/common/Spinner";
+import CustomizedSnackbars from "../components/common/Snackbar";
 //   import { useDispatch, useSelector } from "react-redux";
 //   import APITransport from "../../../../redux/actions/apitransport/apitransport";
 //   import CreateNewDatasetInstanceAPI from "../../../../redux/actions/api/Dataset/CreateNewDatasetInstance";
 //   import GetDatasetTypeAPI from "../../../../redux/actions/api/Dataset/GetDatasetType"
-import MenuItems from "@/app/components/common/MenuItems"
+import MenuItems from "../components/common/MenuItems"
 import { useRouter } from "next/navigation";
 
 const CollectionProject = (props) => {
     const { id } = useParams();
     const router = useRouter();
-    const classes = DatasetStyle();
-    const dispatch = useDispatch();
     const [instance_Name, setInstance_Name] = useState("")
     const [parent_Instance_Id, setParent_Instance_Id] = useState(null)
     const [instance_Description, setInstance_Description] = useState("")
@@ -77,11 +74,7 @@ const CollectionProject = (props) => {
 
     const datasetType = useSelector(state => state.GetDatasetType.data);
 
-    const getProjectDetails = () => {
-        const projectObj = new GetDatasetTypeAPI(id);
-        dispatch(APITransport(projectObj));
-    }
-
+    
     // useEffect(() => {
     //     getProjectDetails();
 
@@ -137,7 +130,7 @@ const CollectionProject = (props) => {
 
             <Grid container direction="row"  >
                 {loading && <Spinner />}
-                <Card className={classes.workspaceCard}>
+                <Card className="workspaceCard">
                     <Grid item xs={2} sm={2} md={2} lg={2} xl={2}></Grid>
                     <Grid item xs={8} sm={8} md={8} lg={8} xl={8} sx={{ pb: "6rem" }}>
                         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -146,7 +139,7 @@ const CollectionProject = (props) => {
                             </Typography>
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             xs={12}
                             sm={12}
                             md={12}
@@ -168,7 +161,7 @@ const CollectionProject = (props) => {
                             />
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             xs={12}
                             sm={12}
                             md={12}
@@ -189,7 +182,7 @@ const CollectionProject = (props) => {
                             />
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             xs={12}
                             sm={12}
                             md={12}
@@ -210,7 +203,7 @@ const CollectionProject = (props) => {
                             />
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             xs={12}
                             sm={12}
                             md={12}
@@ -231,7 +224,7 @@ const CollectionProject = (props) => {
                             />
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             xs={12}
                             sm={12}
                             md={12}
@@ -252,7 +245,7 @@ const CollectionProject = (props) => {
                             />
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             xs={12}
                             sm={12}
                             md={12}
@@ -273,7 +266,7 @@ const CollectionProject = (props) => {
                             />
                         </Grid>
                         <Grid
-                            className={classes.projectsettingGrid}
+                            className="projectsettingGrid"
                             style={{}}
                             item
                             xs={12}

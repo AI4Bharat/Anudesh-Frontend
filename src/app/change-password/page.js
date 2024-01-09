@@ -1,33 +1,29 @@
 'use client'
 import {
-    Card,
-    Grid,
-    ThemeProvider,
-    Typography,
-    InputAdornment,
-  } from "@mui/material";
-  import React, { useEffect, useState } from "react";
-  import themeDefault from "../../themes/theme";
-  import { translate } from "../../config/localisation";
-//   import { useNavigate, useParams } from "react-router-dom";
-  import Button from "../components/common/Button";
-  import OutlinedTextField from "../components/common/OutlinedTextField";
-  import DatasetStyle from "../../styles/Dataset";
+  Card,
+  Grid,
+  ThemeProvider,
+  Typography,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import themeDefault from "../../themes/theme";
+import { translate } from "../../config/localisation";
+import Button from "../../components/common/Button";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
+import "../../styles/Dataset.css";
 //   import { useDispatch, useSelector } from "react-redux";
 //   import APITransport from "../../../../redux/actions/apitransport/apitransport";
 //   import ChangePasswordAPI from "../../../../redux/actions/api/UserManagement/ChangePassword"
-  import Spinner from "../components/common/Spinner";
-  import CustomizedSnackbars from "../components/common/Snackbar";
-  import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-  import IconButton from "@material-ui/core/IconButton";
-  import Visibility from "@material-ui/icons/Visibility";
-  import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import CustomButton from "../components/common/Button";
+import Spinner from "../../components/common/Spinner";
+import CustomizedSnackbars from "../../components/common/Snackbar";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import CustomButton from "../../components/common/Button";
   
   
   const ChangePassword = (props) => {
-    // const navigate = useNavigate();
-    const classes = DatasetStyle();
+    
     // const dispatch = useDispatch();
     const [newPassword, setNewPassword] = useState("")
     const [currentPassword, setCurrentPassword] = useState("")
@@ -71,7 +67,7 @@ import CustomButton from "../components/common/Button";
         {loading && <Spinner />}
         {/* {renderSnackBar()} */}
         <Grid container direction="row"  >
-          <Card className={classes.workspaceCard}>
+          <Card className="workspaceCard">
             <Grid item xs={2} sm={2} md={2} lg={2} xl={2}></Grid>
             <Grid item xs={8} sm={8} md={8} lg={8} xl={8} sx={{ pb: "6rem" }}>
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -85,7 +81,7 @@ import CustomButton from "../components/common/Button";
               </Grid> */}
   
               <Grid
-                className={classes.projectsettingGrid}
+                className="projectsettingGrid"
                 items
                 xs={12}
                 sm={12}
@@ -129,7 +125,7 @@ import CustomButton from "../components/common/Button";
                   md={12}
                   lg={12}
                   xl={12}
-                  className={classes.projectsettingGrid}
+                  className="projectsettingGrid"
                 >
                   <Typography gutterBottom component="div" label="Required">
                     New Password
@@ -165,7 +161,7 @@ import CustomButton from "../components/common/Button";
                   md={12}
                   lg={12}
                   xl={12}
-                  className={classes.projectsettingGrid}
+                  className="projectsettingGrid"
                 >
                   <Typography gutterBottom component="div" label="Required">
                     Confirm Password
@@ -195,7 +191,7 @@ import CustomButton from "../components/common/Button";
                 </Grid>
   
               <Grid
-                className={classes.projectsettingGrid}
+                className="projectsettingGrid"
                 item
                 xs={12}
                 md={12}
@@ -212,7 +208,6 @@ import CustomButton from "../components/common/Button";
                 <Button
                   sx={{ ml: 2 }}
                   label={"Cancel"}
-                  onClick={() => navigate(`/projects`)}
                 />
               </Grid>
             </Grid>
