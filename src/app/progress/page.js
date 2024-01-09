@@ -6,81 +6,81 @@ import MyProgress from '../components/Tabs/MyProgress';
 import RecentTasks from '../components/Tabs/RecentTasks';
 import Spinner from "../components/common/Spinner";
 import userRole from "../../utils/Role";
+import { useDispatch, useSelector } from "react-redux";
+import APITransport from '@/Lib/apiTransport/apitransport';
+import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
+import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 
 
 export default function ProgressPage () {
-
-
+  // const { id } = useParams();
+  const id = 1;
+  const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
-  const loggedInUserData= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-};
 
-  const userDetails= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-};
+  const UserDetails = useSelector((state) => state.fetchUsersById.data);
+  const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
+  const loggedInUserData = useSelector((state) => state.fetchLoggedInUserData.data);
+  const handleEmailToggle = async () => {
+    setLoading(true);
+    const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
+    const res = await fetch(mailObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(mailObj.getBody()),
+        headers: mailObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+        setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "success",
+        })
+        const userObj = new FetchUserByIdAPI(id);
+        dispatch(APITransport(userObj));
+    } else {
+        setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+        })
+    }
+  }
 
+  const renderSnackBar = () => {
+    return (
+        <CustomizedSnackbars
+            open={snackbar.open}
+            handleClose={() =>
+                setSnackbarInfo({ open: false, message: "", variant: "" })
+            }
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            variant={snackbar.variant}
+            message={snackbar.message}
+        />
+    );
+  };
+  
+  useEffect(() => {
+    setLoading(true);
+    const userObj = new FetchUserByIdAPI(id);
+    dispatch(APITransport(userObj));
+  }, [id]);
+
+  useEffect(() => {
+    if(UserDetails && UserDetails.id == id) {
+      setUserDetails(UserDetails);
+      setLoading(false);
+    }
+  }, [UserDetails]);
 
   return (
       <Grid container spacing={2}>

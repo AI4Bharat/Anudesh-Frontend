@@ -5,10 +5,10 @@ import {
     Tab,
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
-  // import { useSelector, useDispatch } from "react-redux";
-  // import APITransport from "../../../../redux/actions/apitransport/apitransport";
+  import { useSelector, useDispatch } from "react-redux";
+  import APITransport from "@/Lib/apiTransport/apitransport";
   // import { useParams } from 'react-router-dom';
-  // import FetchRecentTasksAPI from "../../../../redux/actions/api/UserManagement/FetchRecentTasks";
+  import FetchRecentTasksAPI from "@/app/actions/api/user/FetchRecentTasksAPI";
   import tableTheme from "../../../themes/TableTheme";
   import themeDefault from "../../../themes/theme";
   import MUIDataTable from "mui-datatables";
@@ -19,231 +19,160 @@ import {
   const RecentTasks = () => {
   
     // const { id } = useParams();
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [taskType, setTaskType] = useState(TASK_TYPES[0]);
-    // const [columns, setColumns] = useState([]);
+    const [text, settext] = useState("")
+    const [columns, setColumns] = useState([]);
+    const [selectedColumns, setSelectedColumns] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const popoverOpen = Boolean(anchorEl);
+    const filterId = popoverOpen ? "simple-popover" : undefined;
+  
+    const [searchAnchor, setSearchAnchor] = useState(null);
+    const searchOpen = Boolean(searchAnchor);
+    const [searchedCol, setSearchedCol] = useState();
     const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
-    const SearchWorkspace =[];
-
-
-    const RecentTasks = {
-      "count": 68578,
-      "next": "http://backend.dev.shoonya.ai4bharat.org/task/annotated_and_reviewed_tasks/get_users_recent_tasks/?page=2&records=10&search_Project+ID=2284&task_type=annotation",
-      "previous": null,
-      "results": [
-          {
-              "Project ID": 2284,
-              "Task ID": 3606603,
-              "Updated at": "07-12-2023 16:04:04",
-              "Annotated at": "07-12-2023 16:03:01",
-              "Created at": "07-12-2023 15:59:50"
-          },
-          {
-              "Project ID": 2284,
-              "Task ID": 3606607,
-              "Updated at": "07-12-2023 15:59:50",
-              "Annotated at": null,
-              "Created at": "07-12-2023 15:59:50"
-          },
-          {
-              "Project ID": 2284,
-              "Task ID": 3606606,
-              "Updated at": "07-12-2023 15:59:50",
-              "Annotated at": null,
-              "Created at": "07-12-2023 15:59:50"
-          },
-          {
-              "Project ID": 2284,
-              "Task ID": 3606605,
-              "Updated at": "07-12-2023 15:59:50",
-              "Annotated at": null,
-              "Created at": "07-12-2023 15:59:50"
-          },
-          {
-              "Project ID": 2284,
-              "Task ID": 3606604,
-              "Updated at": "07-12-2023 15:59:50",
-              "Annotated at": null,
-              "Created at": "07-12-2023 15:59:50"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606417,
-              "Updated at": "06-12-2023 14:12:12",
-              "Annotated at": null,
-              "Created at": "06-12-2023 14:12:12"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606416,
-              "Updated at": "06-12-2023 14:12:12",
-              "Annotated at": null,
-              "Created at": "06-12-2023 14:12:12"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606415,
-              "Updated at": "06-12-2023 14:12:12",
-              "Annotated at": null,
-              "Created at": "06-12-2023 14:12:12"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606414,
-              "Updated at": "06-12-2023 14:12:12",
-              "Annotated at": null,
-              "Created at": "06-12-2023 14:12:12"
-          },
-          {
-              "Project ID": 2279,
-              "Task ID": 3606413,
-              "Updated at": "06-12-2023 14:12:12",
-              "Annotated at": null,
-              "Created at": "06-12-2023 14:12:12"
+  
+    const RecentTasks = useSelector((state) => state.getRecentTasks.data)
+    const filterData = {
+      Status: ["incomplete", "annotated", "reviewed", "super_checked", "exported"],
+    };
+    const [selectedFilters, setsSelectedFilters] = useState({});
+  
+    const GetAllTasksdata = () => {
+      const taskObjs = new FetchRecentTasksAPI(id, taskType, currentPageNumber, selectedFilters, currentRowPerPage);
+      dispatch(APITransport(taskObjs));
+    };
+  
+    useEffect(() => {
+      GetAllTasksdata();
+    }, [id, taskType, currentPageNumber, currentRowPerPage, selectedFilters]);
+  
+  
+    useEffect(() => {
+      if (RecentTasks && RecentTasks?.results?.results?.length > 0) {
+        const data = RecentTasks?.results?.results?.map((el) => {
+          if (typeof el === 'object') {
+            return Object.keys(el).map((key) => el[key]);
           }
-      ]
-  }
-
-
-  const pageSearch = () => {
-
-    return RecentTasks?.results?.filter((el) => {
-
-        if (SearchWorkspace == "") {
-
-            return el;
-        } else if (
-            el['Project ID']
-                ?.toString()?.toLowerCase()
-                .includes(SearchWorkspace?.toLowerCase())
-        ) {
-
-            return el;
+          return [];
+        });
+        let colList = [];
+        console.log(...Object.keys(RecentTasks.results.results[0]));
+        if (RecentTasks.results.results.length > 0 && typeof RecentTasks.results.results[0] === 'object') {
+  
+          colList.push(
+            ...Object.keys(RecentTasks.results.results[0])
+          );
         }
-        else if (
-          el["Task ID"]
-              .toString()?.toLowerCase()
-              .includes(SearchWorkspace?.toLowerCase())
-      ) {
-
-          return el;
+        const cols = colList.map((col) => {
+          return {
+            name: col,
+            label: col,
+            options: {
+              filter: false,
+              sort: false,
+              align: "center",
+              customHeadLabelRender: customColumnHead,
+            },
+          };
+        });
+        console.log("colss", cols, colList);
+        setColumns(cols);
+        setSelectedColumns(colList);
+        setTasks(data);
+      } else {
+        setTasks([]);
       }
-      else if (
-        el["Created at"]
-            ?.toLowerCase()
-            .includes(SearchWorkspace?.toLowerCase())
-    ) {
-
-        return el;
+    }, [RecentTasks]);
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+  
+    const handleSearchClose = () => {
+      setSearchAnchor(null);
     }
-    else if (
-      el["Updated at"]
-          ?.toLowerCase()
-          .includes(SearchWorkspace?.toLowerCase())
-  ) {
-
-      return el;
-  }else if (
-    el["Annotated at"]
-        ?.toLowerCase()
-        .includes(SearchWorkspace?.toLowerCase())
-) {
-
-    return el;
-}
-    })
-
-}
-const columns = [
-  {
-    name: "Project ID",
-    label: "Project ID",
-    options: {
-                filter: false,
-                sort: false,
-                align: "center",
-              },
-  },
-  {
-    name: "Task ID",
-    label: "Task ID",
-    options: {
-                filter: false,
-                sort: false,
-                align: "center",
-              },
-  },
-  {
-    name: "Created At",
-    label: "Created At",
-    options: {
-                filter: false,
-                sort: false,
-                align: "center",
-              },
-  },
-  {
-    name: "Updated At",
-    label: "Updated At",
-    options: {
-                filter: false,
-                sort: false,
-                align: "center",
-              },
-  },
-
-  {
-    name: "Annotated At",
-    label: "Annotated At",
-    options: {
-                filter: false,
-                sort: false,
-                align: "center",
-              },
-  },
-];
-
-  const data = RecentTasks && RecentTasks?.results?.length > 0 ?pageSearch().map((el, i) => {
-  return [
-      el['Project ID'],
-      el["Task ID"],
-      el["Updated at"],
-      el["Created at"],
-      el["Annotated at"]
-      // el.managers.map((manager, index) => {
-      //     return manager.username
-      // }).join(", "),
-      // el.created_by && el.created_by.username,
-      // <Link to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
-      //     <CustomButton
-      //         sx={{ borderRadius: 2 }}
-      //         label="View"
-      //     />
-      // </Link>
-  ]
-})  : [];
+    const handleShowSearch = (col, event) => {
+      setSearchAnchor(event.currentTarget);
+      setSearchedCol(col);
+    }
+    const customColumnHead = (col) => {
+      let tooltipText = "";
+  
+      switch (col.label) {
+        case "Updated at":
+          tooltipText = "When task was last updated";
+          break;
+        case "Created at":
+          tooltipText = "When task was assigned";
+          break;
+        case "Annotated at":
+          tooltipText = "When task was first annotated";
+          break;
+        default:
+          break;
+      }
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            columnGap: "5px",
+            flexGrow: "1",
+            alignItems: "center",
+          }}
+        >
+  
+          {col.label}
+          {col.label === "Updated at" || col.label === "Created at" || col.label === "Annotated at" ? (
+            <LightTooltip arrow placement="top" title={tooltipText}>
+              <InfoIcon sx={{ color: "grey" }} fontSize="medium" />
+            </LightTooltip>
+          ) : null}
+          {<IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
+            <SearchIcon id={col.name + "_btn"} />
+          </IconButton>}
+        </Box>
+      );
+    }
+  
+    useEffect(() => {
+      const newCols = columns.map((col) => {
+        col.options.display = selectedColumns.includes(col.name)
+          ? "true"
+          : "false";
+        return col;
+      });
+      setColumns(newCols);
+    }, [selectedColumns]);
+  
+  
+  
+  
     const tableOptions = {
       count: RecentTasks?.count,
-        rowsPerPage: currentRowPerPage,
-        page: currentPageNumber - 1,
-        rowsPerPageOptions: [10, 25, 50, 100],
-        textLabels: {
-          pagination: {
-            next: "Next >",
-            previous: "< Previous",
-          },
-          body: {
-            noMatch: "No records ",
-          },
+      rowsPerPage: currentRowPerPage,
+      page: currentPageNumber - 1,
+      rowsPerPageOptions: [10, 25, 50, 100],
+      textLabels: {
+        pagination: {
+          next: "Next >",
+          previous: "< Previous",
         },
-        onChangePage: (currentPage) => { 
-          setCurrentPageNumber(currentPage + 1);
+        body: {
+          noMatch: "No records ",
         },
-        onChangeRowsPerPage: (rowPerPageCount) => { 
-          setCurrentPageNumber(1); 
-          setCurrentRowPerPage(rowPerPageCount); 
-        },
+      },
+      onChangePage: (currentPage) => {
+        setCurrentPageNumber(currentPage + 1);
+      },
+      onChangeRowsPerPage: (rowPerPageCount) => {
+        setCurrentPageNumber(1);
+        setCurrentRowPerPage(rowPerPageCount);
+      },
       filterType: "checkbox",
       selectableRows: "none",
       download: false,
@@ -257,22 +186,33 @@ const columns = [
   
     return (
       <ThemeProvider theme={themeDefault}>
-        <Box >
-          <Tabs value={taskType} onChange={(e, newVal) => setTaskType(newVal)} aria-label="basic tabs example" sx={{mb: 2}}>
-              <Tab label={translate("label.recentTasks.annotation")} value="annotation" sx={{ fontSize: 16, fontWeight: '700'}}/>
-              <Tab label={translate("label.recentTasks.review")} value="review" sx={{ fontSize: 16, fontWeight: '700'}}/>
-              <Tab label="Super Check" value="supercheck" sx={{ fontSize: 16, fontWeight: '700'}}/>
-          </Tabs>
-        </Box>
-        <ThemeProvider theme={tableTheme}>
-          <MUIDataTable
-            data={RecentTasks?.results ?? []}
-            columns={columns}
-            options={tableOptions}
-          />
-        </ThemeProvider>
+      <Box>
+        <Tabs value={taskType} onChange={(e, newVal) => setTaskType(newVal)} aria-label="basic tabs example" sx={{ mb: 2 }}>
+          <Tab label={translate("label.recentTasks.annotation")} value="annotation" sx={{ fontSize: 16, fontWeight: '700' }} />
+          <Tab label={translate("label.recentTasks.review")} value="review" sx={{ fontSize: 16, fontWeight: '700' }} />
+          <Tab label="Super Check" value="supercheck" sx={{ fontSize: 16, fontWeight: '700' }} />
+        </Tabs>
+      </Box>
+      <ThemeProvider theme={tableTheme}>
+        <MUIDataTable
+          data={tasks}
+          columns={columns}
+          options={tableOptions}
+        />
       </ThemeProvider>
-    )
-  }
-  
-  export default RecentTasks
+
+      {/* {searchOpen && <AllTaskSearchPopup
+        open={searchOpen}
+        anchorEl={searchAnchor}
+        handleClose={handleSearchClose}
+        updateFilters={setsSelectedFilters}
+        //filterStatusData={filterData}
+        currentFilters={selectedFilters}
+        searchedCol={searchedCol}
+        onchange={GetAllTasksdata}
+      />} */}
+    </ThemeProvider>
+  )
+}
+
+export default RecentTasks

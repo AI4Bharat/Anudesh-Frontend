@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-// import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import CustomButton from '../common/Button'
 // import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
-import { GetWorkspaceData } from "@/app/actions/api/workspace/GetWorkspaceData";
+import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
+import APITransport from "@/Lib/apiTransport/apitransport";
 import tableTheme from "../../../themes/tableTheme";
 import DatasetStyle from "../../../styles/Dataset";
 import Search from "../common/Search";
@@ -14,28 +15,36 @@ import Link from 'next/link';
 
 const WorkspaceTable = (props) => {
     const classes = DatasetStyle();
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const { showManager, showCreatedBy } = props;
+    const workspaceData = useSelector(state => state.GetWorkspace.data);
+    // const SearchWorkspace = useSelector((state) => state.SearchProjectCards.data);
 
-    const [workspaceData, setWorkspaceData] = useState([]);
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
     const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
     const [totalWorkspaces, setTotalWorkspaces] = useState(10);
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const data = await GetWorkspaceData();
-            setWorkspaceData(data);
-          } catch (error) {
-            console.error('Error fetching workspace data:', error);
-          }
-        };
-    
-        fetchData();
-      }, [])
 
+    const totalWorkspaceCount = useSelector(state => state.GetWorkspace.data.count);
+
+    const getWorkspaceData = () => {
+        const workspaceObj = new GetWorkspaceAPI(currentPageNumber);
+        dispatch(APITransport(workspaceObj));
+    }
+
+    useEffect(() => {
+        getWorkspaceData();
+        // console.log("fired now")
+    }, [currentPageNumber]);
+
+    // useEffect(() => {
+    //     getWorkspaceData();
+    // }, [currentRowPerPage]);
+
+    useEffect(() => {
+        getWorkspaceData();
+    }, []);
     const pageSearch = () => {
 
         return workspaceData.filter((el) => {

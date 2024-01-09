@@ -1,11 +1,11 @@
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Switch, TextField } from '@mui/material'
 import React, { useState } from 'react'
 import CustomButton from '../components/common/Button'
+import { useDispatch, useSelector } from 'react-redux';
 import CreateWorkspaceAPI from '../actions/api/workspace/CreateWorkspace'
-
-import GetWorkspacesAPI from '../actions/api/Dashboard/getWorkspaces'
-
+import GetWorkspaceAPI from '../actions/api/workspace/GetWorkspaceData';
 const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
+    const dispatch = useDispatch();
     const [workspaceName, setWorkspaceName] = useState('')
     const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
 
 
     const handlepublicanalytics = async () => {
-        // setLoading(true);
+        setLoading(true);
         setpublicanalytics((publicanalytics)=>!publicanalytics)
       };
 
@@ -25,7 +25,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
         dialogCloseHandler();
         if (!workspaceName) return;
 
-        //  setLoading(true);
+         setLoading(true);
         const createWorkspaceObj = new CreateWorkspaceAPI(
             1,
             workspaceName,
@@ -44,8 +44,8 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
         const createWorkspaceRespData = await createWorkspaceRes.json();
 
         if (createWorkspaceRes.ok) {
-            const workspaceObj = new GetWorkspacesAPI(1);
-            // dispatch(APITransport(workspaceObj));
+            const workspaceObj = new GetWorkspaceAPI(1);
+            dispatch(APITransport(workspaceObj));
             return createWorkspaceRespData;
         }
 

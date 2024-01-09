@@ -2,7 +2,7 @@ import { Card, CircularProgress, Grid, ThemeProvider, Typography, Select, Box, M
 import themeDefault from "../../../themes/theme";
 // import { useParams } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
-// import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 // import GetWorkspaceAPI from "../../../../redux/actions/api/Organization/GetWorkspace";
 // import CreateScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/CreateScheduledMails";

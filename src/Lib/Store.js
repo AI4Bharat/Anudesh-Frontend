@@ -10,6 +10,9 @@ import getWorkspaceProjectReports from './Features/getWorkspaceProjectReports';
 import getWorkspaceUserReports from './Features/getWorkspaceUserReports';
 import fetchLanguages from './Features/fetchLanguages';
 import apiStatus from './Features/apiStatus';
+import fetchUsersById from './Features/user/fetchUsersById';
+import GetWorkspace from './Features/GetWorkspace';
+import getUserAnalytics from './Features/user/getUserAnalytics';
 const makeStore = () => {
     return configureStore({
       reducer: {
@@ -24,6 +27,9 @@ const makeStore = () => {
         getWorkspaceProjectReports:getWorkspaceProjectReports,
         getWorkspaceUserReports:getWorkspaceUserReports,
         fetchLanguages:fetchLanguages,
+        fetchUsersById:fetchUsersById,
+        GetWorkspace:GetWorkspace,
+        getUserAnalytics:getUserAnalytics,
 
       },
     });
