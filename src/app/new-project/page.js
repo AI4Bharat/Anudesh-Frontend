@@ -22,13 +22,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDomains } from "@/redux/actions/domains";
 import { createProject } from "@/redux/actions/projects";
 
-import ColumnList from "../../../../components/common/ColumnList";
-import OutlinedTextField from "../../../../components/common/OutlinedTextField";
-import Button from "../../../../components/common/Button";
-import MenuItems from "../../../../components/common/MenuItems";
-import  "../../../../styles/Dataset.css";
-import themeDefault from "../../../../themes/theme";
-import tableTheme from "../../../../themes/tableTheme";
+import ColumnList from "../../components/common/ColumnList";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
+import Button from "../../components/common/Button";
+import MenuItems from "../../components/common/MenuItems";
+import  "../../styles/Dataset.css";
+import themeDefault from "../../themes/theme";
+import tableTheme from "../../themes/tableTheme";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -39,7 +39,11 @@ const CreateProject = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const { workspaceId } = useParams();
+  
+  //remove this line:
+  const workspaceId = 1;
+  //and uncomment this after implementing dynamic routes:
+  //const { workspaceId } = useParams();
 
   const ProjectDomains = useSelector(state => state.domains.domains);
   const NewProject = useSelector(state => state.projects.newProject);
