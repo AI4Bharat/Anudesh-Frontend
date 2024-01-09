@@ -14,6 +14,7 @@ import {
     MenuItem,
   } from "@mui/material";
   import Link from 'next/link';
+  import { useDispatch, useSelector } from 'react-redux';
   import { useRouter } from "next/navigation";
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
@@ -36,7 +37,8 @@ import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddUsersDialog from "../components/common/AddUsersDialog";
-import addUserTypes from "../Constants/addUserTypes"
+import addUserTypes from "../Constants/addUserTypes";
+import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetails";
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -69,7 +71,7 @@ import addUserTypes from "../Constants/addUserTypes"
     // const { id, orgId } = useParams();
     const classes = DatasetStyle();
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
     const [user,setuser] = useState(initialUserData)
     const [loading, setLoading] = useState(false);
@@ -336,6 +338,7 @@ import addUserTypes from "../Constants/addUserTypes"
                   onClick={handleAnnotatorDialogOpen}
                 />
                 <AnnotatorsTable
+                  onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
                 />
                 <AddUsersDialog
                   handleDialogClose={handleAnnotatorDialogClose}

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import CustomButton from '../common/Button'
 // import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
-import { GetWorkspaceData } from "@/app/actions/user/workspace/GetWorkspaceData";
+import { GetWorkspaceData } from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
 import tableTheme from "../../../themes/tableTheme";
 import DatasetStyle from "../../../styles/Dataset";

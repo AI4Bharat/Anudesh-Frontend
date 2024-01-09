@@ -18,19 +18,36 @@ import Select from "@mui/material/Select";
 import { useParams } from "react-router-dom";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
+import { useDispatch, useSelector } from "react-redux";
+import GetWorkspaceUserReportsAPI from "../../actions/api/workspace/GetWorkspaceUserReportsAPI";
+import GetProjectDomainsAPI from "../../actions/api/workspace/GetProjectDomainsAPI";
+import GetWorkspaceProjectReportAPI from "../../actions/api/workspace/GetWorkspaceProjectReportAPI";
+import SendWorkspaceUserReportsAPI from "../../actions/api/workspace/SendWorkspaceUserReportsAPI";
+import FetchLanguagesAPI from "../../actions/api/workspace/FetchLanguagesAPI.js";
+import APITransport from "../../../Lib/apiTransport/apitransport";
+import GetWorkspaceDetailedProjectReportsAPI from "../../actions/api/workspace/GetWorkspaceDetailedProjectReportsAPI";
 import DatasetStyle from "../../../styles/Dataset";
 import ColumnList from "../common/ColumnList";
+import { isSameDay, format } from 'date-fns/esm';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-// import { MenuProps } from "../../../../utils/utils";
+import { MenuProps } from "../../../utils/utils";
 import CustomizedSnackbars from "./Snackbar";
 
 const ProgressType = [{ name: "Annotation Stage", value: 1 }, { name: "Review Stage", value: 2 }, { name: "Super Check Stage", value: 3 }, { name: "All Stage", value: "AllStage" }]
 
 const WorkspaceReports = () => {
-  
+  const WorkspaceDetails = useSelector(
+    (state) => state.getWorkspaceDetails.data
+  );
+  console.log(WorkspaceDetails,"lll");
+  const UserDetails = useSelector(state => state.fetchLoggedInUserData.data);
+  const [selectRange, setSelectRange] = useState([{
+    startDate: new Date(Date.parse(WorkspaceDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
+    endDate: new Date(),
+    key: "selection"
+  }]);
   const [showPicker, setShowPicker] = useState(false);
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
@@ -54,7 +71,240 @@ const WorkspaceReports = () => {
     message: "",
     variant: "success",
   });
+  const dispatch = useDispatch();
+  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+  const UserReports = useSelector(
+    (state) => state.getWorkspaceUserReports.data
+  );
+  const ProjectReports = useSelector(
+    (state) => state.getWorkspaceProjectReports.data
+  );
 
+  const LanguageChoices = useSelector((state) => state.fetchLanguages.data);
+
+  let ProgressTypeValue = "Annotation Stage"
+  const filterdata = ProgressType.filter(item => item.name !== ProgressTypeValue)
+  const FilterProgressType = projectType === "ReviewerReports" ? filterdata : ProgressType
+
+  useEffect(() => {
+    const typesObj = new GetProjectDomainsAPI();
+    const langObj = new FetchLanguagesAPI();
+    dispatch(APITransport(typesObj));
+    dispatch(APITransport(langObj));
+  }, []);
+
+  useEffect(() => {
+    if (radioButton === "payment") {
+      setProjectTypes([
+        "AudioSegmentation",
+        "AudioTranscription",
+        "AudioTranscriptionEditing",
+        "ConversationTranslation",
+        "ConversationTranslationEditing",
+        "AcousticNormalisedTranscriptionEditing",
+        "AllAudioProjects",
+        "OCRTranscription",
+        "OCRTranscriptionEditing",
+      ]);
+      setSelectedType("AllAudioProjects");
+    } else if (ProjectTypes) {
+      let types = [];
+      Object.keys(ProjectTypes).forEach((key) => {
+        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+        types.push(...subTypes);
+      });
+      setProjectTypes(types);
+      setSelectedType(types[3]);
+    }
+  }, [ProjectTypes, radioButton]);
+
+  useEffect(() => {
+    if (reportRequested && UserReports?.length) {
+      let tempColumns = [];
+      let tempSelected = [];
+      Object.keys(UserReports[0]).forEach((key) => {
+        tempColumns.push({
+          name: key,
+          label: key,
+          options: {
+            filter: false,
+            sort: true,
+            align: "center",
+          },
+        });
+        tempSelected.push(key);
+      });
+      setColumns(tempColumns);
+      setReportData(UserReports);
+      setSelectedColumns(tempSelected);
+    } else {
+      if(emailRequested){
+        setSnackbarInfo({
+          open: true,
+          message: UserReports.message,
+          variant: "success",
+        })
+        setEmailRequested(false);
+      }
+      setColumns([]);
+      setReportData([]);
+      setSelectedColumns([]);
+    }
+    setShowSpinner(false);
+  }, [UserReports]);
+
+  useEffect(() => {
+    if (reportRequested && ProjectReports?.length) {
+      let tempColumns = [];
+      let tempSelected = [];
+      Object.keys(ProjectReports[0]).forEach((key) => {
+        tempColumns.push({
+          name: key,
+          label: key,
+          options: {
+            filter: false,
+            sort: true,
+            align: "center",
+          },
+        });
+        tempSelected.push(key);
+      });
+      setColumns(tempColumns);
+      setReportData(ProjectReports);
+      setSelectedColumns(tempSelected);
+    } else {
+      if(emailRequested){
+        setSnackbarInfo({
+          open: true,
+          message: ProjectReports.message,
+          variant: "success",
+        })
+        setEmailRequested(false);
+      }
+      setColumns([]);
+      setReportData([]);
+      setSelectedColumns([]);
+    }
+    setShowSpinner(false);
+  }, [ProjectReports]);
+
+
+  const renderToolBar = () => {
+    const buttonSXStyle = { borderRadius: 2, margin: 2 };
+    return (
+      <Box
+        // className={classes.filterToolbarContainer}
+        className={classes.ToolbarContainer}
+      >
+        <ColumnList
+          columns={columns}
+          setColumns={setSelectedColumns}
+          selectedColumns={selectedColumns}
+        />
+      </Box>
+    );
+  };
+
+  const options = {
+    filterType: "checkbox",
+    selectableRows: "none",
+    download: true,
+    filter: false,
+    print: false,
+    search: false,
+    viewColumns: false,
+    jumpToPage: true,
+    customToolbar: renderToolBar,
+    textLabels: {
+      body: {
+        noMatch: "No Record Found!",
+      },
+    },
+  };
+
+  const userId = useSelector((state) => state.fetchLoggedInUserData.data.id);
+
+  const handleChangeReports = (e) => {
+    setRadioButton(e.target.value)
+  }
+  const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    setSelectRange([selection]);
+    console.log(selection, "selection");
+  };
+  const handleDateSubmit = (sendMail) => {
+    if (radioButton === "payment") {
+      const userReportObj = new SendWorkspaceUserReportsAPI(
+        id,
+        UserDetails.id,
+        selectedType,
+        participationTypes,
+        format(selectRange[0].startDate, 'yyyy-MM-dd'),
+        format(selectRange[0].endDate, 'yyyy-MM-dd'),
+      );
+      dispatch(APITransport(userReportObj));
+      setSnackbarInfo({
+        open: true,
+        message: "Report will be e-mailed to you shortly",
+        variant: "success",
+      })
+    }
+    else {
+      if(sendMail){
+        setReportRequested(false);
+        setEmailRequested(true);
+      }else{
+        setReportRequested(true);
+      }
+      setShowSpinner(true);
+      setShowPicker(false);
+      if (radioButton === "user") {
+        const userReportObj = new GetWorkspaceUserReportsAPI(
+          id,
+          selectedType,
+          format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          language,
+          sendMail,
+          projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
+          reportfilter,
+        );
+        dispatch(APITransport(userReportObj));
+      } else if (radioButton === "project") {
+        if(projectReportType === 1){
+        const projectReportObj = new GetWorkspaceProjectReportAPI(
+          id,
+          selectedType,
+
+          language,
+          sendMail,
+          projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
+        );
+        dispatch(APITransport(projectReportObj));
+        }else if(projectReportType === 2){
+          const projectReportObj = new GetWorkspaceDetailedProjectReportsAPI(
+            Number(id),
+            selectedType,
+            userId,
+            statisticsType,
+            language,
+          );
+          dispatch(APITransport(projectReportObj));
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          });
+        }
+      }
+    }
+  };
+
+  const handleChangeprojectFilter = (event) => {
+    const value = event.target.value;
+    setReportfilter(value);
+  }
 
   const renderSnackBar = () => {
     return (
@@ -102,7 +352,7 @@ const WorkspaceReports = () => {
                 name="row-radio-buttons-group"
                 sx={{ marginTop: "5px" }}
                 value={radioButton}
-                // onChange={handleChangeReports}
+                onChange={handleChangeReports}
 
               >
                 <FormControlLabel value="user" control={<Radio />} label="Users Reports" />
@@ -118,7 +368,7 @@ const WorkspaceReports = () => {
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
-              // MenuProps={MenuProps}
+              MenuProps={MenuProps}
               labelId="project-report-type-type-label"
               id="project-report-type-select"
               value={projectReportType}
@@ -175,8 +425,13 @@ const WorkspaceReports = () => {
               value={selectedType}
               label="Project Type"
               onChange={(e) => setSelectedType(e.target.value)}
+              MenuProps={MenuProps}
             >
-           
+              {projectTypes.map((type, index) => (
+                <MenuItem value={type} key={index}>
+                  {type}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>
@@ -186,7 +441,7 @@ const WorkspaceReports = () => {
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
-              // MenuProps={MenuProps}
+              MenuProps={MenuProps}
               labelId="project-type-label"
               id="project-type-select"
               value={reportfilter}
@@ -212,14 +467,14 @@ const WorkspaceReports = () => {
               value={language}
               label="Target Language"
               onChange={(e) => setLanguage(e.target.value)}
-              // MenuProps={MenuProps}
+              MenuProps={MenuProps}
             >
               <MenuItem value={"all"}>All languages</MenuItem>
-              {/* {LanguageChoices.language?.map((lang) => (
+              {LanguageChoices.language?.map((lang) => (
                 <MenuItem value={lang} key={lang}>
                   {lang}
                 </MenuItem>
-              ))} */}
+              ))}
             </Select>
           </FormControl>
         </Grid>}
@@ -232,7 +487,7 @@ const WorkspaceReports = () => {
               value={statisticsType}
               label="Statistics"
               onChange={(e) => setStatisticsType(e.target.value)}
-              // MenuProps={MenuProps}
+              MenuProps={MenuProps}
             >
             <MenuItem value={1}>Annotation Statistics</MenuItem>
             <MenuItem value={2}>Meta-Info Statistics</MenuItem>
@@ -246,7 +501,7 @@ const WorkspaceReports = () => {
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
-              // MenuProps={MenuProps}
+              MenuProps={MenuProps}
               labelId="participation-type-label"
               id="participation-select"
               value={participationTypes}
@@ -298,7 +553,7 @@ const WorkspaceReports = () => {
       {showPicker && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }}>
         <Card>
           <DateRangePicker
-            // onChange={handleRangeChange}
+            onChange={handleRangeChange}
             staticRanges={[
               ...defaultStaticRanges,
               {
@@ -351,3 +606,4 @@ const WorkspaceReports = () => {
 };
 
 export default WorkspaceReports;
+

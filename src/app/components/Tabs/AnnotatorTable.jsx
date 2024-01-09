@@ -2,23 +2,23 @@ import React, { useState, useEffect } from "react";
 // import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
 import Link from 'next/link';
-
-// import { useDispatch, useSelector } from 'react-redux';
-// import GetWorkspacesAnnotatorsDataAPI from "../../../../redux/actions/api/WorkspaceDetails/GetWorkspaceAnnotators";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
+import { useDispatch, useSelector } from 'react-redux';
+import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
+import APITransport from "../../../Lib/apiTransport/apitransport";
 import UserMappedByRole from "../../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
 import { ThemeProvider,Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
 import tableTheme from "../../../themes/TableTheme";
-// import RemoveWorkspaceMemberAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceMember";
+import RemoveWorkspaceMemberAPI from "@/app/actions/api/workspace/RemoveWorkspaceMemberAPI";
 import Search from "../common/Search";
-// import RemoveWorkspaceFrozenUserAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceFrozenUser";
+import RemoveWorkspaceFrozenUserAPI from "@/app/actions/api/workspace/RemoveWorkspaceFrozenUserAPI";
 import TextField from '@mui/material/TextField';
-// import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
+import LoginAPI from "@/app/actions/api/user/Login";
+
 
 const AnnotatorsTable = (props) => {
-    // const dispatch = useDispatch();
-    // const { onRemoveSuccessGetUpdatedMembers } = props;
+    const dispatch = useDispatch();
+    const { onRemoveSuccessGetUpdatedMembers } = props;
 
     const [loading, setLoading] = useState(false);
     // const { id } = useParams();
@@ -28,271 +28,271 @@ const AnnotatorsTable = (props) => {
         variant: "success",
     });
 
-    // const orgId = useSelector(state => state.getWorkspacesProjectData?.data?.[0]?.organization_id);
+    const orgId = useSelector(state => state.getWorkspaceProject?.data?.[0]?.organization_id);
     // const SearchWorkspaceMembers = useSelector((state) => state.SearchProjectCards.data);
-    // const getWorkspaceAnnotatorsData = () => {
+    const getWorkspaceAnnotatorsData = () => {
 
-    //     const workspaceObjs = new GetWorkspacesAnnotatorsDataAPI(id);
+        const workspaceObjs = new GetWorkspacesAnnotatorsDataAPI(1);
 
-    //     dispatch(APITransport(workspaceObjs));
-    // }
+        dispatch(APITransport(workspaceObjs));
+    }
 
-    // const workspaceAnnotators = useSelector(state => state.getWorkspacesAnnotatorsData.data);
-    // const workspaceDtails = useSelector(state=>state.getWorkspaceDetails.data);
+    const workspaceAnnotators = useSelector(state => state.getWorkspacesAnnotatorsData.data);
+    const workspaceDtails = useSelector(state=>state.getWorkspaceDetails.data);
 
 
-    // useEffect(() => {
-    //     getWorkspaceAnnotatorsData();
-    // }, []);
+    useEffect(() => {
+        getWorkspaceAnnotatorsData();
+    }, []);
     // const orgId = workspaceAnnotators &&  workspaceAnnotators
     // getWorkspacesProjectData
-    // const handleRemoveWorkspaceMember = async (Projectid) => {
-    //     const workspacedata = {
-    //         user_id: Projectid,
-    //     }
-    //     const projectObj = new RemoveWorkspaceMemberAPI(id, workspacedata);
-    //     // dispatch(APITransport(projectObj));
-    //     const res = await fetch(projectObj.apiEndPoint(), {
-    //         method: "POST",
-    //         body: JSON.stringify(projectObj.getBody()),
-    //         headers: projectObj.getHeaders().headers,
-    //     });
-    //     const resp = await res.json();
-    //     setLoading(false);
-    //     if (res.ok) {
-    //         setSnackbarInfo({
-    //             open: true,
-    //             message: resp?.message,
-    //             variant: "success",
-    //         })
-    //         onRemoveSuccessGetUpdatedMembers();
-    //     } else {
-    //         setSnackbarInfo({
-    //             open: true,
-    //             message: resp?.message,
-    //             variant: "error",
-    //         })
-    //     }
+    const handleRemoveWorkspaceMember = async (Projectid) => {
+        const workspacedata = {
+            user_id: Projectid,
+        }
+        const projectObj = new RemoveWorkspaceMemberAPI(1, workspacedata);
+        dispatch(APITransport(projectObj));
+        const res = await fetch(projectObj.apiEndPoint(), {
+            method: "POST",
+            body: JSON.stringify(projectObj.getBody()),
+            headers: projectObj.getHeaders().headers,
+        });
+        const resp = await res.json();
+        setLoading(false);
+        if (res.ok) {
+            setSnackbarInfo({
+                open: true,
+                message: resp?.message,
+                variant: "success",
+            })
+            onRemoveSuccessGetUpdatedMembers();
+        } else {
+            setSnackbarInfo({
+                open: true,
+                message: resp?.message,
+                variant: "error",
+            })
+        }
 
-    // }
+    }
 
-    // const handleRemoveFrozenUsers = async (FrozenUserId) => {
-    //     const projectObj = new RemoveWorkspaceFrozenUserAPI(id, { user_id: FrozenUserId });
-    //     const res = await fetch(projectObj.apiEndPoint(), {
-    //       method: "POST",
-    //       body: JSON.stringify(projectObj.getBody()),
-    //       headers: projectObj.getHeaders().headers,
-    //     });
-    //     const resp = await res.json();
-    //     // setLoading(false);
-    //     if (res.ok) {
-    //       setSnackbarInfo({
-    //         open: true,
-    //         message: resp?.message,
-    //         variant: "success",
-    //       });
-    //       onRemoveSuccessGetUpdatedMembers();
-    //     } else {
-    //       setSnackbarInfo({
-    //         open: true,
-    //         message: resp?.message,
-    //         variant: "error",
-    //       });
-    //     }
-    //   };
+    const handleRemoveFrozenUsers = async (FrozenUserId) => {
+        const projectObj = new RemoveWorkspaceFrozenUserAPI(id, { user_id: FrozenUserId });
+        const res = await fetch(projectObj.apiEndPoint(), {
+          method: "POST",
+          body: JSON.stringify(projectObj.getBody()),
+          headers: projectObj.getHeaders().headers,
+        });
+        const resp = await res.json();
+        // setLoading(false);
+        if (res.ok) {
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "success",
+          });
+          onRemoveSuccessGetUpdatedMembers();
+        } else {
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+          });
+        }
+      };
     
-    const workspaceAnnotators= [
-        {
-            "id": 1,
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "phone": "",
-            "profile_photo": "",
-            "role": 6,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "shoonya@ai4bharat.org",
-            "date_joined": "2022-04-24T07:40:11Z",
-            "participation_type": 3,
-            "prefer_cl_ui": false,
-            "is_active": true
-        },
-        {
-            "id": 2,
-            "username": "shoonya_prediction",
-            "email": "prediction@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "Shoonya",
-            "last_name": "Prediction",
-            "phone": "",
-            "profile_photo": "",
-            "role": 6,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "",
-            "date_joined": "2022-04-24T07:40:49Z",
-            "participation_type": 3,
-            "prefer_cl_ui": false,
-            "is_active": true
-        },
-        {
-            "id": 9,
-            "username": "Ishvinder",
-            "email": "ishvinder@ai4bharat.org",
-            "languages": [
-                "English",
-                "Hindi"
-            ],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "Ishvinder",
-            "last_name": "Sethi",
-            "phone": "",
-            "profile_photo": "https://shoonyastoragedevelop.blob.core.windows.net/images/Ishvinder.png",
-            "role": 6,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "",
-            "date_joined": "2022-04-26T16:27:51Z",
-            "participation_type": 3,
-            "prefer_cl_ui": false,
-            "is_active": true
-        },
-        {
-            "id": 112,
-            "username": "test_annotator2",
-            "email": "test_annotator2@ai4bharat.org",
-            "languages": [
-                "English"
-            ],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "Demo",
-            "last_name": "Annoator 2",
-            "phone": "",
-            "profile_photo": "",
-            "role": 4,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "",
-            "date_joined": "2022-05-06T17:05:23Z",
-            "participation_type": 3,
-            "prefer_cl_ui": true,
-            "is_active": true
-        },
-        {
-            "id": 111,
-            "username": "test_annotator1",
-            "email": "test_annotator1@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": true,
-            "first_name": "Test Annotator1",
-            "last_name": "",
-            "phone": "",
-            "profile_photo": "",
-            "role": 5,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "",
-            "date_joined": "2022-05-06T16:44:30Z",
-            "participation_type": 3,
-            "prefer_cl_ui": true,
-            "is_active": true
-        },
-        {
-            "id": 110,
-            "username": "test_manager",
-            "email": "test_manager@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "DummyManager",
-            "last_name": "DemoManager",
-            "phone": "",
-            "profile_photo": "",
-            "role": 4,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "",
-            "date_joined": "2022-05-06T16:31:07Z",
-            "participation_type": 3,
-            "prefer_cl_ui": true,
-            "is_active": true
-        }]
+    // const workspaceAnnotators= [
+    //     {
+    //         "id": 1,
+    //         "username": "shoonya",
+    //         "email": "shoonya@ai4bharat.org",
+    //         "languages": [],
+    //         "availability_status": 1,
+    //         "enable_mail": false,
+    //         "first_name": "Admin",
+    //         "last_name": "AI4B",
+    //         "phone": "",
+    //         "profile_photo": "",
+    //         "role": 6,
+    //         "organization": {
+    //             "id": 1,
+    //             "title": "AI4Bharat",
+    //             "email_domain_name": "ai4bharat.org",
+    //             "created_by": {
+    //                 "username": "shoonya",
+    //                 "email": "shoonya@ai4bharat.org",
+    //                 "first_name": "Admin",
+    //                 "last_name": "AI4B",
+    //                 "role": 6
+    //             },
+    //             "created_at": "2022-04-24T13:11:30.339610Z"
+    //         },
+    //         "unverified_email": "shoonya@ai4bharat.org",
+    //         "date_joined": "2022-04-24T07:40:11Z",
+    //         "participation_type": 3,
+    //         "prefer_cl_ui": false,
+    //         "is_active": true
+    //     },
+    //     {
+    //         "id": 2,
+    //         "username": "shoonya_prediction",
+    //         "email": "prediction@ai4bharat.org",
+    //         "languages": [],
+    //         "availability_status": 1,
+    //         "enable_mail": false,
+    //         "first_name": "Shoonya",
+    //         "last_name": "Prediction",
+    //         "phone": "",
+    //         "profile_photo": "",
+    //         "role": 6,
+    //         "organization": {
+    //             "id": 1,
+    //             "title": "AI4Bharat",
+    //             "email_domain_name": "ai4bharat.org",
+    //             "created_by": {
+    //                 "username": "shoonya",
+    //                 "email": "shoonya@ai4bharat.org",
+    //                 "first_name": "Admin",
+    //                 "last_name": "AI4B",
+    //                 "role": 6
+    //             },
+    //             "created_at": "2022-04-24T13:11:30.339610Z"
+    //         },
+    //         "unverified_email": "",
+    //         "date_joined": "2022-04-24T07:40:49Z",
+    //         "participation_type": 3,
+    //         "prefer_cl_ui": false,
+    //         "is_active": true
+    //     },
+    //     {
+    //         "id": 9,
+    //         "username": "Ishvinder",
+    //         "email": "ishvinder@ai4bharat.org",
+    //         "languages": [
+    //             "English",
+    //             "Hindi"
+    //         ],
+    //         "availability_status": 1,
+    //         "enable_mail": false,
+    //         "first_name": "Ishvinder",
+    //         "last_name": "Sethi",
+    //         "phone": "",
+    //         "profile_photo": "https://shoonyastoragedevelop.blob.core.windows.net/images/Ishvinder.png",
+    //         "role": 6,
+    //         "organization": {
+    //             "id": 1,
+    //             "title": "AI4Bharat",
+    //             "email_domain_name": "ai4bharat.org",
+    //             "created_by": {
+    //                 "username": "shoonya",
+    //                 "email": "shoonya@ai4bharat.org",
+    //                 "first_name": "Admin",
+    //                 "last_name": "AI4B",
+    //                 "role": 6
+    //             },
+    //             "created_at": "2022-04-24T13:11:30.339610Z"
+    //         },
+    //         "unverified_email": "",
+    //         "date_joined": "2022-04-26T16:27:51Z",
+    //         "participation_type": 3,
+    //         "prefer_cl_ui": false,
+    //         "is_active": true
+    //     },
+    //     {
+    //         "id": 112,
+    //         "username": "test_annotator2",
+    //         "email": "test_annotator2@ai4bharat.org",
+    //         "languages": [
+    //             "English"
+    //         ],
+    //         "availability_status": 1,
+    //         "enable_mail": false,
+    //         "first_name": "Demo",
+    //         "last_name": "Annoator 2",
+    //         "phone": "",
+    //         "profile_photo": "",
+    //         "role": 4,
+    //         "organization": {
+    //             "id": 1,
+    //             "title": "AI4Bharat",
+    //             "email_domain_name": "ai4bharat.org",
+    //             "created_by": {
+    //                 "username": "shoonya",
+    //                 "email": "shoonya@ai4bharat.org",
+    //                 "first_name": "Admin",
+    //                 "last_name": "AI4B",
+    //                 "role": 6
+    //             },
+    //             "created_at": "2022-04-24T13:11:30.339610Z"
+    //         },
+    //         "unverified_email": "",
+    //         "date_joined": "2022-05-06T17:05:23Z",
+    //         "participation_type": 3,
+    //         "prefer_cl_ui": true,
+    //         "is_active": true
+    //     },
+    //     {
+    //         "id": 111,
+    //         "username": "test_annotator1",
+    //         "email": "test_annotator1@ai4bharat.org",
+    //         "languages": [],
+    //         "availability_status": 1,
+    //         "enable_mail": true,
+    //         "first_name": "Test Annotator1",
+    //         "last_name": "",
+    //         "phone": "",
+    //         "profile_photo": "",
+    //         "role": 5,
+    //         "organization": {
+    //             "id": 1,
+    //             "title": "AI4Bharat",
+    //             "email_domain_name": "ai4bharat.org",
+    //             "created_by": {
+    //                 "username": "shoonya",
+    //                 "email": "shoonya@ai4bharat.org",
+    //                 "first_name": "Admin",
+    //                 "last_name": "AI4B",
+    //                 "role": 6
+    //             },
+    //             "created_at": "2022-04-24T13:11:30.339610Z"
+    //         },
+    //         "unverified_email": "",
+    //         "date_joined": "2022-05-06T16:44:30Z",
+    //         "participation_type": 3,
+    //         "prefer_cl_ui": true,
+    //         "is_active": true
+    //     },
+    //     {
+    //         "id": 110,
+    //         "username": "test_manager",
+    //         "email": "test_manager@ai4bharat.org",
+    //         "languages": [],
+    //         "availability_status": 1,
+    //         "enable_mail": false,
+    //         "first_name": "DummyManager",
+    //         "last_name": "DemoManager",
+    //         "phone": "",
+    //         "profile_photo": "",
+    //         "role": 4,
+    //         "organization": {
+    //             "id": 1,
+    //             "title": "AI4Bharat",
+    //             "email_domain_name": "ai4bharat.org",
+    //             "created_by": {
+    //                 "username": "shoonya",
+    //                 "email": "shoonya@ai4bharat.org",
+    //                 "first_name": "Admin",
+    //                 "last_name": "AI4B",
+    //                 "role": 6
+    //             },
+    //             "created_at": "2022-04-24T13:11:30.339610Z"
+    //         },
+    //         "unverified_email": "",
+    //         "date_joined": "2022-05-06T16:31:07Z",
+    //         "participation_type": 3,
+    //         "prefer_cl_ui": true,
+    //         "is_active": true
+    //     }]
     const pageSearch = () => {
 
         return workspaceAnnotators.filter((el) => {

@@ -13,9 +13,9 @@ import {
   import Button from "../components/common/Button";
   import OutlinedTextField from "../components/common/OutlinedTextField";
   import DatasetStyle from "../../styles/Dataset";
-//   import { useDispatch, useSelector } from "react-redux";
-//   import APITransport from "../../../../redux/actions/apitransport/apitransport";
-//   import ChangePasswordAPI from "../../../../redux/actions/api/UserManagement/ChangePassword"
+  import { useDispatch, useSelector } from "react-redux";
+  import APITransport from "../../Lib/apiTransport/apitransport";
+  import ChangePasswordAPI from "../actions/api/user/ChangePasswordAPI"
   import Spinner from "../components/common/Spinner";
   import CustomizedSnackbars from "../components/common/Snackbar";
   import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
@@ -28,7 +28,7 @@ import CustomButton from "../components/common/Button";
   const ChangePassword = (props) => {
     // const navigate = useNavigate();
     const classes = DatasetStyle();
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [newPassword, setNewPassword] = useState("")
     const [currentPassword, setCurrentPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -50,6 +50,71 @@ import CustomButton from "../components/common/Button";
       message: "",
       variant: "success",
   });
+
+  
+  const apiLoading = useSelector(state => state.apiStatus.loading);
+  const apiMessage = useSelector(state => state.apiStatus.message);
+  const apiError = useSelector(state => state.apiStatus.error);
+  useEffect(() => {
+    setSnackbarInfo({
+        open: apiMessage ? true : false,
+        variant: apiError ? "error" : "success",
+        message: apiMessage ,
+    });
+}, [apiMessage, apiError])
+
+  useEffect(() => {
+    setLoading(apiLoading);
+  }, [apiLoading])
+
+
+const loggedInUserData = useSelector(
+  (state) => state.fetchLoggedInUserData.data
+);
+ 
+  const handleChangePassword = async () => {
+    setNewPassword("")
+    setCurrentPassword("")
+    setConfirmPassword("")
+    const ChangePassword = {
+      new_password: newPassword,
+      current_password: currentPassword,
+      confirm_password: confirmPassword
+    }
+    if(newPassword!==confirmPassword){
+      setSnackbarInfo({
+        ...snackbar,
+        open: true,
+        message: "New Password and Confirm Password must match",
+        variant: 'error'
+    })
+    }
+    else{
+      const userObj = new ChangePasswordAPI(loggedInUserData.id,ChangePassword);
+      const res = await fetch(userObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(userObj.getBody()),
+          headers: userObj.getHeaders().headers,
+      });
+      const resp = await res.json();
+      if (res.ok) {
+          setSnackbarInfo({
+              open: true,
+              message: resp?.message,
+              variant: "success",
+          })
+    
+      } else {
+          setSnackbarInfo({
+              open: true,
+              message: resp?.message,
+              variant: "error",
+          })
+      }
+      }
+
+  }
+
 
     const handleClickShowPassword = () => {
       setValues({ ...values, showPassword: !values.showPassword });
@@ -206,7 +271,7 @@ import CustomButton from "../components/common/Button";
               >
                 <Button
                   label={"Submit"}
-                //   onClick={handleChangePassword}
+                  onClick={handleChangePassword}
                   disabled={ ( newPassword && currentPassword ) ? false : true}
                 />
                 <Button
