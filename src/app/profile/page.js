@@ -3,17 +3,17 @@ import React, { useState,useEffect } from 'react';
 import { Avatar,Select,OutlinedInput,MenuItem, IconButton, Box,ThemeProvider,Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper,InputLabel } from '@mui/material';
 import { Input, inputClasses } from '@mui/base/Input';
 import themeDefault from "../../themes/theme";
-import OutlinedTextField from "../components/common/OutlinedTextField";
-import CustomButton from "../components/common/Button";
-import Spinner from "../components/common/Spinner";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
+import CustomButton from "../../components/common/Button";
+import Spinner from "../../components/common/Spinner";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import UserMappedByRole from '../../utils/UserMappedByRole';
 import {participationType} from '../../config/dropDownValues';
-import CustomizedSnackbars from "../components/common/Snackbar";
+import CustomizedSnackbars from "../../components/common/Snackbar";
 import userRole from "../../utils/Role";
-import ProfileDetails from "../components/UserManagement/ProfileDetails"
-import ScheduleMails from "../components/UserManagement/ScheduleMails"
+import ProfileDetails from "../../components/UserManagement/ProfileDetails"
+import ScheduleMails from "../../components/UserManagement/ScheduleMails"
 import { useRouter } from 'next/navigation';
 export default function ProfilePage () {
 

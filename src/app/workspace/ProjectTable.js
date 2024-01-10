@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import Link from 'next/link';
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
-import tableTheme from "../../themes/TableTheme";
-import Search from "../components/common/Search";
+import tableTheme from "../../themes/tableTheme";
+import Search from "../../components/common/Search";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 const ProjectTable = (props) => {

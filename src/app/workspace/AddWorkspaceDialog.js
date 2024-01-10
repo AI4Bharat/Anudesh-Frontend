@@ -1,6 +1,6 @@
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Switch, TextField } from '@mui/material'
 import React, { useState } from 'react'
-import CustomButton from '../components/common/Button'
+import CustomButton from '../../components/common/Button'
 
 
 

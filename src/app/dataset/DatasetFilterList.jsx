@@ -15,11 +15,11 @@ import {
   Box,
 
 } from "@mui/material";
-import DatasetStyle from "../../styles/Dataset";
+import  "../../styles/Dataset.css";
 // import { useDispatch, useSelector } from "react-redux";
 // import GetDatasetTypeAPI from "../../../../redux/actions/api/Dataset/GetDatasetType";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
-import MenuItems from "../components/common/MenuItems"
+import MenuItems from "../../components/common/MenuItems"
 
 function snakeToTitleCase(str) {
   return str.split("_").map((word) => {
@@ -29,7 +29,7 @@ function snakeToTitleCase(str) {
 
 const datasetvisibility = ["all_public_datasets", "my_datasets"];
 const DatasetFilterList = (props) => {
-  const classes = DatasetStyle();
+  
   // const dispatch = useDispatch();
 
   const {
@@ -108,7 +108,7 @@ const DatasetFilterList = (props) => {
           horizontal: "right",
         }}
       >
-        <Grid container className={classes.filterContainer}>
+        <Grid container className="filterContainer">
         <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
         <Typography
               variant="body2"
@@ -173,7 +173,7 @@ const DatasetFilterList = (props) => {
             variant="outlined"
             color="primary"
             size="small"
-            className={classes.clearAllBtn}
+            className="clearAllBtn"
           >
             {" "}
             Clear All
@@ -183,7 +183,7 @@ const DatasetFilterList = (props) => {
             variant="contained"
             color="primary"
             size="small"
-            className={classes.clearAllBtn}
+            className="clearAllBtn"
           >
             {" "}
             Apply

@@ -1,15 +1,15 @@
 'use client';
 import { Grid, Typography, FormControl, FormControlLabel, Radio, Box } from "@mui/material"
 import RadioGroup from "@mui/material/RadioGroup";
-import DatasetStyle from "../../styles/Dataset";
+import  "../../styles/Dataset.css";
 import { useState } from "react";
-import CustomButton from "../components/common/Button";
+import CustomButton from "../../components/common/Button";
 import DatasetCardList from "./DatasetCardList";
 import DatasetCard from "./DatasetCard";
 import { useRouter } from "next/navigation";
 
 export default function Dataset() {
-    const classes = DatasetStyle();
+    
     const [radiobutton, setRadiobutton] = useState(true);
     const router = useRouter();
 
@@ -67,7 +67,7 @@ export default function Dataset() {
 
     return (
         <>
-            <Grid container className={classes.root}>
+            <Grid container className="root">
                 <Grid item style={{ flexGrow: "0" }}>
                     <Typography variant="h6" sx={{ paddingBottom: "8px" }}>
                         View :{" "}
@@ -96,7 +96,7 @@ export default function Dataset() {
                         </RadioGroup>
                     </FormControl>
                 </Grid>
-                <Grid xs={3} item className={classes.fixedWidthContainer}>
+                <Grid xs={3} item className="fixedWidthContainer">
                     {/* <Search /> */}
                 </Grid>
             </Grid>

@@ -2,9 +2,9 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { Avatar, Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper } from '@mui/material';
-import MyProgress from '../components/Tabs/MyProgress';
-import RecentTasks from '../components/Tabs/RecentTasks';
-import Spinner from "../components/common/Spinner";
+import MyProgress from '../../components/Tabs/MyProgress';
+import RecentTasks from '../../components/Tabs/RecentTasks';
+import Spinner from "../../components/common/Spinner";
 import userRole from "../../utils/Role";
 
 

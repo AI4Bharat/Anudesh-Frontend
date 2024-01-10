@@ -2,11 +2,11 @@
 import { Grid, ThemeProvider, Typography, Autocomplete, TextField, FormControlLabel, Switch } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from '../../themes/theme'
-import OutlinedTextField from "../components/common/OutlinedTextField";
-import DatasetStyle from "../../styles/Dataset";
-import CustomButton from "../components/common/Button";
-import CustomizedSnackbars from "../components/common/Snackbar";
-import Spinner from "../components/common/Spinner";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
+import  "../../styles/Dataset.css";
+import CustomButton from "../../components/common/Button";
+import CustomizedSnackbars from "../../components/common/Snackbar";
+import Spinner from "../../components/common/Spinner";
 
 
 
@@ -19,7 +19,7 @@ const BasicWorkspaceSettings = (props) => {
     const [value, setValue] = useState();
     const [loading, setLoading] = useState(false);
     const [newDetails, setNewDetails] = useState();
-    const classes = DatasetStyle();
+    
     const [publicanalytics,setpublicanalytics] = useState(true)
    
 

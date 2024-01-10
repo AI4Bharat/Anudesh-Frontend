@@ -2,7 +2,7 @@
 import { Box, Card, Grid, Tab, Tabs, ThemeProvider, Typography} from "@mui/material";
 import React, { useState, useEffect } from "react";
 import themeDefault from  "../../themes/theme";
-import DatasetStyle from "../../styles/Dataset";
+import  "../../styles/Dataset.css";
 import componentType from "../../config/PageType";
 
 
@@ -40,7 +40,7 @@ function a11yProps(index) {
 
 
 export default function Workspace(props){
-    const classes = DatasetStyle();
+    
    
 
     

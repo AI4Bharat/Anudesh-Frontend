@@ -1,6 +1,7 @@
 'use client';
 import themeDefault from "../themes/theme"
 import { ThemeProvider } from "@emotion/react"
+import StoreProvider from "./StoreProvider"
 import "./index.css";
 // export const metadata = {
 //   title: 'Anudesh',
@@ -12,7 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <ThemeProvider theme={themeDefault}>
-        {children}
+          <StoreProvider>{children}</StoreProvider>
         </ThemeProvider>
       </body>
     </html>
