@@ -4,20 +4,22 @@
  import API from "../../api"; 
  import ENDPOINTS from "../../../../config/apiendpoint"
  import constant from "../../constants";
+ 
+ export default class DeallocateReviewTasksAPI extends API {
 
- export default class GetWorkspacesAPI extends API {
-   constructor(pageNo, records, timeout = 2000) {
+   constructor(projectId,selectedFilters, timeout = 2000) {
      super("GET", timeout, false);
-     this.type = constant.GET_WORKSPACES_DATA
-     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getWorkspaces}user-workspaces/loggedin-user-workspaces/`;
+     this.projectId = projectId;
+     this.type = constants.DE_ALLOCATE_REVIEW_TASKS;
+     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_review_tasks/?review_status=['${selectedFilters}']`;
    }
-
+ 
    processResponse(res) {
-    super.processResponse(res);
-    if (res) {
-        this.workspaceData = res;
-    }
-}
+     super.processResponse(res);
+     if (res) {
+         this.unassignRes = res;
+     }
+   }
  
    apiEndPoint() {
      return this.endpoint;
@@ -36,7 +38,7 @@
    }
  
    getPayload() {
-     return this.workspaceData;
+     return this.unassignRes;
    }
  }
- 
+  

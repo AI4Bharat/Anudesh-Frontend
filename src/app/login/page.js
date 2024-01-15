@@ -13,9 +13,8 @@ import {useDispatch,useSelector} from "react-redux"
 import CustomButton from "../components/common/Button";
 import APITransport from "@/Lib/apiTransport/apitransport";
 import { useRouter } from 'next/navigation';
-import FetchLoggedInUserDataAPI from "../actions/api/user/FetchLoggedInUserData";
 import { translate } from "@/config/localisation";
-import { setLoggedInUserData } from "@/Lib/Features/LoggedInData";
+import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import CustomizedSnackbars from "@/app/components/common/Snackbar";
 import "./login.css";
 import LoginAPI from "../actions/api/user/Login";
@@ -50,11 +49,10 @@ export default function Login() {
         }));
     };
       const getLoggedInUserData = () => {
-        const loggedInUserObj = new FetchLoggedInUserDataAPI("me");
-        dispatch(APITransport(loggedInUserObj));
+        dispatch(FetchLoggedInUserData("me"))
       };
       const loggedInUserData = useSelector(
-        (state) => state.fetchLoggedInUserData.data
+        (state) => state.getLoggedInData.data
       );
       console.log(loggedInUserData,"lll");
   
@@ -78,6 +76,7 @@ export default function Login() {
       localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
       localStorage.setItem("email_id", credentials.email.toLowerCase());
       getLoggedInUserData();
+      router.push("/");
     } else{
       setSnackbarInfo({
         open: true,

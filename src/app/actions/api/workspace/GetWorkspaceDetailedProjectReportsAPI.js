@@ -47,7 +47,7 @@ export default class GetWorkspaceDetailedProjectReportsAPI extends API {
     this.headers = {
       headers: {
         "Content-Type": "application/json",
-        "Authorization":`JWT ${localStorage.getItem('shoonya_access_token')}`
+        "Authorization":`JWT ${localStorage.getItem('anudesh_access_token')}`
       },
     };
     return this.headers;

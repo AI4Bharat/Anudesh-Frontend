@@ -34,6 +34,8 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { MenuProps } from "../../../utils/utils";
 import CustomizedSnackbars from "./Snackbar";
+import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 
 const ProgressType = [{ name: "Annotation Stage", value: 1 }, { name: "Review Stage", value: 2 }, { name: "Super Check Stage", value: 3 }, { name: "All Stage", value: "AllStage" }]
 
@@ -80,17 +82,15 @@ const WorkspaceReports = () => {
     (state) => state.getWorkspaceProjectReports.data
   );
 
-  const LanguageChoices = useSelector((state) => state.fetchLanguages.data);
+  const LanguageChoices = useSelector((state) => state.getLanguages.data);
 
   let ProgressTypeValue = "Annotation Stage"
   const filterdata = ProgressType.filter(item => item.name !== ProgressTypeValue)
   const FilterProgressType = projectType === "ReviewerReports" ? filterdata : ProgressType
 
   useEffect(() => {
-    const typesObj = new GetProjectDomainsAPI();
-    const langObj = new FetchLanguagesAPI();
-    dispatch(APITransport(typesObj));
-    dispatch(APITransport(langObj));
+    dispatch(fetchProjectDomains());
+    dispatch(fetchLanguages());
   }, []);
 
   useEffect(() => {

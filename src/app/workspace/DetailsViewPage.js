@@ -39,6 +39,7 @@ import AddWorkspaceDialog from "./AddWorkspaceDialog";
 import AddUsersDialog from "../components/common/AddUsersDialog";
 import addUserTypes from "../Constants/addUserTypes";
 import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetails";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -69,6 +70,8 @@ import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetail
       );
     const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
     // const { id, orgId } = useParams();
+    const id = 1;
+    const orgId = 1;
     const classes = DatasetStyle();
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
     const dispatch = useDispatch();
@@ -96,8 +99,7 @@ import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetail
     };
 
     const getWorkspaceDetails = () => {
-      const workspaceObj = new GetWorkspacesDetailsAPI(orgId);
-      dispatch(APITransport(workspaceObj));
+      dispatch(fetchWorkspaceDetails(1));
     };
   
   
@@ -323,7 +325,7 @@ import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetail
                 <AddWorkspaceDialog
                   dialogCloseHandler={handleWorkspaceDialogClose}
                   isOpen={addWorkspacesDialogOpen}
-                  // orgId={orgId}
+                  orgId={orgId}
                 />
               </>
             )}
@@ -344,7 +346,7 @@ import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetail
                   handleDialogClose={handleAnnotatorDialogClose}
                   isOpen={addAnnotatorsDialogOpen}
                   userType={addUserTypes.ANNOTATOR}
-                  // id={id}
+                  id={id}
                 />
               </>
             )}
@@ -367,7 +369,7 @@ import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetail
                   handleDialogClose={handleManagerDialogClose}
                   isOpen={addManagersDialogOpen}
                   userType={addUserTypes.MANAGER}
-                  // id={id}
+                  id={id}
                 />
               </>
             )}

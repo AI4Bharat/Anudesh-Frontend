@@ -1,21 +1,39 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import fetchParams from '../fetchParams';
+import ENDPOINTS from "../../config/apiendpoint"
+const initialState = {
+  data: [],
+  status: 'idle',
+  error: null,
+};
 
-let initialState = {
-    data:[]
-}
+export const fetchLanguages = createAsyncThunk(
+  'getLanguages/fetchLanguages',
+  async (pageNumber, { dispatch }) => {
+    const params = fetchParams(`${ENDPOINTS.getProjects}types/`);
+    return fetch(params.url, params.options)
+        .then(response => response.json())
+  }
+);
 
-
-const fetchLanguages = createSlice({
-    name: "getProjectDomains",
-    initialState,
-    reducers: {
-        setfetchLanguages: (state, action) => {
-            state.data = action.payload;
-        }
-    }
+const getLanguages = createSlice({
+  name: 'getLanguages',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchLanguages.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchLanguages.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.data = action.payload;
+      })
+      .addCase(fetchLanguages.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
+  },
 });
 
-
-export const { setfetchLanguages } = fetchLanguages.actions;
-export default fetchLanguages.reducer;
- 
+export default getLanguages.reducer;

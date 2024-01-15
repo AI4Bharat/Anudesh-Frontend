@@ -20,9 +20,10 @@ import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import UpdateProfileImageAPI from '../actions/api/user/UpdateProfileImageAPI'
 import { useDispatch, useSelector } from "react-redux";
 import APITransport from '@/Lib/apiTransport/apitransport';
+import { fetchUserById } from '@/Lib/Features/user/getUserById';
 
 export default function ProfilePage () {
-
+  
   const id=1;
   const dispatch = useDispatch();
   // const navigate = useNavigate();
@@ -34,9 +35,9 @@ export default function ProfilePage () {
     variant: "success",
   });
 
-  const UserDetails = useSelector((state) => state.fetchUsersById.data);
-  const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
-  const loggedInUserData = useSelector((state) => state.fetchLoggedInUserData.data);
+  const UserDetails = useSelector((state) => state.getUserById.data);
+  const LoggedInUserId = useSelector((state) => state.getLoggedInData.data.id);
+  const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const handleEmailToggle = async () => {
     setLoading(true);
     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
@@ -53,8 +54,7 @@ export default function ProfilePage () {
         message: resp?.message,
         variant: "success",
       })
-      const userObj = new FetchUserByIdAPI(id);
-      dispatch(APITransport(userObj));
+      dispatch(fetchUserById(id))
     } else {
       setSnackbarInfo({
         open: true,
@@ -87,8 +87,7 @@ export default function ProfilePage () {
         .then(response => {
           console.log(response.status)
           if (response.status == 200 || response.status == 201) {
-            const userObj = new FetchUserByIdAPI(id);
-            dispatch(APITransport(userObj));
+            dispatch(fetchUserById(id))
             setLoading(false);
             console.log("updateProfileImageData -----", response);
           } else {
@@ -102,18 +101,22 @@ export default function ProfilePage () {
       }
   }
 
-  useEffect(() => {
-    setLoading(true);
-    const userObj = new FetchUserByIdAPI(id);
-    dispatch(APITransport(userObj));
-  }, [id]);
 
   useEffect(() => {
-    if (UserDetails && UserDetails.id == id) {
-      setUserDetails(UserDetails);
+    console.log("Fetching user details...");
+    setLoading(true);
+    dispatch(fetchUserById(id));
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    console.log("UserDetails changed:", UserDetails);
+    if (UserDetails && UserDetails.length > 0 && UserDetails[0].id === id) {
+      console.log("Setting user details...");
+      setUserDetails(UserDetails[0]);
       setLoading(false);
     }
-  }, [UserDetails]);
+  }, [UserDetails, id]);
 
   return (
     <Grid container spacing={2}>
@@ -194,7 +197,7 @@ export default function ProfilePage () {
                     <Grid item>
                       <CustomButton
                         label="View Progress"
-                        onClick={() => navigate(`/progress/${UserDetails.id}`)}
+                        // onClick={() => navigate(`/progress/${UserDetails.id}`)}
                       />
                     </Grid>
                   </Grid>}
@@ -211,13 +214,13 @@ export default function ProfilePage () {
                 </Card>
                 }  */}
             <Card sx={{ borderRadius: "5px", mb: 2 }}>
-              <MyProfile />
+              {/* <MyProfile /> */}
             </Card>
           </Grid>
           {LoggedInUserId === userDetails?.id && (userRole.WorkspaceManager === loggedInUserData?.role || userRole.OrganizationOwner === loggedInUserData?.role || userRole.Admin === loggedInUserData?.role) &&
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
               <Card sx={{ borderRadius: "5px", mb: 2 }}>
-                <ScheduleMails />
+                {/* <ScheduleMails /> */}
               </Card>
             </Grid>
           }
@@ -226,4 +229,3 @@ export default function ProfilePage () {
     </Grid>
   )
 }
-

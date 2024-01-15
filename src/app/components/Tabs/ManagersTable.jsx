@@ -20,6 +20,7 @@ import CustomizedSnackbars from "../../components/common/Snackbar";
 import Search from "../common/Search";
 import TextField from '@mui/material/TextField';
 import LoginAPI from "@/app/actions/api/user/Login";
+import { fetchWorkspacesManagersData } from "@/Lib/Features/getWorkspaceManagersData";
 const ManagersTable = (props) => {
 
     const dispatch = useDispatch();
@@ -30,21 +31,21 @@ const ManagersTable = (props) => {
         variant: "success",
       });
     const router = useRouter()
-    // const {id} = useParams();
+    const id = 1;
     // const orgId = useSelector(state=>state.getWorkspacesProjectData?.data?.[0]?.organization_id);
     const getWorkspaceManagersData = ()=>{
         
-        const workspaceObjs = new GetWorkspacesManagersDataAPI(1);
+        // const workspaceObjs = new GetWorkspacesManagersDataAPI(1);
        
-        dispatch(APITransport(workspaceObjs));
+        dispatch(fetchWorkspacesManagersData(id));
     }
     
     useEffect(()=>{
         getWorkspaceManagersData();
     },[]);
 
-    const workspaceManagers = useSelector(state=>state.getWorkspaceManagersData.data);
-//     const SearchWorkspaceManagers = useSelector((state) => state.SearchProjectCards.data);
+    const workspaceManagers = useSelector(state=>state.getWorkspacesManagersData.data);
+    // const SearchWorkspaceManagers = useSelector((state) => state.SearchProjectCards.data);
 
 const handleRemoveWorkspaceManager = async(userid)=>{
    
@@ -73,138 +74,29 @@ const handleRemoveWorkspaceManager = async(userid)=>{
         }
     }
 
-// const workspaceManagers = [
-//     {
-//         "id": 2,
-//         "username": "shoonya_prediction",
-//         "email": "prediction@ai4bharat.org",
-//         "first_name": "Shoonya",
-//         "last_name": "Prediction",
-//         "role": 6,
-//         "has_accepted_invite": false
-//     },
-//     {
-//         "id": 10,
-//         "username": "Janki",
-//         "email": "jankinawale01@gmail.com",
-//         "first_name": "",
-//         "last_name": "",
-//         "role": 5,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 110,
-//         "username": "test_manager",
-//         "email": "test_manager@ai4bharat.org",
-//         "first_name": "DummyManager",
-//         "last_name": "DemoManager",
-//         "role": 4,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 111,
-//         "username": "test_annotator1",
-//         "email": "test_annotator1@ai4bharat.org",
-//         "first_name": "Test Annotator1",
-//         "last_name": "",
-//         "role": 5,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 112,
-//         "username": "test_annotator2",
-//         "email": "test_annotator2@ai4bharat.org",
-//         "first_name": "Demo",
-//         "last_name": "Annoator 2",
-//         "role": 4,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 190,
-//         "username": "GokulNC",
-//         "email": "gokulnc@ai4bharat.org",
-//         "first_name": "",
-//         "last_name": "",
-//         "role": 6,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 9,
-//         "username": "Ishvinder",
-//         "email": "ishvinder@ai4bharat.org",
-//         "first_name": "Ishvinder",
-//         "last_name": "Sethi",
-//         "role": 6,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 520,
-//         "username": "Vignesh",
-//         "email": "vignesh.vn.nagarajan@gmail.com",
-//         "first_name": "",
-//         "last_name": "",
-//         "role": 4,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 521,
-//         "username": "sakshijoshi",
-//         "email": "sakshijcom@gmail.com",
-//         "first_name": "",
-//         "last_name": "",
-//         "role": 6,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 523,
-//         "username": "AllanPais",
-//         "email": "21f1001663@ds.study.iitm.ac.in",
-//         "first_name": "",
-//         "last_name": "",
-//         "role": 3,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 42,
-//         "username": "Aparna",
-//         "email": "aparna@ai4bharat.org",
-//         "first_name": "Aparna",
-//         "last_name": "A",
-//         "role": 6,
-//         "has_accepted_invite": true
-//     },
-//     {
-//         "id": 1,
-//         "username": "shoonya",
-//         "email": "shoonya@ai4bharat.org",
-//         "first_name": "Admin",
-//         "last_name": "AI4B",
-//         "role": 6,
-//         "has_accepted_invite": false
-//     }
-// ]
+
     const pageSearch = () => {
 
         return workspaceManagers.filter((el) => {
 
-            if (SearchWorkspaceManagers == "") {
+            // if (SearchWorkspaceManagers == "") {
 
                 return el;
-            } else if (
-                el.username
-                    ?.toLowerCase()
-                    .includes(SearchWorkspaceManagers?.toLowerCase())
-            ) {
+            // } else if (
+            //     el.username
+            //         ?.toLowerCase()
+            //         .includes(SearchWorkspaceManagers?.toLowerCase())
+            // ) {
 
-                return el;
-            } else if (
-                el.email
-                    ?.toLowerCase()
-                    .includes(SearchWorkspaceManagers?.toLowerCase())
-            ) {
+            //     return el;
+            // } else if (
+            //     el.email
+            //         ?.toLowerCase()
+            //         .includes(SearchWorkspaceManagers?.toLowerCase())
+            // ) {
 
-                return el;
-            }
+                // return el;
+            // }
         })
     }
     const columns = [

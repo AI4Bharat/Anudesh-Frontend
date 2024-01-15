@@ -13,8 +13,7 @@
          this.workspace_name = workspaceName;
          this.is_archived = false;
          this.public_analytics = publicanalytics;
-         this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getWorkspaces
-             }`;
+         this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getWorkspaces}`;
      }
  
      processResponse(res) {
@@ -41,7 +40,7 @@
          this.headers = {
              headers: {
                  "Content-Type": "application/json",
-                 Authorization: `JWT ${localStorage.getItem("shoonya_access_token")}`,
+                 Authorization: `JWT ${localStorage.getItem("anudesh_access_token")}`,
              },
          };
          return this.headers;

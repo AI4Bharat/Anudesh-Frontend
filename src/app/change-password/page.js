@@ -69,9 +69,9 @@ import CustomButton from "../components/common/Button";
 
 
 const loggedInUserData = useSelector(
-  (state) => state.fetchLoggedInUserData.data
+  (state) => state.getLoggedInData.data
 );
- 
+ console.log(loggedInUserData);
   const handleChangePassword = async () => {
     setNewPassword("")
     setCurrentPassword("")
@@ -277,7 +277,7 @@ const loggedInUserData = useSelector(
                 <Button
                   sx={{ ml: 2 }}
                   label={"Cancel"}
-                  onClick={() => navigate(`/projects`)}
+                  // onClick={() => navigate(`/projects`)}
                 />
               </Grid>
             </Grid>

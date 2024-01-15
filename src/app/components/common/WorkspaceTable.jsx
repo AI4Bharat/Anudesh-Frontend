@@ -10,7 +10,8 @@ import tableTheme from "../../../themes/tableTheme";
 import DatasetStyle from "../../../styles/Dataset";
 import Search from "../common/Search";
 import Link from 'next/link';
-
+import { setWorkspace } from "@/Lib/Features/GetWorkspace";
+import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 
 
 const WorkspaceTable = (props) => {
@@ -19,6 +20,7 @@ const WorkspaceTable = (props) => {
     const { showManager, showCreatedBy } = props;
     const workspaceData = useSelector(state => state.GetWorkspace.data);
     // const SearchWorkspace = useSelector((state) => state.SearchProjectCards.data);
+    console.log(workspaceData,"lll");
 
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -28,23 +30,27 @@ const WorkspaceTable = (props) => {
 
     const totalWorkspaceCount = useSelector(state => state.GetWorkspace.data.count);
 
-    const getWorkspaceData = () => {
-        const workspaceObj = new GetWorkspaceAPI(currentPageNumber);
-        dispatch(APITransport(workspaceObj));
-    }
+    // const getWorkspaceData = async () => {
+    //     const workspaceObj = new GetWorkspaceAPI(currentPageNumber);
+    //     dispatch(APITransport(workspaceObj));
+    //     // const response = await dispatch(APITransport(workspaceObj));
+    //     // console.log('Response from API:', response);
+    //     dispatch(setWorkspace(workspaceObj))
+    // }
 
     useEffect(() => {
-        getWorkspaceData();
+        dispatch(fetchWorkspaceData(currentPageNumber)); 
         // console.log("fired now")
     }, [currentPageNumber]);
 
     // useEffect(() => {
-    //     getWorkspaceData();
+    //     dispatch(fetchWorkspaceData(currentRowPerPage)); 
     // }, [currentRowPerPage]);
 
-    useEffect(() => {
-        getWorkspaceData();
-    }, []);
+    useEffect(() => {       
+        dispatch(fetchWorkspaceData(1)); 
+      }, [])
+
     const pageSearch = () => {
 
         return workspaceData.filter((el) => {

@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import APITransport from '@/Lib/apiTransport/apitransport';
 import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
+import { fetchUserById } from '@/Lib/Features/user/getUserById';
 
 
 export default function ProgressPage () {
@@ -25,9 +26,10 @@ export default function ProgressPage () {
     variant: "success",
   });
 
-  const UserDetails = useSelector((state) => state.fetchUsersById.data);
-  const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
-  const loggedInUserData = useSelector((state) => state.fetchLoggedInUserData.data);
+
+  const UserDetails = useSelector((state) => state.getUserById.data);
+  const LoggedInUserId = useSelector((state) => state.getLoggedInData.data.id);
+  const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const handleEmailToggle = async () => {
     setLoading(true);
     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
@@ -44,8 +46,7 @@ export default function ProgressPage () {
             message: resp?.message,
             variant: "success",
         })
-        const userObj = new FetchUserByIdAPI(id);
-        dispatch(APITransport(userObj));
+        dispatch(fetchUserById(id));
     } else {
         setSnackbarInfo({
             open: true,
@@ -71,8 +72,7 @@ export default function ProgressPage () {
   
   useEffect(() => {
     setLoading(true);
-    const userObj = new FetchUserByIdAPI(id);
-    dispatch(APITransport(userObj));
+    dispatch(fetchUserById(id));
   }, [id]);
 
   useEffect(() => {
@@ -85,6 +85,7 @@ export default function ProgressPage () {
   return (
       <Grid container spacing={2}>
         {loading && <Spinner />} 
+        {renderSnackBar()}
           {userDetails && (
             <>
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>

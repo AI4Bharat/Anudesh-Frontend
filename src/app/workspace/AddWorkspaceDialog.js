@@ -4,6 +4,7 @@ import CustomButton from '../components/common/Button'
 import { useDispatch, useSelector } from 'react-redux';
 import CreateWorkspaceAPI from '../actions/api/workspace/CreateWorkspace'
 import GetWorkspaceAPI from '../actions/api/workspace/GetWorkspaceData';
+import { fetchWorkspaceCreateData } from '@/Lib/Features/getWorkspaceData';
 const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
     const dispatch = useDispatch();
     const [workspaceName, setWorkspaceName] = useState('')
@@ -14,7 +15,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
 
 
     const handlepublicanalytics = async () => {
-        setLoading(true);
+        // setLoading(true);
         setpublicanalytics((publicanalytics)=>!publicanalytics)
       };
 
@@ -25,7 +26,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
         dialogCloseHandler();
         if (!workspaceName) return;
 
-         setLoading(true);
+        //  setLoading(true);
         const createWorkspaceObj = new CreateWorkspaceAPI(
             1,
             workspaceName,
@@ -44,9 +45,8 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
         const createWorkspaceRespData = await createWorkspaceRes.json();
 
         if (createWorkspaceRes.ok) {
-            const workspaceObj = new GetWorkspaceAPI(1);
-            dispatch(APITransport(workspaceObj));
-            return createWorkspaceRespData;
+            dispatch(fetchWorkspaceCreateData(1));
+            return createWorkspaceRespData;    
         }
 
         setLoading(false)

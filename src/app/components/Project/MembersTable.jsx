@@ -1,7 +1,6 @@
 // MembersTable
-
 import React, { useEffect, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import MUIDataTable from "mui-datatables";
 import { useRouter } from "next/navigation";
 import CustomButton from "../common/Button";
@@ -26,6 +25,9 @@ import Search from "../common/Search";
 import UserRolesList from "../../../utils/UsersRolesList";;
 import userRoles from "../../../utils/Role";
 import TextField from '@mui/material/TextField';
+import { fetchRemoveProjectMember } from "@/Lib/Features/projects/RemoveProjectMember";
+import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectReviewerAPI";
+import { fetchResendUserInvite } from "@/Lib/Features/projects/ResendUserInvite";
 
 const columns = [
   {
@@ -87,16 +89,15 @@ const addLabel = {
 
 const MembersTable = (props) => {
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-  // const { orgId, id } = useParams();
-  // const navigate = useNavigate();
-  // const dispatch = useDispatch();
-  const router = useRouter()
+  const { orgId, id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
   const [loading, setLoading] = useState(false);
   const {
-    // dataSource,
+    dataSource,
     hideButton,
-    // onRemoveSuccessGetUpdatedMembers,
+    onRemoveSuccessGetUpdatedMembers,
     reSendButton,
   } = props;
   const [snackbar, setSnackbarInfo] = useState({
@@ -104,260 +105,288 @@ const MembersTable = (props) => {
     message: "",
     variant: "success",
   });
-  const [btn, setbtn] = useState(null);
-  const [value, setvalue] = useState();
+  const [btn,setbtn] = useState(null);
+  const [value,setvalue] = useState();
   const [selectedEmails, setSelectedEmails] = useState([]);
   const [csvFile, setCsvFile] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [userType, setUserType] = useState(Object.keys(UserRolesList)[0]);
+  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
+  const apiLoading = useSelector((state) => state.apiStatus.loading);
+  // const SearchWorkspaceMembers = useSelector(
+  //   (state) => state.SearchProjectCards.data
+  // );
+  const loggedInUserData = useSelector(
+    (state) => state.getLoggedInData.data
+  );
+
+  const pageSearch = () => {
+    return dataSource.filter((el) => {
+      // if (SearchWorkspaceMembers == "") {
+        return el;
+      // } else if (
+      //   el.username
+      //     ?.toLowerCase()
+      //     .includes(SearchWorkspaceMembers?.toLowerCase())
+      // ) {
+      //   return el;
+      // } else if (
+      //   el.email?.toLowerCase().includes(SearchWorkspaceMembers?.toLowerCase())
+      // ) {
+      //   return el;
+      // }
+    });
+  };
+
+  useEffect(() => {
+    userDetails && setUserRole(userDetails.role);
+  }, []);
 
   const handleUserDialogClose = () => {
     setAddUserDialogOpen(false);
   };
-  console.log(props.type);
 
   const handleUserDialogOpen = () => {
     setAddUserDialogOpen(true);
   };
-  const dataSource = [
-    {
-      "id": 94,
-      "username": "drrsuresha",
-      "email": "drrsuresha@gmail.com",
-      "first_name": "Dr. Suresha",
-      "last_name": "R",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 151,
-      "username": "Pramodini Pradhan",
-      "email": "pramodinip@gmail.com",
-      "first_name": "Pramodini",
-      "last_name": "Pradhan",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 72,
-      "username": "Srija",
-      "email": "srmukh@gmail.com",
-      "first_name": "Srija",
-      "last_name": "Mukherjee",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 100,
-      "username": "Devanga",
-      "email": "debangapallav4u@gmail.com",
-      "first_name": "Devanga Pallav",
-      "last_name": "Saikia",
-      "role": 4,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 203,
-      "username": "saee",
-      "email": "saeekodolikar@gmail.com",
-      "first_name": "Saee",
-      "last_name": "Kodolikar",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 319,
-      "username": "AG Datta",
-      "email": "translatortel2@gmail.com",
-      "first_name": "",
-      "last_name": "",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 396,
-      "username": "NDM",
-      "email": "narayanduttmishra@ai4bharat.org",
-      "first_name": "",
-      "last_name": "",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 356,
-      "username": "Shivakumar Mavali",
-      "email": "mavalihere@gmail.com",
-      "first_name": "Shivakumar",
-      "last_name": "Mavali",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 2090,
-      "username": "Shakeel Ahmad",
-      "email": "shakeel.ahmad@rekhta.org",
-      "first_name": "",
-      "last_name": "",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 316,
-      "username": "Translator Gujarati - LSB",
-      "email": "translatorguj1@gmail.com",
-      "first_name": "",
-      "last_name": "",
-      "role": 2,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 139,
-      "username": "Vrinda",
-      "email": "vrinda0606@gmail.com",
-      "first_name": "VRINDA",
-      "last_name": "SARKAR",
-      "role": 3,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 375,
-      "username": "Naresh Kapadia",
-      "email": "nareshkkapadia@gmail.com",
-      "first_name": "Naresh",
-      "last_name": "Kapadia",
-      "role": 3,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 339,
-      "username": "Karuna Vempati",
-      "email": "karunajk@gmail.com",
-      "first_name": "Karuna",
-      "last_name": "Vempati",
-      "role": 3,
-      "has_accepted_invite": true
-    },
-    {
-      "id": 218,
-      "username": "JayaSaraswati",
-      "email": "jaya.saraswati@gmail.com",
-      "first_name": "Jaya",
-      "last_name": "Saraswati",
-      "role": 4,
-      "has_accepted_invite": true
-    }]
-  const loggedInUserData = {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-      "id": 1,
-      "title": "AI4Bharat",
-      "email_domain_name": "ai4bharat.org",
-      "created_by": {
-        "username": "shoonya",
-        "email": "shoonya@ai4bharat.org",
-        "first_name": "Admin",
-        "last_name": "AI4B",
-        "role": 6
-      },
-      "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-  };
-  const pageSearch = () => {
-    return dataSource.filter((el) => {
 
-      return el;
+  const handleProjectMember = async (userid) => {
+    dispatch(fetchRemoveProjectMember(id, { ids: [userid] }));
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
     });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+      onRemoveSuccessGetUpdatedMembers();
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+  };
+  const handleProjectReviewer = async (Projectid) => {
+    let projectObj 
+    if(props.type === addUserTypes.PROJECT_REVIEWER){
+      projectObj = new RemoveProjectReviewerAPI(id, { ids: [Projectid] },props.type);
+    }else if(props.type === addUserTypes.PROJECT_SUPERCHECKER){
+       projectObj = new RemoveProjectReviewerAPI(id, { ids: [Projectid] },props.type);
+    }
+    // dispatch(APITransport(projectObj));
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+      onRemoveSuccessGetUpdatedMembers();
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+  };
+
+  const handleResendUser = async(email) => {
+    dispatch(fetchResendUserInvite(email=[email]));
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+
+  };
+
+  const addBtnClickHandler = async () => {
+    setLoading(true);
+    const addMembersObj = new InviteUsersToOrgAPI(
+        orgId,
+        selectedUsers,
+        userType
+      );
+      const res = await fetch(addMembersObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(addMembersObj.getBody()),
+        headers: addMembersObj.getHeaders().headers,
+      });
+      const resp = await res.json();
+      if (res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "success",
+        });
+        const orgObj = new GetOragnizationUsersAPI(id);
+        dispatch(APITransport(orgObj));
+      }else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+      }
+      handleUserDialogClose();
+    setLoading(false);
+    setSelectedUsers([ ]);
+    setSelectedEmails([]);
+    setCsvFile(null);
+    setbtn(null)
+    setUserType(Object.keys(UserRolesList)[0])
+  };
+  const handleRemoveFrozenUsers = async (FrozenUserId) => {
+    const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
+    //dispatch(APITransport(projectObj));
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    // setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+      onRemoveSuccessGetUpdatedMembers();
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
   };
 
 
+  
+  useEffect(() => {
+    setLoading(apiLoading);
+  }, [apiLoading]);
 
+  const projectlist = (el) => {
+    let temp = false;
+    ProjectDetails?.frozen_users?.forEach((em) => {
+      if (el == em.id) {
+        temp = true;
+      }
+    });
+    return temp;
+  };
   const data =
     dataSource && dataSource.length > 0
       ? pageSearch().map((el, i) => {
-        const userRole = el.role && UserMappedByRole(el.role).element;
+          const userRole = el.role && UserMappedByRole(el.role).element;
 
-        return [
-          el.username,
-          el.email,
-          userRole ? userRole : el.role,
-          <>
-            <CustomButton
-              sx={{ p: 1, borderRadius: 2 }}
-              onClick={() => {
-                router.push(`/profile/`);
-              }}
-              label={"View"}
-            />
-
-            {(userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && props.type === addUserTypes.PROJECT_ANNOTATORS) && (
+          return [
+            el.username,
+            el.email,
+            userRole ? userRole : el.role,
+            <>
               <CustomButton
-                sx={{
-                  borderRadius: 2,
-                  backgroundColor: "#cf5959",
-                  m: 1,
-                  height: "40px",
+                sx={{ p: 1, borderRadius: 2 }}
+                onClick={() => {
+                  navigate(`/profile/${el.id}`);
                 }}
-                label="Remove"
-                onClick={() => { setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); setMemberOrReviewer("member"); }}
-              //   disabled={projectlist(el.id)|| ProjectDetails.is_archived}
+                label={"View"}
               />
-            )}
-            {userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && (props.type === addUserTypes.PROJECT_REVIEWER) && (
-              <CustomButton
-                sx={{
-                  borderRadius: 2,
-                  backgroundColor: "#cf5959",
-                  m: 1,
-                  height: "40px",
-                }}
-                label="Remove"
-                onClick={() => { setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); setMemberOrReviewer("reviewer"); }}
-              //   disabled={projectlist(el.id)|| ProjectDetails.is_archived}
-              />
-            )}
-            {userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && (props.type === addUserTypes.PROJECT_SUPERCHECKER) && (
-              <CustomButton
-                sx={{
-                  borderRadius: 2,
-                  backgroundColor: "#cf5959",
-                  m: 1,
-                  height: "40px",
-                }}
-                label="Remove"
-                onClick={() => { setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); setMemberOrReviewer("superchecker"); }}
-              //   disabled={projectlist(el.id)|| ProjectDetails.is_archived}
-              />
-            )}
 
+              {(userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && props.type === addUserTypes.PROJECT_ANNOTATORS) && (
+                <CustomButton
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "#cf5959",
+                    m: 1,
+                    height: "40px",
+                  }}
+                  label="Remove"
+                  onClick={() => {setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); setMemberOrReviewer("member");}}
+                  disabled={projectlist(el.id)|| ProjectDetails.is_archived}
+                />
+              )}
+              {userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && (props.type === addUserTypes.PROJECT_REVIEWER) && (
+                <CustomButton
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "#cf5959",
+                    m: 1,
+                    height: "40px",
+                  }}
+                  label="Remove"
+                  onClick={() => {setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); setMemberOrReviewer("reviewer");}}
+                  disabled={projectlist(el.id)|| ProjectDetails.is_archived}
+                />
+              )}
+              {userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && (props.type === addUserTypes.PROJECT_SUPERCHECKER) && (
+                <CustomButton
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "#cf5959",
+                    m: 1,
+                    height: "40px",
+                  }}
+                  label="Remove"
+                  onClick={() => {setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); setMemberOrReviewer("superchecker");}}
+                  disabled={projectlist(el.id)|| ProjectDetails.is_archived}
+                />
+              )}
 
+           {projectlist(el.id) &&(
+                <CustomButton
+                    sx={{ borderRadius: 2}}
+                    label="Add"
+                    onClick={() => handleRemoveFrozenUsers(el.id)}
+                    disabled = {ProjectDetails.is_archived}
+                  />
+                )} 
 
-            {reSendButton && (
-              <CustomButton
-                sx={{ p: 1, m: 1, borderRadius: 2 }}
-                onClick={() => handleResendUser(el.email)}
-                label={"Resend"}
-              />
-            )}
+              {reSendButton && (
+                <CustomButton
+                  sx={{ p: 1, m: 1, borderRadius: 2 }}
+                  onClick={() => handleResendUser(el.email)}
+                  label={"Resend"}
+                />
+              )}
 
-
-          </>,
-        ];
-      })
+              
+            </>,
+          ];
+        })
       : [];
   const options = {
     textLabels: {
@@ -403,11 +432,12 @@ const MembersTable = (props) => {
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [elEmail, setElEmail] = useState("");
   const [elId, setElId] = useState("");
+  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
   const [memberOrReviewer, setMemberOrReviewer] = useState("");
   const handleConfirm = async () => {
-    if (memberOrReviewer === "member" || memberOrReviewer === "reviewer") {
+    if (memberOrReviewer === "member" || memberOrReviewer === "reviewer"){
       const apiObj = new LoginAPI(emailId, password);
       const res = await fetch(apiObj.apiEndPoint(), {
         method: "POST",
@@ -416,22 +446,21 @@ const MembersTable = (props) => {
       });
       const rsp_data = await res.json();
       if (res.ok) {
-        if (memberOrReviewer === "member") {
-          handleProjectMember(elId);
-        } else if (memberOrReviewer === "reviewer") {
-          handleProjectReviewer(elId);
-        }
+        if(memberOrReviewer === "member"){
+        handleProjectMember(elId);
+      }else if(memberOrReviewer === "reviewer"){
+        handleProjectReviewer(elId);
+      }
         setConfirmationDialog(false);
-      } else {
+      }else{
         window.alert("Invalid credentials, please try again");
         console.log(rsp_data);
-      }
-    }
-    else if (memberOrReviewer === "superchecker") {
-      if (pin === "0104") {
+      }}
+    else if(memberOrReviewer === "superchecker"){
+      if(pin === "0104"){
         handleProjectReviewer(elId);
         setConfirmationDialog(false);
-      } else {
+      }else{
         window.alert("Incorrect pin entered");
       }
     }
@@ -442,67 +471,69 @@ const MembersTable = (props) => {
         <CustomButton
           sx={{ borderRadius: 2, whiteSpace: "nowrap" }}
           startIcon={<PersonAddAlt />}
-          onClick={handleUserDialogOpen}
           label={props.type ? addLabel[props.type] : "Add Users"}
           fullWidth
+          onClick={handleUserDialogOpen}
+          disabled={props.type === addUserTypes.PROJECT_ANNOTATORS||props.type === addUserTypes.PROJECT_REVIEWER  || props.type === addUserTypes.PROJECT_SUPERCHECKER ?ProjectDetails.is_archived:""}
         />
       ) : null}
 
-      <Dialog
-        open={confirmationDialog}
-        onClose={() => setConfirmationDialog(false)}
-        aria-labelledby="dialog-title"
-        aria-describedby="dialog-description"
-      >
-        <DialogTitle id="dialog-title">
-          {"Remove Member from Project?"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {elEmail} will be removed from this project. Please be careful as
-            this action cannot be undone.
-          </DialogContentText>
-          {(memberOrReviewer === "member" || memberOrReviewer === "reviewer") &&
-            <TextField
-              autoFocus
-              margin="dense"
-              id="password"
-              label="Password"
-              type="password"
-              fullWidth
-              variant="standard"
-              onChange={(e) => setPassword(e.target.value)}
-            />}
-          {memberOrReviewer === "superchecker" &&
-            <TextField
-              autoFocus
-              margin="dense"
-              id="pin"
-              label="Pin"
-              type="pin"
-              fullWidth
-              variant="standard"
-              onChange={(e) => setPin(e.target.value)}
-            />}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setConfirmationDialog(false)}
-            variant="outlined"
-            color="error"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirm}
-            variant="contained"
-            color="error"
-            autoFocus
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+              <Dialog
+                open={confirmationDialog}
+                onClose={() => setConfirmationDialog(false)}
+                aria-labelledby="dialog-title"
+                aria-describedby="dialog-description"
+              >
+                <DialogTitle id="dialog-title">
+                  {"Remove Member from Project?"}
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    {elEmail} will be removed from this project. Please be careful as
+                    this action cannot be undone.
+                  </DialogContentText>
+                {(memberOrReviewer === "member" || memberOrReviewer === "reviewer") &&
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="password"
+                    label="Password"
+                    type="password"
+                    fullWidth
+                    variant="standard"
+                    onChange={(e) => setPassword(e.target.value)}
+                  />}
+                  {memberOrReviewer === "superchecker" &&
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="pin"
+                    label="Pin"
+                    type="pin"
+                    fullWidth
+                    variant="standard"
+                    onChange={(e) => setPin(e.target.value)}
+                  />}
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    onClick={() => setConfirmationDialog(false)}
+                    variant="outlined"
+                    color="error"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleConfirm}
+                    variant="contained"
+                    color="error"
+                    autoFocus
+                  >
+                    Confirm
+                  </Button>
+                </DialogActions>
+              </Dialog>
+  
       {props.type === "organization" ? (
         <InviteUsersDialog
           handleDialogClose={handleUserDialogClose}
@@ -511,7 +542,7 @@ const MembersTable = (props) => {
           setSelectedUsers={setSelectedUsers}
           userType={userType}
           setUserType={setUserType}
-          addBtnClickHandler={() => addBtnClickHandler()}
+          addBtnClickHandler={()=>addBtnClickHandler()}
           loading={loading}
           selectedEmails={selectedEmails}
           setSelectedEmails={setSelectedEmails}
@@ -527,14 +558,13 @@ const MembersTable = (props) => {
           handleDialogClose={handleUserDialogClose}
           isOpen={addUserDialogOpen}
           userType={props.type}
-          // id={id}
+          id={id}
         />
       )}
-
       {renderSnackBar()}
-      <Grid sx={{ mb: 1 }}>
-        <Search />
-      </Grid>
+        <Grid sx={{ mb: 1 }}>
+          <Search />
+        </Grid>
 
       <ThemeProvider theme={tableTheme} sx={{ marginTop: "20px" }}>
         <MUIDataTable
@@ -542,7 +572,7 @@ const MembersTable = (props) => {
           data={data}
           columns={columns}
           options={options}
-        // filter={false}
+          // filter={false}
         />
       </ThemeProvider>
     </React.Fragment>

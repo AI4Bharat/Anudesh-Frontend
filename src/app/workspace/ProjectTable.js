@@ -7,7 +7,7 @@ import { ThemeProvider, Grid ,Button} from "@mui/material";
 import tableTheme from "../../themes/TableTheme";
 import Search from "../components/common/Search";
 import { useRouter } from "next/navigation";
-import { setWorkspaceProjectData } from "@/lib/Features/getWorkspaceProject";
+import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
 import APITransport from "../../Lib/apiTransport/apitransport"
 // import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
@@ -26,21 +26,15 @@ const ProjectTable = (props) => {
 //  const {id} = router.query
   
   const getWorkspace = () => {
-    const workspaceObjs = new GetWorkspacesProjectDetailsAPI(1);
-
-    dispatch(APITransport(workspaceObjs));
+    dispatch(fetchWorkspaceProjectData(1));
   };
 
-  const getWorkspaceProjectDataCallback = useCallback(() => {
+  useEffect(() => {
     getWorkspace();
   }, []);
-  
-  useEffect(() => {
-    getWorkspaceProjectDataCallback();
-  }, [getWorkspaceProjectDataCallback]);
 
   const workspacesproject = useSelector(
-    (state) => state.getWorkspaceProject.data
+    (state) => state.getWorkspaceProjectData.data
   );
   console.log(workspacesproject);
   // const SearchWorkspaceProjects = useSelector(
