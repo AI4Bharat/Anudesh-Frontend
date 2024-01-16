@@ -11,7 +11,7 @@ import APITransport from '@/Lib/apiTransport/apitransport';
 import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
-
+import CustomizedSnackbars from '../components/common/Snackbar';
 
 export default function ProgressPage () {
   // const { id } = useParams();

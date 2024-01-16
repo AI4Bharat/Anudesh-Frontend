@@ -89,8 +89,10 @@ const addLabel = {
 
 const MembersTable = (props) => {
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-  const { orgId, id } = useParams();
-  const navigate = useNavigate();
+  // const { orgId, id } = useParams();
+  const id=1;
+  const orgId =1;
+  // const navigate = useNavigate();
   const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
   const [loading, setLoading] = useState(false);
@@ -141,7 +143,7 @@ const MembersTable = (props) => {
 
   useEffect(() => {
     userDetails && setUserRole(userDetails.role);
-  }, []);
+  }, [userDetails]);
 
   const handleUserDialogClose = () => {
     setAddUserDialogOpen(false);

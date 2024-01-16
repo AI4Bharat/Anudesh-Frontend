@@ -44,7 +44,7 @@ const WorkspaceReports = () => {
     (state) => state.getWorkspaceDetails.data
   );
   console.log(WorkspaceDetails,"lll");
-  const UserDetails = useSelector(state => state.fetchLoggedInUserData.data);
+  const UserDetails = useSelector(state => state.getLoggedInData.data);
   const [selectRange, setSelectRange] = useState([{
     startDate: new Date(Date.parse(WorkspaceDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
     endDate: new Date(),
@@ -91,7 +91,7 @@ const WorkspaceReports = () => {
   useEffect(() => {
     dispatch(fetchProjectDomains());
     dispatch(fetchLanguages());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (radioButton === "payment") {
@@ -151,7 +151,7 @@ const WorkspaceReports = () => {
       setSelectedColumns([]);
     }
     setShowSpinner(false);
-  }, [UserReports]);
+  }, [UserReports,emailRequested, reportRequested]);
 
   useEffect(() => {
     if (reportRequested && ProjectReports?.length) {
@@ -186,7 +186,7 @@ const WorkspaceReports = () => {
       setSelectedColumns([]);
     }
     setShowSpinner(false);
-  }, [ProjectReports]);
+  }, [ProjectReports,emailRequested, reportRequested]);
 
 
   const renderToolBar = () => {
@@ -222,7 +222,7 @@ const WorkspaceReports = () => {
     },
   };
 
-  const userId = useSelector((state) => state.fetchLoggedInUserData.data.id);
+  const userId = useSelector((state) => state.getLoggedInData.data.id);
 
   const handleChangeReports = (e) => {
     setRadioButton(e.target.value)

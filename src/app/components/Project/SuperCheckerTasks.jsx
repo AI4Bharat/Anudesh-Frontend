@@ -137,7 +137,7 @@ const SuperCheckerTasks = (props) => {
 
   useEffect(() => {
     getTaskListData();
-  }, [currentPageNumber, currentRowPerPage]);
+  }, [currentPageNumber, currentRowPerPage,dispatch]);
 
   useEffect(() => {
     if (

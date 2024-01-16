@@ -48,7 +48,7 @@ const ProjectFilterList = (props) => {
   );
   useEffect(() => {
     dispatch(fetchProjectDomains());
-  }, []);
+  }, [dispatch]);
   useEffect(() => {
     if (ProjectTypes) {
       let types = [];

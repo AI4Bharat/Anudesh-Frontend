@@ -41,7 +41,7 @@ const WorkspaceTable = (props) => {
     useEffect(() => {
         dispatch(fetchWorkspaceData(currentPageNumber)); 
         // console.log("fired now")
-    }, [currentPageNumber]);
+    }, [currentPageNumber,dispatch]);
 
     // useEffect(() => {
     //     dispatch(fetchWorkspaceData(currentRowPerPage)); 
@@ -49,7 +49,7 @@ const WorkspaceTable = (props) => {
 
     useEffect(() => {       
         dispatch(fetchWorkspaceData(1)); 
-      }, [])
+      }, [dispatch])
 
     const pageSearch = () => {
 

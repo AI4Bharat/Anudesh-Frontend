@@ -226,7 +226,7 @@ const AddUsersDialog = ({
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
 
-
+console.log(userType,"dead");
   useEffect(() => {
     let id = '';
     switch (userType) {
@@ -243,11 +243,11 @@ const AddUsersDialog = ({
         break;
     }
     if (id) fetchAllUsers(userType, id, dispatch);
-  }, [userType, id, projectDetails])
- console.log(selectedUsers);
+  }, [userType, id, projectDetails,dispatch])
+
   useEffect(() => {
     setAvailableUsers(getAvailableUsers(userType, projectDetails, workspaceAnnotators, workspaceDetails?.managers, orgUsers));
-  }, [projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])
+  }, [userType,projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])
 
   const addBtnClickHandler = async () => {
     setLoading(true);
