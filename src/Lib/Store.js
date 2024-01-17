@@ -23,11 +23,18 @@ import getFindAndReplaceWordsInAnnotation from './Features/projects/getFindAndRe
 import getTaskFilter from './Features/projects/getTaskFilter';
 import RemoveProjectMember from './Features/projects/RemoveProjectMember';
 import ResendUserInvite from './Features/projects/ResendUserInvite';
-
+import GetOrganizationUserReports from './Features/projects/GetOrganizationUserReports';
+import GetOrganizationDetailedProjectReports from './Features/projects/GetOrganizationDetailedProjectReports';
+import GetOrganizationProjectReports from './Features/projects/GetOrganizationProjectReports';
+import SendOrganizationUserReports from './Features/projects/SendOrganizationUserReports';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        SendOrganizationUserReports:SendOrganizationUserReports,
+        GetOrganizationUserReports:GetOrganizationUserReports,
+        GetOrganizationDetailedProjectReports:GetOrganizationDetailedProjectReports,
+        GetOrganizationProjectReports:GetOrganizationProjectReports,
         getProjects:getProjects,
         getTaskFilter:getTaskFilter,
         ResendUserInvite:ResendUserInvite,

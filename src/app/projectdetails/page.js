@@ -21,6 +21,8 @@ import {
   import addUserTypes from "../Constants/addUserTypes";
   import Spinner from "../components/common/Spinner";
   import Menu from "@mui/material/Menu";
+  import { useDispatch, useSelector } from "react-redux";
+
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
   import DatasetStyle from "../../styles/Dataset";
@@ -102,7 +104,7 @@ import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
   }));
   const Projects = () => {
     // console.log("props", props)
-    const { id } = useParams();
+    // const { id } = useParams();
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -113,7 +115,7 @@ import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
       { name: "Total Labeled Task", value: null },
       { name: "Reviewed Task Count", value: null },
     ]);
-    let navigate = useNavigate();
+    // let navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -461,4 +463,4 @@ import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
     );
   };
   
-  
+  export default Projects;

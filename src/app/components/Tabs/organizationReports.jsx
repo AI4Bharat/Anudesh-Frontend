@@ -12,13 +12,19 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useParams } from "react-router-dom";
 import DatasetStyle from "../../../styles/Dataset";
-
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { styled } from '@mui/material/styles';
-// import { addDays } from 'date-fns';
+import { addDays } from 'date-fns';
+import {useDispatch,useSelector} from "react-redux"
 import CustomizedSnackbars from "../common/Snackbar";
+import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
+import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
+import { fetchOrganizationUserReports } from "@/Lib/Features/projects/GetOrganizationUserReports";
+import { fetchOrganizationProjectReports } from "@/Lib/Features/projects/GetOrganizationProjectReports";
+import { fetchOrganizationDetailedProjectReports } from "@/Lib/Features/projects/GetOrganizationDetailedProjectReports";
+import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
 
 const ProgressType = ["Annotation Stage", "Review Stage", "Super Check Stage", "All Stage"]
 const ITEM_HEIGHT = 38;
@@ -44,16 +50,16 @@ const MenuProps = {
 
 
 const OrganizationReports = () => {
-  // const OrganizationDetails = useSelector(state => state.fetchLoggedInUserData.data.organization);
-  // const UserDetails = useSelector(state => state.fetchLoggedInUserData.data);
-  // const [selectRange, setSelectRange] = useState([{
-  //   // startDate: new Date(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-  //   // endDate: new Date(),
-  //   // key: "selection"
-  //   startDate: addDays(new Date(), -9),
-  //   endDate: addDays(new Date(), -3),
-  //   key: 'selection'
-  // }]);
+  const OrganizationDetails = useSelector(state => state.getLoggedInData?.data.organization);
+  const UserDetails = useSelector(state => state.getLoggedInData.data);
+  const [selectRange, setSelectRange] = useState([{
+    // startDate: new Date(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
+    // endDate: new Date(),
+    // key: "selection"
+    startDate: addDays(new Date(), -9),
+    endDate: addDays(new Date(), -3),
+    key: 'selection'
+  }]);
   // const [rangeValue, setRangeValue] = useState([format(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), 'yyyy-MM-dd'), Date.now()]);
   const [showPicker, setShowPicker] = useState(false);
   const [projectTypes, setProjectTypes] = useState([]);
@@ -80,54 +86,123 @@ const OrganizationReports = () => {
 
   const classes = DatasetStyle();
   // const { orgId } = useParams();
-  // const dispatch = useDispatch();
-  // const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
-  // const UserReports = useSelector((state) => state.getOrganizationUserReports.data);
-  // const ProjectReports = useSelector((state) => state.getOrganizationProjectReports.data);
-  // const SuperCheck = useSelector((state) => state.getOrganizationAnnotatorQuality.data);
-  // const LanguageChoices = useSelector((state) => state.fetchLanguages.data);
+  const orgId =1;
+  const dispatch = useDispatch();
+  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+  const UserReports = useSelector((state) => state.getOrganizationUserReports?.data);
+  const ProjectReports = useSelector((state) => state.getOrganizationProjectReports?.data);
+  const SuperCheck = useSelector((state) => state.getOrganizationAnnotatorQuality?.data);
+  const LanguageChoices = useSelector((state) => state.fetchLanguages?.data);
 
-  // let ProgressTypeValue = "Annotation Stage"
-  // const filterdata = ProgressType.filter(item => item !== ProgressTypeValue)
-  // const FilterProgressType = reportTypes === "Reviewer" ? filterdata : ProgressType
+  let ProgressTypeValue = "Annotation Stage"
+  const filterdata = ProgressType.filter(item => item !== ProgressTypeValue)
+  const FilterProgressType = reportTypes === "Reviewer" ? filterdata : ProgressType
+
+  useEffect(() => {
+    dispatch(fetchProjectDomains());
+    dispatch(fetchLanguages());
+  }, []);
+
+  useEffect(() => {
+    if (radiobutton === "PaymentReports") {
+      setProjectTypes([
+        "AudioSegmentation",
+        "AudioTranscription",
+        "AudioTranscriptionEditing",
+        "ConversationTranslation",
+        "ConversationTranslationEditing",
+        "AcousticNormalisedTranscriptionEditing",
+        "AllAudioProjects",
+        "OCRTranscription",
+        "OCRTranscriptionEditing",
+      ]);
+      setSelectedType("AllAudioProjects");
+    } else if (ProjectTypes) {
+      let types = [];
+      Object.keys(ProjectTypes).forEach((key) => {
+        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+        types.push(...subTypes);
+      });
+      setProjectTypes(types);
+      setSelectedType(types[3]);
+    }
+  }, [ProjectTypes, radiobutton]);
+
+  useEffect(() => {
+    if (reportRequested && UserReports?.length) {
+      let tempColumns = [];
+      let tempSelected = [];
+      Object.keys(UserReports[0]).forEach((key) => {
+        tempColumns.push({
+          name: key,
+          label: key,
+          options: {
+            filter: false,
+            sort: true,
+            align: "center",
+          },
+        });
+        tempSelected.push(key);
+      });
+      setColumns(tempColumns);
+      setReportData(UserReports);
+      setSelectedColumns(tempSelected);
+    } else {
+      if(emailRequested){
+          setSnackbarInfo({
+            open: true,
+            message: UserReports.message,
+            variant: "success",
+          })
+          setEmailRequested(false);
+        }
+      setColumns([]);
+      setReportData([]);
+      setSelectedColumns([]);
+    }
+    setShowSpinner(false);
+  }, [UserReports]);
+
+  useEffect(() => {
+    if (reportRequested && ProjectReports?.length) {
+      let tempColumns = [];
+      let tempSelected = [];
+      Object.keys(ProjectReports[0]).forEach((key) => {
+        tempColumns.push({
+          name: key,
+          label: key,
+          options: {
+            filter: false,
+            sort: true,
+            align: "center",
+          },
+        });
+        tempSelected.push(key);
+      });
+      setColumns(tempColumns);
+      setReportData(ProjectReports);
+      setSelectedColumns(tempSelected);
+    } else {
+      if(emailRequested){
+        setSnackbarInfo({
+          open: true,
+          message: ProjectReports.message,
+          variant: "success",
+        })
+        setEmailRequested(false);
+      }
+      setColumns([]);
+      setReportData([]);
+      setSelectedColumns([]);
+    }
+    setShowSpinner(false);
+  }, [ProjectReports]);
 
   // useEffect(() => {
-  //   const typesObj = new GetProjectDomainsAPI();
-  //   const langObj = new FetchLanguagesAPI();
-  //   dispatch(APITransport(typesObj));
-  //   dispatch(APITransport(langObj));
-  // }, []);
-
-  // useEffect(() => {
-  //   if (radiobutton === "PaymentReports") {
-  //     setProjectTypes([
-  //       "AudioSegmentation",
-  //       "AudioTranscription",
-  //       "AudioTranscriptionEditing",
-  //       "ConversationTranslation",
-  //       "ConversationTranslationEditing",
-  //       "AcousticNormalisedTranscriptionEditing",
-  //       "AllAudioProjects",
-  //       "OCRTranscription",
-  //       "OCRTranscriptionEditing",
-  //     ]);
-  //     setSelectedType("AllAudioProjects");
-  //   } else if (ProjectTypes) {
-  //     let types = [];
-  //     Object.keys(ProjectTypes).forEach((key) => {
-  //       let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
-  //       types.push(...subTypes);
-  //     });
-  //     setProjectTypes(types);
-  //     setSelectedType(types[3]);
-  //   }
-  // }, [ProjectTypes, radiobutton]);
-
-  // useEffect(() => {
-  //   if (reportRequested && UserReports?.length) {
+  //   if (reportRequested && SuperCheck?.length) {
   //     let tempColumns = [];
   //     let tempSelected = [];
-  //     Object.keys(UserReports[0]).forEach((key) => {
+  //     Object.keys(SuperCheck[0]).forEach((key) => {
   //       tempColumns.push({
   //         name: key,
   //         label: key,
@@ -140,230 +215,152 @@ const OrganizationReports = () => {
   //       tempSelected.push(key);
   //     });
   //     setColumns(tempColumns);
-  //     setReportData(UserReports);
+  //     setReportData(SuperCheck);
   //     setSelectedColumns(tempSelected);
   //   } else {
-  //     if(emailRequested){
-  //         setSnackbarInfo({
-  //           open: true,
-  //           message: UserReports.message,
-  //           variant: "success",
-  //         })
-  //         setEmailRequested(false);
-  //       }
   //     setColumns([]);
   //     setReportData([]);
   //     setSelectedColumns([]);
   //   }
   //   setShowSpinner(false);
-  // }, [UserReports]);
+  // }, [SuperCheck]);
 
-  // useEffect(() => {
-  //   if (reportRequested && ProjectReports?.length) {
-  //     let tempColumns = [];
-  //     let tempSelected = [];
-  //     Object.keys(ProjectReports[0]).forEach((key) => {
-  //       tempColumns.push({
-  //         name: key,
-  //         label: key,
-  //         options: {
-  //           filter: false,
-  //           sort: true,
-  //           align: "center",
-  //         },
-  //       });
-  //       tempSelected.push(key);
-  //     });
-  //     setColumns(tempColumns);
-  //     setReportData(ProjectReports);
-  //     setSelectedColumns(tempSelected);
-  //   } else {
-  //     if(emailRequested){
-  //       setSnackbarInfo({
-  //         open: true,
-  //         message: ProjectReports.message,
-  //         variant: "success",
-  //       })
-  //       setEmailRequested(false);
-  //     }
-  //     setColumns([]);
-  //     setReportData([]);
-  //     setSelectedColumns([]);
-  //   }
-  //   setShowSpinner(false);
-  // }, [ProjectReports]);
+  const renderToolBar = () => {
+    return (
+      <Box
+        //className={classes.filterToolbarContainer}
+        className={classes.ToolbarContainer}
+      >
+        <ColumnList
+          columns={columns}
+          setColumns={setSelectedColumns}
+          selectedColumns={selectedColumns}
+        />
+      </Box>
+    )
+  }
 
-  // // useEffect(() => {
-  // //   if (reportRequested && SuperCheck?.length) {
-  // //     let tempColumns = [];
-  // //     let tempSelected = [];
-  // //     Object.keys(SuperCheck[0]).forEach((key) => {
-  // //       tempColumns.push({
-  // //         name: key,
-  // //         label: key,
-  // //         options: {
-  // //           filter: false,
-  // //           sort: true,
-  // //           align: "center",
-  // //         },
-  // //       });
-  // //       tempSelected.push(key);
-  // //     });
-  // //     setColumns(tempColumns);
-  // //     setReportData(SuperCheck);
-  // //     setSelectedColumns(tempSelected);
-  // //   } else {
-  // //     setColumns([]);
-  // //     setReportData([]);
-  // //     setSelectedColumns([]);
-  // //   }
-  // //   setShowSpinner(false);
-  // // }, [SuperCheck]);
-
-  // const renderToolBar = () => {
-  //   return (
-  //     <Box
-  //       //className={classes.filterToolbarContainer}
-  //       className={classes.ToolbarContainer}
-  //     >
-  //       <ColumnList
-  //         columns={columns}
-  //         setColumns={setSelectedColumns}
-  //         selectedColumns={selectedColumns}
-  //       />
-  //     </Box>
-  //   )
-  // }
-
-  // const options = {
-  //   filterType: 'checkbox',
-  //   selectableRows: "none",
-  //   download: true,
-  //   filter: false,
-  //   print: false,
-  //   search: false,
-  //   viewColumns: false,
-  //   jumpToPage: true,
-  //   customToolbar: renderToolBar,
-  // };
+  const options = {
+    filterType: 'checkbox',
+    selectableRows: "none",
+    download: true,
+    filter: false,
+    print: false,
+    search: false,
+    viewColumns: false,
+    jumpToPage: true,
+    customToolbar: renderToolBar,
+  };
 
 
-  // const handleRangeChange = (ranges) => {
-  //   const { selection } = ranges;
-  //   if (selection.endDate > new Date()) selection.endDate = new Date();
-  //   setSelectRange([selection]);
-  //   console.log(selection, "selection");
-  // };
+  const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    setSelectRange([selection]);
+    console.log(selection, "selection");
+  };
 
-  // const userId = useSelector((state) => state.fetchLoggedInUserData.data.id);
+  const userId = useSelector((state) => state.getLoggedInData.data.id);
 
-  // const handleSubmit = (sendMail) => {
-  //   if (radiobutton === "PaymentReports") {
-  //     const userReportObj = new SendOrganizationUserReports(
-  //       orgId,
-  //       UserDetails.id,
-  //       selectedType,
-  //       participationTypes,
-  //       format(selectRange[0].startDate, 'yyyy-MM-dd'),
-  //       format(selectRange[0].endDate, 'yyyy-MM-dd'),
-  //     );
-  //     dispatch(APITransport(userReportObj));
-  //     setSnackbarInfo({
-  //       open: true,
-  //       message: "Payment Reports will be e-mailed to you shortly",
-  //       variant: "success",
-  //     })
-  //   }
-  //   else {
-  //     if(sendMail){
-  //       setReportRequested(false);
-  //       setEmailRequested(true);
-  //     }else{
-  //       setReportRequested(true);
-  //     }
-  //     setShowSpinner(true);
-  //     setShowPicker(false);
-  //     setColumns([]);
-  //     setReportData([]);
-  //     setSelectedColumns([]);
-  //     if (radiobutton === "UsersReports" && reportTypes === "Annotator" && reportfilter == "") {
-  //       setSnackbarInfo({
-  //         open: true,
-  //         message: "Please fill Report Filter",
-  //         variant: "error",
-  //       })
-  //     }
-  //     let ReviewData = []
+  const handleSubmit = (sendMail) => {
+    if (radiobutton === "PaymentReports") {
+    
+      dispatch(fetchSendOrganizationUserReports(orgId,
+        UserDetails.id,
+        selectedType,
+        participationTypes,
+        format(selectRange[0].startDate, 'yyyy-MM-dd'),
+        format(selectRange[0].endDate, 'yyyy-MM-dd'),));
+      setSnackbarInfo({
+        open: true,
+        message: "Payment Reports will be e-mailed to you shortly",
+        variant: "success",
+      })
+    }
+    else {
+      if(sendMail){
+        setReportRequested(false);
+        setEmailRequested(true);
+      }else{
+        setReportRequested(true);
+      }
+      setShowSpinner(true);
+      setShowPicker(false);
+      setColumns([]);
+      setReportData([]);
+      setSelectedColumns([]);
+      if (radiobutton === "UsersReports" && reportTypes === "Annotator" && reportfilter == "") {
+        setSnackbarInfo({
+          open: true,
+          message: "Please fill Report Filter",
+          variant: "error",
+        })
+      }
+      let ReviewData = []
 
-  //     if ((reportTypes === "Annotator" || reportTypes === "Reviewer") && reportfilter != "" && radiobutton === "UsersReports") {
+      if ((reportTypes === "Annotator" || reportTypes === "Reviewer") && reportfilter != "" && radiobutton === "UsersReports") {
 
-  //       if (reportfilter.toString() == "Annotation Stage") {
-  //         ReviewData.push(1)
-  //       } else if (reportfilter.toString() == "Review Stage") {
-  //         ReviewData.push(2)
-  //       } else if (reportfilter.toString() == "Super Check Stage") {
-  //         ReviewData.push(3)
-  //       }
-  //       const userReportObj = new GetOrganizationUserReportsAPI(
-  //         orgId,
-  //         selectedType,
-  //         format(selectRange[0].startDate, 'yyyy-MM-dd'),
-  //         format(selectRange[0].endDate, 'yyyy-MM-dd'),
-  //         reportTypes === "Annotator" ? "annotation" : reportTypes === "Reviewer" ? "review" : "supercheck",
-  //         targetLanguage,
-  //         sendMail,
-  //         ...ReviewData,
+        if (reportfilter.toString() == "Annotation Stage") {
+          ReviewData.push(1)
+        } else if (reportfilter.toString() == "Review Stage") {
+          ReviewData.push(2)
+        } else if (reportfilter.toString() == "Super Check Stage") {
+          ReviewData.push(3)
+        }
+       
+        dispatch(fetchOrganizationUserReports(orgId,
+          selectedType,
+          format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          reportTypes === "Annotator" ? "annotation" : reportTypes === "Reviewer" ? "review" : "supercheck",
+          targetLanguage,
+          sendMail,
+          ...ReviewData,
+));
+      } else if ((reportTypes === "SuperCheck" || reportfilter === "All Stage" && radiobutton === "UsersReports")) {
+        const supercheckObj = new GetOrganizationUserReportsAPI(
+          orgId,
+          selectedType,
+          format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          "supercheck",
+          targetLanguage,
+          sendMail,
+        );
+        dispatch(APITransport(supercheckObj));
+      }
+      else if (radiobutton === "ProjectReports") {
+        if(projectReportType === 1){
+       
+        dispatch(fetchOrganizationProjectReports(orgId,
+          selectedType,
+          targetLanguage,
+          userId,
+          sendMail));
+      }else if(projectReportType === 2){
+      
+        dispatch(fetchOrganizationDetailedProjectReports( Number(orgId),
+        selectedType,
+        userId,
+        statisticsType));
+        setSnackbarInfo({
+          open: true,
+          message: "Report will be e-mailed to you shortly",
+          variant: "success",
+        })
+      }
+    }
+    }
+  };
 
-  //       );
-  //       dispatch(APITransport(userReportObj));
-  //     } else if ((reportTypes === "SuperCheck" || reportfilter === "All Stage" && radiobutton === "UsersReports")) {
-  //       const supercheckObj = new GetOrganizationUserReportsAPI(
-  //         orgId,
-  //         selectedType,
-  //         format(selectRange[0].startDate, 'yyyy-MM-dd'),
-  //         format(selectRange[0].endDate, 'yyyy-MM-dd'),
-  //         "supercheck",
-  //         targetLanguage,
-  //         sendMail,
-  //       );
-  //       dispatch(APITransport(supercheckObj));
-  //     }
-  //     else if (radiobutton === "ProjectReports") {
-  //       if(projectReportType === 1){
-  //       const projectReportObj = new GetOrganizationProjectReportsAPI(
-  //         orgId,
-  //         selectedType,
-  //         targetLanguage,
-  //         userId,
-  //         sendMail
-  //       );
-  //       dispatch(APITransport(projectReportObj));
-  //     }else if(projectReportType === 2){
-  //       const projectReportObj = new GetOrganizationDetailedProjectReportsAPI(
-  //         Number(orgId),
-  //         selectedType,
-  //         userId,
-  //         statisticsType
-  //       );
-  //       dispatch(APITransport(projectReportObj));
-  //       setSnackbarInfo({
-  //         open: true,
-  //         message: "Report will be e-mailed to you shortly",
-  //         variant: "success",
-  //       })
-  //     }
-  //   }
-  //   }
-  // };
+  const handleChangeReports = (e) => {
+    setRadiobutton(e.target.value)
+  }
 
-  // const handleChangeReports = (e) => {
-  //   setRadiobutton(e.target.value)
-  // }
-
-  // const handleChangeprojectFilter = (event) => {
-  //   const value = event.target.value;
-  //   setReportfilter(value);
-  // }
+  const handleChangeprojectFilter = (event) => {
+    const value = event.target.value;
+    setReportfilter(value);
+  }
 
   const renderSnackBar = () => {
     return (
@@ -409,7 +406,7 @@ const OrganizationReports = () => {
                 name="row-radio-buttons-group"
                 sx={{ marginTop: "5px" }}
                 value={radiobutton}
-                // onChange={handleChangeReports}
+                onChange={handleChangeReports}
 
               >
                 <FormControlLabel value="UsersReports" control={<Radio />} label="Users Reports" />
@@ -471,10 +468,10 @@ const OrganizationReports = () => {
             MenuProps={MenuProps}
           >
             <MenuItem value={"all"}>All languages</MenuItem>
-            {/* {LanguageChoices.language?.map((lang) => (
+            {LanguageChoices?.language?.map((lang) => (
               <MenuItem value={lang} key={lang}>
                 {lang}
-              </MenuItem>))} */}
+              </MenuItem>))}
           </Select>
         </FormControl>
       </Grid>}
@@ -567,7 +564,7 @@ const OrganizationReports = () => {
             MenuProps={MenuProps}
           >
             <MenuItem value={"all"}>All languages</MenuItem>
-            {LanguageChoices.language?.map((lang) => (
+            {LanguageChoices?.language?.map((lang) => (
               <MenuItem value={lang} key={lang}>
                 {lang}
               </MenuItem>))}

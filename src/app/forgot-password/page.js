@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from "react";
 import CustomCard from "../../component/common/Card";
 import { Grid, Typography, Link, ThemeProvider } from "@mui/material";
@@ -8,7 +9,7 @@ import LoginStyle from "../../../styles/loginStyle";
 import themeDefault from "../../../theme/theme";
 import { useNavigate } from "react-router-dom";
 import AppInfo from "./AppInfo";
-import ForgotPasswordAPI from "../../../../redux/actions/api/UserManagement/ForgotPassword";
+import ForgotPasswordAPI from "../../app/actions/api/user/ForgotPasswordAPI";
 import APITransport from "../../../../redux/actions/apitransport/apitransport";
 import { useDispatch } from "react-redux";
 import CustomizedSnackbars from "../../component/common/Snackbar";
