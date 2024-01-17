@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
+// import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
-import GetWorkspacesManagersDataAPI from "../../actions/api/workspace/GetWorkspacesManagersDataAPI"
 import {useDispatch,useSelector} from 'react-redux';
-import APITransport from "../../../Lib/apiTransport/apitransport"
 import CustomButton from "../common/Button";
 import { ThemeProvider, Grid,
     Button,
@@ -14,14 +13,8 @@ import { ThemeProvider, Grid,
 import tableTheme from "../../themes/tableTheme";
 import Link from 'next/link';
 import {useRouter} from 'next/navigation'
-<<<<<<< HEAD:src/components/Tabs/ManagersTable.jsx
-
-// import RemoveWorkspaceManagerAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceManager";
-import CustomizedSnackbars from "../common/Snackbar";
-=======
-import RemoveWorkspaceManagerAPI from "../../actions/api/workspace/RemoveWorkspaceManagerAPI"
+import RemoveWorkspaceManagerAPI from "@/app/actions/api/workspace/RemoveWorkspaceManagerAPI";
 import CustomizedSnackbars from "../../components/common/Snackbar";
->>>>>>> efficiency:src/app/components/Tabs/ManagersTable.jsx
 import Search from "../common/Search";
 import TextField from '@mui/material/TextField';
 import LoginAPI from "@/app/actions/api/user/Login";

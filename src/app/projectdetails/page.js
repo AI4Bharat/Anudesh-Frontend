@@ -25,17 +25,13 @@ import {
 
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-  import  "../../styles/Dataset.css";
+  import DatasetStyle from "../../styles/Dataset";
   import ProjectDescription from "../../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import userRole from "../../utils/UsersRolesList";
-<<<<<<< HEAD
   import SuperChecker from "../../components/Project/SuperChecker";
-=======
-  import SuperChecker from "../components/Project/SuperChecker";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
->>>>>>> efficiency
+import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
 
 
   const menuOptions = [
@@ -64,12 +60,6 @@ import SuperCheckerTasks from "../components/Project/SuperCheckerTasks";
     );
   }
   
-<<<<<<< HEAD
-debugger
-  export default function ProjectDetails () {
-
-    
-=======
   const StyledMenu = styled((props) => (
     <Menu
       elevation={0}
@@ -116,7 +106,6 @@ debugger
     // console.log("props", props)
     // const { id } = useParams();
     const classes = DatasetStyle();
->>>>>>> efficiency
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
       { name: "Description", value: null },

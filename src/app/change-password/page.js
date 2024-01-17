@@ -10,19 +10,18 @@ import React, { useEffect, useState } from "react";
 import themeDefault from "../../themes/theme";
 import { translate } from "../../config/localisation";
 //   import { useNavigate, useParams } from "react-router-dom";
-import Button from "../components/common/Button";
-import OutlinedTextField from "../components/common/OutlinedTextField";
+import Button from "../../components/common/Button";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
 import DatasetStyle from "../../styles/Dataset";
 import { useDispatch, useSelector } from "react-redux";
-import APITransport from "../../Lib/apiTransport/apitransport";
 import ChangePasswordAPI from "../actions/api/user/ChangePasswordAPI"
-import Spinner from "../components/common/Spinner";
-import CustomizedSnackbars from "../components/common/Snackbar";
+import Spinner from "../../components/common/Spinner";
+import CustomizedSnackbars from "../../components/common/Snackbar";
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 import IconButton from "@material-ui/core/IconButton";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import CustomButton from "../components/common/Button";
+import CustomButton from "../../components/common/Button";
 
   
   

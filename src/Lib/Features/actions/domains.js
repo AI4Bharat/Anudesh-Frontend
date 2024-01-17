@@ -1,5 +1,5 @@
+import fetchParams from '@/Lib/fetchParams';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import fetchParams from '../fetchParams';
 
 const initialState = {
     status: 'idle',

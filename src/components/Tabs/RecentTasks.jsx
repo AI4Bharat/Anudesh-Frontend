@@ -5,20 +5,12 @@ import {
     Tab,
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
-<<<<<<< HEAD:src/components/Tabs/RecentTasks.jsx
-  // import { useSelector, useDispatch } from "react-redux";
-  // import APITransport from "../../../../redux/actions/apitransport/apitransport";
-  // import FetchRecentTasksAPI from "../../../../redux/actions/api/UserManagement/FetchRecentTasks";
-  import tableTheme from "../../themes/tableTheme";
-  import themeDefault from "../../themes/theme";
-=======
   import { useSelector, useDispatch } from "react-redux";
   import APITransport from "@/Lib/apiTransport/apitransport";
   // import { useParams } from 'react-router-dom';
   import FetchRecentTasksAPI from "@/app/actions/api/user/FetchRecentTasksAPI";
-  import tableTheme from "../../../themes/TableTheme";
-  import themeDefault from "../../../themes/theme";
->>>>>>> efficiency:src/app/components/Tabs/RecentTasks.jsx
+  import tableTheme from "../../themes/tableTheme";
+  import themeDefault from "../../themes/theme";
   import MUIDataTable from "mui-datatables";
   import { translate } from "../../config/localisation";
   

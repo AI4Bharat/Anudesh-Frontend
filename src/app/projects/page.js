@@ -14,16 +14,9 @@ import { useDispatch, useSelector } from "react-redux";
 import tableTheme from "../../themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 export default function ProjectList() {
-<<<<<<< HEAD
-  const [radiobutton, setRadiobutton] = useState(true);
-  
-//   const dispatch = useDispatch();
-=======
-
+const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
-  const classes = DatasetStyle();
-  const dispatch = useDispatch();
->>>>>>> efficiency
+
   const [loading, setLoading] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({
     project_type: "",
@@ -54,7 +47,7 @@ const [radiobutton, setRadiobutton] = useState(true);
   };
   return (
     <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
 
       {/* <Grid container direction="row" columnSpacing={3} rowSpacing={2} sx={{ position: "static", bottom: "-51px", left: "20px" }} > */}
       <Grid container className="root">
@@ -87,34 +80,11 @@ const [radiobutton, setRadiobutton] = useState(true);
           </FormControl>
         </Grid>
 
-<<<<<<< HEAD
         <Grid xs={3} item className="fixedWidthContainer">
-=======
-        {/* <Grid  >
-                    <FormControl >
-                        <RadioGroup
-                            row
-                            aria-labelledby="demo-row-radio-buttons-group-label"
-                            name="row-radio-buttons-group"
-                            defaultValue="ProjectList"
-                            sx={{ marginLeft: "10px" }}
-                        >
-
-                            <FormControlLabel value="ProjectList" control={<Radio />} label="List view" onClick={handleProjectlist} />
-                            <FormControlLabel value="ProjectCard" control={<Radio />} label="Card view" onClick={handleProjectcard} />
-
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-            </Grid> */}
-        <Grid xs={3} item className={classes.fixedWidthContainer}>
->>>>>>> efficiency
           <Search />
         </Grid>
       </Grid>
-      {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Search />
-            </Grid> */}
+
       <Box>
         <Box sx={{ marginTop: "20px" }}>
           {radiobutton ? (
@@ -124,9 +94,11 @@ const [radiobutton, setRadiobutton] = useState(true);
               setsSelectedFilters={setsSelectedFilters} 
             />
           ) : (
-            <ProjectCard projectData={projectData}
+            <ProjectCard 
+            projectData={projectData}
              selectedFilters={selectedFilters} 
-            setsSelectedFilters={setsSelectedFilters}  />
+            setsSelectedFilters={setsSelectedFilters}
+              />
           )}
         </Box>
       </Box>

@@ -17,31 +17,21 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-<<<<<<< HEAD:src/components/common/WorkspaceReports.jsx
-
 import  "../../styles/Dataset.css";
-import ColumnList from "./ColumnList";
-import { DateRangePicker, defaultStaticRanges } from "react-date-range";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-// import { MenuProps } from "../../../utils/utils";
-=======
 import { useDispatch, useSelector } from "react-redux";
-import GetWorkspaceUserReportsAPI from "../../actions/api/workspace/GetWorkspaceUserReportsAPI";
-import GetProjectDomainsAPI from "../../actions/api/workspace/GetProjectDomainsAPI";
-import GetWorkspaceProjectReportAPI from "../../actions/api/workspace/GetWorkspaceProjectReportAPI";
-import SendWorkspaceUserReportsAPI from "../../actions/api/workspace/SendWorkspaceUserReportsAPI";
-import FetchLanguagesAPI from "../../actions/api/workspace/FetchLanguagesAPI.js";
-import APITransport from "../../../Lib/apiTransport/apitransport";
-import GetWorkspaceDetailedProjectReportsAPI from "../../actions/api/workspace/GetWorkspaceDetailedProjectReportsAPI";
-import DatasetStyle from "../../../styles/Dataset";
+import GetWorkspaceUserReportsAPI from "../../app/actions/api/workspace/GetWorkspaceUserReportsAPI";
+import GetProjectDomainsAPI from "../../app/actions/api/workspace/GetProjectDomainsAPI";
+import GetWorkspaceProjectReportAPI from "../../app/actions/api/workspace/GetWorkspaceProjectReportAPI";
+import SendWorkspaceUserReportsAPI from "../../app/actions/api/workspace/SendWorkspaceUserReportsAPI";
+import FetchLanguagesAPI from "../../app/actions/api/workspace/FetchLanguagesAPI.js";
+import GetWorkspaceDetailedProjectReportsAPI from "../../app/actions/api/workspace/GetWorkspaceDetailedProjectReportsAPI";
+import DatasetStyle from "../../styles/Dataset";
 import ColumnList from "../common/ColumnList";
 import { isSameDay, format } from 'date-fns/esm';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import { MenuProps } from "../../../utils/utils";
->>>>>>> efficiency:src/app/components/common/WorkspaceReports.jsx
+import { MenuProps } from "../../utils/utils";
 import CustomizedSnackbars from "./Snackbar";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";

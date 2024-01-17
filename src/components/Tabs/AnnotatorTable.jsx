@@ -1,26 +1,14 @@
 import React, { useState, useEffect } from "react";
+// import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
 import Link from 'next/link';
-<<<<<<< HEAD:src/components/Tabs/AnnotatorTable.jsx
-
-// import { useDispatch, useSelector } from 'react-redux';
-// import GetWorkspacesAnnotatorsDataAPI from "../../../../redux/actions/api/WorkspaceDetails/GetWorkspaceAnnotators";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
+import { useDispatch, useSelector } from 'react-redux';
+import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
 import { ThemeProvider,Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
-// import RemoveWorkspaceMemberAPI from "../../../../redux/actions/api/WorkspaceDetails/RemoveWorkspaceMember";
-=======
-import { useDispatch, useSelector } from 'react-redux';
-import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
-import APITransport from "../../../Lib/apiTransport/apitransport";
-import UserMappedByRole from "../../../utils/UserMappedByRole";
-import CustomButton from "../common/Button";
-import { ThemeProvider,Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
-import tableTheme from "../../../themes/TableTheme";
 import RemoveWorkspaceMemberAPI from "@/app/actions/api/workspace/RemoveWorkspaceMemberAPI";
->>>>>>> efficiency:src/app/components/Tabs/AnnotatorTable.jsx
 import Search from "../common/Search";
 import RemoveWorkspaceFrozenUserAPI from "@/app/actions/api/workspace/RemoveWorkspaceFrozenUserAPI";
 import TextField from '@mui/material/TextField';

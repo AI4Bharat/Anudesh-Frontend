@@ -1,22 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, CircularProgress, Grid, ThemeProvider, Typography, Select, OutlinedInput, Box, Chip, MenuItem, InputLabel, InputAdornment } from "@mui/material";
-<<<<<<< HEAD:src/components/UserManagement/ProfileDetails.jsx
-import OutlinedTextField from "../common/OutlinedTextField";
-import themeDefault from "../../themes/theme";
-// import { useSelector, useDispatch } from "react-redux";
-// import FetchLanguagesAPI from "../../../../redux/actions/api/UserManagement/FetchLanguages.js";
-// import UpdateProfileAPI from "../../../../redux/actions/api/UserManagement/UpdateProfile";
-// import UpdateEmailAPI from "../../../../redux/actions/api/UserManagement/UpdateEmail";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
-import Snackbar from "../common/Snackbar";
-// import UpdateEmailDialog from "../../component/common/UpdateEmailDialog"
-import UserMappedByRole from "../../utils/UserMappedByRole";
-import {participationType} from '../../config/dropDownValues';
-// import { MenuProps } from "../../../utils/utils";
-import CustomButton from "../common/Button";
-=======
+
 import OutlinedTextField from "../../components/common/OutlinedTextField";
-import themeDefault from "../../../themes/theme";
+import themeDefault from "../../themes/theme";
 // import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import FetchLanguagesAPI from "@/app/actions/api/workspace/FetchLanguagesAPI";
@@ -25,11 +11,10 @@ import UpdateEmailAPI from "@/app/actions/api/user/UpdateEmailAPI";
 import Snackbar from "../../components/common/Snackbar";
 import APITransport from "@/Lib/apiTransport/apitransport";
 // import UpdateEmailDialog from "../../component/common/UpdateEmailDialog"
-import UserMappedByRole from "../../../utils/UserMappedByRole";
-import {participationType} from '../../../config/dropDownValues';
-import { MenuProps } from "../../../utils/utils";
+import UserMappedByRole from "../../utils/UserMappedByRole";
+import {participationType} from '../../config/dropDownValues';
+import { MenuProps } from "../../utils/utils";
 import CustomButton from "../../components/common/Button";
->>>>>>> efficiency:src/app/components/UserManagement/ProfileDetails.jsx
 
 const ProfileDetails = () => {
 //   const { id } = useParams();

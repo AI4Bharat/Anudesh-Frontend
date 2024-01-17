@@ -1,18 +1,10 @@
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Switch, TextField } from '@mui/material'
 import React, { useState } from 'react'
-<<<<<<< HEAD
 import CustomButton from '../../components/common/Button'
-
-
-
-
-=======
-import CustomButton from '../components/common/Button'
 import { useDispatch, useSelector } from 'react-redux';
 import CreateWorkspaceAPI from '../actions/api/workspace/CreateWorkspace'
 import GetWorkspaceAPI from '../actions/api/workspace/GetWorkspaceData';
 import { fetchWorkspaceCreateData } from '@/Lib/Features/getWorkspaceData';
->>>>>>> efficiency
 const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
     const dispatch = useDispatch();
     const [workspaceName, setWorkspaceName] = useState('')

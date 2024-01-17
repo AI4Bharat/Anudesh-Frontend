@@ -2,12 +2,8 @@
 
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 import React, { useState, useEffect } from "react";
-<<<<<<< HEAD:src/components/Tabs/Invites.jsx
-// import { useDispatch, useSelector } from 'react-redux';
-=======
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
->>>>>>> efficiency:src/app/components/Tabs/Invites.jsx
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import MembersTable from "../Project/MembersTable";

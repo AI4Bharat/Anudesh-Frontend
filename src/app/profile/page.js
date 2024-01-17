@@ -12,14 +12,10 @@ import UserMappedByRole from '../../utils/UserMappedByRole';
 import {participationType} from '../../config/dropDownValues';
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import userRole from "../../utils/Role";
-<<<<<<< HEAD
 import ProfileDetails from "../../components/UserManagement/ProfileDetails"
 import ScheduleMails from "../../components/UserManagement/ScheduleMails"
-=======
 import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
-import MyProfile from "../components/UserManagement/ProfileDetails"
-import ScheduleMails from "../components/UserManagement/ScheduleMails"
->>>>>>> efficiency
+
 import { useRouter } from 'next/navigation';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import UpdateProfileImageAPI from '../actions/api/user/UpdateProfileImageAPI'

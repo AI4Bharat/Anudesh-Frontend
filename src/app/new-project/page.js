@@ -19,8 +19,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchDomains } from "@/redux/actions/domains";
-import { createProject } from "@/redux/actions/projects";
+import { createProject } from "@/Lib/Features/actions/projects";
 
 import ColumnList from "../../components/common/ColumnList";
 import OutlinedTextField from "../../components/common/OutlinedTextField";
@@ -29,6 +28,7 @@ import MenuItems from "../../components/common/MenuItems";
 import  "../../styles/Dataset.css";
 import themeDefault from "../../themes/theme";
 import tableTheme from "../../themes/tableTheme";
+import { fetchDomains } from "@/Lib/Features/actions/domains";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");

@@ -1,35 +1,22 @@
 'use client';
-<<<<<<< HEAD
-import { Grid, Link, InputAdornment, IconButton } from "@mui/material";
 import "../../styles/Dataset.css";
+import { Grid, Link } from "@mui/material";
+import LoginStyle from "../../styles/loginStyle";
 import AppInfo from "../../components/user/AppInfo";
 import CustomCard from "../../components/common/Card";
 import OutlinedTextField from "../../components/common/OutlinedTextField";
-import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import CustomButton from "../../components/common/Button";
-import { useRouter } from 'next/navigation';
-import { translate } from "@/config/localisation";
-import CustomizedSnackbars from "../../components/common/Snackbar";
-=======
-import { Grid, Link } from "@mui/material";
-import LoginStyle from "../../styles/loginStyle";
-import AppInfo from "../components/user/AppInfo";
-import CustomCard from "../components/common/Card";
-import OutlinedTextField from "../components/common/OutlinedTextField";
 import { useEffect, useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import { Visibility } from "@material-ui/icons";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import {useDispatch,useSelector} from "react-redux"
-import CustomButton from "../components/common/Button";
+import CustomButton from "../../components/common/Button";
 import APITransport from "@/Lib/apiTransport/apitransport";
 import { useRouter } from 'next/navigation';
 import { translate } from "@/config/localisation";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
-import CustomizedSnackbars from "@/app/components/common/Snackbar";
->>>>>>> efficiency
+import CustomizedSnackbars from "../../components/common/Snackbar";
 import "./login.css";
 import LoginAPI from "../actions/api/user/Login";
 import { auth, googleAuthProvider } from "@/firebase";
@@ -38,13 +25,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
     const router = useRouter()
-<<<<<<< HEAD
-=======
     const dispatch=useDispatch()
     const accessToken = localStorage.getItem("anudesh_access_token");
     const refreshToken = localStorage.getItem("anudesh_refresh_token");
     const classes = LoginStyle();
->>>>>>> efficiency
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",

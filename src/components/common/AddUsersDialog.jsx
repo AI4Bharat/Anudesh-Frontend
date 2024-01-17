@@ -1,6 +1,4 @@
-<<<<<<< HEAD:src/components/common/AddUsersDialog.jsx
 import { AddIcon } from "@mui/icons-material";
-=======
 import AddAnnotatorsToWorkspaceAPI from "@/app/actions/api/workspace/AddAnnotatorsToWorkspaceAPI";
 import AddMembersToProjectAPI from "@/app/actions/api/workspace/AddMembersToProjectAPI";
 import AddProjectReviewersAPI from "@/app/actions/api/workspace/AddProjectReviewersAPI";
@@ -12,7 +10,6 @@ import { fetchWorkspacesAnnotatorsData } from "@/Lib/Features/getWorkspacesAnnot
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { Add } from "@material-ui/icons";
 import { useDispatch, useSelector } from 'react-redux';
->>>>>>> efficiency:src/app/components/common/AddUsersDialog.jsx
 import {
   Autocomplete,
   Button,

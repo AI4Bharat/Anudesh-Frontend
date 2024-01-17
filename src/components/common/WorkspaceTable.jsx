@@ -1,38 +1,22 @@
 import React, { useState, useEffect } from "react";
-<<<<<<< HEAD:src/components/common/WorkspaceTable.jsx
-// import { useDispatch, useSelector } from 'react-redux';
-import CustomButton from './Button'
-=======
 import { useDispatch, useSelector } from 'react-redux';
 import CustomButton from '../common/Button'
 // import { Link, useNavigate, useParams } from 'react-router-dom';
->>>>>>> efficiency:src/app/components/common/WorkspaceTable.jsx
 import MUIDataTable from "mui-datatables";
 import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
-<<<<<<< HEAD:src/components/common/WorkspaceTable.jsx
-import tableTheme from "../../themes/tableTheme";
-import  "../../styles/Dataset.css";
-import Search from "./Search";
-=======
 import APITransport from "@/Lib/apiTransport/apitransport";
-import tableTheme from "../../../themes/tableTheme";
-import DatasetStyle from "../../../styles/Dataset";
+import tableTheme from "../../themes/tableTheme";
+import DatasetStyle from "../../styles/Dataset";
 import Search from "../common/Search";
->>>>>>> efficiency:src/app/components/common/WorkspaceTable.jsx
 import Link from 'next/link';
 import { setWorkspace } from "@/Lib/Features/GetWorkspace";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 
 
 const WorkspaceTable = (props) => {
-<<<<<<< HEAD:src/components/common/WorkspaceTable.jsx
-    
-    // const dispatch = useDispatch();
-=======
     const classes = DatasetStyle();
     const dispatch = useDispatch();
->>>>>>> efficiency:src/app/components/common/WorkspaceTable.jsx
     const { showManager, showCreatedBy } = props;
     const workspaceData = useSelector(state => state.GetWorkspace.data);
     // const SearchWorkspace = useSelector((state) => state.SearchProjectCards.data);

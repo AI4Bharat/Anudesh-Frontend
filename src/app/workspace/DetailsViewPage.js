@@ -19,7 +19,7 @@ import {
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
 import themeDefault from "../../themes/theme";
-import  "../../styles/Dataset.css";
+import DatasetStyle from "../../styles/Dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";
@@ -36,15 +36,10 @@ import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import Spinner from "../../components/common/Spinner";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-<<<<<<< HEAD
 import AddUsersDialog from "../../components/common/AddUsersDialog";
-import addUserTypes from "../../Constants/addUserTypes"
-=======
-import AddUsersDialog from "../components/common/AddUsersDialog";
-import addUserTypes from "../Constants/addUserTypes";
+import addUserTypes from "../../Constants/addUserTypes";
 import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetails";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
->>>>>>> efficiency
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -75,13 +70,9 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
       );
     const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
     // const { id, orgId } = useParams();
-<<<<<<< HEAD
-    
-=======
     const id = 1;
     const orgId = 1;
     const classes = DatasetStyle();
->>>>>>> efficiency
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
     const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
@@ -154,7 +145,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
           justifyContent="center"
           alignItems="center"
         >
-          <Card className="workspaceCard">
+          <Card className={classes.workspaceCard}>
             {/* {pageType === componentType.Type_Organization && ( */}
               <Typography variant="h2" gutterBottom component="div">
                 title
@@ -302,8 +293,8 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
                   <Grid item xs={12} sm={6}>
                     <Link href={`/create-annotation-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2, textDecoration: "none" }}
-                        className="projectButton"
+                      sx={{ width: "100%", mb: 2 }}
+                        className={classes.projectButton}
                         label={"Add New Annotation Project"}
                       />
                     </Link>
@@ -311,14 +302,14 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
                   <Grid item xs={12} sm={6}>
                     <Link href={`/create-collection-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2, textDecoration: "none" }}
-                        className="projectButton"
+                      sx={{ width: "100%", mb: 2 }}
+                        className={classes.projectButton}
                         label={"Add New Collection Project"}
                       />
                     </Link>
                   </Grid>
                 </Grid>
-                <div>
+                <div className={classes.workspaceTables}>
                   <ProjectTable />
                 </div>
               </>
@@ -343,6 +334,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
             {pageType === componentType.Type_Workspace && (
               <>
                 <CustomButton
+                  className={classes.annotatorsButton}
                   label={"Add Members to Workspace"}
                   sx={{ width: "100%", mb: 2 }}
                   onClick={handleAnnotatorDialogOpen}

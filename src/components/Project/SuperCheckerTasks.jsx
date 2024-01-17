@@ -28,19 +28,19 @@ import {
   InputLabel,
   Select,
 } from "@mui/material";
-import tableTheme from "../../../themes/tableTheme";
+import tableTheme from "../../themes/tableTheme";
 import ColumnList from "../../components/common/ColumnList";
-import DatasetStyle from "../../../styles/Dataset";
-import { snakeToTitleCase } from "../../../utils/utils";
+import DatasetStyle from "../../styles/Dataset";
+import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AllTasksFilterList from "../../components/Project/AllTasksFilterList";
 import CustomButton from '../../components/common/Button';
 import SearchIcon from '@mui/icons-material/Search';
 import AllTaskSearchPopup from '../../components/Project/AllTasksSearchpopup';
 import SuperCheckerFilter from '../Project/SuperCheckerFilter';
-import roles from "../../../utils/Role";
+import roles from "../../utils/Role";
 import TextField from '@mui/material/TextField';
-import LoginAPI from "../../actions/api/user/Login";
+import LoginAPI from "../../app/actions/api/user/Login";
 import { fetchTasksByProjectId } from "@/Lib/Features/projects/GetTasksByProjectId";
 import DeallocateSuperCheckerTasksAPI from "@/app/actions/api/Projects/DeallocateSuperCheckerTasksAPI";
 import PullNewSuperCheckerBatchAPI from "@/app/actions/api/Projects/PullNewSuperCheckerBatchAPI";

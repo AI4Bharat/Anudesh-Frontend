@@ -27,10 +27,16 @@ import GetOrganizationUserReports from './Features/projects/GetOrganizationUserR
 import GetOrganizationDetailedProjectReports from './Features/projects/GetOrganizationDetailedProjectReports';
 import GetOrganizationProjectReports from './Features/projects/GetOrganizationProjectReports';
 import SendOrganizationUserReports from './Features/projects/SendOrganizationUserReports';
+import domainsReducer from './Features/actions/domains';
+import projectsReducer from './Features/actions/projects';
+import userReducer from './Features/actions/user';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        domains: domainsReducer,
+        projects: projectsReducer,
+        user: userReducer,
         SendOrganizationUserReports:SendOrganizationUserReports,
         GetOrganizationUserReports:GetOrganizationUserReports,
         GetOrganizationDetailedProjectReports:GetOrganizationDetailedProjectReports,

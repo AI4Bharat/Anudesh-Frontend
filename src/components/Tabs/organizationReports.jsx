@@ -10,14 +10,8 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-<<<<<<< HEAD:src/components/Tabs/organizationReports.jsx
 import { useParams } from "next/navigation";
 import  "../../styles/Dataset.css";
-
-=======
-import { useParams } from "react-router-dom";
-import DatasetStyle from "../../../styles/Dataset";
->>>>>>> efficiency:src/app/components/Tabs/organizationReports.jsx
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -246,61 +240,7 @@ const OrganizationReports = () => {
     )
   }
 
-<<<<<<< HEAD:src/components/Tabs/organizationReports.jsx
-  // // useEffect(() => {
-  // //   if (reportRequested && SuperCheck?.length) {
-  // //     let tempColumns = [];
-  // //     let tempSelected = [];
-  // //     Object.keys(SuperCheck[0]).forEach((key) => {
-  // //       tempColumns.push({
-  // //         name: key,
-  // //         label: key,
-  // //         options: {
-  // //           filter: false,
-  // //           sort: true,
-  // //           align: "center",
-  // //         },
-  // //       });
-  // //       tempSelected.push(key);
-  // //     });
-  // //     setColumns(tempColumns);
-  // //     setReportData(SuperCheck);
-  // //     setSelectedColumns(tempSelected);
-  // //   } else {
-  // //     setColumns([]);
-  // //     setReportData([]);
-  // //     setSelectedColumns([]);
-  // //   }
-  // //   setShowSpinner(false);
-  // // }, [SuperCheck]);
 
-  // const renderToolBar = () => {
-  //   return (
-  //     <Box
-  //       //className="filterToolbarContainer"
-  //       className="ToolbarContainer"
-  //     >
-  //       <ColumnList
-  //         columns={columns}
-  //         setColumns={setSelectedColumns}
-  //         selectedColumns={selectedColumns}
-  //       />
-  //     </Box>
-  //   )
-  // }
-
-  // const options = {
-  //   filterType: 'checkbox',
-  //   selectableRows: "none",
-  //   download: true,
-  //   filter: false,
-  //   print: false,
-  //   search: false,
-  //   viewColumns: false,
-  //   jumpToPage: true,
-  //   customToolbar: renderToolBar,
-  // };
-=======
   const options = {
     filterType: 'checkbox',
     selectableRows: "none",
@@ -312,7 +252,6 @@ const OrganizationReports = () => {
     jumpToPage: true,
     customToolbar: renderToolBar,
   };
->>>>>>> efficiency:src/app/components/Tabs/organizationReports.jsx
 
 
   const handleRangeChange = (ranges) => {

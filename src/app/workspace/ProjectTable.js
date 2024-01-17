@@ -4,17 +4,12 @@ import Link from 'next/link';
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
-<<<<<<< HEAD
 import tableTheme from "../../themes/tableTheme";
 import Search from "../../components/common/Search";
-=======
-import tableTheme from "../../themes/TableTheme";
-import Search from "../components/common/Search";
 import { useRouter } from "next/navigation";
 import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
 import APITransport from "../../Lib/apiTransport/apitransport"
 // import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
->>>>>>> efficiency
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 import GetWorkspacesProjectDetailsAPI from "../actions/api/workspace/GetWorkspaceProject";
 

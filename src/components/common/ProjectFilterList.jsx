@@ -16,29 +16,17 @@ import {
   InputLabel,
   MenuItem,
 } from "@mui/material";
-<<<<<<< HEAD:src/components/common/ProjectFilterList.jsx
 import { translate } from "../../config/localisation";
-import  "../../styles/Dataset.css";
-import roles from "../../utils/Role";
-=======
-import { translate } from "../../../config/localisation";
-import DatasetStyle from "../../../styles/Dataset";
+import DatasetStyle from "../../styles/Dataset";
 import { useDispatch, useSelector } from "react-redux";
-import roles from "../../../utils/Role";
+import roles from "../../utils/Role";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
->>>>>>> efficiency:src/app/components/common/ProjectFilterList.jsx
 
 const UserType = ["annotator", "reviewer","superchecker"];
 const archivedProjects = ["true", "false"];
 const ProjectFilterList = (props) => {
-<<<<<<< HEAD:src/components/common/ProjectFilterList.jsx
-  
-//   const dispatch = useDispatch();
-
-=======
   const classes = DatasetStyle();
   const dispatch = useDispatch();
->>>>>>> efficiency:src/app/components/common/ProjectFilterList.jsx
   const {
     filterStatusData,
     currentFilters,
@@ -112,7 +100,7 @@ const ProjectFilterList = (props) => {
           horizontal: "right",
         }}
       >
-        <Grid container className="filterContainer">
+        <Grid container className={classes.filterContainer}>
           <Grid item xs={11} sm={11} md={11 } lg={11} xl={11} sx={{width:"130px"}} >
           <FormControl fullWidth size="small" >
             <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>Project Type</InputLabel>
@@ -170,7 +158,7 @@ const ProjectFilterList = (props) => {
             <Typography
               variant="body2"
               sx={{ mr: 5, mb: 1, fontWeight: "900" }}
-              className="filterTypo"
+              className={classes.filterTypo}
             >
               Archived Projects :
             </Typography>
@@ -192,7 +180,7 @@ const ProjectFilterList = (props) => {
             variant="outlined"
             color="primary"
             size="small"
-            className="clearAllBtn"
+            className={classes.clearAllBtn}
           >
             {" "}
             Clear All
@@ -202,7 +190,7 @@ const ProjectFilterList = (props) => {
             variant="contained"
             color="primary"
             size="small"
-            className="clearAllBtn"
+            className={classes.clearAllBtn}
           >
             {" "}
             Apply

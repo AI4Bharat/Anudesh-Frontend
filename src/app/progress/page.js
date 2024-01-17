@@ -11,7 +11,7 @@ import APITransport from '@/Lib/apiTransport/apitransport';
 import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
-import CustomizedSnackbars from '../components/common/Snackbar';
+import CustomizedSnackbars from '../../components/common/Snackbar';
 
 export default function ProgressPage () {
   // const { id } = useParams();
@@ -39,7 +39,7 @@ export default function ProgressPage () {
         headers: mailObj.getHeaders().headers,
     });
     const resp = await res.json();
-    setLoading(false);
+    // setLoading(false);
     if (res.ok) {
         setSnackbarInfo({
             open: true,
@@ -71,20 +71,20 @@ export default function ProgressPage () {
   };
   
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     dispatch(fetchUserById(id));
   }, [id]);
 
   useEffect(() => {
     if(UserDetails && UserDetails.id == id) {
       setUserDetails(UserDetails);
-      setLoading(false);
+      // setLoading(false);
     }
   }, [UserDetails]);
 
   return (
       <Grid container spacing={2}>
-        {loading && <Spinner />} 
+        {/* {loading && <Spinner />}  */}
         {renderSnackBar()}
           {userDetails && (
             <>
