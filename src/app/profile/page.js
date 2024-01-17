@@ -108,7 +108,7 @@ export default function ProfilePage () {
     setLoading(true);
     dispatch(fetchUserById(id));
     setLoading(false);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     console.log("UserDetails changed:", UserDetails);
@@ -171,7 +171,7 @@ export default function ProfilePage () {
                 {userDetails.languages.length > 0 && (
                   <Typography variant="body1" sx={{ display: "flex", gap: "5px", alignItems: "center", alignSelf: 'center', textAlign: 'center' }}>Languages:
                     {userDetails.languages.map
-                      (lang => <Chip label={lang} variant="outlined" sx={{ ml: 1 }}></Chip>
+                      (lang,index => <Chip label={lang} key={index} variant="outlined" sx={{ ml: 1 }}></Chip>
                       )}
                   </Typography>
                 )}

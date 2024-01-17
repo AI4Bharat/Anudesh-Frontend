@@ -39,6 +39,7 @@ const getLanguageList = () => {
 
     dispatch(APITransport(langObj));
 }
+/* eslint-disable react-hooks/exhaustive-deps */
 
 useEffect(() => {
   getLanguageList();

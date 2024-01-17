@@ -26,8 +26,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 export default function Login() {
     const router = useRouter()
     const dispatch=useDispatch()
-    const accessToken = localStorage.getItem("anudesh_access_token");
-    const refreshToken = localStorage.getItem("anudesh_refresh_token");
+    // const accessToken = localStorage.getItem("anudesh_access_token");
+    // const refreshToken = localStorage.getItem("anudesh_refresh_token");
     const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
@@ -42,6 +42,8 @@ export default function Login() {
         password: "",
         showPassword: false,
     });
+    /* eslint-disable react-hooks/exhaustive-deps */
+
     const handleFieldChange = (event) => {
         event.preventDefault();
         setCredentials((prev) => ({
@@ -53,7 +55,7 @@ export default function Login() {
         dispatch(FetchLoggedInUserData("me"))
       };
       const loggedInUserData = useSelector(
-        (state) => state.getLoggedInData.data
+        (state) => state.getLoggedInData?.data
       );
       console.log(loggedInUserData,"lll");
   
@@ -70,9 +72,8 @@ export default function Login() {
 
     const rsp_data = await res.json();
     // console.log(rsp_data)
-    if (res.ok) {
-      // localStorage.setItem("token", resp.access);
-      // localStorage.setItem("user_id", rsp_data.user_id);
+    if (res.ok && typeof window !== 'undefined') {
+
       localStorage.setItem("anudesh_access_token", rsp_data.access);
       localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
       localStorage.setItem("email_id", credentials.email.toLowerCase());
@@ -170,8 +171,11 @@ export default function Login() {
             />
         );
     };
+ /* eslint-disable react-hooks/exhaustive-deps */
 
     const googleLogin = () => {
+        if (typeof window !== 'undefined') {
+
         signInWithPopup(auth, googleAuthProvider)
             .then(async (result) => {
                 setSnackbarInfo({
@@ -194,6 +198,7 @@ export default function Login() {
                     variant: "error",
                   });
             });
+        }
     };
 
     // const handleSubmit = async (e) => {

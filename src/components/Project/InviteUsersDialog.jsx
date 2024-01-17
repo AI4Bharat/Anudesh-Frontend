@@ -47,6 +47,7 @@ const InviteUsersDialog = ({
 
   
   
+/* eslint-disable react-hooks/exhaustive-deps */
 
 
   const handleFileChange = (event) => {
@@ -102,6 +103,7 @@ const InviteUsersDialog = ({
                 renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
+                    key={index}
                     variant="outlined"
                     label={option}
                     {...getTagProps({ index })}
@@ -134,6 +136,7 @@ const InviteUsersDialog = ({
                 renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
+                    key={index}
                     variant="outlined"
                     label={option}
                     {...getTagProps({ index })}

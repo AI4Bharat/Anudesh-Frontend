@@ -73,7 +73,7 @@ export default function ProgressPage () {
   useEffect(() => {
     // setLoading(true);
     dispatch(fetchUserById(id));
-  }, [id]);
+  }, [id,dispatch]);
 
   useEffect(() => {
     if(UserDetails && UserDetails.id == id) {

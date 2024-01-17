@@ -55,6 +55,7 @@ import DeallocateReviewTasksAPI from "@/app/actions/api/Projects/DeallocateRevie
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { fetchFindAndReplaceWordsInAnnotation } from "@/Lib/Features/projects/getFindAndReplaceWordsInAnnotation";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
+import FindAndReplaceDialog from "./FindAndReplaceDialog";
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
 
 
@@ -88,7 +89,7 @@ const TaskTable = (props) => {
   // const navigate = useNavigate();
   // let location = useLocation();
   const taskList = useSelector(
-    (state) => state.getTasksByProjectId.data.result
+    (state) => state.getTasksByProjectId?.data.result
   );
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
@@ -101,17 +102,17 @@ const TaskTable = (props) => {
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const getProjectUsers = useSelector(
-    (state) => state.getProjectDetails.data.annotators
+    (state) => state.getProjectDetails?.data.annotators
   );
 
   const getProjectReviewers = useSelector(
-    (state) => state.getProjectDetails.data.annotation_reviewers
+    (state) => state.getProjectDetails?.data.annotation_reviewers
   );
-  const TaskFilter = useSelector((state) => state.getTaskFilter.data);
-  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  const userDetails = useSelector((state) => state.getLoggedInData?.data);
 
-  console.log(ProjectDetails.project_stage == 2 ,ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id),"hhhhhhhhh")
+  // console.log(ProjectDetails.project_stage == 2 ,ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id),"hhhhhhhhh")
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
 
@@ -182,6 +183,8 @@ const TaskTable = (props) => {
   const [columns, setColumns] = useState([]);
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
+  /* eslint-disable react-hooks/exhaustive-deps */
+
   const getTaskListData = () => {
   
     dispatch(fetchTasksByProjectId(id,
@@ -283,9 +286,11 @@ const TaskTable = (props) => {
         acc[curr] = selectedFilters[curr];
         return acc;
       }, {});
+      if (typeof window !== 'undefined') {
 
     localStorage.setItem("searchFilters", JSON.stringify(search_filters));
     localStorage.setItem("labelAll", true);
+      }
     const datavalue = {
       annotation_status: selectedFilters?.annotation_status,
       mode: "annotation",
@@ -299,7 +304,7 @@ const TaskTable = (props) => {
   };
 
   const totalTaskCount = useSelector(
-    (state) => state.getTasksByProjectId.data.total_count
+    (state) => state.getTasksByProjectId?.data.total_count
   );
 
   const handleShowSearch = (col, event) => {
@@ -342,7 +347,10 @@ const TaskTable = (props) => {
   }
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+
     localStorage.setItem("Stage", props.type);
+    }
   },[]);
   
   const customColumnHead = (col) => {
@@ -385,12 +393,15 @@ const TaskTable = (props) => {
     } else {
       getTaskListData();
     }
+    if (typeof window !== 'undefined') {
+
     localStorage.setItem(
       "labellingMode",
       props.type === "annotation"
         ? selectedFilters.annotation_status
         : selectedFilters.review_status
     );
+    }
   }, [selectedFilters]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
@@ -416,7 +427,10 @@ const TaskTable = (props) => {
               <CustomButton
                 onClick={() => {
                   console.log("task id === ", el.id);
+                  if (typeof window !== 'undefined') {
+
                   localStorage.removeItem("labelAll");
+                  }
                 }}
                 disabled={ ProjectDetails.is_archived }
                 sx={{ p: 1, borderRadius: 2 }}
@@ -442,7 +456,10 @@ const TaskTable = (props) => {
                 disabled={ ProjectDetails.is_archived}
                 onClick={() => {
                   console.log("task id === ", el.id);
+                  if (typeof window !== 'undefined') {
+
                   localStorage.removeItem("labelAll");
+                  }
                 }}
                 sx={{ p: 1, borderRadius: 2 }}
                 label={
@@ -726,7 +743,7 @@ const TaskTable = (props) => {
               >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.Annotators.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -767,7 +784,7 @@ const TaskTable = (props) => {
               >
                 <MenuItem value="">All</MenuItem>
                 {filterData.Reviewers?.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -849,8 +866,10 @@ const TaskTable = (props) => {
   console.log(props.type === "review" ,
     ProjectDetails?.annotation_reviewers,
     userDetails?.id,"valuesdata")
+    if (typeof window !== 'undefined') {
 
-  const emailId = localStorage.getItem("email_id");
+  var emailId = localStorage.getItem("email_id");
+    }
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);

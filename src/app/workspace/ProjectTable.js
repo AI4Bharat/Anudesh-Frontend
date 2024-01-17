@@ -25,13 +25,13 @@ const ProjectTable = (props) => {
  const router = useRouter();
 //  const {id} = router.query
   
-  const getWorkspace = () => {
-    dispatch(fetchWorkspaceProjectData(1));
-  };
+  // const getWorkspace = () => {
+  //   dispatch(fetchWorkspaceProjectData(1));
+  // };
 
   useEffect(() => {
-    getWorkspace();
-  }, []);
+    dispatch(fetchWorkspaceProjectData(1));
+  }, [dispatch]);
 
   const workspacesproject = useSelector(
     (state) => state.getWorkspaceProjectData.data

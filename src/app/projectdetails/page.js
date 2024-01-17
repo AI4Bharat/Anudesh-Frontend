@@ -32,6 +32,7 @@ import {
   import SuperChecker from "../../components/Project/SuperChecker";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
+     /* eslint-disable react-hooks/exhaustive-deps */
 
 
   const menuOptions = [
@@ -105,6 +106,7 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
   const Projects = () => {
     // console.log("props", props)
     // const { id } = useParams();
+    const id = 1
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -124,19 +126,26 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
     const handleClose = () => {
       setAnchorEl(null);
     };
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const dispatch = useDispatch();
-    const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-    const userDetails = useSelector((state) => state.getLoggedInData.data);
+    const ProjectDetails = useSelector((state) => state.getProjectDetails && state.getProjectDetails?.data);
+    const userDetails = useSelector((state) =>  state.getLoggedInData && state.getLoggedInData?.data);
     const loggedInUserData = useSelector(
-      (state) => state.getLoggedInData.data
+      (state) => state.getLoggedInData && state.getLoggedInData?.data
     );
     const getProjectDetails = () => {
       dispatch(fetchProjectDetails(id))
     };
-  debugger
-  
+ /* eslint-disable react-hooks/exhaustive-deps */
+ useEffect(() => {
+  console.log("Fetching project details...");
+  if (id) {
+    dispatch(fetchProjectDetails(id));
+  }
+}, [id, dispatch]);
     useEffect(() => {
-      getProjectDetails();
+      if(ProjectDetails&& ProjectDetails.id){
       const projectStatus = ProjectDetails.is_archived
         ? "Archived"
         : ProjectDetails.is_published
@@ -173,6 +182,7 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
           value: ProjectDetails.reviewed_task_count,
         },
       ]);
+    }
     }, [ProjectDetails.id]);
     const [loading, setLoading] = useState(false);
     const [annotationreviewertype, setAnnotationreviewertype] = useState();
@@ -186,7 +196,7 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
       (userRole.WorkspaceManager === loggedInUserData?.role ||
         userRole.OrganizationOwner === loggedInUserData?.role ||
         userRole.Admin === loggedInUserData?.role || ProjectDetails?.project_stage === 1 ||
-        ProjectDetails?.annotators?.some((user) => user.id === userDetails.id));
+        ProjectDetails?.annotators?.some((user) => user.id === userDetails?.id));
   
     const isReviewer =
       ((userRole.WorkspaceManager === loggedInUserData?.role ||
@@ -208,7 +218,8 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
       userRole.OrganizationOwner === loggedInUserData?.role ||
       userRole.Admin === loggedInUserData?.role;
   
-  
+  /* eslint-disable react-hooks/exhaustive-deps */
+
     useEffect(() => {
       setLoading(apiLoading);
     }, [apiLoading]);
@@ -219,9 +230,7 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
       );
     });
   
-    let data = projectdata?.filter((x) => {
-      return userDetails.id == x.id;
-    });
+   
   
     let annotationdata = ProjectDetails?.annotators?.filter(
       (x) => x.id == userDetails.id
@@ -235,11 +244,11 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
       } else if (reviewerdata?.length && !annotationdata?.length) {
         setAnnotationreviewertype("Reviewer Reports");
       }
-    }, [annotationdata, reviewerdata]);
+    }, [annotationdata, reviewerdata,dispatch]);
   
-    const handleOpenSettings = () => {
-      navigate(`/projects/${id}/projectsetting`);
-    };
+    // const handleOpenSettings = () => {
+    //   navigate(`/projects/${id}/projectsetting`);
+    // };
   
   
     let projectValue = "Unassigned Super Check Tasks"
@@ -359,7 +368,7 @@ import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
         tabEle: (
           <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
         ),
-        tabPanelEle: <AllTaskTable />,
+        // tabPanelEle: <AllTaskTable />,
         showTab: allTask,
       },
     ];

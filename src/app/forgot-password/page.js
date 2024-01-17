@@ -1,18 +1,18 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import CustomCard from "../../component/common/Card";
+// import CustomCard from "../../component/common/Card";
 import { Grid, Typography, Link, ThemeProvider } from "@mui/material";
-import Button from "../../component/common/Button";
-import OutlinedTextField from "../../component/common/OutlinedTextField";
-import { translate } from "../../../../config/localisation";
-import LoginStyle from "../../../styles/loginStyle";
-import themeDefault from "../../../theme/theme";
+import Button from "../../components/common/Button";
+import OutlinedTextField from "../../components/common/OutlinedTextField";
+// import { translate } from "../../../config/localisation";
+import LoginStyle from "../../styles/loginStyle";
+import themeDefault from "../../themes/theme";
 import { useNavigate } from "react-router-dom";
-import AppInfo from "./AppInfo";
+import AppInfo from "../../components/user/AppInfo";
 import ForgotPasswordAPI from "../../app/actions/api/user/ForgotPasswordAPI";
-import APITransport from "../../../../redux/actions/apitransport/apitransport";
+// import APITransport from "../../../../redux/actions/apitransport/apitransport";
 import { useDispatch } from "react-redux";
-import CustomizedSnackbars from "../../component/common/Snackbar";
+import CustomizedSnackbars from "../../components/common/Snackbar";
 
 const ForgotPassword = () => {
   const classes = LoginStyle();

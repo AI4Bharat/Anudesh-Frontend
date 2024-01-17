@@ -226,6 +226,7 @@ const AddUsersDialog = ({
   const workspaceDetails = useSelector((state) => state.getWorkspaceDetails?.data);
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
+/* eslint-disable react-hooks/exhaustive-deps */
 
 console.log(userType,"dead");
   useEffect(() => {

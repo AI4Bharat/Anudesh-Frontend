@@ -9,6 +9,7 @@ import tableTheme from "../../themes/tableTheme";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
+import ColumnList from "../common/ColumnList";
 import Select from "@mui/material/Select";
 import { useParams } from "next/navigation";
 import  "../../styles/Dataset.css";
@@ -97,6 +98,7 @@ const OrganizationReports = () => {
   let ProgressTypeValue = "Annotation Stage"
   const filterdata = ProgressType.filter(item => item !== ProgressTypeValue)
   const FilterProgressType = reportTypes === "Reviewer" ? filterdata : ProgressType
+/* eslint-disable react-hooks/exhaustive-deps */
 
   useEffect(() => {
     dispatch(fetchProjectDomains());

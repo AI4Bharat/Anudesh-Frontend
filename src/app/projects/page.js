@@ -36,8 +36,9 @@ const [radiobutton, setRadiobutton] = useState(true);
   }, [projectData]);
 
   useEffect(() => {
-    getDashboardprojectData();
-  }, [selectedFilters]);
+    setLoading(true);
+    dispatch(fetchProjects(selectedFilters))
+  }, [selectedFilters,dispatch]);
 
   const handleProjectlist = () => {
     setRadiobutton(true);

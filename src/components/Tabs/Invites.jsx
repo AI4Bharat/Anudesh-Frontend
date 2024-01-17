@@ -19,6 +19,7 @@ const Invites = (props) => {
     const getOrganizationMembersData = () => {
         dispatch(fetchOrganizationUsers(orgId));
     }
+/* eslint-disable react-hooks/exhaustive-deps */
 
     useEffect(() => {
         getOrganizationMembersData();

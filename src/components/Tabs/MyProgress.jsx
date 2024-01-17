@@ -82,7 +82,8 @@ import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
     const UserAnalyticstotalsummary = useSelector((state) => state.getUserAnalytics.data.total_summary);
     const apiLoading = useSelector(state => state.apiStatus.loading);
     const dispatch = useDispatch();
-  
+  /* eslint-disable react-hooks/exhaustive-deps */
+
     const classes = DatasetStyle();
     useEffect(() => {
       dispatch(fetchProjectDomains());

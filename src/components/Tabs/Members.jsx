@@ -16,7 +16,8 @@ const Members = () => {
     const getOrganizationMembersData = ()=>{
         dispatch(fetchOrganizationUsers(orgId));
       }
-      
+   /* eslint-disable react-hooks/exhaustive-deps */
+   
       useEffect(()=>{
         getOrganizationMembersData();
       },[]);

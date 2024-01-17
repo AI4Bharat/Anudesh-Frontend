@@ -3,14 +3,17 @@ import {
     Box,
     Tabs,
     Tab,
+    IconButton
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
   import { useSelector, useDispatch } from "react-redux";
   import APITransport from "@/Lib/apiTransport/apitransport";
-  // import { useParams } from 'react-router-dom';
+  import LightTooltip from "../common/Tooltip";
+  import InfoIcon from "@mui/icons-material/Info";  // import { useParams } from 'react-router-dom';
   import FetchRecentTasksAPI from "@/app/actions/api/user/FetchRecentTasksAPI";
   import tableTheme from "../../themes/tableTheme";
   import themeDefault from "../../themes/theme";
+  import SearchIcon from "@mui/icons-material/Search";
   import MUIDataTable from "mui-datatables";
   import { translate } from "../../config/localisation";
   
@@ -45,7 +48,8 @@ import {
       const taskObjs = new FetchRecentTasksAPI(id, taskType, currentPageNumber, selectedFilters, currentRowPerPage);
       dispatch(APITransport(taskObjs));
     };
-  
+  /* eslint-disable react-hooks/exhaustive-deps */
+
     useEffect(() => {
       GetAllTasksdata();
     }, [id, taskType, currentPageNumber, currentRowPerPage, selectedFilters]);

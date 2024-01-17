@@ -37,7 +37,8 @@ const ManagersTable = (props) => {
        
         dispatch(fetchWorkspacesManagersData(id));
     }
-    
+    /* eslint-disable react-hooks/exhaustive-deps */
+
     useEffect(()=>{
         getWorkspaceManagersData();
     },[]);

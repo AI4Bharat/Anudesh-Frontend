@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 // import CustomizedSnackbars from "../../component/common/Snackbar";
 // import GetTasksByProjectIdAPI from "../../../../redux/actions/api/Tasks/GetTasksByProjectId";
 // import GetProjectDetailsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDetails";
-
+import Link from "next/navigation";
 import {
   ThemeProvider,
   Grid,
@@ -28,6 +28,7 @@ import {
   InputLabel,
   Select,
 } from "@mui/material";
+import CustomizedSnackbars from "../common/Snackbar";
 import tableTheme from "../../themes/tableTheme";
 import ColumnList from "../../components/common/ColumnList";
 import DatasetStyle from "../../styles/Dataset";
@@ -101,7 +102,8 @@ const SuperCheckerTasks = (props) => {
   const totalTaskCount = useSelector((state) => state.getTasksByProjectId.data.total_count);
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const NextTask = useSelector((state) => state?.getNextTask?.data);
-  
+  /* eslint-disable react-hooks/exhaustive-deps */
+
   const filterData = {
     Status: ["unvalidated","validated","validated_with_changes","skipped","draft","rejected"],
     SuperChecker:
@@ -123,10 +125,12 @@ const SuperCheckerTasks = (props) => {
   );
 
   const taskList = useSelector(
-    (state) => state.getTasksByProjectId.data.result
+    (state) => state.getTasksByProjectId?.data.result
   );
-  localStorage.setItem("projectData", JSON.stringify(ProjectDetails));
+  if (typeof window !== 'undefined') {
 
+  localStorage.setItem("projectData", JSON.stringify(ProjectDetails));
+  }
   const getTaskListData = () => {
     dispatch(fetchTasksByProjectId(id,
         currentPageNumber,
@@ -208,7 +212,10 @@ const SuperCheckerTasks = (props) => {
   }, [NextTask]);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+
     localStorage.setItem("SuperCheckerStage", props.type);
+    }
   },[]);
 
   useEffect(() => {
@@ -218,9 +225,12 @@ const SuperCheckerTasks = (props) => {
     } else {
       getTaskListData();
     }
+    if (typeof window !== 'undefined') {
+
     localStorage.setItem(
       "labellingMode", selectedFilters.supercheck_status
     );
+    }
   }, [selectedFilters]);
 
   useEffect(() => {
@@ -239,7 +249,8 @@ const SuperCheckerTasks = (props) => {
             ? `SuperCheckerAudioTranscriptionLandingPage/${el.id}` : `SuperChecker/${el.id}`} className={classes.link}>
             <CustomButton
               disabled={ProjectDetails.is_archived}
-              onClick={() => { console.log("task id === ", el.id); localStorage.removeItem("labelAll")}}
+              onClick={() => { console.log("task id === ", el.id); if (typeof window !== 'undefined') {
+                localStorage.removeItem("labelAll")}}}
               sx={{ p: 1, borderRadius: 2 }}
               label={<Typography sx={{ color: "#FFFFFF" }} variant="body2">
                 Validate
@@ -378,9 +389,11 @@ const labelAllTasks = () =>{
     acc[curr] = selectedFilters[curr];
     return acc;
   }, {});
+  if (typeof window !== 'undefined') {
 
 localStorage.setItem("searchFilters", JSON.stringify(search_filters));
 localStorage.setItem("labelAll", true);
+  }
 const datavalue = {
   annotation_status: selectedFilters?.supercheck_status,
     mode: "supercheck",
@@ -450,7 +463,7 @@ setLabellingStarted(true);
               >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.SuperChecker.map((el, i) => (
-                  <MenuItem value={el.value}>{el.label}</MenuItem>
+                  <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>)}
@@ -525,8 +538,10 @@ const renderSnackBar = () => {
     />
   );
 };
+if (typeof window !== 'undefined') {
 
-  const emailId = localStorage.getItem("email_id");
+  var emailId = localStorage.getItem("email_id");
+}
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);

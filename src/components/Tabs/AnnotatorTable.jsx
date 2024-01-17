@@ -34,6 +34,7 @@ const AnnotatorsTable = (props) => {
 
     const workspaceAnnotators = useSelector(state => state.getWorkspacesAnnotatorsData.data);
     const workspaceDtails = useSelector(state=>state.getWorkspaceDetails.data);
+/* eslint-disable react-hooks/exhaustive-deps */
 
 
     useEffect(() => {
