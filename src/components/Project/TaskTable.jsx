@@ -2,10 +2,13 @@
 
 import MUIDataTable from "mui-datatables";
 import { Fragment, useEffect, useState } from "react";
+<<<<<<< HEAD:src/components/Project/TaskTable.jsx
 // import GetTasksByProjectIdAPI from "../../../../redux/actions/api/Tasks/GetTasksByProjectId";
+=======
+import { Link, useParams, useNavigate,useLocation } from "react-router-dom";
+>>>>>>> efficiency:src/app/components/Project/TaskTable.jsx
 import CustomButton from "../common/Button";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
-// import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Grid,
@@ -38,7 +41,12 @@ import FilterList from "./FilterList";
 import CustomizedSnackbars from "../common/Snackbar";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup";
+<<<<<<< HEAD:src/components/Project/TaskTable.jsx
 // import { snakeToTitleCase } from "../../../utils/utils";
+=======
+import { snakeToTitleCase } from "../../../utils/utils";
+import { useDispatch, useSelector } from "react-redux";
+>>>>>>> efficiency:src/app/components/Project/TaskTable.jsx
 import ColumnList from "../common/ColumnList";
 import Spinner from "../common/Spinner";
 import OutlinedTextField from "../common/OutlinedTextField";
@@ -46,6 +54,15 @@ import OutlinedTextField from "../common/OutlinedTextField";
 // import FindAndReplaceWordsInAnnotationAPI from "../../../../redux/actions/api/ProjectDetails/FindAndReplaceWordsinAnnotation";
 import roles from "../../utils/Role";
 import TextField from '@mui/material/TextField';
+import { fetchTasksByProjectId } from "@/Lib/Features/projects/GetTasksByProjectId";
+import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
+import PullNewReviewBatchAPI from "@/app/actions/api/Projects/PullNewReviewBatchAPI";
+import DeallocateTasksAPI from "@/app/actions/api/Projects/DeallocateTasksAPI";
+import DeallocateReviewTasksAPI from "@/app/actions/api/Projects/DeallocateReviewTasksAPI";
+import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
+import { fetchFindAndReplaceWordsInAnnotation } from "@/Lib/Features/projects/getFindAndReplaceWordsInAnnotation";
+import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
 
 
@@ -70,8 +87,9 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
-
+debugger
 const TaskTable = (props) => {
+<<<<<<< HEAD:src/components/Project/TaskTable.jsx
   
   const id = 2279
 
@@ -847,210 +865,39 @@ const TaskTable = (props) => {
         }
     ]
 }]
+=======
+  const classes = DatasetStyle();
+  // const { id } = useParams();
+  const id =1
+  const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  // let location = useLocation();
+  const taskList = useSelector(
+    (state) => state.getTasksByProjectId.data.result
+  );
+>>>>>>> efficiency:src/app/components/Project/TaskTable.jsx
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [rejected,setRejected] = useState(false)
   const [find, setFind] = useState("");
   const [replace, setReplace] = useState("");
   const [OpenFindAndReplaceDialog, setOpenFindAndReplaceDialog] = useState(false);
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-  // const getProjectUsers = useSelector(
-  //   (state) => state.getProjectDetails.data.annotators
-  // );
-const getProjectUsers = [
-  {
-      "id": 1,
-      "username": "shoonya",
-      "email": "shoonya@ai4bharat.org",
-      "languages": [],
-      "availability_status": 1,
-      "enable_mail": false,
-      "first_name": "Admin",
-      "last_name": "AI4B",
-      "phone": "",
-      "profile_photo": "",
-      "role": 6,
-      "organization": {
-          "id": 1,
-          "title": "AI4Bharat",
-          "email_domain_name": "ai4bharat.org",
-          "created_by": {
-              "username": "shoonya",
-              "email": "shoonya@ai4bharat.org",
-              "first_name": "Admin",
-              "last_name": "AI4B",
-              "role": 6
-          },
-          "created_at": "2022-04-24T13:11:30.339610Z"
-      },
-      "unverified_email": "shoonya@ai4bharat.org",
-      "date_joined": "2022-04-24T07:40:11Z",
-      "participation_type": 3,
-      "prefer_cl_ui": false,
-      "is_active": true
-  }
-]
-  // const getProjectReviewers = useSelector(
-  //   (state) => state.getProjectDetails.data.annotation_reviewers
-  // );
-  // const TaskFilter = useSelector((state) => state.setTaskFilter.data);
-  // const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-  const TaskFilter = {"filters"
-    : 
-    {"annotation_status": "unlabeled", "req_user": -1},
-    "id"
-    : 
-    2279,
-    "type"
-    : 
-    "annotation"}
-  const ProjectDetails = {
-    "id": 2279,
-    "title": "test ocr ce 2",
-    "description": "test",
-    "created_by": null,
-    "is_archived": false,
-    "is_published": true,
-    "annotators": [
-        {
-            "id": 1,
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "phone": "",
-            "profile_photo": "",
-            "role": 6,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "shoonya@ai4bharat.org",
-            "date_joined": "2022-04-24T07:40:11Z",
-            "participation_type": 3,
-            "prefer_cl_ui": false,
-            "is_active": true
-        }
-    ],
-    "annotation_reviewers": [],
-    "review_supercheckers": [],
-    "frozen_users": [],
-    "workspace_id": 1,
-    "organization_id": 1,
-    "filter_string": null,
-    "sampling_mode": "f",
-    "sampling_parameters_json": {},
-    "project_type": "OCRSegmentCategorizationEditing",
-    "label_config": "<View>\n  <Image name=\"image_url\" value=\"$image_url\"/>\n  \n  <Labels name=\"annotation_labels\" toName=\"image_url\" className=\"ignore_assertion\">\n    \n    <Label value=\"title\" background=\"green\" name=\"title\" className=\"ignore_assertion\"/>\n    <Label value=\"text\" background=\"blue\" name=\"text\" className=\"ignore_assertion\"/>\n    <Label value=\"image\" background=\"red\" name=\"image\" className=\"ignore_assertion\"/>\n    <Label value=\"unord-list\" background=\"yellow\" name=\"unord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"ord-list\" background=\"black\" name=\"ord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"placeholder\" background=\"orange\" name=\"placeholder\" className=\"ignore_assertion\"/>\n    <Label value=\"table\" background=\"violet\" name=\"table\" className=\"ignore_assertion\"/>\n    <Label value=\"dateline\" background=\"cyan\" name=\"dateline\" className=\"ignore_assertion\"/>\n    <Label value=\"byline\" background=\"brown\" name=\"byline\" className=\"ignore_assertion\"/>\n    <Label value=\"page-number\" background=\"purple\" name=\"page-number\" className=\"ignore_assertion\"/>\n    <Label value=\"footer\" background=\"indigo\" name=\"footer\" className=\"ignore_assertion\"/>\n    <Label value=\"footnote\" background=\"pink\" name=\"footnote\" className=\"ignore_assertion\"/>\n    <Label value=\"header\" background=\"olive\" name=\"header\" className=\"ignore_assertion\"/>\n    <Label value=\"social-media-handle\" background=\"aqua\" name=\"social-media-handle\" className=\"ignore_assertion\"/>\n    <Label value=\"website-link\" background=\"teal\" name=\"website-link\" className=\"ignore_assertion\"/>\n    <Label value=\"caption\" background=\"maroon\" name=\"caption\" className=\"ignore_assertion\"/>\n    <Label value=\"table-header\" background=\"aquamarine\" name=\"table-header\" className=\"ignore_assertion\"/>\n    \n  </Labels>\n\n  <Rectangle name=\"annotation_bboxes\" toName=\"image_url\" strokeWidth=\"3\" className=\"ignore_assertion\"/>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"title\" name=\"title_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"h1\" className=\"ignore_assertion\"/>\n    <Choice value=\"h2\" className=\"ignore_assertion\"/>\n    <Choice value=\"h3\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"text\" name=\"text_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"paragraph\" className=\"ignore_assertion\"/>\n    <Choice value=\"foreign-language-text\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"image\" name=\"image_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"img\" className=\"ignore_assertion\"/>\n    <Choice value=\"logo\" className=\"ignore_assertion\"/>\n    <Choice value=\"formula\" className=\"ignore_assertion\"/>\n    <Choice value=\"equation\" className=\"ignore_assertion\"/>\n    <Choice value=\"bg-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"placeholder\" name=\"placeholder_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"placeholder-txt\" className=\"ignore_assertion\"/>\n    <Choice value=\"placeholder-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"caption\" name=\"caption_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"fig-caption\" className=\"ignore_assertion\"/>\n    <Choice value=\"table-caption\" className=\"ignore_assertion\"/>\n  </Choices>\n    \n</View>\n\n\n",
-    "variable_parameters": {},
-    "project_mode": "Annotation",
-    "required_annotators_per_task": 1,
-    "tasks_pull_count_per_batch": 10,
-    "max_pending_tasks_per_user": 60,
-    "src_language": null,
-    "tgt_language": null,
-    "created_at": "2023-12-06T06:37:58.364413Z",
-    "project_stage": 1,
-    "revision_loop_count": 3,
-    "k_value": 100,
-    "metadata_json": null,
-    "datasets": [
-        {
-            "instance_id": 295,
-            "instance_name": "Test OCR"
-        }
-    ],
-    "status": "Published",
-    "task_creation_status": "Tasks Creation Process Successful",
-    "last_project_export_status": "Success",
-    "last_project_export_date": "Synchronously Completed. No Date.",
-    "last_project_export_time": "Synchronously Completed. No Time.",
-    "last_pull_status": "Success",
-    "last_pull_date": "Synchronously Completed. No Date.",
-    "last_pull_time": "Synchronously Completed. No Time.",
-    "last_pull_result": "No result.",
-    "unassigned_task_count": 29,
-    "labeled_task_count": 0,
-    "reviewed_task_count": 0
-}
-const userDetails= {
-  "id": 1,
-  "username": "shoonya",
-  "email": "shoonya@ai4bharat.org",
-  "languages": [],
-  "availability_status": 1,
-  "enable_mail": false,
-  "first_name": "Admin",
-  "last_name": "AI4B",
-  "phone": "",
-  "profile_photo": "",
-  "role": 6,
-  "organization": {
-      "id": 1,
-      "title": "AI4Bharat",
-      "email_domain_name": "ai4bharat.org",
-      "created_by": {
-          "username": "shoonya",
-          "email": "shoonya@ai4bharat.org",
-          "first_name": "Admin",
-          "last_name": "AI4B",
-          "role": 6
-      },
-      "created_at": "2022-04-24T13:11:30.339610Z"
-  },
-  "unverified_email": "shoonya@ai4bharat.org",
-  "date_joined": "2022-04-24T07:40:11Z",
-  "participation_type": 3,
-  "prefer_cl_ui": false,
-  "is_active": true
-};
+  const getProjectUsers = useSelector(
+    (state) => state.getProjectDetails.data.annotators
+  );
 
- const loggedInUserData= {
-  "id": 1,
-  "username": "shoonya",
-  "email": "shoonya@ai4bharat.org",
-  "languages": [],
-  "availability_status": 1,
-  "enable_mail": false,
-  "first_name": "Admin",
-  "last_name": "AI4B",
-  "phone": "",
-  "profile_photo": "",
-  "role": 2,
-  "organization": {
-      "id": 1,
-      "title": "AI4Bharat",
-      "email_domain_name": "ai4bharat.org",
-      "created_by": {
-          "username": "shoonya",
-          "email": "shoonya@ai4bharat.org",
-          "first_name": "Admin",
-          "last_name": "AI4B",
-          "role": 6
-      },
-      "created_at": "2022-04-24T13:11:30.339610Z"
-  },
-  "unverified_email": "shoonya@ai4bharat.org",
-  "date_joined": "2022-04-24T07:40:11Z",
-  "participation_type": 3,
-  "prefer_cl_ui": false,
-  "is_active": true
-}
+  const getProjectReviewers = useSelector(
+    (state) => state.getProjectDetails.data.annotation_reviewers
+  );
+  const TaskFilter = useSelector((state) => state.getTaskFilter.data);
+  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
+  const userDetails = useSelector((state) => state.getLoggedInData.data);
+
+  console.log(ProjectDetails.project_stage == 2 ,ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id),"hhhhhhhhh")
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
 
@@ -1100,15 +947,14 @@ const userDetails= {
         ? TaskFilter.filters
         : { review_status: filterData.Status[0], req_user: -1 }
   );
-  // const NextTask = useSelector((state) => state?.getNextTask?.data);
-  const NextTask ={};
+  const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5
   );
   const [pullDisabled, setPullDisabled] = useState("");
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
-  // const apiLoading = useSelector((state) => state.apiStatus.loading);
+  const apiLoading = useSelector((state) => state.apiStatus.loading);
   const [searchAnchor, setSearchAnchor] = useState(null);
   const searchOpen = Boolean(searchAnchor);
   const [searchedCol, setSearchedCol] = useState();
@@ -1122,18 +968,17 @@ const userDetails= {
   const [columns, setColumns] = useState([]);
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
-  // const getTaskListData = () => {
-  //   const taskObj = new GetTasksByProjectIdAPI(
-  //     id,
-  //     currentPageNumber,
-  //     currentRowPerPage,
-  //     selectedFilters,
-  //     props.type,
-  //     pullvalue,
-  //     pull
-  //   );
-  //   dispatch(APITransport(taskObj));
-  // };
+  const getTaskListData = () => {
+  
+    dispatch(fetchTasksByProjectId(id,
+      currentPageNumber,
+      currentRowPerPage,
+      selectedFilters,
+      props.type,
+      pullvalue,
+      rejected,
+      pull));
+  };
 
 
   const fetchNewTasks = async () => {
@@ -1168,8 +1013,7 @@ const userDetails= {
         });
         setCurrentPageNumber(1);
       }
-      const projectObj = new GetProjectDetailsAPI(id);
-      dispatch(APITransport(projectObj));
+      dispatch(fetchProjectDetails(id));
     } else {
       setSnackbarInfo({
         open: true,
@@ -1226,6 +1070,8 @@ const userDetails= {
         return acc;
       }, {});
 
+    localStorage.setItem("searchFilters", JSON.stringify(search_filters));
+    localStorage.setItem("labelAll", true);
     const datavalue = {
       annotation_status: selectedFilters?.annotation_status,
       mode: "annotation",
@@ -1234,14 +1080,14 @@ const userDetails= {
         annotation_status: selectedFilters?.review_status,
       }),
     };
-
-    const getNextTaskObj = new GetNextTaskAPI(id, datavalue, null, props.type);
-    dispatch(APITransport(getNextTaskObj));
+    dispatch(fetchNextTask(id, datavalue, null, props.type));
     setLabellingStarted(true);
   };
 
- 
-  const totalTaskCount=9
+  const totalTaskCount = useSelector(
+    (state) => state.getTasksByProjectId.data.total_count
+  );
+
   const handleShowSearch = (col, event) => {
     setSearchAnchor(event.currentTarget);
     setSearchedCol(col);
@@ -1263,11 +1109,8 @@ const userDetails= {
       find_words: find,
       replace_words: replace,
     };
-    const AnnotationObj = new FindAndReplaceWordsInAnnotationAPI(
-      id,
-      ReplaceData
-    );
-    dispatch(APITransport(AnnotationObj));
+    dispatch(fetchFindAndReplaceWordsInAnnotation(id,
+      ReplaceData));
     const res = await fetch(AnnotationObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(AnnotationObj.getBody()),
@@ -1284,9 +1127,9 @@ const userDetails= {
     }
   }
 
-  // useEffect(() => {
-  //   localStorage.setItem("Stage", props.type);
-  // },[]);
+  useEffect(() => {
+    localStorage.setItem("Stage", props.type);
+  },[]);
   
   const customColumnHead = (col) => {
     return (
@@ -1313,14 +1156,15 @@ const userDetails= {
     );
   };
 
-  // useEffect(() => {
-  //   setLoading(apiLoading);
-  // }, [apiLoading]);
+  useEffect(() => {
+    setLoading(apiLoading);
+  }, [apiLoading]);
 
-  // useEffect(() => {
-  //   getTaskListData();
-  // }, [currentPageNumber, currentRowPerPage]);
+  useEffect(() => {
+    getTaskListData();
+  }, [currentPageNumber, currentRowPerPage]);
 
+<<<<<<< HEAD:src/components/Project/TaskTable.jsx
   // useEffect(() => {
   //   dispatch(SetTaskFilter(id, selectedFilters, props.type));
   //   if (currentPageNumber !== 1) {
@@ -1398,151 +1242,230 @@ const userDetails= {
   //         );
   //       return row;
   //     });
+=======
+  useEffect(() => {
+    dispatch(setTaskFilter(id, selectedFilters, props.type));
+    if (currentPageNumber !== 1) {
+      setCurrentPageNumber(1);
+    } else {
+      getTaskListData();
+    }
+    localStorage.setItem(
+      "labellingMode",
+      props.type === "annotation"
+        ? selectedFilters.annotation_status
+        : selectedFilters.review_status
+    );
+  }, [selectedFilters]);
+  useEffect(() => {
+    if (taskList?.length > 0 && taskList[0]?.data) {
+      const data = taskList.map((el) => {
+        const email = props.type === "review" ? el.annotator_mail : "";
+        let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
+        row.push(
+          ...Object.keys(el.data)
+            .filter((key) => !excludeCols.includes(key))
+            .map((key) => el.data[key])
+        );
+        props.type === "annotation" &&
+          taskList[0].annotation_status &&
+          row.push(el.annotation_status);
+        props.type === "review" &&
+          taskList[0].review_status &&
+          row.push(el.review_status);
+        props.type === "annotation" &&
+          row.push(
+            <Link
+              to={ProjectDetails?.project_type?.includes("Acoustic")
+              ? `AudioTranscriptionLandingPage/${el.id}` : `task/${el.id}`} className={classes.link}>
+              <CustomButton
+                onClick={() => {
+                  console.log("task id === ", el.id);
+                  localStorage.removeItem("labelAll");
+                }}
+                disabled={ ProjectDetails.is_archived }
+                sx={{ p: 1, borderRadius: 2 }}
+                label={
+                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                    {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
+                      (ProjectDetails.project_mode === "Annotation"
+                        ? "Annotate"
+                        : "Edit")
+                      : "View"
+                    }
+                  </Typography>
+                }
+              />
+            </Link>
+          );
+        props.type === "review" &&
+          row.push(
+            <Link
+              to={ProjectDetails?.project_type?.includes("Acoustic")
+              ? `ReviewAudioTranscriptionLandingPage/${el.id}` : `review/${el.id}`} className={classes.link}>
+              <CustomButton
+                disabled={ ProjectDetails.is_archived}
+                onClick={() => {
+                  console.log("task id === ", el.id);
+                  localStorage.removeItem("labelAll");
+                }}
+                sx={{ p: 1, borderRadius: 2 }}
+                label={
+                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                    Review
+                  </Typography>
+                }
+              />
+            </Link>
+          );
+        return row;
+      });
+>>>>>>> efficiency:src/app/components/Project/TaskTable.jsx
       // let colList = ["id"];
       // colList.push(...Object.keys(taskList[0].data).filter(el => !excludeCols.includes(el) && !el.includes("_json")));
 
-  //     const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail")
-  //     const email = props.type === "review" && annotatorEmail ? "Annotator Email" : "";
-  //     let colList = ["id", ...(!!email ? [email] : [])];
-  //     colList.push(
-  //       ...Object.keys(taskList[0].data).filter(
-  //         (el) => !excludeCols.includes(el)
-  //       )
-  //     );
-  //     taskList[0].task_status && colList.push("status");
-  //     colList.push("actions");
-  //     const cols = colList.map((col) => {
-  //       return {
-  //         name: col,
-  //         label: snakeToTitleCase(col),
-  //         options: {
-  //           filter: false,
-  //           sort: false,
-  //           align: "center",
-  //           customHeadLabelRender: customColumnHead,
-  //         },
-  //       };
-  //     });
-  //     console.log("colss", cols);
-  //     setColumns(cols);
-  //     setSelectedColumns(colList);
-  //     setTasks(data);
-  //     console.log(colList, "colListcolList");
-  //   } else {
-  //     setTasks([]);
-  //   }
-  // }, [taskList, ProjectDetails]);
+      const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail")
+      const email = props.type === "review" && annotatorEmail ? "Annotator Email" : "";
+      let colList = ["id", ...(!!email ? [email] : [])];
+      colList.push(
+        ...Object.keys(taskList[0].data).filter(
+          (el) => !excludeCols.includes(el)
+        )
+      );
+      taskList[0].task_status && colList.push("status");
+      colList.push("actions");
+      const cols = colList.map((col) => {
+        return {
+          name: col,
+          label: snakeToTitleCase(col),
+          options: {
+            filter: false,
+            sort: false,
+            align: "center",
+            customHeadLabelRender: customColumnHead,
+          },
+        };
+      });
+      console.log("colss", cols);
+      setColumns(cols);
+      setSelectedColumns(colList);
+      setTasks(data);
+      console.log(colList, "colListcolList");
+    } else {
+      setTasks([]);
+    }
+  }, [taskList, ProjectDetails]);
 
-  // useEffect(() => {
-  //   const newCols = columns.map((col) => {
-  //     col.options.display = selectedColumns.includes(col.name)
-  //       ? "true"
-  //       : "false";
-  //     return col;
-  //   });
-  //   setColumns(newCols);
-  //   console.log("columnss", newCols);
-  // }, [selectedColumns]);
+  useEffect(() => {
+    const newCols = columns.map((col) => {
+      col.options.display = selectedColumns.includes(col.name)
+        ? "true"
+        : "false";
+      return col;
+    });
+    setColumns(newCols);
+    console.log("columnss", newCols);
+  }, [selectedColumns]);
 
-  // useEffect(() => {
-  //   if (ProjectDetails) {
-  //     if (props.type === "review" && ProjectDetails.labeled_task_count === 0 ||  ProjectDetails.is_archived )
-  //       setPullDisabled("No more unassigned tasks in this project");
-  //     else if (pullDisabled === "No more unassigned tasks in this project")
-  //       setPullDisabled("");
-  //   }
-  // }, [ProjectDetails.labeled_task_count]);
+  useEffect(() => {
+    if (ProjectDetails) {
+      if (props.type === "review" && ProjectDetails.labeled_task_count === 0 ||  ProjectDetails.is_archived )
+        setPullDisabled("No more unassigned tasks in this project");
+      else if (pullDisabled === "No more unassigned tasks in this project")
+        setPullDisabled("");
+    }
+  }, [ProjectDetails.labeled_task_count]);
 
-  // useEffect(() => {
-  //   if (ProjectDetails) {
-  //     if (
-  //       props.type === "annotation" &&
-  //       ProjectDetails.unassigned_task_count === 0 || ProjectDetails.is_archived
-  //     )
-  //       setPullDisabled("No more unassigned tasks in this project");
-  //     else if (pullDisabled === "No more unassigned tasks in this project")
-  //       setPullDisabled("");
+  useEffect(() => {
+    if (ProjectDetails) {
+      if (
+        props.type === "annotation" &&
+        ProjectDetails.unassigned_task_count === 0 || ProjectDetails.is_archived
+      )
+        setPullDisabled("No more unassigned tasks in this project");
+      else if (pullDisabled === "No more unassigned tasks in this project")
+        setPullDisabled("");
 
-  //     ProjectDetails.frozen_users?.forEach((user) => {
-  //       if (user.id === userDetails?.id)
-  //         setPullDisabled("You're no more a part of this project");
-  //       else if (pullDisabled === "You're no more a part of this project")
-  //         setPullDisabled("");
-  //     });
-  //     setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
-  //   }
-  // }, [
-  //   ProjectDetails.unassigned_task_count,
-  //   ProjectDetails.frozen_users,
-  //   ProjectDetails.tasks_pull_count_per_batch,
-  //   userDetails,
-  // ]);
+      ProjectDetails.frozen_users?.forEach((user) => {
+        if (user.id === userDetails?.id)
+          setPullDisabled("You're no more a part of this project");
+        else if (pullDisabled === "You're no more a part of this project")
+          setPullDisabled("");
+      });
+      setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
+    }
+  }, [
+    ProjectDetails.unassigned_task_count,
+    ProjectDetails.frozen_users,
+    ProjectDetails.tasks_pull_count_per_batch,
+    userDetails,
+  ]);
 
-  // useEffect(() => {
-  //   if (
-  //     totalTaskCount &&
-  //     ((props.type === "annotation" &&
-  //       selectedFilters.annotation_status === "unlabeled") ||
-  //       (props.type === "review" &&
-  //         selectedFilters.review_status === "unreviewed")) &&
-  //     totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
-  //     Object.keys(selectedFilters).filter((key) =>
-  //       key.startsWith("search_")
-  //     ) === []
-  //   ) {
-  //     setPullDisabled(
-  //       `You have too many ${
-  //         props.type === "annotation"
-  //         ? selectedFilters.annotation_status
-  //         : selectedFilters.review_status
-  //       } tasks`
-  //     );
-  //   } else if (
-  //     pullDisabled === "You have too many unlabeled tasks" ||
-  //     pullDisabled === "You have too many labeled tasks"
-  //   ) {
-  //     setPullDisabled("");
-  //   }
-  // }, [
-  //   totalTaskCount,
-  //   ProjectDetails.max_pending_tasks_per_user,
-  //   selectedFilters,
-  // ]);
+  useEffect(() => {
+    if (
+      totalTaskCount &&
+      ((props.type === "annotation" &&
+        selectedFilters.annotation_status === "unlabeled") ||
+        (props.type === "review" &&
+          selectedFilters.review_status === "unreviewed")) &&
+      totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
+      Object.keys(selectedFilters).filter((key) =>
+        key.startsWith("search_")
+      ) === []
+    ) {
+      setPullDisabled(
+        `You have too many ${
+          props.type === "annotation"
+          ? selectedFilters.annotation_status
+          : selectedFilters.review_status
+        } tasks`
+      );
+    } else if (
+      pullDisabled === "You have too many unlabeled tasks" ||
+      pullDisabled === "You have too many labeled tasks"
+    ) {
+      setPullDisabled("");
+    }
+  }, [
+    totalTaskCount,
+    ProjectDetails.max_pending_tasks_per_user,
+    selectedFilters,
+  ]);
 
-  // useEffect(() => {
-  //   if (
-  //     ((props.type === "annotation" &&
-  //       selectedFilters.annotation_status === "unlabeled") ||
-  //       (props.type === "review" &&
-  //         selectedFilters.review_status === "unreviewed")) &&
-  //     totalTaskCount === 0 ||   ProjectDetails.is_archived
-  //   ) {
-  //     setDeallocateDisabled("No more tasks to deallocate");
-  //   } else if (deallocateDisabled === "No more tasks to deallocate") {
-  //     setDeallocateDisabled("");
-  //   }
-  // }, [totalTaskCount, selectedFilters,ProjectDetails]);
+  useEffect(() => {
+    if (
+      ((props.type === "annotation" &&
+        selectedFilters.annotation_status === "unlabeled") ||
+        (props.type === "review" &&
+          selectedFilters.review_status === "unreviewed")) &&
+      totalTaskCount === 0 ||   ProjectDetails.is_archived
+    ) {
+      setDeallocateDisabled("No more tasks to deallocate");
+    } else if (deallocateDisabled === "No more tasks to deallocate") {
+      setDeallocateDisabled("");
+    }
+  }, [totalTaskCount, selectedFilters,ProjectDetails]);
 
-  // useEffect(() => {
-  //   if (ProjectDetails?.project_type?.includes("Acoustic")) {
-  //     if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-  //       navigate(
-  //         `/projects/${id}/${props.type === "annotation" ? "AudioTranscriptionLandingPage" : "ReviewAudioTranscriptionLandingPage"}/${
-  //           NextTask?.id
-  //         }`
-  //       );
-  //     }
-  //   }else{
-  //     if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-  //       navigate(
-  //         `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
-  //         NextTask?.id
-  //         }`
-  //       );
-  //     }
-  //   }
-  //   //TODO: display no more tasks message
-  // }, [NextTask]);
+  useEffect(() => {
+    if (ProjectDetails?.project_type?.includes("Acoustic")) {
+      if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+        navigate(
+          `/projects/${id}/${props.type === "annotation" ? "AudioTranscriptionLandingPage" : "ReviewAudioTranscriptionLandingPage"}/${
+            NextTask?.id
+          }`
+        );
+      }
+    }else{
+      if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+        navigate(
+          `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
+          NextTask?.id
+          }`
+        );
+      }
+    }
+    //TODO: display no more tasks message
+  }, [NextTask]);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -1563,8 +1486,80 @@ const userDetails= {
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
+<<<<<<< HEAD:src/components/Project/TaskTable.jsx
       <Box className="filterToolbarContainer" sx={{ height: "80px" }}>
         
+=======
+      <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
+        {/* {props.ProjectDetails?.project_type ===
+          "ContextualTranslationEditing" && (
+          <>
+            {(props.type === "annotation" || props.type === "review") &&
+              ((props.type === "annotation" &&
+                selectedFilters.annotation_status === "labeled") ||
+                selectedFilters.review_status === "accepted" ||
+                selectedFilters.accepted_with_changes ===
+                  "accepted_with_changes") && (
+                <Grid container justifyContent="start" alignItems="center">
+                  <Grid>
+                    <Typography
+                      variant="body2"
+                      fontWeight="700"
+                      label="Required"
+                    >
+                      Find :
+                    </Typography>
+                  </Grid>
+                  <Grid>
+                    <OutlinedTextField
+                      size="small"
+                      name="find"
+                      InputProps={{
+                        style: { fontSize: "14px", width: "150px" },
+                      }}
+                      value={find}
+                      onChange={(e) => setFind(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid>
+                    <Typography
+                      variant="body2"
+                      fontWeight="700"
+                      label="Required"
+                    >
+                      Replace :
+                    </Typography>
+                  </Grid>
+                  <Grid>
+                    <OutlinedTextField
+                      size="small"
+                      name="replace"
+                      InputProps={{
+                        style: { fontSize: "14px", width: "150px" },
+                      }}
+                      value={replace}
+                      onChange={(e) => setReplace(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid>
+                    <CustomButton
+                      sx={{
+                        inlineSize: "max-content",
+                        width: "50px",
+                        borderRadius: "20px",
+                        
+                      }}
+                      onClick={handleOpenFindAndReplace}
+                      label="Submit"
+                      disabled={find && replace  ? false : true}
+
+                    />
+                  </Grid>
+                </Grid>
+              )}
+          </>
+        )} */}
+>>>>>>> efficiency:src/app/components/Project/TaskTable.jsx
 
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role || roles?.OrganizationOwner === userDetails?.role || roles?.Admin === userDetails?.role )  &&
@@ -1602,7 +1597,7 @@ const userDetails= {
               >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.Annotators.map((el, i) => (
-                  <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
+                  <MenuItem value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -1643,7 +1638,7 @@ const userDetails= {
               >
                 <MenuItem value="">All</MenuItem>
                 {filterData.Reviewers?.map((el, i) => (
-                  <MenuItem key={i}  value={el.value}>{el.label}</MenuItem>
+                  <MenuItem value={el.value}>{el.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -1722,8 +1717,11 @@ const userDetails= {
     serverSide: true,
     customToolbar: renderToolBar,
   };
+  console.log(props.type === "review" ,
+    ProjectDetails?.annotation_reviewers,
+    userDetails?.id,"valuesdata")
 
-
+  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
@@ -2020,10 +2018,23 @@ const userDetails= {
           currentFilters={selectedFilters}
           pull={pull}
           setpull={setpull}
+          rejected={rejected}
+          setRejected={setRejected}
+          // rejValue = {rejValue}
           pullvalue={pullvalue}
         />
       )}
-     
+      {OpenFindAndReplaceDialog && (
+        <FindAndReplaceDialog
+          OpenFindAndReplaceDialog={OpenFindAndReplaceDialog}
+          handleCloseFindAndReplace={handleCloseFindAndReplace}
+          find={find}
+          replace={replace}
+          selectedFilters={selectedFilters}
+          Type={props.type}
+          submit={() => handleSubmitFindAndReplace()}
+        />
+      )}
 
       {renderSnackBar()}
       {loading && <Spinner />}

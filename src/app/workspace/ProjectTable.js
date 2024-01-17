@@ -1,11 +1,23 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useCallback} from "react";
 import Link from 'next/link';
 import MUIDataTable from "mui-datatables";
+import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
+<<<<<<< HEAD
 import tableTheme from "../../themes/tableTheme";
 import Search from "../../components/common/Search";
+=======
+import tableTheme from "../../themes/TableTheme";
+import Search from "../components/common/Search";
+import { useRouter } from "next/navigation";
+import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
+import APITransport from "../../Lib/apiTransport/apitransport"
+// import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
+>>>>>>> efficiency
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
+import GetWorkspacesProjectDetailsAPI from "../actions/api/workspace/GetWorkspaceProject";
+
 
 const ProjectTable = (props) => {
 
@@ -14,12 +26,27 @@ const ProjectTable = (props) => {
       {label}
     </Button>
   )
-const workspacesproject = [{"id":1, "title":"workspace 1", "project_stage":"1", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":2, "title":"workspace 2", "project_stage":"2", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":3, "title":"workspace 3", "project_stage":"3", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":4, "title":"workspace 4", "project_stage":"1", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":5, "title":"workspace 5", "project_stage":"3", "tgt_language":"hindi", "project_type":"AudioTranscription"},
-  {"id":6, "title":"workspace 6", "project_stage":"2", "tgt_language":"hindi", "project_type":"AudioTranscription"}]
+ const dispatch = useDispatch();
+ const router = useRouter();
+//  const {id} = router.query
+  
+  const getWorkspace = () => {
+    dispatch(fetchWorkspaceProjectData(1));
+  };
+
+  useEffect(() => {
+    getWorkspace();
+  }, []);
+
+  const workspacesproject = useSelector(
+    (state) => state.getWorkspaceProjectData.data
+  );
+  console.log(workspacesproject);
+  // const SearchWorkspaceProjects = useSelector(
+  //   (state) => state.SearchProjectCards.data
+  // );
+
+
   const pageSearch = () => {
     return workspacesproject.filter((el) => {
       return el;

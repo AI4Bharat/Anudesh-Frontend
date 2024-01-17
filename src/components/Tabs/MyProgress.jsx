@@ -17,10 +17,16 @@ import {
   import tableTheme from "../../themes/tableTheme";
   import themeDefault from "../../themes/theme";
   import React, { useEffect, useState } from "react";
-//   import { useSelector, useDispatch } from "react-redux";
-//   import APITransport from "../../../../redux/actions/apitransport/apitransport";
+  import { useSelector, useDispatch } from "react-redux";
+  import APITransport from "../../../Lib/apiTransport/apitransport";
   // import Snackbar from "../common/Snackbar";
+<<<<<<< HEAD:src/components/Tabs/MyProgress.jsx
   // import UserMappedByRole from "../../../utils/UserMappedByRole/UserMappedByRole";
+=======
+  // import UserMappedByRole from "../../../utils/UserMappedByRole";
+  // import { LocalizationProvider } from "@mui/x-date-pickers";
+  // import { DateRangePicker } from "@mui/x-date-pickers-pro";
+>>>>>>> efficiency:src/app/components/Tabs/MyProgress.jsx
   // import {
   //   addDays,
   //   addWeeks,
@@ -31,6 +37,7 @@ import {
   // } from "date-fns";
 //   import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
   import MUIDataTable from "mui-datatables";
+<<<<<<< HEAD:src/components/Tabs/MyProgress.jsx
   import  "../../styles/Dataset.css";
   import ColumnList from "../common/ColumnList";
   import CustomizedSnackbars from "../common/Snackbar";
@@ -41,8 +48,37 @@ import {
   import Spinner from "../common/Spinner";
   import { MenuProps } from "../../utils/utils";
   
+=======
+  import DatasetStyle from "../../../styles/Dataset";
+  import GetProjectDomainsAPI from "@/app/actions/api/workspace/GetProjectDomainsAPI";
+  import ColumnList from "../common/ColumnList";
+  import CustomizedSnackbars from "../common/Snackbar";
+  import { isSameDay, format } from 'date-fns/esm';
+  import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+  import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+  import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+//   import { useParams } from "react-router-dom";
+  import Spinner from "../../components/common/Spinner";
+  import { MenuProps } from "../../../utils/utils";
+  import GetUserAnalyticsAPI from "@/app/actions/api/user/GetUserAnalyticsAPI";
+
+
+>>>>>>> efficiency:src/app/components/Tabs/MyProgress.jsx
   const MyProgress = () => {
- 
+    const UserDetails = useSelector((state) => state.getLoggedInData.data);
+    const [selectRange, setSelectRange] = useState([{
+      startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
+      endDate: new Date(),
+      key: "selection"
+    }]);
+    console.log(UserDetails?.date_joined, "UserDetails?.date_joined")
+    // const [rangeValue, setRangeValue] = useState([
+    //   format(
+    //     Date.parse(UserDetails?.date_joined, "yyyy-MM-ddTHH:mm:ss.SSSZ"),
+    //     "yyyy-MM-dd"
+    //   ),
+    //   Date.now(),
+    // ]);
     const [showPicker, setShowPicker] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarText, setSnackbarText] = useState("");
@@ -58,6 +94,7 @@ import {
     const [totalsummary, setTotalsummary] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedWorkspaces, setSelectedWorkspaces] = useState([]);
+<<<<<<< HEAD:src/components/Tabs/MyProgress.jsx
     // const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
     const Workspaces = [];
     const UserAnalytics = [];
@@ -629,6 +666,84 @@ const ProjectTypes={
       }]);
     
 
+=======
+    const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+    const Workspaces = useSelector((state) => state.GetWorkspace.data);
+    const UserAnalytics = useSelector((state) => state.getUserAnalytics.data.project_summary);
+    const UserAnalyticstotalsummary = useSelector((state) => state.getUserAnalytics.data.total_summary);
+    const apiLoading = useSelector(state => state.apiStatus.loading);
+    const dispatch = useDispatch();
+  
+    const classes = DatasetStyle();
+    useEffect(() => {
+      const typesObj = new GetProjectDomainsAPI();
+      dispatch(APITransport(typesObj));
+      // const workspacesObj = new GetWorkspacesAPI(1, 9999);
+      // dispatch(APITransport(workspacesObj));
+  
+    }, []);
+    useEffect(() => {
+      setLoading(apiLoading);
+    }, [apiLoading])
+  
+  
+    // useEffect(() => {
+    //   if (UserDetails && Workspaces?.results) {
+    //     let workspacesList = [];
+    //     Workspaces.results.forEach((item) => {
+    //       workspacesList.push({ id: item.id, name: item.workspace_name });
+    //     });
+    //     setWorkspaces(workspacesList);
+    //     setSelectedWorkspaces(workspacesList.map(item => item.id))
+    //     setSelectedType("ContextualTranslationEditing");
+    //   }
+    // }, [UserDetails, Workspaces]);
+  
+    useEffect(() => {
+      if (ProjectTypes) {
+        let types = [];
+        Object.keys(ProjectTypes).forEach((key) => {
+          let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+          types.push(...subTypes);
+        });
+        setProjectTypes(types);
+        types?.length && setSelectedType(types[3]);
+      }
+    }, [ProjectTypes]);
+  
+    useEffect(() => {
+      if (UserAnalytics?.message) {
+        setSnackbarText(UserAnalytics?.message);
+        showSnackbar();
+        return;
+      }
+      if (UserAnalytics?.length) {
+        let tempColumns = [];
+        let tempSelected = [];
+        Object.keys(UserAnalytics[0]).forEach((key) => {
+          tempColumns.push({
+            name: key,
+            label: key,
+            options: {
+              filter: false,
+              sort: false,
+              align: "center",
+            },
+          });
+          tempSelected.push(key);
+        });
+        setColumns(tempColumns);
+        setReportData(UserAnalytics);
+        setSelectedColumns(tempSelected);
+      } else {
+        setColumns([]);
+        setReportData([]);
+        setSelectedColumns([]);
+      }
+      setShowSpinner(false);
+    }, [UserAnalytics]);
+  
+>>>>>>> efficiency:src/app/components/Tabs/MyProgress.jsx
     const handleRangeChange = (ranges) => {
       const { selection } = ranges;
       if (selection.endDate > new Date()) selection.endDate = new Date();
@@ -647,20 +762,20 @@ const ProjectTypes={
       const reviewdata = {
         user_id: id,
         project_type: selectedType,
-        reports_type: radiobutton === "AnnotatationReports" ? "annotation" :radiobutton ==="ReviewerReports" ? "review" : "supercheck" ,
+        reports_type: radiobutton === "AnnotatationReports" ? "annotation" : radiobutton === "ReviewerReports" ? "review" : "supercheck",
         start_date: format(selectRange[0].startDate, 'yyyy-MM-dd'),
         end_date: format(selectRange[0].endDate, 'yyyy-MM-dd'),
   
       }
   
-      
+  
       const progressObj = new GetUserAnalyticsAPI(reviewdata);
       dispatch(APITransport(progressObj));
       // setShowSpinner(true);
       setTotalsummary(true)
   
     };
-  
+    console.log(UserAnalyticstotalsummary);
     const showSnackbar = () => {
       setSnackbarOpen(true);
     };
@@ -712,6 +827,7 @@ const ProjectTypes={
       jumpToPage: true,
       customToolbar: renderToolBar,
     };
+   
     return (
       <ThemeProvider theme={themeDefault}>
         {/* <Header /> */}

@@ -1,6 +1,6 @@
 import axios from "axios";
-import C from "../../constants";
-import Strings from "../../string";
+import C from "../../app/actions/constants";
+import Strings from "../../app/actions/string";
 
 function dispatchAPIAsync(api) {
   return {
@@ -37,9 +37,10 @@ function apiStatusAsync(progress, errors, message, res = null, unauthrized = fal
 }
 
 function success(res, api, dispatch) {
-console.log(res,"res")
   api.processResponse(res.data);
   if (api.type) {
+    console.log(res,"res",api)
+    
     dispatch(dispatchAPIAsync(api));
     dispatch(apiStatusAsync(false, false, res.data.message ? res.data.message : api.successMsg, res.data, null, false));
   }

@@ -14,6 +14,7 @@ import {
     MenuItem,
   } from "@mui/material";
   import Link from 'next/link';
+  import { useDispatch, useSelector } from 'react-redux';
   import { useRouter } from "next/navigation";
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
@@ -35,8 +36,15 @@ import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import Spinner from "../../components/common/Spinner";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+<<<<<<< HEAD
 import AddUsersDialog from "../../components/common/AddUsersDialog";
 import addUserTypes from "../../Constants/addUserTypes"
+=======
+import AddUsersDialog from "../components/common/AddUsersDialog";
+import addUserTypes from "../Constants/addUserTypes";
+import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetails";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+>>>>>>> efficiency
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -67,9 +75,15 @@ import addUserTypes from "../../Constants/addUserTypes"
       );
     const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
     // const { id, orgId } = useParams();
+<<<<<<< HEAD
     
+=======
+    const id = 1;
+    const orgId = 1;
+    const classes = DatasetStyle();
+>>>>>>> efficiency
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
     const [user,setuser] = useState(initialUserData)
     const [loading, setLoading] = useState(false);
@@ -94,8 +108,7 @@ import addUserTypes from "../../Constants/addUserTypes"
     };
 
     const getWorkspaceDetails = () => {
-      const workspaceObj = new GetWorkspacesDetailsAPI(orgId);
-      dispatch(APITransport(workspaceObj));
+      dispatch(fetchWorkspaceDetails(1));
     };
   
   
@@ -321,7 +334,7 @@ import addUserTypes from "../../Constants/addUserTypes"
                 <AddWorkspaceDialog
                   dialogCloseHandler={handleWorkspaceDialogClose}
                   isOpen={addWorkspacesDialogOpen}
-                  // orgId={orgId}
+                  orgId={orgId}
                 />
               </>
             )}
@@ -335,12 +348,13 @@ import addUserTypes from "../../Constants/addUserTypes"
                   onClick={handleAnnotatorDialogOpen}
                 />
                 <AnnotatorsTable
+                  onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
                 />
                 <AddUsersDialog
                   handleDialogClose={handleAnnotatorDialogClose}
                   isOpen={addAnnotatorsDialogOpen}
                   userType={addUserTypes.ANNOTATOR}
-                  // id={id}
+                  id={id}
                 />
               </>
             )}
@@ -363,7 +377,7 @@ import addUserTypes from "../../Constants/addUserTypes"
                   handleDialogClose={handleManagerDialogClose}
                   isOpen={addManagersDialogOpen}
                   userType={addUserTypes.MANAGER}
-                  // id={id}
+                  id={id}
                 />
               </>
             )}

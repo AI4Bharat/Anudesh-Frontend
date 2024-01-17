@@ -6,85 +6,86 @@ import MyProgress from '../../components/Tabs/MyProgress';
 import RecentTasks from '../../components/Tabs/RecentTasks';
 import Spinner from "../../components/common/Spinner";
 import userRole from "../../utils/Role";
-
+import { useDispatch, useSelector } from "react-redux";
+import APITransport from '@/Lib/apiTransport/apitransport';
+import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
+import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
+import { fetchUserById } from '@/Lib/Features/user/getUserById';
+import CustomizedSnackbars from '../components/common/Snackbar';
 
 export default function ProgressPage () {
-
-
+  // const { id } = useParams();
+  const id = 1;
+  const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
-  const loggedInUserData= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-};
 
-  const userDetails= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-};
 
+  const UserDetails = useSelector((state) => state.getUserById.data);
+  const LoggedInUserId = useSelector((state) => state.getLoggedInData.data.id);
+  const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
+  const handleEmailToggle = async () => {
+    setLoading(true);
+    const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
+    const res = await fetch(mailObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(mailObj.getBody()),
+        headers: mailObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+        setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "success",
+        })
+        dispatch(fetchUserById(id));
+    } else {
+        setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+        })
+    }
+  }
+
+  const renderSnackBar = () => {
+    return (
+        <CustomizedSnackbars
+            open={snackbar.open}
+            handleClose={() =>
+                setSnackbarInfo({ open: false, message: "", variant: "" })
+            }
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            variant={snackbar.variant}
+            message={snackbar.message}
+        />
+    );
+  };
+  
+  useEffect(() => {
+    setLoading(true);
+    dispatch(fetchUserById(id));
+  }, [id]);
+
+  useEffect(() => {
+    if(UserDetails && UserDetails.id == id) {
+      setUserDetails(UserDetails);
+      setLoading(false);
+    }
+  }, [UserDetails]);
 
   return (
       <Grid container spacing={2}>
         {loading && <Spinner />} 
+        {renderSnackBar()}
           {userDetails && (
             <>
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>

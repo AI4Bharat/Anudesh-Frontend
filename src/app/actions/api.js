@@ -1,7 +1,7 @@
 /**
  * base class for API object
  */
-import config from '../config/config';
+import config from '../../config/config';
 
 export default class API {
   constructor(method = "POST", timeout = 2000, auth = false, reqType = "") {

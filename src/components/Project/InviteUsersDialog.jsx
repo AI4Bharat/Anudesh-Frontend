@@ -85,6 +85,7 @@ const InviteUsersDialog = ({
     setCsvFile(null);
     setbtn(null)
   };
+
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
       <DialogTitle style={{ paddingBottom: 0 }}>Invite users to organization</DialogTitle>
@@ -101,7 +102,6 @@ const InviteUsersDialog = ({
                 renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
-                    key={index}
                     variant="outlined"
                     label={option}
                     {...getTagProps({ index })}
@@ -114,7 +114,7 @@ const InviteUsersDialog = ({
                 {...values}
                 fullwidth
                 variant="outlined"
-                // onChange={handleFileSelect}
+                onChange={handleFileSelect}
                 label="Enter email ids of users to invite"
                 placeholder="Email ids"
                 defaultValue=" "
@@ -134,7 +134,6 @@ const InviteUsersDialog = ({
                 renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
-                    key={index}
                     variant="outlined"
                     label={option}
                     {...getTagProps({ index })}
@@ -158,7 +157,7 @@ const InviteUsersDialog = ({
             <input
               type="file"
               accept=".csv"
-            //   onChange={handleFileChange}
+              onChange={handleFileChange}
               style={{ display: "none" }}
               id="upload-csv"
             />
@@ -208,7 +207,7 @@ const InviteUsersDialog = ({
               <CircularProgress size="0.8rem" color="secondary" />
             )
           }
-        //   onClick={addBtnClickHandler}
+          onClick={addBtnClickHandler}
           size="small"
           label="Add"
           disabled={loading || selectedUsers === null || selectedUsers?.length === 0}

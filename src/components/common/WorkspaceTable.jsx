@@ -1,46 +1,79 @@
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD:src/components/common/WorkspaceTable.jsx
 // import { useDispatch, useSelector } from 'react-redux';
 import CustomButton from './Button'
+=======
+import { useDispatch, useSelector } from 'react-redux';
+import CustomButton from '../common/Button'
+// import { Link, useNavigate, useParams } from 'react-router-dom';
+>>>>>>> efficiency:src/app/components/common/WorkspaceTable.jsx
 import MUIDataTable from "mui-datatables";
-
+import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
+<<<<<<< HEAD:src/components/common/WorkspaceTable.jsx
 import tableTheme from "../../themes/tableTheme";
 import  "../../styles/Dataset.css";
 import Search from "./Search";
+=======
+import APITransport from "@/Lib/apiTransport/apitransport";
+import tableTheme from "../../../themes/tableTheme";
+import DatasetStyle from "../../../styles/Dataset";
+import Search from "../common/Search";
+>>>>>>> efficiency:src/app/components/common/WorkspaceTable.jsx
 import Link from 'next/link';
-
+import { setWorkspace } from "@/Lib/Features/GetWorkspace";
+import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 
 
 const WorkspaceTable = (props) => {
+<<<<<<< HEAD:src/components/common/WorkspaceTable.jsx
     
     // const dispatch = useDispatch();
+=======
+    const classes = DatasetStyle();
+    const dispatch = useDispatch();
+>>>>>>> efficiency:src/app/components/common/WorkspaceTable.jsx
     const { showManager, showCreatedBy } = props;
+    const workspaceData = useSelector(state => state.GetWorkspace.data);
+    // const SearchWorkspace = useSelector((state) => state.SearchProjectCards.data);
+    console.log(workspaceData,"lll");
 
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
     const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
     const [totalWorkspaces, setTotalWorkspaces] = useState(10);
 
-   
+
+    const totalWorkspaceCount = useSelector(state => state.GetWorkspace.data.count);
+
+    // const getWorkspaceData = async () => {
+    //     const workspaceObj = new GetWorkspaceAPI(currentPageNumber);
+    //     dispatch(APITransport(workspaceObj));
+    //     // const response = await dispatch(APITransport(workspaceObj));
+    //     // console.log('Response from API:', response);
+    //     dispatch(setWorkspace(workspaceObj))
+    // }
+
+    useEffect(() => {
+        dispatch(fetchWorkspaceData(currentPageNumber)); 
+        // console.log("fired now")
+    }, [currentPageNumber,dispatch]);
+
+    // useEffect(() => {
+    //     dispatch(fetchWorkspaceData(currentRowPerPage)); 
+    // }, [currentRowPerPage]);
+
+    useEffect(() => {       
+        dispatch(fetchWorkspaceData(1)); 
+      }, [dispatch])
 
     const pageSearch = () => {
 
         return workspaceData.filter((el) => {
-
-        
-
                 return el;
         })
 
     }
-
-    const workspaceData = [{ "id": 1, "workspace_name": "workspace 1", "managers": [{ "username": "manager 1" }, { "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 1" } },
-    { "id": 2, "workspace_name": "workspace 2", "managers": [{ "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 2" } },
-    { "id": 3, "workspace_name": "workspace 3", "managers": [{ "username": "manager 1" }, { "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 3" } },
-    { "id": 4, "workspace_name": "workspace 4", "managers": [{ "username": "manager 1" }, { "username": "manager 3" }], "created_by": { "username": "Admin 4" } },
-    { "id": 5, "workspace_name": "workspace 5", "managers": [{ "username": "manager 1" }, { "username": "manager 3" }], "created_by": { "username": "Admin 5" } },
-    { "id": 6, "workspace_name": "workspace 6", "managers": [{ "username": "manager 2" }, { "username": "manager 3" }], "created_by": { "username": "Admin 6" } }]
-  
    
     const columns = [
         {
