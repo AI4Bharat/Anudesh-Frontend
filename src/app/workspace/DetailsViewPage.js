@@ -282,24 +282,17 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
           >
             {pageType === componentType.Type_Workspace && (
               <>
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="center"
-                  alignItems="center"
-                  columnSpacing={4}
-                  rowSpacing={2}
-                >
-                  <Grid item xs={12} sm={6}>
-                    <Link href={`/create-annotation-project/`}>
+                
+                  {/* <Grid > */}
+                    <Link href={`/new-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2 }}
+                         sx={{ width: "100%", mb: 2 }}
                         className={classes.projectButton}
-                        label={"Add New Annotation Project"}
+                        label={"Add New Project"}
                       />
                     </Link>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  {/* </Grid> */}
+                  {/* <Grid item xs={12} sm={6}>
                     <Link href={`/create-collection-project/`}>
                       <CustomButton
                       sx={{ width: "100%", mb: 2 }}
@@ -307,8 +300,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
                         label={"Add New Collection Project"}
                       />
                     </Link>
-                  </Grid>
-                </Grid>
+                  </Grid> */}
                 <div className={classes.workspaceTables}>
                   <ProjectTable />
                 </div>
