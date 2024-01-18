@@ -34,7 +34,7 @@ import {
   import GetProjectDomainsAPI from "@/app/actions/api/workspace/GetProjectDomainsAPI";
   import ColumnList from "../common/ColumnList";
   import CustomizedSnackbars from "../common/Snackbar";
-  import { isSameDay, format } from 'date-fns/esm';
+  import { isSameDay, format } from 'date-fns';
   import { DateRangePicker, defaultStaticRanges } from "react-date-range";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
   import ArrowRightIcon from "@mui/icons-material/ArrowRight";

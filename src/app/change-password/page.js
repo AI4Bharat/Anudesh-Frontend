@@ -5,6 +5,7 @@ import {
   ThemeProvider,
   Typography,
   InputAdornment,
+  IconButton
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "../../themes/theme";
@@ -18,7 +19,6 @@ import ChangePasswordAPI from "../actions/api/user/ChangePasswordAPI"
 import Spinner from "../../components/common/Spinner";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-import IconButton from "@material-ui/core/IconButton";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import CustomButton from "../../components/common/Button";

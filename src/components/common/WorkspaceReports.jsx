@@ -27,7 +27,7 @@ import FetchLanguagesAPI from "../../app/actions/api/workspace/FetchLanguagesAPI
 import GetWorkspaceDetailedProjectReportsAPI from "../../app/actions/api/workspace/GetWorkspaceDetailedProjectReportsAPI";
 import DatasetStyle from "../../styles/Dataset";
 import ColumnList from "../common/ColumnList";
-import { isSameDay, format } from 'date-fns/esm';
+import { isSameDay, format } from 'date-fns';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";

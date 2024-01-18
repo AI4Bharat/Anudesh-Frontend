@@ -8,8 +8,8 @@ import OutlinedTextField from "../../components/common/OutlinedTextField";
 import { useEffect, useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
-import { Visibility } from "@material-ui/icons";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import { Visibility } from "@mui/icons-material";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {useDispatch,useSelector} from "react-redux"
 import CustomButton from "../../components/common/Button";
 import APITransport from "@/Lib/apiTransport/apitransport";

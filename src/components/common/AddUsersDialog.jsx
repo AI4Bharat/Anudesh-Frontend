@@ -8,7 +8,7 @@ import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { fetchWorkspacesAnnotatorsData } from "@/Lib/Features/getWorkspacesAnnotatorsData";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import { Add } from "@material-ui/icons";
+import { Add } from "@mui/icons-material";
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Autocomplete,
