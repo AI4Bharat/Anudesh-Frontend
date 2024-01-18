@@ -1,22 +1,34 @@
 'use client';
-import { Grid, Link, InputAdornment, IconButton } from "@mui/material";
 import "../../styles/Dataset.css";
+import { Grid, Link } from "@mui/material";
+import LoginStyle from "../../styles/loginStyle";
 import AppInfo from "../../components/user/AppInfo";
 import CustomCard from "../../components/common/Card";
 import OutlinedTextField from "../../components/common/OutlinedTextField";
-import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import { Visibility } from "@mui/icons-material";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import {useDispatch,useSelector} from "react-redux"
 import CustomButton from "../../components/common/Button";
+import APITransport from "@/Lib/apiTransport/apitransport";
 import { useRouter } from 'next/navigation';
 import { translate } from "@/config/localisation";
+import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import "./login.css";
+import LoginAPI from "../actions/api/user/Login";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
     const router = useRouter()
+    const dispatch=useDispatch()
+    // const accessToken = localStorage.getItem("anudesh_access_token");
+    // const refreshToken = localStorage.getItem("anudesh_refresh_token");
+    const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -30,6 +42,8 @@ export default function Login() {
         password: "",
         showPassword: false,
     });
+    /* eslint-disable react-hooks/exhaustive-deps */
+
     const handleFieldChange = (event) => {
         event.preventDefault();
         setCredentials((prev) => ({
@@ -37,6 +51,44 @@ export default function Login() {
             [event.target.name]: event.target.value,
         }));
     };
+      const getLoggedInUserData = () => {
+        dispatch(FetchLoggedInUserData("me"))
+      };
+      const loggedInUserData = useSelector(
+        (state) => state.getLoggedInData?.data
+      );
+      console.log(loggedInUserData,"lll");
+  
+ 
+   const handleSubmit = async () => {
+    // setLoading(true);
+
+    const apiObj = new LoginAPI(credentials.email.toLowerCase(), credentials.password);
+    const res = await fetch(apiObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    });
+
+    const rsp_data = await res.json();
+    // console.log(rsp_data)
+    if (res.ok && typeof window !== 'undefined') {
+
+      localStorage.setItem("anudesh_access_token", rsp_data.access);
+      localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
+      localStorage.setItem("email_id", credentials.email.toLowerCase());
+      getLoggedInUserData();
+      router.push("/");
+    } else{
+      setSnackbarInfo({
+        open: true,
+        message: rsp_data?.message,
+        variant: "error",
+      })
+    }
+
+    // setLoading(false);
+  }; 
 
     const handleClickShowPassword = () => {
         setValues({ ...values, showPassword: !values.showPassword });
@@ -119,8 +171,11 @@ export default function Login() {
             />
         );
     };
+ /* eslint-disable react-hooks/exhaustive-deps */
 
     const googleLogin = () => {
+        if (typeof window !== 'undefined') {
+
         signInWithPopup(auth, googleAuthProvider)
             .then(async (result) => {
                 setSnackbarInfo({
@@ -131,7 +186,8 @@ export default function Login() {
                 const { user } = result;
                 const idTokenResult = await user.getIdTokenResult();
                 window.localStorage.setItem("email", user.email);
-                window.localStorage.setItem("authtoken", idTokenResult.token);
+                window.localStorage.setItem("anudesh_access_token", idTokenResult.token);
+                getLoggedInUserData();
                 router.push("/");
             })
             .catch((err) => {
@@ -142,34 +198,35 @@ export default function Login() {
                     variant: "error",
                   });
             });
+        }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-          signInWithEmailAndPassword(auth, credentials.email, credentials.password)
-          .then(async (result) => {
-            setSnackbarInfo({
-                open: true,
-                message: "login successfull",
-                variant: "success",
-              });
-            const { user } = result;
-            const idTokenResult = await user.getIdTokenResult();
-            window.localStorage.setItem("email", user.email);
-            window.localStorage.setItem("authtoken", idTokenResult.token);
-            router.push("/");
-          })
-        }
-        catch (err) {
-          console.log(err.message);
-          setSnackbarInfo({
-            open: true,
-            message: err.message,
-            variant: "error",
-          });
-        }
-      };
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //       signInWithEmailAndPassword(auth, credentials.email, credentials.password)
+    //       .then(async (result) => {
+    //         setSnackbarInfo({
+    //             open: true,
+    //             message: "login successfull",
+    //             variant: "success",
+    //           });
+    //         const { user } = result;
+    //         const idTokenResult = await user.getIdTokenResult();
+    //         window.localStorage.setItem("email", user.email);
+    //         window.localStorage.setItem("authtoken", idTokenResult.token);
+    //         router.push("/");
+    //       })
+    //     }
+    //     catch (err) {
+    //       console.log(err.message);
+    //       setSnackbarInfo({
+    //         open: true,
+    //         message: err.message,
+    //         variant: "error",
+    //       });
+    //     }
+    //   };
     
 
     return (

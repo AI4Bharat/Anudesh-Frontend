@@ -17,15 +17,16 @@ import {
   MenuItem,
 } from "@mui/material";
 import { translate } from "../../config/localisation";
-import  "../../styles/Dataset.css";
+import DatasetStyle from "../../styles/dataset";
+import { useDispatch, useSelector } from "react-redux";
 import roles from "../../utils/Role";
+import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 
 const UserType = ["annotator", "reviewer","superchecker"];
 const archivedProjects = ["true", "false"];
 const ProjectFilterList = (props) => {
-  
-//   const dispatch = useDispatch();
-
+  const classes = DatasetStyle();
+  const dispatch = useDispatch();
   const {
     filterStatusData,
     currentFilters,
@@ -33,43 +34,54 @@ const ProjectFilterList = (props) => {
   
   } = props;
 
+
+  
+
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
   const [selectedUserType, setSelectedUserType] = useState("");
   const [selectedArchivedProject, setSelectedArchivedProject] = useState("");
 
+  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+  const loggedInUserData = useSelector(
+    (state) => state.getLoggedInData.data
+  );
+  useEffect(() => {
+    dispatch(fetchProjectDomains());
+  }, [dispatch]);
+  useEffect(() => {
+    if (ProjectTypes) {
+      let types = [];
+      Object.keys(ProjectTypes).forEach((key) => {
+        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+        types.push(...subTypes);
+      });
+      setProjectTypes(types);
+    }
+  }, [ProjectTypes]);
 
-const loggedInUserData= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 2,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-}
+  const handleChange = (e) => {
+    updateFilters({
+      ...currentFilters,
+      project_type: selectedType,
+      project_user_type: selectedUserType,
+      archived_projects: selectedArchivedProject,
+    });
+    props.handleClose();
+  };
+
+  const handleChangeCancelAll = () => {
+    updateFilters({
+        project_type: "",
+        project_user_type: "",
+        archived_projects: "",
+     
+    });
+    setSelectedType("")
+    setSelectedUserType("")
+    setSelectedArchivedProject("")
+    props.handleClose();
+  };
 
 
   return (
@@ -88,7 +100,7 @@ const loggedInUserData= {
           horizontal: "right",
         }}
       >
-        <Grid container className="filterContainer">
+        <Grid container className={classes.filterContainer}>
           <Grid item xs={11} sm={11} md={11 } lg={11} xl={11} sx={{width:"130px"}} >
           <FormControl fullWidth size="small" >
             <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>Project Type</InputLabel>
@@ -146,7 +158,7 @@ const loggedInUserData= {
             <Typography
               variant="body2"
               sx={{ mr: 5, mb: 1, fontWeight: "900" }}
-              className="filterTypo"
+              className={classes.filterTypo}
             >
               Archived Projects :
             </Typography>
@@ -164,21 +176,21 @@ const loggedInUserData= {
           }}
         >
           <Button
-            // onClick={handleChangeCancelAll}
+            onClick={handleChangeCancelAll}
             variant="outlined"
             color="primary"
             size="small"
-            className="clearAllBtn"
+            className={classes.clearAllBtn}
           >
             {" "}
             Clear All
           </Button>
           <Button
-            // onClick={handleChange}
+            onClick={handleChange}
             variant="contained"
             color="primary"
             size="small"
-            className="clearAllBtn"
+            className={classes.clearAllBtn}
           >
             {" "}
             Apply

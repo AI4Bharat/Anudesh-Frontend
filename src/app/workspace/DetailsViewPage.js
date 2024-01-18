@@ -14,11 +14,12 @@ import {
     MenuItem,
   } from "@mui/material";
   import Link from 'next/link';
+  import { useDispatch, useSelector } from 'react-redux';
   import { useRouter } from "next/navigation";
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
 import themeDefault from "../../themes/theme";
-import  "../../styles/Dataset.css";
+import DatasetStyle from "../../styles/dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";
@@ -36,7 +37,9 @@ import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AddUsersDialog from "../../components/common/AddUsersDialog";
-import addUserTypes from "../../Constants/addUserTypes"
+import addUserTypes from "../../Constants/addUserTypes";
+import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetails";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -67,9 +70,11 @@ import addUserTypes from "../../Constants/addUserTypes"
       );
     const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
     // const { id, orgId } = useParams();
-    
+    const id = 1;
+    const orgId = 1;
+    const classes = DatasetStyle();
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
     const [user,setuser] = useState(initialUserData)
     const [loading, setLoading] = useState(false);
@@ -94,8 +99,7 @@ import addUserTypes from "../../Constants/addUserTypes"
     };
 
     const getWorkspaceDetails = () => {
-      const workspaceObj = new GetWorkspacesDetailsAPI(orgId);
-      dispatch(APITransport(workspaceObj));
+      dispatch(fetchWorkspaceDetails(1));
     };
   
   
@@ -141,7 +145,7 @@ import addUserTypes from "../../Constants/addUserTypes"
           justifyContent="center"
           alignItems="center"
         >
-          <Card className="workspaceCard">
+          <Card className={classes.workspaceCard}>
             {/* {pageType === componentType.Type_Organization && ( */}
               <Typography variant="h2" gutterBottom component="div">
                 title
@@ -278,34 +282,26 @@ import addUserTypes from "../../Constants/addUserTypes"
           >
             {pageType === componentType.Type_Workspace && (
               <>
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="center"
-                  alignItems="center"
-                  columnSpacing={4}
-                  rowSpacing={2}
-                >
-                  <Grid item xs={12} sm={6}>
-                    <Link href={`/create-annotation-project/`}>
+                
+                  {/* <Grid > */}
+                    <Link href={`/new-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2, textDecoration: "none" }}
-                        className="projectButton"
-                        label={"Add New Annotation Project"}
+                         sx={{ width: "100%", mb: 2 }}
+                        className={classes.projectButton}
+                        label={"Add New Project"}
                       />
                     </Link>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  {/* </Grid> */}
+                  {/* <Grid item xs={12} sm={6}>
                     <Link href={`/create-collection-project/`}>
                       <CustomButton
-                      sx={{ width: "100%", mb: 2, textDecoration: "none" }}
-                        className="projectButton"
+                      sx={{ width: "100%", mb: 2 }}
+                        className={classes.projectButton}
                         label={"Add New Collection Project"}
                       />
                     </Link>
-                  </Grid>
-                </Grid>
-                <div>
+                  </Grid> */}
+                <div className={classes.workspaceTables}>
                   <ProjectTable />
                 </div>
               </>
@@ -321,7 +317,7 @@ import addUserTypes from "../../Constants/addUserTypes"
                 <AddWorkspaceDialog
                   dialogCloseHandler={handleWorkspaceDialogClose}
                   isOpen={addWorkspacesDialogOpen}
-                  // orgId={orgId}
+                  orgId={orgId}
                 />
               </>
             )}
@@ -330,17 +326,19 @@ import addUserTypes from "../../Constants/addUserTypes"
             {pageType === componentType.Type_Workspace && (
               <>
                 <CustomButton
+                  className={classes.annotatorsButton}
                   label={"Add Members to Workspace"}
                   sx={{ width: "100%", mb: 2 }}
                   onClick={handleAnnotatorDialogOpen}
                 />
                 <AnnotatorsTable
+                  onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
                 />
                 <AddUsersDialog
                   handleDialogClose={handleAnnotatorDialogClose}
                   isOpen={addAnnotatorsDialogOpen}
                   userType={addUserTypes.ANNOTATOR}
-                  // id={id}
+                  id={id}
                 />
               </>
             )}
@@ -363,7 +361,7 @@ import addUserTypes from "../../Constants/addUserTypes"
                   handleDialogClose={handleManagerDialogClose}
                   isOpen={addManagersDialogOpen}
                   userType={addUserTypes.MANAGER}
-                  // id={id}
+                  id={id}
                 />
               </>
             )}

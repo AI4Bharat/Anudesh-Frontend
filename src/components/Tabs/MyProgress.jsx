@@ -17,10 +17,8 @@ import {
   import tableTheme from "../../themes/tableTheme";
   import themeDefault from "../../themes/theme";
   import React, { useEffect, useState } from "react";
-//   import { useSelector, useDispatch } from "react-redux";
-//   import APITransport from "../../../../redux/actions/apitransport/apitransport";
+  import { useSelector, useDispatch } from "react-redux";
   // import Snackbar from "../common/Snackbar";
-  // import UserMappedByRole from "../../../utils/UserMappedByRole/UserMappedByRole";
   // import {
   //   addDays,
   //   addWeeks,
@@ -32,17 +30,36 @@ import {
 //   import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
   import MUIDataTable from "mui-datatables";
   import  "../../styles/Dataset.css";
+  import DatasetStyle from "../../styles/dataset";
+  import GetProjectDomainsAPI from "@/app/actions/api/workspace/GetProjectDomainsAPI";
   import ColumnList from "../common/ColumnList";
   import CustomizedSnackbars from "../common/Snackbar";
-//   import { isSameDay, format } from 'date-fns/esm';
+  import { isSameDay, format } from 'date-fns';
   import { DateRangePicker, defaultStaticRanges } from "react-date-range";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
   import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-  import Spinner from "../common/Spinner";
+//   import { useParams } from "react-router-dom";
+  import Spinner from "../../components/common/Spinner";
   import { MenuProps } from "../../utils/utils";
-  
+  import GetUserAnalyticsAPI from "@/app/actions/api/user/GetUserAnalyticsAPI";
+import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
+
+
   const MyProgress = () => {
- 
+    const UserDetails = useSelector((state) => state.getLoggedInData.data);
+    const [selectRange, setSelectRange] = useState([{
+      startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
+      endDate: new Date(),
+      key: "selection"
+    }]);
+    console.log(UserDetails?.date_joined, "UserDetails?.date_joined")
+    // const [rangeValue, setRangeValue] = useState([
+    //   format(
+    //     Date.parse(UserDetails?.date_joined, "yyyy-MM-ddTHH:mm:ss.SSSZ"),
+    //     "yyyy-MM-dd"
+    //   ),
+    //   Date.now(),
+    // ]);
     const [showPicker, setShowPicker] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarText, setSnackbarText] = useState("");
@@ -58,577 +75,83 @@ import {
     const [totalsummary, setTotalsummary] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedWorkspaces, setSelectedWorkspaces] = useState([]);
-    // const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
-    const Workspaces = [];
-    const UserAnalytics = [];
-    const UserAnalyticstotalsummary = [];
-    // const apiLoading = useSelector(state => state.apiStatus.loading);
-    // const dispatch = useDispatch();
-const ProjectTypes={
-    "Translation": {
-        "description": "Translating sentences from source to target language",
-        "project_types": {
-            "MonolingualTranslation": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "translation/monolingual_translation.jsx",
-                "input_dataset": {
-                    "class": "SentenceText",
-                    "fields": [
-                        "language",
-                        "text"
-                    ],
-                    "display_fields": [
-                        "text"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "TranslationPair",
-                    "save_type": "new_record",
-                    "fields": {
-                        "variable_parameters": [
-                            "output_language"
-                        ],
-                        "copy_from_input": {
-                            "language": "input_language",
-                            "text": "input_text"
-                        },
-                        "annotations": [
-                            "output_text"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <View style=\"font-size: large; display: grid; grid-template: auto/1fr 1fr; column-gap: 1em\">\n    <Header size=\"3\" value=\"Source sentence\"/>\n    <Header size=\"3\" value=\"$output_language translation\"/>\n    <Text name=\"input_text\" value=\"$input_text\"/>\n    <TextArea name=\"output_text\" toName=\"input_text\" rows=\"5\" transcription=\"true\" showSubmitButton=\"true\" maxSubmissions=\"1\" editable=\"false\" required=\"true\"/>\n  </View>\n</View>\n",
-                "domain": "Translation"
-            },
-            "TranslationEditing": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "translation/translation_editing.jsx",
-                "input_dataset": {
-                    "class": "TranslationPair",
-                    "fields": [
-                        "input_language",
-                        "input_text",
-                        "output_language",
-                        "machine_translation"
-                    ],
-                    "display_fields": [
-                        "input_text",
-                        "machine_translation"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "TranslationPair",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "output_text"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <View style=\"font-size: large; display: grid; grid-template: auto/1fr 1fr 1fr; column-gap: 1em\">\n    <Header size=\"3\" value=\"Source sentence\"/>\n    <Header size=\"3\" value=\"$output_language translation\"/>\n    <Header size=\"3\" value=\"Machine translation\"/>\n    <Text name=\"input_text\" value=\"$input_text\"/>\n    <TextArea name=\"output_text\" toName=\"input_text\" value=\"$machine_translation\" rows=\"5\" transcription=\"true\" showSubmitButton=\"true\" maxSubmissions=\"1\" editable=\"false\" required=\"true\"/>\n    <Text name=\"machine_translation\" value=\"$machine_translation\"/>\n  </View>\n</View>\n",
-                "domain": "Translation"
-            },
-            "SemanticTextualSimilarity_Scale5": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "translation/semantic_textual_similarity_scale5.jsx",
-                "input_dataset": {
-                    "class": "TranslationPair",
-                    "fields": [
-                        "input_language",
-                        "input_text",
-                        "output_language",
-                        "output_text"
-                    ],
-                    "display_fields": [
-                        "input_text",
-                        "output_text"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "TranslationPair",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "rating"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n    <Style>.ant-input { font-size: large; }</Style>\n    <View style=\"font-size: large; display: grid; grid-template: auto/1fr 1fr; column-gap: 1em\">\n        <Header size=\"3\" value=\"Source sentence\"/>\n        <Header size=\"3\" value=\"Translated Sentence\"/>\n        <Text name=\"input_text\" value=\"$input_text\"/>\n        <Text name=\"output_text\" value=\"$output_text\"/>\n    </View>\n    <View>\n        <Header size=\"3\" value=\"Rating\"/>\n        <Choices name=\"rating\" toName=\"output_text\" choice=\"single-radio\" required=\"true\" requiredMessage=\"Please select a rating for the translation\">\n            <Choice alias=\"1\" value=\"1, Two sentences are not equivalent, share very little details, and may be about different topics.\" />\n            <Choice alias=\"2\" value=\"2, Two sentences share some details, but are not equivalent.\" />\n            <Choice alias=\"3\" value=\"3, Two sentences are mostly equivalent, but some unimportant details can differ.\" />\n            <Choice alias=\"4\" value=\"4, Two sentences are paraphrases of each other. Their meanings are near-equivalent, with no major differences or information missing.\" />\n            <Choice alias=\"5\" value=\"5, Two sentences are exactly and completely equivalent in meaning and usage expression.\" />\n        </Choices>\n    </View>\n</View>\n",
-                "domain": "Translation"
-            },
-            "ContextualTranslationEditing": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "translation/contextual_translation_editing.jsx",
-                "input_dataset": {
-                    "class": "TranslationPair",
-                    "fields": [
-                        "input_language",
-                        "input_text",
-                        "output_language",
-                        "machine_translation",
-                        "context"
-                    ],
-                    "display_fields": [
-                        "input_text",
-                        "machine_translation"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "TranslationPair",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "output_text"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <View style=\"font-size: large; display: grid; grid-template: auto/1fr 1fr 1fr; column-gap: 1em\">\n    <Header size=\"3\" value=\"Source sentence\"/>\n    <Header size=\"3\" value=\"$output_language translation\"/>\n    <Header size=\"3\" value=\"Machine translation\"/>\n    <Text name=\"input_text\" value=\"$input_text\"/>\n    <TextArea name=\"output_text\" toName=\"input_text\" value=\"$machine_translation\" rows=\"5\" transcription=\"true\" showSubmitButton=\"true\" maxSubmissions=\"1\" editable=\"false\" required=\"true\"/>\n    <Text name=\"machine_translation\" value=\"$machine_translation\"/>\n  </View>\n  <View style=\"font-size: large; display: grid; grid-template: auto; column-gap: 1em\">\n    <Header size=\"3\" value=\"Context\"/>\n    <Text name=\"context\" value=\"$context\"/>\n  </View>\n</View>\n",
-                "domain": "Translation"
-            }
-        }
-    },
-    "OCR": {
-        "description": "Performing OCR on images",
-        "project_types": {
-            "OCRTranscription": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "ocr/ocr_transcription.jsx",
-                "input_dataset": {
-                    "class": "OCRDocument",
-                    "fields": [
-                        "image_url"
-                    ],
-                    "display_fields": [
-                        "image_url"
-                    ],
-                    "prediction": "ocr_prediction_json"
-                },
-                "output_dataset": {
-                    "class": "OCRDocument",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "ocr_transcribed_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <Image name=\"image_url\" value=\"$image_url\"/>\n\n  <Labels name=\"annotation_labels\" toName=\"image_url\" className=\"ignore_assertion\">\n    <Label value=\"Header\" background=\"green\"/>\n    <Label value=\"Body\" background=\"blue\"/>\n    <Label value=\"Footer\" background=\"orange\"/>\n  </Labels>\n\n  <Rectangle name=\"annotation_bboxes\" toName=\"image_url\" strokeWidth=\"3\" className=\"ignore_assertion\"/>\n\n  <TextArea name=\"ocr_transcribed_json\" toName=\"image_url\"\n            editable=\"true\"\n            perRegion=\"true\"\n            required=\"true\"\n            maxSubmissions=\"1\"\n            rows=\"5\"\n            placeholder=\"Recognized Text\"\n            />\n</View>\n",
-                "domain": "OCR"
-            },
-            "OCRTranscriptionEditing": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "ocr/ocr_transcription.jsx",
-                "input_dataset": {
-                    "class": "OCRDocument",
-                    "fields": [
-                        "image_url"
-                    ],
-                    "display_fields": [
-                        "image_url"
-                    ],
-                    "prediction": "ocr_prediction_json"
-                },
-                "output_dataset": {
-                    "class": "OCRDocument",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "ocr_transcribed_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <Image name=\"image_url\" value=\"$image_url\"/>\n\n  <Labels name=\"annotation_labels\" toName=\"image_url\" className=\"ignore_assertion\">\n    <Label value=\"Header\" background=\"green\"/>\n    <Label value=\"Body\" background=\"blue\"/>\n    <Label value=\"Footer\" background=\"orange\"/>\n  </Labels>\n\n  <Rectangle name=\"annotation_bboxes\" toName=\"image_url\" strokeWidth=\"3\" className=\"ignore_assertion\"/>\n\n  <TextArea name=\"ocr_transcribed_json\" toName=\"image_url\"\n            editable=\"true\"\n            perRegion=\"true\"\n            required=\"true\"\n            maxSubmissions=\"1\"\n            rows=\"5\"\n            placeholder=\"Recognized Text\"\n            />\n</View>\n",
-                "domain": "OCR"
-            }
-        }
-    },
-    "Monolingual": {
-        "description": "Monolingual Data Collection",
-        "project_types": {
-            "MonolingualCollection": {
-                "project_mode": "Collection",
-                "output_dataset": {
-                    "class": "BlockText",
-                    "save_type": "new_record",
-                    "fields": {
-                        "annotations": [
-                            "domain",
-                            "text"
-                        ],
-                        "variable_parameters": [
-                            "language"
-                        ]
-                    }
-                },
-                "domain": "Monolingual"
-            },
-            "SentenceSplitting": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "monolingual/sentence_splitting.jsx",
-                "input_dataset": {
-                    "class": "BlockText",
-                    "fields": [
-                        "text",
-                        "language"
-                    ],
-                    "display_fields": [
-                        "text"
-                    ],
-                    "prediction": "splitted_text_prediction"
-                },
-                "output_dataset": {
-                    "class": "BlockText",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "splitted_text"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <Header size=\"3\" value=\"Block Text\"/>\n  <View style=\"font-size: large\">\n    <Text name=\"text\" value=\"$text\" />\n  </View>\n  <Header size=\"3\" value=\"Split into Sentences\" />\n  <View style=\"font-size: large\">\n    <TextArea name=\"splitted_text\" toName =\"text\" rows=\"20\" showSubmitButton=\"true\" maxSubmissions=\"1\" editable=\"true\" required=\"true\"/>\n  </View>\n</View>\n",
-                "domain": "Monolingual"
-            },
-            "ContextualSentenceVerification": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "monolingual/contextual_sentence_verification.jsx",
-                "input_dataset": {
-                    "class": "SentenceText",
-                    "fields": [
-                        "text",
-                        "context",
-                        "language"
-                    ],
-                    "display_fields": [
-                        "text"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "SentenceText",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "corrected_text",
-                            "quality_status"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <View style=\"font-size: large; display: grid; grid-template: auto/1fr 1fr 1fr; column-gap: 1em\">\n    <Header size=\"3\" value=\"$language Sentence\"/>\n    <Header size=\"3\" value=\"Corrected Sentence\"/>\n    <Header size=\"3\" value=\"Quality Status\"/>\n    <Text name=\"text\" value=\"$text\"/>\n    <TextArea name=\"corrected_text\" toName=\"text\" value=\"$text\" rows=\"5\" transcription=\"true\" showSubmitButton=\"true\" maxSubmissions=\"1\" editable=\"false\" required=\"true\"/>\n  \t<Choices name=\"quality_status\" toName=\"text\" choice=\"single-radio\" required=\"true\">\n    \t<Choice value=\"Clean\" selected=\"true\"/>\n    \t<Choice value=\"Profane\" />\n      <Choice value=\"Difficult vocabulary\" />\n      <Choice value=\"Ambiguous sentence\" />\n      <Choice value=\"Context incomplete\" />\n    \t<Choice value=\"Corrupt\" />\n  \t</Choices>\n  </View>\n  <View style=\"font-size: large; display: grid; grid-template: auto; column-gap: 1em\">\n    <Header size=\"3\" value=\"Context\"/>\n    <Text name=\"context\" value=\"$context\"/>\n  </View>\n</View>\n",
-                "domain": "Monolingual"
-            },
-            "ContextualSentenceVerificationAndDomainClassification": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "monolingual/contextual_sentence_verification_and_domain_classifcation.jsx",
-                "input_dataset": {
-                    "class": "SentenceText",
-                    "fields": [
-                        "text",
-                        "context",
-                        "language"
-                    ],
-                    "display_fields": [
-                        "text"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "SentenceText",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "corrected_text",
-                            "quality_status",
-                            "domain"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n  <Style>.ant-input { font-size: large; }</Style>\n  <View style=\"font-size: large; display: grid; grid-template: auto/1fr 1fr 1fr; column-gap: 1em\">\n    <Header size=\"3\" value=\"$language Sentence\"/>\n    <Header size=\"3\" value=\"Corrected Sentence\"/>\n    <Header size=\"3\" value=\"Quality Status\"/>\n    <Text name=\"text\" value=\"$text\"/>\n    <TextArea name=\"corrected_text\" toName=\"text\" value=\"$text\" rows=\"5\" transcription=\"true\" showSubmitButton=\"true\" maxSubmissions=\"1\" editable=\"false\" required=\"true\"/>\n  \t<Choices name=\"quality_status\" toName=\"text\" choice=\"single-radio\" required=\"true\">\n    \t<Choice value=\"Clean\" selected=\"true\"/>\n    \t<Choice value=\"Profane\" />\n        <Choice value=\"Difficult vocabulary\" />\n        <Choice value=\"Ambiguous sentence\" />\n        <Choice value=\"Context incomplete\" />\n    \t<Choice value=\"Corrupt\" />\n  \t</Choices>\n  </View>\n<View visibleWhen=\"choice-selected\" whenTagName=\"quality_status\" whenChoiceValue=\"Clean\"\nstyle=\"font-size: large; display: grid; grid-template: auto; column-gap: 1em\">\n  <Header size=\"3\" value=\"Domain\"/> \n <Taxonomy name=\"domain\" toName=\"text\" maxUsages=\"1\" required=\"true\">\n      <Choice value=\"None\" selected=\"true\"/>\n      <Choice value=\"General\" />\n      <Choice value=\"News\" />\n      <Choice value=\"Education\" />\n      <Choice value=\"Legal\" />\n      <Choice value=\"Government-Press-Release\" />\n      <Choice value=\"Healthcare\" />\n      <Choice value=\"Agriculture\" />\n      <Choice value=\"Automobile\" />\n      <Choice value=\"Tourism\" />\n      <Choice value=\"Financial\" />\n      <Choice value=\"Movies\" />\n      <Choice value=\"Subtitles\" />\n      <Choice value=\"Sports\" />\n      <Choice value=\"Technology\" />\n      <Choice value=\"Lifestyle\" />\n      <Choice value=\"Entertainment\" />\n      <Choice value=\"Parliamentary\" />\n      <Choice value=\"Art-and-Culture\" />\n      <Choice value=\"Economy\" />\n      <Choice value=\"History\" />\n      <Choice value=\"Philosophy\" />\n      <Choice value=\"Religion\"/>\n      <Choice value=\"National-Security-and-Defence\"/>\n      <Choice value=\"Literature\"/>\n      <Choice value=\"Geography\"/>\n  \t</Taxonomy>\n</View>\n  <View style=\"font-size: large; display: grid; grid-template: auto; column-gap: 1em\">\n    <Header size=\"3\" value=\"Context\"/>\n    <Text name=\"context\" value=\"$context\"/>\n  </View>\n</View>\n",
-                "domain": "Monolingual"
-            }
-        }
-    },
-    "Conversation": {
-        "description": "Translation of Conversation data",
-        "project_types": {
-            "ConversationTranslation": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "conversation/conversation_translation.jsx",
-                "input_dataset": {
-                    "class": "Conversation",
-                    "fields": [
-                        "domain",
-                        "topic",
-                        "scenario",
-                        "prompt",
-                        "speaker_count",
-                        "speakers_json",
-                        "conversation_json",
-                        "machine_translated_conversation_json"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "Conversation",
-                    "save_type": "new_record",
-                    "fields": {
-                        "variable_parameters": [
-                            "language"
-                        ],
-                        "copy_from_input": {
-                            "domain": "domain",
-                            "topic": "topic",
-                            "scenario": "scenario",
-                            "prompt": "prompt",
-                            "speaker_count": "speaker_count",
-                            "speakers_json": "speakers_json",
-                            "machine_translated_conversation_json": "machine_translated_conversation_json"
-                        },
-                        "annotations": [
-                            "conversation_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n\n</View>",
-                "domain": "Conversation"
-            },
-            "ConversationTranslationEditing": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "conversation/conversation_translation.jsx",
-                "input_dataset": {
-                    "class": "Conversation",
-                    "parent_class": "Conversation",
-                    "fields": [
-                        "domain",
-                        "topic",
-                        "scenario",
-                        "prompt",
-                        "speaker_count",
-                        "speakers_json",
-                        "machine_translated_conversation_json",
-                        "parent_data",
-                        "language"
-                    ],
-                    "display_fields": [
-                        "domain",
-                        "topic",
-                        "scenario",
-                        "prompt"
-                    ],
-                    "copy_from_parent": {
-                        "conversation_json": "source_conversation_json"
-                    }
-                },
-                "output_dataset": {
-                    "class": "Conversation",
-                    "save_type": "in_place",
-                    "fields": {
-                        "variable_parameters": [
-                            "language"
-                        ],
-                        "annotations": [
-                            "conversation_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n\n</View>",
-                "domain": "Conversation"
-            },
-            "ConversationVerification": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "conversation/conversation_verification.jsx",
-                "input_dataset": {
-                    "class": "Conversation",
-                    "fields": [
-                        "domain",
-                        "topic",
-                        "scenario",
-                        "prompt",
-                        "speaker_count",
-                        "speakers_json",
-                        "unverified_conversation_json"
-                    ]
-                },
-                "output_dataset": {
-                    "class": "Conversation",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "conversation_quality_status",
-                            "conversation_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n\n</View>",
-                "domain": "Conversation"
-            }
-        }
-    },
-    "Audio": {
-        "description": "Projects related to audio-processing",
-        "project_types": {
-            "AudioTranscription": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "audio/audio_transcription.jsx",
-                "input_dataset": {
-                    "class": "SpeechConversation",
-                    "fields": [
-                        "audio_url",
-                        "reference_raw_transcript",
-                        "audio_duration",
-                        "scenario",
-                        "domain",
-                        "speakers_json"
-                    ],
-                    "display_fields": [
-                        "scenario",
-                        "audio_url"
-                    ],
-                    "prediction": "machine_transcribed_json"
-                },
-                "output_dataset": {
-                    "class": "SpeechConversation",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "transcribed_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View> \n\n   <Header value=\"Speaker Details\" />          \n   {speaker_0_details ?\n   <Text name=\"speaker_0_details\" className=\"ignore_assertion\"\n    value=\"$speaker_0_details\"/> : null} \n   {speaker_1_details ?\n   <Text name=\"speaker_1_details\" className=\"ignore_assertion\"\n    value=\"$speaker_1_details\"/> : null} \n\n  <Labels name=\"labels\" toName=\"audio_url\" className=\"ignore_assertion\"> \n    {speaker_0_details ? <Label value=\"Speaker 0\" />  : null} \n    {speaker_1_details ? <Label value=\"Speaker 1\" />  : null}\n  </Labels> \n  <AudioPlus name=\"audio_url\" value=\"$audio_url\"/> \n  \n  <View visibleWhen=\"region-selected\"> \n    <Header value=\"Provide Transcription\" /> \n  </View> \n  <View style=\"overflow: auto; width: 50%;\">\n<TextArea name=\"transcribed_json\" transcription=\"true\" toName=\"audio_url\" \n            rows=\"2\" editable=\"false\" maxSubmissions=\"1\"\n            perRegion=\"true\" required=\"true\"/>\n  </View>\n              \n  {reference_raw_transcript ? <Header value=\"Reference Transcript\" /> \n   <Text name=\"reference_raw_transcript\" \n    value=\"$reference_raw_transcript\"/> : null}\n\n   \n</View> \n \n",
-                "domain": "Audio"
-            },
-            "AudioSegmentation": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "audio/audio_segmentation.jsx",
-                "input_dataset": {
-                    "class": "SpeechConversation",
-                    "fields": [
-                        "audio_url",
-                        "audio_duration",
-                        "scenario",
-                        "domain",
-                        "speakers_json"
-                    ],
-                    "display_fields": [
-                        "scenario",
-                        "audio_url"
-                    ],
-                    "prediction": "machine_transcribed_json"
-                },
-                "output_dataset": {
-                    "class": "SpeechConversation",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "prediction_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View> \n\n   <Header value=\"Speaker Details\" />          \n   {speaker_0_details ?\n   <Text name=\"speaker_0_details\" className=\"ignore_assertion\"\n    value=\"$speaker_0_details\"/> : null} \n   {speaker_1_details ?\n   <Text name=\"speaker_1_details\" className=\"ignore_assertion\"\n    value=\"$speaker_1_details\"/> : null} \n\n  <Labels name=\"labels\" toName=\"audio_url\" className=\"ignore_assertion\"> \n    {speaker_0_details ? <Label value=\"Speaker 0\" />  : null} \n    {speaker_1_details ? <Label value=\"Speaker 1\" />  : null}\n  </Labels> \n  <AudioPlus name=\"audio_url\" value=\"$audio_url\"/> \n\n   \n</View> ",
-                "domain": "Audio"
-            },
-            "AudioTranscriptionEditing": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "audio/audio_transcription.jsx",
-                "input_dataset": {
-                    "class": "SpeechConversation",
-                    "fields": [
-                        "audio_url",
-                        "reference_raw_transcript",
-                        "audio_duration",
-                        "scenario",
-                        "domain",
-                        "speakers_json"
-                    ],
-                    "display_fields": [
-                        "scenario",
-                        "audio_url"
-                    ],
-                    "prediction": "machine_transcribed_json"
-                },
-                "output_dataset": {
-                    "class": "SpeechConversation",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "transcribed_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View> \n\n   <Header value=\"Speaker Details\" />          \n   {speaker_0_details ?\n   <Text name=\"speaker_0_details\" className=\"ignore_assertion\"\n    value=\"$speaker_0_details\"/> : null} \n   {speaker_1_details ?\n   <Text name=\"speaker_1_details\" className=\"ignore_assertion\"\n    value=\"$speaker_1_details\"/> : null} \n\n  <Labels name=\"labels\" toName=\"audio_url\" className=\"ignore_assertion\"> \n    {speaker_0_details ? <Label value=\"Speaker 0\" />  : null} \n    {speaker_1_details ? <Label value=\"Speaker 1\" />  : null}\n  </Labels> \n  <AudioPlus name=\"audio_url\" value=\"$audio_url\"/> \n  \n  <View visibleWhen=\"region-selected\"> \n    <Header value=\"Provide Transcription\" /> \n  </View> \n  <View style=\"overflow: auto; width: 50%;\">\n<TextArea name=\"transcribed_json\" transcription=\"true\" toName=\"audio_url\" \n            rows=\"2\" editable=\"false\" maxSubmissions=\"1\"\n            perRegion=\"true\" required=\"true\"/>\n  </View>\n              \n  {reference_raw_transcript ? <Header value=\"Reference Transcript\" /> \n   <Text name=\"reference_raw_transcript\" \n    value=\"$reference_raw_transcript\"/> : null}\n\n   \n</View> \n \n",
-                "domain": "Audio"
-            },
-            "AcousticNormalisedTranscriptionEditing": {
-                "project_mode": "Annotation",
-                "label_studio_jsx_file": "audio/acoustic_transcription.jsx",
-                "input_dataset": {
-                    "class": "SpeechConversation",
-                    "fields": [
-                        "audio_url",
-                        "reference_raw_transcript",
-                        "audio_duration",
-                        "scenario",
-                        "domain",
-                        "speakers_json"
-                    ],
-                    "display_fields": [
-                        "scenario",
-                        "audio_url"
-                    ],
-                    "prediction": "machine_transcribed_json"
-                },
-                "output_dataset": {
-                    "class": "SpeechConversation",
-                    "save_type": "in_place",
-                    "fields": {
-                        "annotations": [
-                            "transcribed_json"
-                        ]
-                    }
-                },
-                "label_studio_jsx_payload": "<View>\n\n  <Header value=\"Speaker Details\" />\n  {speaker_0_details ?\n    <Text name=\"speaker_0_details\" className=\"ignore_assertion\"\n      value=\"$speaker_0_details\" /> : null}\n  {speaker_1_details ?\n    <Text name=\"speaker_1_details\" className=\"ignore_assertion\"\n      value=\"$speaker_1_details\" /> : null}\n\n  <Labels name=\"labels\" toName=\"audio_url\" className=\"ignore_assertion\">\n    {speaker_0_details ? <Label value=\"Speaker 0\" /> : null}\n    {speaker_1_details ? <Label value=\"Speaker 1\" /> : null}\n  </Labels>\n  <AudioPlus name=\"audio_url\" value=\"$audio_url\" />\n\n  <View visibleWhen=\"region-selected\">\n    <Header value=\"Provide Transcription\" />\n  </View>\n  <View style=\"overflow: auto; width: 50%;\">\n    <TextArea name=\"verbatim_transcribed_json\" transcription=\"true\" toName=\"audio_url\" \n      rows=\"2\" editable=\"false\" maxSubmissions=\"1\"\n      perRegion=\"true\" required=\"true\" className=\"ignore_assertion\"/>\n  </View>\n  <View style=\"display: none;\">\n    <TextArea name=\"acoustic_normalised_transcribed_json\" toName=\"audio_url\" perRegion=\"true\" className=\"ignore_assertion\" />\n    <TextArea name=\"standardised_transcription\" toName=\"audio_url\" className=\"ignore_assertion\"/>\n  </View>\n  {reference_raw_transcript ? <Header value=\"Reference Transcript\" /> \n   <Text name=\"reference_raw_transcript\" \n    value=\"$reference_raw_transcript\"/> : null}\n\n</View >\n\n",
-                "domain": "Audio"
-            }
-        }
-    }
-}
 
-    const UserDetails= {
-        "id": 1,
-        "username": "shoonya",
-        "email": "shoonya@ai4bharat.org",
-        "languages": [],
-        "availability_status": 1,
-        "enable_mail": false,
-        "first_name": "Admin",
-        "last_name": "AI4B",
-        "phone": "",
-        "profile_photo": "",
-        "role": 6,
-        "organization": {
-            "id": 1,
-            "title": "AI4Bharat",
-            "email_domain_name": "ai4bharat.org",
-            "created_by": {
-                "username": "shoonya",
-                "email": "shoonya@ai4bharat.org",
-                "first_name": "Admin",
-                "last_name": "AI4B",
-                "role": 6
-            },
-            "created_at": "2022-04-24T13:11:30.339610Z"
-        },
-        "unverified_email": "shoonya@ai4bharat.org",
-        "date_joined": "2022-04-24T07:40:11Z",
-        "participation_type": 3,
-        "prefer_cl_ui": false,
-        "is_active": true
-    };
-    
-    const [selectRange, setSelectRange] = useState([{
-        startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-        endDate: new Date(),
-        key: "selection"
-      }]);
-    
+    const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+    const Workspaces = useSelector((state) => state.GetWorkspace.data);
+    const UserAnalytics = useSelector((state) => state.getUserAnalytics.data.project_summary);
+    const UserAnalyticstotalsummary = useSelector((state) => state.getUserAnalytics.data.total_summary);
+    const apiLoading = useSelector(state => state.apiStatus.loading);
+    const dispatch = useDispatch();
+  /* eslint-disable react-hooks/exhaustive-deps */
 
+    const classes = DatasetStyle();
+    useEffect(() => {
+      dispatch(fetchProjectDomains());
+      // const workspacesObj = new GetWorkspacesAPI(1, 9999);
+      // dispatch(APITransport(workspacesObj));
+  
+    }, []);
+    useEffect(() => {
+      setLoading(apiLoading);
+    }, [apiLoading])
+  
+  
+    // useEffect(() => {
+    //   if (UserDetails && Workspaces?.results) {
+    //     let workspacesList = [];
+    //     Workspaces.results.forEach((item) => {
+    //       workspacesList.push({ id: item.id, name: item.workspace_name });
+    //     });
+    //     setWorkspaces(workspacesList);
+    //     setSelectedWorkspaces(workspacesList.map(item => item.id))
+    //     setSelectedType("ContextualTranslationEditing");
+    //   }
+    // }, [UserDetails, Workspaces]);
+  
+    useEffect(() => {
+      if (ProjectTypes) {
+        let types = [];
+        Object.keys(ProjectTypes).forEach((key) => {
+          let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+          types.push(...subTypes);
+        });
+        setProjectTypes(types);
+        types?.length && setSelectedType(types[3]);
+      }
+    }, [ProjectTypes]);
+  
+    useEffect(() => {
+      if (UserAnalytics?.message) {
+        setSnackbarText(UserAnalytics?.message);
+        showSnackbar();
+        return;
+      }
+      if (UserAnalytics?.length) {
+        let tempColumns = [];
+        let tempSelected = [];
+        Object.keys(UserAnalytics[0]).forEach((key) => {
+          tempColumns.push({
+            name: key,
+            label: key,
+            options: {
+              filter: false,
+              sort: false,
+              align: "center",
+            },
+          });
+          tempSelected.push(key);
+        });
+        setColumns(tempColumns);
+        setReportData(UserAnalytics);
+        setSelectedColumns(tempSelected);
+      } else {
+        setColumns([]);
+        setReportData([]);
+        setSelectedColumns([]);
+      }
+      setShowSpinner(false);
+    }, [UserAnalytics]);
+  
     const handleRangeChange = (ranges) => {
       const { selection } = ranges;
       if (selection.endDate > new Date()) selection.endDate = new Date();
@@ -647,20 +170,20 @@ const ProjectTypes={
       const reviewdata = {
         user_id: id,
         project_type: selectedType,
-        reports_type: radiobutton === "AnnotatationReports" ? "annotation" :radiobutton ==="ReviewerReports" ? "review" : "supercheck" ,
+        reports_type: radiobutton === "AnnotatationReports" ? "annotation" : radiobutton === "ReviewerReports" ? "review" : "supercheck",
         start_date: format(selectRange[0].startDate, 'yyyy-MM-dd'),
         end_date: format(selectRange[0].endDate, 'yyyy-MM-dd'),
   
       }
   
-      
+  
       const progressObj = new GetUserAnalyticsAPI(reviewdata);
       dispatch(APITransport(progressObj));
       // setShowSpinner(true);
       setTotalsummary(true)
   
     };
-  
+    console.log(UserAnalyticstotalsummary);
     const showSnackbar = () => {
       setSnackbarOpen(true);
     };
@@ -712,6 +235,7 @@ const ProjectTypes={
       jumpToPage: true,
       customToolbar: renderToolBar,
     };
+   
     return (
       <ThemeProvider theme={themeDefault}>
         {/* <Header /> */}
