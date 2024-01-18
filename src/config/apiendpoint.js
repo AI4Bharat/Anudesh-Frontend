@@ -1,5 +1,6 @@
 const apiendpoint =  {
   login:"/users/auth/jwt/create",
+  googleLogin:"/users/auth/googleLogin",
   getProjects:"/projects/",
   getWorkspaces:"/workspaces/",
   fetch:"/users/account/",

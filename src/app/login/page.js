@@ -22,6 +22,7 @@ import LoginAPI from "../actions/api/user/Login";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import GoogleLoginAPI from "../actions/api/user/GoogleLogin";
 
 export default function Login() {
     const router = useRouter()
@@ -62,7 +63,6 @@ export default function Login() {
  
    const handleSubmit = async () => {
     // setLoading(true);
-
     const apiObj = new LoginAPI(credentials.email.toLowerCase(), credentials.password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
@@ -107,8 +107,7 @@ export default function Login() {
                         name="email"
                         onChange={handleFieldChange}
                         value={credentials["email"]}
-                        placeholder={
-                          ("enterEmailId")}
+                        placeholder={translate("enterEmailId")}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -171,7 +170,6 @@ export default function Login() {
             />
         );
     };
- /* eslint-disable react-hooks/exhaustive-deps */
 
     const googleLogin = () => {
         if (typeof window !== 'undefined') {
@@ -184,9 +182,28 @@ export default function Login() {
                     variant: "success",
                   });
                 const { user } = result;
-                const idTokenResult = await user.getIdTokenResult();
-                window.localStorage.setItem("email", user.email);
-                window.localStorage.setItem("anudesh_access_token", idTokenResult.token);
+                const fireResult = await user.getIdTokenResult();
+                const apiObj = new GoogleLoginAPI(fireResult.token);
+                const res = await fetch(apiObj.apiEndPoint(), {
+                    method: "POST",
+                    body: JSON.stringify(apiObj.getBody()),
+                    headers: apiObj.getHeaders().headers,
+                });
+
+                const rsp_data = await res.json();
+                if (res.ok && typeof window !== 'undefined') {
+                    localStorage.setItem("anudesh_access_token", rsp_data.access);
+                    localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
+                    localStorage.setItem("email_id", fireResult.claims.email.toLowerCase());
+                    getLoggedInUserData();
+                    router.push("/");
+                } else{
+                    setSnackbarInfo({
+                        open: true,
+                        message: rsp_data?.message,
+                        variant: "error",
+                    })
+                }
                 getLoggedInUserData();
                 router.push("/");
             })
