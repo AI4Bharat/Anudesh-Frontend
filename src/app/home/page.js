@@ -11,6 +11,7 @@ export default function Home() {
                 <div className="pt-8 pb-16 flex justify-between px-16">
                     <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={90} height={90}></Image>
                     <div className="flex gap-6">
+                        <button onClick={() => router.push('/login')} className="text-xl font-medium hover:underline">Login</button>
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
                     </div>

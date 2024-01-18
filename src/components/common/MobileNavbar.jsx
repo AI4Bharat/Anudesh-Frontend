@@ -4,8 +4,7 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemText,
-  makeStyles,
+//   makeStyles,
   Grid,
   AppBar, 
   Divider,
@@ -13,24 +12,23 @@ import {
   Typography,
   Box,
   FormControlLabel,
-  Checkbox
 } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu } from "@mui/icons-material";
 
-import headerStyle from "../styles/Header";
+import headerStyle from "@/styles/Header";
 
-const useStyles = makeStyles(() => ({
-  Navlink: {
-    textDecoration: "none",
-    color: "blue",
-    fontSize: "20px",
-  },
-  icon: {
-    color: "white",
-  },
-}));
+// const useStyles = makeStyles(() => ({
+//   Navlink: {
+//     textDecoration: "none",
+//     color: "blue",
+//     fontSize: "20px",
+//   },
+//   icon: {
+//     color: "white",
+//   },
+// }));
 
 function MobileNavbar(props) {
   const { loggedInUserData, appSettings, userSettings, tabs } = props;
@@ -144,8 +142,9 @@ function MobileNavbar(props) {
             }}
         > 
             <Grid item sx={{ display: "flex", alignItems: "center" }}>
-                <Link to="/projects">
-                    <Image src={Shoonya_Logo} alt="logo" className="headerLogo" style={{marginBottom: "5%"}} />
+                <Link href="/projects">
+                    Anudesh
+                    {/* <Image src={Shoonya_Logo} alt="logo" className="headerLogo" style={{marginBottom: "5%"}} /> */}
                 </Link>
                 <Typography
                   variant="h4"
@@ -157,7 +156,7 @@ function MobileNavbar(props) {
 
                   }}
                 >
-                  Shoonya
+                  Anudesh
                 </Typography>
             </Grid>
             <Grid item>

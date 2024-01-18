@@ -15,20 +15,25 @@ import CustomButton from "../../components/common/Button";
 import APITransport from "@/Lib/apiTransport/apitransport";
 import { useRouter } from 'next/navigation';
 import { translate } from "@/config/localisation";
-import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import "./login.css";
 import LoginAPI from "../actions/api/user/Login";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import GoogleLoginAPI from "../actions/api/user/GoogleLogin";
+import { authenticateUser } from "@/utils/utils";
+import FetchLoggedInUserDataAPI from "@/Lib/Features/user/FetchLoggedInUserData";
 
 export default function Login() {
     const router = useRouter()
     const dispatch=useDispatch()
-    // const accessToken = localStorage.getItem("anudesh_access_token");
-    // const refreshToken = localStorage.getItem("anudesh_refresh_token");
+    
+    useEffect(() => {
+        if (authenticateUser()) {
+          router.push('/dashboard');
+        }
+      }, []);
+      
     const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
@@ -43,7 +48,6 @@ export default function Login() {
         password: "",
         showPassword: false,
     });
-    /* eslint-disable react-hooks/exhaustive-deps */
 
     const handleFieldChange = (event) => {
         event.preventDefault();
@@ -52,16 +56,13 @@ export default function Login() {
             [event.target.name]: event.target.value,
         }));
     };
-      const getLoggedInUserData = () => {
-        dispatch(FetchLoggedInUserData("me"))
-      };
-      const loggedInUserData = useSelector(
-        (state) => state.getLoggedInData?.data
-      );
-      console.log(loggedInUserData,"lll");
+    const getLoggedInUserData = () => {
+        const loggedInUserObj = new FetchLoggedInUserDataAPI("me");
+        dispatch(APITransport(loggedInUserObj));
+    };
   
- 
-   const handleSubmit = async () => {
+    
+    const handleSubmit = async () => {
     // setLoading(true);
     const apiObj = new LoginAPI(credentials.email.toLowerCase(), credentials.password);
     const res = await fetch(apiObj.apiEndPoint(), {
@@ -71,14 +72,12 @@ export default function Login() {
     });
 
     const rsp_data = await res.json();
-    // console.log(rsp_data)
     if (res.ok && typeof window !== 'undefined') {
-
       localStorage.setItem("anudesh_access_token", rsp_data.access);
       localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
       localStorage.setItem("email_id", credentials.email.toLowerCase());
       getLoggedInUserData();
-      router.push("/");
+      router.push("/dashboard");
     } else{
       setSnackbarInfo({
         open: true,
@@ -196,7 +195,7 @@ export default function Login() {
                     localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
                     localStorage.setItem("email_id", fireResult.claims.email.toLowerCase());
                     getLoggedInUserData();
-                    router.push("/");
+                    router.push("/dashboard");
                 } else{
                     setSnackbarInfo({
                         open: true,
@@ -204,8 +203,6 @@ export default function Login() {
                         variant: "error",
                     })
                 }
-                getLoggedInUserData();
-                router.push("/");
             })
             .catch((err) => {
                 console.log(err);
