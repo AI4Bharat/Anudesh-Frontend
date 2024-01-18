@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
 import Link from 'next/link'
 import  "../../styles/Dataset.css";
+import DatasetStyle from "@/styles/dataset";
 // import { useDispatch, useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
 import TablePaginationActions from "../common/TablePaginationActions";
@@ -17,7 +18,7 @@ import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 const Projectcard = (props) => {
   const { projectData, selectedFilters, setsSelectedFilters } = props;
-  
+  const classes = DatasetStyle();
 //   const SearchProject = useSelector((state) => state.SearchProjectCards.data);
   const SearchProject = []
   const [page, setPage] = useState(0);

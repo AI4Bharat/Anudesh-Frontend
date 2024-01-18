@@ -30,10 +30,12 @@ import SendOrganizationUserReports from './Features/projects/SendOrganizationUse
 import domainsReducer from './Features/actions/domains';
 import projectsReducer from './Features/actions/projects';
 import userReducer from './Features/actions/user';
+import getAllTaskData from './Features/projects/getAllTaskData';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        getAllTaskData:getAllTaskData,
         domains: domainsReducer,
         projects: projectsReducer,
         user: userReducer,
