@@ -30,7 +30,7 @@ import {
 //   import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
   import MUIDataTable from "mui-datatables";
   import  "../../styles/Dataset.css";
-  import DatasetStyle from "../../styles/Dataset";
+  import DatasetStyle from "../../styles/dataset";
   import GetProjectDomainsAPI from "@/app/actions/api/workspace/GetProjectDomainsAPI";
   import ColumnList from "../common/ColumnList";
   import CustomizedSnackbars from "../common/Snackbar";

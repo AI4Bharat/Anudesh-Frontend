@@ -24,7 +24,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterList from "./FilterList";
 // import PullNewBatchAPI from "../../../../redux/actions/api/Tasks/PullNewBatch";

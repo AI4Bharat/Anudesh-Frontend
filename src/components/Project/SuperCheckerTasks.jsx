@@ -31,7 +31,7 @@ import {
 import CustomizedSnackbars from "../common/Snackbar";
 import tableTheme from "../../themes/tableTheme";
 import ColumnList from "../../components/common/ColumnList";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AllTasksFilterList from "../../components/Project/AllTasksFilterList";

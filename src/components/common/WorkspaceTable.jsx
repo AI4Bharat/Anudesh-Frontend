@@ -7,7 +7,7 @@ import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
 import APITransport from "@/Lib/apiTransport/apitransport";
 import tableTheme from "../../themes/tableTheme";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
 import Link from 'next/link';
 import { setWorkspace } from "@/Lib/Features/GetWorkspace";

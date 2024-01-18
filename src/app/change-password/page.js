@@ -13,7 +13,7 @@ import { translate } from "../../config/localisation";
 //   import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/common/Button";
 import OutlinedTextField from "../../components/common/OutlinedTextField";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import ChangePasswordAPI from "../actions/api/user/ChangePasswordAPI"
 import Spinner from "../../components/common/Spinner";

@@ -17,7 +17,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { translate } from "../../config/localisation";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import roles from "../../utils/Role";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";

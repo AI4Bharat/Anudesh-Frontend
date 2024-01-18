@@ -19,7 +19,7 @@ import {
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
 import themeDefault from "../../themes/theme";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
   import componentType from "../../config/PageType";

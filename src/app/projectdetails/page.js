@@ -25,7 +25,7 @@ import {
 
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-  import DatasetStyle from "../../styles/Dataset";
+  import DatasetStyle from "../../styles/dataset";
   import ProjectDescription from "../../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import userRole from "../../utils/UsersRolesList";

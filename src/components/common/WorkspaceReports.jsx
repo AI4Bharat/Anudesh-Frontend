@@ -25,7 +25,7 @@ import GetWorkspaceProjectReportAPI from "../../app/actions/api/workspace/GetWor
 import SendWorkspaceUserReportsAPI from "../../app/actions/api/workspace/SendWorkspaceUserReportsAPI";
 import FetchLanguagesAPI from "../../app/actions/api/workspace/FetchLanguagesAPI.js";
 import GetWorkspaceDetailedProjectReportsAPI from "../../app/actions/api/workspace/GetWorkspaceDetailedProjectReportsAPI";
-import DatasetStyle from "../../styles/Dataset";
+import DatasetStyle from "../../styles/dataset";
 import ColumnList from "../common/ColumnList";
 import { isSameDay, format } from 'date-fns';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
