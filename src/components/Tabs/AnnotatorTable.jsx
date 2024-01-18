@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
-import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
+// import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
 import { ThemeProvider,Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
@@ -13,7 +13,7 @@ import Search from "../common/Search";
 import RemoveWorkspaceFrozenUserAPI from "@/app/actions/api/workspace/RemoveWorkspaceFrozenUserAPI";
 import TextField from '@mui/material/TextField';
 import LoginAPI from "@/app/actions/api/user/Login";
-import { fetchWorkspacesAnnotatorsData } from "@/Lib/Features/GetWorkspacesAnnotatorsData";
+import { fetchWorkspacesAnnotatorsData } from "../../Lib/Features/GetWorkspacesAnnotatorsData";
 
 
 const AnnotatorsTable = (props) => {
