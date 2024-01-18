@@ -13,7 +13,7 @@ import Search from "../common/Search";
 import RemoveWorkspaceFrozenUserAPI from "@/app/actions/api/workspace/RemoveWorkspaceFrozenUserAPI";
 import TextField from '@mui/material/TextField';
 import LoginAPI from "@/app/actions/api/user/Login";
-import { fetchWorkspacesAnnotatorsData } from "../../Lib/Features/GetWorkspacesAnnotatorsData";
+import { fetchWorkspacesAnnotatorsData } from "../../Lib/Features/getWorkspacesAnnotatorsData";
 
 
 const AnnotatorsTable = (props) => {
