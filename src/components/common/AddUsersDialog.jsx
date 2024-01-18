@@ -88,7 +88,7 @@ const getAvailableUsers = (userType, projectDetails, workspaceAnnotators, worksp
       return orgUsers
         ?.filter(
           (orgUser) =>
-            workspaceAnnotators.findIndex(
+            workspaceAnnotators?.findIndex(
               (annotator) => annotator?.id === orgUser?.id
             ) === -1 
         )
@@ -98,7 +98,7 @@ const getAvailableUsers = (userType, projectDetails, workspaceAnnotators, worksp
       return orgUsers
         ?.filter(
           (orgUser) =>
-            workspaceManagers.findIndex(
+            workspaceManagers?.findIndex(
               (manager) =>  manager?.id === orgUser?.id
             ) === -1  && orgUser?.role != 1 && orgUser?.role != 2 && orgUser?.role != 3
         )
