@@ -10,6 +10,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import TextField from '@mui/material/TextField';
 
 function WorkspaceSetting(props) {
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const { onArchiveWorkspace } = props
   console.log(props, "props")
   

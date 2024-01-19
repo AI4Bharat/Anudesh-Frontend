@@ -87,6 +87,7 @@ const CreateProject = () => {
   const [searchAnchor, setSearchAnchor] = useState(null);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
+ /* eslint-disable react-hooks/exhaustive-deps */
 
   const searchOpen = Boolean(searchAnchor);
   const excludeKeys = [

@@ -21,7 +21,8 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
   const TASK_TYPES = ["annotation", "review","supercheck"]
   
   const RecentTasks = () => {
-  
+   /* eslint-disable react-hooks/exhaustive-deps */
+
     // const { id } = useParams();
     const id = 2
     const dispatch = useDispatch();

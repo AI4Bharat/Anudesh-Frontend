@@ -45,6 +45,8 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
 
 
   const   MyProgress = () => {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const UserDetails = useSelector((state) => state.getLoggedInData.data);
     const [selectRange, setSelectRange] = useState([{
       startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),

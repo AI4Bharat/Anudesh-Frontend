@@ -17,6 +17,8 @@ export default function ProgressPage () {
   // const { id } = useParams();
   const id = 1;
   const dispatch = useDispatch();
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   // const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);

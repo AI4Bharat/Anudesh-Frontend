@@ -41,6 +41,8 @@ const ScheduleMails = () => {
     "OCRTranscription",
     "OCRTranscriptionEditing",
   ]);
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const [schedule, setSchedule] = useState("Daily");
   const [scheduleDay, setScheduleDay] = useState(1);
   const [workspaceId, setWorkspaceId] = useState(0);

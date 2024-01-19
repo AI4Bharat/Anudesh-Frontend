@@ -34,6 +34,7 @@ const DialogHeading = {
   [addUserTypes.PROJECT_SUPERCHECKER]: 'Add Project SuperChecker',
 }
 
+ /* eslint-disable react-hooks/exhaustive-deps */
 
 // fetch all users in the current organization/workspace
 const fetchAllUsers = (userType, id, dispatch) => {
