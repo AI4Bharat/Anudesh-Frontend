@@ -62,6 +62,8 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   }
   
   const DetailsViewPage = (props) => {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const router = useRouter();
     const CustomButton = ({ label, buttonVariant, color, disabled = false, ...rest }) => (
         <Button {...rest} variant={buttonVariant ? buttonVariant : "contained"} color={color ? color : "primary"} disabled={disabled}>

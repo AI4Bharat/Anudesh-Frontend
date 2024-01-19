@@ -15,6 +15,7 @@ import UserMappedByRole from "../../utils/UserMappedByRole";
 import {participationType} from '../../config/dropDownValues';
 import { MenuProps } from "../../utils/utils";
 import CustomButton from "../../components/common/Button";
+import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 
 const ProfileDetails = () => {
 //   const { id } = useParams();
@@ -26,18 +27,18 @@ const [originalEmail, setOriginalEmail] = useState("");
 const [enableVerifyEmail, setEnableVerifyEmail] = useState(false);
 const [showEmailDialog, setShowEmailDialog] = useState(false);
 const [emailVerifyLoading, setEmailVerifyLoading] = useState(false);
-const navigate = useNavigate();
+// const navigate = useNavigate();
+/* eslint-disable react-hooks/exhaustive-deps */
 
 // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
-const userDetails = useSelector((state) => state.fetchUsersById.data);
-const LoggedInUserId = useSelector((state) => state.fetchLoggedInUserData.data.id);
+const userDetails = useSelector((state) => state.getUserById?.data);
+const LoggedInUserId = useSelector((state) => state.getLoggedInData?.data.id);
 const dispatch = useDispatch();
-const LanguageList = useSelector(state => state.fetchLanguages.data);
-console.log(userDetails)
+const LanguageList = useSelector(state => state.fetchLanguages?.data);
+console.log(userDetails?.city,"city",LoggedInUserId)
 const getLanguageList = () => {
-    const langObj = new FetchLanguagesAPI();
 
-    dispatch(APITransport(langObj));
+    dispatch(fetchLanguages());
 }
 /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -52,17 +53,19 @@ useEffect(() => {
 }, [LanguageList]);
 
 useEffect(() => {
+  if(userDetails?.length>0){
   setNewDetails({
-    username: userDetails.username,
-    first_name: userDetails.first_name,
-    last_name: userDetails.last_name,
-    languages: userDetails.languages,
-    phone: userDetails.phone,
-    availability_status:userDetails.availability_status,
-    participation_type: userDetails.participation_type
+    username: userDetails?.username,
+    first_name: userDetails?.first_name,
+    last_name: userDetails?.last_name,
+    languages: userDetails?.languages,
+    phone: userDetails?.phone,
+    availability_status:userDetails?.availability_status,
+    participation_type: userDetails?.participation_type
   });
-  setEmail(userDetails.email);
-  setOriginalEmail(userDetails.email);
+  setEmail(userDetails?.email);
+  setOriginalEmail(userDetails?.email);
+}
 }, [userDetails]);
 
 return (
@@ -95,7 +98,7 @@ return (
               fullWidth
               label="First Name"
               name="first_name"
-              value={newDetails?.first_name}
+              value={userDetails?.first_name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -105,7 +108,7 @@ return (
               fullWidth
               label="Last Name"
               name="last_name"
-              value={newDetails?.last_name}
+              value={userDetails?.last_name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -124,7 +127,7 @@ return (
               fullWidth
               label="Phone"
               name="phone"
-              value={newDetails?.phone}
+              value={userDetails?.phone}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -133,7 +136,7 @@ return (
               disabled
               fullWidth
               label="Role"
-              value={UserMappedByRole(userDetails.role)?.name}
+              value={UserMappedByRole(userDetails?.role)?.name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -144,7 +147,7 @@ return (
               fullWidth
               label="Username"
               name="username"
-              value={newDetails?.username}
+              value={userDetails?.username}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -153,7 +156,7 @@ return (
               disabled
               fullWidth
               label="Organization"
-              value={userDetails.organization?.title}
+              value={userDetails?.organization?.title}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -164,7 +167,7 @@ return (
               fullWidth
               labelId="availability-label"
               name="availability_status"
-              value={newDetails?.availability_status}
+              value={userDetails?.availability_status}
               InputLabelProps={{ shrink: true }}
             >
               <MenuItem value="1">Available</MenuItem>
@@ -179,7 +182,7 @@ return (
               fullWidth
               labelId="lang-label"
               name="languages"
-              value={newDetails?.languages? newDetails.languages : []}
+              value={userDetails?.languages? userDetails.languages : []}
               style={{zIndex: "0"}}
               MenuProps={MenuProps}
               input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
@@ -207,7 +210,7 @@ return (
               fullWidth
               label="Availability Status"
               name="availability_status"
-              value={newDetails?.availability_status}
+              value={userDetails?.availability_status}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
             </Grid>
@@ -218,7 +221,7 @@ return (
               fullWidth
               labelId="lang-label"
               name="participation_type"
-              value={newDetails?.participation_type? newDetails.participation_type : []}
+              value={userDetails?.participation_type? userDetails.participation_type : []}
               style={{zIndex: "0"}}
               input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
             >
@@ -238,11 +241,11 @@ return (
               justifyContent="flex-end"
               style={{marginTop: 20}}
           >
-              {LoggedInUserId === userDetails.id &&
+              {LoggedInUserId === userDetails?.id &&
                   <Grid item>
                       <CustomButton
                       label="Edit Profile"
-                      onClick={() => navigate("/edit-profile")}
+                      // onClick={() => navigate("/edit-profile")}
                       />
                   </Grid> }
           </Grid>

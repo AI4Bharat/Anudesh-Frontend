@@ -19,7 +19,7 @@ import {
   Input,
   InputAdornment
 } from "@mui/material";
-import { AddIcon } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
 import CustomButton from "../common/Button";
 import  "../../styles/Dataset.css";
 import { useState } from "react";
@@ -86,6 +86,7 @@ const InviteUsersDialog = ({
     setCsvFile(null);
     setbtn(null)
   };
+  console.log(selectedUsers);
 
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
@@ -213,7 +214,7 @@ const InviteUsersDialog = ({
           onClick={addBtnClickHandler}
           size="small"
           label="Add"
-          disabled={loading || selectedUsers === null || selectedUsers?.length === 0}
+          disabled={loading || selectedUsers === null || selectedUsers?.length === 0?true:false}
         />
       </DialogActions>
     </Dialog >

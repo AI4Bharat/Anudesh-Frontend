@@ -18,7 +18,7 @@ export const fetchOrganizationProjectReports = createAsyncThunk(
       user_id: userId,
       send_mail: sendMail,
       };
-    const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/project_analytics/`,method="POST",body);
+    const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/project_analytics/`,"POST",body);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

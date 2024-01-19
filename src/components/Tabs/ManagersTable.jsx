@@ -142,7 +142,7 @@ const handleRemoveWorkspaceManager = async(userid)=>{
                     <CustomButton
                         sx={{borderRadius : 2,marginRight: 2}}
                         label = "View"
-                        onClick={()=>{router.push(`/profile/`)}}
+                        // onClick={()=>{router.push(`/profile/`)}}
 
                     />
                    
@@ -196,6 +196,7 @@ const handleRemoveWorkspaceManager = async(userid)=>{
                 />
             );
         };
+        const emailId = localStorage.getItem("email_id");
 
         const [confirmationDialog, setConfirmationDialog] = useState(false);
         const [elEmail, setElEmail] = useState("");

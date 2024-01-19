@@ -10,6 +10,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import TextField from '@mui/material/TextField';
 
 function WorkspaceSetting(props) {
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const { onArchiveWorkspace } = props
   console.log(props, "props")
   
@@ -47,7 +49,7 @@ function WorkspaceSetting(props) {
   const handleClose = () => {
     setOpen(false);
   };
-  // const emailId = localStorage.getItem("email_id");
+  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
    

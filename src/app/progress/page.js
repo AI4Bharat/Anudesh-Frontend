@@ -17,6 +17,8 @@ export default function ProgressPage () {
   // const { id } = useParams();
   const id = 1;
   const dispatch = useDispatch();
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   // const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -55,6 +57,7 @@ export default function ProgressPage () {
         })
     }
   }
+  console.log(userRole.Admin ,loggedInUserData?.role);
 
   const renderSnackBar = () => {
     return (
@@ -73,7 +76,7 @@ export default function ProgressPage () {
   useEffect(() => {
     // setLoading(true);
     dispatch(fetchUserById(id));
-  }, [id,dispatch]);
+  }, [id]);
 
   useEffect(() => {
     if(UserDetails && UserDetails.id == id) {
@@ -86,12 +89,12 @@ export default function ProgressPage () {
       <Grid container spacing={2}>
         {/* {loading && <Spinner />}  */}
         {renderSnackBar()}
-          {userDetails && (
+          {/* {userDetails && ( */}
             <>
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
                 <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px" ,backgroundColor:'ButtonHighlight', textAlign:'center'}}>
                   <CardContent>
-                    <Typography variant="h4">{userDetails.organization.title}</Typography>
+                    <Typography variant="h4">{userDetails?.organization.title}</Typography>
                   </CardContent>
                 </Paper>
               </Grid>
@@ -121,7 +124,7 @@ export default function ProgressPage () {
               </Grid>
               }
               </>
-          )}
+          {/* )} */}
       </Grid>
   )
 }

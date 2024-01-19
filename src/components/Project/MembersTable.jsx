@@ -7,8 +7,8 @@ import CustomButton from "../common/Button";
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import { PersonAddAlt } from "@mui/icons-material";
 import addUserTypes from "../../Constants/addUserTypes/index";
-import InviteUsersDialog from "./InviteUsersDialog";
 import AddUsersDialog from "../common/AddUsersDialog";
+import InviteUsersDialog from "../Project/InviteUsersDialog"
 import {
   ThemeProvider, Grid,
   Button,
@@ -27,6 +27,8 @@ import TextField from '@mui/material/TextField';
 import { fetchRemoveProjectMember } from "@/Lib/Features/projects/RemoveProjectMember";
 import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectReviewerAPI";
 import { fetchResendUserInvite } from "@/Lib/Features/projects/ResendUserInvite";
+import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
+import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 
 const columns = [
   {
@@ -121,7 +123,6 @@ const MembersTable = (props) => {
   const loggedInUserData = useSelector(
     (state) => state.getLoggedInData.data
   );
-
   const pageSearch = () => {
     return dataSource.filter((el) => {
       // if (SearchWorkspaceMembers == "") {
@@ -251,8 +252,7 @@ const MembersTable = (props) => {
           message: resp?.message,
           variant: "success",
         });
-        const orgObj = new GetOragnizationUsersAPI(id);
-        dispatch(APITransport(orgObj));
+        dispatch(fetchOrganizationUsers(id));
       }else {
         setSnackbarInfo({
           open: true,

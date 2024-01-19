@@ -87,6 +87,7 @@ const CreateProject = () => {
   const [searchAnchor, setSearchAnchor] = useState(null);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
+ /* eslint-disable react-hooks/exhaustive-deps */
 
   const searchOpen = Boolean(searchAnchor);
   const excludeKeys = [
@@ -186,7 +187,7 @@ const CreateProject = () => {
   };
   useEffect(() => {
     if(NewProject.status === "succeeded")
-      router.push(`/projects/${NewProject.res.id}`);
+      router.push(`/projects`);
   }, [NewProject, router]);
   
   const renderToolBar = () => {

@@ -16,12 +16,15 @@ import {
   import SearchIcon from "@mui/icons-material/Search";
   import MUIDataTable from "mui-datatables";
   import { translate } from "../../config/localisation";
+import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
   
   const TASK_TYPES = ["annotation", "review","supercheck"]
   
   const RecentTasks = () => {
-  
+   /* eslint-disable react-hooks/exhaustive-deps */
+
     // const { id } = useParams();
+    const id = 2
     const dispatch = useDispatch();
     const [taskType, setTaskType] = useState(TASK_TYPES[0]);
     const [text, settext] = useState("")
@@ -45,8 +48,7 @@ import {
     const [selectedFilters, setsSelectedFilters] = useState({});
   
     const GetAllTasksdata = () => {
-      const taskObjs = new FetchRecentTasksAPI(id, taskType, currentPageNumber, selectedFilters, currentRowPerPage);
-      dispatch(APITransport(taskObjs));
+      dispatch(fetchRecentTasks(id, taskType, currentPageNumber, selectedFilters, currentRowPerPage));
     };
   /* eslint-disable react-hooks/exhaustive-deps */
 

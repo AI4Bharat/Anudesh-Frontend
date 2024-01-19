@@ -9,17 +9,24 @@ import { useSelector, useDispatch } from "react-redux";
 // import UpdateScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/UpdateScheduledMails";
 // import DeleteScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/DeleteScheduledMails";
 import Snackbar from "../common/Snackbar";
-// import { MenuProps } from "../../utils/utils";
+import { MenuProps } from "../../utils/utils";
 import CustomButton from "../common/Button";
 import FormControl from "@mui/material/FormControl";
 import tableTheme from "../../themes/tableTheme";
 import MUIDataTable from "mui-datatables";
 import  "../../styles/Dataset.css";
+import DatasetStyle from "@/styles/dataset";
 import ColumnList from "../common/ColumnList";
 import userRole from "../../utils/Role";
+import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
+import { fetchScheduledMails } from "@/Lib/Features/user/GetScheduledMails";
+import UpdateScheduledMailsAPI from "@/app/actions/api/user/UpdateScheduleMailsAPI";
+import CreateScheduledMailsAPI from "@/app/actions/api/user/CreateScheduledMailsAPI";
+import DeleteScheduledMailsAPI from "@/app/actions/api/user/DeleteScheduledMailsAPI";
 
 const ScheduleMails = () => {
-//   const { id } = useParams();
+  // const { id } = useParams();
+  const id = 1;
   const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: '' });
   const [reportLevel, setReportLevel] = useState(1);
   const [selectedProjectType, setSelectedProjectType] = useState("AllAudioProjects");
@@ -34,6 +41,8 @@ const ScheduleMails = () => {
     "OCRTranscription",
     "OCRTranscriptionEditing",
   ]);
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const [schedule, setSchedule] = useState("Daily");
   const [scheduleDay, setScheduleDay] = useState(1);
   const [workspaceId, setWorkspaceId] = useState(0);
@@ -42,312 +51,200 @@ const ScheduleMails = () => {
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [showSpinner, setShowSpinner] = useState(false);
-  
-//   const dispatch = useDispatch();
-  const userDetails= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-};
-const LoggedInUserId=1
-const loggedInUserData= {
-    "id": 1,
-    "username": "shoonya",
-    "email": "shoonya@ai4bharat.org",
-    "languages": [],
-    "availability_status": 1,
-    "enable_mail": false,
-    "first_name": "Admin",
-    "last_name": "AI4B",
-    "phone": "",
-    "profile_photo": "",
-    "role": 6,
-    "organization": {
-        "id": 1,
-        "title": "AI4Bharat",
-        "email_domain_name": "ai4bharat.org",
-        "created_by": {
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "role": 6
-        },
-        "created_at": "2022-04-24T13:11:30.339610Z"
-    },
-    "unverified_email": "shoonya@ai4bharat.org",
-    "date_joined": "2022-04-24T07:40:11Z",
-    "participation_type": 3,
-    "prefer_cl_ui": false,
-    "is_active": true
-};
-  const workspaceData = [
+  const classes = DatasetStyle();
+  const dispatch = useDispatch();
+  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const workspaceData = useSelector(state => state.GetWorkspace.data);
+  const scheduledMails = useSelector(state => state.GetScheduledMails.data);
+  //const [requested, setRequested] = useState({ get: false, create: false, update: false, delete: false });
 
-    {
-        "organization": 1,
-        "workspace_name": "Tamil Workspace",
-        "managers": [
-            {
-                "id": 1,
-                "username": "shoonya",
-                "email": "shoonya@ai4bharat.org",
-                "languages": [],
-                "availability_status": 1,
-                "enable_mail": false,
-                "first_name": "Admin",
-                "last_name": "AI4B",
-                "phone": "",
-                "profile_photo": "",
-                "role": 6,
-                "organization": {
-                    "id": 1,
-                    "title": "AI4Bharat",
-                    "email_domain_name": "ai4bharat.org",
-                    "created_by": {
-                        "username": "shoonya",
-                        "email": "shoonya@ai4bharat.org",
-                        "first_name": "Admin",
-                        "last_name": "AI4B",
-                        "role": 6
-                    },
-                    "created_at": "2022-04-24T13:11:30.339610Z"
-                },
-                "unverified_email": "shoonya@ai4bharat.org",
-                "date_joined": "2022-04-24T07:40:11Z",
-                "participation_type": 3,
-                "prefer_cl_ui": false,
-                "is_active": true
-            },
-            {
-                "id": 10,
-                "username": "Janki",
-                "email": "jankinawale01@gmail.com",
-                "languages": [],
-                "availability_status": 1,
-                "enable_mail": false,
-                "first_name": "",
-                "last_name": "",
-                "phone": "",
-                "profile_photo": "",
-                "role": 5,
-                "organization": {
-                    "id": 1,
-                    "title": "AI4Bharat",
-                    "email_domain_name": "ai4bharat.org",
-                    "created_by": {
-                        "username": "shoonya",
-                        "email": "shoonya@ai4bharat.org",
-                        "first_name": "Admin",
-                        "last_name": "AI4B",
-                        "role": 6
-                    },
-                    "created_at": "2022-04-24T13:11:30.339610Z"
-                },
-                "unverified_email": "",
-                "date_joined": "2022-04-27T09:13:40Z",
-                "participation_type": 3,
-                "prefer_cl_ui": false,
-                "is_active": true
-            },
-            {
-                "id": 9,
-                "username": "Ishvinder",
-                "email": "ishvinder@ai4bharat.org",
-                "languages": [
-                    "English",
-                    "Hindi"
-                ],
-                "availability_status": 1,
-                "enable_mail": false,
-                "first_name": "Ishvinder",
-                "last_name": "Sethi",
-                "phone": "",
-                "profile_photo": "https://shoonyastoragedevelop.blob.core.windows.net/images/Ishvinder.png",
-                "role": 6,
-                "organization": {
-                    "id": 1,
-                    "title": "AI4Bharat",
-                    "email_domain_name": "ai4bharat.org",
-                    "created_by": {
-                        "username": "shoonya",
-                        "email": "shoonya@ai4bharat.org",
-                        "first_name": "Admin",
-                        "last_name": "AI4B",
-                        "role": 6
-                    },
-                    "created_at": "2022-04-24T13:11:30.339610Z"
-                },
-                "unverified_email": "",
-                "date_joined": "2022-04-26T16:27:51Z",
-                "participation_type": 3,
-                "prefer_cl_ui": false,
-                "is_active": true
-            },
-            {
-                "id": 88,
-                "username": "Shakir Azeem",
-                "email": "shakirazeem2k@gmail.com",
-                "languages": [],
-                "availability_status": 1,
-                "enable_mail": false,
-                "first_name": "",
-                "last_name": "",
-                "phone": "",
-                "profile_photo": "",
-                "role": 4,
-                "organization": {
-                    "id": 1,
-                    "title": "AI4Bharat",
-                    "email_domain_name": "ai4bharat.org",
-                    "created_by": {
-                        "username": "shoonya",
-                        "email": "shoonya@ai4bharat.org",
-                        "first_name": "Admin",
-                        "last_name": "AI4B",
-                        "role": 6
-                    },
-                    "created_at": "2022-04-24T13:11:30.339610Z"
-                },
-                "unverified_email": "",
-                "date_joined": "2022-04-28T08:44:31.596366Z",
-                "participation_type": 1,
-                "prefer_cl_ui": false,
-                "is_active": true
-            }
-        ],
-        "is_archived": false,
-        "created_by": {
-            "id": 1,
-            "username": "shoonya",
-            "email": "shoonya@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "Admin",
-            "last_name": "AI4B",
-            "phone": "",
-            "profile_photo": "",
-            "role": 6,
-            "organization": {
-                "id": 1,
-                "title": "AI4Bharat",
-                "email_domain_name": "ai4bharat.org",
-                "created_by": {
-                    "username": "shoonya",
-                    "email": "shoonya@ai4bharat.org",
-                    "first_name": "Admin",
-                    "last_name": "AI4B",
-                    "role": 6
-                },
-                "created_at": "2022-04-24T13:11:30.339610Z"
-            },
-            "unverified_email": "shoonya@ai4bharat.org",
-            "date_joined": "2022-04-24T07:40:11Z",
-            "participation_type": 3,
-            "prefer_cl_ui": false,
-            "is_active": true
-        },
-        "id": 2,
-        "created_at": "2022-04-24T13:11:30.339610Z",
-        "frozen_users": [],
-        "public_analytics": true
+  const getWorkspaceData = () => {
+    dispatch(fetchWorkspaceData());
+  }
+
+  const getScheduledMails = () => {
+    dispatch(fetchScheduledMails(id));
+  };
+
+  const createScheduledMail = () => {
+    if (!reportLevel || !schedule || !selectedProjectType || (reportLevel === 2 && workspaceId === 0)) {
+      setSnackbarState({
+        open: true,
+        message: "Invalid input",
+        variant: "error",
+      });
+      return;
     }
-    
-]
-const scheduledMails = []
+    if (schedule === "Monthly" && (scheduleDay > 28 || scheduleDay < 1)) {
+      setSnackbarState({
+        open: true,
+        message: "Day of month not in range",
+        variant: "error",
+      });
+      return;
+    }
+    if (schedule === "Weekly" && (scheduleDay > 6 || scheduleDay < 0)) {
+      setSnackbarState({
+        open: true,
+        message: "Day of week not in range",
+        variant: "error",
+      });
+      return;
+    }
+    const scheduledMailsObj = new CreateScheduledMailsAPI(
+      id,
+      reportLevel === 1 ? userDetails?.organization?.id : workspaceId,
+      reportLevel,
+      selectedProjectType,
+      schedule,
+      scheduleDay
+    );
+    fetch(scheduledMailsObj.apiEndPoint(), {
+      method: "POST",
+      headers: scheduledMailsObj.getHeaders().headers,
+      body: JSON.stringify(scheduledMailsObj.getBody()),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw res.status === 500 ? res : await res.json();
+        else return res;
+      })
+      .then((res) => {
+        setSnackbarState({
+          open: true,
+          message: "Scheduled mail request sent",
+          variant: "success",
+        });
+        getScheduledMails();
+      })
+      .catch((err) => {
+        setSnackbarState({ open: true, message: err.status === 500 ? "Unexpected error occurred" : err.message, variant: "error" });
+      });
+  };
 
+  const updateScheduledMail = (mail) => {
+    const scheduledMailsObj = new UpdateScheduledMailsAPI(
+      id,
+      mail.id,
+    );
+    fetch(scheduledMailsObj.apiEndPoint(), {
+      method: "PATCH",
+      headers: scheduledMailsObj.getHeaders().headers,
+      body: JSON.stringify(scheduledMailsObj.getBody()),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw res.status === 500 ? res : await res.json();
+        else return res;
+      })
+      .then((res) => {
+        setSnackbarState({
+          open: true,
+          message: "Mail schedule updated",
+          variant: "success",
+        });
+        getScheduledMails();
+      })
+      .catch((err) => {
+        setSnackbarState({ open: true, message: err.status === 500 ? "Unexpected error occurred" : err.message, variant: "error" });
+      });
+  };
 
-  // useEffect(() => {
-  //   workspaceData && workspaceData.length > 0 && setWorkspaces(workspaceData);
-  // }, [workspaceData]);
+  const deleteScheduledMail = (mail) => {
+    const scheduledMailsObj = new DeleteScheduledMailsAPI(
+      id,
+      mail.id,
+    );
+    fetch(scheduledMailsObj.apiEndPoint(), {
+      method: "POST",
+      headers: scheduledMailsObj.getHeaders().headers,
+      body: JSON.stringify(scheduledMailsObj.getBody()),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw res.status === 500 ? res : await res.json();
+        else return res;
+      })
+      .then((res) => {
+        setSnackbarState({
+          open: true,
+          message: "Mail schedule deleted",
+          variant: "success",
+        });
+        getScheduledMails();
+      })
+      .catch((err) => {
+        setSnackbarState({ open: true, message: err.status === 500 ? "Unexpected error occurred" : err.message, variant: "error" });
+      });
+  };
 
-  // useEffect(() => {
-  //   if (scheduledMails?.length) {
-  //     let tempColumns = [];
-  //     let tempSelected = [];
-  //     Object.keys(scheduledMails[0]).forEach((key) => {
-  //       tempColumns.push({
-  //         name: key,
-  //         label: key,
-  //         options: {
-  //           filter: false,
-  //           sort: true,
-  //           align: "center",
-  //         },
-  //       });
-  //       key !== "id" && tempSelected.push(key);
-  //     });
-  //     tempColumns.push({
-  //       name: "Actions",
-  //       label: "Actions",
-  //       options: {
-  //         filter: false,
-  //         sort: true,
-  //         align: "center",
-  //       },
-  //     });
-  //     tempSelected.push("Actions");
-  //     scheduledMails.map((mail) => {
-  //       mail.Actions = (
-  //         <Box
-  //           sx={{
-  //             display: "flex",
-  //             justifyContent: "space-between",
-  //             gap: 2,
-  //           }}
-  //         >
-  //           <CustomButton
-  //             label={mail["Status"] === "Enabled" ? "Pause" : "Resume"}
-  //             onClick={() => updateScheduledMail(mail)} />
-  //           <CustomButton
-  //             label="Delete"
-  //             sx={{ backgroundColor: "#EC0000" }}
-  //             onClick={() => deleteScheduledMail(mail)} />
-  //         </Box>
-  //       );
-  //       return mail;
-  //     });
-  //     setColumns(tempColumns);
-  //     setTableData(scheduledMails);
-  //     setSelectedColumns(tempSelected);
-  //   } else {
-  //     setColumns([]);
-  //     setTableData([]);
-  //     setSelectedColumns([]);
-  //   }
-  //   setShowSpinner(false);
-  // }, [scheduledMails]);
+  useEffect(() => {
+    getWorkspaceData();
+    getScheduledMails();
+  }, []);
+
+  useEffect(() => {
+    workspaceData && workspaceData.length > 0 && setWorkspaces(workspaceData);
+  }, [workspaceData]);
+
+  useEffect(() => {
+    if (scheduledMails?.length) {
+      let tempColumns = [];
+      let tempSelected = [];
+      Object.keys(scheduledMails[0]).forEach((key) => {
+        tempColumns.push({
+          name: key,
+          label: key,
+          options: {
+            filter: false,
+            sort: true,
+            align: "center",
+          },
+        });
+        key !== "id" && tempSelected.push(key);
+      });
+      tempColumns.push({
+        name: "Actions",
+        label: "Actions",
+        options: {
+          filter: false,
+          sort: true,
+          align: "center",
+        },
+      });
+      tempSelected.push("Actions");
+      scheduledMails.map((mail) => {
+        mail.Actions = (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+            }}
+          >
+            <CustomButton
+              label={mail["Status"] === "Enabled" ? "Pause" : "Resume"}
+              onClick={() => updateScheduledMail(mail)} />
+            <CustomButton
+              label="Delete"
+              sx={{ backgroundColor: "#EC0000" }}
+              onClick={() => deleteScheduledMail(mail)} />
+          </Box>
+        );
+        return mail;
+      });
+      setColumns(tempColumns);
+      setTableData(scheduledMails);
+      setSelectedColumns(tempSelected);
+    } else {
+      setColumns([]);
+      setTableData([]);
+      setSelectedColumns([]);
+    }
+    setShowSpinner(false);
+  }, [scheduledMails]);
 
   const renderToolBar = () => {
     return (
       <Box
-        className="ToolbarContainer"
+        className={classes.ToolbarContainer}
       >
         <ColumnList
           columns={columns}
@@ -399,7 +296,7 @@ const scheduledMails = []
                 <Select
                   style={{ zIndex: "0" }}
                   inputProps={{ "aria-label": "Without label" }}
-                //   MenuProps={MenuProps}
+                  MenuProps={MenuProps}
                   labelId="report-level-label"
                   id="report-level-select"
                   value={reportLevel}
@@ -420,7 +317,7 @@ const scheduledMails = []
                 <Select
                   style={{ zIndex: "0" }}
                   inputProps={{ "aria-label": "Without label" }}
-                //   MenuProps={MenuProps}
+                  MenuProps={MenuProps}
                   labelId="workspace-label"
                   id="workspace-select"
                   value={workspaceId}
@@ -443,7 +340,7 @@ const scheduledMails = []
                 <Select
                   style={{ zIndex: "0" }}
                   inputProps={{ "aria-label": "Without label" }}
-                //   MenuProps={MenuProps}
+                  MenuProps={MenuProps}
                   labelId="project-type-label"
                   id="project-type-select"
                   value={selectedProjectType}
@@ -465,7 +362,7 @@ const scheduledMails = []
                 <Select
                   style={{ zIndex: "0" }}
                   inputProps={{ "aria-label": "Without label" }}
-                //   MenuProps={MenuProps}
+                  MenuProps={MenuProps}
                   labelId="schedule-label"
                   id="schedule-select"
                   value={schedule}
@@ -484,7 +381,7 @@ const scheduledMails = []
                 <Select
                   style={{ zIndex: "0" }}
                   inputProps={{ "aria-label": "Without label" }}
-                //   MenuProps={MenuProps}
+                  MenuProps={MenuProps}
                   labelId="weekday-label"
                   id="weekday-select"
                   value={scheduleDay}
@@ -507,7 +404,7 @@ const scheduledMails = []
                 <Select
                   style={{ zIndex: "0" }}
                   inputProps={{ "aria-label": "Without label" }}
-                //   MenuProps={MenuProps}
+                  MenuProps={MenuProps}
                   labelId="month-day-label"
                   id="month-day-select"
                   value={scheduleDay}
@@ -525,7 +422,7 @@ const scheduledMails = []
             <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
               <CustomButton
                 label="+ Add"
-                // onClick={createScheduledMail}
+                onClick={createScheduledMail}
               />
             </Grid>
             {showSpinner ? <div></div> : tableData && (
