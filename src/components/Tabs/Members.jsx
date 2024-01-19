@@ -27,7 +27,7 @@ const Members = () => {
     return(
         <MembersTable 
         dataSource = {OrganizationUserData}
-          type="organization"
+        type="organization"
         />
     )
 }

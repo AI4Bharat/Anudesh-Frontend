@@ -23,7 +23,7 @@ export const fetchOrganizationDetailedProjectReports = createAsyncThunk(
       }else if(statistics === 3){
         body.complete_statistics = true;
       }
-    const params = fetchParams(`/functions/schedule_project_reports_email`,method="POST",body);
+    const params = fetchParams(`/functions/schedule_project_reports_email`,"POST",body);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

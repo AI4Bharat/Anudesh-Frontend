@@ -64,7 +64,7 @@ const CollectionProject = (props) => {
             else return await res.json();
         }).then((res) => {
             setLoading(false);
-            router.push(`/datasets/${res.instance_id}`);
+            router.push(`/datasets/`);
         }).catch((err) => {
             setErrors(err);
             setSnackbarState({ open: true, message: "Failed to create dataset instance", variant: "error" });

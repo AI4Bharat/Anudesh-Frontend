@@ -47,7 +47,7 @@ function WorkspaceSetting(props) {
   const handleClose = () => {
     setOpen(false);
   };
-  // const emailId = localStorage.getItem("email_id");
+  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
    

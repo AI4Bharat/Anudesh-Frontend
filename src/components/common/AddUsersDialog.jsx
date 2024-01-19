@@ -8,7 +8,7 @@ import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { fetchWorkspacesAnnotatorsData } from "@/Lib/Features/getWorkspacesAnnotatorsData";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import { Add } from "@mui/icons-material";
+import { Add } from "@mui/icons-material/";
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Autocomplete,
@@ -227,8 +227,6 @@ const AddUsersDialog = ({
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
 /* eslint-disable react-hooks/exhaustive-deps */
-
-console.log(userType,"dead");
   useEffect(() => {
     let id = '';
     switch (userType) {
@@ -250,6 +248,7 @@ console.log(userType,"dead");
   useEffect(() => {
     setAvailableUsers(getAvailableUsers(userType, projectDetails, workspaceAnnotators, workspaceDetails?.managers, orgUsers));
   }, [userType,projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])
+  console.log(availableUsers);
 
   const addBtnClickHandler = async () => {
     setLoading(true);
@@ -275,7 +274,7 @@ console.log(userType,"dead");
         <Autocomplete
           multiple
           limitTags={3}
-          onChange={(e, newVal) => setSelectedUsers(newVal)}
+          onChange={(e, newVal) => setSelectedUsers(e.target.value)}
           options={availableUsers}
           value={selectedUsers}
           style={{ fontSize: "1rem", paddingTop: 4, paddingBottom: 4 }}
@@ -300,7 +299,7 @@ console.log(userType,"dead");
         <CustomButton
           startIcon={
             !loading ? (
-              <AddIcon />
+              <Add />
             ) : (
               <CircularProgress size="0.8rem" color="secondary" />
             )
@@ -308,7 +307,7 @@ console.log(userType,"dead");
           onClick={addBtnClickHandler}
           size="small"
           label="Add"
-          disabled={loading || selectedUsers === null || selectedUsers?.length === 0}
+          disabled={loading || selectedUsers === null || selectedUsers?.length === 0? true :false}
         />
       </DialogActions>
     </Dialog>

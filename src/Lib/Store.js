@@ -11,7 +11,6 @@ import getLanguages from './Features/fetchLanguages';
 import apiStatus from './Features/apiStatus';
 import getUserById from './Features/user/getUserById';
 import GetWorkspace from './Features/GetWorkspace';
-import getUserAnalytics from './Features/user/getUserAnalytics';
 import getWorkspaceData from './Features/getWorkspaceData';
 import getLoggedInData from './Features/getLoggedInData';
 import getOrganizationUsers from './Features/getOrganizationUsers';
@@ -31,11 +30,17 @@ import domainsReducer from './Features/actions/domains';
 import projectsReducer from './Features/actions/projects';
 import userReducer from './Features/actions/user';
 import getAllTaskData from './Features/projects/getAllTaskData';
+import GetScheduledMails from './Features/user/GetScheduledMails';
+import getUserAnalytics from './Features/user/getUserAnalytics';
+import getRecentTasks from './Features/user/getRecentTasks';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
         getAllTaskData:getAllTaskData,
+        getRecentTasks:getRecentTasks,
+        getUserAnalytics:getUserAnalytics,
+        GetScheduledMails:GetScheduledMails,
         domains: domainsReducer,
         projects: projectsReducer,
         user: userReducer,
@@ -62,7 +67,6 @@ const makeStore = () => {
         getLanguages:getLanguages,
         getUserById:getUserById,
         GetWorkspace:GetWorkspace,
-        getUserAnalytics:getUserAnalytics,
         getWorkspaceData:getWorkspaceData,
         getOrganizationUsers:getOrganizationUsers,
         getProjectDetails:getProjectDetails,

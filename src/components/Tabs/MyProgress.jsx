@@ -31,7 +31,6 @@ import {
   import MUIDataTable from "mui-datatables";
   import  "../../styles/Dataset.css";
   import DatasetStyle from "../../styles/dataset";
-  import GetProjectDomainsAPI from "@/app/actions/api/workspace/GetProjectDomainsAPI";
   import ColumnList from "../common/ColumnList";
   import CustomizedSnackbars from "../common/Snackbar";
   import { isSameDay, format } from 'date-fns';
@@ -41,11 +40,11 @@ import {
 //   import { useParams } from "react-router-dom";
   import Spinner from "../../components/common/Spinner";
   import { MenuProps } from "../../utils/utils";
-  import GetUserAnalyticsAPI from "@/app/actions/api/user/GetUserAnalyticsAPI";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
+import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
 
 
-  const MyProgress = () => {
+  const   MyProgress = () => {
     const UserDetails = useSelector((state) => state.getLoggedInData.data);
     const [selectRange, setSelectRange] = useState([{
       startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
@@ -175,10 +174,7 @@ import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
         end_date: format(selectRange[0].endDate, 'yyyy-MM-dd'),
   
       }
-  
-  
-      const progressObj = new GetUserAnalyticsAPI(reviewdata);
-      dispatch(APITransport(progressObj));
+      dispatch(fetchUserAnalytics(reviewdata));
       // setShowSpinner(true);
       setTotalsummary(true)
   

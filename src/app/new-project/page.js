@@ -186,7 +186,7 @@ const CreateProject = () => {
   };
   useEffect(() => {
     if(NewProject.status === "succeeded")
-      router.push(`/projects/${NewProject.res.id}`);
+      router.push(`/projects`);
   }, [NewProject, router]);
   
   const renderToolBar = () => {
