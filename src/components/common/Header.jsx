@@ -82,8 +82,7 @@ const Header = () => {
   
   useEffect(() => {
     getLoggedInUserData();
-
-  }, []);
+  }, [getLoggedInUserData]);
 
 
   /* useEffect(()=>{
@@ -528,6 +527,7 @@ const handleopenproject=(id,type)=>{
   const tabs = [
     <Typography variant="body1">
       <NavLink
+      key={1}
         hidden={
           userRole.Annotator === loggedInUserData?.role ||
           userRole.Reviewer === loggedInUserData?.role ||
@@ -547,8 +547,9 @@ const handleopenproject=(id,type)=>{
         Organization
       </NavLink>
     </Typography>,
-    <Typography variant="body1">
+    <Typography variant="body1" key={2}>
       <NavLink
+      key={2}
         hidden={userRole.WorkspaceManager !== loggedInUserData?.role}
         to="/workspaces"
         className={({ isActive }) =>
@@ -561,6 +562,7 @@ const handleopenproject=(id,type)=>{
     </Typography>,
     <Typography variant="body1">
       <NavLink
+      key={3}
         to="/projects"
         className={({ isActive }) =>
           isActive ? classes.highlightedMenu : classes.headerMenu
@@ -572,6 +574,7 @@ const handleopenproject=(id,type)=>{
     </Typography>,
     <Typography variant="body1">
       <NavLink
+      key={4}
         hidden={
           userRole.Annotator === loggedInUserData?.role ||
           userRole.Reviewer === loggedInUserData?.role ||
@@ -588,6 +591,7 @@ const handleopenproject=(id,type)=>{
     </Typography>,
     <Typography variant="body1">
       <NavLink
+      key={5}
         to="/analytics"
         className={({ isActive }) =>
           isActive ? classes.highlightedMenu : classes.headerMenu
@@ -599,6 +603,7 @@ const handleopenproject=(id,type)=>{
     </Typography>,
     <Typography variant="body1">
       <NavLink
+      key={6}
         to="/admin"
         hidden={userRole.Admin !== loggedInUserData?.role}
         className={({ isActive }) =>

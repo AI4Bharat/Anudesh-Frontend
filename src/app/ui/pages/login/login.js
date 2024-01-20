@@ -32,7 +32,7 @@ export default function Login() {
         if (authenticateUser()) {
           navigate('/organizations');
         }
-      }, []);
+      }, [navigate]);
       
     const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({

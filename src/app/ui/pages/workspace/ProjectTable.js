@@ -133,7 +133,7 @@ const ProjectTable = (props) => {
             userRole ? userRole :  el.project_stage,
             el.tgt_language == null ?"-": el.tgt_language,
             el.project_type,
-            <Link to={`/projectdetails`} style={{ textDecoration: "none" }}>
+            <Link key={i} to={`/projectdetails`} style={{ textDecoration: "none" }}>
               <CustomButton sx={{ borderRadius: 2 }} label="View" />
             </Link>,
           ];

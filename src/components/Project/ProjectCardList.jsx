@@ -177,7 +177,7 @@ const ProjectCardList = (props) => {
             el.tgt_language == null ? "-" : el.tgt_language,
             el.project_mode,
             el.workspace_id,
-            <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }}>
+            <Link key={i} to={`/projects/${el.id}`} style={{ textDecoration: "none" }}>
               <CustomButton
                 sx={{ borderRadius: 2, marginRight: 2 }}
                 label="View"
