@@ -1,6 +1,6 @@
 "use client";
 import RootLayout from "./layout"
-import Home from "./home/page"
+import Home from "./ui/pages/home/home"
 import { HashRouter, Route, Routes, Navigate } from "react-router-dom"
 import { authenticateUser } from "@/utils/utils";
 import Login from "./ui/pages/login/login";
