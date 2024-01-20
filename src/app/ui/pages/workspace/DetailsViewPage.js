@@ -13,32 +13,31 @@ import {
     Menu,
     MenuItem,
   } from "@mui/material";
-  import Link from 'next/link';
+import { Link, useNavigate } from "react-router-dom";
   import { useDispatch, useSelector } from 'react-redux';
-  import { useRouter } from "next/navigation";
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
-import themeDefault from "../../themes/theme";
-import DatasetStyle from "../../styles/dataset";
+import themeDefault from "../../../../themes/theme";
+import DatasetStyle from "../../../../styles/dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
   import TextareaAutosize from "@mui/material/TextareaAutosize";
-  import componentType from "../../config/PageType";
+  import componentType from "../../../../config/PageType";
   import ProjectTable from "./ProjectTable";
-  import AnnotatorsTable from "../../components/Tabs/AnnotatorTable";
-  import ManagersTable from "../../components/Tabs/ManagersTable";
-  import Workspaces from "../../components/common/Workspace";
-  import { translate } from "../../config/localisation";
-  import Members from "../../components/Tabs/Members";
-  import Invites from "../../components/Tabs/Invites";
-  import OrganizationSettings from "../../components/Tabs/organizationSettings";
-  import OrganizationReports from "../../components/Tabs/organizationReports";
-  import WorkspaceReports from "../../components/common/WorkspaceReports";
-  import Spinner from "../../components/common/Spinner";
+  import AnnotatorsTable from "../../../../components/Tabs/AnnotatorTable";
+  import ManagersTable from "../../../../components/Tabs/ManagersTable";
+  import Workspaces from "../../../../components/common/Workspace";
+  import { translate } from "../../../../config/localisation";
+  import Members from "../../../../components/Tabs/Members";
+  import Invites from "../../../../components/Tabs/Invites";
+  import OrganizationSettings from "../../../../components/Tabs/organizationSettings";
+  import OrganizationReports from "../../../../components/Tabs/organizationReports";
+  import WorkspaceReports from "../../../../components/common/WorkspaceReports";
+  import Spinner from "../../../../components/common/Spinner";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import AddUsersDialog from "../../components/common/AddUsersDialog";
-import addUserTypes from "../../Constants/addUserTypes";
-import GetWorkspacesDetailsAPI from "../actions/api/workspace/getWorkspaceDetails";
+import AddUsersDialog from "../../../../components/common/AddUsersDialog";
+import addUserTypes from "../../../../Constants/addUserTypes";
+import GetWorkspacesDetailsAPI from "../../../actions/api/workspace/getWorkspaceDetails";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   
   function TabPanel(props) {
@@ -62,7 +61,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   }
   
   const DetailsViewPage = (props) => {
-    const router = useRouter();
+    const navigate = useNavigate();
     const CustomButton = ({ label, buttonVariant, color, disabled = false, ...rest }) => (
         <Button {...rest} variant={buttonVariant ? buttonVariant : "contained"} color={color ? color : "primary"} disabled={disabled}>
           {label}
@@ -129,7 +128,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   
 
     const handleOpenSettings = () => {
-      router.push(`/workspace/workspacesetting`);
+      navigate(`/workspace/workspacesetting`);
     };
   
     const handleClickMenu = (data)  =>{
@@ -284,7 +283,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
               <>
                 
                   {/* <Grid > */}
-                    <Link href={`/new-project/`}>
+                    <Link to={`/new-project/`}>
                       <CustomButton
                          sx={{ width: "100%", mb: 2 }}
                         className={classes.projectButton}

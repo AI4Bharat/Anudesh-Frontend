@@ -8,11 +8,11 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
 
-import AppInfo from "../../components/user/AppInfo";
-import OutlinedTextField from "../../components/common/OutlinedTextField";
-import CustomizedSnackbars from "../../components/common/OutlinedTextField";
-import Button from "../../components/common/Button";
-import "../../styles/Dataset.css";
+import AppInfo from "../../../../components/user/AppInfo";
+import OutlinedTextField from "../../../../components/common/OutlinedTextField";
+import CustomizedSnackbars from "../../../../components/common/OutlinedTextField";
+import Button from "../../../../components/common/Button";
+import "@/styles/Dataset.css";
 
 export default function SignUp() {
     const router = useRouter()

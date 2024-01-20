@@ -1,17 +1,17 @@
 'use client';
 import { Grid, Typography, FormControl, FormControlLabel, Radio, Box } from "@mui/material"
 import RadioGroup from "@mui/material/RadioGroup";
-import  "../../styles/Dataset.css";
+import  "@/styles/Dataset.css";
 import { useState } from "react";
-import CustomButton from "../../components/common/Button";
+import CustomButton from "@/components/common/Button";
 import DatasetCardList from "./DatasetCardList";
 import DatasetCard from "./DatasetCard";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function Dataset() {
     
     const [radiobutton, setRadiobutton] = useState(true);
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const handleProjectlist = () => {
         setRadiobutton(true);
@@ -20,7 +20,7 @@ export default function Dataset() {
         setRadiobutton(false);
     };
     const handleCreateProject = (e) => {
-        router.push(`/dataset/create-dataset/`);
+        navigate(`/dataset/create-dataset/`);
     };
     const handleAutomateButton = (e) => {
         navigate("/datasets/automate");

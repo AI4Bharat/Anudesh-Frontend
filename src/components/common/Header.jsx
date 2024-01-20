@@ -15,12 +15,9 @@ import {
   Popover,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { useDispatch, useSelector } from "react-redux";
-import APITransport from "@/Lib/apiTransport/apitransport";
-import FetchLoggedInUserDataAPI from "@/Lib/Features//user/FetchLoggedInUserData";
 import { useRouter } from "next/navigation";
 import { usePathname } from 'next/navigation'
 import MobileNavbar from "./MobileNavbar";
@@ -33,14 +30,8 @@ import Modal from "./Modal";
 import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import UpdateUIPrefsAPI from "@/Lib/Features/user/UpdateUIPrefs";
-
-function NavLink({ to, children, className, activeClassName }) {
-  return (
-    <a href={to} class={className} activeClassName={activeClassName}>
-      {children}
-    </a>
-  );
-}
+import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
+import { Link, NavLink } from "react-router-dom";
 
 const Header = () => {
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -86,8 +77,7 @@ const Header = () => {
 
 
   const getLoggedInUserData = () => {
-    const loggedInUserObj = new FetchLoggedInUserDataAPI("me");
-    dispatch(APITransport(loggedInUserObj));
+    dispatch(FetchLoggedInUserData("me"));
   };
   
   useEffect(() => {
@@ -410,8 +400,8 @@ const handleopenproject=(id,type)=>{
             <NavLink
               to={
                 loggedInUserData && loggedInUserData?.organization
-                  ? `/my-organization/${loggedInUserData?.organization.id}`
-                  : `/my-organization/1`
+                  ? `/organizations/${loggedInUserData?.organization.id}`
+                  : `/organizations/1`
               }
               className={({ isActive }) =>
                 isActive ? classes.highlightedMenu : classes.headerMenu
@@ -473,8 +463,8 @@ const handleopenproject=(id,type)=>{
             <NavLink
               to={
                 loggedInUserData && loggedInUserData?.organization
-                  ? `/my-organization/${loggedInUserData?.organization.id}`
-                  : `/my-organization/1`
+                  ? `/organizations/${loggedInUserData?.organization.id}`
+                  : `/organizations/1`
               }
               className={({ isActive }) =>
                 isActive ? classes.highlightedMenu : classes.headerMenu
@@ -546,8 +536,8 @@ const handleopenproject=(id,type)=>{
         }
         to={
           loggedInUserData && loggedInUserData?.organization
-            ? `/my-organization/${loggedInUserData?.organization.id}`
-            : `/my-organization/1`
+            ? `/organizations/${loggedInUserData?.organization.id}`
+            : `/organizations/1`
         }
         className={({ isActive }) =>
           isActive ? classes.highlightedMenu : classes.headerMenu
@@ -732,12 +722,12 @@ const handleopenproject=(id,type)=>{
                 md={3}
               >
                 <Link href="/projects">
-                  Anudesh
-                  {/* <img
-                    alt="logo"
+                  <img
+                    src="https://i.imgur.com/56Ut9oz.png"
+                    alt="anudesh"
                     className={classes.headerLogo}
                     sx={{ marginTop: "5%" }}
-                  /> */}
+                  />
                 </Link>
                 <Typography
                   variant="h4"

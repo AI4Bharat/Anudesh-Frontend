@@ -12,26 +12,26 @@ import {
     Tooltip,
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
-  import themeDefault from "../../themes/theme";
+  import themeDefault from "@/themes/theme";
   import Link from "next/link";
-  import TaskTable from "../../components/Project/TaskTable";
-  import MembersTable from "../../components/Project/MembersTable";
-  import ReportsTable from "../../components/Project/ReportsTable";
-  import { translate } from "../../config/localisation";
-  import addUserTypes from "../../Constants/addUserTypes";
-  import Spinner from "../../components/common/Spinner";
+  import TaskTable from "@/components/Project/TaskTable";
+  import MembersTable from "@/components/Project/MembersTable";
+  import ReportsTable from "@/components/Project/ReportsTable";
+  import { translate } from "@/config/localisation";
+  import addUserTypes from "@/Constants/addUserTypes";
+  import Spinner from "@/components/common/Spinner";
   import Menu from "@mui/material/Menu";
   import { useDispatch, useSelector } from "react-redux";
 
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-  import DatasetStyle from "../../styles/dataset";
-  import ProjectDescription from "../../components/Tabs/ProjectDescription";
+  import DatasetStyle from "@/styles/dataset";
+  import ProjectDescription from "@/components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-  import userRole from "../../utils/UsersRolesList";
-  import SuperChecker from "../../components/Project/SuperChecker";
+  import userRole from "@/utils/UsersRolesList";
+  import SuperChecker from "@/components/Project/SuperChecker";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
+import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
      /* eslint-disable react-hooks/exhaustive-deps */
 
 

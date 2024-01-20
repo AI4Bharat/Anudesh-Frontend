@@ -1,10 +1,10 @@
 import { Box, Grid ,Button,Tooltip } from "@mui/material";
 import React, { useState } from "react";
-import DatasetCard from "../../components/common/DatasetCard";
-import  "../../styles/Dataset.css";
+import DatasetCard from "@/components/common/DatasetCard";
+import  "@/styles/Dataset.css";
 // import { useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
-import TablePaginationActions from "../../components/common/TablePaginationActions";
+import TablePaginationActions from "@/components/common/TablePaginationActions";
 import DatasetFilterList from "./DatasetFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 

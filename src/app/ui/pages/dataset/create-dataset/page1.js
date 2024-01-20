@@ -18,11 +18,11 @@ import CustomizedSnackbars from "../components/common/Snackbar";
 //   import CreateNewDatasetInstanceAPI from "../../../../redux/actions/api/Dataset/CreateNewDatasetInstance";
 //   import GetDatasetTypeAPI from "../../../../redux/actions/api/Dataset/GetDatasetType"
 import MenuItems from "../components/common/MenuItems"
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 const CollectionProject = (props) => {
     const { id } = useParams();
-    const router = useRouter();
+    const navigate = useNavigate();
     const [instance_Name, setInstance_Name] = useState("")
     const [parent_Instance_Id, setParent_Instance_Id] = useState(null)
     const [instance_Description, setInstance_Description] = useState("")
@@ -64,7 +64,7 @@ const CollectionProject = (props) => {
             else return await res.json();
         }).then((res) => {
             setLoading(false);
-            router.push(`/datasets/${res.instance_id}`);
+            navigate(`/datasets/${res.instance_id}`);
         }).catch((err) => {
             setErrors(err);
             setSnackbarState({ open: true, message: "Failed to create dataset instance", variant: "error" });
@@ -287,7 +287,7 @@ const CollectionProject = (props) => {
 
                             <Button
                                 label={"Cancel"}
-                                onClick={() => router.push(`/datasets/`)}
+                                onClick={() => navigate(`/datasets/`)}
                             />
                         </Grid>
                         {renderSnackBar()}

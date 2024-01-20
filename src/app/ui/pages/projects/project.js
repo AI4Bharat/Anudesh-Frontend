@@ -4,15 +4,16 @@ import { Radio, Box, Grid, Typography, ThemeProvider } from "@mui/material";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
-import ProjectCardList from "../../components/Project/ProjectCardList";
-import ProjectCard from "../../components/Project/ProjectCard";
-import Spinner from "../../components/common/Spinner";
-import Search from "../../components/common/Search";
-import  "../../styles/Dataset.css";
-import themeDefault from "../../themes/theme";
+import ProjectCardList from "@/components/Project/ProjectCardList";
+import ProjectCard from "@/components/Project/ProjectCard";
+import Spinner from "@/components/common/Spinner";
+import Search from "@/components/common/Search";
+import  "@/styles/Dataset.css";
+import themeDefault from "@/themes/theme";
 import { useDispatch, useSelector } from "react-redux";
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "@/themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
+
 export default function ProjectList() {
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);

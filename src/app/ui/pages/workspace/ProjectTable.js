@@ -1,17 +1,16 @@
 'use client'
 import React, { useState, useEffect ,useCallback} from "react";
-import Link from 'next/link';
+import { Link, useNavigate } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
-import tableTheme from "../../themes/tableTheme";
-import Search from "../../components/common/Search";
-import { useRouter } from "next/navigation";
+import tableTheme from "../../../../themes/tableTheme";
+import Search from "../../../../components/common/Search";
 import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
-import APITransport from "../../Lib/apiTransport/apitransport"
+import APITransport from "../../../../Lib/apiTransport/apitransport"
 // import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
-import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
-import GetWorkspacesProjectDetailsAPI from "../actions/api/workspace/GetWorkspaceProject";
+import UserMappedByProjectStage from "../../../../utils/UserMappedByProjectStage";
+import GetWorkspacesProjectDetailsAPI from "../../../actions/api/workspace/GetWorkspaceProject";
 
 
 const ProjectTable = (props) => {
@@ -21,8 +20,8 @@ const ProjectTable = (props) => {
       {label}
     </Button>
   )
- const dispatch = useDispatch();
- const router = useRouter();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 //  const {id} = router.query
   
   // const getWorkspace = () => {
@@ -134,7 +133,7 @@ const ProjectTable = (props) => {
             userRole ? userRole :  el.project_stage,
             el.tgt_language == null ?"-": el.tgt_language,
             el.project_type,
-            <Link key={i} href={`/projectdetails`} style={{ textDecoration: "none" }}>
+            <Link to={`/projectdetails`} style={{ textDecoration: "none" }}>
               <CustomButton sx={{ borderRadius: 2 }} label="View" />
             </Link>,
           ];

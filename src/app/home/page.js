@@ -1,17 +1,17 @@
 "use client";
 import "./home.css";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
-    const router = useRouter();
+    const navigate = useNavigate();
     return (
         <>
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
                 <div className="pt-8 pb-16 flex justify-between px-16">
                     <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={90} height={90}></Image>
                     <div className="flex gap-6">
-                        <button onClick={() => router.push('/login')} className="text-xl font-medium hover:underline">Login</button>
+                        <button onClick={() => navigate('/login')} className="text-xl font-medium hover:underline">Login</button>
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
                     </div>
@@ -22,7 +22,7 @@ export default function Home() {
                         <div className="text-orange-600 text-3xl mb-16">Contribute to the development of state of the art LLMs for Indian languages by helping us create high quality conversational data.</div>
                         <div className="flex gap-8">
                             <button className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">Demo Video</button>
-                            <button onClick={() => router.push("/login")} className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white">Sign In/Sign Up</button>
+                            <button onClick={() => navigate("/login")} className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white">Sign In/Sign Up</button>
                         </div>
                     </div>
                     <div className="pr-40">

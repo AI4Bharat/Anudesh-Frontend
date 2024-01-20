@@ -1,36 +1,36 @@
 'use client';
-import "../../styles/Dataset.css";
+import "@/styles/Dataset.css";
 import { Grid, Link } from "@mui/material";
-import LoginStyle from "../../styles/loginStyle";
-import AppInfo from "../../components/user/AppInfo";
-import CustomCard from "../../components/common/Card";
-import OutlinedTextField from "../../components/common/OutlinedTextField";
+import LoginStyle from "../../../../styles/loginStyle";
+import AppInfo from "../../../../components/user/AppInfo";
+import CustomCard from "../../../../components/common/Card";
+import OutlinedTextField from "../../../../components/common/OutlinedTextField";
 import { useEffect, useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import { Visibility } from "@mui/icons-material";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {useDispatch,useSelector} from "react-redux"
-import CustomButton from "../../components/common/Button";
+import CustomButton from "../../../../components/common/Button";
 import APITransport from "@/Lib/apiTransport/apitransport";
-import { useRouter } from 'next/navigation';
+import { useNavigate } from "react-router-dom";
 import { translate } from "@/config/localisation";
-import CustomizedSnackbars from "../../components/common/Snackbar";
+import CustomizedSnackbars from "../../../../components/common/Snackbar";
 import "./login.css";
-import LoginAPI from "../actions/api/user/Login";
+import LoginAPI from "../../../actions/api/user/Login";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
-import GoogleLoginAPI from "../actions/api/user/GoogleLogin";
+import GoogleLoginAPI from "../../../actions/api/user/GoogleLogin";
 import { authenticateUser } from "@/utils/utils";
 import FetchLoggedInUserDataAPI from "@/Lib/Features/user/FetchLoggedInUserData";
 
 export default function Login() {
-    const router = useRouter()
+    const navigate = useNavigate();
     const dispatch=useDispatch()
     
     useEffect(() => {
         if (authenticateUser()) {
-          router.push('/dashboard');
+          navigate('/organizations');
         }
       }, []);
       
@@ -77,7 +77,7 @@ export default function Login() {
       localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
       localStorage.setItem("email_id", credentials.email.toLowerCase());
       getLoggedInUserData();
-      router.push("/dashboard");
+      navigate("/organizations");
     } else{
       setSnackbarInfo({
         open: true,
@@ -139,7 +139,7 @@ export default function Login() {
         <CustomCard title={"Sign in to Anudesh"} cardContent={TextFields()}>
             <Grid container spacing={2} style={{ width: "100%", cursor: "pointer" }}>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12} textAlign={"right"}>
-                    <Link onClick={() => router.push("/forgot-password")}>
+                    <Link onClick={() => navigate("/forgot-password")}>
                         {translate("forgotPassword")}
                     </Link>
                 </Grid>
@@ -195,7 +195,7 @@ export default function Login() {
                     localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
                     localStorage.setItem("email_id", fireResult.claims.email.toLowerCase());
                     getLoggedInUserData();
-                    router.push("/dashboard");
+                    navigate("/organizations");
                 } else{
                     setSnackbarInfo({
                         open: true,
@@ -229,7 +229,7 @@ export default function Login() {
     //         const idTokenResult = await user.getIdTokenResult();
     //         window.localStorage.setItem("email", user.email);
     //         window.localStorage.setItem("authtoken", idTokenResult.token);
-    //         router.push("/");
+    //         navigate("/");
     //       })
     //     }
     //     catch (err) {

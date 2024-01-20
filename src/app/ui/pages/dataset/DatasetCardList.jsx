@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
-import CustomButton from "../../components/common/Button";
+import CustomButton from "@/components/common/Button";
 import { ThemeProvider,Tooltip, Button } from "@mui/material";
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "@/themes/tableTheme";
 // import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DatasetFilterList from "./DatasetFilterList";
@@ -99,8 +99,7 @@ const DatasetCardList = (props) => {
             el.instance_name,
             el.dataset_type,
             <Link
-              key={i}
-              href={`/datasets/${el.instance_id}`}
+              to={`/datasets/${el.instance_id}`}
               style={{ textDecoration: "none" }}
             >
               <CustomButton

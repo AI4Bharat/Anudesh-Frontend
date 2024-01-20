@@ -25,4 +25,5 @@ export function authenticateUser() {
       return false;
     }
   }
+  return false;
 }

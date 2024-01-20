@@ -3,8 +3,7 @@ import { Box,Grid,Tab, Card,Tabs, Typography, Divider } from '@mui/material'
 import React from 'react'
 import { useState } from 'react'
 import BasicWorkspaceSettings from '../BasicWorkspaceSettings';
-import WorkspaceSetting from '..//WorkspaceSetting';
-
+import WorkspaceSetting from '../WorkspaceSetting';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;

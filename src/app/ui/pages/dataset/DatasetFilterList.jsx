@@ -15,11 +15,11 @@ import {
   Box,
 
 } from "@mui/material";
-import  "../../styles/Dataset.css";
+import  "@/styles/Dataset.css";
 // import { useDispatch, useSelector } from "react-redux";
 // import GetDatasetTypeAPI from "../../../../redux/actions/api/Dataset/GetDatasetType";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
-import MenuItems from "../../components/common/MenuItems"
+import MenuItems from "@/components/common/MenuItems"
 
 function snakeToTitleCase(str) {
   return str.split("_").map((word) => {

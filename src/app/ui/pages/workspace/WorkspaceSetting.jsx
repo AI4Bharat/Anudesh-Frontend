@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import CustomButton from "../../components/common/Button";
-import  "../../styles/Dataset.css";
-import CustomizedSnackbars from "../../components/common/Snackbar";
+import CustomButton from "../../../../components/common/Button";
+import  "@/styles/Dataset.css";
+import CustomizedSnackbars from "../../../../components/common/Snackbar";
 import Dialog from "@mui/material/Dialog";
 import { Button,Grid } from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";

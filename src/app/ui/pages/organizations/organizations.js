@@ -1,6 +1,6 @@
 'use client';
 import DetailsViewPage from "../workspace/DetailsViewPage";
-import componentType from "../../config/PageType";
+import componentType from "../../../../config/PageType";
 import { useSelector } from "react-redux";
 
 const MyOrganization = () => {

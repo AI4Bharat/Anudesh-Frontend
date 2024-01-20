@@ -1,7 +1,7 @@
 import { Box, Grid,Button,Tooltip,Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
-import Link from 'next/link'
+import { Link } from "react-router-dom";
 import  "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
 // import { useDispatch, useSelector } from "react-redux";
