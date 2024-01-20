@@ -10,7 +10,7 @@ const initialState = {
 export const fetchFindAndReplaceWordsInAnnotation = createAsyncThunk(
   'getFindAndReplaceWordsInAnnotation/fetchFindAndReplaceWordsInAnnotation',
   async (projectId,AnnotationObj, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.getTasks}${projectId}/find_and_replace_words_in_annotation/`,method="POST",AnnotationObj);
+    const params = fetchParams(`${ENDPOINTS.getTasks}${projectId}/find_and_replace_words_in_annotation/`,"POST",AnnotationObj);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

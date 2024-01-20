@@ -7,34 +7,35 @@ const initialState = {
   error: null,
 };
 
-export const fetchUserAnalytics = createAsyncThunk(
-  'GetUserAnalytics/fetchUserAnalytics',
-  async (progressObj, { dispatch }) => {
-    
-    const params = fetchParams(`${ENDPOINTS.getUsers}user_analytics/`,"POST",progressObj);
+export const fetchScheduledMails = createAsyncThunk(
+  'GetScheduledMails/fetchScheduledMails',
+  async (userId, { dispatch }) => {
+    const params = fetchParams(`${ENDPOINTS.getUsers}${userId}/get_scheduled_mails/`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }
 );
 
-const GetUserAnalytics = createSlice({
-  name: 'GetUserAnalytics',
+const GetScheduledMails = createSlice({
+  name: 'GetScheduledMails',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUserAnalytics.pending, (state) => {
+      .addCase(fetchScheduledMails.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchUserAnalytics.fulfilled, (state, action) => {
+      .addCase(fetchScheduledMails.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
       })
-      .addCase(fetchUserAnalytics.rejected, (state, action) => {
+      .addCase(fetchScheduledMails.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });
   },
 });
 
-export default GetUserAnalytics.reducer;
+export default GetScheduledMails.reducer;
+
+

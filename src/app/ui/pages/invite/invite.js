@@ -15,6 +15,8 @@ import Button from "../../../../components/common/Button";
 import "@/styles/Dataset.css";
 
 export default function SignUp() {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const router = useRouter()
     const [snackbar, setSnackbarInfo] = useState({
         open: false,

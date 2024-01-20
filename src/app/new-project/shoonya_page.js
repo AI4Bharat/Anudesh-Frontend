@@ -981,7 +981,7 @@ const CreateProject = () => {
               />
               <Button
                 label={"Cancel"}
-                onClick={() => router.push(`/workspace/${id}`)}
+                onClick={() => router.push(`/workspace/`)}
               />
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12} />

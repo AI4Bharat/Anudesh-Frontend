@@ -21,7 +21,7 @@ export const fetchNextTask = createAsyncThunk(
         queryStr += index === 0 ? keyValStr : `&${keyValStr}`;
       });
     }
-    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/next/?${queryStr}`,method="POST",projectObj);
+    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/next/?${queryStr}`,"POST",projectObj);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

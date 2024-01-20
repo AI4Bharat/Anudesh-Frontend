@@ -10,7 +10,7 @@ const initialState = {
 export const fetchRemoveProjectMember = createAsyncThunk(
   'RemoveProjectMember/fetchRemoveProjectMember',
   async (projectId,projectObj, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/remove_annotator/`,method="POST",projectObj);
+    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/remove_annotator/`,"POST",projectObj);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

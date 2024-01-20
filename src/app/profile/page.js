@@ -13,10 +13,9 @@ import {participationType} from '../../config/dropDownValues';
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import userRole from "../../utils/Role";
 import ProfileDetails from "../../components/UserManagement/ProfileDetails"
-import ScheduleMails from "../../components/UserManagement/ScheduleMails"
-import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
+import ScheduleMails from '@/components/UserManagement/ScheduleMails';
 
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import UpdateProfileImageAPI from '../actions/api/user/UpdateProfileImageAPI'
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +24,7 @@ import { fetchUserById } from '@/Lib/Features/user/getUserById';
 
 export default function ProfilePage () {
   
-  const id=1;
+  const id=2;
   const dispatch = useDispatch();
   // const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
@@ -35,7 +34,7 @@ export default function ProfilePage () {
     message: "",
     variant: "success",
   });
-
+    /* eslint-disable react-hooks/exhaustive-deps */
   const UserDetails = useSelector((state) => state.getUserById.data);
   const LoggedInUserId = useSelector((state) => state.getLoggedInData.data.id);
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
@@ -104,31 +103,29 @@ export default function ProfilePage () {
 
 
   useEffect(() => {
-    console.log("Fetching user details...");
-    setLoading(true);
+    // setLoading(true);
     dispatch(fetchUserById(id));
-    setLoading(false);
-  }, [dispatch]);
+  }, [id]);
 
   useEffect(() => {
-    console.log("UserDetails changed:", UserDetails);
-    if (UserDetails && UserDetails.length > 0 && UserDetails[0].id === id) {
-      console.log("Setting user details...");
-      setUserDetails(UserDetails[0]);
+    if (UserDetails && UserDetails.id == id) {
+      setUserDetails(UserDetails);
       setLoading(false);
     }
-  }, [UserDetails, id]);
+  }, [UserDetails]);
+
+
 
   return (
     <Grid container spacing={2}>
       {loading && <Spinner />}
       {renderSnackBar()}
-      {userDetails && (
+      {/* {userDetails &&( */}
         <>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
             <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px", backgroundColor: 'ButtonHighlight', textAlign: 'center' }}>
               <CardContent>
-                <Typography variant="h4">{userDetails.organization.title}</Typography>
+                <Typography variant="h4">{userDetails?.organization?.title}</Typography>
               </CardContent>
             </Paper>
           </Grid>
@@ -142,49 +139,49 @@ export default function ProfilePage () {
                           <Avatar
                             alt="user_profile_pic"
                             variant="contained"
-                            src={userDetails?.profile_photo?userDetails.profile_photo:''}
+                            src={userDetails?.profile_photo?userDetails?.profile_photo:''}
                             sx={{ color: "#FFFFFF !important", bgcolor: "#2A61AD !important", width: 96, height: 96, mb: 2, alignSelf: 'center' }}
                           >
-                            {userDetails.username.split("")[0]}
+                            {userDetails?.username.split("")[0]}
                           </Avatar>
                       </IconButton>
                   </label>
                   <Typography variant="h3" sx={{ alignSelf: 'center', mb: 2 }}>
-                    {UserMappedByRole(userDetails.role).element}
+                    {userDetails?.role}
                   </Typography>
 
                 </Card>
                 <Typography variant="h3" sx={{ mb: 1, alignSelf: 'center', textAlign: 'center' }}>
-                  {userDetails.first_name} {userDetails.last_name}
+                  {userDetails?.first_name} {userDetails?.last_name}
                 </Typography>
                 <Typography variant="subtitle1" sx={{ mb: 1, alignSelf: 'center', textAlign: 'center' }}>
-                  {userDetails.username}
+                  {userDetails?.username}
                 </Typography>
                 <Card style={{ alignSelf: 'center', border: "none", boxShadow: "none", alignItems: "center", textAlign: 'center' }}>
                   <Typography variant="body1" sx={{ display: "flex", gap: "5px", alignItems: "center" }}>
-                    <MailOutlineIcon />{userDetails.email}
+                    <MailOutlineIcon />{userDetails?.email}
                   </Typography>
-                  {userDetails.phone && <Typography variant="body1" sx={{ alignItems: "center", alignSelf: 'center' }}>
-                    <PhoneOutlinedIcon />{userDetails.phone}
+                  {userDetails?.phone && <Typography variant="body1" sx={{ alignItems: "center", alignSelf: 'center' }}>
+                    <PhoneOutlinedIcon />{userDetails?.phone}
                   </Typography>}
                 </Card>
-                {userDetails.languages.length > 0 && (
+                {userDetails?.languages.length > 0 && (
                   <Typography variant="body1" sx={{ display: "flex", gap: "5px", alignItems: "center", alignSelf: 'center', textAlign: 'center' }}>Languages:
-                    {userDetails.languages.map
+                    {userDetails?.languages.map
                       (lang,index => <Chip label={lang} key={index} variant="outlined" sx={{ ml: 1 }}></Chip>
                       )}
                   </Typography>
                 )}
-                {/* {LoggedInUserId === userDetails.id && */}
+                {/* {LoggedInUserId === userDetails?.id && */}
                 {(userRole.WorkspaceManager === loggedInUserData?.role || userRole.OrganizationOwner === loggedInUserData?.role || userRole.Admin === loggedInUserData?.role || LoggedInUserId === userDetails?.id) &&
                   <Grid container spacing={2} sx={{ mt: 1, alignItems: "center", display: 'inline-flex', justifyContent: 'center' }}>
                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                      <Tooltip title={(userDetails.enable_mail ? "Disable" : "Enable") + " daily mails"}>
+                      <Tooltip title={(userDetails?.enable_mail ? "Disable" : "Enable") + " daily mails"}>
                         <FormControlLabel
                           control={<Switch color="primary" />}
                           label="Daily Mails"
                           labelPlacement="start"
-                          checked={userDetails.enable_mail}
+                          checked={userDetails?.enable_mail}
                           onChange={handleEmailToggle}
                         />
                       </Tooltip>
@@ -215,18 +212,19 @@ export default function ProfilePage () {
                 </Card>
                 }  */}
             <Card sx={{ borderRadius: "5px", mb: 2 }}>
-              {/* <MyProfile /> */}
+              <ProfileDetails />
             </Card>
           </Grid>
           {LoggedInUserId === userDetails?.id && (userRole.WorkspaceManager === loggedInUserData?.role || userRole.OrganizationOwner === loggedInUserData?.role || userRole.Admin === loggedInUserData?.role) &&
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
               <Card sx={{ borderRadius: "5px", mb: 2 }}>
-                {/* <ScheduleMails /> */}
+                <ScheduleMails />
               </Card>
             </Grid>
           }
         </>
-      )}
+      {/* )} */}
     </Grid>
+
   )
 }

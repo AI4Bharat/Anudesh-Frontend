@@ -22,7 +22,6 @@ import {
   import Spinner from "@/components/common/Spinner";
   import Menu from "@mui/material/Menu";
   import { useDispatch, useSelector } from "react-redux";
-
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
   import DatasetStyle from "@/styles/dataset";
@@ -32,6 +31,7 @@ import {
   import SuperChecker from "@/components/Project/SuperChecker";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
+import AllTaskTable from "@/components/Project/AllTaskTable";
      /* eslint-disable react-hooks/exhaustive-deps */
 
 
@@ -368,7 +368,7 @@ import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
         tabEle: (
           <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
         ),
-        // tabPanelEle: <AllTaskTable />,
+        tabPanelEle: <AllTaskTable />,
         showTab: allTask,
       },
     ];

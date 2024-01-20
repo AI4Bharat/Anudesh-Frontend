@@ -16,10 +16,10 @@ import ColumnList from "../common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import AllTasksFilterList from "./AllTasksFilter";
+import AllTasksFilterList from "./AllTasksFilterList";
 import CustomButton from '../common/Button';
 import SearchIcon from '@mui/icons-material/Search';
-import AllTaskSearchPopup from './AllTaskSearchPopup';
+import AllTaskSearchPopup from "./AllTasksSearchpopup";
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 
 const excludeCols = [
@@ -60,6 +60,7 @@ const AllTaskTable = (props) => {
   const [searchedCol, setSearchedCol] = useState();
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
+     /* eslint-disable react-hooks/exhaustive-deps */
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;

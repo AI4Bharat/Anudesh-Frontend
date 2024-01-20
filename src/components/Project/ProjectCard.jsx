@@ -17,6 +17,8 @@ import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 
 const Projectcard = (props) => {
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
 //   const SearchProject = useSelector((state) => state.SearchProjectCards.data);

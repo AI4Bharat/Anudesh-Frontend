@@ -1,23 +1,31 @@
-'use client';
-import themeDefault from "../themes/theme"
-import { ThemeProvider } from "@emotion/react"
-import Providers from "./StoreProvider";
-import "./index.css";
-// export const metadata = {
-//   title: 'Anudesh',
-//   description: 'anudesh-frontend',
-// }
+// Import necessary modules from Next.js
+"use client"
+import Head from 'next/head';
+import { ThemeProvider } from '@emotion/react';
+
+// Import your custom theme
+import themeDefault from '../themes/theme';
+
+// Import the StoreProvider and CSS
+import Providers from './StoreProvider';
+import './index.css';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <>
+     <html lang="en">
+      <Head>
+
+      </Head>
+
       <body>
         <Providers>
-        <ThemeProvider theme={themeDefault}>
-        {children}
-        </ThemeProvider>
+          <ThemeProvider theme={themeDefault}>
+            {children}
+          </ThemeProvider>
         </Providers>
       </body>
-    </html>
-  )
+      </html>
+    </>
+  );
 }
