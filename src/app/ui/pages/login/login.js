@@ -30,7 +30,7 @@ export default function Login() {
     
     useEffect(() => {
         if (authenticateUser()) {
-          navigate('/organizations');
+          navigate('/projects');
         }
       }, [navigate]);
       
@@ -77,7 +77,7 @@ export default function Login() {
       localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
       localStorage.setItem("email_id", credentials.email.toLowerCase());
       getLoggedInUserData();
-      navigate("/organizations");
+      navigate("/projects");
     } else{
       setSnackbarInfo({
         open: true,
@@ -195,7 +195,7 @@ export default function Login() {
                     localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
                     localStorage.setItem("email_id", fireResult.claims.email.toLowerCase());
                     getLoggedInUserData();
-                    navigate("/organizations");
+                    navigate("/projects");
                 } else{
                     setSnackbarInfo({
                         open: true,

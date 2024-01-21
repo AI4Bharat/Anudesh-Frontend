@@ -12,6 +12,7 @@ import Dataset from "./ui/pages/dataset/dataset";
 import Workspace from "./ui/pages/workspace/workspace";
 import WorkspaceSettingTabs from "./ui/pages/workspace/workspacesetting/setting";
 import SignUp from "./ui/pages/invite/invite";
+import ForgotPassword from "./ui/pages/forgot-password/forgot-password";
 
 export default function Root() {
   const ProtectedRoute = ({ user, children }) => {
@@ -31,6 +32,7 @@ export default function Root() {
         <Routes>
           <Route path="/" element={<Home/>} />
           <Route path="/login" element={<Login/>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/invite/:inviteCode" element={<SignUp />} />
           <Route
             path="/organizations/:orgId"
