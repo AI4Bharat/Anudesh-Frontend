@@ -18,6 +18,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { styled } from '@mui/material/styles';
 import { addDays } from 'date-fns';
+import { isSameDay, format } from 'date-fns';
 import {useDispatch,useSelector} from "react-redux"
 import CustomizedSnackbars from "../common/Snackbar";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
@@ -54,13 +55,12 @@ const OrganizationReports = () => {
   const OrganizationDetails = useSelector(state => state.getLoggedInData?.data.organization);
   const UserDetails = useSelector(state => state.getLoggedInData.data);
   const [selectRange, setSelectRange] = useState([{
-    // startDate: new Date(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-    // endDate: new Date(),
-    // key: "selection"
-    startDate: addDays(new Date(), -9),
-    endDate: addDays(new Date(), -3),
-    key: 'selection'
+    startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
+    endDate: new Date(),
+    key: "selection"
   }]);
+  console.log("Start Date:", selectRange[0].startDate);
+console.log("End Date:", selectRange[0].endDate);
   // const [rangeValue, setRangeValue] = useState([format(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), 'yyyy-MM-dd'), Date.now()]);
   const [showPicker, setShowPicker] = useState(false);
   const [projectTypes, setProjectTypes] = useState([]);

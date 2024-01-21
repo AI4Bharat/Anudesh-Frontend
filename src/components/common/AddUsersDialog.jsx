@@ -275,7 +275,7 @@ const AddUsersDialog = ({
         <Autocomplete
           multiple
           limitTags={3}
-          onChange={(e, newVal) => setSelectedUsers(e.target.value)}
+          onChange={(e, newVal) => setSelectedUsers(Array.isArray(newVal) ? newVal : [])}
           options={availableUsers}
           value={selectedUsers}
           style={{ fontSize: "1rem", paddingTop: 4, paddingBottom: 4 }}

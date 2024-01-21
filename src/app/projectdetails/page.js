@@ -33,7 +33,8 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import SuperCheckerTasks from "../../components/Project/SuperCheckerTasks";
 import AllTaskTable from "@/components/Project/AllTaskTable";
      /* eslint-disable react-hooks/exhaustive-deps */
-
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
   const menuOptions = [
     { name: "Tasks", isChecked: false, component: () => null },
@@ -103,9 +104,12 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       },
     },
   }));
-  const Projects = () => {
+  export default function Projects({ params}) {
     // console.log("props", props)
     // const { id } = useParams();
+    // const params = useParams();
+    console.log(params.id,"id");
+    const router = useRouter();
     const id = 1
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
@@ -250,7 +254,10 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
     //   navigate(`/projects/${id}/projectsetting`);
     // };
   
-  
+    const handleOpenSettings = () => {
+      router.push(`/workspaces/workspacesetting`);
+    };
+
     let projectValue = "Unassigned Super Check Tasks"
     const filterdata = projectData.filter(item => item.name !== projectValue)
     const projectFilterData = isSuperChecker ? projectData : filterdata
@@ -441,6 +448,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                     <Tooltip title={translate("label.showProjectSettings")}>
                       <IconButton
+                      onClick={handleOpenSettings}
                         sx={{ marginLeft: "140px" }}
                       >
                         <SettingsOutlinedIcon
@@ -472,4 +480,3 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
     );
   };
   
-  export default Projects;

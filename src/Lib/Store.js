@@ -33,10 +33,12 @@ import getAllTaskData from './Features/projects/getAllTaskData';
 import GetScheduledMails from './Features/user/GetScheduledMails';
 import getUserAnalytics from './Features/user/getUserAnalytics';
 import getRecentTasks from './Features/user/getRecentTasks';
+import getUserDetails from './Features/user/getUserDetails';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        getUserDetails:getUserDetails,
         getAllTaskData:getAllTaskData,
         getRecentTasks:getRecentTasks,
         getUserAnalytics:getUserAnalytics,
