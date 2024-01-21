@@ -18,6 +18,7 @@ import Image from "next/image";
 import { Menu } from "@mui/icons-material";
 
 import headerStyle from "@/styles/Header";
+import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 
 // const useStyles = makeStyles(() => ({
 //   Navlink: {
@@ -29,6 +30,16 @@ import headerStyle from "@/styles/Header";
 //     color: "white",
 //   },
 // }));
+
+const handleChangePassword = async (email) => {
+    let obj = new ForgotPasswordAPI({email: email});
+    const res = await fetch(obj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(obj.getBody()),
+        headers: obj.getHeaders().headers,
+    });
+    const resp = await res.json();
+  };
 
 function MobileNavbar(props) {
   const { loggedInUserData, appSettings, userSettings, tabs } = props;
@@ -128,6 +139,18 @@ function MobileNavbar(props) {
                             </Typography>
                         </ListItem>
                     ))}
+                    {!loggedInUserData.guest_user && 
+                        <ListItem key={3} onClick={() => {setOpenDrawer(false); handleChangePassword(loggedInUserData.email);}}>
+                            <Typography variant="body1" textAlign="center">
+                            Change Password
+                            </Typography>
+                        </ListItem>
+                    }
+                    <ListItem key={4} onClick={() => onLogoutClick() }>
+                        <Typography variant="body1" textAlign="center">
+                        Logout
+                        </Typography>
+                    </ListItem>
                 </List>
             </Box>
         </Box>

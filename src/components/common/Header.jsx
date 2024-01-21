@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { usePathname } from 'next/navigation'
 import MobileNavbar from "./MobileNavbar";
 import { useTheme } from "@emotion/react";
@@ -32,6 +32,7 @@ import userRole from "@/utils/UserMappedByRole/Roles";
 import UpdateUIPrefsAPI from "@/Lib/Features/user/UpdateUIPrefs";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import { Link, NavLink } from "react-router-dom";
+import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 
 const Header = () => {
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -71,7 +72,7 @@ const Header = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const dispatch = useDispatch();
-  const router = useRouter();
+  const navigate = useNavigate();
   const pathname = usePathname();
   const classes = headerStyle();
 
@@ -99,7 +100,7 @@ const Header = () => {
     if (typeof window !== 'undefined') {
       localStorage.clear();
     }
-    router.push("/");
+    navigate("/");
   };
 
   // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -131,7 +132,7 @@ const Header = () => {
 
 const handleopenproject=(id,type)=>{
   if(type=="publish_project"){
-    router.push(`/projects/${id}`);
+    navigate(`/projects/${id}`);
   }
 }
 
@@ -615,24 +616,16 @@ const handleopenproject=(id,type)=>{
       name: "My Profile",
       onclick: () => {
         handleCloseUserMenu();
-        router.push(`/profile/${loggedInUserData?.id}`);
+        navigate(`/profile/${loggedInUserData?.id}`);
       },
     },
     {
       name: "My Progress",
       onclick: () => {
         handleCloseUserMenu();
-        router.push(`/progress/${loggedInUserData?.id}`);
+        navigate(`/progress/${loggedInUserData?.id}`);
       },
     },
-    {
-      name: "Change Password",
-      onclick: () => {
-        handleCloseUserMenu();
-        router.push("/Change-Password");
-      },
-    },
-    { name: "Logout", onclick: () => onLogoutClick() },
   ];
 
   const appSettings = [
@@ -694,6 +687,29 @@ const handleopenproject=(id,type)=>{
 
   const handleTransliterationModelClose = () => {
     setShowTransliterationModel(false);
+  };
+
+  const handleChangePassword = async (email) => {
+    let obj = new ForgotPasswordAPI({email: email});
+    const res = await fetch(obj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(obj.getBody()),
+        headers: obj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+        setSnackbarInfo({
+            open: true,
+            message: "Link to change password sent successfully on your email.",
+            variant: "success",
+        })
+    } else {
+        setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+        })
+    }
   };
 
   return (
@@ -868,6 +884,18 @@ const handleopenproject=(id,type)=>{
                       </Typography>
                     </MenuItem>
                   ))}
+                  {!loggedInUserData.guest_user && 
+                    <MenuItem key={3} onClick={() => {handleCloseUserMenu(); handleChangePassword(loggedInUserData.email);}}>
+                    <Typography variant="body2" textAlign="center">
+                      Change Password
+                    </Typography>
+                    </MenuItem>
+                  }
+                  <MenuItem key={4} onClick={() => onLogoutClick() }>
+                    <Typography variant="body2" textAlign="center">
+                      Logout
+                    </Typography>
+                  </MenuItem>
                 </Menu>
                 <Menu
                   sx={{ mt: "45px" }}
