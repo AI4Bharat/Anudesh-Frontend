@@ -80,7 +80,6 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
-debugger
 const TaskTable = (props) => {
   const classes = DatasetStyle();
   // const { id } = useParams();

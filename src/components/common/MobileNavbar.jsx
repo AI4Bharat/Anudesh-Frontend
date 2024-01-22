@@ -4,8 +4,7 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemText,
-  makeStyles,
+//   makeStyles,
   Grid,
   AppBar, 
   Divider,
@@ -13,24 +12,34 @@ import {
   Typography,
   Box,
   FormControlLabel,
-  Checkbox
 } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu } from "@mui/icons-material";
 
-import headerStyle from "../styles/Header";
+import headerStyle from "@/styles/Header";
+import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 
-const useStyles = makeStyles(() => ({
-  Navlink: {
-    textDecoration: "none",
-    color: "blue",
-    fontSize: "20px",
-  },
-  icon: {
-    color: "white",
-  },
-}));
+// const useStyles = makeStyles(() => ({
+//   Navlink: {
+//     textDecoration: "none",
+//     color: "blue",
+//     fontSize: "20px",
+//   },
+//   icon: {
+//     color: "white",
+//   },
+// }));
+
+const handleChangePassword = async (email) => {
+    let obj = new ForgotPasswordAPI({email: email});
+    const res = await fetch(obj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(obj.getBody()),
+        headers: obj.getHeaders().headers,
+    });
+    const resp = await res.json();
+  };
 
 function MobileNavbar(props) {
   const { loggedInUserData, appSettings, userSettings, tabs } = props;
@@ -130,6 +139,18 @@ function MobileNavbar(props) {
                             </Typography>
                         </ListItem>
                     ))}
+                    {!loggedInUserData.guest_user && 
+                        <ListItem key={3} onClick={() => {setOpenDrawer(false); handleChangePassword(loggedInUserData.email);}}>
+                            <Typography variant="body1" textAlign="center">
+                            Change Password
+                            </Typography>
+                        </ListItem>
+                    }
+                    <ListItem key={4} onClick={() => onLogoutClick() }>
+                        <Typography variant="body1" textAlign="center">
+                        Logout
+                        </Typography>
+                    </ListItem>
                 </List>
             </Box>
         </Box>
@@ -144,8 +165,9 @@ function MobileNavbar(props) {
             }}
         > 
             <Grid item sx={{ display: "flex", alignItems: "center" }}>
-                <Link to="/projects">
-                    <Image src={Shoonya_Logo} alt="logo" className="headerLogo" style={{marginBottom: "5%"}} />
+                <Link href="/projects">
+                    Anudesh
+                    {/* <Image src={Shoonya_Logo} alt="logo" className="headerLogo" style={{marginBottom: "5%"}} /> */}
                 </Link>
                 <Typography
                   variant="h4"
@@ -157,7 +179,7 @@ function MobileNavbar(props) {
 
                   }}
                 >
-                  Shoonya
+                  Anudesh
                 </Typography>
             </Grid>
             <Grid item>
