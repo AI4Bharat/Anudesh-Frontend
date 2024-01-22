@@ -7,8 +7,11 @@ import  "../../styles/Dataset.css";
 import CustomButton from "../../components/common/Button";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import Spinner from "../../components/common/Spinner";
-
-
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { snakeToTitleCase } from "@/utils/utils";
+import GetWorkspaceSaveButtonAPI from "../actions/api/Projects/GetWorkspaceSaveButton";
+import DatasetStyle from "@/styles/dataset";
+import { useDispatch,useSelector } from "react-redux";
 
 const BasicWorkspaceSettings = (props) => {
     const [snackbar, setSnackbarInfo] = useState({
@@ -19,7 +22,12 @@ const BasicWorkspaceSettings = (props) => {
     const [value, setValue] = useState();
     const [loading, setLoading] = useState(false);
     const [newDetails, setNewDetails] = useState();
-    
+    // const { id } = useParams();
+    const id = 2;
+    // const navigate = useNavigate();
+    const classes = DatasetStyle();
+    const dispatch = useDispatch();
+    const apiLoading = useSelector(state => state.apiStatus.loading);
     const [publicanalytics,setpublicanalytics] = useState(true)
    
 
@@ -29,15 +37,64 @@ const BasicWorkspaceSettings = (props) => {
         setpublicanalytics((publicanalytics)=>!publicanalytics)
       };
 
+    const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
+    console.log('test')
+    console.log(workspaceDetails)
+    const getWorkspaceDetails = () => {
+        dispatch(fetchWorkspaceDetails(id));
+    }
 
+    useEffect(() => {
+        getWorkspaceDetails();
+    }, []);
 
+    useEffect(() => {
+        setNewDetails({
+            workspace_name: workspaceDetails?.workspace_name
+        });
+    }, [workspaceDetails]);
+
+    const handleSave = async () => {
+
+        const sendData = {
+            workspace_name: newDetails.workspace_name,
+            organization: workspaceDetails.organization,
+            is_archived: workspaceDetails.is_archived,
+            public_analytics: publicanalytics
+        }
+        const workspaceObj = new GetWorkspaceSaveButtonAPI(id, sendData);
+        const res = await fetch(workspaceObj.apiEndPoint(), {
+            method: "PUT",
+            body: JSON.stringify(workspaceObj.getBody()),
+            headers: workspaceObj.getHeaders().headers,
+        });
+        const resp = await res.json();
+        setLoading(false);
+        if (res.ok) {
+            setSnackbarInfo({
+                open: true,
+                message: "success",
+                variant: "success",
+            })
+
+        } else {
+            setSnackbarInfo({
+                open: true,
+                message: resp?.message,
+                variant: "error",
+            })
+        }
+
+    }
 
     function snakeToTitleCase(str) {
         return str.split("_").map((word) => {
             return word.charAt(0).toUpperCase() + word.slice(1);
         }).join(" ");
     }
-
+    useEffect(() => {
+        setLoading(apiLoading);
+    }, [apiLoading])
 
     const handleWorkspaceName = (event) => {
 
@@ -61,6 +118,7 @@ const BasicWorkspaceSettings = (props) => {
             />
         );
     };
+
 
     return (
         <ThemeProvider theme={themeDefault}>
@@ -160,7 +218,7 @@ const BasicWorkspaceSettings = (props) => {
                         // onClick={handleCancel}
                         label="Cancel" />
                     <CustomButton sx={{ inlineSize: "max-content", width: "80px" }}
-                        // onClick={handleSave}
+                        onClick={handleSave}
                         label="Save" />
                 </Grid>
             </Grid>

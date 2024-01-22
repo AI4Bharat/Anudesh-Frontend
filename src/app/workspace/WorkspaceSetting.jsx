@@ -8,13 +8,16 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import TextField from '@mui/material/TextField';
+import LoginAPI from "../actions/api/user/Login";
+import DownloadAllProjects from "../actions/api/Projects/DownloadAllProjects";
+import GetArchiveProjectAPI from "../actions/api/Projects/GetArchiveProject";
 
 function WorkspaceSetting(props) {
-   /* eslint-disable react-hooks/exhaustive-deps */
-
   const { onArchiveWorkspace } = props
   console.log(props, "props")
-  
+  const { id } = useParams();
+  const classes = DatasetStyle();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [snackbar, setSnackbarInfo] = useState({
@@ -23,9 +26,34 @@ function WorkspaceSetting(props) {
     variant: "success",
   });
 
+  const workspaceDtails = useSelector(state => state.getWorkspaceDetails.data);
 
   const handleArchiveWorkspace = async () => {
-    
+    const projectObj = new GetArchiveProjectAPI(id, id);
+    dispatch(APITransport(projectObj));
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: "success",
+        variant: "success",
+      })
+      onArchiveWorkspace()
+      // window.location.reload();
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      })
+    }
+
   }
 
   const renderSnackBar = () => {
@@ -52,13 +80,51 @@ function WorkspaceSetting(props) {
   const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
-   
+    const apiObj = new LoginAPI(emailId, password);
+    const res = await fetch(apiObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    });
+    const rsp_data = await res.json();
+    if (res.ok) {
+      handleArchiveWorkspace();
+    } else {
+      window.alert("Invalid credentials, please try again");
+      console.log(rsp_data);
+    }
   };
+  const user = useSelector((state) => state.fetchLoggedInUserData?.data);
+  console.log(user);
   const handleDownloadProject = async () => {
-    
+    // SetTask([]) //used to clear the selected task statuses
+    const projectObj = new DownloadAllProjects(workspaceDtails.id,user.id);
+    dispatch(APITransport(projectObj));
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      })
+
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      })
+    }
+
   };
   return (
-    <div style={{padding:"0px"}}>
+    <div>
       {renderSnackBar()}
       <Dialog
         open={open}
@@ -68,7 +134,7 @@ function WorkspaceSetting(props) {
       >
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to archive
+            Are you sure you want to {workspaceDtails?.is_archived ? "unarchive" : "archive"}{" "}
             this project?
           </DialogContentText>
           <TextField
@@ -94,13 +160,12 @@ function WorkspaceSetting(props) {
       </Dialog>
 
       <CustomButton
-       fullWidth
-        sx={{ backgroundColor: "#ee6633", color:"white","&:hover": { backgroundColor: "#ee6633"} }}
-        // className="settingsButton"
+        sx={{ backgroundColor: "#cf5959", "&:hover": { backgroundColor: "#cf5959", } }}
+        className={classes.settingsButton}
         onClick={handleClickOpen}
         label={"Archive Workspace"}
         buttonVariant="contained"
-        // disabled={workspaceDtails?.is_archived}
+        disabled={workspaceDtails?.is_archived}
       />
       <Grid
         items
@@ -112,10 +177,9 @@ function WorkspaceSetting(props) {
         mt={2}
       >
         <CustomButton
-      sx={{backgroundColor : "#ee6633", "&:hover" : {backgroundColor : "#ee6633",}}} 
+      sx={{backgroundColor : "#2C2799", "&:hover" : {backgroundColor : "rgba(0, 0, 0, .85)",}}} 
       label={"Download All Projects"}
-    //   className="settingsButton"
-      fullWidth
+      className={classes.settingsButton}
         variant="contained"
         onClick={handleDownloadProject}
       />
