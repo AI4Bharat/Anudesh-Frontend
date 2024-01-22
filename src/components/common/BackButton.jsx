@@ -1,11 +1,11 @@
 import { Button } from "@mui/material"
-import { useRouter } from 'next/navigation'
+import { useNavigate } from "react-router-dom";
 
 const BackButton = ({ label, backPressNavigationPath, ...rest }) =>{
-  const router = useRouter();
+  const navigate = useNavigate();
   return (
     <>
-     <Button {...rest} variant="contained" color="primary" onClick={() => backPressNavigationPath ? router.push(backPressNavigationPath) : router.back()}>
+     <Button {...rest} variant="contained" color="primary" onClick={() => backPressNavigationPath ? navigate(backPressNavigationPath) : navigate(-1)}>
       {label}
     </Button>
      </>

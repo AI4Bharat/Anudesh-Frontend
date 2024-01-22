@@ -1,34 +1,27 @@
-import { Box, Grid,Button,Tooltip,Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import ProjectCard from "../common/ProjectCard";
-import { Link } from "react-router-dom";
-import  "../../styles/Dataset.css";
-import DatasetStyle from "@/styles/dataset";
-// import { useDispatch, useSelector } from "react-redux";
+import { Box, Grid ,Button,Tooltip } from "@mui/material";
+import React, { useState } from "react";
+import DatasetCard from "@/components/common/DatasetCard";
+import  "@/styles/Dataset.css";
+// import { useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
-import TablePaginationActions from "../common/TablePaginationActions";
-import Spinner from "../common/Spinner";
-import Search from "../common/Search";
-// import SearchProjectCards from "../../../../redux/actions/api/ProjectDetails/SearchProjectCards";
-// import Record from "../../../../assets/no-record.svg";
-import ProjectFilterList from "../common/ProjectFilterList";
+import TablePaginationActions from "@/components/common/TablePaginationActions";
+import DatasetFilterList from "./DatasetFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 
-const Projectcard = (props) => {
-   /* eslint-disable react-hooks/exhaustive-deps */
-
-  const { projectData, selectedFilters, setsSelectedFilters } = props;
-  const classes = DatasetStyle();
-//   const SearchProject = useSelector((state) => state.SearchProjectCards.data);
-  const SearchProject = []
-  const [page, setPage] = useState(0);
+const DatasetCards = (props) => {
+  const { datasetList,selectedFilters,setsSelectedFilters } = props;
   
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(9);
+  // const apiLoading = useSelector(state => state.apiStatus.loading);
+  // const SearchDataset = useSelector((state) => state.SearchProjectCards.data);
+  const SearchDataset = [];
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
+ 
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -38,7 +31,9 @@ const Projectcard = (props) => {
     setAnchorEl(null);
   };
 
+
   const handleChangePage = (e, newPage) => {
+    console.log("newPage", newPage);
     setPage(newPage);
   };
 
@@ -46,40 +41,33 @@ const Projectcard = (props) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
-  const pageSearch = () => {
-    return projectData.filter((el) => {
-      if (SearchProject == "") {
-        return el;
-      } else if (
-        el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())
-      ) {
-        return el;
-      }  else if (
-        el.title?.toLowerCase().includes(SearchProject?.toLowerCase())
-      ) {
-        return el;
-      } else if (
-        el.id.toString()?.toLowerCase()?.includes(SearchProject.toLowerCase())
-      ) {
-        return el;
-      }else if (
-        el.workspace_id.toString()?.toLowerCase().includes(SearchProject?.toLowerCase())
-      ) {
-        return el;}
-        else if (
-          el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
-        ) {
-          return el;}
-          // else if (
-          //   UserMappedByProjectStage(el.project_stage)
-          //     ?.name?.toLowerCase()
-          //     .includes(SearchProject?.toLowerCase())
-          // ) {
 
-            return el;
-          // }
+  const pageSearch = () => {
+    return datasetList.filter((el) => {
+      if (SearchDataset == "") {
+        return el;
+      } else if (
+        el.dataset_type?.toLowerCase().includes(SearchDataset?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.instance_name?.toLowerCase().includes(SearchDataset?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.instance_id
+          .toString()
+          ?.toLowerCase()
+          ?.includes(SearchDataset.toLowerCase())
+      ) {
+        return el;
+      }
     });
   };
+
+  // useEffect(() => {
+  //     setLoading(apiLoading);
+  // }, [apiLoading])
 
   return (
     <React.Fragment>
@@ -107,13 +95,13 @@ const Projectcard = (props) => {
               .map((el, i) => {
                 return (
                   <Grid key={el.id} item xs={12} sm={6} md={4} lg={4} xl={4}>
-                    <ProjectCard
+                    <DatasetCard
                       classAssigned={
                         i % 2 === 0
                           ? classes.projectCardContainer2
                           : classes.projectCardContainer1
                       }
-                      projectObj={el}
+                      datasetObj={el}
                       index={i}
                     />
                   </Grid>
@@ -133,7 +121,7 @@ const Projectcard = (props) => {
           />
         </Box>
       )}
-      <ProjectFilterList
+      <DatasetFilterList
         id={filterId}
         open={popoverOpen}
         anchorEl={anchorEl}
@@ -145,4 +133,4 @@ const Projectcard = (props) => {
   );
 };
 
-export default Projectcard;
+export default DatasetCards;
