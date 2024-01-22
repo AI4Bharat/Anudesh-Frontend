@@ -1,5 +1,5 @@
 import  {React, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from 'next/link';
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
 import { Grid, ThemeProvider, Tooltip, Button } from "@mui/material";
@@ -177,11 +177,7 @@ const ProjectCardList = (props) => {
             el.tgt_language == null ? "-" : el.tgt_language,
             el.project_mode,
             el.workspace_id,
-<<<<<<< HEAD
-            <Link key ={i}href={`/projectdetails/${el.id}`} style={{ textDecoration: "none" }}>
-=======
-            <Link key={i} to={`/projects/${el.id}`} style={{ textDecoration: "none" }}>
->>>>>>> navbar
+            <Link key ={i}href={`/projectdetails`} style={{ textDecoration: "none" }}>
               <CustomButton
                 sx={{ borderRadius: 2, marginRight: 2 }}
                 label="View"

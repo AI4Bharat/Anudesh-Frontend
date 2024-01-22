@@ -12,59 +12,23 @@ import {
     Tooltip,
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
-<<<<<<<< HEAD:src/app/projectdetails/[id]/page.js
-  import themeDefault from "../../../themes/theme";
+  import themeDefault from "../../themes/theme";
   import Link from "next/link";
-  import TaskTable from "../../../components/Project/TaskTable";
-  import MembersTable from "../../../components/Project/MembersTable";
-  import ReportsTable from "../../../components/Project/ReportsTable";
-  import { translate } from "../../../config/localisation";
-  import addUserTypes from "../../../Constants/addUserTypes";
-  import Spinner from "../../../components/common/Spinner";
-========
-  import themeDefault from "@/themes/theme";
-  import Link from "next/link";
-  import TaskTable from "@/components/Project/TaskTable";
-  import MembersTable from "@/components/Project/MembersTable";
-  import ReportsTable from "@/components/Project/ReportsTable";
-  import { translate } from "@/config/localisation";
-  import addUserTypes from "@/Constants/addUserTypes";
-  import Spinner from "@/components/common/Spinner";
->>>>>>>> navbar:src/app/ui/pages/projects/projectDetails.js
+  import TaskTable from "../components/Project/TaskTable";
+  import MembersTable from "../components/Project/MembersTable";
+  import ReportsTable from "../components/Project/ReportsTable";
+  import { translate } from "../../config/localisation";
+  import addUserTypes from "../Constants/addUserTypes";
+  import Spinner from "../components/common/Spinner";
   import Menu from "@mui/material/Menu";
-  import { useDispatch, useSelector } from "react-redux";
   import { styled, alpha } from "@mui/material/styles";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-<<<<<<<< HEAD:src/app/projectdetails/[id]/page.js
-  import DatasetStyle from "../../../styles/dataset";
-  import ProjectDescription from "../../../components/Tabs/ProjectDescription";
+  import DatasetStyle from "../../styles/Dataset";
+  import ProjectDescription from "../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-  import userRole from "../../../utils/UsersRolesList";
-  import SuperChecker from "../../../components/Project/SuperChecker";
-import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import SuperCheckerTasks from "../../../components/Project/SuperCheckerTasks";
-========
-  import DatasetStyle from "@/styles/dataset";
-  import ProjectDescription from "@/components/Tabs/ProjectDescription";
-  import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-  import userRole from "@/utils/UsersRolesList";
-  import SuperChecker from "@/components/Project/SuperChecker";
-import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
->>>>>>>> navbar:src/app/ui/pages/projects/projectDetails.js
-import AllTaskTable from "@/components/Project/AllTaskTable";
-     /* eslint-disable react-hooks/exhaustive-deps */
-import { useParams } from "next/navigation";
-// import { useRouter } from "next/navigation";
-import { useRouter } from "next/router";
+  import userRole from "../../utils/UsersRolesList";
+  import SuperChecker from "../components/Project/SuperChecker";
 
-
-  const menuOptions = [
-    { name: "Tasks", isChecked: false, component: () => null },
-    { name: "Members", isChecked: false, component: () => null },
-    { name: "Reports", isChecked: true, component: () => null },
-  ];
-  
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
   
@@ -85,58 +49,9 @@ import { useRouter } from "next/router";
     );
   }
   
-  const StyledMenu = styled((props) => (
-    <Menu
-      elevation={0}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    "& .MuiPaper-root": {
-      borderRadius: 6,
-      marginTop: theme.spacing(1),
-      minWidth: 180,
-      color:
-        theme.palette.mode === "light"
-          ? "rgb(55, 65, 81)"
-          : theme.palette.grey[300],
-      boxShadow:
-        "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      "& .MuiMenu-list": {
-        padding: "4px 0",
-      },
-      "& .MuiMenuItem-root": {
-        "& .MuiSvgIcon-root": {
-          fontSize: 18,
-          color: theme.palette.text.secondary,
-          marginRight: theme.spacing(1.5),
-        },
-        "&:active": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-  }));
-  export default function Projects({ params}) {
-    // console.log("props", props)
-    // const { id } = useParams();
-    // const params = useParams();
-    // console.log(params.id,"id");
-    const router = useRouter();
-    const { id } = router.query;
-  //  console.log(id,"id");
-    // const router = useRouter();
-    // const id = 1
+debugger
+  export default function ProjectDetails () {
+
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -147,7 +62,6 @@ import { useRouter } from "next/router";
       { name: "Total Labeled Task", value: null },
       { name: "Reviewed Task Count", value: null },
     ]);
-    // let navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -156,77 +70,163 @@ import { useRouter } from "next/router";
     const handleClose = () => {
       setAnchorEl(null);
     };
-     /* eslint-disable react-hooks/exhaustive-deps */
 
-    const dispatch = useDispatch();
-    const ProjectDetails = useSelector((state) => state.getProjectDetails && state.getProjectDetails?.data);
-    const userDetails = useSelector((state) =>  state.getLoggedInData && state.getLoggedInData?.data);
-    const loggedInUserData = useSelector(
-      (state) => state.getLoggedInData && state.getLoggedInData?.data
-    );
-    const getProjectDetails = () => {
-      dispatch(fetchProjectDetails(id))
-    };
- /* eslint-disable react-hooks/exhaustive-deps */
- useEffect(() => {
-  console.log("Fetching project details...");
-  if (id) {
-    dispatch(fetchProjectDetails(id));
+    
+    const userDetails= {
+      "id": 1,
+      "username": "shoonya",
+      "email": "shoonya@ai4bharat.org",
+      "languages": [],
+      "availability_status": 1,
+      "enable_mail": false,
+      "first_name": "Admin",
+      "last_name": "AI4B",
+      "phone": "",
+      "profile_photo": "",
+      "role": 6,
+      "organization": {
+          "id": 1,
+          "title": "AI4Bharat",
+          "email_domain_name": "ai4bharat.org",
+          "created_by": {
+              "username": "shoonya",
+              "email": "shoonya@ai4bharat.org",
+              "first_name": "Admin",
+              "last_name": "AI4B",
+              "role": 6
+          },
+          "created_at": "2022-04-24T13:11:30.339610Z"
+      },
+      "unverified_email": "shoonya@ai4bharat.org",
+      "date_joined": "2022-04-24T07:40:11Z",
+      "participation_type": 3,
+      "prefer_cl_ui": false,
+      "is_active": true
+  };
+   
+     const loggedInUserData= {
+      "id": 1,
+      "username": "shoonya",
+      "email": "shoonya@ai4bharat.org",
+      "languages": [],
+      "availability_status": 1,
+      "enable_mail": false,
+      "first_name": "Admin",
+      "last_name": "AI4B",
+      "phone": "",
+      "profile_photo": "",
+      "role": 2,
+      "organization": {
+          "id": 1,
+          "title": "AI4Bharat",
+          "email_domain_name": "ai4bharat.org",
+          "created_by": {
+              "username": "shoonya",
+              "email": "shoonya@ai4bharat.org",
+              "first_name": "Admin",
+              "last_name": "AI4B",
+              "role": 6
+          },
+          "created_at": "2022-04-24T13:11:30.339610Z"
+      },
+      "unverified_email": "shoonya@ai4bharat.org",
+      "date_joined": "2022-04-24T07:40:11Z",
+      "participation_type": 3,
+      "prefer_cl_ui": false,
+      "is_active": true
   }
-}, [id, dispatch]);
-    useEffect(() => {
-      if(ProjectDetails&& ProjectDetails.id){
-      const projectStatus = ProjectDetails.is_archived
-        ? "Archived"
-        : ProjectDetails.is_published
-          ? "Published"
-           :"Draft";
-      setProjectData([
-        {
-          name: "Project ID",
-          value: ProjectDetails.id,
-        },
-        {
-          name: "Description",
-          value: ProjectDetails.description,
-        },
-        {
-          name: "Project Type",
-          value: ProjectDetails.project_type,
-        },
-        {
-          name: "Status",
-          value: projectStatus,
-        },
-        {
-          name: "Unassigned Annotation Tasks",
-          value: ProjectDetails.unassigned_task_count,
-        },
-        {
-          name: "Unassigned Review Tasks",
-          value: ProjectDetails.labeled_task_count,
-        },
-  
-        {
-          name: "Unassigned Super Check Tasks",
-          value: ProjectDetails.reviewed_task_count,
-        },
-      ]);
-    }
-    }, [ProjectDetails.id]);
-    const [loading, setLoading] = useState(false);
-    const [annotationreviewertype, setAnnotationreviewertype] = useState();
+    const ProjectDetails = {
+      "id": 2279,
+      "title": "test ocr ce 2",
+      "description": "test",
+      "created_by": null,
+      "is_archived": false,
+      "is_published": true,
+      "annotators": [
+          {
+              "id": 1,
+              "username": "shoonya",
+              "email": "shoonya@ai4bharat.org",
+              "languages": [],
+              "availability_status": 1,
+              "enable_mail": false,
+              "first_name": "Admin",
+              "last_name": "AI4B",
+              "phone": "",
+              "profile_photo": "",
+              "role": 6,
+              "organization": {
+                  "id": 1,
+                  "title": "AI4Bharat",
+                  "email_domain_name": "ai4bharat.org",
+                  "created_by": {
+                      "username": "shoonya",
+                      "email": "shoonya@ai4bharat.org",
+                      "first_name": "Admin",
+                      "last_name": "AI4B",
+                      "role": 6
+                  },
+                  "created_at": "2022-04-24T13:11:30.339610Z"
+              },
+              "unverified_email": "shoonya@ai4bharat.org",
+              "date_joined": "2022-04-24T07:40:11Z",
+              "participation_type": 3,
+              "prefer_cl_ui": false,
+              "is_active": true
+          }
+      ],
+      "annotation_reviewers": [],
+      "review_supercheckers": [],
+      "frozen_users": [],
+      "workspace_id": 1,
+      "organization_id": 1,
+      "filter_string": null,
+      "sampling_mode": "f",
+      "sampling_parameters_json": {},
+      "project_type": "OCRSegmentCategorizationEditing",
+      "variable_parameters": {},
+      "project_mode": "Annotation",
+      "required_annotators_per_task": 1,
+      "tasks_pull_count_per_batch": 10,
+      "max_pending_tasks_per_user": 60,
+      "src_language": null,
+      "tgt_language": null,
+      "created_at": "2023-12-06T06:37:58.364413Z",
+      "project_stage": 1,
+      "revision_loop_count": 3,
+      "k_value": 100,
+      "metadata_json": null,
+      "datasets": [
+          {
+              "instance_id": 295,
+              "instance_name": "Test OCR"
+          }
+      ],
+      "status": "Published",
+      "task_creation_status": "Tasks Creation Process Successful",
+      "last_project_export_status": "Success",
+      "last_project_export_date": "Synchronously Completed. No Date.",
+      "last_project_export_time": "Synchronously Completed. No Time.",
+      "last_pull_status": "Success",
+      "last_pull_date": "Synchronously Completed. No Date.",
+      "last_pull_time": "Synchronously Completed. No Time.",
+      "last_pull_result": "No result.",
+      "unassigned_task_count": 29,
+      "labeled_task_count": 0,
+      "reviewed_task_count": 0
+  }
+  const [loading, setLoading] = useState(false);
+    const [annotationreviewertype, setAnnotationreviewertype] = useState("Annotation Reports");
     const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
       setValue(newValue);
     };
-    const apiLoading = useSelector((state) => state.apiStatus.loading);
   
     const isAnnotators =
       (userRole.WorkspaceManager === loggedInUserData?.role ||
         userRole.OrganizationOwner === loggedInUserData?.role ||
         userRole.Admin === loggedInUserData?.role || ProjectDetails?.project_stage === 1 ||
-        ProjectDetails?.annotators?.some((user) => user.id === userDetails?.id));
+        ProjectDetails?.annotators?.some((user) => user.id === userDetails.id));
   
     const isReviewer =
       ((userRole.WorkspaceManager === loggedInUserData?.role ||
@@ -248,11 +248,7 @@ import { useRouter } from "next/router";
       userRole.OrganizationOwner === loggedInUserData?.role ||
       userRole.Admin === loggedInUserData?.role;
   
-  /* eslint-disable react-hooks/exhaustive-deps */
 
-    useEffect(() => {
-      setLoading(apiLoading);
-    }, [apiLoading]);
   
     let projectdata = ProjectDetails?.annotators?.filter((x) => {
       return ProjectDetails?.annotation_reviewers?.find(
@@ -260,7 +256,9 @@ import { useRouter } from "next/router";
       );
     });
   
-   
+    let data = projectdata?.filter((x) => {
+      return userDetails.id == x.id;
+    });
   
     let annotationdata = ProjectDetails?.annotators?.filter(
       (x) => x.id == userDetails.id
@@ -268,25 +266,12 @@ import { useRouter } from "next/router";
     let reviewerdata = ProjectDetails?.annotation_reviewers?.filter(
       (x) => x.id == userDetails.id
     );
-    useEffect(() => {
-      if (annotationdata?.length && !reviewerdata?.length) {
-        setAnnotationreviewertype("Annotation Reports");
-      } else if (reviewerdata?.length && !annotationdata?.length) {
-        setAnnotationreviewertype("Reviewer Reports");
-      }
-    }, [annotationdata, reviewerdata,dispatch]);
   
-    // const handleOpenSettings = () => {
-    //   navigate(`/projects/${id}/projectsetting`);
-    // };
-  
-    const handleOpenSettings = () => {
-      router.push(`/workspaces/workspacesetting`);
-    };
 
+  
     let projectValue = "Unassigned Super Check Tasks"
     const filterdata = projectData.filter(item => item.name !== projectValue)
-    const projectFilterData = isSuperChecker ? projectData : filterdata
+    const projectFilterData = isSuperChecker ? projectData : filterdata || []
   
   
     const TabPanData = [
@@ -319,7 +304,7 @@ import { useRouter } from "next/router";
             sx={{ fontSize: 16, fontWeight: "700" }}
           />
         ),
-        tabPanelEle: <SuperCheckerTasks type="superChecker" />,
+        // tabPanelEle: <SuperCheckerTasks type="superChecker" />,
         showTab: isSuperChecker,
       },
   
@@ -366,7 +351,6 @@ import { useRouter } from "next/router";
           <MembersTable
             dataSource={ProjectDetails.review_supercheckers}
             type={addUserTypes.PROJECT_SUPERCHECKER}
-            onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
           />
         ),
         showTab: isSuperChecker,
@@ -401,7 +385,7 @@ import { useRouter } from "next/router";
         tabEle: (
           <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
         ),
-        tabPanelEle: <AllTaskTable />,
+        // tabPanelEle: <AllTaskTable />,
         showTab: allTask,
       },
     ];
@@ -474,7 +458,6 @@ import { useRouter } from "next/router";
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                     <Tooltip title={translate("label.showProjectSettings")}>
                       <IconButton
-                      onClick={handleOpenSettings}
                         sx={{ marginLeft: "140px" }}
                       >
                         <SettingsOutlinedIcon
@@ -505,4 +488,5 @@ import { useRouter } from "next/router";
       </ThemeProvider>
     );
   };
+  
   
