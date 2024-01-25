@@ -117,7 +117,7 @@ const PopulateAiModel = () => {
 //   };
   useEffect(() => {
     setLoading(false);
-    if (dataitemsList.results?.length > 0) {
+    if (dataitemsList?.results?.length > 0) {
         let values = Object.keys(dataitemsList.results[0]) 
         setField(values)
     }

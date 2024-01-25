@@ -50,9 +50,9 @@ const DraftDataPopulation = () => {
   // const Fields = ["draft_data_json", "input_language", "output_language", "input_text", "output_text", "machine_translation", "context", "labse_score", "rating", "domain", "parent_data", "instance_id"];
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
-  const DatasetInstances = useSelector((state) => state.getDatasetsByType.data);
-  const DatasetTypes = useSelector((state) => state.GetDatasetType.data);
-  const dataitemsList = useSelector((state) => state.getDataitemsById.data);
+  const DatasetInstances = useSelector((state) => state.getDatasetsByType?.data);
+  const DatasetTypes = useSelector((state) => state.GetDatasetType?.data);
+  const dataitemsList = useSelector((state) => state.getDataitemsById?.data);
 
 
   useEffect(() => {
@@ -87,7 +87,7 @@ const DraftDataPopulation = () => {
   };
   useEffect(() => {
     setLoading(false);
-    if (dataitemsList.results?.length > 0) {
+    if (dataitemsList?.results?.length > 0) {
         let values = Object.keys(dataitemsList.results[0]) 
         setField(values)
     }

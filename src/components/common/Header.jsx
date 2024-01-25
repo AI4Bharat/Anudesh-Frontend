@@ -740,7 +740,7 @@ const handleopenproject=(id,type)=>{
                 md={3}
               >
                 <Link href="/projects">
-                  <Image
+                  <img
 
                     src="https://i.imgur.com/56Ut9oz.png"
                     alt="anudesh"
