@@ -1,5 +1,5 @@
 
-import DatasetStyle from "@/styles/ataset";
+import DatasetStyle from "@/styles/dataset";
 import { useHistory, useParams } from 'react-router';
 import {
     Grid,
