@@ -9,7 +9,7 @@
    constructor(projectId,selectedFilters, timeout = 2000) {
      super("GET", timeout, false);
      this.projectId = projectId;
-     this.type = constants.DE_ALLOCATE_TASKS;
+     this.type = constant.DE_ALLOCATE_TASKS;
      this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_tasks/?annotation_status=['${selectedFilters}']`;
    }
  

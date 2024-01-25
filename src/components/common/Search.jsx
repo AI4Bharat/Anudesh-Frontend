@@ -3,31 +3,32 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useRef, useState } from "react";
 import themeDefault from '../../themes/theme'
  import  "../../styles/Dataset.css";
-//  import { useDispatch, useSelector } from "react-redux";
-//  import SearchProjectCards from "../../../../redux/actions/api/ProjectDetails/SearchProjectCards"
+ import { useDispatch, useSelector } from "react-redux";
+import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
 
 const Search = (props) => {
   const ref = useRef(null);
+         /* eslint-disable react-hooks/exhaustive-deps */
+
   
-//   const dispatch = useDispatch();
+  const dispatch = useDispatch();
   
-//   const SearchProject = useSelector((state) => state.SearchProjectCards.data);
+  const SearchProject = useSelector((state) => state.searchProjectCard?.data);
   const [searchValue, setSearchValue] = useState("");
 
 
-//   useEffect(() => {
-//     if (ref) ref.current.focus();
-//   }, [ref]);
+  useEffect(() => {
+    if (ref) ref.current.focus();
+  }, [ref]);
 
-//   useEffect(() => {
-   
-//     dispatch(SearchProjectCards(""));
-// }, [])
+  useEffect(() => {
+    dispatch(setSearchProjectCard(""));
+}, [])
 
-//   const handleChangeName = (value) => {
-//     setSearchValue(value);
-//     dispatch(SearchProjectCards(value));
-//   };
+  const handleChangeName = (value) => {
+    setSearchValue(value);
+    dispatch(setSearchProjectCard(value));
+  };
  
 
   return (
@@ -42,7 +43,7 @@ const Search = (props) => {
                         placeholder="Search..."
                         value={searchValue}
                         onChange={(e) => handleChangeName(e.target.value)}
-
+                         
                         inputProps={{ "aria-label": "search" }}
                         
                     />

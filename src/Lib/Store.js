@@ -21,7 +21,6 @@ import getNextTask from './Features/projects/getNextTask';
 import getFindAndReplaceWordsInAnnotation from './Features/projects/getFindAndReplaceWordsInAnnotation';
 import getTaskFilter from './Features/projects/getTaskFilter';
 import RemoveProjectMember from './Features/projects/RemoveProjectMember';
-import ResendUserInvite from './Features/projects/ResendUserInvite';
 import GetOrganizationUserReports from './Features/projects/GetOrganizationUserReports';
 import GetOrganizationDetailedProjectReports from './Features/projects/GetOrganizationDetailedProjectReports';
 import GetOrganizationProjectReports from './Features/projects/GetOrganizationProjectReports';
@@ -34,10 +33,56 @@ import GetScheduledMails from './Features/user/GetScheduledMails';
 import getUserAnalytics from './Features/user/getUserAnalytics';
 import getRecentTasks from './Features/user/getRecentTasks';
 import getUserDetails from './Features/user/getUserDetails';
+import getProjectReport from './Features/getProjectReport';
+import GetProjectTypeDetails from './Features/projects/GetProjectTypeDetails';
+import getDownloadProjectAnnotations from './Features/user/getDownloadProjectAnnotations';
+import GetArchiveProject from './Features/projects/GetArchiveProject';
+import DownloadJSONProject from './Features/projects/DownloadJSONProject';
+import DownloadProjectCsv from './Features/projects/DownloadProjectCsv';
+import DownloadProjectTsv from './Features/projects/DownloadProjectTsv';
+import GetDatasets from './Features/datasets/GetDatasets';
+import GetDatasetType from './Features/datasets/GetDatasetType';
+import GetDataitemsById from './Features/datasets/GetDataitemsById';
+import getDatasetDetails from './Features/datasets/getDatasetDetails';
+import GetDatasetProjects from './Features/datasets/GetDatasetProjects';
+import GetDatasetLogs from './Features/datasets/GetDatasetLogs';
+import getDatasetProjectReports from './Features/datasets/getDatasetProjectReports';
+import GetDatasetDetailedReports from './Features/datasets/GetDatasetDetailedReports';
+import getDatasetMembers from './Features/datasets/getDatasetMembers';
+import GetIndicTransLanguages from './Features/datasets/GetIndicTransLanguages';
+import GetDatasetDownloadCSV from './Features/datasets/GetDatasetDownloadCSV';
+import GetDatasetDownloadTSV from './Features/datasets/GetDatasetDownloadTSV';
+import GetDatasetDownloadJSON from './Features/datasets/GetDatasetDownloadJSON';
+import GetFileTypes from './Features/datasets/GetFileTypes';
+import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
+import searchProjectCard from './Features/searchProjectCard';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        searchProjectCard:searchProjectCard,
+        DatasetSearchPopup:DatasetSearchPopup,
+        GetFileTypes:GetFileTypes,
+        GetIndicTransLanguages:GetIndicTransLanguages,
+        GetDatasetDownloadJSON:GetDatasetDownloadJSON,
+        GetDatasetDownloadCSV:GetDatasetDownloadCSV,
+        GetDatasetDownloadTSV:GetDatasetDownloadTSV,
+        getDatasetMembers:getDatasetMembers,
+        GetDatasetDetailedReports:GetDatasetDetailedReports,
+        getDatasetProjectReports:getDatasetProjectReports,
+        GetDatasetProjects:GetDatasetProjects,
+        GetDatasetLogs:GetDatasetLogs,
+        getDatasetDetails:getDatasetDetails,
+        GetDataitemsById:GetDataitemsById,
+        GetDatasetType:GetDatasetType,
+        GetDatasets:GetDatasets,
+        DownloadJSONProject:DownloadJSONProject,
+        DownloadProjectCsv:DownloadProjectCsv,
+        DownloadProjectTsv:DownloadProjectTsv,
+        GetArchiveProject:GetArchiveProject,
+        getDownloadProjectAnnotations:getDownloadProjectAnnotations,
+        GetProjectTypeDetails:GetProjectTypeDetails,
+        getProjectReport:getProjectReport,
         getUserDetails:getUserDetails,
         getAllTaskData:getAllTaskData,
         getRecentTasks:getRecentTasks,
@@ -52,7 +97,6 @@ const makeStore = () => {
         GetOrganizationProjectReports:GetOrganizationProjectReports,
         getProjects:getProjects,
         getTaskFilter:getTaskFilter,
-        ResendUserInvite:ResendUserInvite,
         getNextTask:getNextTask,
         RemoveProjectMember:RemoveProjectMember,
         getFindAndReplaceWordsInAnnotation:getFindAndReplaceWordsInAnnotation,

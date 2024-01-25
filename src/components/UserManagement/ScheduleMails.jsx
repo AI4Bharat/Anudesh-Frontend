@@ -2,6 +2,7 @@ import { Card, CircularProgress, Grid, ThemeProvider, Typography, Select, Box, M
 import themeDefault from "../../themes/theme";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useParams } from 'react-router-dom';
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 // import GetWorkspaceAPI from "../../../../redux/actions/api/Organization/GetWorkspace";
 // import CreateScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/CreateScheduledMails";
@@ -25,8 +26,8 @@ import CreateScheduledMailsAPI from "@/app/actions/api/user/CreateScheduledMails
 import DeleteScheduledMailsAPI from "@/app/actions/api/user/DeleteScheduledMailsAPI";
 
 const ScheduleMails = () => {
-  // const { id } = useParams();
-  const id = 1;
+  const { id } = useParams();
+  // const id = 1;
   const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: '' });
   const [reportLevel, setReportLevel] = useState(1);
   const [selectedProjectType, setSelectedProjectType] = useState("AllAudioProjects");

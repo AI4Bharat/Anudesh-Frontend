@@ -1,23 +1,27 @@
 import { Box, Grid ,Button,Tooltip } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatasetCard from "@/components/common/DatasetCard";
-import  "@/styles/Dataset.css";
-// import { useSelector } from "react-redux";
+import DatasetStyle from "@/styles/dataset";
+import { useDispatch, useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
 import TablePaginationActions from "@/components/common/TablePaginationActions";
+// import Spinner from "../../component/common/Spinner";
+import { useNavigate } from "react-router-dom";
 import DatasetFilterList from "./DatasetFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
 
 const DatasetCards = (props) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const { datasetList,selectedFilters,setsSelectedFilters } = props;
-  
+  const classes = DatasetStyle();
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(9);
   // const apiLoading = useSelector(state => state.apiStatus.loading);
-  // const SearchDataset = useSelector((state) => state.SearchProjectCards.data);
-  const SearchDataset = [];
+  const SearchDataset = useSelector((state) => state.searchProjectCard?.data);
+  console.log(SearchDataset);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -44,7 +48,7 @@ const DatasetCards = (props) => {
 
   const pageSearch = () => {
     return datasetList.filter((el) => {
-      if (SearchDataset == "") {
+      if (SearchDataset == ""||SearchDataset == undefined) {
         return el;
       } else if (
         el.dataset_type?.toLowerCase().includes(SearchDataset?.toLowerCase())
@@ -58,7 +62,7 @@ const DatasetCards = (props) => {
         el.instance_id
           .toString()
           ?.toLowerCase()
-          ?.includes(SearchDataset.toLowerCase())
+          ?.includes(SearchDataset?.toLowerCase())
       ) {
         return el;
       }

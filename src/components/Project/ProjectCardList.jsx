@@ -1,22 +1,25 @@
 import  {React, useState, useEffect } from "react";
-import Link from 'next/link';
+// import Link from 'next/link';
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
+import { Link } from "react-router-dom";
 import { Grid, ThemeProvider, Tooltip, Button } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
-// import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 
 const ProjectCardList = (props) => {
+       /* eslint-disable react-hooks/exhaustive-deps */
+
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
 
-//   const SearchProject = useSelector((state) => state.SearchProjectCards.data);
+  const SearchProject = useSelector((state) => state.searchProjectCard?.data);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -28,38 +31,38 @@ const ProjectCardList = (props) => {
 
   const pageSearch = () => {
     return projectData.filter((el) => {
-    //   if (SearchProject == "") {
-    //     return el;
-    //   } else if (
-    //     el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())
-    //   ) {
-    //     return el;
-    //   } else if (
-    //     el.title?.toLowerCase().includes(SearchProject?.toLowerCase())
-    //   ) {
-    //     return el;
-    //   } else if (
-    //     el.id.toString()?.toLowerCase()?.includes(SearchProject.toLowerCase())
-    //   ) {
-    //     return el;
-    //   } else if (
-    //     el.workspace_id
-    //       .toString()
-    //       ?.toLowerCase()
-    //       .includes(SearchProject?.toLowerCase())
-    //   ) {
-    //     return el;
-    //   } else if (
-    //     el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
-    //   ) {
-    //     return el;
-    //   } else if (
-    //     UserMappedByProjectStage(el.project_stage)
-    //       ?.name?.toLowerCase()
-    //       .includes(SearchProject?.toLowerCase())
-    //   ) {
+      if (SearchProject == ""||SearchProject == undefined) {
         return el;
-    //   }
+      } else if (
+        el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.title?.toLowerCase().includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.id.toString()?.toLowerCase()?.includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.workspace_id
+          .toString()
+          ?.toLowerCase()
+          .includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        UserMappedByProjectStage(el.project_stage)
+          ?.name?.toLowerCase()
+          .includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      }
     });
   };
   const columns = [
@@ -177,8 +180,9 @@ const ProjectCardList = (props) => {
             el.tgt_language == null ? "-" : el.tgt_language,
             el.project_mode,
             el.workspace_id,
-            <Link key ={i}href={`/projectdetails`} style={{ textDecoration: "none" }}>
+            <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }} key={i}>
               <CustomButton
+                 key={i}
                 sx={{ borderRadius: 2, marginRight: 2 }}
                 label="View"
               />

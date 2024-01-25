@@ -4,6 +4,7 @@
  import API from "../../api"; 
  import ENDPOINTS from "../../../../config/apiendpoint"
  import constants from "../../constants";
+ /* eslint-disable react-hooks/exhaustive-deps */
 
 export default class GetUserDetailUpdateAPI extends API {
   constructor(Id,projectObj,timeout = 2000) {
@@ -32,7 +33,7 @@ export default class GetUserDetailUpdateAPI extends API {
     this.headers = {
       headers: {
         "Content-Type": "application/json",
-        "Authorization":`JWT ${localStorage.getItem('shoonya_access_token')}`
+        "Authorization":`JWT ${localStorage.getItem('anudesh_access_token')}`
       },
     };
     return this.headers;

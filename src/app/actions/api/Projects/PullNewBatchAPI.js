@@ -10,7 +10,7 @@
      super("POST", timeout, false);
      this.projectId = projectId;
      this.numsTasks = numsTasks;
-     this.type = constants.PULL_NEW_BATCH;
+     this.type = constant.PULL_NEW_BATCH;
      this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/assign_new_tasks/`;
    }
  

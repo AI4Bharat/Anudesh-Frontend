@@ -121,16 +121,16 @@ const themeDefault = createTheme({
       styleOverrides: {
         root: {
           "&:nth-of-type(odd)": {
-            backgroundColor: "#D6EAF8",
+            backgroundColor: "#ffe0b2",
           },
           "&:nth-of-type(even)": {
-            backgroundColor: "#E9F7EF",
+            backgroundColor: "#fffde7",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(odd)": {
-            backgroundColor: "#D6EAF8",
+            backgroundColor: "#ffe0b2",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(even)": {
-            backgroundColor: "#E9F7EF",
+            backgroundColor: "#fff3e0",
           },
           "&.MuiTableRow-footer": {
             backgroundColor: "#fff",
@@ -241,7 +241,7 @@ const themeDefault = createTheme({
       styleOverrides: {
         head: {
           padding: ".6rem .5rem .6rem 1.5rem",
-          backgroundColor: "#F8F8FA !important",
+          backgroundColor: "#fafafa !important",
           marginLeft: "25px",
           letterSpacing: "0.74",
           fontWeight: "bold",

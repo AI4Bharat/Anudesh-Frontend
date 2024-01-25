@@ -10,7 +10,7 @@
    constructor(projectId,selectedFilters, timeout = 2000) {
      super("GET", timeout, false);
      this.projectId = projectId;
-     this.type = constants.DE_ALLOCATE_REVIEW_TASKS;
+     this.type = constant.DE_ALLOCATE_REVIEW_TASKS;
      this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_review_tasks/?review_status=['${selectedFilters}']`;
    }
  

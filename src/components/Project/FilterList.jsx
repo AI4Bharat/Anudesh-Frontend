@@ -31,7 +31,7 @@ const FilterList = (props) => {
   const [selectAnnotator, setSelectAnnotator] = useState("All");
 
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
+  const userDetails = useSelector((state) => state.getLoggedInData.data);
   // const [selectedType, setSelectedType] = useState(selectedFilter.Annotators);
   // const [selectedStatus, setSelectedStatus] = useState(selectedFilter.status);
   // const handleDatasetChange = (e) => {

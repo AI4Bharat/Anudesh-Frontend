@@ -9,8 +9,8 @@ const initialState = {
 
 export const fetchUserById = createAsyncThunk(
   'getUserById/fetchUserById',
-  async (workspaceId, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.fetch}me/fetch/`);
+  async (userId, { dispatch }) => {
+    const params = fetchParams(`${ENDPOINTS.getUsers}account/${userId}/fetch/`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

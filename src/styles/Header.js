@@ -62,7 +62,7 @@ const headerStyle = makeStyles({
         boxShadow: "none",
         fontSize: "19px",
         fontFamily: "Roboto", 
-        fontWeight: 500,
+        fontWeight: 600,
         letterSpacing: "0.5px",
         borderRadius:12,
         '&:hover': {
@@ -80,7 +80,7 @@ const headerStyle = makeStyles({
         boxShadow: "none",
         fontSize: "19px",
         fontFamily: "Roboto", 
-        fontWeight: 500,
+        fontWeight: 600,
         borderRadius:12,
         letterSpacing: "0.5px",
         '&:hover': {
@@ -91,7 +91,7 @@ const headerStyle = makeStyles({
     avatar: {
         width: "36px",
         height: "36px",
-        backgroundColor: "#2A61AD !important",
+        backgroundColor: "#e65100 !important",
         fontSize: "14px",
         color: "#FFFFFF !important",
         "@media (max-width:640px)": {

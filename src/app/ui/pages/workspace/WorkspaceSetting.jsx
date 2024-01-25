@@ -8,11 +8,16 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import TextField from '@mui/material/TextField';
-import LoginAPI from "../actions/api/user/Login";
-import DownloadAllProjects from "../actions/api/Projects/DownloadAllProjects";
-import GetArchiveProjectAPI from "../actions/api/Projects/GetArchiveProject";
+import DatasetStyle from "@/styles/dataset";
+import { useDispatch,useSelector } from "react-redux";
+import LoginAPI from "../../../actions/api/user/Login"
+import { useNavigate,useParams } from "react-router-dom";
+import DownloadAllProjects from "../../../actions/api/Projects/DownloadAllProjects";
+import GetArchiveProjectAPI, { fetchArchiveProject } from "../../../../Lib/Features/projects/GetArchiveProject";
 
 function WorkspaceSetting(props) {
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const { onArchiveWorkspace } = props
   console.log(props, "props")
   const { id } = useParams();
@@ -30,7 +35,7 @@ function WorkspaceSetting(props) {
 
   const handleArchiveWorkspace = async () => {
     const projectObj = new GetArchiveProjectAPI(id, id);
-    dispatch(APITransport(projectObj));
+    dispatch(fetchArchiveProject(id, id));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -94,7 +99,7 @@ function WorkspaceSetting(props) {
       console.log(rsp_data);
     }
   };
-  const user = useSelector((state) => state.fetchLoggedInUserData?.data);
+  const user = useSelector((state) => state.getLoggedInData?.data);
   console.log(user);
   const handleDownloadProject = async () => {
     // SetTask([]) //used to clear the selected task statuses

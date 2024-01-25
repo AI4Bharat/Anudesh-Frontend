@@ -6,11 +6,16 @@ import { Box, Button, Grid, CircularProgress, Card, Radio, Typography, ThemeProv
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
-// import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import  "../../styles/Dataset.css";
+import DatasetStyle from '@/styles/dataset';
 import ColumnList from '../common/ColumnList';
 import { isSameDay, format } from 'date-fns';
-
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
+import { useNavigate,useParams } from 'react-router-dom';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -18,10 +23,21 @@ import tableTheme from "../../themes/tableTheme";
 import themeDefault from "../../themes/theme";
 import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "../../utils/Role";
+import GetProjectReportAPI from '@/app/actions/api/Projects/GetProjectReportAPI';
+import { fetchProjectReport } from '@/Lib/Features/getProjectReport';
 
 
 const ReportsTable = (props) => {
+         /* eslint-disable react-hooks/exhaustive-deps */
+
     const {isSuperChecker,isReviewer,isAnnotators}=props
+    const ProjectDetails = useSelector(state => state.getProjectDetails.data);
+    const [selectRange, setSelectRange] = useState([{
+        startDate: new Date(Date.parse(ProjectDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
+        endDate: new Date(),
+        key: "selection"
+    }]);
+    // const [rangeValue, setRangeValue] = useState([format(Date.parse(ProjectDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), 'yyyy-MM-dd'), Date.now()]);
     const [showPicker, setShowPicker] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState([]);
@@ -34,160 +50,40 @@ const ReportsTable = (props) => {
     });
 
 
-
-    const ProjectReport = [];
-    
+    const { id } = useParams();
+    const dispatch = useDispatch();
+    const ProjectReport = useSelector(state => state.getProjectReport.data);
+    const classes = DatasetStyle();
     const [radiobutton, setRadiobutton] = useState(isAnnotators?"AnnotatationReports":isReviewer?"ReviewerReports":"SuperCheckerReports");
     const [submitted, setSubmitted] = useState(false);
-    const ProjectDetails = {
-        "id": 2279,
-        "title": "test ocr ce 2",
-        "description": "test",
-        "created_by": null,
-        "is_archived": false,
-        "is_published": true,
-        "annotators": [
-            {
-                "id": 1,
-                "username": "shoonya",
-                "email": "shoonya@ai4bharat.org",
-                "languages": [],
-                "availability_status": 1,
-                "enable_mail": false,
-                "first_name": "Admin",
-                "last_name": "AI4B",
-                "phone": "",
-                "profile_photo": "",
-                "role": 6,
-                "organization": {
-                    "id": 1,
-                    "title": "AI4Bharat",
-                    "email_domain_name": "ai4bharat.org",
-                    "created_by": {
-                        "username": "shoonya",
-                        "email": "shoonya@ai4bharat.org",
-                        "first_name": "Admin",
-                        "last_name": "AI4B",
-                        "role": 6
-                    },
-                    "created_at": "2022-04-24T13:11:30.339610Z"
-                },
-                "unverified_email": "shoonya@ai4bharat.org",
-                "date_joined": "2022-04-24T07:40:11Z",
-                "participation_type": 3,
-                "prefer_cl_ui": false,
-                "is_active": true
-            }
-        ],
-        "annotation_reviewers": [],
-        "review_supercheckers": [],
-        "frozen_users": [],
-        "workspace_id": 1,
-        "organization_id": 1,
-        "filter_string": null,
-        "sampling_mode": "f",
-        "sampling_parameters_json": {},
-        "project_type": "OCRSegmentCategorizationEditing",
-        "label_config": "<View>\n  <Image name=\"image_url\" value=\"$image_url\"/>\n  \n  <Labels name=\"annotation_labels\" toName=\"image_url\" className=\"ignore_assertion\">\n    \n    <Label value=\"title\" background=\"green\" name=\"title\" className=\"ignore_assertion\"/>\n    <Label value=\"text\" background=\"blue\" name=\"text\" className=\"ignore_assertion\"/>\n    <Label value=\"image\" background=\"red\" name=\"image\" className=\"ignore_assertion\"/>\n    <Label value=\"unord-list\" background=\"yellow\" name=\"unord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"ord-list\" background=\"black\" name=\"ord-list\" className=\"ignore_assertion\"/>\n    <Label value=\"placeholder\" background=\"orange\" name=\"placeholder\" className=\"ignore_assertion\"/>\n    <Label value=\"table\" background=\"violet\" name=\"table\" className=\"ignore_assertion\"/>\n    <Label value=\"dateline\" background=\"cyan\" name=\"dateline\" className=\"ignore_assertion\"/>\n    <Label value=\"byline\" background=\"brown\" name=\"byline\" className=\"ignore_assertion\"/>\n    <Label value=\"page-number\" background=\"purple\" name=\"page-number\" className=\"ignore_assertion\"/>\n    <Label value=\"footer\" background=\"indigo\" name=\"footer\" className=\"ignore_assertion\"/>\n    <Label value=\"footnote\" background=\"pink\" name=\"footnote\" className=\"ignore_assertion\"/>\n    <Label value=\"header\" background=\"olive\" name=\"header\" className=\"ignore_assertion\"/>\n    <Label value=\"social-media-handle\" background=\"aqua\" name=\"social-media-handle\" className=\"ignore_assertion\"/>\n    <Label value=\"website-link\" background=\"teal\" name=\"website-link\" className=\"ignore_assertion\"/>\n    <Label value=\"caption\" background=\"maroon\" name=\"caption\" className=\"ignore_assertion\"/>\n    <Label value=\"table-header\" background=\"aquamarine\" name=\"table-header\" className=\"ignore_assertion\"/>\n    \n  </Labels>\n\n  <Rectangle name=\"annotation_bboxes\" toName=\"image_url\" strokeWidth=\"3\" className=\"ignore_assertion\"/>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"title\" name=\"title_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"h1\" className=\"ignore_assertion\"/>\n    <Choice value=\"h2\" className=\"ignore_assertion\"/>\n    <Choice value=\"h3\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"text\" name=\"text_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"paragraph\" className=\"ignore_assertion\"/>\n    <Choice value=\"foreign-language-text\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"image\" name=\"image_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"img\" className=\"ignore_assertion\"/>\n    <Choice value=\"logo\" className=\"ignore_assertion\"/>\n    <Choice value=\"formula\" className=\"ignore_assertion\"/>\n    <Choice value=\"equation\" className=\"ignore_assertion\"/>\n    <Choice value=\"bg-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"placeholder\" name=\"placeholder_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"placeholder-txt\" className=\"ignore_assertion\"/>\n    <Choice value=\"placeholder-img\" className=\"ignore_assertion\"/>\n  </Choices>\n  \n  <Choices visibleWhen=\"region-selected\" required=\"true\" whenTagName=\"annotation_labels\" whenLabelValue=\"caption\" name=\"caption_opts\" toName=\"image_url\" className=\"ignore_assertion\">\n  \t<Choice value=\"fig-caption\" className=\"ignore_assertion\"/>\n    <Choice value=\"table-caption\" className=\"ignore_assertion\"/>\n  </Choices>\n    \n</View>\n\n\n",
-        "variable_parameters": {},
-        "project_mode": "Annotation",
-        "required_annotators_per_task": 1,
-        "tasks_pull_count_per_batch": 10,
-        "max_pending_tasks_per_user": 60,
-        "src_language": null,
-        "tgt_language": null,
-        "created_at": "2023-12-06T06:37:58.364413Z",
-        "project_stage": 1,
-        "revision_loop_count": 3,
-        "k_value": 100,
-        "metadata_json": null,
-        "datasets": [
-            {
-                "instance_id": 295,
-                "instance_name": "Test OCR"
-            }
-        ],
-        "status": "Published",
-        "task_creation_status": "Tasks Creation Process Successful",
-        "last_project_export_status": "Success",
-        "last_project_export_date": "Synchronously Completed. No Date.",
-        "last_project_export_time": "Synchronously Completed. No Time.",
-        "last_pull_status": "Success",
-        "last_pull_date": "Synchronously Completed. No Date.",
-        "last_pull_time": "Synchronously Completed. No Time.",
-        "last_pull_result": "No result.",
-        "unassigned_task_count": 29,
-        "labeled_task_count": 0,
-        "reviewed_task_count": 0
-    }
-    const userDetails= {
-      "id": 1,
-      "username": "shoonya",
-      "email": "shoonya@ai4bharat.org",
-      "languages": [],
-      "availability_status": 1,
-      "enable_mail": false,
-      "first_name": "Admin",
-      "last_name": "AI4B",
-      "phone": "",
-      "profile_photo": "",
-      "role": 6,
-      "organization": {
-          "id": 1,
-          "title": "AI4Bharat",
-          "email_domain_name": "ai4bharat.org",
-          "created_by": {
-              "username": "shoonya",
-              "email": "shoonya@ai4bharat.org",
-              "first_name": "Admin",
-              "last_name": "AI4B",
-              "role": 6
-          },
-          "created_at": "2022-04-24T13:11:30.339610Z"
-      },
-      "unverified_email": "shoonya@ai4bharat.org",
-      "date_joined": "2022-04-24T07:40:11Z",
-      "participation_type": 3,
-      "prefer_cl_ui": false,
-      "is_active": true
-    };
-    
-     const loggedInUserData= {
-      "id": 1,
-      "username": "shoonya",
-      "email": "shoonya@ai4bharat.org",
-      "languages": [],
-      "availability_status": 1,
-      "enable_mail": false,
-      "first_name": "Admin",
-      "last_name": "AI4B",
-      "phone": "",
-      "profile_photo": "",
-      "role": 2,
-      "organization": {
-          "id": 1,
-          "title": "AI4Bharat",
-          "email_domain_name": "ai4bharat.org",
-          "created_by": {
-              "username": "shoonya",
-              "email": "shoonya@ai4bharat.org",
-              "first_name": "Admin",
-              "last_name": "AI4B",
-              "role": 6
-          },
-          "created_at": "2022-04-24T13:11:30.339610Z"
-      },
-      "unverified_email": "shoonya@ai4bharat.org",
-      "date_joined": "2022-04-24T07:40:11Z",
-      "participation_type": 3,
-      "prefer_cl_ui": false,
-      "is_active": true
-    }
-    const [selectRange, setSelectRange] = useState([{
-        startDate: new Date(Date.parse(ProjectDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-        endDate: new Date(),
-        key: "selection"
-    }]);
+
+    const loggedInUserData = useSelector(
+        (state) => state.getLoggedInData.data
+    );
+    useEffect(() => {
+        if (reportRequested && ProjectReport?.length > 0) {
+            let cols = [];
+            let selected = [];
+            Object.keys(ProjectReport[0]).forEach((key) => {
+                cols.push({
+                    name: key,
+                    label: key,
+                    options: {
+                        filter: false,
+                        sort: false,
+                    }
+                })
+                selected.push(key);
+            });
+            setSelectedColumns(selected);
+            setColumns(cols);
+        } else {
+            setColumns([]);
+            setSelectedColumns([]);
+        }
+        setShowSpinner(false);
+    }, [ProjectReport]);
+
 
     const handleChangeReports = (e) => {
         setRadiobutton(e.target.value)
@@ -198,7 +94,7 @@ const ReportsTable = (props) => {
         const buttonSXStyle = { borderRadius: 2, margin: 2 }
         return (
 
-            <Box className="ToolbarContainer">
+            <Box className={classes.ToolbarContainer}>
                 <ColumnList
                     columns={columns}
                     setColumns={setSelectedColumns}
@@ -244,15 +140,15 @@ const ReportsTable = (props) => {
         setSubmitted(true);
 
         if (radiobutton === "AnnotatationReports") {
-            projectObj = new GetProjectReportAPI(id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'));
+            projectObj = (id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'));
         }
         else if (radiobutton === "ReviewerReports") {
-            projectObj = new GetProjectReportAPI(id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type);
+            projectObj = (id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type);
         }
         else if (radiobutton === "SuperCheckerReports") {
-            projectObj = new GetProjectReportAPI(id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type);
+            projectObj = (id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type);
         }
-        dispatch(APITransport(projectObj));
+        dispatch(fetchProjectReport(projectObj));
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "POST",
             body: JSON.stringify(projectObj.getBody()),

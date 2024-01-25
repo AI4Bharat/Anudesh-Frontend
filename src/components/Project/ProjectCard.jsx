@@ -4,12 +4,12 @@ import ProjectCard from "../common/ProjectCard";
 import { Link } from "react-router-dom";
 import  "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
-// import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
 import TablePaginationActions from "../common/TablePaginationActions";
 import Spinner from "../common/Spinner";
 import Search from "../common/Search";
-// import SearchProjectCards from "../../../../redux/actions/api/ProjectDetails/SearchProjectCards";
+// import searchProjectCard from "../../../../redux/actions/api/ProjectDetails/searchProjectCard";
 // import Record from "../../../../assets/no-record.svg";
 import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -21,8 +21,7 @@ const Projectcard = (props) => {
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
-//   const SearchProject = useSelector((state) => state.SearchProjectCards.data);
-  const SearchProject = []
+  const SearchProject = useSelector((state) => state.searchProjectCard?.data);
   const [page, setPage] = useState(0);
   
   const [rowsPerPage, setRowsPerPage] = useState(9);
@@ -48,7 +47,7 @@ const Projectcard = (props) => {
   };
   const pageSearch = () => {
     return projectData.filter((el) => {
-      if (SearchProject == "") {
+      if (SearchProject == ""||SearchProject == undefined) {
         return el;
       } else if (
         el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())

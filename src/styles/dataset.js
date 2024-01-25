@@ -136,13 +136,12 @@ const DatasetStyle = makeStyles({
     flexGrow: 0
   },
   projectCardContainer1: {
-    backgroundColor: "#2A61AD",
+    backgroundColor: "#EE6633",
     height: "100%",
     width: "100%"
-
   },
   projectCardContainer2: {
-    backgroundColor: "#119DA4",
+    backgroundColor: "#66bb6a",
     height: "100%",
     width: "100%"
   },

@@ -13,6 +13,8 @@ import ColumnList from "../common/ColumnList";
 import Select from "@mui/material/Select";
 import { useParams } from "next/navigation";
 import  "../../styles/Dataset.css";
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";

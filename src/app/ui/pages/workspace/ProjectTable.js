@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect ,useCallback} from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid ,Button} from "@mui/material";
@@ -14,6 +14,7 @@ import GetWorkspacesProjectDetailsAPI from "../../../actions/api/workspace/GetWo
 
 
 const ProjectTable = (props) => {
+ /* eslint-disable react-hooks/exhaustive-deps */
 
   const CustomButton = ({ label, buttonVariant, color, disabled = false, ...rest }) => (
     <Button {...rest} variant={buttonVariant ? buttonVariant : "contained"} color={color ? color : "primary"} disabled={disabled}>
@@ -22,14 +23,15 @@ const ProjectTable = (props) => {
   )
   const dispatch = useDispatch();
   const navigate = useNavigate();
-//  const {id} = router.query
+
+  const { id } = useParams();
   
   // const getWorkspace = () => {
   //   dispatch(fetchWorkspaceProjectData(1));
   // };
 
   useEffect(() => {
-    dispatch(fetchWorkspaceProjectData(1));
+    dispatch(fetchWorkspaceProjectData(id));
   }, [dispatch]);
 
   const workspacesproject = useSelector(
@@ -37,14 +39,39 @@ const ProjectTable = (props) => {
   );
   console.log(workspacesproject);
   // const SearchWorkspaceProjects = useSelector(
-  //   (state) => state.SearchProjectCards.data
+  //   (state) => state.searchProjectCard?.data
   // );
 
 
   const pageSearch = () => {
     return workspacesproject.filter((el) => {
-      return el;
-  })}
+      if (SearchWorkspaceProjects == ""||SearchWorkspaceProjects == undefined) {
+        return el;
+      } else if (
+        el.title?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.id.toString()?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.tgt_language?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.project_type?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+      ) {
+        return el;
+      }
+      else if (
+        UserMappedByProjectStage(el.project_stage)?.name?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+      ) {
+        return el;
+      }
+    });
+  };
+
 
   const columns = [
     {
@@ -133,7 +160,7 @@ const ProjectTable = (props) => {
             userRole ? userRole :  el.project_stage,
             el.tgt_language == null ?"-": el.tgt_language,
             el.project_type,
-            <Link key={i} to={`/projectdetails`} style={{ textDecoration: "none" }}>
+            <Link key={i} to={`/projects/${el.id}`} style={{ textDecoration: "none" }}>
               <CustomButton sx={{ borderRadius: 2 }} label="View" />
             </Link>,
           ];

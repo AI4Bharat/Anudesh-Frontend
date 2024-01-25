@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import CustomButton from '../common/Button'
-// import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
 import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid } from "@mui/material";
@@ -9,18 +9,19 @@ import APITransport from "@/Lib/apiTransport/apitransport";
 import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
-import Link from 'next/link';
+// import Link from 'next/link';
 import { setWorkspace } from "@/Lib/Features/GetWorkspace";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 
 
 const WorkspaceTable = (props) => {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const classes = DatasetStyle();
     const dispatch = useDispatch();
     const { showManager, showCreatedBy } = props;
     const workspaceData = useSelector(state => state.GetWorkspace.data);
-    // const SearchWorkspace = useSelector((state) => state.SearchProjectCards.data);
-    console.log(workspaceData,"lll");
+    const SearchWorkspace = useSelector((state) => state.searchProjectCard?.data);
 
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -30,34 +31,45 @@ const WorkspaceTable = (props) => {
 
     const totalWorkspaceCount = useSelector(state => state.GetWorkspace.data.count);
 
-    // const getWorkspaceData = async () => {
-    //     const workspaceObj = new GetWorkspaceAPI(currentPageNumber);
-    //     dispatch(APITransport(workspaceObj));
-    //     // const response = await dispatch(APITransport(workspaceObj));
-    //     // console.log('Response from API:', response);
-    //     dispatch(setWorkspace(workspaceObj))
-    // }
+
 
     useEffect(() => {
         dispatch(fetchWorkspaceData(currentPageNumber)); 
         // console.log("fired now")
     }, [currentPageNumber,dispatch]);
 
-    // useEffect(() => {
-    //     dispatch(fetchWorkspaceData(currentRowPerPage)); 
-    // }, [currentRowPerPage]);
-
     useEffect(() => {       
-        dispatch(fetchWorkspaceData(1)); 
-      }, [dispatch])
+        dispatch(fetchWorkspaceData(currentPageNumber)); 
+      }, [])
 
-    const pageSearch = () => {
+      const pageSearch = () => {
 
         return workspaceData.filter((el) => {
+
+            if (SearchWorkspace == "" ||SearchWorkspace == undefined ) {
+
                 return el;
+            } else if (
+                el.workspace_name
+                    ?.toLowerCase()
+                    .includes(SearchWorkspace?.toLowerCase())
+            ) {
+               console.log(el);
+                return el;
+            }
+            else if (
+                el.managers?.some(val => val.username
+                    ?.toLowerCase().includes(SearchWorkspace?.toLowerCase()) ))           
+                    
+                 {
+                    console.log(el);
+                return el;
+            }
         })
 
     }
+
+
    
     const columns = [
         {
@@ -119,7 +131,7 @@ const WorkspaceTable = (props) => {
                 return manager.username
             }).join(", "),
             el.created_by && el.created_by.username,
-            <Link key={i} href={`/workspace`} style={{ textDecoration: "none" }}>
+            <Link key={i} to={`/workspaces/${el.id}`} style={{ textDecoration: "none" }}>
                 <CustomButton
                     sx={{ borderRadius: 2 }}
                     label="View"
