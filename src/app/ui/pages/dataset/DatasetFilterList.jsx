@@ -16,8 +16,8 @@ import {
 
 } from "@mui/material";
 import { translate } from "@/config/localisation";
-import DatasetStyle from "@/styles/Dataset";
 import { useDispatch, useSelector } from "react-redux";
+import DatasetStyle from "@/styles/dataset";
 import { snakeToTitleCase } from "@/utils/utils";
 import MenuItems from "@/components/common/MenuItems"
 import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";

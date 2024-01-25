@@ -16,7 +16,7 @@ import {
   import React, { useEffect, useState } from "react";
   import themeDefault from "@/themes/theme";
   import { Link, useNavigate, useParams } from "react-router-dom";
-  import DatasetStyle from "@/styles/Dataset";
+  import DatasetStyle from "@/styles/dataset";
   import { useDispatch, useSelector } from "react-redux";
   import CustomButton from "@/components/common/Button";
   import Dialog from "@mui/material/Dialog";

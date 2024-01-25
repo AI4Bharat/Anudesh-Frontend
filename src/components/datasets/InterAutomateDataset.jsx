@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import MenuItems from "@/components/common/MenuItems";
 import Spinner from "@/components/common/Spinner";
 import Snackbar from "@/components/common/Snackbar";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import roles from "@/utils/Role";
 import { MenuProps } from "@/utils/utils";

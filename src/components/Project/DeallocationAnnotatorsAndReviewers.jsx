@@ -8,7 +8,7 @@ import {
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import { translate } from "@/config/localisation";
 import { useDispatch, useSelector } from "react-redux";
 import {useParams } from 'react-router-dom';

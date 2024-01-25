@@ -2,7 +2,7 @@ import { Tabs,Tab ,Box} from "@mui/material";
 import { Card, FormControl, Grid, MenuItem, Select, ThemeProvider, InputLabel, Typography,Switch } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 
 import InterAutomateDataset from "./InterAutomateDataset";
 import IntraAutomateDataset from "./IntraAutomateDataset";

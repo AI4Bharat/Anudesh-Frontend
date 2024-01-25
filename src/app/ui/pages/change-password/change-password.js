@@ -6,15 +6,15 @@ import {
     InputAdornment,
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
-  import themeDefault from "../../../../themes/theme";
-  import { translate } from "../../../../config/localisation";
+  import themeDefault from "@/themes/theme";
+  import { translate } from "@/config/localisation";
   import { useNavigate, useParams } from "react-router-dom";
-  import Button from "../../../../components/common/Button";
-  import OutlinedTextField from "../../../../components/common/OutlinedTextField";
-  import DatasetStyle from "../../../../styles/Dataset";
+  import Button from "@/components/common/Button";
+  import OutlinedTextField from "@/components/common/OutlinedTextField";
+  import DatasetStyle from "@/styles/dataset";
   import { useDispatch, useSelector } from "react-redux";
-  import Spinner from "../../../../components/common/Spinner";
-  import CustomizedSnackbars from "../../../../components/common/Snackbar";
+  import Spinner from "@/components/common/Spinner";
+  import CustomizedSnackbars from "@/components/common/Snackbar";
   import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
   import IconButton from "@material-ui/core/IconButton";
   import Visibility from "@material-ui/icons/Visibility";

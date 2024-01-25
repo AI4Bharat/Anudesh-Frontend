@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import CustomButton from "@/components/common/Button";
 import Spinner from "@/components/common/Spinner";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import themeDefault from "@/themes/theme";
 import Search from "@/components/common/Search";
 import userRole from "@/utils/Role";

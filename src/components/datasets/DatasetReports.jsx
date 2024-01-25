@@ -15,7 +15,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import ColumnList from "../common/ColumnList";
 import { MenuProps } from "@/utils/utils";
 import CustomizedSnackbars from "@/components/common/Snackbar";

@@ -26,7 +26,7 @@ import {
   import { useDispatch ,useSelector } from "react-redux";
   import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-  import DatasetStyle from "../../../../styles/Dataset";
+  import DatasetStyle from "../../../../styles/dataset";
   import ProjectDescription from "../../../../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
   import userRole from "../../../../utils/UsersRolesList";

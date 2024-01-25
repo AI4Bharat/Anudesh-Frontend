@@ -10,7 +10,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import { translate } from "@/config/localisation";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from 'react-router-dom';
 import CustomizedSnackbars from "@/components/common/Snackbar";

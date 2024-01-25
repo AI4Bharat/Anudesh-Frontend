@@ -22,7 +22,7 @@ import {
   FormGroup,
 } from "@mui/material";
 import { translate } from "@/config/localisation";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import { snakeToTitleCase } from "@/utils/utils";
 import { useParams } from 'react-router-dom';

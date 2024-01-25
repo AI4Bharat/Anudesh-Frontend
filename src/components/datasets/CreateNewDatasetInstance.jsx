@@ -14,7 +14,7 @@ import Button from "@/components/common/Button";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
 import Spinner from "@/components/common/Spinner";
 import CustomizedSnackbars  from "@/components/common/Snackbar";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import MenuItems from "@/components/common/MenuItems"
 import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";
