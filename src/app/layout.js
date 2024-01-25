@@ -23,19 +23,11 @@ import DatasetDetails from "@/components/datasets/DatasetDetails";
 import DatasetSettingTabs from "@/components/datasets/DatasetSettingTab";
 import AutomateDatasets from "@/components/datasets/AutomateDatasets";
 import CreateNewDatasetInstanceAPI from "@/components/datasets/CreateNewDatasetInstance";
+// Import necessary modules from Next.js
 
-export default function Root() {
-  const ProtectedRoute = ({ user, children }) => {
-    if (!authenticateUser()) {
-      return <Navigate to="/login" />;
-    }
-    return children;
-  };
+import './index.css';
 
-  const ProtectedRouteWrapper = (component) => {
-    return <ProtectedRoute>{component}</ProtectedRoute>;
-  };
-
+export default function RootLayout({ children }) {
   return (
     <RootLayout>
       <HashRouter>
