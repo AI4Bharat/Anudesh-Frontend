@@ -2,8 +2,8 @@ import { Box,Grid,Tab, Card,Tabs, Typography, Divider } from '@mui/material'
 import React from 'react'
 import { useState ,useEffect} from 'react'
 import BasicSettings from './BasicSettings';
-import ReadonlyConfigurations from './ReadonlyConfigurations'
 import AdvancedOperation from './AdvancedOperation';
+import ReadonlyConfigurations from './ReadOnlyConfigurations';
 import ProjectLogs from './ProjectLogs';
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from 'react-router-dom';

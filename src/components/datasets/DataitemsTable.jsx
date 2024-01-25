@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Grid, Typography, ThemeProvider,Box, IconButton, } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
-import DatasetStyle from "@/styles/Dataset";
+import DatasetStyle from "@/styles/dataset";
 import { snakeToTitleCase } from "@/utils/utils";
 import ColumnList from "../common/ColumnList";
 import SearchIcon from '@mui/icons-material/Search';
