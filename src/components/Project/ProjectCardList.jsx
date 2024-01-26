@@ -19,7 +19,7 @@ const ProjectCardList = (props) => {
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
 
-  const SearchProject = useSelector((state) => state.searchProjectCard?.data);
+  const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -31,7 +31,7 @@ const ProjectCardList = (props) => {
 
   const pageSearch = () => {
     return projectData.filter((el) => {
-      if (SearchProject == ""||SearchProject == undefined) {
+      if (SearchProject == "") {
         return el;
       } else if (
         el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())

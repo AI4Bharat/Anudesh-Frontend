@@ -118,14 +118,14 @@ const MembersTable = (props) => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
   const apiLoading = useSelector((state) => state.apiStatus.loading);
   const SearchWorkspaceMembers = useSelector(
-    (state) => state.searchProjectCard?.data
+    (state) => state.searchProjectCard?.searchValue
   );
   const loggedInUserData = useSelector(
     (state) => state.getLoggedInData.data
   );
   const pageSearch = () => {
     return dataSource.filter((el) => {
-      if (SearchWorkspaceMembers == ""||SearchWorkspaceMembers == undefined) {
+      if (SearchWorkspaceMembers == "") {
         return el;
       } else if (
         el.username

@@ -132,11 +132,11 @@ export default function DatasetProjectsTable({ datasetId }) {
 		}
 	}
 	const SearchWorkspaceMembers = useSelector(
-		(state) => state.searchProjectCard.data
+		(state) => state.searchProjectCard?.searchValue
 	  );
   const pageSearch = () => {
     return datasetProjects.filter((el) => {
-      if (SearchWorkspaceMembers == ""|| SearchWorkspaceMembers == undefined) {
+      if (SearchWorkspaceMembers == "") {
         return el;
       } else if (
         el.title

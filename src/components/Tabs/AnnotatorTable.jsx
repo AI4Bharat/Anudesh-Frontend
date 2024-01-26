@@ -29,7 +29,7 @@ const AnnotatorsTable = (props) => {
     });
 
     const orgId = useSelector(state => state.getWorkspaceProjectData?.data?.[0]?.organization_id);
-    const SearchWorkspaceMembers = useSelector((state) => state.searchProjectCard?.data);
+    const SearchWorkspaceMembers = useSelector((state) => state.searchProjectCard?.searchValue);
 
 
     const workspaceAnnotators = useSelector(state => state.getWorkspacesAnnotatorsData.data);
@@ -101,7 +101,7 @@ const AnnotatorsTable = (props) => {
 
         return workspaceAnnotators.filter((el) => {
 
-            if (SearchWorkspaceMembers == ""||SearchWorkspaceMembers == undefined) {
+            if (SearchWorkspaceMembers == "") {
 
                 return el;
             } else if (

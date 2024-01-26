@@ -12,7 +12,7 @@ const DatasetCardList = (props) => {
     /* eslint-disable react-hooks/exhaustive-deps */
 
   const { datasetList,selectedFilters,setsSelectedFilters } = props;
-  const SearchDataset = useSelector((state) => state.searchProjectCard?.data);
+  const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -28,7 +28,7 @@ const DatasetCardList = (props) => {
 
   const pageSearch = () => {
     return datasetList.filter((el) => {
-      if (SearchDataset == ""||SearchDataset ==undefined) {
+      if (SearchDataset == "") {
         return el;
       } else if (
         el.dataset_type?.toLowerCase().includes(SearchDataset?.toLowerCase())

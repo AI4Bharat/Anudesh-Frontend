@@ -42,7 +42,7 @@ const UserDetail = (props) => {
   console.log(UserDetail);
   const apiLoading = useSelector((state) => state.apiStatus.loading);
   const SearchUserDetail = useSelector(
-    (state) => state.searchProjectCard?.data
+    (state) => state.searchProjectCard?.searchValue
   );
   const getUserDetail = () => {
     setLoading(true);

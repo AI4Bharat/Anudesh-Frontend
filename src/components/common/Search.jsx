@@ -13,7 +13,7 @@ const Search = (props) => {
   
   const dispatch = useDispatch();
   
-  const SearchProject = useSelector((state) => state.searchProjectCard?.data);
+  const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
   const [searchValue, setSearchValue] = useState("");
 
 

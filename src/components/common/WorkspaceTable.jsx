@@ -21,7 +21,8 @@ const WorkspaceTable = (props) => {
     const dispatch = useDispatch();
     const { showManager, showCreatedBy } = props;
     const workspaceData = useSelector(state => state.GetWorkspace.data);
-    const SearchWorkspace = useSelector((state) => state.searchProjectCard?.data);
+    const SearchWorkspace = useSelector((state) => state.searchProjectCard?.searchValue);
+    console.log(SearchWorkspace);
 
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -46,7 +47,7 @@ const WorkspaceTable = (props) => {
 
         return workspaceData.filter((el) => {
 
-            if (SearchWorkspace == "" ||SearchWorkspace == undefined ) {
+            if (SearchWorkspace == "" ) {
 
                 return el;
             } else if (

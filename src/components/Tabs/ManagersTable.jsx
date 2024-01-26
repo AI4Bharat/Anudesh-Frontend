@@ -42,7 +42,7 @@ const ManagersTable = (props) => {
     },[]);
 
     const workspaceManagers = useSelector(state=>state.getWorkspacesManagersData.data);
-    const SearchWorkspaceManagers = useSelector((state) => state.searchProjectCard?.data);
+    const SearchWorkspaceManagers = useSelector((state) => state.searchProjectCard?.searchValue);
 
 const handleRemoveWorkspaceManager = async(userid)=>{
    
@@ -76,7 +76,7 @@ const handleRemoveWorkspaceManager = async(userid)=>{
 
         return workspaceManagers.filter((el) => {
 
-            if (SearchWorkspaceManagers == ""||SearchWorkspaceManagers == undefined) {
+            if (SearchWorkspaceManagers == "") {
 
                 return el;
             } else if (

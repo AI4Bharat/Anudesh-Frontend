@@ -21,7 +21,7 @@ const Projectcard = (props) => {
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
-  const SearchProject = useSelector((state) => state.searchProjectCard?.data);
+  const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
   const [page, setPage] = useState(0);
   
   const [rowsPerPage, setRowsPerPage] = useState(9);
@@ -47,7 +47,7 @@ const Projectcard = (props) => {
   };
   const pageSearch = () => {
     return projectData.filter((el) => {
-      if (SearchProject == ""||SearchProject == undefined) {
+      if (SearchProject == "") {
         return el;
       } else if (
         el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())

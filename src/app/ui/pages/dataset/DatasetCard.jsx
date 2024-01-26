@@ -20,7 +20,7 @@ const DatasetCards = (props) => {
   const [loading, setLoading] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(9);
   // const apiLoading = useSelector(state => state.apiStatus.loading);
-  const SearchDataset = useSelector((state) => state.searchProjectCard?.data);
+  const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
   console.log(SearchDataset);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
@@ -48,7 +48,7 @@ const DatasetCards = (props) => {
 
   const pageSearch = () => {
     return datasetList.filter((el) => {
-      if (SearchDataset == ""||SearchDataset == undefined) {
+      if (SearchDataset == "") {
         return el;
       } else if (
         el.dataset_type?.toLowerCase().includes(SearchDataset?.toLowerCase())

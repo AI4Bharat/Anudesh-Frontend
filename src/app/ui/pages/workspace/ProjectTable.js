@@ -38,14 +38,14 @@ const ProjectTable = (props) => {
     (state) => state.getWorkspaceProjectData.data
   );
   console.log(workspacesproject);
-  // const SearchWorkspaceProjects = useSelector(
-  //   (state) => state.searchProjectCard?.data
-  // );
+  const SearchWorkspaceProjects = useSelector(
+    (state) => state.searchProjectCard?.searchValue
+  );
 
 
   const pageSearch = () => {
     return workspacesproject.filter((el) => {
-      if (SearchWorkspaceProjects == ""||SearchWorkspaceProjects == undefined) {
+      if (SearchWorkspaceProjects == "") {
         return el;
       } else if (
         el.title?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
