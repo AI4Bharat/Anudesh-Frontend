@@ -9,7 +9,7 @@
     constructor(projectId,projectObj,type, timeout = 2000) {
       super("POST", timeout, false);
       this.projectObj = projectObj;
-      this.type = constants.REMOVE_PROJECT_REVIEWER;
+      this.type = constant.REMOVE_PROJECT_REVIEWER;
       let queryStr = type == "PROJECT_SUPERCHECKER" ? "remove_superchecker" : "remove_reviewer";
       this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/${queryStr}/`;
     }

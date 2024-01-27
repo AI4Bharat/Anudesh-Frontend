@@ -1,13 +1,16 @@
 import { Tabs,Tab ,Box} from "@mui/material";
 import { Card, FormControl, Grid, MenuItem, Select, ThemeProvider, InputLabel, Typography,Switch } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import themeDefault from "../../../theme/theme";
-import "../../../styles/Dataset.css";
+import themeDefault from "@/themes/theme";
+import DatasetStyle from "@/styles/dataset";
 
 import InterAutomateDataset from "./InterAutomateDataset";
 import IntraAutomateDataset from "./IntraAutomateDataset";
 
 const AutomateDatasets = () => {
+        /* eslint-disable react-hooks/exhaustive-deps */
+
+  const classes = DatasetStyle();
 
   const [selectedTab, setSelectedTab] = useState(0);
 

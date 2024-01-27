@@ -13,7 +13,7 @@ import {
     Menu,
     MenuItem,
   } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+  import { Link, useNavigate, useParams } from "react-router-dom";
   import { useDispatch, useSelector } from 'react-redux';
   import axios from 'axios';
     import React, { useState, useEffect } from "react";
@@ -68,9 +68,9 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
         </Button>
       );
     const { pageType, title, createdBy, onArchiveWorkspace,initialUserData } = props;
-    // const { id, orgId } = useParams();
-    const id = 1;
-    const orgId = 1;
+    const { id, orgId } = useParams();
+    // const id = 1;
+    // const orgId = 1;
     const classes = DatasetStyle();
     // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
     const dispatch = useDispatch();
@@ -98,7 +98,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
     };
 
     const getWorkspaceDetails = () => {
-      dispatch(fetchWorkspaceDetails(1));
+      dispatch(fetchWorkspaceDetails(orgId));
     };
   
   
@@ -128,7 +128,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
   
 
     const handleOpenSettings = () => {
-      navigate(`/workspace/workspacesetting`);
+      navigate(`/workspaces/${id}/workspacesetting`);
     };
   
     const handleClickMenu = (data)  =>{
@@ -147,7 +147,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
           <Card className={classes.workspaceCard}>
             {/* {pageType === componentType.Type_Organization && ( */}
               <Typography variant="h2" gutterBottom component="div">
-                title
+               { title}
               </Typography>
             {/* )} */}
             {/* {pageType === componentType.Type_Workspace && ( */}
@@ -159,7 +159,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
                 sx={{ mb: 3 }}
               >
                 <Grid item xs={12} sm={12} md={10} lg={10} xl={10}>
-                  <Typography variant="h3">title</Typography>
+                  <Typography variant="h3">{title}</Typography>
                 </Grid>
   
                 {/* {(userRole.Annotator !== userDetails?.role ||
@@ -283,7 +283,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
               <>
                 
                   {/* <Grid > */}
-                    <Link to={`/new-project/`}>
+                    <Link to={`/new-project/${id}`}>
                       <CustomButton
                          sx={{ width: "100%", mb: 2 }}
                         className={classes.projectButton}

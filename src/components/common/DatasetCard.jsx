@@ -6,7 +6,6 @@ import Link from 'next/link';
 const DatasetCard = (props) => {
 
     const { datasetObj } = props
-    console.log(datasetObj);
     return (
         <Link href={`/datasets/${datasetObj.instance_id}`} style={{ textDecoration: "none" }}>
             <Grid

@@ -26,6 +26,7 @@ import { useMediaQuery } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Logout from "@/Lib/Features/Logout";
 import Modal from "./Modal";
+import Image from "next/image";
 // import Transliteration from "../../container/Transliteration/Transliteration";
 import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "@/utils/UserMappedByRole/Roles";
@@ -35,6 +36,8 @@ import { Link, NavLink } from "react-router-dom";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 
 const Header = () => {
+       /* eslint-disable react-hooks/exhaustive-deps */
+
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElSettings, setAnchorElSettings] = useState(null);
   const [anchorElHelp, setAnchorElHelp] = useState(null);
@@ -738,6 +741,7 @@ const handleopenproject=(id,type)=>{
               >
                 <Link href="/projects">
                   <img
+
                     src="https://i.imgur.com/56Ut9oz.png"
                     alt="anudesh"
                     className={classes.headerLogo}
@@ -815,7 +819,7 @@ const handleopenproject=(id,type)=>{
                         </Avatar>
                         <Typography
                           variant="body1"
-                          color="primary.dark"
+                          color="black"
                           sx={{ p: 0, ml: 1 }}
                         >
                           {loggedInUserData?.username}
@@ -891,7 +895,7 @@ const handleopenproject=(id,type)=>{
                     </Typography>
                     </MenuItem>
                   }
-                  <MenuItem key={4} onClick={() => onLogoutClick() }>
+                  <MenuItem key={4} onClick={() => onLogoutClick() } style={{cursor:"pointer"}}>
                     <Typography variant="body2" textAlign="center">
                       Logout
                     </Typography>
@@ -943,6 +947,7 @@ const handleopenproject=(id,type)=>{
         topTranslate={"40"}
         leftTranslate={"-50"}
         isTransliteration={true}
+        style={{cursor:"pointer"}}
       // sx={{width: "400px"}}
       >
         Transliteration

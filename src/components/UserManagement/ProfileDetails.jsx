@@ -3,14 +3,14 @@ import { Button, Card, CircularProgress, Grid, ThemeProvider, Typography, Select
 
 import OutlinedTextField from "../../components/common/OutlinedTextField";
 import themeDefault from "../../themes/theme";
-// import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import FetchLanguagesAPI from "@/app/actions/api/workspace/FetchLanguagesAPI";
 import UpdateProfileAPI from "@/app/actions/api/user/UpdateProfileImageAPI";
 import UpdateEmailAPI from "@/app/actions/api/user/UpdateEmailAPI";
 import Snackbar from "../../components/common/Snackbar";
 import APITransport from "@/Lib/apiTransport/apitransport";
-// import UpdateEmailDialog from "../../component/common/UpdateEmailDialog"
+import UpdateEmailDialog from "../../components/common/UpdateEmailDialog"
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import {participationType} from '../../config/dropDownValues';
 import { MenuProps } from "../../utils/utils";
@@ -18,7 +18,7 @@ import CustomButton from "../../components/common/Button";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 
 const ProfileDetails = () => {
-//   const { id } = useParams();
+  const { id } = useParams();
 const [newDetails, setNewDetails] = useState();
 const [initLangs, setInitLangs] = useState([]);
 const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: ''});
@@ -27,7 +27,7 @@ const [originalEmail, setOriginalEmail] = useState("");
 const [enableVerifyEmail, setEnableVerifyEmail] = useState(false);
 const [showEmailDialog, setShowEmailDialog] = useState(false);
 const [emailVerifyLoading, setEmailVerifyLoading] = useState(false);
-// const navigate = useNavigate();
+const navigate = useNavigate();
 /* eslint-disable react-hooks/exhaustive-deps */
 
 // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
@@ -58,6 +58,13 @@ useEffect(() => {
     username: userDetails?.username,
     first_name: userDetails?.first_name,
     last_name: userDetails?.last_name,
+    age: userDetails?.age,
+    qualification:userDetails?.qualification,
+    gender:userDetails?.gender,
+    pin_code:userDetails?.pin_code,
+    city:userDetails?.city,
+    address:userDetails?.address,
+    state:userDetails?.state,
     languages: userDetails?.languages,
     phone: userDetails?.phone,
     availability_status:userDetails?.availability_status,
@@ -98,7 +105,7 @@ return (
               fullWidth
               label="First Name"
               name="first_name"
-              value={userDetails?.first_name}
+              value={newDetails?.first_name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -108,7 +115,7 @@ return (
               fullWidth
               label="Last Name"
               name="last_name"
-              value={userDetails?.last_name}
+              value={newDetails?.last_name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -127,7 +134,79 @@ return (
               fullWidth
               label="Phone"
               name="phone"
-              value={userDetails?.phone}
+              value={newDetails?.phone}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="Gender"
+              name="gender"
+              value={newDetails?.gender === 'M' ? 'Male' :
+              userDetails?.gender === 'F' ? 'Female' :
+              userDetails?.gender === 'O' ? 'Other' : ''}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="City"
+              name="city"
+              value={newDetails?.city}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="Address"
+              name="address"
+              value={newDetails?.address}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="State"
+              name="state"
+              value={newDetails?.state}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="Pincode"
+              name="pincode"
+              value={newDetails?.pin_code}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="Age"
+              name="age"
+              value={newDetails?.age}
+              InputLabelProps={{ shrink: true }}
+            ></OutlinedTextField>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label="Qualification"
+              name="qualification"
+              value={newDetails?.qualification}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -136,7 +215,7 @@ return (
               disabled
               fullWidth
               label="Role"
-              value={UserMappedByRole(userDetails?.role)?.name}
+              value={UserMappedByRole(newDetails?.role)?.name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -147,7 +226,7 @@ return (
               fullWidth
               label="Username"
               name="username"
-              value={userDetails?.username}
+              value={newDetails?.username}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -156,7 +235,7 @@ return (
               disabled
               fullWidth
               label="Organization"
-              value={userDetails?.organization?.title}
+              value={newDetails?.organization?.title}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -182,7 +261,7 @@ return (
               fullWidth
               labelId="lang-label"
               name="languages"
-              value={userDetails?.languages? userDetails.languages : []}
+              value={newDetails?.languages? newDetails.languages : []}
               style={{zIndex: "0"}}
               MenuProps={MenuProps}
               input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
@@ -210,7 +289,7 @@ return (
               fullWidth
               label="Availability Status"
               name="availability_status"
-              value={userDetails?.availability_status}
+              value={newDetails?.availability_status}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
             </Grid>
@@ -221,7 +300,7 @@ return (
               fullWidth
               labelId="lang-label"
               name="participation_type"
-              value={userDetails?.participation_type? userDetails.participation_type : []}
+              value={newDetails?.participation_type? newDetails.participation_type : []}
               style={{zIndex: "0"}}
               input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
             >
@@ -245,7 +324,7 @@ return (
                   <Grid item>
                       <CustomButton
                       label="Edit Profile"
-                      // onClick={() => navigate("/edit-profile")}
+                      onClick={() => navigate("/edit-profile")}
                       />
                   </Grid> }
           </Grid>

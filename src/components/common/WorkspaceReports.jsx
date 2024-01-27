@@ -28,6 +28,8 @@ import GetWorkspaceDetailedProjectReportsAPI from "../../app/actions/api/workspa
 import DatasetStyle from "../../styles/dataset";
 import ColumnList from "../common/ColumnList";
 import { isSameDay, format } from 'date-fns';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -39,11 +41,14 @@ import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 const ProgressType = [{ name: "Annotation Stage", value: 1 }, { name: "Review Stage", value: 2 }, { name: "Super Check Stage", value: 3 }, { name: "All Stage", value: "AllStage" }]
 
 const WorkspaceReports = () => {
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const WorkspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails.data
   );
   console.log(WorkspaceDetails,"lll");
   const UserDetails = useSelector(state => state.getLoggedInData.data);
+  console.log(UserDetails);
   const [selectRange, setSelectRange] = useState([{
     startDate: new Date(Date.parse(WorkspaceDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
     endDate: new Date(),

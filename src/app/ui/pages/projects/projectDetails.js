@@ -12,28 +12,27 @@ import {
     Tooltip,
   } from "@mui/material";
   import React, { useEffect, useState } from "react";
-  import themeDefault from "@/themes/theme";
-  import Link from "next/link";
-  import TaskTable from "@/components/Project/TaskTable";
-  import MembersTable from "@/components/Project/MembersTable";
-  import ReportsTable from "@/components/Project/ReportsTable";
-  import { translate } from "@/config/localisation";
-  import addUserTypes from "@/Constants/addUserTypes";
-  import Spinner from "@/components/common/Spinner";
+  import themeDefault from "../../../../themes/theme";
+  // import Link from "next/link";
+  import { Link, useNavigate, useParams, useHistory } from "react-router-dom";
+  import TaskTable from "../../../../components/Project/TaskTable";
+  import MembersTable from "../../../../components/Project/MembersTable";
+  import ReportsTable from "../../../../components/Project/ReportsTable";
+  import { translate } from "../../../../config/localisation";
+  import addUserTypes from "../../../../Constants/addUserTypes";
+  import Spinner from "../../../../components/common/Spinner";
   import Menu from "@mui/material/Menu";
-  import { useDispatch, useSelector } from "react-redux";
   import { styled, alpha } from "@mui/material/styles";
+  import { useDispatch ,useSelector } from "react-redux";
+  import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-  import DatasetStyle from "@/styles/dataset";
-  import ProjectDescription from "@/components/Tabs/ProjectDescription";
+  import DatasetStyle from "../../../../styles/dataset";
+  import ProjectDescription from "../../../../components/Tabs/ProjectDescription";
   import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-  import userRole from "@/utils/UsersRolesList";
-  import SuperChecker from "@/components/Project/SuperChecker";
-import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
+  import userRole from "../../../../utils/UsersRolesList";
+  import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+  import SuperChecker from "../../../../components/Project/SuperChecker";
 import AllTaskTable from "@/components/Project/AllTaskTable";
-     /* eslint-disable react-hooks/exhaustive-deps */
-
 
   const menuOptions = [
     { name: "Tasks", isChecked: false, component: () => null },
@@ -105,8 +104,8 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
   }));
   const Projects = () => {
     // console.log("props", props)
-    // const { id } = useParams();
-    const id = 1
+    const { id } = useParams();
+    // const id = 1
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -117,7 +116,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       { name: "Total Labeled Task", value: null },
       { name: "Reviewed Task Count", value: null },
     ]);
-    // let navigate = useNavigate();
+    let navigate = useNavigate();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -246,9 +245,9 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       }
     }, [annotationdata, reviewerdata,dispatch]);
   
-    // const handleOpenSettings = () => {
-    //   navigate(`/projects/${id}/projectsetting`);
-    // };
+    const handleOpenSettings = () => {
+      navigate(`/projects/${id}/projectsetting`);
+    };
   
   
     let projectValue = "Unassigned Super Check Tasks"
@@ -435,12 +434,13 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
                 <Typography variant="h3">{ProjectDetails.title}</Typography>
               </Grid>
   
-              {(userRole.WorkspaceManager === loggedInUserData?.role ||
+              {/* {(userRole.WorkspaceManager === loggedInUserData?.role ||
                 userRole.OrganizationOwner === loggedInUserData?.role ||
-                userRole.Admin === loggedInUserData?.role) && (
+                userRole.Admin === loggedInUserData?.role) && ( */}
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                     <Tooltip title={translate("label.showProjectSettings")}>
                       <IconButton
+                      onClick={handleOpenSettings}
                         sx={{ marginLeft: "140px" }}
                       >
                         <SettingsOutlinedIcon
@@ -450,7 +450,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
                       </IconButton>
                     </Tooltip>
                   </Grid>
-                )}
+                {/* )} */}
             </Grid>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
               <Grid container spacing={2}>

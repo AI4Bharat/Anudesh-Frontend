@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-// import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
-import Link from 'next/link';
+// import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 // import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
 import UserMappedByRole from "../../utils/UserMappedByRole";
@@ -21,7 +21,7 @@ const AnnotatorsTable = (props) => {
     const { onRemoveSuccessGetUpdatedMembers } = props;
 
     const [loading, setLoading] = useState(false);
-    // const { id } = useParams();
+    const { id } = useParams();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -29,7 +29,7 @@ const AnnotatorsTable = (props) => {
     });
 
     const orgId = useSelector(state => state.getWorkspaceProjectData?.data?.[0]?.organization_id);
-    // const SearchWorkspaceMembers = useSelector((state) => state.SearchProjectCards.data);
+    const SearchWorkspaceMembers = useSelector((state) => state.searchProjectCard?.searchValue);
 
 
     const workspaceAnnotators = useSelector(state => state.getWorkspacesAnnotatorsData.data);
@@ -38,14 +38,14 @@ const AnnotatorsTable = (props) => {
 
 
     useEffect(() => {
-      dispatch(fetchWorkspacesAnnotatorsData(1));
+      dispatch(fetchWorkspacesAnnotatorsData(id));
     }, []);
  
     const handleRemoveWorkspaceMember = async (Projectid) => {
         const workspacedata = {
             user_id: Projectid,
         }
-        const projectObj = new RemoveWorkspaceMemberAPI(1, workspacedata);
+        const projectObj = new RemoveWorkspaceMemberAPI(id, workspacedata);
         dispatch(APITransport(projectObj));
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "POST",
@@ -97,11 +97,29 @@ const AnnotatorsTable = (props) => {
       };
     
 
-    const pageSearch = () => {
+      const pageSearch = () => {
 
         return workspaceAnnotators.filter((el) => {
 
+            if (SearchWorkspaceMembers == "") {
+
                 return el;
+            } else if (
+                el.username
+                    ?.toLowerCase()
+                    .includes(SearchWorkspaceMembers?.toLowerCase())
+            ) {
+
+                return el;
+            } else if (
+                el.email
+                    ?.toLowerCase()
+                    .includes(SearchWorkspaceMembers?.toLowerCase())
+            ) {
+
+                return el;
+            }
+
 
         })
 
@@ -169,7 +187,7 @@ const AnnotatorsTable = (props) => {
             // userRole ? userRole : el.role,
             // el.role,
             <>
-                <Link href={`/profile`} style={{ textDecoration: "none" }}>
+                <Link to={`/profile/${el.id}`} style={{ textDecoration: "none" }}>
                     <CustomButton
                         sx={{ borderRadius: 2, marginRight: 2 }}
                         label="View"

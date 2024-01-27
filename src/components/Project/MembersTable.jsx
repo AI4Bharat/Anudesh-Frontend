@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MUIDataTable from "mui-datatables";
-import { useRouter } from "next/navigation";
 import CustomButton from "../common/Button";
+import { useNavigate,useParams } from "react-router-dom";
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import { PersonAddAlt } from "@mui/icons-material";
 import addUserTypes from "../../Constants/addUserTypes/index";
@@ -26,7 +26,7 @@ import userRoles from "../../utils/Role";
 import TextField from '@mui/material/TextField';
 import { fetchRemoveProjectMember } from "@/Lib/Features/projects/RemoveProjectMember";
 import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectReviewerAPI";
-import { fetchResendUserInvite } from "@/Lib/Features/projects/ResendUserInvite";
+import ResendUserInviteAPI, { fetchResendUserInvite } from "@/app/actions/api/Projects/ResendUserInvite";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 
@@ -90,10 +90,10 @@ const addLabel = {
 
 const MembersTable = (props) => {
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-  // const { orgId, id } = useParams();
-  const id=1;
-  const orgId =1;
-  // const navigate = useNavigate();
+  const { orgId, id } = useParams();
+  // const id=1;
+  // const orgId =1;
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
   const [loading, setLoading] = useState(false);
@@ -117,27 +117,27 @@ const MembersTable = (props) => {
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
   const apiLoading = useSelector((state) => state.apiStatus.loading);
-  // const SearchWorkspaceMembers = useSelector(
-  //   (state) => state.SearchProjectCards.data
-  // );
+  const SearchWorkspaceMembers = useSelector(
+    (state) => state.searchProjectCard?.searchValue
+  );
   const loggedInUserData = useSelector(
     (state) => state.getLoggedInData.data
   );
   const pageSearch = () => {
     return dataSource.filter((el) => {
-      // if (SearchWorkspaceMembers == "") {
+      if (SearchWorkspaceMembers == "") {
         return el;
-      // } else if (
-      //   el.username
-      //     ?.toLowerCase()
-      //     .includes(SearchWorkspaceMembers?.toLowerCase())
-      // ) {
-      //   return el;
-      // } else if (
-      //   el.email?.toLowerCase().includes(SearchWorkspaceMembers?.toLowerCase())
-      // ) {
-      //   return el;
-      // }
+      } else if (
+        el.username
+          ?.toLowerCase()
+          .includes(SearchWorkspaceMembers?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        el.email?.toLowerCase().includes(SearchWorkspaceMembers?.toLowerCase())
+      ) {
+        return el;
+      }
     });
   };
 
@@ -209,7 +209,8 @@ const MembersTable = (props) => {
   };
 
   const handleResendUser = async(email) => {
-    dispatch(fetchResendUserInvite(email=[email]));
+    const projectObj = new ResendUserInviteAPI(email=[email]);
+
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -218,7 +219,7 @@ const MembersTable = (props) => {
     const resp = await res.json();
     setLoading(false);
     if (res.ok) {
-      setSnackbarInfo({
+      setSnackbarInfo({ 
         open: true,
         message: resp?.message,
         variant: "success",

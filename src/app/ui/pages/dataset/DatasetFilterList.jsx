@@ -15,22 +15,17 @@ import {
   Box,
 
 } from "@mui/material";
-import  "@/styles/Dataset.css";
-// import { useDispatch, useSelector } from "react-redux";
-// import GetDatasetTypeAPI from "../../../../redux/actions/api/Dataset/GetDatasetType";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
+import { translate } from "@/config/localisation";
+import { useDispatch, useSelector } from "react-redux";
+import DatasetStyle from "@/styles/dataset";
+import { snakeToTitleCase } from "@/utils/utils";
 import MenuItems from "@/components/common/MenuItems"
-
-function snakeToTitleCase(str) {
-  return str.split("_").map((word) => {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }).join(" ");
-}
+import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";
 
 const datasetvisibility = ["all_public_datasets", "my_datasets"];
 const DatasetFilterList = (props) => {
-  
-  // const dispatch = useDispatch();
+  const classes = DatasetStyle();
+  const dispatch = useDispatch();
 
   const {
     filterStatusData,
@@ -38,38 +33,37 @@ const DatasetFilterList = (props) => {
     updateFilters,
   
   } = props;
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const [selectDatasetVisibility, setSelectDatasetVisibility] = useState("");
   const [selectedDatasetType, setSelectedDatasetType] = useState("");
     const [type, setType] = useState([]);
 
   
-  // const datasetType = useSelector(state => state.GetDatasetType.data);
-  const datasetType = "dummy data";
-  // const getProjectDetails = () => {
-  //   const projectObj = new GetDatasetTypeAPI();
-  //   dispatch(APITransport(projectObj));
-  // }
+  const datasetType = useSelector(state => state.GetDatasetType.data);
+  const getProjectDetails = () => {
+    dispatch(fetchDatasetType());
+  }
 
-  // useEffect(() => {
-  //   getProjectDetails();
+  useEffect(() => {
+    getProjectDetails();
 
-  // }, []);
+  }, []);
 
-  // useEffect(() => {
-  //   if (datasetType && datasetType.length > 0) {
-  //     let temp = [];
-  //     datasetType.forEach((element) => {
-  //       temp.push({
+  useEffect(() => {
+    if (datasetType && datasetType.length > 0) {
+      let temp = [];
+      datasetType.forEach((element) => {
+        temp.push({
         
-  //         name: element,
-  //         value: element,
+          name: element,
+          value: element,
 
-  //       });
-  //     });
-  //     setType(temp);
-  //   }
-  // }, [datasetType]);
+        });
+      });
+      setType(temp);
+    }
+  }, [datasetType]);
 
 
   const handleChange = (e) => {
@@ -108,7 +102,7 @@ const DatasetFilterList = (props) => {
           horizontal: "right",
         }}
       >
-        <Grid container className="filterContainer">
+        <Grid container className={classes.filterContainer}>
         <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
         <Typography
               variant="body2"
@@ -133,13 +127,14 @@ const DatasetFilterList = (props) => {
             Dataset Visibility :
             </Typography>
             <FormGroup>
-              {datasetvisibility.map((type, index) => {
+              {datasetvisibility.map((type,i) => {
                 return (
                   <FormControlLabel
-                    key={index}
+                  key={i}
                     control={
                       <Radio
                         checked={ selectDatasetVisibility === type }
+                        key={i}
                         name={type}
                         color="primary"
                       />
@@ -173,7 +168,7 @@ const DatasetFilterList = (props) => {
             variant="outlined"
             color="primary"
             size="small"
-            className="clearAllBtn"
+            className={classes.clearAllBtn}
           >
             {" "}
             Clear All
@@ -183,7 +178,7 @@ const DatasetFilterList = (props) => {
             variant="contained"
             color="primary"
             size="small"
-            className="clearAllBtn"
+            className={classes.clearAllBtn}
           >
             {" "}
             Apply

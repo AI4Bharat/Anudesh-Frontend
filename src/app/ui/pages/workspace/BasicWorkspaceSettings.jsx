@@ -3,7 +3,7 @@ import { Grid, ThemeProvider, Typography, Autocomplete, TextField, FormControlLa
 import React, { useEffect, useState } from "react";
 import themeDefault from '../../../../themes/theme'
 import OutlinedTextField from "../../../../components/common/OutlinedTextField";
-import  "@/styles/Dataset.css";
+import "../../../../styles/Dataset.css";
 import CustomButton from "../../../../components/common/Button";
 import CustomizedSnackbars from "../../../../components/common/Snackbar";
 import Spinner from "../../../../components/common/Spinner";
@@ -11,6 +11,8 @@ import Spinner from "../../../../components/common/Spinner";
 
 
 const BasicWorkspaceSettings = (props) => {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",

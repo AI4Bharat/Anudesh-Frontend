@@ -1,14 +1,15 @@
 
 import { Grid, Typography, Hidden, ThemeProvider } from "@mui/material";
 import "../../styles/Dataset.css";
-
 export default function AppInfo() {
+       /* eslint-disable react-hooks/exhaustive-deps */
+
   return (
     <div>
       <Grid container>
         <Hidden only="xs">
           <Grid item xs={10} sm={10} md={10} lg={10} xl={10}  >
-            <img src={"https://i.imgur.com/56Ut9oz.png"} alt="anudesh-logo" style={{ width: "85px", margin: "10% 0px 0% 35px", borderRadius: "50%" }} />
+            <img src="https://i.imgur.com/56Ut9oz.png" alt="anudesh-logo" style={{ width: "85px", margin: "10% 0px 0% 35px", borderRadius: "50%" }} />
           </Grid>
         </Hidden>
 
