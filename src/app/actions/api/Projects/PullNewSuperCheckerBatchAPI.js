@@ -10,7 +10,7 @@ export default class PullNewSuperCheckerBatchAPI extends API {
     super("POST", timeout, false);
     this.projectId = projectId;
     this.numsTasks = numsTasks;
-    this.type = constants.PULL_NEW_SUPER_CHECKER_BATCH;
+    this.type = constant.PULL_NEW_SUPER_CHECKER_BATCH;
     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/assign_new_supercheck_tasks/`;
   }
 

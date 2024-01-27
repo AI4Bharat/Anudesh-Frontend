@@ -22,9 +22,11 @@ import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
 import GoogleLoginAPI from "../../../actions/api/user/GoogleLogin";
 import { authenticateUser } from "@/utils/utils";
-import FetchLoggedInUserDataAPI from "@/Lib/Features/user/FetchLoggedInUserData";
+import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function Login() {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const navigate = useNavigate();
     const dispatch=useDispatch()
     
@@ -57,8 +59,7 @@ export default function Login() {
         }));
     };
     const getLoggedInUserData = () => {
-        const loggedInUserObj = new FetchLoggedInUserDataAPI("me");
-        dispatch(APITransport(loggedInUserObj));
+        dispatch(FetchLoggedInUserData("me"));
     };
   
     

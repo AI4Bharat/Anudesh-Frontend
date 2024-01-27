@@ -7,7 +7,7 @@ import OutlinedTextField from "@/components/common/OutlinedTextField";
 // import { translate } from "@/config/localisation";
 import LoginStyle from "@/styles/loginStyle";
 import themeDefault from "@/themes/theme";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AppInfo from "@/components/user/AppInfo";
 import ForgotPasswordAPI from "../../../actions/api/user/ForgotPasswordAPI";
 // import APITransport from "@/redux/actions/apitransport/apitransport";
@@ -15,6 +15,8 @@ import { useDispatch } from "react-redux";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 
 const ForgotPassword = () => {
+   /* eslint-disable react-hooks/exhaustive-deps */
+
   const classes = LoginStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ const ForgotPassword = () => {
             message: resp?.message,
             variant: "success",
         })
-        // navigate("/login");
+        navigate("/login");
     } else {
         setSnackbarInfo({
             open: true,

@@ -4,14 +4,15 @@ import MUIDataTable from "mui-datatables";
 import CustomButton from "@/components/common/Button";
 import { ThemeProvider,Tooltip, Button } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DatasetFilterList from "./DatasetFilterList";
 
 const DatasetCardList = (props) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const { datasetList,selectedFilters,setsSelectedFilters } = props;
-  // const SearchDataset = useSelector((state) => state.SearchProjectCards.data);
-  const SearchDataset = [];
+  const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -41,7 +42,7 @@ const DatasetCardList = (props) => {
         el.instance_id
           .toString()
           ?.toLowerCase()
-          ?.includes(SearchDataset.toLowerCase())
+          ?.includes(SearchDataset?.toLowerCase())
       ) {
         return el;
       }

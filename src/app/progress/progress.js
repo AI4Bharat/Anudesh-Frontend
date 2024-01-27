@@ -7,19 +7,18 @@ import RecentTasks from '../../components/Tabs/RecentTasks';
 import Spinner from "../../components/common/Spinner";
 import userRole from "../../utils/Role";
 import { useDispatch, useSelector } from "react-redux";
-import APITransport from '@/Lib/apiTransport/apitransport';
-import FetchUserByIdAPI from '../actions/api/user/FetchUserByIDAPI';
+import {useNavigate, useParams} from "react-router-dom"
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
 import CustomizedSnackbars from '../../components/common/Snackbar';
 
 export default function ProgressPage () {
-  // const { id } = useParams();
-  const id = 1;
+  const { id } = useParams();
+  // const id = 1;
   const dispatch = useDispatch();
    /* eslint-disable react-hooks/exhaustive-deps */
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
@@ -87,7 +86,7 @@ export default function ProgressPage () {
 
   return (
       <Grid container spacing={2}>
-        {/* {loading && <Spinner />}  */}
+        {loading && <Spinner />} 
         {renderSnackBar()}
           {/* {userDetails && ( */}
             <>

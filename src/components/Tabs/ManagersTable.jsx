@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MUIDataTable from "mui-datatables";
 import {useDispatch,useSelector} from 'react-redux';
 import CustomButton from "../common/Button";
@@ -11,7 +11,7 @@ import { ThemeProvider, Grid,
     DialogTitle,
     DialogContentText } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
-import Link from 'next/link';
+// import Link from 'next/link';
 import {useRouter} from 'next/navigation'
 import RemoveWorkspaceManagerAPI from "@/app/actions/api/workspace/RemoveWorkspaceManagerAPI";
 import CustomizedSnackbars from "../../components/common/Snackbar";
@@ -29,12 +29,10 @@ const ManagersTable = (props) => {
         variant: "success",
       });
     const router = useRouter()
-    const id = 1;
+    const {id} = useParams();
     // const orgId = useSelector(state=>state.getWorkspacesProjectData?.data?.[0]?.organization_id);
     const getWorkspaceManagersData = ()=>{
-        
-        // const workspaceObjs = new GetWorkspacesManagersDataAPI(1);
-       
+               
         dispatch(fetchWorkspacesManagersData(id));
     }
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -44,11 +42,11 @@ const ManagersTable = (props) => {
     },[]);
 
     const workspaceManagers = useSelector(state=>state.getWorkspacesManagersData.data);
-    // const SearchWorkspaceManagers = useSelector((state) => state.SearchProjectCards.data);
+    const SearchWorkspaceManagers = useSelector((state) => state.searchProjectCard?.searchValue);
 
 const handleRemoveWorkspaceManager = async(userid)=>{
    
-        const projectObj = new RemoveWorkspaceManagerAPI(1, {ids:[userid]},);
+        const projectObj = new RemoveWorkspaceManagerAPI(id, {ids:[userid]},);
         dispatch(APITransport(projectObj));
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "POST",
@@ -78,24 +76,24 @@ const handleRemoveWorkspaceManager = async(userid)=>{
 
         return workspaceManagers.filter((el) => {
 
-            // if (SearchWorkspaceManagers == "") {
+            if (SearchWorkspaceManagers == "") {
 
                 return el;
-            // } else if (
-            //     el.username
-            //         ?.toLowerCase()
-            //         .includes(SearchWorkspaceManagers?.toLowerCase())
-            // ) {
+            } else if (
+                el.username
+                    ?.toLowerCase()
+                    .includes(SearchWorkspaceManagers?.toLowerCase())
+            ) {
 
-            //     return el;
-            // } else if (
-            //     el.email
-            //         ?.toLowerCase()
-            //         .includes(SearchWorkspaceManagers?.toLowerCase())
-            // ) {
+                return el;
+            } else if (
+                el.email
+                    ?.toLowerCase()
+                    .includes(SearchWorkspaceManagers?.toLowerCase())
+            ) {
 
-                // return el;
-            // }
+                return el;
+            }
         })
     }
     const columns = [
@@ -138,7 +136,7 @@ const handleRemoveWorkspaceManager = async(userid)=>{
                 el.username, 
                 el.email,
                <>
-                <Link href={`/profile`} style={{ textDecoration: "none" }}>
+                <Link to={`/profile/${el.id}`}  style={{ textDecoration: "none" }}>
                     <CustomButton
                         sx={{borderRadius : 2,marginRight: 2}}
                         label = "View"

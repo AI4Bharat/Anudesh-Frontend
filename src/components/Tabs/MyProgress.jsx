@@ -34,6 +34,8 @@ import {
   import ColumnList from "../common/ColumnList";
   import CustomizedSnackbars from "../common/Snackbar";
   import { isSameDay, format } from 'date-fns';
+  import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
   import { DateRangePicker, defaultStaticRanges } from "react-date-range";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
   import ArrowRightIcon from "@mui/icons-material/ArrowRight";

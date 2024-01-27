@@ -14,7 +14,7 @@ import CustomizedSnackbars from "../../components/common/Snackbar";
 import userRole from "../../utils/Role";
 import ProfileDetails from "../../components/UserManagement/ProfileDetails"
 import ScheduleMails from '@/components/UserManagement/ScheduleMails';
-
+import { useNavigate,useParams } from 'react-router-dom';
 // import { useRouter } from 'next/navigation';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import UpdateProfileImageAPI from '../actions/api/user/UpdateProfileImageAPI'
@@ -23,10 +23,11 @@ import APITransport from '@/Lib/apiTransport/apitransport';
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
 
 export default function ProfilePage () {
-  
-  const id=2;
+   /* eslint-disable react-hooks/exhaustive-deps */
+
+  const {id} = useParams();
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
@@ -195,7 +196,7 @@ export default function ProfilePage () {
                     <Grid item>
                       <CustomButton
                         label="View Progress"
-                        // onClick={() => navigate(`/progress/${UserDetails.id}`)}
+                        onClick={() => navigate(`/progress/${UserDetails.id}`)}
                       />
                     </Grid>
                   </Grid>}
