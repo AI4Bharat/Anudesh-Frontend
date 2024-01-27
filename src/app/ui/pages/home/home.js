@@ -22,6 +22,7 @@ export default function Home() {
                         <div className="flex gap-8">
                             <button className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">Demo Video</button>
                             <button onClick={() => navigate("/login")} className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white">Sign In/Sign Up</button>
+                            <button onClick={() => navigate("/chat")} className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white">Chat Page</button>
                         </div>
                     </div>
                     <div className="pr-40">
