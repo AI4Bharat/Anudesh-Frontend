@@ -1,13 +1,17 @@
 'use client';
 
-import Button from "../components/common/Button";
+import CustomButton from "../components/common/Button";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import StarIcon from '@mui/icons-material/Star';
 import { FormControlLabel, Radio, RadioGroup, TextareaAutosize } from '@mui/material';
 import './model_response_evaluation.css'
 import { useState } from "react";
 import { Paper, List, ListItem } from '@mui/material'
+import Button from '@mui/material/Button';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 const ModelInteractionEvaluation = () => {
     const classes = ModelResponseEvaluationStyle();
@@ -26,7 +30,7 @@ const ModelInteractionEvaluation = () => {
     const interactionList = [
         {
             prompt: "prompt1",
-            output: "output1"
+            output: "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnggggggggggggggggggggggggggggggggggggggggggggggggggggggoutput"
         },
         {
             prompt: "prompt2",
@@ -34,7 +38,7 @@ const ModelInteractionEvaluation = () => {
         },
         {
             prompt: "prompt3",
-            output: "output3"
+            output: "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnggggggggggggggggggggggggggggggggggggggggggggggggggggggoutput"
         },
         {
             prompt: "prompt4",
@@ -93,7 +97,7 @@ const ModelInteractionEvaluation = () => {
         setNote(event.target.value);
     }
 
-    const handleSubmit = ()=>{
+    const handleSubmit = () => {
         console.log(rating);
         console.log(answers);
         console.log(note);
@@ -103,19 +107,19 @@ const ModelInteractionEvaluation = () => {
         return (
             <div className={classes.topBar}>
                 <div>
-                    <Button
+                    <CustomButton
                         className={classes.blueBtn}
                         label={"Submit"}
                         onClick={handleSubmit}
                     />
-                    <Button
+                    <CustomButton
                         className={classes.whiteBtn}
                         label={"Skip"}
                         onClick={handleNextPair}
                     />
                 </div>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <Button
+                    <CustomButton
                         className={classes.whiteBtn}
                         label={<ArrowBackIosIcon />}
                         onClick={handlePrevPair}
@@ -124,7 +128,7 @@ const ModelInteractionEvaluation = () => {
                     <h3>
                         Page : {currPairIdx + 1}/{totalPairs}
                     </h3>
-                    <Button
+                    <CustomButton
                         className={classes.whiteBtn}
                         label={<ArrowForwardIosIcon />}
                         onClick={handleNextPair}
@@ -141,37 +145,57 @@ const ModelInteractionEvaluation = () => {
 
     const EvaluationForm = () => {
         return (
-            <div className={classes.rightPanel}>
+            <div className={`${classes.panel} ${classes.rightPanelPadding}`}>
                 <div>
-                    <div className={classes.promptContainer}>{interactionList[currPairIdx].prompt}</div>
-                    <div className={classes.outputContainer}>{interactionList[currPairIdx].output}</div>
+                    <div className={`${classes.promptContainer}`}>
+                        {interactionList[currPairIdx].prompt}
+                    </div>
+                    <div className={`${classes.outputContainer}`}>
+                        {interactionList[currPairIdx].output}
+                    </div>
                     <div className={classes.ratingText}>Rating (1=worst, 7=best)</div>
-                    {
-                        Array.from({ length: 7 }, (_, index) => (
-                            <Button
-                                key={index + 1}
-                                className={`${classes.numBtn} ${rating === index + 1 ? classes.selected : ''}`}
-                                label={index + 1}
-                                onClick={() => handleRating(index + 1)}
-                                style={{ marginRight: '1rem', marginLeft: '1rem', marginBottom: '2rem' }}
-                            />
-                        ))
-                    }
+                    <div className={classes.ratingBtns}>
+                        {
+                            Array.from({ length: 7 }, (_, index) => (
+                                <Button
+                                    key={index + 1}
+                                    onClick={() => handleRating(index + 1)}
+                                    className={`${classes.ratingBtn} ${rating >= index + 1 ? classes.selected : ''}`}
+                                    style={{
+                                        fontSize: '2rem',
+                                        borderRadius: '100%',
+                                        height: '50px',
+                                        width: '50px',
+                                        color: rating >= index + 1 ? 'orange' : 'white',
+                                        borderColor: 'white',
+                                        background: rating >= index + 1 ? 'white' : 'orange',
+                                    }}
+                                >
+                                    <StarIcon />
+                                </Button>
+                            ))
+                        }
+                    </div>
                     <hr className={classes.hr} />
+                    
                     {questions.map((question, index) => (
                         <div key={index} className={classes.questionContainer}>
                             <div className={classes.questionText}>{question}</div>
-                            <div className={classes.radioGroupContainer}>
-                                <RadioGroup
-                                    row
-                                    value={answers[index]}
-                                    onChange={(event) => handleOptionChange(index, event.target.value)}
-                                >
-                                    <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                                    <FormControlLabel value="No" control={<Radio />} label="No" />
-                                </RadioGroup>
-                            </div>
+                            <ToggleButtonGroup
+                                exclusive
+                                value={answers[index]}
+                                onChange={(event, newValue) => handleOptionChange(index, newValue)}
+                                aria-label="Yes or No"
+                            >
+                                <ToggleButton value="Yes" aria-label="Yes">
+                                    Yes
+                                </ToggleButton>
+                                <ToggleButton value="No" aria-label="No">
+                                    No
+                                </ToggleButton>
+                            </ToggleButtonGroup>
                         </div>
+
                     ))}
                     <div className={classes.notesContainer}>Notes</div>
                     <TextareaAutosize
@@ -189,14 +213,14 @@ const ModelInteractionEvaluation = () => {
 
     const InteractionDisplay = () => {
         return (
-            <div className={classes.leftPanel}>
+            <div className={classes.panel}>
                 <Paper className={classes.interactionWindow}>
                     <List>
                         {
                             interactionList.map((pair, index) => (
-                                <div key={index}>
-                                    <ListItem className={classes.promptTile}>{pair.prompt}</ListItem>
-                                    <ListItem className={classes.answerTile}>{pair.output}</ListItem>
+                                <div className={`${classes.promptOutputPair} ${index % 2 == 0 ? classes.left : classes.right}`} key={index}>
+                                    <ListItem className={`${classes.tile} ${classes.promptTile}`}>{pair.prompt}</ListItem>
+                                    <ListItem className={`${classes.tile} ${classes.outputTile}`}>{pair.output}</ListItem>
                                 </div>
                             ))
                         }
@@ -208,7 +232,7 @@ const ModelInteractionEvaluation = () => {
 
     return (
         <>
-            {TopBar()}
+            {/* {TopBar()} */}
             <div className={classes.container}>
                 {InteractionDisplay()}
                 {EvaluationForm()}
