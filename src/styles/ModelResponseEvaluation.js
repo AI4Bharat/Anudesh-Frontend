@@ -108,7 +108,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     display: "flex",
     flexDirection: "column",
     padding: "1rem",
-    overflowY: "scroll", // Enable vertical scrolling
+    // Enable vertical scrolling
     scrollBehavior: "smooth", // Enable smooth scrolling
   },
   promptContainer: {
@@ -170,7 +170,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     padding: "2rem",
     overflowY: "auto",
     border: "1px solid rgb(44, 39, 153)",
-    borderRadius: "1rem",
+    
     scrollbarWidth: "thin",
     "&::-webkit-scrollbar": {
       width: "1rem",
