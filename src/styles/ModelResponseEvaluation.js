@@ -109,6 +109,23 @@ const ModelResponseEvaluationStyle = makeStyles({
     overflowWrap: 'anywhere',
     color: '#8e9aaf'
   },
+  showMoreLink: {
+    cursor: 'pointer',
+    color: 'blue',
+    textDecoration: 'none',
+    marginLeft: '8px',
+    fontSize: '1.3rem',
+  },
+  showMoreLinkCard: {
+    cursor: 'pointer',
+    color: 'blue',
+    textDecoration: 'none',
+    marginLeft: '8px',
+    fontSize: '1.3rem',
+    float: 'right',
+    width: '100%',
+    marginTop:'1rem'
+  },
   ratingText: {
     fontSize: '1.5rem',
     fontWeight: 'bold',
@@ -127,7 +144,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     display: 'flex',
     // justifyContent: 'center',
     '@media (max-width: 595px)': {
-      flexDirection:'column'
+      flexDirection: 'column'
     },
   },
   questionText: {

@@ -5,7 +5,7 @@ import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import StarIcon from '@mui/icons-material/Star';
-import { FormControlLabel, Radio, RadioGroup, TextareaAutosize } from '@mui/material';
+import { TextareaAutosize } from '@mui/material';
 import './model_response_evaluation.css'
 import { useState } from "react";
 import { Paper, List, ListItem } from '@mui/material'
@@ -143,16 +143,41 @@ const ModelInteractionEvaluation = () => {
         )
     }
 
+    const PromptOutputIndividual = ({ prompt, output }) => {
+        const [showFullOutput, setShowFullOutput] = useState(false);
+
+        const toggleShowFullOutput = () => {
+            setShowFullOutput(!showFullOutput);
+        };
+
+        const displayedOutput = showFullOutput ? output : output.slice(0, 100);
+
+        return (
+            <div>
+                <div className={`${classes.promptContainer}`}>
+                    {prompt}
+                </div>
+                <div className={`${classes.outputContainer}`}>
+                    {displayedOutput}
+                    {output.length > 100 && (
+                        <span onClick={toggleShowFullOutput} className={classes.showMoreLink}>
+                            {showFullOutput ? 'Show less' : 'Show more'}
+                        </span>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+
     const EvaluationForm = () => {
         return (
             <div className={`${classes.panel} ${classes.rightPanelPadding}`}>
                 <div>
-                    <div className={`${classes.promptContainer}`}>
-                        {interactionList[currPairIdx].prompt}
-                    </div>
-                    <div className={`${classes.outputContainer}`}>
-                        {interactionList[currPairIdx].output}
-                    </div>
+                    <PromptOutputIndividual
+                        prompt={interactionList[currPairIdx].prompt}
+                        output={interactionList[currPairIdx].output}
+                    />
                     <div className={classes.ratingText}>Rating (1=worst, 7=best)</div>
                     <div className={classes.ratingBtns}>
                         {
@@ -177,7 +202,7 @@ const ModelInteractionEvaluation = () => {
                         }
                     </div>
                     <hr className={classes.hr} />
-                    
+
                     {questions.map((question, index) => (
                         <div key={index} className={classes.questionContainer}>
                             <div className={classes.questionText}>{question}</div>
@@ -211,19 +236,43 @@ const ModelInteractionEvaluation = () => {
         )
     }
 
+    const PromptOutputPair = ({ pair, index, classes }) => {
+        const [showFullOutput, setShowFullOutput] = useState(false);
+
+        const toggleShowFullOutput = () => {
+            setShowFullOutput(!showFullOutput);
+        };
+
+        const displayedOutput = showFullOutput ? pair.output : pair.output.slice(0, 100);
+
+        return (
+            <div className={`${classes.promptOutputPair} ${index % 2 === 0 ? classes.left : classes.right}`} key={index}>
+                <ListItem className={`${classes.tile} ${classes.promptTile}`}>{pair.prompt}</ListItem>
+                <ListItem >
+                    <div className={`${classes.tile} ${classes.outputTile}`}>
+                        {displayedOutput}
+
+                        {pair.output.length > 100 && (
+                            <span onClick={toggleShowFullOutput} className={classes.showMoreLinkCard}>
+                                {showFullOutput ? 'Show less' : 'Show more'}
+                            </span>
+                        )}
+                    </div>
+
+                </ListItem>
+            </div>
+        );
+    };
+
+
     const InteractionDisplay = () => {
         return (
             <div className={classes.panel}>
                 <Paper className={classes.interactionWindow}>
                     <List>
-                        {
-                            interactionList.map((pair, index) => (
-                                <div className={`${classes.promptOutputPair} ${index % 2 == 0 ? classes.left : classes.right}`} key={index}>
-                                    <ListItem className={`${classes.tile} ${classes.promptTile}`}>{pair.prompt}</ListItem>
-                                    <ListItem className={`${classes.tile} ${classes.outputTile}`}>{pair.output}</ListItem>
-                                </div>
-                            ))
-                        }
+                        {interactionList.map((pair, index) => (
+                            <PromptOutputPair key={index} pair={pair} index={index} classes={classes} />
+                        ))}
                     </List>
                 </Paper>
             </div>
