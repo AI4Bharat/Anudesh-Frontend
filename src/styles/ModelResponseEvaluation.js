@@ -92,24 +92,23 @@ const ModelResponseEvaluationStyle = makeStyles({
     overflow: "hidden",
   },
   leftPanel: {
-   
     flex: "0 0 30%", // Adjust the width as needed
     height: "100%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    overflowY: "auto",
+    overflowY: "auto", // Enable vertical scrolling
   },
   rightPanel: {
     backgroundColor: "white",
     flex: "1",
-    height: "100%",
+    maxHeight: "100vh", // Set maximum height to 100% of viewport height
+    overflowY: "auto", // Enable vertical scrolling if needed
     display: "flex",
     flexDirection: "column",
     padding: "1rem",
-    // Enable vertical scrolling
-    scrollBehavior: "smooth", // Enable smooth scrolling
+    scrollBehavior: "smooth",
   },
   promptContainer: {
     fontSize: "2.5rem",
@@ -170,7 +169,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     padding: "2rem",
     overflowY: "auto",
     border: "1px solid rgb(44, 39, 153)",
-    
+
     scrollbarWidth: "thin",
     "&::-webkit-scrollbar": {
       width: "1rem",
