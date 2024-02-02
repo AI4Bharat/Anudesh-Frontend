@@ -8,6 +8,8 @@ import { FormControlLabel, Radio, RadioGroup, TextareaAutosize } from '@mui/mate
 import './model_response_evaluation.css'
 import { useState } from "react";
 import { Paper, List, ListItem } from '@mui/material'
+import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const ModelInteractionEvaluation = () => {
     const classes = ModelResponseEvaluationStyle();
@@ -147,20 +149,49 @@ const ModelInteractionEvaluation = () => {
         )
     }
 
+    const PairAccordion = ({ pairs, classes }) => {
+        const [expanded, setExpanded] = useState(Array(pairs.length).fill(true));
+    
+        const handleAccordionChange = (panel) => (event, isExpanded) => {
+            setExpanded((prevExpanded) => {
+                const newExpanded = [...prevExpanded];
+                newExpanded[panel] = isExpanded ? panel : false;
+                return newExpanded;
+            });
+        };
+    
+        return (
+            <div>
+                {pairs.map((pair, index) => (
+                    <Accordion
+                        key={index}
+                        expanded={expanded[index]}
+                        onChange={handleAccordionChange(index)}
+                        className={classes.accordion}
+                    >
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`panel${index}a-content`}
+                            id={`panel${index}a-header`}
+                        >
+                            <Typography className={classes.promptTile}>
+                                {pair.prompt}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography className={classes.answerTile}>{pair.output}</Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                ))}
+            </div>
+        );
+    };
+    
     const InteractionDisplay = () => {
         return (
             <div className={classes.leftPanel}>
                 <Paper className={classes.interactionWindow}>
-                    <List>
-                        {
-                            interactionList.map((pair, index) => (
-                                <div key={index}>
-                                    <ListItem className={classes.promptTile}>{pair.prompt}</ListItem>
-                                    <ListItem className={classes.answerTile}>{pair.output}</ListItem>
-                                </div>
-                            ))
-                        }
-                    </List>
+                    <PairAccordion pairs={interactionList} classes={classes}/>
                 </Paper>
             </div>
         )

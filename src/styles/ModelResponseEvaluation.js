@@ -110,6 +110,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   interactionWindow: {
     maxHeight: "100%",
+    height:"100vh",
     width: "100%",
     padding: "2rem",
     overflowY: "auto",
@@ -131,27 +132,13 @@ const ModelResponseEvaluationStyle = makeStyles({
     },
   },
   promptTile: {
-    border: "1px solid white",
-    color: "white",
-    padding: "1rem",
-    maxWidth: "70%",
-    borderRadius: "1rem",
-    fontSize: "1.2rem",
-    backgroundColor: "rgb(44, 39, 153)",
-    float: "right",
-    marginBottom: "2rem",
-    fontFamily: "'Open Sans', sans-serif",
+    
   },
   answerTile: {
-    border: "1px solid rgb(44, 39, 153)",
-    color: "rgb(44, 39, 153)",
-    padding: "1rem",
-    maxWidth: "70%",
-    borderRadius: "1rem",
-    fontSize: "1.2rem",
-    float: "left",
-    marginBottom: "2rem",
-    fontFamily: "'Open Sans', sans-serif",
+    overflowWrap:'anywhere'
+  },
+  accordion: {
+    marginBottom: '1rem',
   },
 });
 
