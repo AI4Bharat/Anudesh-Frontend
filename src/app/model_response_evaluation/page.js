@@ -2,18 +2,15 @@
 
 import Button from "../components/common/Button";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { FormControlLabel, Radio, RadioGroup, TextareaAutosize } from '@mui/material';
 import './model_response_evaluation.css'
 import { useState } from "react";
-import { Paper, List, ListItem } from '@mui/material'
+import { Paper} from '@mui/material'
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const ModelInteractionEvaluation = () => {
     const classes = ModelResponseEvaluationStyle();
-    const totalTime = "12 : 00";
     const questions = [
         "Fails to follow the correct instruction/task?",
         "Inappropriate for customer assistance?",
