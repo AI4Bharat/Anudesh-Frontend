@@ -93,50 +93,10 @@ const ModelInteractionEvaluation = () => {
         setNote(event.target.value);
     }
 
-    const handleSubmit = ()=>{
+    const handleSubmit = () => {
         console.log(rating);
         console.log(answers);
         console.log(note);
-    }
-
-    const TopBar = () => {
-        return (
-            <div className={classes.topBar}>
-                <div>
-                    <Button
-                        className={classes.blueBtn}
-                        label={"Submit"}
-                        onClick={handleSubmit}
-                    />
-                    <Button
-                        className={classes.whiteBtn}
-                        label={"Skip"}
-                        onClick={handleNextPair}
-                    />
-                </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <Button
-                        className={classes.whiteBtn}
-                        label={<ArrowBackIosIcon />}
-                        onClick={handlePrevPair}
-                        style={{ marginRight: "1rem" }}
-                    />
-                    <h3>
-                        Page : {currPairIdx + 1}/{totalPairs}
-                    </h3>
-                    <Button
-                        className={classes.whiteBtn}
-                        label={<ArrowForwardIosIcon />}
-                        onClick={handleNextPair}
-                        style={{ marginLeft: "1rem" }}
-                    />
-
-                </div>
-                <div>
-                    <h3 style={{ fontSize: "1.5rem" }}>Total Time : {totalTime}</h3>
-                </div>
-            </div>
-        )
     }
 
     const EvaluationForm = () => {
@@ -208,7 +168,6 @@ const ModelInteractionEvaluation = () => {
 
     return (
         <>
-            {TopBar()}
             <div className={classes.container}>
                 {InteractionDisplay()}
                 {EvaluationForm()}

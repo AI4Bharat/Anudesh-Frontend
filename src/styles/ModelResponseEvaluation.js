@@ -2,61 +2,6 @@
 import { makeStyles } from '@mui/styles';
 
 const ModelResponseEvaluationStyle = makeStyles({
-  whiteBtn: {
-    backgroundColor: "white",
-    border: "none",
-    color: "rgb(44, 39, 153)",
-    padding: "10px 25px",
-    textAlign: "center",
-    textDecoration: "none",
-    display: "inline-block",
-    fontSize: "16px",
-    margin: "20px 2px",
-    transitionDuration: "0.4s",
-    cursor: "pointer",
-    borderRadius: "10px",
-    height: "auto",
-    "&:hover": {
-      boxShadow:
-        "0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19)",
-      textDecoration: "none",
-      backgroundColor: "white",
-      fontFamily: "'Open Sans', sans-serif",
-    },
-  },
-
-  blueBtn: {
-    backgroundColor: "rgb(44, 39, 153)",
-    border: "none",
-    fontFamily: "'Open Sans', sans-serif",
-    color: "white",
-    padding: "10px 25px",
-    textAlign: "center",
-    textDecoration: "none",
-    display: "inline-block",
-    fontSize: "16px",
-    margin: "20px 2px",
-    transitionDuration: "0.4s",
-    cursor: "pointer",
-    borderRadius: "10px",
-    height: "auto",
-    "&:hover": {
-      boxShadow:
-        "0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19)",
-      textDecoration: "none",
-      backgroundColor: "rgb(44, 39, 153)",
-    },
-  },
-
-  topBar: {
-    padding: "1rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    fontFamily: "'Open Sans', sans-serif",
-    width: "100%",
-  },
-
   numBtn: {
     backgroundColor: "white",
     border: "none",
