@@ -2,11 +2,15 @@
 import { makeStyles } from '@mui/styles';
 
 const ModelResponseEvaluationStyle = makeStyles({
+  yesText: {
+    fontFamily: "'Open Sans', sans-serif",
+  },
   numBtn: {
     backgroundColor: "white",
     border: "none",
-    color: "rgb(44, 39, 153)",
-    padding: "10px 25px",
+    width: "2px",
+
+    padding: "2px 25px",
     textAlign: "center",
     textDecoration: "none",
     display: "inline-block",
@@ -16,12 +20,12 @@ const ModelResponseEvaluationStyle = makeStyles({
     cursor: "pointer",
     borderRadius: "10px",
     height: "auto",
+    color: "#6C5F5B",
     "&:hover": {
-      boxShadow:
-        "0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19)",
       textDecoration: "none",
       backgroundColor: "white",
       fontFamily: "'Open Sans', sans-serif",
+      color: "#6C5F5B",
     },
   },
   selected: {
@@ -35,7 +39,9 @@ const ModelResponseEvaluationStyle = makeStyles({
     height: "100vh",
     display: "flex",
     overflow: "hidden",
+    border: "66px solid #f0f4f9",
   },
+
   leftPanel: {
     flex: "0 0 30%", // Adjust the width as needed
     height: "100%",
@@ -44,6 +50,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     justifyContent: "center",
     alignItems: "center",
     overflowY: "auto", // Enable vertical scrolling
+    backgroundColor: "#f0f4f9",
   },
   rightPanel: {
     backgroundColor: "white",
@@ -54,23 +61,54 @@ const ModelResponseEvaluationStyle = makeStyles({
     flexDirection: "column",
     padding: "1rem",
     scrollBehavior: "smooth",
+    // border: "5px solid #f6f6f6",
+    scrollbarWidth: "thin",
+    "&::-webkit-scrollbar": {
+      width: "1rem",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "white",
+      borderRadius: "1rem",
+      border: "1px solid rgb(44, 39, 153)",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "rgb(44, 39, 153)",
+      border: "1px solid rgb(44, 39, 153)",
+      borderRadius: "1rem",
+    },
   },
+
+  orangeRadio: {
+    "& .MuiSvgIcon-root": {
+      color: "#EE6633", // Color of the circle when unchecked
+    },
+    "&.Mui-checked .MuiSvgIcon-root": {
+      color: "#00A36C", // Color of the checked circle
+    },
+    "&.Mui-checked .MuiSvgIcon-root::before": {
+      background: "green", // Color of the dot when checked
+    },
+  },
+
   promptContainer: {
-    fontSize: "2.5rem",
+    fontSize: "2rem",
     fontWeight: "bold",
     marginBottom: "1rem",
     fontFamily: "'Open Sans', sans-serif",
+    color: "#6C5F5B",
   },
   outputContainer: {
     fontSize: "2rem",
     marginBottom: "1rem",
     fontFamily: "'Open Sans', sans-serif",
+    color: "#6C5F5B",
   },
   ratingText: {
     fontSize: "1.5rem",
     fontWeight: "bold",
     marginBottom: "1.5rem",
     fontFamily: "'Open Sans', sans-serif",
+    color: "#6C5F5B",
   },
   ratingButton: {
     marginRight: "1rem",
@@ -79,7 +117,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     fontFamily: "'Open Sans', sans-serif",
   },
   hr: {
-    border: "1px solid black",
+    border: "1px solid #d8d8d8",
     marginBottom: "1rem",
   },
   questionContainer: {
@@ -101,21 +139,25 @@ const ModelResponseEvaluationStyle = makeStyles({
     fontWeight: "bold",
     fontSize: "2rem",
     marginTop: "1rem",
+    color: "#6C5F5B",
   },
   notesTextarea: {
     width: "100%",
     marginTop: "1.2rem",
-    border: "1px solid #ccc",
+    border: "2px solid #6C5F5B",
     borderRadius: "2px",
     padding: "5px",
   },
+
   interactionWindow: {
     maxHeight: "100%",
-    height:"100vh",
+    height: "100vh",
     width: "100%",
     padding: "2rem",
     overflowY: "auto",
-    border: "1px solid rgb(44, 39, 153)",
+    color: "#6C5F5B",
+
+    borderRadius: "2rem 0px 0px 1rem",
 
     scrollbarWidth: "thin",
     "&::-webkit-scrollbar": {
@@ -132,14 +174,12 @@ const ModelResponseEvaluationStyle = makeStyles({
       borderRadius: "1rem",
     },
   },
-  promptTile: {
-    
-  },
+  promptTile: {},
   answerTile: {
-    overflowWrap:'anywhere'
+    overflowWrap: "anywhere",
   },
   accordion: {
-    marginBottom: '1rem',
+    marginBottom: "1rem",
   },
 });
 
