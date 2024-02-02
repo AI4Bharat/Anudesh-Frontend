@@ -2,16 +2,15 @@
 
 import Button from "../components/common/Button";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { FormControlLabel, Radio, RadioGroup, TextareaAutosize } from '@mui/material';
 import './model_response_evaluation.css'
 import { useState } from "react";
-import { Paper, List, ListItem } from '@mui/material'
+import { Paper} from '@mui/material'
+import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const ModelInteractionEvaluation = () => {
     const classes = ModelResponseEvaluationStyle();
-    const totalTime = "12 : 00";
     const questions = [
         "Fails to follow the correct instruction/task?",
         "Inappropriate for customer assistance?",
@@ -93,50 +92,10 @@ const ModelInteractionEvaluation = () => {
         setNote(event.target.value);
     }
 
-    const handleSubmit = ()=>{
+    const handleSubmit = () => {
         console.log(rating);
         console.log(answers);
         console.log(note);
-    }
-
-    const TopBar = () => {
-        return (
-            <div className={classes.topBar}>
-                <div>
-                    <Button
-                        className={classes.blueBtn}
-                        label={"Submit"}
-                        onClick={handleSubmit}
-                    />
-                    <Button
-                        className={classes.whiteBtn}
-                        label={"Skip"}
-                        onClick={handleNextPair}
-                    />
-                </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <Button
-                        className={classes.whiteBtn}
-                        label={<ArrowBackIosIcon />}
-                        onClick={handlePrevPair}
-                        style={{ marginRight: "1rem" }}
-                    />
-                    <h3>
-                        Page : {currPairIdx + 1}/{totalPairs}
-                    </h3>
-                    <Button
-                        className={classes.whiteBtn}
-                        label={<ArrowForwardIosIcon />}
-                        onClick={handleNextPair}
-                        style={{ marginLeft: "1rem" }}
-                    />
-
-                </div>
-                <div>
-                    <h3 style={{ fontSize: "1.5rem" }}>Total Time : {totalTime}</h3>
-                </div>
-            </div>
-        )
     }
 
     const EvaluationForm = () => {
@@ -187,20 +146,49 @@ const ModelInteractionEvaluation = () => {
         )
     }
 
+    const PairAccordion = ({ pairs, classes }) => {
+        const [expanded, setExpanded] = useState(Array(pairs.length).fill(true));
+    
+        const handleAccordionChange = (panel) => (event, isExpanded) => {
+            setExpanded((prevExpanded) => {
+                const newExpanded = [...prevExpanded];
+                newExpanded[panel] = isExpanded ? panel : false;
+                return newExpanded;
+            });
+        };
+    
+        return (
+            <div>
+                {pairs.map((pair, index) => (
+                    <Accordion
+                        key={index}
+                        expanded={expanded[index]}
+                        onChange={handleAccordionChange(index)}
+                        className={classes.accordion}
+                    >
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`panel${index}a-content`}
+                            id={`panel${index}a-header`}
+                        >
+                            <Typography className={classes.promptTile}>
+                                {pair.prompt}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography className={classes.answerTile}>{pair.output}</Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                ))}
+            </div>
+        );
+    };
+    
     const InteractionDisplay = () => {
         return (
             <div className={classes.leftPanel}>
                 <Paper className={classes.interactionWindow}>
-                    <List>
-                        {
-                            interactionList.map((pair, index) => (
-                                <div key={index}>
-                                    <ListItem className={classes.promptTile}>{pair.prompt}</ListItem>
-                                    <ListItem className={classes.answerTile}>{pair.output}</ListItem>
-                                </div>
-                            ))
-                        }
-                    </List>
+                    <PairAccordion pairs={interactionList} classes={classes}/>
                 </Paper>
             </div>
         )
@@ -208,7 +196,6 @@ const ModelInteractionEvaluation = () => {
 
     return (
         <>
-            {TopBar()}
             <div className={classes.container}>
                 {InteractionDisplay()}
                 {EvaluationForm()}

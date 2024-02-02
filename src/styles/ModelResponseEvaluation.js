@@ -2,61 +2,6 @@
 import { makeStyles } from '@mui/styles';
 
 const ModelResponseEvaluationStyle = makeStyles({
-  whiteBtn: {
-    backgroundColor: "white",
-    border: "none",
-    color: "rgb(44, 39, 153)",
-    padding: "10px 25px",
-    textAlign: "center",
-    textDecoration: "none",
-    display: "inline-block",
-    fontSize: "16px",
-    margin: "20px 2px",
-    transitionDuration: "0.4s",
-    cursor: "pointer",
-    borderRadius: "10px",
-    height: "auto",
-    "&:hover": {
-      boxShadow:
-        "0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19)",
-      textDecoration: "none",
-      backgroundColor: "white",
-      fontFamily: "'Open Sans', sans-serif",
-    },
-  },
-
-  blueBtn: {
-    backgroundColor: "rgb(44, 39, 153)",
-    border: "none",
-    fontFamily: "'Open Sans', sans-serif",
-    color: "white",
-    padding: "10px 25px",
-    textAlign: "center",
-    textDecoration: "none",
-    display: "inline-block",
-    fontSize: "16px",
-    margin: "20px 2px",
-    transitionDuration: "0.4s",
-    cursor: "pointer",
-    borderRadius: "10px",
-    height: "auto",
-    "&:hover": {
-      boxShadow:
-        "0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19)",
-      textDecoration: "none",
-      backgroundColor: "rgb(44, 39, 153)",
-    },
-  },
-
-  topBar: {
-    padding: "1rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    fontFamily: "'Open Sans', sans-serif",
-    width: "100%",
-  },
-
   numBtn: {
     backgroundColor: "white",
     border: "none",
@@ -166,6 +111,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   interactionWindow: {
     maxHeight: "100%",
+    height:"100vh",
     width: "100%",
     padding: "2rem",
     overflowY: "auto",
@@ -187,27 +133,13 @@ const ModelResponseEvaluationStyle = makeStyles({
     },
   },
   promptTile: {
-    border: "1px solid white",
-    color: "white",
-    padding: "1rem",
-    maxWidth: "70%",
-    borderRadius: "1rem",
-    fontSize: "1.2rem",
-    backgroundColor: "rgb(44, 39, 153)",
-    float: "right",
-    marginBottom: "2rem",
-    fontFamily: "'Open Sans', sans-serif",
+    
   },
   answerTile: {
-    border: "1px solid rgb(44, 39, 153)",
-    color: "rgb(44, 39, 153)",
-    padding: "1rem",
-    maxWidth: "70%",
-    borderRadius: "1rem",
-    fontSize: "1.2rem",
-    float: "left",
-    marginBottom: "2rem",
-    fontFamily: "'Open Sans', sans-serif",
+    overflowWrap:'anywhere'
+  },
+  accordion: {
+    marginBottom: '1rem',
   },
 });
 
