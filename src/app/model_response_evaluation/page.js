@@ -163,6 +163,11 @@ const ModelInteractionEvaluation = () => {
             expanded={expanded[index]}
             onChange={handleAccordionChange(index)}
             className={classes.accordion}
+            style={{ borderRadius: expanded[index] ? "1rem" : "0" ,
+           boxShadow: expanded[index]
+              ? '0px 4px 6px rgba(0, 0, 0, 0.1)'
+              : 'none',
+          }}
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}

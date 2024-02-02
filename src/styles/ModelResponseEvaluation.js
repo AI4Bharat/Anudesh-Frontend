@@ -29,6 +29,10 @@ const ModelResponseEvaluationStyle = makeStyles({
       color: "#6C5F5B",
     },
   },
+  accordion :  {
+  borderRadius: "12rem",
+
+},
   selected: {
     backgroundColor: "rgb(44, 39, 153)",
     color: "white",
@@ -97,6 +101,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     marginBottom: "1rem",
     fontFamily: "'Open Sans', sans-serif",
     color: "#6C5F5B",
+        borderRadius: "1rem",
   },
   outputContainer: {
     fontSize: "2rem",
