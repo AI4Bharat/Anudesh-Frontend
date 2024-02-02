@@ -97,8 +97,8 @@ const ModelInteractionEvaluation = () => {
                 marginLeft: "0.9px",
                 marginBottom: "2rem",
                 borderRadius: "1rem",
-                width: "1rem",
-                padding: "1rem",
+                   width: "47px",
+    padding: "13px",
                 fontFamily: "'Open Sans', sans-serif",
               }}
             />
