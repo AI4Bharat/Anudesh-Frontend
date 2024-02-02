@@ -150,6 +150,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     marginLeft: "0.5rem",
     marginBottom: "0.5rem",
     fontSize: "1.5rem",
+    fontFamily: "'Open Sans', sans-serif",
   },
   notesContainer: {
     fontWeight: "bold",

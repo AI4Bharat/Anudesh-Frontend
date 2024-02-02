@@ -357,7 +357,7 @@ const themeDefault = createTheme({
           fontSize: "18px",
           fontWeight: "600",
           letterSpacing: "0px",
-          fontFamily: "Roboto",
+          fontFamily: "'Open Sans', sans-serif",
           padding: "0",
           textTransform: "none",
           marginRight: "28px",

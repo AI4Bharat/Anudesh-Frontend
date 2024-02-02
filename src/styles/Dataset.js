@@ -7,7 +7,7 @@ const DatasetStyle = makeStyles({
   Projectsettingtextarea: {
     width: "100%",
     fontSize: "1.4rem",
-    fontFamily: "Roboto",
+    fontFamily: "'Open Sans', sans-serif",
     fontWeight: 10,
     lineHeight: 1.2,
 
@@ -234,7 +234,7 @@ const DatasetStyle = makeStyles({
   },
   modelValue: {
     fontSize: "14px",
-    fontFamily: "Roboto",
+    fontFamily: "'Open Sans', sans-serif",
     fontWeight: 400,
     lineHeight: "22px",
     "&:first-letter": { textTransform: "capitalize" },
