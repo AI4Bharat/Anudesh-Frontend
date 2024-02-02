@@ -4,6 +4,7 @@ import { makeStyles } from '@mui/styles';
 const ModelResponseEvaluationStyle = makeStyles({
   yesText: {
     fontFamily: "'Open Sans', sans-serif",
+    marginRight: "1rem",
   },
   numBtn: {
     backgroundColor: "white",
@@ -127,6 +128,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   questionText: {
     width: "80%",
     fontSize: "18px",
+        color: "#393939",
   },
   radioGroupContainer: {
     width: "20%",
