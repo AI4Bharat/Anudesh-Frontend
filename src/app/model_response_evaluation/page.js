@@ -147,10 +147,10 @@ const ModelInteractionEvaluation = () => {
   const PairAccordion = ({ pairs, classes }) => {
     const [expanded, setExpanded] = useState(Array(pairs.length).fill(true));
 
-    const handleAccordionChange = (panel) => (event, isExpanded) => {
+    const handleAccordionChange = (index) => (event, isExpanded) => {
       setExpanded((prevExpanded) => {
         const newExpanded = [...prevExpanded];
-        newExpanded[panel] = isExpanded ? panel : false;
+        newExpanded[index] = isExpanded;
         return newExpanded;
       });
     };
