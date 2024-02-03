@@ -5,9 +5,10 @@ import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import { FormControlLabel, Radio, RadioGroup, TextareaAutosize } from '@mui/material';
 import './model_response_evaluation.css'
 import { useState } from "react";
-import { Paper} from '@mui/material'
+import { Paper } from '@mui/material'
 import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Resizable } from "re-resizable";
 
 const ModelInteractionEvaluation = () => {
   const classes = ModelResponseEvaluationStyle();
@@ -87,9 +88,8 @@ const ModelInteractionEvaluation = () => {
           {Array.from({ length: 7 }, (_, index) => (
             <Button
               key={index + 1}
-              className={`${classes.numBtn} ${
-                rating === index + 1 ? classes.selected : ""
-              }`}
+              className={`${classes.numBtn} ${rating === index + 1 ? classes.selected : ""
+                }`}
               label={index + 1}
               onClick={() => handleRating(index + 1)}
               style={{
@@ -97,8 +97,8 @@ const ModelInteractionEvaluation = () => {
                 marginLeft: "0.9px",
                 marginBottom: "2rem",
                 borderRadius: "1rem",
-                   width: "47px",
-    padding: "13px",
+                width: "47px",
+                padding: "13px",
                 fontFamily: "'Open Sans', sans-serif",
               }}
             />
@@ -163,11 +163,12 @@ const ModelInteractionEvaluation = () => {
             expanded={expanded[index]}
             onChange={handleAccordionChange(index)}
             className={classes.accordion}
-            style={{ borderRadius: expanded[index] ? "1rem" : "0" ,
-           boxShadow: expanded[index]
-              ? '0px 4px 6px rgba(0, 0, 0, 0.1)'
-              : 'none',
-          }}
+            style={{
+              borderRadius: expanded[index] ? "1rem" : "0",
+              boxShadow: expanded[index]
+                ? '0px 4px 6px rgba(0, 0, 0, 0.1)'
+                : 'none',
+            }}
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
@@ -191,11 +192,18 @@ const ModelInteractionEvaluation = () => {
 
   const InteractionDisplay = () => {
     return (
-      <div className={classes.leftPanel}>
+      <Resizable
+        defaultSize={{
+          width: '30%',
+          height: '100%',
+        }}
+        minWidth={'30%'}
+        maxWidth={'70%'}
+        enable={{ right: true, top: false, bottom: false, left: false }}>
         <Paper className={classes.interactionWindow}>
           <PairAccordion pairs={interactionList} classes={classes} />
         </Paper>
-      </div>
+      </Resizable>
     );
   };
 
