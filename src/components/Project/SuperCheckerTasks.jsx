@@ -567,7 +567,7 @@ if (typeof window !== 'undefined') {
         )
         ) 
         &&
-        (ProjectDetails.project_mode === "Annotation" ? (
+        (ProjectDetails.project_type === "InstructionDrivenChat" ? (
           ProjectDetails.is_published ? (
             <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
               {((props.type === "superChecker" &&

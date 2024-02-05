@@ -91,7 +91,7 @@ const BasicSettings = (props) => {
             tgt_language: targetLanguage,
             src_language: sourceLanguage,
             project_type: ProjectDetails.project_type,
-            project_mode: ProjectDetails.project_mode,
+            // project_mode: ProjectDetails.project_mode,
             users: ProjectDetails.users,
             annotation_reviewers: ProjectDetails.annotation_reviewers,
             max_pending_tasks_per_user: newDetails.max_pending_tasks_per_user,
