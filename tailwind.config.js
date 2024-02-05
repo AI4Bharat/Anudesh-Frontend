@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    './src/app/ui/pages/chat/chat.js',
     './src/app/ui/pages/home/home.js',
     './src/app/ui/pages/login/login.js',
   ],
