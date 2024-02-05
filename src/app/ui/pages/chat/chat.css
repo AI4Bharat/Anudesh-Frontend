@@ -6,7 +6,6 @@
     width: 51.25rem;
     outline: solid white;
     height: 3.1rem;
-    margin-right: 1.2rem;
     border-radius: 2.5rem;
     padding-left: 1rem;
 }
@@ -52,3 +51,37 @@
     margin-right: 2rem;
 }
 
+/* Add these styles to your existing styles or create a new CSS file */
+
+/* Chat container styles */
+.chat-container {
+    overflow-y:scroll;
+    max-height: 200px;
+    width: 46%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* User message styles */
+  .user-message {
+    background-color: #f58308;
+    color: #ffffff;
+    max-width: 70%;
+    align-self: flex-end;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+  
+  /* Bot message styles */
+  .bot-message {
+    background-color: #EAEAEA;
+    color: #333;
+    max-width: 70%;
+    align-self: flex-start;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+  
