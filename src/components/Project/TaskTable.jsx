@@ -436,7 +436,7 @@ const TaskTable = (props) => {
                 label={
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
-                      (ProjectDetails.project_mode === "Annotation"
+                      (ProjectDetails.project_type === "InstructionDrivenChat"
                         ? "Annotate"
                         : "Edit")
                       : "View"
@@ -885,7 +885,7 @@ const TaskTable = (props) => {
       console.log(rsp_data);
     }
   };
-  
+  console.log(ProjectDetails,"lll");
   return (
     <div>
       {((props.type === "annotation" &&
@@ -896,7 +896,7 @@ const TaskTable = (props) => {
           ProjectDetails?.annotation_reviewers?.some(
             (reviewer) => reviewer.id === userDetails?.id
           ))) &&
-        (ProjectDetails.project_mode === "Annotation" ? (
+        (ProjectDetails.project_type === "InstructionDrivenChat" ? (
           ProjectDetails.is_published ? (
             <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
               {((props.type === "annotation" &&
