@@ -180,7 +180,9 @@ const ModelResponseEvaluationStyle = makeStyles({
       borderRadius: "1rem",
     },
   },
-  promptTile: {},
+  promptTile: {
+    marginBottom:'1rem',
+  },
   answerTile: {
     overflowWrap: "anywhere",
   },

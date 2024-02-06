@@ -175,14 +175,17 @@ const ModelInteractionEvaluation = () => {
               aria-controls={`panel${index}a-content`}
               id={`panel${index}a-header`}
             >
-              <Typography className={classes.promptTile}>
-                {pair.prompt}
+              <Typography >
+                {`title${index + 1}`}
               </Typography>
             </AccordionSummary>
-            <AccordionDetails>
-              <Typography className={classes.answerTile}>
+            <AccordionDetails style={{ display: 'block' }}>
+              <div className={classes.promptTile}>
+                {pair.prompt}
+              </div>
+              <div className={classes.answerTile}>
                 {pair.output}
-              </Typography>
+              </div>
             </AccordionDetails>
           </Accordion>
         ))}
