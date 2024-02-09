@@ -6,26 +6,7 @@ import { InfoOutlined} from "@material-ui/icons";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-const dummyData = [
-    {
-      "prompt": "Hii Anudesh",
-      "output": "Hello! How can I assist you today?"
-    },
-    {
-      "prompt": "What is a computer?",
-      "output": "Computer is an electronic device"
-    },
-    {
-      "prompt": "What is it used for?",
-      "output": "It is used for computation"
-    },
-    {
-      "prompt": "Thanks, any additional points?",
-      "output": "No"
-    }
-  ];
-
+import dummyData from './dummyData.json';
 
 const Chat = () =>{
 
