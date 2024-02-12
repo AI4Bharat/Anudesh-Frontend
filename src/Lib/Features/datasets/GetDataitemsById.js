@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchDataitemsById = createAsyncThunk(
   'GetDataitemsById/fetchDataitemsById',
-  async (instanceIds, datasetType,selectedFilters,pageNo, countPerPage, { dispatch }) => {
+  async ({instanceIds, datasetType,selectedFilters,pageNo, countPerPage}) => {
     const body ={
         instance_ids: instanceIds,
         dataset_type: datasetType,
@@ -17,7 +17,7 @@ export const fetchDataitemsById = createAsyncThunk(
       }
     const queryString = `?${pageNo ? "&page="+pageNo : ""}${countPerPage ?"&records="+countPerPage : ""}`
 
-    const params = fetchParams(`${ENDPOINTS.getDatasets}dataitems/get_data_items/${queryString}`,"POST",body);
+    const params = fetchParams(`${ENDPOINTS.getDatasets}dataitems/get_data_items/${queryString}`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

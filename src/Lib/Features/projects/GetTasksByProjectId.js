@@ -7,10 +7,13 @@ const initialState = {
   error: null,
 };
 
-export const fetchTasksByProjectId = createAsyncThunk(
-  'getTasksByProjectId/fetchTasksByProjectId',
-  async (projectId, pageNo, countPerPage, selectedFilters, taskType, pullvalue,rejected,pull, { dispatch }) => {
-    let queryString = `?project_id=${projectId}${pageNo ? "&page="+pageNo : ""}${countPerPage ?"&records="+countPerPage : ""}`;
+export const  fetchTasksByProjectId = createAsyncThunk(
+  'GetTasksByProjectId/fetchTasksByProjectId',
+  async (payload) => {
+    const { id, currentPageNumber, currentRowPerPage, selectedFilters, taskType, pullvalue,rejected,pull } = payload;
+
+    console.log(id, currentPageNumber, currentRowPerPage, selectedFilters, taskType, pullvalue,rejected,pull,"upper","lll");
+    let queryString = `?project_id=${id}${currentPageNumber ? "&page="+currentPageNumber : ""}${currentRowPerPage ?"&records="+currentRowPerPage : ""}`;
     let querystr = pull === "All" ?"": `&editable=${pullvalue}`
     let querystr1 = rejected === true ?`&rejected=`+"True":""
     for (let key in selectedFilters) {
@@ -27,10 +30,12 @@ export const fetchTasksByProjectId = createAsyncThunk(
                       break;
              default:
              queryString +=`&${key}=${selectedFilters[key]}`
-            
          }
      }
     }
+    console.log("inside" ,"lll");
+    console.log(queryString);
+
 
     const params = fetchParams(`${ENDPOINTS.getTasks+queryString}`);
     return fetch(params.url, params.options)
@@ -38,8 +43,8 @@ export const fetchTasksByProjectId = createAsyncThunk(
   }
 );
 
-const getTasksByProjectId = createSlice({
-  name: 'getTasksByProjectId',
+const GetTasksByProjectId = createSlice({
+  name: 'GetTasksByProjectId',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -58,4 +63,4 @@ const getTasksByProjectId = createSlice({
   },
 });
 
-export default getTasksByProjectId.reducer;
+export default GetTasksByProjectId.reducer;

@@ -91,7 +91,7 @@ export default function DatasetProjectsTable({ datasetId }) {
 
 	const dispatch = useDispatch();
 	const datasetProjects = useSelector((state) =>
-		state.getDatasetProjects?.data);
+		state.GetDatasetProjects?.data);
 
 	const [snackbar, setSnackbarInfo] = useState({
 		open: false,
