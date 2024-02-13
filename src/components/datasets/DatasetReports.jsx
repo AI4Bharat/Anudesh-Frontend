@@ -42,7 +42,7 @@ const DatasetReports = () => {
   const DatasetDetails = useSelector((state) => state.getDatasetDetails?.data);
   const ProjectTypes = useSelector((state) => state.getProjectDomains?.data);
   const DatasetReports = useSelector((state) => state.getDatasetProjectReports?.data);
-  const LanguageChoices = useSelector((state) => state.fetchLanguages?.data);
+  const LanguageChoices = useSelector((state) => state.getLanguages?.data);
   const [projectReportType, setProjectReportType] = useState(1);
   const [statisticsType, setStatisticsType] = useState(1);
   const [snackbar, setSnackbarInfo] = useState({
@@ -132,20 +132,20 @@ const DatasetReports = () => {
   const handleSubmit = () => {
     if(projectReportType === 1){
       setReportRequested(true);
-      const projectReportObj = (
-        datasetId,
-        selectedType,
-        language
-      )
+      const projectReportObj = ({
+        datasetI:datasetId,
+        projectType:selectedType,
+        language:language
+      })
       dispatch(fetchDatasetProjectReports(projectReportObj));
       setShowSpinner(true);
     }else if(projectReportType === 2){
-      const projectReportObj = (
-        Number(datasetId),
-        selectedType,
-        userId,
-        statisticsType
-      );
+      const projectReportObj = ({
+        dataId:Number(datasetId),
+        projectType:selectedType,
+        userId:userId,
+        statistics:statisticsType
+      });
       dispatch(fetchDatasetDetailedReports(projectReportObj));
       setSnackbarInfo({
         open: true,

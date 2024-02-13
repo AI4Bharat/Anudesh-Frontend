@@ -11,7 +11,7 @@ const initialState = {
   
   export const fetchDownloadCSVProject = createAsyncThunk(
     'DownloadCSVProject/fetchDownloadCSVProject',
-    async (projectId, taskStatus ,downloadMetadataToggle,{ dispatch }) => {
+    async ({projectId, taskStatus ,downloadMetadataToggle}) => {
         const projectBody={}
         const body = {
             projectBody

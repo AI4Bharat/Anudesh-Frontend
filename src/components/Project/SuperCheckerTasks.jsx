@@ -399,7 +399,7 @@ const datavalue = {
     mode: "supercheck",
   
 };
-dispatch(fetchNextTask(id, datavalue, null, props.type));
+dispatch(fetchNextTask({projectId:id, projectObj:datavalue, null:null, type:props.type}));
 setLabellingStarted(true);
 }
 

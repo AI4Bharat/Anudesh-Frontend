@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchDatasetProjectReports = createAsyncThunk(
   'getDatasetProjectReports/fetchDatasetProjectReports',
-  async (datasetId, projectType, language, { dispatch }) => {
+async ({datasetId, projectType, language}) => {
     const body=language === "all" ? {
         project_type: projectType
       } : {

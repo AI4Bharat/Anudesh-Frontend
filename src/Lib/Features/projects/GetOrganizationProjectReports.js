@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchOrganizationProjectReports = createAsyncThunk(
   'GetOrganizationProjectReports/fetchOrganizationProjectReports',
-  async (orgId, projectType, targetLanguage, userId, sendMail, sortByColumn, descOrder, { dispatch }) => {
+  async ({orgId, projectType, targetLanguage, userId, sendMail, sortByColumn, descOrder}) => {
     const body = {
         project_type: projectType,
       tgt_language: targetLanguage === "all" ? undefined : targetLanguage,

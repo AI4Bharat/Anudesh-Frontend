@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchDatasetDetailedReports = createAsyncThunk(
   'GetDatasetDetailedReports/fetchDatasetDetailedReports',
-  async (dataId, projectType, userId, statistics, { dispatch }) => {
+  async ({dataId, projectType, userId, statistics}) => {
     const body={
         dataset_id: dataId,
         user_id: userId,

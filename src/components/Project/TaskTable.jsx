@@ -329,8 +329,9 @@ const TaskTable = (props) => {
       find_words: find,
       replace_words: replace,
     };
-    dispatch(fetchFindAndReplaceWordsInAnnotation(id,
-      ReplaceData));
+    
+    dispatch(fetchFindAndReplaceWordsInAnnotation({projectId:id,
+      AnnotationObj:ReplaceData}));
     const res = await fetch(AnnotationObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(AnnotationObj.getBody()),

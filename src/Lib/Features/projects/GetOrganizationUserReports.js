@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchOrganizationUserReports = createAsyncThunk(
   'GetOrganizationUserReports/fetchOrganizationUserReports',
-  async (orgId, projectType, startDate, endDate,reportsType, targetLanguage, sendMail, onlyReviewProjects,sortByColumn, descOrder, { dispatch }) => {
+async ({orgId, projectType, startDate, endDate,reportsType, targetLanguage, sendMail, onlyReviewProjects,sortByColumn, descOrder}) => {
     const body = {
         project_type: projectType,
         from_date: startDate,

@@ -11,7 +11,7 @@ const initialState = {
   
   export const fetchDownloadTSVProject = createAsyncThunk(
     'DownloadTSVProject/fetchDownloadTSVProject',
-    async (projectId, taskStatus ,downloadMetadataToggle,{ dispatch }) => {
+    async ({projectId, taskStatus ,downloadMetadataToggle}) => {
         const projectBody={}
         const body = {
             projectBody
