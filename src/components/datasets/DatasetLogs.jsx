@@ -20,7 +20,7 @@ const DatasetLogs = (props) => {
 
   const { datasetId } = props;
   const dispatch = useDispatch();
-  const DatasetLogs = useSelector((state) => state.getDatasetLogs.data);
+  const DatasetLogs = useSelector((state) => state.GetDatasetLogs?.data);
   const [taskName, setTaskName] = useState("projects.tasks.export_project_in_place"); 
   const [columns, setColumns] = useState([]);
   const [datasetLogs, setDatasetLogs] = useState([]);
@@ -47,7 +47,7 @@ const DatasetLogs = (props) => {
   };
 
   useEffect(() => {
-    const apiObj = (datasetId, taskName);
+    const apiObj = ({instanceId:datasetId, taskName:taskName});
     dispatch(fetchDatasetLogs(apiObj));
     setShowSpinner(true);
     setSelectRange([{

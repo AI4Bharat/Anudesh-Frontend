@@ -9,14 +9,14 @@ const initialState = {
 
 export const fetchDatasetProjectReports = createAsyncThunk(
   'getDatasetProjectReports/fetchDatasetProjectReports',
-  async (datasetId, projectType, language, { dispatch }) => {
+async ({datasetId, projectType, language}) => {
     const body=language === "all" ? {
         project_type: projectType
       } : {
         project_type: projectType,
         tgt_language: language,
      }
-    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/project_analytics/`,"POST",body);
+    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/project_analytics/`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

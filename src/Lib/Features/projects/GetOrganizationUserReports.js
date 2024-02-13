@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchOrganizationUserReports = createAsyncThunk(
   'GetOrganizationUserReports/fetchOrganizationUserReports',
-  async (orgId, projectType, startDate, endDate,reportsType, targetLanguage, sendMail, onlyReviewProjects,sortByColumn, descOrder, { dispatch }) => {
+async ({orgId, projectType, startDate, endDate,reportsType, targetLanguage, sendMail, onlyReviewProjects,sortByColumn, descOrder}) => {
     const body = {
         project_type: projectType,
         from_date: startDate,
@@ -21,7 +21,7 @@ export const fetchOrganizationUserReports = createAsyncThunk(
         reports_type: reportsType,
         send_mail: sendMail ?? false,
       };
-    const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/user_analytics/`,"POST",body);
+    const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/user_analytics/`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

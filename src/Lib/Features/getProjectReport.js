@@ -15,7 +15,7 @@ export const fetchProjectReport = createAsyncThunk(
         to_date: endDate,
         reports_type: reports_type,
       };
-    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/get_analytics/`,"POST",body);
+    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/get_analytics/`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

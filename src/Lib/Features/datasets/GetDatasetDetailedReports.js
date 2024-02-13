@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchDatasetDetailedReports = createAsyncThunk(
   'GetDatasetDetailedReports/fetchDatasetDetailedReports',
-  async (dataId, projectType, userId, statistics, { dispatch }) => {
+  async ({dataId, projectType, userId, statistics}) => {
     const body={
         dataset_id: dataId,
         user_id: userId,
@@ -23,7 +23,7 @@ export const fetchDatasetDetailedReports = createAsyncThunk(
       }else if(statistics === 3){
         body.complete_statistics = true;
       };
-    const params = fetchParams(`/functions/schedule_project_reports_email`,"POST",body);
+    const params = fetchParams(`/functions/schedule_project_reports_email`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

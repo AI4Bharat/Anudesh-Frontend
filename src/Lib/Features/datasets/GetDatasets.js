@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchDatasets = createAsyncThunk(
   'GetDatasets/fetchDatasets',
-  async (selectedFilters, { dispatch }) => {
+  async (selectedFilters) => {
     let queryString = "";
 
     for (let key in selectedFilters) {

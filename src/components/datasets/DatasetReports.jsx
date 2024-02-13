@@ -20,7 +20,7 @@ import ColumnList from "../common/ColumnList";
 import { MenuProps } from "@/utils/utils";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
-import fetchLanguages from "@/Lib/Features/fetchLanguages";
+import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import { fetchDatasetProjectReports } from "@/Lib/Features/datasets/getDatasetProjectReports";
 import { fetchDatasetDetailedReports } from "@/Lib/Features/datasets/GetDatasetDetailedReports";
 
@@ -39,10 +39,10 @@ const DatasetReports = () => {
 
   const { datasetId } = useParams();
   const dispatch = useDispatch();
-  const DatasetDetails = useSelector((state) => state.getDatasetDetails.data);
-  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
-  const DatasetReports = useSelector((state) => state.getDatasetProjectReports.data);
-  const LanguageChoices = useSelector((state) => state.fetchLanguages.data);
+  const DatasetDetails = useSelector((state) => state.getDatasetDetails?.data);
+  const ProjectTypes = useSelector((state) => state.getProjectDomains?.data);
+  const DatasetReports = useSelector((state) => state.getDatasetProjectReports?.data);
+  const LanguageChoices = useSelector((state) => state.getLanguages?.data);
   const [projectReportType, setProjectReportType] = useState(1);
   const [statisticsType, setStatisticsType] = useState(1);
   const [snackbar, setSnackbarInfo] = useState({
@@ -127,25 +127,25 @@ const DatasetReports = () => {
     },
   };
 
-  const userId = useSelector((state) => state.fetchLoggedInUserData.data.id);
+  const userId = useSelector((state) => state.getLoggedInUserData?.data.id);
 
   const handleSubmit = () => {
     if(projectReportType === 1){
       setReportRequested(true);
-      const projectReportObj = (
-        datasetId,
-        selectedType,
-        language
-      )
+      const projectReportObj = ({
+        datasetI:datasetId,
+        projectType:selectedType,
+        language:language
+      })
       dispatch(fetchDatasetProjectReports(projectReportObj));
       setShowSpinner(true);
     }else if(projectReportType === 2){
-      const projectReportObj = (
-        Number(datasetId),
-        selectedType,
-        userId,
-        statisticsType
-      );
+      const projectReportObj = ({
+        dataId:Number(datasetId),
+        projectType:selectedType,
+        userId:userId,
+        statistics:statisticsType
+      });
       dispatch(fetchDatasetDetailedReports(projectReportObj));
       setSnackbarInfo({
         open: true,
@@ -240,7 +240,7 @@ const DatasetReports = () => {
               MenuProps={MenuProps}
             >
               <MenuItem value={"all"}>All languages</MenuItem>
-              {LanguageChoices.language?.map((lang) => (
+              {LanguageChoices?.language?.map((lang) => (
                 <MenuItem value={lang} key={lang}>
                   {lang}
                 </MenuItem>
