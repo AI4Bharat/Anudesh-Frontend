@@ -56,6 +56,8 @@ import GetDatasetDownloadJSON from './Features/datasets/GetDatasetDownloadJSON';
 import GetFileTypes from './Features/datasets/GetFileTypes';
 import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
 import searchProjectCard from './Features/searchProjectCard';
+import GetGuestWokspaces from './Features/GetGuestWorkspaces';
+
 const makeStore = () => {
     return configureStore({
       reducer: {
@@ -116,7 +118,7 @@ const makeStore = () => {
         getWorkspaceData:getWorkspaceData,
         getOrganizationUsers:getOrganizationUsers,
         getProjectDetails:getProjectDetails,
-
+        GetGuestWokspaces: GetGuestWokspaces,
       },
     });
   };
