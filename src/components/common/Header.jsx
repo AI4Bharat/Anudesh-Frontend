@@ -71,7 +71,7 @@ const Header = () => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-
+   
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -246,12 +246,7 @@ const handleopenproject=(id,type)=>{
   };
 
   const renderTabs = () => {
-    // !REMOVE THE if(true)
-    if(false){
-      // condition that the user wants to do the task
-      return null;
-    }
-    else if (
+    if (
       userRole.Annotator === loggedInUserData?.role ||
       userRole.Reviewer === loggedInUserData?.role ||
       userRole.SuperChecker === loggedInUserData?.role
@@ -764,32 +759,36 @@ const handleopenproject=(id,type)=>{
         ) : (
           <AppBar>
             <Toolbar className={classes.toolbar}>
-              <Grid
-                sx={{ display: "flex", alignItems: "center" }}
-                xs={12}
-                sm={12}
-                md={3}
-              >
-                <Link href="/projects">
+            <Grid
+              sx={{ display: "flex", alignItems: "center" }}
+              xs={12}
+              sm={12}
+              md={3}
+            >   
+                <a style={{ display: "flex", alignItems: "center" }}>
                   <img
-
+                    onClick={() => navigate("/")} 
                     src="https://i.imgur.com/56Ut9oz.png"
                     alt="anudesh"
                     className={classes.headerLogo}
                     sx={{ marginTop: "5%" }}
                   />
-                </Link>
-                <Typography
-                  variant="h4"
-                  className={classes.headerTitle}
-                  sx={{
-                    fontSize: "28px",
-                    fontWeight: "lighter",
-                  }}
-                >
-                  Anudesh
-                </Typography>
-              </Grid>
+                  <Typography
+                    
+                    onClick={() => navigate("/")} 
+                    variant="h4"
+                    className={classes.headerTitle}
+                    sx={{
+                      fontSize: "28px",
+                      fontWeight: "lighter",
+                    }}
+                  >
+                    Anudesh
+                  </Typography>
+                </a>
+
+                
+            </Grid>
 
               {/* <Grid
                 container

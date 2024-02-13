@@ -111,8 +111,7 @@ export default function Root () {
               )}
             />
             <Route
-              // path="projects/:projectId/task/:taskId"
-              path="projects/alltask"
+              path="projects/:projectId/task/:taskId"
               element={ProtectedRouteWrapper(
                 <Layout component={<InstructionDrivenChatPage />} />
               )}
