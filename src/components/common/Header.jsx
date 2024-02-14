@@ -246,12 +246,7 @@ const handleopenproject=(id,type)=>{
   };
 
   const renderTabs = () => {
-    // !REMOVE THE if(true)
-    if(false){
-      // condition that the user wants to do the task
-      return null;
-    }
-    else if (
+    if (
       userRole.Annotator === loggedInUserData?.role ||
       userRole.Reviewer === loggedInUserData?.role ||
       userRole.SuperChecker === loggedInUserData?.role
