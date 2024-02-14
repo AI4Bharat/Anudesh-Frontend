@@ -9,7 +9,7 @@ const initialState = {
   
   export const fetchDatasetType = createAsyncThunk(
     'GetDatasetType/fetchDatasetType',
-    async (datasetType,{ dispatch }) => {
+    async (datasetType) => {
       const params = fetchParams(`${ENDPOINTS.getDatasets}instances/dataset_types/`);
       return fetch(params.url, params.options)
           .then(response => response.json())

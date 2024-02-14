@@ -11,12 +11,12 @@ const initialState = {
   
   export const fetchDownloadCSVProject = createAsyncThunk(
     'DownloadCSVProject/fetchDownloadCSVProject',
-    async (projectId, taskStatus ,downloadMetadataToggle,{ dispatch }) => {
+    async ({projectId, taskStatus ,downloadMetadataToggle}) => {
         const projectBody={}
         const body = {
             projectBody
         }
-      const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/download/?export_type=CSV&task_status=${taskStatus}&include_input_data_metadata_json=${downloadMetadataToggle}`,"POST",body);
+      const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/download/?export_type=CSV&task_status=${taskStatus}&include_input_data_metadata_json=${downloadMetadataToggle}`,"POST",JSON.stringify(body));
       return fetch(params.url, params.options)
           .then(response => response.json())
     }
