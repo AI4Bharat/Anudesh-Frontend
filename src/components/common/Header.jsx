@@ -17,13 +17,15 @@ import {
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { usePathname } from 'next/navigation'
 import MobileNavbar from "./MobileNavbar";
 import { useTheme } from "@emotion/react";
 import { useMediaQuery } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Logout from "@/Lib/Features/Logout";
 import Modal from "./Modal";
 import Image from "next/image";
@@ -37,7 +39,7 @@ import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 
 const Header = () => {
        /* eslint-disable react-hooks/exhaustive-deps */
-
+  const currentUrl = window.location.href;
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElSettings, setAnchorElSettings] = useState(null);
   const [anchorElHelp, setAnchorElHelp] = useState(null);
@@ -143,9 +145,22 @@ const handleopenproject=(id,type)=>{
     setAnchorElUser(event.currentTarget);
   };
 
+  const handleAnalytics = (event) => {
+    console.log('Analytics clicked');
+  }
+
+  const handleLeaderboard = (event) => {
+    console.log('Leaderboard clicked')
+  }
+
   const handleOpenHelpMenu = (event) => {
     setAnchorElHelp(event.currentTarget);
   };
+
+  const handleInfo = (event) => {
+    console.log('Information button clicked!')
+  }
+
   const handleCloseHelpMenu = () => {
     setAnchorElHelp(null);
   };
@@ -276,6 +291,17 @@ const handleopenproject=(id,type)=>{
               Workspaces
             </NavLink>
           </Typography> */}
+          { loggedInUserData.guest_user ? <Typography variant="body1">
+            <NavLink
+              to="/guest_workspaces"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Guest Workspaces
+            </NavLink>
+          </Typography> : null}
           <Typography variant="body1">
             <NavLink
               to="/projects"
@@ -787,16 +813,42 @@ const handleopenproject=(id,type)=>{
                   spacing={2}
                   sx={{ textAlign: "center", alignItems: "center", }}
                 >
+                  { currentUrl.includes('/projects/alltask') && 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="help">
-                      <IconButton onClick={handleOpenHelpMenu}>
-                        <HelpOutlineIcon
+                    <Tooltip title="Analytics">
+                      <IconButton onClick={handleAnalytics}>
+                        <PieChartOutlineOutlinedIcon
+                          color="primary.dark"
+                          fontSize="large"
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>}
+
+                  { currentUrl.includes('/projects/alltask') && 
+                  <Grid item xs={3} sm={3} md={2}>
+                    <Tooltip title="Leaderboard">
+                      <IconButton onClick={handleLeaderboard} style={{"display": "flex", "justifyContent": "center", "alignItems": "center"}}>
+                        <LeaderboardOutlinedIcon
+                          color="primary.dark"
+                          fontSize="large"
+                        />
+                        <h3 className="text-orange-600 text-sm font-bold mt-4">100</h3>
+                      </IconButton>
+                    </Tooltip>
+                  </Grid> }
+
+                  <Grid item xs={3} sm={3} md={2}>
+                    <Tooltip title="Help">
+                      <IconButton onClick={handleInfo}>
+                        <InfoOutlinedIcon
                           color="primary.dark"
                           fontSize="large"
                         />
                       </IconButton>
                     </Tooltip>
                   </Grid>
+
                   <Grid item xs={3} sm={3} md={2}>
                     <Tooltip title="Settings">
                       <IconButton onClick={handleOpenSettingsMenu}>

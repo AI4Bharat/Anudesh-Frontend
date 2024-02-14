@@ -208,7 +208,6 @@ export default function Login() {
                 }
             })
             .catch((err) => {
-                console.log(err);
                 setSnackbarInfo({
                     open: true,
                     message: err,
@@ -218,34 +217,7 @@ export default function Login() {
         }
     };
 
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     try {
-    //       signInWithEmailAndPassword(auth, credentials.email, credentials.password)
-    //       .then(async (result) => {
-    //         setSnackbarInfo({
-    //             open: true,
-    //             message: "login successfull",
-    //             variant: "success",
-    //           });
-    //         const { user } = result;
-    //         const idTokenResult = await user.getIdTokenResult();
-    //         window.localStorage.setItem("email", user.email);
-    //         window.localStorage.setItem("authtoken", idTokenResult.token);
-    //         navigate("/");
-    //       })
-    //     }
-    //     catch (err) {
-    //       console.log(err.message);
-    //       setSnackbarInfo({
-    //         open: true,
-    //         message: err.message,
-    //         variant: "error",
-    //       });
-    //     }
-    //   };
-    
-
+   
     return (
         <>
             {renderSnackBar()}

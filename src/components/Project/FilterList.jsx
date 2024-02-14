@@ -19,10 +19,9 @@ import {
 } from "@mui/material";
 import { translate } from "../../config/localisation";
 import  "../../styles/Dataset.css";
-// import { snakeToTitleCase } from "../../../utils/utils";
-// import { useDispatch, useSelector } from "react-redux";
+import { snakeToTitleCase } from "../../utils/utils";
+import { useDispatch, useSelector } from "react-redux";
 import { Stack } from "@mui/material";
-// import { translate } from "../../../../assets/localisation";
 
 const FilterList = (props) => {
   

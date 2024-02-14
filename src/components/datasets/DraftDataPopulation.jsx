@@ -52,7 +52,7 @@ const DraftDataPopulation = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const DatasetInstances = useSelector((state) => state.getDatasetsByType?.data);
   const DatasetTypes = useSelector((state) => state.GetDatasetType?.data);
-  const dataitemsList = useSelector((state) => state.getDataitemsById?.data);
+  const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
 
 
   useEffect(() => {

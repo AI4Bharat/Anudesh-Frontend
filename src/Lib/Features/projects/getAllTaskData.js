@@ -10,8 +10,9 @@ const initialState = {
 
 export const fetchAllTaskData = createAsyncThunk(
   'getAllTaskData/fetchAllTaskData',
-  async (projectId,pageNo,selectedFilters,currentRowPerPage,{ dispatch }) => {
-    let queryString = `?project_id=${projectId}${pageNo ? "&page="+pageNo : ""}${currentRowPerPage ?"&records="+currentRowPerPage : ""}`;
+  async (payload) => {
+    const{id,currentPageNumber,currentRowPerPage,selectedFilters}=payload
+    let queryString = `?project_id=${id}${currentPageNumber ? "&page="+currentPageNumber : ""}${currentRowPerPage ?"&records="+currentRowPerPage : ""}`;
      for (let key in selectedFilters) {
         if (selectedFilters[key] && selectedFilters[key] !== -1) {
           if(key=="task_status"){  

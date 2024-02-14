@@ -27,13 +27,6 @@ import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterList from "./FilterList";
-// import PullNewBatchAPI from "../../../../redux/actions/api/Tasks/PullNewBatch";
-// import PullNewReviewBatchAPI from "../../../../redux/actions/api/Tasks/PullNewReviewBatch";
-// import GetNextTaskAPI from "../../../../redux/actions/api/Tasks/GetNextTask";
-// import DeallocateTasksAPI from "../../../../redux/actions/api/Tasks/DeallocateTasks";
-// import DeallocateReviewTasksAPI from "../../../../redux/actions/api/Tasks/DeallocateReviewTasks";
-// import GetProjectDetailsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDetails";
-// import SetTaskFilter from "../../../../redux/actions/Tasks/SetTaskFilter";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup";
@@ -42,8 +35,6 @@ import { useDispatch, useSelector } from "react-redux";
 import ColumnList from "../common/ColumnList";
 import Spinner from "../../components/common/Spinner";
 import OutlinedTextField from "../common/OutlinedTextField";
-// import FindAndReplaceDialog from "../../component/common/FindAndReplaceDialog"
-// import FindAndReplaceWordsInAnnotationAPI from "../../../../redux/actions/api/ProjectDetails/FindAndReplaceWordsinAnnotation";
 import roles from "../../utils/Role";
 import TextField from '@mui/material/TextField';
 import { fetchTasksByProjectId } from "@/Lib/Features/projects/GetTasksByProjectId";
@@ -56,6 +47,7 @@ import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { fetchFindAndReplaceWordsInAnnotation } from "@/Lib/Features/projects/getFindAndReplaceWordsInAnnotation";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
+import LoginAPI from "@/app/actions/api/user/Login";
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
 
 
@@ -82,14 +74,15 @@ const excludeCols = [
 ];
 const TaskTable = (props) => {
   const classes = DatasetStyle();
-  // const { id } = useParams();
-  const id =1
+  const { id } = useParams();
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   // let location = useLocation();
   const taskList = useSelector(
-    (state) => state.getTasksByProjectId?.data.result
+    (state) =>  state.GetTasksByProjectId?.data?.result
+
   );
+  console.log(taskList);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -183,18 +176,27 @@ const TaskTable = (props) => {
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   /* eslint-disable react-hooks/exhaustive-deps */
+  console.log(props.type);
 
   const getTaskListData = () => {
-  
-    dispatch(fetchTasksByProjectId(id,
-      currentPageNumber,
-      currentRowPerPage,
-      selectedFilters,
-      props.type,
-      pullvalue,
-      rejected,
-      pull));
+    const taskobj = {
+      id: id,
+      currentPageNumber: currentPageNumber,
+      currentRowPerPage: currentRowPerPage,
+      selectedFilters: selectedFilters,
+      taskType: props.type,
+      pullvalue: pullvalue,
+      rejected: rejected,
+      pull: pull
+    };
+    dispatch(fetchTasksByProjectId(taskobj));
   };
+ 
+  useEffect(() => {
+    getTaskListData();
+  }, [currentPageNumber,
+    currentRowPerPage]);
+
 
 
   const fetchNewTasks = async () => {
@@ -303,7 +305,7 @@ const TaskTable = (props) => {
   };
 
   const totalTaskCount = useSelector(
-    (state) => state.getTasksByProjectId?.data.total_count
+    (state) => state.GetTasksByProjectId?.data.total_count
   );
 
   const handleShowSearch = (col, event) => {
@@ -327,8 +329,9 @@ const TaskTable = (props) => {
       find_words: find,
       replace_words: replace,
     };
-    dispatch(fetchFindAndReplaceWordsInAnnotation(id,
-      ReplaceData));
+    
+    dispatch(fetchFindAndReplaceWordsInAnnotation({projectId:id,
+      AnnotationObj:ReplaceData}));
     const res = await fetch(AnnotationObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(AnnotationObj.getBody()),
@@ -381,9 +384,7 @@ const TaskTable = (props) => {
     setLoading(apiLoading);
   }, [apiLoading]);
 
-  useEffect(() => {
-    getTaskListData();
-  }, [currentPageNumber, currentRowPerPage]);
+
 
   useEffect(() => {
     dispatch(setTaskFilter(id, selectedFilters, props.type));
@@ -885,7 +886,6 @@ const TaskTable = (props) => {
       console.log(rsp_data);
     }
   };
-  console.log(ProjectDetails,"lll");
   return (
     <div>
       {((props.type === "annotation" &&

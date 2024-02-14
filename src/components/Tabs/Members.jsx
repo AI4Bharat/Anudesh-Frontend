@@ -24,7 +24,6 @@ const Members = () => {
         getOrganizationMembersData();
       },[]);
 
-      console.log("OrganizationUserData", OrganizationUserData)
     
     return(
         <MembersTable 

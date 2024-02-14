@@ -76,7 +76,13 @@ const AllTaskTable = (props) => {
   });
 
   const GetAllTasksdata = () => {
-    dispatch(fetchAllTaskData(id, currentPageNumber,selectedFilters, currentRowPerPage));
+    const taskobj = {
+      id: id,
+      currentPageNumber: currentPageNumber,
+      currentRowPerPage: currentRowPerPage,
+      selectedFilters: selectedFilters,
+    };
+    dispatch(fetchAllTaskData(taskobj));
   };
 
   useEffect(() => {
