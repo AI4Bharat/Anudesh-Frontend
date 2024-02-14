@@ -71,19 +71,7 @@ const DataitemsTable = () => {
     );
     dispatch(fetchDataitemsById(dataObj));
   };
-  console.log(dataitemsList)
-  // const dataObj = {
-  //   instanceIds:datasetId,
-  //   datasetType:DatasetDetails.dataset_type,
-  //   selectedFilters:selectedFilters,
-  //   pageNo:currentPageNumber,
-  //   countPerPage:currentRowPerPage
-  // };
-
-//   const dataObj = new GetDataitemsById(datasetId, currentPageNumber, currentRowPerPage, DatasetDetails.dataset_type,selectedFilters);
-//   dispatch(APITransport(dataObj));
-// };
-
+ 
 useEffect(() => {
   setLoading(apiLoading);
 }, [apiLoading]);
@@ -128,31 +116,7 @@ useEffect(() => {
     }
     setColumns(tempColumns);
     setSelectedColumns(tempSelected);
-    // console.log(tempSelected,"tempSelected",tempColumns)
-    // if (dataitemsList?.length > 0 && dataitemsList[0]) {
 
-    // let colList = [];
-    //         colList.push(...Object.keys(dataitemsList?.[0])?.filter(el => !excludeKeys.includes(el)));
-    //         const cols = colList.map((col) => {
-    //             return {
-    //                 name: col,
-    //                 label: snakeToTitleCase(col),
-    //                 options: {
-    //                     filter: false,
-    //                     sort: false,
-    //                     align: "center",
-    //                     customHeadLabelRender: customColumnHead,
-    //                 }
-    //             }
-    //         });
-            
-    //         setColumns(cols);
-    //         setSelectedColumns(colList);
-            
-          
-    //       }else {
-    //         setDataitems([]);
-    //     }
      
      }, [dataitemsList])
    

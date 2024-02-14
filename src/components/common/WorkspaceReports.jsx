@@ -46,7 +46,7 @@ const WorkspaceReports = () => {
   const WorkspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails.data
   );
-  console.log(WorkspaceDetails,"lll");
+  console.log(WorkspaceDetails,"");
   const UserDetails = useSelector(state => state.getLoggedInData.data);
   console.log(UserDetails);
   const [selectRange, setSelectRange] = useState([{

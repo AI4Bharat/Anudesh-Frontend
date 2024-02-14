@@ -24,6 +24,3 @@ npm-debug.log*
 
 # vercel
 .vercel
-
-# yarn
-/.yarn/cache

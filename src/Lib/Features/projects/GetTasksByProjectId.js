@@ -12,7 +12,6 @@ export const  fetchTasksByProjectId = createAsyncThunk(
   async (payload) => {
     const { id, currentPageNumber, currentRowPerPage, selectedFilters, taskType, pullvalue,rejected,pull } = payload;
 
-    console.log(id, currentPageNumber, currentRowPerPage, selectedFilters, taskType, pullvalue,rejected,pull,"upper","lll");
     let queryString = `?project_id=${id}${currentPageNumber ? "&page="+currentPageNumber : ""}${currentRowPerPage ?"&records="+currentRowPerPage : ""}`;
     let querystr = pull === "All" ?"": `&editable=${pullvalue}`
     let querystr1 = rejected === true ?`&rejected=`+"True":""
@@ -33,8 +32,7 @@ export const  fetchTasksByProjectId = createAsyncThunk(
          }
      }
     }
-    console.log("inside" ,"lll");
-    console.log(queryString);
+
 
 
     const params = fetchParams(`${ENDPOINTS.getTasks+queryString}`);

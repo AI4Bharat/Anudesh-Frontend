@@ -507,7 +507,6 @@ const TaskTable = (props) => {
     }
   }, [taskList, ProjectDetails]);
 
-  console.log(userDetails,"lll");
   useEffect(() => {
     const newCols = columns.map((col) => {
       col.options.display = selectedColumns.includes(col.name)

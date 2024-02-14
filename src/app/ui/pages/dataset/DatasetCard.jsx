@@ -21,7 +21,6 @@ const DatasetCards = (props) => {
   const [rowsPerPage, setRowsPerPage] = useState(9);
   // const apiLoading = useSelector(state => state.apiStatus.loading);
   const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
-  console.log(SearchDataset);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
