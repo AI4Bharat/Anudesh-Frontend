@@ -2,9 +2,11 @@
 import "./home.css";
 import Image from "next/image";
 import { useNavigate } from "react-router-dom";
+import { authenticateUser } from "@/utils/utils";
 
-export default function Home() {
+const Home = () => {
     const navigate = useNavigate();
+    
     return (
         <>
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
@@ -21,6 +23,7 @@ export default function Home() {
                         <div className="text-orange-600 text-3xl mb-16">Contribute to the development of state of the art LLMs for Indian languages by helping us create high quality conversational data.</div>
                         <div className="flex gap-8">
                             <button className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">Demo Video</button>
+                            
                             <button onClick={() => navigate("/login")} className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white">Sign In/Sign Up</button>
                             <button onClick={() => navigate("/chat")} className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white">Chat Page</button>
                         </div>
@@ -120,5 +123,6 @@ export default function Home() {
                 <div className="text-white text-2xl font-medium">ANUDESH - Developed at AI4Bharat Lab</div>
             </div>
         </>
-    )
-}  
+    );
+};  
+export default Home;

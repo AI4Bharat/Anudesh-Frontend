@@ -8,56 +8,50 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const dummyData = [
-  {
-    prompt: "Hii Anudesh",
-    output: "Hello! How can I assist you today?",
-  },
-  {
-    prompt: "What is a computer?",
-    output: "Computer is an electronic device",
-  },
-  {
-    prompt: "What is it used for?",
-    output: "It is used for computation",
-  },
-  {
-    prompt: "Thanks, any additional points?",
-    output: "No",
-  },
-];
-
-const Chat = () => {
-  const [inputValue, setInputValue] = useState("");
-  const [chatHistory, setChatHistory] = useState([]);
-  const [showChatContainer, setShowChatContainer] = useState(false);
-  const router = useRouter();
-  const handleButtonClick = () => {
-    if (inputValue) {
-      const response = dummyData.find((item) => item.prompt === inputValue);
-      if (response) {
-        setChatHistory((prev) => [
-          ...prev,
-          { message: inputValue, isUser: true },
-          { message: response.output, isUser: false },
-        ]);
-      } else {
-        setChatHistory((prev) => [
-          ...prev,
-          { message: inputValue, isUser: true },
-          { message: "I'm sorry, I don't understand.", isUser: false },
-        ]);
-      }
-
-      setInputValue("");
-      setShowChatContainer(true);
-    } else {
-      alert("Please provide a prompt.");
+    {
+      "prompt": "Hii Anudesh",
+      "output": "Hello! How can I assist you today?"
+    },
+    {
+      "prompt": "What is a computer?",
+      "output": "Computer is an electronic device"
+    },
+    {
+      "prompt": "What is it used for?",
+      "output": "It is used for computation"
+    },
+    {
+      "prompt": "Thanks, any additional points?",
+      "output": "No"
     }
-  };
+  ];
 
-  const renderChatHistory = () => {
-    const chatElements = [];
-    for (let index = 0; index < chatHistory.length; index++) {
+
+const Chat = () =>{
+
+    const [inputValue, setInputValue] = useState('');
+    const [chatHistory, setChatHistory] = useState([]);
+    const [showChatContainer, setShowChatContainer] = useState(false);
+    const router = useRouter();
+    const handleButtonClick = () => {
+        if (inputValue) {
+          const response = dummyData.find(item => item.prompt === inputValue);
+          if (response) {
+            setChatHistory(prev => [...prev, { message: inputValue, isUser: true }, { message: response.output, isUser: false }]);
+          } else {
+            setChatHistory(prev => [...prev, { message: inputValue, isUser: true }, { message: "I'm sorry, I don't understand.", isUser: false }]);
+          }
+    
+          setInputValue('');
+          setShowChatContainer(true);
+        } else {
+          alert('Please provide a prompt.');
+        }
+      };
+
+    const renderChatHistory = () => {
+      const chatElements = [];
+      for (let index = 0; index < chatHistory.length; index++) {
       const message = chatHistory[index];
       const isUser = message.isUser;
       const boxClassName = isUser

@@ -21,7 +21,7 @@ import LoginAPI from "../../../actions/api/user/Login";
 import { auth, googleAuthProvider } from "@/firebase";
 import { signInWithPopup } from "firebase/auth";
 import GoogleLoginAPI from "../../../actions/api/user/GoogleLogin";
-import { authenticateUser } from "@/utils/utils";
+import { authenticateUser,getLoggedInUserData } from "@/utils/utils";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function Login() {
@@ -31,10 +31,11 @@ export default function Login() {
     const dispatch=useDispatch()
     
     useEffect(() => {
-        if (authenticateUser()) {
-          navigate('/projects');
+        const isLoggedIn = localStorage.getItem("isLoggedIn");
+        if (isLoggedIn === "true") {
+            navigate('/projects');
         }
-      }, [navigate]);
+    }, []);
       
     const classes = LoginStyle();
     const [snackbar, setSnackbarInfo] = useState({
@@ -61,6 +62,7 @@ export default function Login() {
     const getLoggedInUserData = () => {
         dispatch(FetchLoggedInUserData("me"));
     };
+
   
     
     const handleSubmit = async () => {
@@ -77,7 +79,7 @@ export default function Login() {
       localStorage.setItem("anudesh_access_token", rsp_data.access);
       localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
       localStorage.setItem("email_id", credentials.email.toLowerCase());
-      getLoggedInUserData();
+      localStorage.setItem("isLoggedIn", "true");
       navigate("/projects");
     } else{
       setSnackbarInfo({
