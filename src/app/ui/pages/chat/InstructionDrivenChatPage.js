@@ -9,7 +9,6 @@ import Textarea from "@/components/Chat/TextArea";
 import headerStyle from "@/styles/Header";
 import { useParams } from "react-router-dom";
 import "./chat.css";
-import { ContactlessOutlined } from "@mui/icons-material";
 
 const dummyInstruction =
   "Imagine you are having a conversation with a specialized Indian chatbot specifically designed to guide and assist you regarding activist matters in India. You can ask any question or seek any information related to various types of activism, campaigns, influential activists, etc. specific to Indian context. The more you interact and converse with the chatbot, the better it can understand your needs and provide precise assistance, advice or information. Use simple, clear language when addressing the chatbot, just as you would speak with another person.Please make your interactions in english.";
@@ -17,8 +16,9 @@ const dummyInstruction =
 const InstructionDrivenChatPage = () => {
   let inputValue = "";
   const classes = headerStyle();
-  const { annotationId } = useParams();
+  const { taskId } = useParams();
   const [chatHistory, setChatHistory] = useState([]);
+  const [ annotationId, setAnnotationId ] = useState();
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
@@ -26,7 +26,7 @@ const InstructionDrivenChatPage = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://backend.dev.anudesh.ai4bharat.org/task/10/annotations",
+          `https://backend.dev.anudesh.ai4bharat.org/task/${taskId}/annotations`,
           {
             method: "GET",
             headers: {
@@ -38,17 +38,18 @@ const InstructionDrivenChatPage = () => {
           },
         );
         const data = await response.json();
-        setChatHistory((prevChatHistory) => [...data[0].result]);
+        setChatHistory((prevChatHistory) => data ? [...data[0].result] : []);
+        setAnnotationId(data[0].id);
+        if(data && [...data[0].result].length) setShowChatContainer(true)
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-    setShowChatContainer(true);
-  }, []);
+  }, [taskId]);
 
   const handleButtonClick = () => {
-    fetch("https://backend.dev.anudesh.ai4bharat.org/annotation/7/", {
+    fetch(`https://backend.dev.anudesh.ai4bharat.org/annotation/${annotationId}/`, {
       method: "PATCH",
       body: JSON.stringify({
         annotation_notes: "This is a dummy note",
@@ -65,7 +66,7 @@ const InstructionDrivenChatPage = () => {
       res.json().then((data) => {
         if (inputValue) {
           if (data.result[data.result.length - 1].output) {
-            console.log('response', data.result[data.result.length - 1].output, inputValue);
+            
             setChatHistory((prev) => {
               [...prev,
               {
@@ -73,7 +74,6 @@ const InstructionDrivenChatPage = () => {
                 "output": data.result[data.result.length - 1].output,
               }]
             });
-            console.log("Chat history", chatHistory);
           }
         } else {
           alert("Please provide a prompt.");
