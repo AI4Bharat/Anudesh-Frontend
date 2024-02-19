@@ -28,6 +28,7 @@ import AutomateDatasets from '@/components/datasets/AutomateDatasets';
 import CreateNewDatasetInstanceAPI
   from '@/components/datasets/CreateNewDatasetInstance';
   import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
+import ModelInteractionEvaluation from './ui/pages/model_response_evaluation/model_response_evaluation';
 
 export default function Root () {
   if (typeof window !== 'undefined') {
@@ -51,6 +52,7 @@ export default function Root () {
             <Route path="/chat" element={<Chat />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/invite/:inviteCode" element={<SignUp />} />
+            <Route path="/model_response_evaluation" element={<ModelInteractionEvaluation />} />
             <Route
               path="/admin"
               element={ProtectedRouteWrapper (
