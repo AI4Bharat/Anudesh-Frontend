@@ -52,61 +52,35 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
   );
 
   return (
-    // <Box
-    //   sx={{
-    //     position: 'fixed',
-    //     backgroundColor: '#EEE',
-    //     width: '67.5%',
-    //     bottom: '-10px',
-    //     borderTop: '1px solid #C6C6C6',
-    //     display: 'flex',
-    //     justifyContent: 'center',
-    //     alignItems: 'center',
-    //   }}
-    // >
-    // <Textarea
-    //   maxRows={10}
-    //   aria-label="empty textarea"
-    //   placeholder="Chat with Anudesh"
-    //   sx={{
-    //     resize: 'none',
-    //     marginRight: '5px',
-    //     width: '50vw',
-    //   }}
-    //   onChange={e => {
-    //     handleOnchange (e.target.value);
-    //   }}
-    // />
-    // <IconButton size="large" onClick={handleButtonClick}>
-    //   <SendRoundedIcon style={{color: '#EE6633', height: '4rem'}} />
-    // </IconButton>
-    // </Box>
-    (
-      <Grid
-        item
+    <Grid
+      item
+      xs={12}
+      backgroundColor="#EEE"
+      justifyContent={'center'}
+      alignItems={'center'}
+      display={'flex'}
+      position={'fixed'}
+      bottom={0}
+      width={'80.6em'}
+      borderTop={'1px solid #C6C6C6'}
+    >
+      <Textarea
         xs={12}
-        backgroundColor="#EEE"
-        justifyContent={'center'}
-        alignItems={'center'}
-        display={'flex'}
-        position={'fixed'}
-        bottom={0}
-        width={'80.6em'}
-        borderTop={'1px solid #C6C6C6'}
-      > 
-        <Textarea
-          xs={12}
-          maxRows={10}
-          aria-label="empty textarea"
-          placeholder="Chat with Anudesh"
-          onChange={e => {
-            handleOnchange (e.target.value);
-          }}
-        />
-        <IconButton size="large" onClick={handleButtonClick}>
-          <SendRoundedIcon style={{color: '#EE6633', height: '4rem'}} />
-        </IconButton>
-      </Grid>
-    )
+        maxRows={10}
+        aria-label="empty textarea"
+        placeholder="Chat with Anudesh"
+        onChange={e => {
+          handleOnchange (e.target.value);
+        }}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && e.ctrlKey) {
+            handleButtonClick ();
+          }
+        }}
+      />
+      <IconButton size="large" onClick={handleButtonClick}>
+        <SendRoundedIcon style={{color: '#EE6633', height: '4rem'}} />
+      </IconButton>
+    </Grid>
   );
 }
