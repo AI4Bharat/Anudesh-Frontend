@@ -139,6 +139,7 @@ const InstructionDrivenChatPage = () => {
           sx={{
             paddingY: "1.5rem",
           }}
+          key={index}
         >
           <Box
             sx={{
@@ -176,6 +177,7 @@ const InstructionDrivenChatPage = () => {
               paddingX: "1.5rem",
               borderRadius: "0.5rem",
               backgroundColor: "rgb(255 237 213)",
+              overflowX: "scroll"
             }}
           >
             <Image
