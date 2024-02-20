@@ -52,7 +52,6 @@ export default function Root () {
             <Route path="/chat" element={<Chat />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/invite/:inviteCode" element={<SignUp />} />
-            <Route path="/model_response_evaluation" element={<ModelInteractionEvaluation />} />
             <Route
               path="/admin"
               element={ProtectedRouteWrapper (
@@ -117,6 +116,12 @@ export default function Root () {
               // path="projects/alltask"
               element={ProtectedRouteWrapper(
                 <Layout component={<InstructionDrivenChatPage />} />
+              )}
+            />
+            <Route
+              path="projects/evaluation"
+              element={ProtectedRouteWrapper(
+                <Layout component={<ModelInteractionEvaluation />} />
               )}
             />
             <Route
