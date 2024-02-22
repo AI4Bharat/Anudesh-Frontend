@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Resizable } from "re-resizable";
-import { ConstructionOutlined } from "@mui/icons-material";
+import { translate } from '@/config/localisation';
 
 const questions = [
   "Fails to follow the correct instruction/task?",
@@ -121,7 +121,6 @@ const ModelInteractionEvaluation = () => {
         questions_response: newAnswers
       }
     });
-    console.log('question responses', currentInteraction.questions_response);
   };
 
   const handleRating = (rating) => {
@@ -186,7 +185,7 @@ const ModelInteractionEvaluation = () => {
         <div className={classes.outputContainer}>
           {currentInteraction.output}
         </div>
-        <div className={classes.ratingText}>Rating (1=worst, 7=best)</div>
+        <div className={classes.ratingText}>{translate("model_evaluation_rating")}</div>
         <Box
         sx={{
           display: 'flex',
@@ -237,11 +236,11 @@ const ModelInteractionEvaluation = () => {
             </div>
           </div>
         ))}
-        <div className={classes.notesContainer}>Notes</div>
+        <div className={classes.notesContainer}>{translate("model_evaluation_note")}</div>
         <TextareaAutosize
           aria-label="minimum height"
           minRows={3}
-          placeholder="Write additional note if any"
+          placeholder={translate("model_evaluation_notes_placeholder")}
           value={currentInteraction.additional_note ? currentInteraction.additional_note : null}
           onChange={handleNoteChange}
           className={classes.notesTextarea}
@@ -310,7 +309,7 @@ const ModelInteractionEvaluation = () => {
                 {pair.output}
               </Box>
               <Button
-              label={"Open Evaluation Form"}
+              label={translate("model_evaluation_btn")}
               buttonVariant={"outlined"}
               style={{
                 marginTop: "1rem",
@@ -345,7 +344,7 @@ const ModelInteractionEvaluation = () => {
 
   return (
     <>
-      <button onClick={handleSubmit}>Submit</button>
+      <button onClick={handleSubmit}>{translate("button.submit")}</button>
       <div className={classes.container}>
         {InteractionDisplay()}
         {EvaluationForm()}
