@@ -68,7 +68,7 @@ const InstructionDrivenChatPage = () => {
         "meta_info_domain": item[0]?.data?.meta_info_domain,
         "meta_info_language": item[0]?.data?.meta_info_language,
         "meta_info_intent": item[0]?.data?.meta_info_intent,
-      })
+      });
       try {
         const response = await fetch(
           `https://backend.dev.anudesh.ai4bharat.org/task/${taskId}/annotations`,
