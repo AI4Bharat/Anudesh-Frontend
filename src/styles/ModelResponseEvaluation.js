@@ -5,52 +5,36 @@ const ModelResponseEvaluationStyle = makeStyles ({
     marginRight: '1rem',
   },
   numBtn: {
-    backgroundColor: 'white',
-    border: 'none',
-    width: '2px',
-    padding: '2px 25px',
-    textAlign: 'center',
-    textDecoration: 'none',
-    display: 'inline-block',
-    fontSize: '16px',
-    margin: '0px',
-    transitionDuration: '0.4s',
-    cursor: 'pointer',
-    borderRadius: '10px',
-    height: 'auto',
-    color: '#6C5F5B',
-    '&:hover': {
-      textDecoration: 'none',
-      backgroundColor: '#2c2799',
-      color: 'white',
-    },
+    backgroundColor: 'white !important',
+    color: '#6C5F5B !important',
+    fontWeight: 'bold !important',
   },
   accordion: {
     borderRadius: '12rem',
   },
   selected: {
-    backgroundColor: 'rgb(44, 39, 153)',
-    color: 'white',
+    backgroundColor: '#EE6633 !important',
+    color: 'white !important',
   },
   container: {
     display: 'flex',
   },
 
   leftPanel: {
-    flex: '0 0 30%', // Adjust the width as needed
+    flex: '0 0 30%',
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    overflowY: 'auto', // Enable vertical scrolling
+    overflowY: 'auto',
     backgroundColor: '#f0f4f9',
   },
   rightPanel: {
     backgroundColor: 'white',
     flex: '1',
-    maxHeight: '100vh', // Set maximum height to 100% of viewport height
-    overflowY: 'auto', // Enable vertical scrolling if needed
+    maxHeight: '100vh',
+    overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
     padding: '1rem',
@@ -70,19 +54,16 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
 
   promptContainer: {
-    fontSize: '2rem',
     fontWeight: 'bold',
     marginBottom: '1rem',
     color: '#6C5F5B',
     borderRadius: '1rem',
   },
   outputContainer: {
-    fontSize: '2rem',
     marginBottom: '1rem',
     color: '#6C5F5B',
   },
   ratingText: {
-    fontSize: '1.5rem',
     fontWeight: 'bold',
     marginBottom: '1.5rem',
     color: '#6C5F5B',
@@ -102,18 +83,15 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
   questionText: {
     width: '80%',
-    fontSize: '18px',
     color: '#393939',
   },
   radioGroupContainer: {
     width: '20%',
     marginLeft: '0.5rem',
     marginBottom: '0.5rem',
-    fontSize: '1.5rem',
   },
   notesContainer: {
     fontWeight: 'bold',
-    fontSize: '2rem',
     marginTop: '1rem',
     color: '#6C5F5B',
   },
