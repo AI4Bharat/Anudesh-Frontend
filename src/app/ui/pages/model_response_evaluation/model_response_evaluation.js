@@ -37,11 +37,6 @@ const ModelInteractionEvaluation = () => {
   const [ interactions, setInteraction ] = useState([]);
   const [ forms, setForms ] = useState([]);
   const [ currentInteraction, setCurrentInteraction ] = useState({});
-  const [formRadioAnswers, setFormRadioAnswers] = useState(
-    //define 8 in localisation
-    new Array(8).fill(null),
-  );
-  const [currNote, setCurrNote] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,7 +115,6 @@ const ModelInteractionEvaluation = () => {
   const handleOptionChange = (index, answer) => {
     const newAnswers = [...currentInteraction.questions_response];
     newAnswers[index] = answer;
-    setFormRadioAnswers(newAnswers);
     setCurrentInteraction(prev => {
       return {
         ...prev,
