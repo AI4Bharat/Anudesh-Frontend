@@ -99,7 +99,7 @@ const SuperCheckerTasks = (props) => {
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const totalTaskCount = useSelector((state) => state.getTasksByProjectId.data.total_count);
+  const totalTaskCount = useSelector((state) => state.GetTasksByProjectId.data.total_count);
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -125,7 +125,7 @@ const SuperCheckerTasks = (props) => {
   );
 
   const taskList = useSelector(
-    (state) => state.getTasksByProjectId?.data.result
+    (state) => state.GetTasksByProjectId?.data.result
   );
   if (typeof window !== 'undefined') {
 
@@ -141,7 +141,7 @@ const SuperCheckerTasks = (props) => {
 
   useEffect(() => {
     getTaskListData();
-  }, [currentPageNumber, currentRowPerPage,dispatch]);
+  }, [currentPageNumber, currentRowPerPage]);
 
   useEffect(() => {
     if (
@@ -399,7 +399,7 @@ const datavalue = {
     mode: "supercheck",
   
 };
-dispatch(fetchNextTask(id, datavalue, null, props.type));
+dispatch(fetchNextTask({projectId:id, projectObj:datavalue, null:null, type:props.type}));
 setLabellingStarted(true);
 }
 

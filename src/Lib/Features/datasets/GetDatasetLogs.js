@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchDatasetLogs = createAsyncThunk(
   'GetDatasetLogs/fetchDatasetLogs',
-  async (instanceId, taskName, { dispatch }) => {
+  async ({instanceId, taskName}) => {
    
     const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${instanceId}/get_async_task_results/?task_name=${taskName}`);
     return fetch(params.url, params.options)

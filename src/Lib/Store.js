@@ -58,6 +58,8 @@ import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
 import searchProjectCard from './Features/searchProjectCard';
 import getTaskAnalyticsData from './Features/Analytics/getTaskAnalyticsData';
 import getMetaAnalyticsData from './Features/Analytics/getMetaAnalyticsData';
+import GetGuestWokspaces from './Features/GetGuestWorkspaces';
+
 const makeStore = () => {
     return configureStore({
       reducer: {
@@ -119,8 +121,8 @@ const makeStore = () => {
         getOrganizationUsers:getOrganizationUsers,
         getProjectDetails:getProjectDetails,
         getTaskAnalyticsData: getTaskAnalyticsData,
-        getMetaAnalyticsData: getMetaAnalyticsData
-
+        getMetaAnalyticsData: getMetaAnalyticsData,
+        GetGuestWokspaces: GetGuestWokspaces,
       },
     });
   };

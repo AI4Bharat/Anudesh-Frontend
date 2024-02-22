@@ -25,6 +25,7 @@ import DatasetSettingTabs from "@/components/datasets/DatasetSettingTab";
 import AutomateDatasets from "@/components/datasets/AutomateDatasets";
 import CreateNewDatasetInstanceAPI from "@/components/datasets/CreateNewDatasetInstance";
 import ProgressList from "./ui/pages/progress/ProgressList";
+import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
 
 export default function Root() {
   if (typeof window !== 'undefined') {
@@ -137,6 +138,10 @@ export default function Root() {
               element={ProtectedRouteWrapper(
                 <Layout component={<ProgressList />} />
               )}
+            />
+            <Route
+              path="/guest_workspaces"
+              element={ProtectedRouteWrapper(<Layout component={<GuestWorkspaces />} />)}
             />
           </Routes>
         </HashRouter>

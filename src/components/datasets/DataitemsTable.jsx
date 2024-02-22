@@ -41,7 +41,7 @@ const DataitemsTable = () => {
   const classes = DatasetStyle();
   const { datasetId } = useParams();
   const dispatch = useDispatch();
-  const dataitemsList = useSelector((state) => state.getDataitemsById?.data);
+  const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
   // const filterdataitemsList =useSelector((state) => state.datasetSearchPopup.data);
   const DatasetDetails = useSelector(state => state.getDatasetDetails.data);
   const apiLoading = useSelector(state => state.apiStatus.loading);
@@ -61,20 +61,17 @@ const DataitemsTable = () => {
   localStorage.setItem("Dataitem",  JSON.stringify(dataitemsList));
   
   const getDataitems = () => {
-    const dataObj = (
-      datasetId,
-      DatasetDetails.dataset_type,
-      selectedFilters,
-      currentPageNumber,
-      currentRowPerPage
+    const dataObj = ({
+      instanceIds: datasetId,
+      datasetType: DatasetDetails.dataset_type,
+      selectedFilters: selectedFilters,
+      pageNo: currentPageNumber,
+      countPerPage: currentRowPerPage
+    }
     );
     dispatch(fetchDataitemsById(dataObj));
   };
-
-//   const dataObj = new GetDataitemsById(datasetId, currentPageNumber, currentRowPerPage, DatasetDetails.dataset_type,selectedFilters);
-//   dispatch(APITransport(dataObj));
-// };
-
+ 
 useEffect(() => {
   setLoading(apiLoading);
 }, [apiLoading]);
@@ -119,31 +116,7 @@ useEffect(() => {
     }
     setColumns(tempColumns);
     setSelectedColumns(tempSelected);
-    // console.log(tempSelected,"tempSelected",tempColumns)
-    // if (dataitemsList?.length > 0 && dataitemsList[0]) {
 
-    // let colList = [];
-    //         colList.push(...Object.keys(dataitemsList?.[0])?.filter(el => !excludeKeys.includes(el)));
-    //         const cols = colList.map((col) => {
-    //             return {
-    //                 name: col,
-    //                 label: snakeToTitleCase(col),
-    //                 options: {
-    //                     filter: false,
-    //                     sort: false,
-    //                     align: "center",
-    //                     customHeadLabelRender: customColumnHead,
-    //                 }
-    //             }
-    //         });
-            
-    //         setColumns(cols);
-    //         setSelectedColumns(colList);
-            
-          
-    //       }else {
-    //         setDataitems([]);
-    //     }
      
      }, [dataitemsList])
    

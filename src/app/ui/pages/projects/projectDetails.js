@@ -138,7 +138,6 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
     };
  /* eslint-disable react-hooks/exhaustive-deps */
  useEffect(() => {
-  console.log("Fetching project details...");
   if (id) {
     dispatch(fetchProjectDetails(id));
   }

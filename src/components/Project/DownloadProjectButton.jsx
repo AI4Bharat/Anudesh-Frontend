@@ -84,7 +84,7 @@ function DownloadProjectButton(props) {
   };
   const handleDownloadJSONProject = async () => {
     // SetTask([]) //used to clear the selected task statuses
-    const projectObj = (id,taskStatus,downloadMetadataToggle);
+    const projectObj = ({projectId:id,taskStatus:taskStatus,downloadMetadataToggle:downloadMetadataToggle});
     dispatch(fetchDownloadJSONProject(projectObj));
     // const res = await fetch(projectObj.apiEndPoint(), {
     //   method: "POST",
@@ -116,7 +116,7 @@ function DownloadProjectButton(props) {
   const handleDownloadCSVProject = async () => {
     // SetTask([]) //used to clear the selected task statuses
     setLoading(true)
-    const projectObj = (id,taskStatus,downloadMetadataToggle);
+    const projectObj = ({projectId:id,taskStatus:taskStatus,downloadMetadataToggle:downloadMetadataToggle});
     dispatch(fetchDownloadCSVProject(projectObj));
     // const res = await fetch(projectObj.apiEndPoint(), {
     //   method: "POST",
@@ -145,7 +145,7 @@ function DownloadProjectButton(props) {
   const handleDownloadTSVProject = async () => {
     // SetTask([]) //used to clear the selected task statuses
     setLoading(true)
-    const projectObj = (id,taskStatus,downloadMetadataToggle);
+    const projectObj = ({projectId:id,taskStatus:taskStatus,downloadMetadataToggle:downloadMetadataToggle});
     dispatch(fetchDownloadTSVProject(projectObj));
     // const res = await fetch(projectObj.apiEndPoint(), {
     //   method: "POST",

@@ -56,7 +56,14 @@ const localisation = {
     "button.Suggest an edit":"Suggest an edit",
     "button.Your feedback":"Your feedback will be used to help improve the product",
     "label.analytics": "Analytics",
-  
+  "typography.instructions": "Instructions",
+  "modal.hint": "Hint",
+  "modal.examples": "Examples",
+  "modal.intent": "Intent",
+  "modal.domain": "Domain",
+  "modal.language": "Language",
+  "modalButton.metaDataInfo": "Metadata Information",
+  "modalButton.close": "Close"
 };
 
 export const translate = (prop) => localisation[prop];

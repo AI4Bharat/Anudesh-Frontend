@@ -11,7 +11,7 @@ export const fetchDatasetSearchPopup = createAsyncThunk(
   'DatasetSearchPopup/fetchDatasetSearchPopup',
   async (taskObj, { dispatch }) => {
     const body ={taskObj}
-    const params = fetchParams(`${ENDPOINTS.getDatasets}dataitems/get_data_items/`,"POST",body);
+    const params = fetchParams(`${ENDPOINTS.getDatasets}dataitems/get_data_items/`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

@@ -95,7 +95,7 @@ console.log("End Date:", selectRange[0].endDate);
   const UserReports = useSelector((state) => state.getOrganizationUserReports?.data);
   const ProjectReports = useSelector((state) => state.getOrganizationProjectReports?.data);
   const SuperCheck = useSelector((state) => state.getOrganizationAnnotatorQuality?.data);
-  const LanguageChoices = useSelector((state) => state.fetchLanguages?.data);
+  const LanguageChoices = useSelector((state) => state.getLanguages?.data);
 
   let ProgressTypeValue = "Annotation Stage"
   const filterdata = ProgressType.filter(item => item !== ProgressTypeValue)
@@ -336,18 +336,16 @@ console.log("End Date:", selectRange[0].endDate);
       }
       else if (radiobutton === "ProjectReports") {
         if(projectReportType === 1){
-       
-        dispatch(fetchOrganizationProjectReports(orgId,
-          selectedType,
-          targetLanguage,
-          userId,
-          sendMail));
+        dispatch(fetchOrganizationProjectReports({orgId:orgId,
+          projectType:selectedType,
+          targetLanguage:targetLanguage,
+          userId:userId,
+          sendMail:sendMail}));
       }else if(projectReportType === 2){
-      
-        dispatch(fetchOrganizationDetailedProjectReports( Number(orgId),
-        selectedType,
-        userId,
-        statisticsType));
+        dispatch(fetchOrganizationDetailedProjectReports( {orgId:Number(orgId),
+          projectType:selectedType,
+          userId:userId,
+          statistics:statisticsType}));
         setSnackbarInfo({
           open: true,
           message: "Report will be e-mailed to you shortly",
