@@ -57,11 +57,14 @@ import GetFileTypes from './Features/datasets/GetFileTypes';
 import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
 import searchProjectCard from './Features/searchProjectCard';
 import GetGuestWokspaces from './Features/GetGuestWorkspaces';
-
+import getAnnotationsTask from './Features/projects/getAnnotationsTask';
+import getTaskDetails from './Features/getTaskDetails';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        getTaskDetails:getTaskDetails,
+        getAnnotationsTask:getAnnotationsTask,
         searchProjectCard:searchProjectCard,
         DatasetSearchPopup:DatasetSearchPopup,
         GetFileTypes:GetFileTypes,
@@ -119,6 +122,7 @@ const makeStore = () => {
         getOrganizationUsers:getOrganizationUsers,
         getProjectDetails:getProjectDetails,
         GetGuestWokspaces: GetGuestWokspaces,
+
       },
     });
   };

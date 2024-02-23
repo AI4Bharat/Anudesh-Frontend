@@ -5,6 +5,10 @@ import themeDefault from  "@/themes/theme";
 import  "@/styles/Dataset.css";
 import componentType from "@/config/PageType";
 import DetailsViewPage from "./DetailsViewPage";
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+
 
 function TabPanel(props) {
 
@@ -37,7 +41,20 @@ function a11yProps(index) {
 
 export default function Workspace(props){
     
+    const {id} = useParams();
+    const dispatch=useDispatch();
+     
    
+   
+    const workspaceDtails = useSelector(state=>state.getWorkspaceDetails?.data);
+    const getWorkspaceDetails = ()=>{
+        dispatch(fetchWorkspaceDetails(id));
+      }
+     
+      
+      useEffect(()=>{
+        getWorkspaceDetails();
+      },[]);
 
     
     const [value, setValue] = React.useState(0);
@@ -50,7 +67,11 @@ export default function Workspace(props){
     return (
         <ThemeProvider theme={themeDefault}>
              <DetailsViewPage 
-                pageType = {componentType.Type_Workspace}
+               title={workspaceDtails && workspaceDtails.workspace_name}
+               createdBy={workspaceDtails && workspaceDtails.created_by ?.username}
+               pageType = {componentType.Type_Workspace}
+               onArchiveWorkspace={()=>getWorkspaceDetails()}
+
             />
         </ThemeProvider>
 

@@ -1,11 +1,11 @@
 /**
- * Login API
+ * GetTaskDetails
  */
+
  import API from "../../api"; 
  import ENDPOINTS from "../../../../config/apiendpoint"
  import constants from "../../constants";
- /* eslint-disable react-hooks/exhaustive-deps */
-
+ 
  export default class GetTaskDetailsAPI extends API {
    constructor(taskId, timeout = 2000) {
      super("GET", timeout, false);

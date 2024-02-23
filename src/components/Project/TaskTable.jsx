@@ -300,7 +300,7 @@ const TaskTable = (props) => {
         annotation_status: selectedFilters?.review_status,
       }),
     };
-    dispatch(fetchNextTask(id, datavalue, null, props.type));
+    dispatch(fetchNextTask({projectId:id, projectObj:datavalue, null:null, type:props.type}));
     setLabellingStarted(true);
   };
 
@@ -598,6 +598,7 @@ const TaskTable = (props) => {
   }, [totalTaskCount, selectedFilters,ProjectDetails]);
 
   useEffect(() => {
+    console.log(NextTask);
     if (ProjectDetails?.project_type?.includes("Acoustic")) {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
@@ -608,6 +609,7 @@ const TaskTable = (props) => {
       }
     }else{
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+        console.log("labelling");
         navigate(
           `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
           NextTask?.id

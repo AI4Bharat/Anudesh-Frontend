@@ -127,7 +127,7 @@ const DatasetReports = () => {
     },
   };
 
-  const userId = useSelector((state) => state.getLoggedInUserData?.data.id);
+  const userId = useSelector((state) => state.getLoggedInData?.data.id);
 
   const handleSubmit = () => {
     if(projectReportType === 1){

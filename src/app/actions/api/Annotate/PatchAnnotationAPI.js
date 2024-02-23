@@ -1,30 +1,31 @@
-/**
- * Login API
- */
+
+
  import API from "../../api"; 
  import ENDPOINTS from "../../../../config/apiendpoint"
  import constants from "../../constants";
- /* eslint-disable react-hooks/exhaustive-deps */
-
- export default class GetTaskDetailsAPI extends API {
-   constructor(taskId, timeout = 2000) {
-     super("GET", timeout, false);
-     this.type = constants.GET_TASK_DETAILS;
-     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getTasks}${taskId}/`;
-   }
  
+export default class PatchAnnotationAPI extends API {
+   constructor(annotationsId,userObj,timeout = 2000) {
+     super("PATCH", timeout, false);
+     this.userObj = userObj;
+     this.type = constants.PATCH_ANNOTATION;
+     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.annotations}${annotationsId}/?cl_format=true`;
+   }
+  
    processResponse(res) {
      super.processResponse(res);
      if (res) {
-       this.taskDetails = res;
+         this.patchAnnotation = res;
      }
-   }
+ }
  
    apiEndPoint() {
      return this.endpoint;
    }
- 
-   getBody() {}
+
+   getBody() {
+    return this.userObj;
+  }
  
    getHeaders() {
      this.headers = {
@@ -37,7 +38,7 @@
    }
  
    getPayload() {
-     return this.taskDetails
+     return this.patchAnnotation;
    }
  }
  

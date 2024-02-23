@@ -28,7 +28,8 @@ import AutomateDatasets from '@/components/datasets/AutomateDatasets';
 import CreateNewDatasetInstanceAPI
   from '@/components/datasets/CreateNewDatasetInstance';
   import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
-
+import AnnotatePage from './ui/pages/chat/AnnotatePage';
+import CreateProject from './new-project/newproject';
 export default function Root () {
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({user, children}) => {
@@ -96,6 +97,12 @@ export default function Root () {
               )}
             />
             <Route
+              path="new-project/:id"
+              element={ProtectedRouteWrapper (
+                <Layout component={<CreateProject />} Backbutton={true} />
+              )}
+            />
+            <Route
               path="create-Dataset-Instance-Button"
               element={ProtectedRouteWrapper (
                 <Layout
@@ -114,7 +121,7 @@ export default function Root () {
               path="projects/:projectId/task/:taskId"
               // path="projects/alltask"
               element={ProtectedRouteWrapper(
-                <Layout component={<InstructionDrivenChatPage />} />
+                <Layout component={<AnnotatePage />} />
               )}
             />
             <Route

@@ -1,15 +1,22 @@
 "use client";
 import "./chat.css";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState,   useRef,  useEffect } from "react";
 import { Grid, Box, Avatar, Typography } from "@mui/material";
 import Image from "next/image";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
 import headerStyle from "@/styles/Header";
-import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+
 import "./chat.css";
+import Spinner from "@/components/common/Spinner"
 import { ContactlessOutlined } from "@mui/icons-material";
+import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
+import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
+import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
+import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 
 const dummyInstruction =
   "Imagine you are having a conversation with a specialized Indian chatbot specifically designed to guide and assist you regarding activist matters in India. You can ask any question or seek any information related to various types of activism, campaigns, influential activists, etc. specific to Indian context. The more you interact and converse with the chatbot, the better it can understand your needs and provide precise assistance, advice or information. Use simple, clear language when addressing the chatbot, just as you would speak with another person.Please make your interactions in english.";
@@ -17,7 +24,35 @@ const dummyInstruction =
 const InstructionDrivenChatPage = () => {
   let inputValue = "";
   const classes = headerStyle();
-  const { annotationId } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { projectId, taskId } = useParams();
+  const user = useSelector((state) => state.getLoggedInData?.data);
+  let labellingMode = localStorage.getItem("labellingMode");
+  const [snackbar, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "success",
+  });
+  const [disableSkipButton, setdisableSkipButton] = useState(false);
+  const [filterMessage, setFilterMessage] = useState(null);
+  const [autoSave, setAutoSave] = useState(true);
+  const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
+  const [NextData, setNextData] = useState("");
+
+  const [annotations, setAnnotations] = useState([]);
+
+  const annotationNotesRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+
+  const reviewNotesRef = useRef(null);
+  const [disableBtns, setDisableBtns] = useState(false);
+  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
+  const [taskData, setTaskData] = useState()
+  const AnnotationsTaskDetails = useSelector(
+    (state) => state.getAnnotationsTask?.data
+  );
   const [chatHistory, setChatHistory] = useState([]);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
@@ -46,7 +81,6 @@ const InstructionDrivenChatPage = () => {
     fetchData();
     setShowChatContainer(true);
   }, []);
-
   const handleButtonClick = () => {
     fetch("https://backend.dev.anudesh.ai4bharat.org/annotation/7/", {
       method: "PATCH",
@@ -82,6 +116,7 @@ const InstructionDrivenChatPage = () => {
     });
     setShowChatContainer(true);
   };
+
 
   const handleOnchange = (prompt) => {
     inputValue = prompt;
@@ -122,11 +157,13 @@ const InstructionDrivenChatPage = () => {
   };
 
   return (
+
     <Grid container spacing={2}>
+       {loading && <Spinner />} 
       <Grid item xs={12}>
         <Box
           sx={{
-            borderRadius: "20px",
+            // borderRadius: "20px",
             padding: "10px",
             backgroundColor: "#FFF",
           }}
@@ -142,7 +179,6 @@ const InstructionDrivenChatPage = () => {
           >
             {translate("typography.instructions")}
           </Typography>
-
           <Typography
             paragraph={true}
             align="left"
@@ -165,10 +201,12 @@ const InstructionDrivenChatPage = () => {
           overflowY: "scroll",
           minHeight: "38rem",
           maxHeight: "38rem",
-          borderRadius: "20px",
+          // borderRadius: "20px",
           backgroundColor: "#FFF",
+
         }}
       >
+       
         <Box>
           {showChatContainer ? (
             <div className="flex flex-col items-center border-8">
