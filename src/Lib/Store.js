@@ -56,6 +56,8 @@ import GetDatasetDownloadJSON from './Features/datasets/GetDatasetDownloadJSON';
 import GetFileTypes from './Features/datasets/GetFileTypes';
 import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
 import searchProjectCard from './Features/searchProjectCard';
+import getTaskAnalyticsData from './Features/Analytics/getTaskAnalyticsData';
+import getMetaAnalyticsData from './Features/Analytics/getMetaAnalyticsData';
 import GetGuestWokspaces from './Features/GetGuestWorkspaces';
 
 const makeStore = () => {
@@ -118,6 +120,8 @@ const makeStore = () => {
         getWorkspaceData:getWorkspaceData,
         getOrganizationUsers:getOrganizationUsers,
         getProjectDetails:getProjectDetails,
+        getTaskAnalyticsData: getTaskAnalyticsData,
+        getMetaAnalyticsData: getMetaAnalyticsData,
         GetGuestWokspaces: GetGuestWokspaces,
       },
     });
