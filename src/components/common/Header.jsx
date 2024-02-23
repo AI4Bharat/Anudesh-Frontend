@@ -813,7 +813,7 @@ const handleopenproject=(id,type)=>{
                   spacing={2}
                   sx={{ textAlign: "center", alignItems: "center", }}
                 >
-                  { currentUrl.includes('/projects/alltask') && 
+                  { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
                   <Grid item xs={3} sm={3} md={2}>
                     <Tooltip title="Analytics">
                       <IconButton onClick={handleAnalytics}>
@@ -825,7 +825,7 @@ const handleopenproject=(id,type)=>{
                     </Tooltip>
                   </Grid>}
 
-                  { currentUrl.includes('/projects/alltask') && 
+                  { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
                   <Grid item xs={3} sm={3} md={2}>
                     <Tooltip title="Leaderboard">
                       <IconButton onClick={handleLeaderboard} style={{"display": "flex", "justifyContent": "center", "alignItems": "center"}}>

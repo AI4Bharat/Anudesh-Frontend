@@ -1,67 +1,77 @@
 "use client";
 import "./chat.css";
-import { useState,   useRef,  useEffect } from "react";
-import { Grid, Box, Avatar, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Grid,
+  IconButton,
+  Button,
+  Modal,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import Image from "next/image";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
 import headerStyle from "@/styles/Header";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 
-import "./chat.css";
-import Spinner from "@/components/common/Spinner"
-import { ContactlessOutlined } from "@mui/icons-material";
-import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
-import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
-import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
-import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
-import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
-
-const dummyInstruction =
-  "Imagine you are having a conversation with a specialized Indian chatbot specifically designed to guide and assist you regarding activist matters in India. You can ask any question or seek any information related to various types of activism, campaigns, influential activists, etc. specific to Indian context. The more you interact and converse with the chatbot, the better it can understand your needs and provide precise assistance, advice or information. Use simple, clear language when addressing the chatbot, just as you would speak with another person.Please make your interactions in english.";
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
 
 const InstructionDrivenChatPage = () => {
   let inputValue = "";
   const classes = headerStyle();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { projectId, taskId } = useParams();
-  const user = useSelector((state) => state.getLoggedInData?.data);
-  let labellingMode = localStorage.getItem("labellingMode");
-  const [snackbar, setSnackbarInfo] = useState({
-    open: false,
-    message: "",
-    variant: "success",
-  });
-  const [disableSkipButton, setdisableSkipButton] = useState(false);
-  const [filterMessage, setFilterMessage] = useState(null);
-  const [autoSave, setAutoSave] = useState(true);
-  const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
-  const [NextData, setNextData] = useState("");
-
-  const [annotations, setAnnotations] = useState([]);
-
-  const annotationNotesRef = useRef(null);
-  const [loading, setLoading] = useState(false);
-
-  const reviewNotesRef = useRef(null);
-  const [disableBtns, setDisableBtns] = useState(false);
-  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
-  const [taskData, setTaskData] = useState()
-  const AnnotationsTaskDetails = useSelector(
-    (state) => state.getAnnotationsTask?.data
-  );
-  const [chatHistory, setChatHistory] = useState([]);
+  const { taskId } = useParams();
+  const [chatHistory, setChatHistory] = useState([{}]);
+  const [info, setInfo] = useState({});
+  const [annotationId, setAnnotationId] = useState();
+  const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
+  const [open, setOpen] = useState(false);
+  const taskList = useSelector(
+    (state) => state.GetTasksByProjectId?.data?.result,
+  );
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory]);
 
   useEffect(() => {
     const fetchData = async () => {
+      const item = taskList.filter((task) => task.id == taskId);
+      setInfo({
+        "instruction_data": item[0]?.data?.instruction_data,
+        "hint": item[0]?.data?.hint,
+        "examples": item[0]?.data?.examples,
+        "meta_info_domain": item[0]?.data?.meta_info_domain,
+        "meta_info_language": item[0]?.data?.meta_info_language,
+        "meta_info_intent": item[0]?.data?.meta_info_intent,
+      })
       try {
         const response = await fetch(
-          "https://backend.dev.anudesh.ai4bharat.org/task/10/annotations",
+          `https://backend.dev.anudesh.ai4bharat.org/task/${taskId}/annotations`,
           {
             method: "GET",
             headers: {
@@ -73,50 +83,48 @@ const InstructionDrivenChatPage = () => {
           },
         );
         const data = await response.json();
-        setChatHistory((prevChatHistory) => [...data[0].result]);
+        setChatHistory((prevChatHistory) => (data ? [...data[0].result] : []));
+        setAnnotationId(data[0].id);
+        if (data && [...data[0].result].length) setShowChatContainer(true);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-    setShowChatContainer(true);
-  }, []);
+  }, [taskId, taskList]);
+
   const handleButtonClick = () => {
-    fetch("https://backend.dev.anudesh.ai4bharat.org/annotation/7/", {
-      method: "PATCH",
-      body: JSON.stringify({
-        annotation_notes: "This is a dummy note",
-        annotation_status: "labeled",
-        result: inputValue,
-        lead_time: 0.0,
-        auto_save: "True",
-      }),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `JWT ${localStorage.getItem("anudesh_access_token")}`,
-      },
-    }).then((res) => {
-      res.json().then((data) => {
-        if (inputValue) {
-          if (data.result[data.result.length - 1].output) {
-            console.log('response', data.result[data.result.length - 1].output, inputValue);
-            setChatHistory((prev) => {
-              [...prev,
-              {
-                "prompt": inputValue,
-                "output": data.result[data.result.length - 1].output,
-              }]
-            });
-            console.log("Chat history", chatHistory);
-          }
-        } else {
-          alert("Please provide a prompt.");
-        }
+    if (inputValue) {
+      fetch(
+        `https://backend.dev.anudesh.ai4bharat.org/annotation/${annotationId}/`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            annotation_notes: "",
+            annotation_status: "labeled",
+            result: inputValue,
+            lead_time: 0.0,
+            auto_save: "True",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${localStorage.getItem(
+              "anudesh_access_token",
+            )}`,
+          },
+        },
+      ).then((res) => {
+        res.json().then((data) => {
+          setChatHistory((prevChatHistory) =>
+            data && data.result ? [...data.result] : [...prevChatHistory],
+          );
+        });
       });
-    });
+    } else {
+      alert("Please provide a prompt.");
+    }
     setShowChatContainer(true);
   };
-
 
   const handleOnchange = (prompt) => {
     inputValue = prompt;
@@ -127,8 +135,23 @@ const InstructionDrivenChatPage = () => {
     for (let index = 0; index < chatHistory.length; index++) {
       const message = chatHistory[index];
       chatElements.push(
-        <>
-          <div className="w-[40vw] flex justify-start items-center space-x-6 rounded-lg py-7">
+        <Box
+          sx={{
+            paddingY: "1.5rem",
+          }}
+          key={index}
+        >
+          <Box
+            sx={{
+              width: "50vw",
+              display: "flex",
+              justifyContent: "start",
+              alignItems: "center",
+              paddingBottom: "1.5rem",
+              paddingX: "1.5rem",
+              borderRadius: "0.5rem",
+            }}
+          >
             <Avatar
               alt="user_profile_pic"
               variant="contained"
@@ -138,92 +161,249 @@ const InstructionDrivenChatPage = () => {
                   : ""
               }
               className={classes.avatar}
+              sx={{
+                marginRight: "1rem",
+              }}
             />
-            <div>{message.prompt}</div>
-          </div>
-          <div className="w-[40vw] flex justify-start items-center space-x-6 rounded-lg py-7 bg-orange-100">
+            <Box>{message.prompt}</Box>
+          </Box>
+          <Box
+            sx={{
+              width: "50vw",
+              display: "flex",
+              justifyContent: "start",
+              alignItems: "center",
+              paddingY: "1.75rem",
+              paddingX: "1.5rem",
+              borderRadius: "0.5rem",
+              backgroundColor: "rgb(255 237 213)",
+              overflowX: "scroll"
+            }}
+          >
             <Image
               width={50}
               height={50}
               src="https://i.imgur.com/56Ut9oz.png"
               alt="Bot Avatar"
+              style={{
+                marginRight: "1rem",
+              }}
             />
-            <div>{message.output}</div>
-          </div>
-        </>,
+            <ReactMarkdown className="flex-col">{message.output}</ReactMarkdown>
+          </Box>
+        </Box>,
       );
     }
     return chatElements;
   };
 
-  return (
+  const ChildModal = () => {
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
+    };
+  
+    return (
+      <>
+        <Button
+        sx={{
+          marginTop: "1rem"
+        }} 
+        variant="outlined"
+        onClick={handleOpen}
+        >
+          {translate("modalButton.metaDataInfo")}
+        </Button>
+        
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="child-modal-title"
+          aria-describedby="child-modal-description"
+        >
+          <Box sx={{ ...style, width: "40%" }}>
+            <Typography
+            id="child-modal-title"
+            color={"#F18359"}
+            fontWeight={'bold'}
+            variant="h6" 
+            >
+              {translate("modal.domain")}
+            </Typography>
+            <Typography
+            variant="subtitle1"
+            id="child-modal-description"
+            >
+              {info.meta_info_domain}
+            </Typography>
 
-    <Grid container spacing={2}>
-       {loading && <Spinner />} 
-      <Grid item xs={12}>
-        <Box
-          sx={{
-            // borderRadius: "20px",
-            padding: "10px",
+            <Typography
+            color={"#F18359"}
+            fontWeight={'bold'}
+            variant="h6"
+            id="child-modal-title"
+            >
+              {translate("modal.intent")}
+            </Typography>
+            <Typography
+            variant="subtitle1"
+            id="child-modal-description">
+              {info.meta_info_intent}
+            </Typography>
+
+            <Typography
+            id="child-modal-title"
+            color={"#F18359"}
+            fontWeight={'bold'}
+            variant="h6" 
+            >
+              {translate("modal.language")}
+            </Typography>
+            <Typography 
+            variant="subtitle1"
+            id="child-modal-description">
+              {info.meta_info_language}
+            </Typography>
+
+            <Button variant="outlined" onClick={handleClose}>{translate("modalButton.close")}</Button>
+          </Box>
+        </Modal>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              borderRadius: "20px",
+              padding: "10px",
+              backgroundColor: "#FFF",
+              marginTop: "1.5rem",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Typography
+                variant="h3"
+                align="center"
+                sx={{
+                  color: "#636363",
+                  fontSize: "2rem",
+                  fontWeight: "800",
+                  marginRight: "0.5rem",
+                }}
+              >
+                {translate("typography.instructions")}
+              </Typography>
+
+              <Tooltip title="Hint and Metadata">
+                <IconButton onClick={handleOpen}>
+                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+
+            <Typography
+              paragraph={true}
+              sx={{
+                fontSize: "1.2rem",
+                padding: "0.5rem 1rem 0",
+                minHeight: "6rem",
+                maxHeight: "6rem",
+                overflowY: "scroll",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {info.instruction_data}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          style={{
+            marginTop: "0.8rem",
+            overflowY: "scroll",
+            minHeight: "38rem",
+            maxHeight: "38rem",
+            borderRadius: "20px",
             backgroundColor: "#FFF",
           }}
         >
-          <Typography
-            variant="h3"
-            align="center"
-            sx={{
-              color: "#636363",
-              fontSize: "2rem",
-              fontWeight: "800",
-            }}
-          >
-            {translate("typography.instructions")}
-          </Typography>
-          <Typography
-            paragraph={true}
-            align="left"
-            sx={{
-              fontSize: "1.2rem",
-              padding: "0.5rem 1rem 0",
-              maxHeight: "6rem",
-              overflowY: "scroll",
-            }}
-          >
-            {dummyInstruction}
-          </Typography>
-        </Box>
+          <Box>
+            {showChatContainer ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  width: "100% !important",
+                  padding: "1rem 0 4rem" 
+                }}
+              >
+                {chatHistory && renderChatHistory()}
+              </Box>
+            ) : (
+              <Grid>GIF</Grid>
+            )}
+            <div ref={bottomRef} />
+          </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+          />
+        </Grid>
       </Grid>
-      <Grid
-        item
-        xs={12}
-        style={{
-          marginTop: "0.8rem",
-          overflowY: "scroll",
-          minHeight: "38rem",
-          maxHeight: "38rem",
-          // borderRadius: "20px",
-          backgroundColor: "#FFF",
-
-        }}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
       >
-       
-        <Box>
-          {showChatContainer ? (
-            <div className="flex flex-col items-center border-8">
-              {renderChatHistory()}
-            </div>
-          ) : (
-            <Grid>GIF</Grid>
-          )}
+        <Box sx={{ ...style, width: "40%" }}>
+          <Typography
+          color={"#F18359"}
+          fontWeight={'bold'}
+          variant="h6" 
+          id="parent-modal-title"
+          >
+            {translate("modal.hint")}
+          </Typography>
+          <Typography variant="subtitle1" id="parent-modal-description">
+            {info.hint}
+          </Typography>
+
+          <Typography
+          color={"#F18359"}
+          fontWeight={'bold'}
+          variant="h6"
+          id="parent-modal-title"
+          >
+            {translate("modal.examples")}
+          </Typography>
+          <Typography variant="subtitle1" id="parent-modal-description">
+            {info.examples}
+          </Typography>
+          
+          <ChildModal />
         </Box>
-      </Grid>
-      <Grid item xs={12}>
-        <Textarea
-          handleButtonClick={handleButtonClick}
-          handleOnchange={handleOnchange}
-        />
-      </Grid>
-    </Grid>
+      </Modal>
+    </>
   );
 };
 
