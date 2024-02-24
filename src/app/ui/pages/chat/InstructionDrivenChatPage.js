@@ -19,6 +19,7 @@ import headerStyle from "@/styles/Header";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import LinearProgress from '@mui/material/LinearProgress';
 
 const style = {
   position: 'absolute',
@@ -43,6 +44,7 @@ const InstructionDrivenChatPage = () => {
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
@@ -95,6 +97,8 @@ const InstructionDrivenChatPage = () => {
 
   const handleButtonClick = () => {
     if (inputValue) {
+      setLoading(prev => true);
+      console.log("loader1 ", displayLoader)
       fetch(
         `https://backend.dev.anudesh.ai4bharat.org/annotation/${annotationId}/`,
         {
@@ -119,12 +123,19 @@ const InstructionDrivenChatPage = () => {
             data && data.result ? [...data.result] : [...prevChatHistory],
           );
         });
-      });
+      })
+      .finally(() => {
+        setLoading(false);
+      })
     } else {
       alert("Please provide a prompt.");
     }
     setShowChatContainer(true);
   };
+
+  useEffect(() => {
+    console.log("loading ", loading); // Log displayLoader state after it's updated
+  }, [loading]); //
 
   const handleOnchange = (prompt) => {
     inputValue = prompt;
@@ -362,6 +373,7 @@ const InstructionDrivenChatPage = () => {
             <div ref={bottomRef} />
           </Box>
         </Grid>
+        {loading && <LinearProgress color="primary" />}
         <Grid item xs={12}>
           <Textarea
             handleButtonClick={handleButtonClick}
