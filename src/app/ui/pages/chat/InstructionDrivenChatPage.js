@@ -44,7 +44,6 @@ const InstructionDrivenChatPage = () => {
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
-  
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
@@ -105,6 +104,31 @@ const InstructionDrivenChatPage = () => {
       setChatHistory((prevChatHistory) =>
         data && data.result ? [...data.result] : [...prevChatHistory],
       );
+      fetch(
+        `https://backend.dev.anudesh.ai4bharat.org/annotation/${annotationId}/`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            annotation_notes: "",
+            annotation_status: "labeled",
+            result: inputValue,
+            lead_time: 0.0,
+            auto_save: "True",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${localStorage.getItem(
+              "anudesh_access_token",
+            )}`,
+          },
+        },
+      ).then((res) => {
+        res.json().then((data) => {
+          setChatHistory((prevChatHistory) =>
+            data && data.result ? [...data.result] : [...prevChatHistory],
+          );
+        });
+      })
     } else {
       alert("Please provide a prompt.");
     }

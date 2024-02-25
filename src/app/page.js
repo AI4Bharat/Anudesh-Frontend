@@ -110,6 +110,12 @@ export default function Root() {
               )}
             />
             <Route
+              path="projects/evaluation"
+              element={ProtectedRouteWrapper(
+                <Layout component={<ModelInteractionEvaluation />} />
+              )}
+            />
+            <Route
               path="/edit-profile"
               element={ProtectedRouteWrapper(<Layout component={<EditProfile />} Backbutton={true} />)}
             />
