@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import ResponsiveChartContainer from "@/component/common/ResponsiveChartContainer";
 
 export default function SingleSpeakerAudioTranscriptionEditing(props) {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
   const { metaAnalyticsData } = props;
   const classes = DatasetStyle();
   const [totalAudioHours, setTotalAudioHours] = useState();

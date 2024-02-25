@@ -133,6 +133,8 @@ const options = {
 };
 
 export default function PerformanceAnalytics() {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const [radiobutton, setRadiobutton] = useState("Annotation");

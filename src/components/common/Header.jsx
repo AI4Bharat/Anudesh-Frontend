@@ -174,8 +174,8 @@ const handleopenproject=(id,type)=>{
   };
 
   const handleRTLChange = (event) => {
-    let style;
     if (typeof window !== 'undefined') {
+    let style;
       if (event.target.checked) {
         localStorage.setItem("rtl", true);
         style = document.createElement("style");

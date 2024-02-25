@@ -30,15 +30,19 @@ const DatasetSearchPopup = (props) => {
  
 
   const handleSearchSubmit = async(e) => {
+    if (typeof window !== 'undefined') {
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     props.handleClose();
     updateFilters({
       ...currentFilters,
       [searchedCol]: searchValue,
     }); 
+  }
   };
 console.log(searchedCol,"searchedCol",searchValue)
+
   const handleClearSearch = (e) => {
+    if (typeof window !== 'undefined') {
     updateFilters({
         ...currentFilters,
         ["search_"+searchedCol]: "",
@@ -46,6 +50,7 @@ console.log(searchedCol,"searchedCol",searchValue)
     setSearchValue("");
      document.getElementById(searchedCol + "_btn").style.color = "rgba(0, 0, 0, 0.54)";
      props.handleClose();
+  }
     };
     
 

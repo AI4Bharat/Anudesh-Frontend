@@ -15,6 +15,8 @@ import WordCountMetaAnalyticsChart from './WordCountMetaAnalyticsChart';
 import SentanceCountMetaAnalyticsChart from './SentanceCountMetaAnalyticsChart';
 
 export default function MetaAnalytics(props) {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const dispatch = useDispatch();
     const {loggedInUserData} = props
     const [loading, setLoading] = useState(false);

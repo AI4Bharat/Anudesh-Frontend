@@ -6,7 +6,6 @@ import {authenticateUser} from '@/utils/utils';
 import Login from './ui/pages/login/login';
 import Layout from './ui/Layout';
 import Chat from './ui/pages/chat/chat';
-import InstructionDrivenChatPage from './ui/pages/chat/InstructionDrivenChatPage';
 import MyOrganization from './ui/pages/organizations/organizations';
 import ProjectList from './ui/pages/projects/project';
 import Projects from './ui/pages/projects/projectDetails';
@@ -31,6 +30,8 @@ import CreateNewDatasetInstanceAPI
 import AnnotatePage from './ui/pages/chat/AnnotatePage';
 import CreateProject from './new-project/newproject';
 export default function Root () {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({user, children}) => {
       if (!authenticateUser ()) {
