@@ -9,7 +9,8 @@ import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ReactQuill, { Quill } from 'react-quill';
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -36,8 +37,6 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 
-const dummyInstruction =
-  "Imagine you are having a conversation with a specialized Indian chatbot specifically designed to guide and assist you regarding activist matters in India. You can ask any question or seek any information related to various types of activism, campaigns, influential activists, etc. specific to Indian context. The more you interact and converse with the chatbot, the better it can understand your needs and provide precise assistance, advice or information. Use simple, clear language when addressing the chatbot, just as you would speak with another person.Please make your interactions in english.";
 
 const AnnotatePage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -119,6 +118,7 @@ const AnnotatePage = () => {
 
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
     fetchAnnotation(taskId).then((data) => {
       if (data && Array.isArray(data) && data.length > 0) {
         console.log(annotationNotesRef);
@@ -148,12 +148,15 @@ const AnnotatePage = () => {
 
       }
     });
+  }
   }, [taskId]);
 
   const resetNotes = () => {
+    if (typeof window !== "undefined") {
     setShowNotes(false);
     annotationNotesRef.current.getEditor().setContents([]);
     reviewNotesRef.current.getEditor().setContents([]);
+    }
   };
 
   useEffect(() => {
@@ -182,6 +185,7 @@ const AnnotatePage = () => {
   // )[0];
   let Annotation = AnnotationsTaskDetails
   const onSkipTask = () => {
+    if (typeof window !== "undefined") {
     //   message.warning('Notes will not be saved for skipped tasks!');
     let annotation = annotations.find(
       (annotation) => !annotation.parentAnnotation
@@ -204,9 +208,11 @@ const AnnotatePage = () => {
       });
     }
   }
+  }
 
 
   const tasksComplete = (id) => {
+    if (typeof window !== "undefined") {
     if (id) {
         resetNotes();
       // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
@@ -225,12 +231,14 @@ const AnnotatePage = () => {
         window.location.reload();
       }, 1000);
     }
+  }
   };
   const handleAnnotationClick = async (
     value,
     id,
     lead_time,
   ) => {
+    if (typeof window !== "undefined") {
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -276,6 +284,7 @@ const AnnotatePage = () => {
     }
     setLoading(false);
     setShowNotes(false);
+  }
   };
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 

@@ -122,6 +122,7 @@ export default function Root () {
               path="projects/:projectId/task/:taskId"
               // path="projects/alltask"
               element={ProtectedRouteWrapper(
+                
                 <Layout component={<AnnotatePage />} />
               )}
             />

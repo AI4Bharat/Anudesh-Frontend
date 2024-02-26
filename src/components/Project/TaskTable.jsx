@@ -437,11 +437,8 @@ const TaskTable = (props) => {
                 label={
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
-                      (ProjectDetails.project_type === "InstructionDrivenChat"
-                        ? "Annotate"
-                        : "Edit")
-                      : "View"
-                    }
+                         "Annotate"
+                        : "Edit"                    }
                   </Typography>
                 }
               />
@@ -898,7 +895,7 @@ const TaskTable = (props) => {
           ProjectDetails?.annotation_reviewers?.some(
             (reviewer) => reviewer.id === userDetails?.id
           ))) &&
-        (ProjectDetails.project_type === "InstructionDrivenChat" ? (
+        (
           ProjectDetails.is_published ? (
             <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
               {((props.type === "annotation" &&
@@ -1111,32 +1108,10 @@ const TaskTable = (props) => {
               </Grid>
             </Grid>
           ) : (
-            <Button
-              type="primary"
-              style={{
-                width: "100%",
-                marginBottom: "1%",
-                marginRight: "1%",
-                marginTop: "1%",
-              }}
-            >
-              Disabled
-            </Button>
+            <></>
           )
-        ) : (
-          <CustomButton
-            sx={{
-              p: 1,
-              width: "98%",
-              borderRadius: 2,
-              mb: 3,
-              ml: "1%",
-              mr: "1%",
-              mt: "1%",
-            }}
-            label={"Add New Item"}
-          />
-        ))}
+            
+        )}
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           title={""}

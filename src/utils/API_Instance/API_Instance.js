@@ -14,14 +14,20 @@ const TOKEN_NOT_VALID = "token_not_valid";
 const REFRESH_URL = "users/auth/jwt/refresh"
 const VERIFY_URL = "users/auth/jwt/verify";
 
+let headers = {
+  "Content-Type": "application/json",
+  accept: "application/json",
+};
+
+if (typeof window !== "undefined") {
+  headers.Authorization = `JWT ${window.localStorage.getItem(ACCESS_TOKEN)}`;
+}
+
+
 const axiosInstance = axios.create({
   baseURL: configs.BASE_URL_AUTO,
   timeout: 500000,
-  headers: {
-    Authorization: `JWT ${window.localStorage.getItem(ACCESS_TOKEN)}`,
-    "Content-Type": "application/json",
-    accept: "application/json",
-  },
+  headers,
   validateStatus: (status) => {
     return true;
   },
