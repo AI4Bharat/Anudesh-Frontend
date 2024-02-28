@@ -10,7 +10,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import ReactQuill, { Quill } from 'react-quill';
+
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -36,6 +38,8 @@ import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
+import Glossary from "./Glossary";
+import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 
 
 const AnnotatePage = () => {
@@ -118,12 +122,11 @@ const AnnotatePage = () => {
 
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
     fetchAnnotation(taskId).then((data) => {
       if (data && Array.isArray(data) && data.length > 0) {
         console.log(annotationNotesRef);
-        annotationNotesRef.current.value = data[0].annotation_notes ?? "";
-        reviewNotesRef.current.value = data[0].review_notes ?? "";
+        annotationNotesRef.current.value = data[0]?.annotation_notes ? data[0].annotation_notes: "";
+        reviewNotesRef.current.value = data[0].review_notes ?data[0].review_notes: "";
         try {
           const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
           console.log(newDelta2);
@@ -148,15 +151,14 @@ const AnnotatePage = () => {
 
       }
     });
-  }
   }, [taskId]);
 
   const resetNotes = () => {
-    if (typeof window !== "undefined") {
+    // if (typeof window !== "undefined") {
     setShowNotes(false);
     annotationNotesRef.current.getEditor().setContents([]);
     reviewNotesRef.current.getEditor().setContents([]);
-    }
+    // }
   };
 
   useEffect(() => {
@@ -185,7 +187,7 @@ const AnnotatePage = () => {
   // )[0];
   let Annotation = AnnotationsTaskDetails
   const onSkipTask = () => {
-    if (typeof window !== "undefined") {
+    // if (typeof window !== "undefined") {
     //   message.warning('Notes will not be saved for skipped tasks!');
     let annotation = annotations.find(
       (annotation) => !annotation.parentAnnotation
@@ -206,13 +208,13 @@ const AnnotatePage = () => {
           tasksComplete(res?.id || null);
         });
       });
-    }
+    // }
   }
   }
 
 
   const tasksComplete = (id) => {
-    if (typeof window !== "undefined") {
+    // if (typeof window !== "undefined") {
     if (id) {
         resetNotes();
       // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
@@ -231,14 +233,14 @@ const AnnotatePage = () => {
         window.location.reload();
       }, 1000);
     }
-  }
+  // }
   };
   const handleAnnotationClick = async (
     value,
     id,
     lead_time,
   ) => {
-    if (typeof window !== "undefined") {
+    // if (typeof window !== "undefined") {
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -284,7 +286,7 @@ const AnnotatePage = () => {
     }
     setLoading(false);
     setShowNotes(false);
-  }
+  // }
   };
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 
@@ -550,6 +552,14 @@ const AnnotatePage = () => {
             >
               Glossary
             </Button>
+            <div
+            style={{
+              display: showGlossary ? "block" : "none",
+              paddingBottom: "16px",
+            }}
+          >
+            <Glossary taskData={taskData} />
+          </div>
             </Box>
             <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%" ,marginTop:"3px",marginBottom:"25px"}}>
               <Grid item >

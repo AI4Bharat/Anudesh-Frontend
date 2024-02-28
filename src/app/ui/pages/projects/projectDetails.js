@@ -128,10 +128,10 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
      /* eslint-disable react-hooks/exhaustive-deps */
 
     const dispatch = useDispatch();
-    const ProjectDetails = useSelector((state) => state.getProjectDetails && state.getProjectDetails?.data);
-    const userDetails = useSelector((state) =>  state.getLoggedInData && state.getLoggedInData?.data);
+    const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+    const userDetails = useSelector((state) =>  state.getLoggedInData?.data);
     const loggedInUserData = useSelector(
-      (state) => state.getLoggedInData && state.getLoggedInData?.data
+      (state) => state.getLoggedInData?.data
     );
     const getProjectDetails = () => {
       dispatch(fetchProjectDetails(id))
@@ -189,7 +189,6 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       setValue(newValue);
     };
     const apiLoading = useSelector((state) => state.apiStatus.loading);
-  
     const isAnnotators =
       (userRole.WorkspaceManager === loggedInUserData?.role ||
         userRole.OrganizationOwner === loggedInUserData?.role ||
@@ -215,7 +214,8 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       userRole.WorkspaceManager === loggedInUserData?.role ||
       userRole.OrganizationOwner === loggedInUserData?.role ||
       userRole.Admin === loggedInUserData?.role;
-  
+      console.log(userRole.Admin , loggedInUserData?.role,ProjectDetails,"lll",isReviewer);
+
   /* eslint-disable react-hooks/exhaustive-deps */
 
     useEffect(() => {

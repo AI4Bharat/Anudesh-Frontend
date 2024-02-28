@@ -26,6 +26,7 @@ import DatasetSettingTabs from '@/components/datasets/DatasetSettingTab';
 import AutomateDatasets from '@/components/datasets/AutomateDatasets';
 import CreateNewDatasetInstanceAPI
   from '@/components/datasets/CreateNewDatasetInstance';
+  import ReviewPage from "../app/ui/pages/chat/ReviewPage"
   import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
 import AnnotatePage from './ui/pages/chat/AnnotatePage';
 import CreateProject from './new-project/newproject';
@@ -126,6 +127,18 @@ export default function Root () {
                 <Layout component={<AnnotatePage />} />
               )}
             />
+             <Route
+          path="projects/:projectId/review/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<ReviewPage />} />
+          )}
+        />
+        {/* <Route
+          path="projects/:projectId/SuperChecker/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<SuperCheckerPage />} />
+          )}
+          /> */}
             <Route
               path="/edit-profile"
               element={ProtectedRouteWrapper (
