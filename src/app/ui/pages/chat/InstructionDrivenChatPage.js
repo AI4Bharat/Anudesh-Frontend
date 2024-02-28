@@ -19,6 +19,8 @@ import headerStyle from "@/styles/Header";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
+import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 
 const style = {
   position: 'absolute',
@@ -41,8 +43,8 @@ const InstructionDrivenChatPage = () => {
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(false);
-  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [open, setOpen] = useState(false);
+  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
@@ -68,58 +70,40 @@ const InstructionDrivenChatPage = () => {
         "meta_info_domain": item[0]?.data?.meta_info_domain,
         "meta_info_language": item[0]?.data?.meta_info_language,
         "meta_info_intent": item[0]?.data?.meta_info_intent,
+      });
+      const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
+      const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
+        method: "GET",
+        headers: taskAnnotationsObj.getHeaders().headers,
       })
-      try {
-        const response = await fetch(
-          `https://backend.dev.anudesh.ai4bharat.org/task/${taskId}/annotations`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `JWT ${localStorage.getItem(
-                "anudesh_access_token",
-              )}`,
-            },
-          },
-        );
-        const data = await response.json();
-        setChatHistory((prevChatHistory) => (data ? [...data[0].result] : []));
-        setAnnotationId(data[0].id);
-        if (data && [...data[0].result].length) setShowChatContainer(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      const data = await response.json();
+      setChatHistory((prevChatHistory) => (data ? [...data[0].result] : []));
+      setAnnotationId(data[0].id);
+      if (data && [...data[0].result].length) setShowChatContainer(true);
+      
     };
     fetchData();
   }, [taskId, taskList]);
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     if (inputValue) {
-      fetch(
-        `https://backend.dev.anudesh.ai4bharat.org/annotation/${annotationId}/`,
-        {
-          method: "PATCH",
-          body: JSON.stringify({
-            annotation_notes: "",
-            annotation_status: "labeled",
-            result: inputValue,
-            lead_time: 0.0,
-            auto_save: "True",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${localStorage.getItem(
-              "anudesh_access_token",
-            )}`,
-          },
-        },
-      ).then((res) => {
-        res.json().then((data) => {
-          setChatHistory((prevChatHistory) =>
-            data && data.result ? [...data.result] : [...prevChatHistory],
-          );
-        });
+      const body = {
+        annotation_notes: "",
+        annotation_status: "labeled",
+        result: inputValue,
+        lead_time: 0.0,
+        auto_save: "True",
+      };
+      const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
+      const res = await fetch(AnnotationObj.apiEndPoint(), {
+        method: "PATCH",
+        body: JSON.stringify(AnnotationObj.getBody()),
+        headers: AnnotationObj.getHeaders().headers,
       });
+      const data = await res.json();
+      setChatHistory((prevChatHistory) =>
+        data && data.result ? [...data.result] : [...prevChatHistory],
+      );
     } else {
       alert("Please provide a prompt.");
     }
