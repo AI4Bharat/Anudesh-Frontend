@@ -21,7 +21,7 @@
     "@mui/styles": "^5.14.18",
     "@mui/x-date-pickers-pro": "^6.18.4",
     "@react-hook/media-query": "^1.1.1",
-    "@reduxjs/toolkit": "^2.0.1",
+    "@reduxjs/toolkit": "^2.2.1",
     "axios": "^1.6.3",
     "chart.js": "^4.4.1",
     "date-fns": "^3.2.0",
