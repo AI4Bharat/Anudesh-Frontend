@@ -9,7 +9,7 @@
  export default class GetTaskDetailsAPI extends API {
    constructor(taskId, timeout = 2000) {
      super("GET", timeout, false);
-     this.type = constants.GET_TASK_DETAILS;
+     this.type = constant.GET_TASK_DETAILS;
      this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getTasks}${taskId}/`;
    }
  
