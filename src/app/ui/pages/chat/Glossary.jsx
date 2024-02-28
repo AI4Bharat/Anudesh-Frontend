@@ -34,7 +34,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import AddGlossary from "./AddGlossary";
 import { translate } from "@/config/localisation";
 import UpVoteAndDownVoteAPI from "../../../actions/api/Annotate/UpVoteAndDownVoteAPI";
-import SuggestAnEdit from "./SuggestAnEdit";
+// import SuggestAnEdit from "./SuggestAnEdit";
 import SuggestAnEditAPI from "../../../actions/api/Annotate/SuggestAnEditAPI";
 import { setGlossarySentence } from "@/Lib/Features/actions/GlossarysentenceAPI";
 
@@ -552,7 +552,7 @@ export default function Glossary(props) {
         />
       )}
 
-      {SuggestAnEditDialog && (
+      {/* {SuggestAnEditDialog && (
       <SuggestAnEdit 
           openDialog={SuggestAnEditDialog}
           handleCloseDialog={() => handleCloseDialog()}
@@ -565,7 +565,7 @@ export default function Glossary(props) {
           data={taskData.data}
           targetlang={targetlang}
       />
-      )}
+      )} */}
 
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable data={glossaryData} columns={columns} options={options} />
