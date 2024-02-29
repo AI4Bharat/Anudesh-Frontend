@@ -26,7 +26,10 @@ import AutomateDatasets from "@/components/datasets/AutomateDatasets";
 import CreateNewDatasetInstanceAPI from "@/components/datasets/CreateNewDatasetInstance";
 import ProgressList from "./ui/pages/progress/ProgressList";
 import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
-
+import AllTaskPage from "./ui/pages/chat/AllTaskPage";
+import ReviewPage from "./ui/pages/chat/ReviewPage";
+import AnnotatePage from "./ui/pages/chat/AnnotatePage";
+import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
 export default function Root() {
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({ user, children }) => {
@@ -133,6 +136,30 @@ export default function Root() {
               path="/progress/:id"
               element={ProtectedRouteWrapper(<Layout component={<ProgressPage />} Backbutton={true} />)}
             />
+            <Route
+          path="projects/:projectId/review/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<ReviewPage />} />
+          )}
+        />
+         <Route
+          path="projects/:projectId/Alltask/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<AllTaskPage />} />
+          )}
+          />
+          <Route
+          path="projects/:projectId/task/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<AnnotatePage />} />
+          )}
+          />
+          /<Route
+          path="projects/:projectId/SuperChecker/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<SuperCheckerPage />} />
+          )}
+          />
             <Route
               path="analytics"
               element={ProtectedRouteWrapper(

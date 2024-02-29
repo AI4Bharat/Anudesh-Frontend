@@ -9,13 +9,9 @@ import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
-import MenuItem from "@mui/material/MenuItem";
-import Menu, { MenuProps } from "@mui/material/Menu";
-
-const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });
-// import ReactQuill, { Quill } from 'react-quill';
+// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import ReactQuill, { Quill } from 'react-quill';
 
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
@@ -32,7 +28,6 @@ import {
 import "./chat.css";
 import Spinner from "@/components/common/Spinner"
 import { ContactlessOutlined } from "@mui/icons-material";
-import { styled, alpha } from "@mui/material/styles";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
@@ -46,49 +41,8 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 
-const StyledMenu = styled((props) => (
-    <Menu
-      elevation={0}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    "& .MuiPaper-root": {
-      borderRadius: 6,
-      marginTop: theme.spacing(1),
-      minWidth: 180,
-      color:
-        theme.palette.mode === "light"
-          ? "rgb(55, 65, 81)"
-          : theme.palette.grey[300],
-      boxShadow:
-        "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
-      "& .MuiMenu-list": {
-        padding: "4px 0",
-      },
-      "& .MuiMenuItem-root": {
-        "& .MuiSvgIcon-root": {
-          fontSize: 18,
-          color: theme.palette.text.secondary,
-          marginRight: theme.spacing(1.5),
-        },
-        "&:active": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-  }));
-const SuperCheckerPage = () => {
+
+const AllTaskPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   let inputValue = "";
@@ -200,11 +154,11 @@ const SuperCheckerPage = () => {
   }, [taskId]);
 
   const resetNotes = () => {
-    if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current) {
+    // if (typeof window !== "undefined") {
     setShowNotes(false);
     annotationNotesRef.current.getEditor().setContents([]);
     reviewNotesRef.current.getEditor().setContents([]);
-    }
+    // }
   };
 
   useEffect(() => {
@@ -228,10 +182,36 @@ const SuperCheckerPage = () => {
       tasksComplete(res?.id || null);
     });
   };
-  let SuperChecker = AnnotationsTaskDetails.filter(
-    (annotation) => annotation.annotation_type === 3
-  )[0];
+  // let Annotation = AnnotationsTaskDetails.filter(
+  //   (annotation) => annotation.annotation_type === 1
+  // )[0];
   let Annotation = AnnotationsTaskDetails
+  const onSkipTask = () => {
+    // if (typeof window !== "undefined") {
+    //   message.warning('Notes will not be saved for skipped tasks!');
+    let annotation = annotations.find(
+      (annotation) => !annotation.parentAnnotation
+    );
+    if (annotation) {
+      // showLoader();
+      patchAnnotation(
+        null,
+        annotation.id,
+        load_time.current,
+        annotation.lead_time,
+        "skipped",
+        JSON.stringify(annotationNotesRef.current.getEditor().getContents())
+      ).then(() => {
+        getNextProject(projectId, taskData.id).then((res) => {
+          console.log("lll");
+          // hideLoader();
+          tasksComplete(res?.id || null);
+        });
+      });
+    // }
+  }
+  }
+
 
   const tasksComplete = (id) => {
     // if (typeof window !== "undefined") {
@@ -255,32 +235,23 @@ const SuperCheckerPage = () => {
     }
   // }
   };
-  const handleSuperCheckerClick = async (
+  const handleAnnotationClick = async (
     value,
     id,
     lead_time,
-    parentannotation,
-    reviewNotesValue,
   ) => {
+    // if (typeof window !== "undefined") {
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
       annotation_status: value,
-      supercheck_notes: JSON.stringify(superCheckerNotesRef.current.getEditor().getContents()),
+      annotation_notes: JSON.stringify(annotationNotesRef.current.getEditor().getContents()),
       lead_time:
-        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      ...((value === "rejected" ||
-        value === "validated" ||
-        value === "validated_with_changes") && {
-        parent_annotation: parentannotation,
-      }),
+        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0)
     };
-    if (
-      ["draft", "skipped", "rejected"].includes(value) ||
-      (["validated", "validated_with_changes"].includes(value) )
-    ) {
-      if(value === "rejected") PatchAPIdata["result"] = [];
+    if (["draft", "skipped"].includes(value)) {
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
+      // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(TaskObj.getBody()),
@@ -292,10 +263,10 @@ const SuperCheckerPage = () => {
           onNextAnnotation(resp.task);
         }
         setSnackbarInfo({
-            open: true,
-            message: resp?.message,
-            variant: "success",
-          });
+          open: true,
+          message: resp?.message,
+          variant: "success",
+        });
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -306,23 +277,22 @@ const SuperCheckerPage = () => {
       }
     } else {
       setAutoSave(true);
-      
-        setSnackbarInfo({
-          open: true,
-          message: "Error in saving annotation",
-          variant: "error",
-        });
+      setSnackbarInfo({
+        open: true,
+        message: "Error in saving annotation",
+        variant: "error",
+      });
+
     }
     setLoading(false);
     setShowNotes(false);
-    setAnchorEl(null);
+  // }
   };
-
-
-
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 
-
+  useEffect(() => {
+    filterAnnotations(AnnotationsTaskDetails, userData);
+  }, [AnnotationsTaskDetails, userData]);
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -336,51 +306,127 @@ const SuperCheckerPage = () => {
   }, []);
 
 
-  const filterAnnotations = (annotations, user) => {
+
+
+  const filterAnnotations = (
+    annotations,
+    user,
+
+  ) => {
     let disableSkip = false;
-    let disableAutoSave = false;
+    let disableUpdate = false;
+    let disableDraft = false;
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
-      return (
-        annotation.completed_by === user.id && annotation.parent_annotation
-      );
+      return annotation.completed_by === user.id && !annotation.parent_annotation;
     });
+    let userAnnotationData = annotations.find(
+      (annotation) =>
+        annotation.annotation_type === 2
+    );
+
     if (userAnnotation) {
-      if (userAnnotation.annotation_status === "unvalidated") {
-        filteredAnnotations = userAnnotation.result.length > 0 ?
-          [userAnnotation] : annotations.filter(
-            (annotation) =>
-              annotation.id === userAnnotation.parent_annotation &&
-              annotation.annotation_type === 2
+
+      if (userAnnotation.annotation_status === "labeled") {
+        const superCheckedAnnotation = annotations.find(
+          (annotation) => annotation.annotation_type === 3
+        );
+        let review = annotations.find(
+          (annotation) =>
+            annotation.parent_annotation === userAnnotation.id &&
+            annotation.annotation_type === 2
+        );
+        if (
+          superCheckedAnnotation &&
+          ["draft", "skipped", "validated", "validated_with_changes"].includes(
+            superCheckedAnnotation.annotation_status
+          )
+        ) {
+          filteredAnnotations = [superCheckedAnnotation];
+          setFilterMessage(
+            "This is the Super Checker's Annotation in read only mode"
           );
-      } else if (
-        ["validated", "validated_with_changes", "draft"].includes(
-          userAnnotation.annotation_status
-        )
+          disableDraft = true;
+          disableSkip = true;
+          disableUpdate = true;
+        } else if (
+          review &&
+          [
+            "skipped",
+            "draft",
+            "rejected",
+            "unreviewed",
+          ].includes(review.annotation_status)
+        ) {
+          filteredAnnotations = [userAnnotation];
+          disableDraft = true;
+          disableSkip = true;
+          disableUpdate = true;
+          setFilterMessage("This task is being reviewed by the reviewer");
+        } else if (
+          review &&
+          [
+            "accepted",
+            "accepted_with_minor_changes",
+            "accepted_with_major_changes",
+          ].includes(review.annotation_status)
+        ) {
+          filteredAnnotations = [review];
+          disableDraft = true;
+          disableSkip = true;
+          disableUpdate = true;
+          setFilterMessage("This is the Reviewer's Annotation in read only mode");
+        } else {
+          filteredAnnotations = [userAnnotation];
+        }
+      }
+      else if (
+        userAnnotationData &&
+        [
+          "draft",
+        ].includes(userAnnotation.annotation_status)
       ) {
         filteredAnnotations = [userAnnotation];
-      } else if (
-        userAnnotation.annotation_status === "skipped" ||
-        userAnnotation.annotation_status === "rejected"
+        disableSkip = true;
+        setFilterMessage("Skip button is disabled, since the task is being reviewed");
+      }
+      else if (
+        userAnnotation &&
+        [
+          "to_be_revised"
+        ].includes(userAnnotation.annotation_status)
       ) {
-        filteredAnnotations = annotations.filter(
-          (value) => value.annotation_type === 2
-        );
-        if(filteredAnnotations[0].annotation_status === "rejected")
-          setAutoSave(false);
+        filteredAnnotations = [userAnnotation];
+        disableSkip = true;
+        setDisableButton(true);
+        setFilterMessage("Skip button is disabled, since the task is being reviewed");
+      }
+
+      else {
+        filteredAnnotations = [userAnnotation];
       }
     } else if ([4, 5, 6].includes(user.role)) {
-      filteredAnnotations = annotations.filter((a) => a.annotation_type === 3);
+      // filteredAnnotations = annotations.filter((a) => a.annotation_type === 1);
+      filteredAnnotations = AnnotationsTaskDetails
+      console.log("lll", "4", taskData);
+      disableDraft = true;
       disableSkip = true;
+      disableUpdate = true;
     }
     setAnnotations(filteredAnnotations);
+    setDisableBtns(disableDraft);
+    setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
-    return [filteredAnnotations, disableSkip, disableAutoSave];
+    return [
+      filteredAnnotations,
+      disableDraft,
+      disableSkip,
+      disableUpdate,
+    ];
   };
 
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
-  }, [AnnotationsTaskDetails, userData]);
+
+
 
 
   const getTaskData = async (id) => {
@@ -414,14 +460,7 @@ const SuperCheckerPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+
   useEffect(() => {
     if (AnnotationsTaskDetails?.length > 0) {
       setLoading(false);
@@ -521,42 +560,6 @@ const SuperCheckerPage = () => {
           >
             <Glossary taskData={taskData} />
           </div>
-          <div>
-        {ProjectDetails.revision_loop_count >
-        taskData?.revision_loop_count?.super_check_count
-          ? false
-          : true && (
-              <div
-                style={{
-                  textAlign: "left",
-                  marginBottom: "5px",
-                  marginLeft: "40px",
-                  marginTop: "5px",
-                }}
-              >
-                <Typography variant="body" color="#f5222d">
-                  Note: The 'Revision Loop Count' limit has been reached for
-                  this task.
-                </Typography>
-              </div>
-            )}
-
-        {ProjectDetails.revision_loop_count -
-          taskData?.revision_loop_count?.super_check_count !==
-          0 && (
-          <div
-            style={{ textAlign: "left", marginLeft: "40px", marginTop: "8px" }}
-          >
-            <Typography variant="body" color="#f5222d">
-              Note: This task can be rejected{" "}
-              {ProjectDetails.revision_loop_count -
-                taskData?.revision_loop_count?.super_check_count}{" "}
-              more times.
-            </Typography>
-          </div>
-        )}
-      </div>
-
             </Box>
             <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%" ,marginTop:"3px",marginBottom:"25px"}}>
               <Grid item >
@@ -584,9 +587,9 @@ const SuperCheckerPage = () => {
             </Typography>
             </Grid> */}
 
-              {(disableBtns && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
+              {/* {(disableBtns && taskData && taskData.annotation_users.some(
                 (user) => user === userData.id
-              )) || (!disableBtns && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
+              )) || (!disableBtns && taskData && taskData.annotation_users.some(
                 (user) => user === userData.id
               )) ? (
                 <Grid item >
@@ -596,10 +599,10 @@ const SuperCheckerPage = () => {
                       type="default"
                       variant="outlined"
                       onClick={() =>
-                        handleSuperCheckerClick(
+                        handleAnnotationClick(
                           "draft",
-                          SuperChecker.id,
-                          SuperChecker.lead_time,
+                          Annotation.id,
+                          Annotation.lead_time,
                         )
                       }
                       style={{
@@ -617,7 +620,7 @@ const SuperCheckerPage = () => {
                     </Button>
                   </Tooltip>
                 </Grid>
-              ) : null}
+              ) : null} */}
 
               <Grid item >
                 <Tooltip title="Go to next task">
@@ -638,9 +641,9 @@ const SuperCheckerPage = () => {
                   </Button>
                 </Tooltip>
               </Grid>
-              {(disableSkipButton && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
+              {/* {(disableSkipButton && taskData && taskData.annotation_users.some(
                 (user) => user === userData.id
-              )) || (!disableSkipButton && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
+              )) || (!disableSkipButton && taskData && taskData.annotation_users.some(
                 (user) => user === userData.id
               )) ? (
                 <Grid item>
@@ -649,13 +652,7 @@ const SuperCheckerPage = () => {
                       value="Skip"
                       type="default"
                       variant="outlined"
-                      onClick={() =>
-                        handleSuperCheckerClick(
-                          "skipped",
-                          SuperChecker.id,
-                          SuperChecker.lead_time,
-                        )
-                      }
+                      onClick={() => onSkipTask()}
                       style={{
                         minWidth: "150px",
                         color: "black",
@@ -670,48 +667,7 @@ const SuperCheckerPage = () => {
                       Skip
                     </Button>
                   </Tooltip>
-                  </Grid>) : null}
-                  <Grid item>
-          {taskData?.super_check_user === userData?.id && (
-            <Tooltip title="Reject">
-              <Button
-                value="rejected"
-                type="default"
-                variant="outlined"
-                onClick={() =>
-                  handleSuperCheckerClick(
-                    "rejected",
-                    SuperChecker.id,
-                    SuperChecker.lead_time,
-                    SuperChecker.parent_annotation
-                  )
-                }
-                disabled={
-                  ProjectDetails.revision_loop_count >
-                  taskData?.revision_loop_count?.super_check_count
-                    ? false
-                    : true
-                }
-                style={{
-                  minWidth: "120px",
-                  border: "1px solid gray",
-                  color: (
-                    ProjectDetails.revision_loop_count >
-                    taskData?.revision_loop_count?.super_check_count
-                      ? false
-                      : true
-                  )
-                    ? "#B2BABB"
-                    : "#f5222d",
-                  pt: 2,
-                  pb: 2,
-                }}
-              >
-                Reject
-              </Button>
-            </Tooltip>
-          )}
-        </Grid>
+                  </Grid>) : null} */}
               {/* {(disableUpdateButton && taskData && taskData.annotation_users.some(
                 (user) => user === userData.id
               )) || (!disableUpdateButton && taskData && taskData.annotation_users.some(
@@ -743,42 +699,6 @@ const SuperCheckerPage = () => {
                   </Tooltip>
                 </Grid>
               ) : null} */}
-               <StyledMenu
-            id="accept-menu"
-            MenuListProps={{
-              "aria-labelledby": "accept-button",
-            }}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-          >
-            <MenuItem
-              onClick={() =>
-                handleSuperCheckerClick(
-                  "validated",
-                  SuperChecker.id,
-                  SuperChecker.lead_time,
-                  SuperChecker.parent_annotation
-                )
-              }
-              disableRipple
-            >
-              Validated No Changes
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleSuperCheckerClick(
-                  "validated_with_changes",
-                  SuperChecker.id,
-                  SuperChecker.lead_time,
-                  SuperChecker.parent_annotation
-                )
-              }
-              disableRipple
-            >
-              Validated with Changes
-            </MenuItem>
-          </StyledMenu>
               {/* </Box> */}
             </Grid>
             {filterMessage && (
@@ -787,7 +707,7 @@ const SuperCheckerPage = () => {
               </Alert>
             )}
         </Grid>
-        <Grid item container>  <InstructionDrivenChatPage /></Grid>
+        <Grid item container >  <InstructionDrivenChatPage /></Grid>
 
 
       </Grid>
@@ -799,4 +719,4 @@ const SuperCheckerPage = () => {
 };
 
 
-export default SuperCheckerPage;
+export default AllTaskPage;

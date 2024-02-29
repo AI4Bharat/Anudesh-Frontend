@@ -214,7 +214,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       userRole.WorkspaceManager === loggedInUserData?.role ||
       userRole.OrganizationOwner === loggedInUserData?.role ||
       userRole.Admin === loggedInUserData?.role;
-      console.log(userRole.Admin , loggedInUserData?.role,ProjectDetails,"lll",isReviewer);
+      console.log(userRole.Admin, loggedInUserData?.role,ProjectDetails,"lll",isReviewer);
 
   /* eslint-disable react-hooks/exhaustive-deps */
 

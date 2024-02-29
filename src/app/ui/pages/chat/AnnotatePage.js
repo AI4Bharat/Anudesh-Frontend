@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-import ReactQuill, { Quill } from 'react-quill';
+const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });
+// import ReactQuill, { Quill } from 'react-quill';
 
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
@@ -154,11 +154,11 @@ const AnnotatePage = () => {
   }, [taskId]);
 
   const resetNotes = () => {
-    // if (typeof window !== "undefined") {
+    if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current) {
     setShowNotes(false);
     annotationNotesRef.current.getEditor().setContents([]);
     reviewNotesRef.current.getEditor().setContents([]);
-    // }
+    }
   };
 
   useEffect(() => {
@@ -707,7 +707,7 @@ const AnnotatePage = () => {
               </Alert>
             )}
         </Grid>
-        <Grid item >  <InstructionDrivenChatPage /></Grid>
+        <Grid item container>  <InstructionDrivenChatPage /></Grid>
 
 
       </Grid>
