@@ -25,7 +25,7 @@ import Glossarysentence from "../../../actions/api/Annotate/GlossarySentence"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import LanguageCode from "../../../../utils/LanguageCode";
-import Search from "@/componentS/common/Search";
+import Search from "@/components/common/Search";
 import { useParams } from "react-router-dom";
 import ThumbsUpDownOutlinedIcon from "@mui/icons-material/ThumbsUpDownOutlined";
 import ThumbUpOffAltOutlinedIcon from "@mui/icons-material/ThumbUpOffAltOutlined";
