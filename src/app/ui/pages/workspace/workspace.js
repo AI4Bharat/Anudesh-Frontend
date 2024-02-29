@@ -11,6 +11,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 
 function TabPanel(props) {
+  /* eslint-disable react-hooks/exhaustive-deps */
 
     const { children, value, index, ...other } = props;
 

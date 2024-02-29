@@ -10,9 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 // import ReactQuill, { Quill } from 'react-quill';
-
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -122,6 +121,7 @@ const AnnotatePage = () => {
 
 
   useEffect(() => {
+    if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current) {
     fetchAnnotation(taskId).then((data) => {
       if (data && Array.isArray(data) && data.length > 0) {
         console.log(annotationNotesRef);
@@ -151,6 +151,7 @@ const AnnotatePage = () => {
 
       }
     });
+  }
   }, [taskId]);
 
   const resetNotes = () => {

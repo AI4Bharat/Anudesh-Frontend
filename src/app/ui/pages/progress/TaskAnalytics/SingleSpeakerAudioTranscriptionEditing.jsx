@@ -19,6 +19,8 @@ import ResponsiveChartContainer from "@/component/common/ResponsiveChartContaine
 
 
 function SingleSpeakerAudioTranscriptionEditing(props) {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const { taskAnalyticsData } = props;

@@ -13,7 +13,7 @@ import { styled, alpha } from "@mui/material/styles";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 // import ReactQuill, { Quill } from 'react-quill';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./editor.css"
@@ -172,6 +172,8 @@ useEffect(()=>{
   setNotes(taskData, annotations);
 },[])
 const setNotes = (taskData, annotations) => {
+  if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
+
   if (annotations && Array.isArray(annotations) && annotations.length > 0) {
     let userAnnotation = annotations.find(
       (annotation) =>
@@ -357,11 +359,12 @@ const setNotes = (taskData, annotations) => {
       }
     }
   }
+}
 };
 
 
   const resetNotes = () => {
-    if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current) {
+    if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
     setShowNotes(false);
     annotationNotesRef.current.getEditor().setContents([]);
     reviewNotesRef.current.getEditor().setContents([]);

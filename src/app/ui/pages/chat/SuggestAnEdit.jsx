@@ -194,7 +194,7 @@ const SuggestAnEdit = ({
                       {allDomains &&
                         allDomains.length > 0 &&
                         allDomains.map((el, i) => {
-                          return <MenuItem value={el.code}>{el.label}</MenuItem>;
+                          return <MenuItem key ={i} value={el.code}>{el.label}</MenuItem>;
                         })}
                     </Select>
                   </FormControl>
