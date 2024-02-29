@@ -166,7 +166,7 @@ const InstructionDrivenChatPage = () => {
               overflowX: "scroll"
             }}
           >
-            <Image 
+            <img 
               width={50}
               height={50}
               src="https://i.imgur.com/56Ut9oz.png"

@@ -13,7 +13,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
 import MenuItem from "@mui/material/MenuItem";
 import Menu, { MenuProps } from "@mui/material/Menu";
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
+
 // import ReactQuill, { Quill } from 'react-quill';
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
@@ -121,6 +122,8 @@ const SuperCheckerPage = () => {
   const [annotations, setAnnotations] = useState([]);
 
   const annotationNotesRef = useRef(null);
+  const superCheckerNotesRef = useRef(null);
+
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
@@ -573,13 +576,6 @@ const SuperCheckerPage = () => {
               }}
             >
               <ReactQuill
-                ref={annotationNotesRef}
-                modules={modules}
-                formats={formats}
-                bounds={"#note"}
-                placeholder="Annotation Notes"
-              ></ReactQuill>
-              <ReactQuill
                 ref={reviewNotesRef}
                 modules={modules}
                 formats={formats}
@@ -587,6 +583,13 @@ const SuperCheckerPage = () => {
                 placeholder="Review Notes"
                 style={{ marginbottom: "1%", minHeight: "2rem" }}
                 readOnly={true}
+              ></ReactQuill>
+              <ReactQuill
+                ref={superCheckerNotesRef}
+                modules={modules}
+                formats={formats}
+                bounds={"#note"}
+                placeholder="Superchecker Notes"
               ></ReactQuill>
             </div>
             <Button

@@ -13,7 +13,8 @@ import { styled, alpha } from "@mui/material/styles";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
+
 // import ReactQuill, { Quill } from 'react-quill';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./editor.css"

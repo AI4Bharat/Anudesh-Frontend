@@ -69,7 +69,7 @@ const Chat = () =>{
             </>
           ) : (
             <div className="w-[40vw] flex justify-start items-center space-x-6">
-              <Image alt="Anudesh"
+              <img alt="Anudesh"
                 src="https://i.imgur.com/56Ut9oz.png"
                 className="w-10 h-10"
               />
@@ -87,18 +87,18 @@ const Chat = () =>{
       <div className="relative z-0 flex flex-col h-full w-full overflow-hidden">
         <div className="flex justify-between w-full">
           <div>
-            <Image alt="Anudesh"
+            <img alt="Anudesh"
               src="https://i.imgur.com/56Ut9oz.png"
               className="mt-4 ml-10 h-[61px] w-[60px]"
               onClick={() => router.push("/home")}
-            ></Image>
+            ></img>
           </div>
           <div className="flex">
-            <Image alt="Anudesh"
+            <img alt="Anudesh"
               src="https://i.imgur.com/FGmAyjz.png"
               className="w-6 h-6 mt-11"
             />
-            <Image alt="Anudesh"
+            <img alt="Anudesh"
               src="https://i.imgur.com/A3Rcbqe.jpeg"
               className="w-6 h-6 mt-11 ml-4"
             />
@@ -112,10 +112,10 @@ const Chat = () =>{
           {showChatContainer ? (
             <>
               <div className="w-auto h-36 mt-12 mx-auto bg-white rounded-2xl flex flex-row gap-2">
-                <Image alt="Anudesh"
+                <img alt="Anudesh"
                   src="https://i.imgur.com/56Ut9oz.png"
                   className="my-4 mx-5 h-[6.2rem] w-[6rem]"
-                ></Image>
+                ></img>
                 <div>
                   <h3 className="text-3xl text-orange-600 font-bold mt-8">
                     Namaste
@@ -138,7 +138,7 @@ const Chat = () =>{
                   onChange={(e) => setInputValue(e.target.value)}
                 />
                 <IconButton onClick={handleButtonClick}>
-                  <Image 
+                  <img 
                     src="https://i.imgur.com/2sWOT6F.png"
                     className=" w-5 h-4 mt-2"
                     alt="Send Icon"
@@ -149,11 +149,11 @@ const Chat = () =>{
           ) : (
             <>
               <div className="w-auto h-36 mt-12 mx-auto bg-white rounded-2xl flex flex-row gap-2">
-                <Image 
+                <img 
                   alt="anudesh"
                   src="https://i.imgur.com/56Ut9oz.png"
                   className="mt-6 mx-5 h-[6.2rem] w-[6rem]"
-                ></Image>
+                ></img>
                 <div>
                   <h3 className="text-3xl text-orange-600 font-bold mt-8">
                     Namaste
@@ -190,7 +190,7 @@ const Chat = () =>{
                   onChange={(e) => setInputValue(e.target.value)}
                 />
                 <IconButton onClick={handleButtonClick}>
-                  <Image alt="Anudesh"
+                  <img alt="Anudesh"
                     src="https://i.imgur.com/2sWOT6F.png"
                     className=" w-5 h-4 mt-2"
                   />

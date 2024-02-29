@@ -766,7 +766,7 @@ const handleopenproject=(id,type)=>{
               md={3}
             >   
                 <a style={{ display: "flex", alignItems: "center" }}>
-                  <Image 
+                  <img 
                     onClick={() => navigate("/")} 
                     src="https://i.imgur.com/56Ut9oz.png"
                     alt="anudesh"
