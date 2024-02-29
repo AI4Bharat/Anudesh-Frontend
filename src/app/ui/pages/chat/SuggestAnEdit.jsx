@@ -43,7 +43,8 @@ const SuggestAnEdit = ({
   }) => {
     const classes = DatasetStyle();
     const dispatch = useDispatch();
-  
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const [Targetlanguage, setTargetlanguage] = useState([]);
     const [snackbar, setSnackbarInfo] = useState({
       open: false,

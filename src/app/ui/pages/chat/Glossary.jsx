@@ -39,6 +39,8 @@ import SuggestAnEditAPI from "../../../actions/api/Annotate/SuggestAnEditAPI";
 import { setGlossarySentence } from "@/Lib/Features/actions/GlossarysentenceAPI";
 
 export default function Glossary(props) {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const { taskData } = props;
   const dispatch = useDispatch();
   const Glossarysentence = useSelector((state) => state.getGlossarySentenceAPI?.data);

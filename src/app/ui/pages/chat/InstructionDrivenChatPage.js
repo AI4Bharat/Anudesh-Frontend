@@ -35,6 +35,8 @@ const style = {
 };
 
 const InstructionDrivenChatPage = () => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();

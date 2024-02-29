@@ -37,6 +37,8 @@ const AddGlossary = ({
   Sourcelang,
   addBtnClickHandler,
 }) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const allLevels = glossaryLevel;
