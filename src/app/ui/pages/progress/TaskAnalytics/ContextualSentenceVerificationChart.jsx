@@ -15,6 +15,8 @@ import ResponsiveChartContainer from "@/components/common/ResponsiveChartContain
 
 
 function ContextualSentenceVerificationChart(props) {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
   const classes = DatasetStyle();
   const { taskAnalyticsData } = props;
 

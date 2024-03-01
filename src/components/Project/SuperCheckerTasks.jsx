@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import { Link, useNavigate, useParams,useLocation } from "react-router-dom";
+import { Link, useNavigate, useParams,useLocation } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
 // import GetAllTasksAPI from "../../../../redux/actions/api/Tasks/GetAllTasks";
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 // import CustomizedSnackbars from "../../component/common/Snackbar";
 // import GetTasksByProjectIdAPI from "../../../../redux/actions/api/Tasks/GetTasksByProjectId";
 // import GetProjectDetailsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDetails";
-import Link from "next/navigation";
+// import Link from "next/navigation";
 import {
   ThemeProvider,
   Grid,
@@ -567,8 +567,7 @@ if (typeof window !== 'undefined') {
         )
         ) 
         &&
-        (ProjectDetails.project_type === "InstructionDrivenChat" ? (
-          ProjectDetails.is_published ? (
+        (ProjectDetails.is_published ? (
             <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
               {((props.type === "superChecker" &&
                 selectedFilters.supercheck_status === "unvalidated") ||
@@ -757,33 +756,8 @@ if (typeof window !== 'undefined') {
               </Grid>
             </Grid>
           ) : (
-            <Button
-              type="primary"
-              style={{
-                width: "100%",
-                marginBottom: "1%",
-                marginRight: "1%",
-                marginTop: "1%",
-              }}
-            >
-              Disabled
-            </Button>
-          )
-        ) : (
-          <></>
-          // <CustomButton
-          //   sx={{
-          //     p: 1,
-          //     width: "98%",
-          //     borderRadius: 2,
-          //     mb: 3,
-          //     ml: "1%",
-          //     mr: "1%",
-          //     mt: "1%",
-          //   }}
-          //   label={"Add New Item"}
-          // />
-        ))}
+            <></>
+        ) )}
       
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable

@@ -155,6 +155,7 @@ const PopulateAiModel = () => {
     })[0].organisation_id);
 
     let apiObj;
+    
     srcDatasetType === "OCRDocument" && ( apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
     srcDatasetType === "SpeechConversation" && (apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
     fetch(apiObj.apiEndPoint(), {

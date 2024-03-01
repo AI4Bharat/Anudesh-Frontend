@@ -7,6 +7,7 @@ const Header = React.lazy(() => import("@/components/common/Header"));
 
 
 const Layout= (props) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
   const { type, index, component,Backbutton, backPressNavigationPath } = props;
   const [show, setShow] = useState(false);
   const classes = GlobalStyles();

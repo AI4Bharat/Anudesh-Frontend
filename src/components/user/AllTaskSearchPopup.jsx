@@ -17,6 +17,8 @@ import APITransport from '../../../../redux/actions/apitransport/apitransport';
 // import { translate } from "../../../../assets/localisation";
 
 const AllTaskSearchPopup = (props) => {
+      /* eslint-disable react-hooks/exhaustive-deps */
+
     const classes = DatasetStyle();
     const dispatch = useDispatch();
     const { datasetId } = useParams();
@@ -31,12 +33,17 @@ const AllTaskSearchPopup = (props) => {
  
 
   const handleSearchSubmit = async(e) => {
+    if (typeof window !== 'undefined') {
+
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     onchange()
     props.handleClose();
+    }
    
   };
   const handleClearSearch = (e) => {
+    if (typeof window !== 'undefined') {
+
     updateFilters({
         ...currentFilters,
         ["search_"+searchedCol]: "",
@@ -49,6 +56,7 @@ const AllTaskSearchPopup = (props) => {
     onchange()
      document.getElementById(searchedCol + "_btn").style.color = "rgba(0, 0, 0, 0.54)";
      props.handleClose();
+  }
      
     };
 

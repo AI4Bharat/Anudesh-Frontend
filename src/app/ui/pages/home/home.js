@@ -11,7 +11,7 @@ const Home = () => {
         <>
             <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100">
                 <div className="pt-8 pb-16 flex justify-between px-16">
-                    <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={90} height={90}></Image>
+                    <img alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={90} height={90}></img>
                     <div className="flex gap-6">
                         <button className="text-xl font-medium hover:underline">Codebase</button>
                         <button className="text-xl font-medium hover:underline">Analytics</button>
@@ -29,7 +29,7 @@ const Home = () => {
                         </div>
                     </div>
                     <div className="pr-40">
-                        <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={900} height={900}></Image>
+                        <img alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={900} height={900}></img>
                     </div>
                 </div>
             </div>

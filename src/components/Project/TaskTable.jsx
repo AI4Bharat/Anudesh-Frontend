@@ -300,7 +300,7 @@ const TaskTable = (props) => {
         annotation_status: selectedFilters?.review_status,
       }),
     };
-    dispatch(fetchNextTask(id, datavalue, null, props.type));
+    dispatch(fetchNextTask({projectId:id, projectObj:datavalue, null:null, type:props.type}));
     setLabellingStarted(true);
   };
 
@@ -437,11 +437,8 @@ const TaskTable = (props) => {
                 label={
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
-                      (ProjectDetails.project_type === "InstructionDrivenChat"
-                        ? "Annotate"
-                        : "Edit")
-                      : "View"
-                    }
+                         "Annotate"
+                        : "Edit"                    }
                   </Typography>
                 }
               />
@@ -598,6 +595,7 @@ const TaskTable = (props) => {
   }, [totalTaskCount, selectedFilters,ProjectDetails]);
 
   useEffect(() => {
+    console.log(NextTask);
     if (ProjectDetails?.project_type?.includes("Acoustic")) {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
@@ -608,6 +606,7 @@ const TaskTable = (props) => {
       }
     }else{
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+        console.log("labelling");
         navigate(
           `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
           NextTask?.id
@@ -896,7 +895,7 @@ const TaskTable = (props) => {
           ProjectDetails?.annotation_reviewers?.some(
             (reviewer) => reviewer.id === userDetails?.id
           ))) &&
-        (ProjectDetails.project_type === "InstructionDrivenChat" ? (
+        (
           ProjectDetails.is_published ? (
             <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
               {((props.type === "annotation" &&
@@ -1109,32 +1108,10 @@ const TaskTable = (props) => {
               </Grid>
             </Grid>
           ) : (
-            <Button
-              type="primary"
-              style={{
-                width: "100%",
-                marginBottom: "1%",
-                marginRight: "1%",
-                marginTop: "1%",
-              }}
-            >
-              Disabled
-            </Button>
+            <></>
           )
-        ) : (
-          <CustomButton
-            sx={{
-              p: 1,
-              width: "98%",
-              borderRadius: 2,
-              mb: 3,
-              ml: "1%",
-              mr: "1%",
-              mt: "1%",
-            }}
-            label={"Add New Item"}
-          />
-        ))}
+            
+        )}
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           title={""}

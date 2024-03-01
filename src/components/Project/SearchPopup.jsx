@@ -18,15 +18,19 @@ const SearchPopup = (props) => {
   const [searchValue, setSearchValue] = useState(currentFilters["search_"+searchedCol]);
   
   const handleSearchSubmit = (e) => {
+    if (typeof window !== 'undefined') {
     updateFilters({
       ...currentFilters,
       ["search_"+searchedCol]: searchValue,
     });
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     props.handleClose();
+  }
   };
 
   const handleClearSearch = (e) => {
+    if (typeof window !== 'undefined') {
+
     updateFilters({
         ...currentFilters,
         ["search_"+searchedCol]: "",
@@ -34,6 +38,7 @@ const SearchPopup = (props) => {
     setSearchValue("");
     document.getElementById(searchedCol + "_btn").style.color = "rgba(0, 0, 0, 0.54)";
     props.handleClose();
+  }
     };
 
   return (

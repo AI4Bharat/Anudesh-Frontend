@@ -127,6 +127,7 @@ const ProgressType = [{ ProgressTypename: "Cumulative" }, { ProgressTypename: "y
 const availableChartType = { Individual: "Individual", Comparison: "Comparison" }
 
 function ProgressList() {
+    /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const classes = DatasetStyle();
   const ref = useRef()
@@ -485,10 +486,15 @@ function ProgressList() {
       }
 
     }
-    document.addEventListener("mousedown", checkIfClickedOutside)
-    return () => {
+    if (typeof window !== 'undefined') {
+      document.addEventListener("mousedown", checkIfClickedOutside)
 
-      document.removeEventListener("mousedown", checkIfClickedOutside)
+  }
+    return () => {
+      if (typeof window !== 'undefined') {
+        document.removeEventListener("mousedown", checkIfClickedOutside)
+  
+    }
     }
   }, [showPicker, showPickers])
 
@@ -764,11 +770,12 @@ function ProgressList() {
   const ToolTipdata1 = TooltipData.map((el, i) => el.name);
 
   const downloadReportClick = (type) => {
+    if (typeof window !== 'undefined') {
     const srcElement = document.getElementById('chart-container');
     html2canvas(srcElement)
       .then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        if (type === "img") {
+        if (type === "img" ) {
           let anchorEle = document.createElement("a");
           anchorEle.href = imgData;
           anchorEle.download = "Image.png";
@@ -780,6 +787,7 @@ function ProgressList() {
           pdf.save("download.pdf");
         }
       })
+    }
   }
 
   return (

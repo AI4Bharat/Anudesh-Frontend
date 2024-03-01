@@ -3,13 +3,13 @@
  */
  import API from "../../api"; 
  import ENDPOINTS from "../../../../config/apiendpoint"
- import constant from "../../constants";
+ import constants from "../../constants";
  /* eslint-disable react-hooks/exhaustive-deps */
 
  export default class GetTaskDetailsAPI extends API {
    constructor(taskId, timeout = 2000) {
      super("GET", timeout, false);
-     this.type = constant.GET_TASK_DETAILS;
+     this.type = constants.GET_TASK_DETAILS;
      this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getTasks}${taskId}/`;
    }
  

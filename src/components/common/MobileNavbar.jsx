@@ -167,7 +167,7 @@ function MobileNavbar(props) {
             <Grid item sx={{ display: "flex", alignItems: "center" }}>
                 <Link href="/projects">
                     Anudesh
-                    {/* <Image src={Shoonya_Logo} alt="logo" className="headerLogo" style={{marginBottom: "5%"}} /> */}
+                    {/* <img alt="Anudesh" src={Shoonya_Logo} alt="logo" className="headerLogo" style={{marginBottom: "5%"}} /> */}
                 </Link>
                 <Typography
                   variant="h4"

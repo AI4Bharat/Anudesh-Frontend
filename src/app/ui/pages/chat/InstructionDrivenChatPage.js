@@ -35,6 +35,8 @@ const style = {
 };
 
 const InstructionDrivenChatPage = () => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
@@ -62,7 +64,7 @@ const InstructionDrivenChatPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const item = taskList.filter((task) => task.id == taskId);
+      const item = taskList?.filter((task) => task.id == taskId);
       setInfo({
         "instruction_data": item[0]?.data?.instruction_data,
         "hint": item[0]?.data?.hint,
@@ -164,7 +166,7 @@ const InstructionDrivenChatPage = () => {
               overflowX: "scroll"
             }}
           >
-            <Image
+            <img 
               width={50}
               height={50}
               src="https://i.imgur.com/56Ut9oz.png"

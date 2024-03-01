@@ -15,6 +15,8 @@ import APITransport from "@/Lib/apiTransport/apitransport";
 
 
 const TaskAnalytics = (props) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [projectTypes, setProjectTypes] = useState([]);
