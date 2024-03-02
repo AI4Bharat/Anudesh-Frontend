@@ -1,5 +1,3 @@
-import {useState} from 'react';
-
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import {Grid} from '@mui/material';
 import {
@@ -7,6 +5,7 @@ import {
 } from '@mui/base/TextareaAutosize';
 import IconButton from '@mui/material/IconButton';
 import {styled} from '@mui/system';
+import { translate } from "@/config/localisation";
 
 export default function Textarea({handleButtonClick, handleOnchange}) {
   const orange = {
@@ -14,6 +13,7 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
     400: '#EE6633', //hover-border
     600: '#EE663366',
   };
+
   const grey = {
     50: '#F3F6F9',
     200: '#DAE2ED',
@@ -55,7 +55,7 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
     <Grid
       item
       xs={12}
-      backgroundColor="#EEE"
+      backgroundColor="#FFF"
       justifyContent={'center'}
       alignItems={'center'}
       display={'flex'}
@@ -68,7 +68,7 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
         xs={12}
         maxRows={10}
         aria-label="empty textarea"
-        placeholder="Chat with Anudesh"
+        placeholder={translate("chat_placeholder")}
         onChange={e => {
           handleOnchange (e.target.value);
         }}

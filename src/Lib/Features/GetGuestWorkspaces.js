@@ -11,7 +11,7 @@ export const fetchGuestWorkspaceData = createAsyncThunk(
   'getGuestWorkspace/fetchGuestWorkspaceData',
   async (pageNumber, { dispatch }) => {
     //list_guest_workspaces
-    const params = fetchParams(`${ENDPOINTS.getWorkspaces}`);
+    const params = fetchParams(`${ENDPOINTS.getWorkspaces}/list_unauthenticated_guest_workplaces/`);
     return fetch(params.url, params.options)
       .then(response => response.json())
   }

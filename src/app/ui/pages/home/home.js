@@ -13,8 +13,8 @@ const Home = () => {
                 <div className="pt-8 pb-16 flex justify-between px-16">
                     <Image alt="Anudesh" src="https://i.imgur.com/56Ut9oz.png" width={90} height={90}></Image>
                     <div className="flex gap-6">
-                        <button className="text-xl font-medium hover:underline">Codebase</button>
-                        <button className="text-xl font-medium hover:underline">Analytics</button>
+                        <a className="text-xl font-medium hover:underline" href="https://github.com/AI4Bharat/Anudesh-Frontend">Codebase</a>
+                        <a className="text-xl font-medium hover:underline" href="#">Analytics</a>
                     </div>
                 </div>
                 <div className="flex items-center align-middle">

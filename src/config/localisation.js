@@ -67,7 +67,9 @@ const localisation = {
   "model_evaluation_note": "Note",
   "model_evaluation_rating": "Rating (1=worst, 7=best)",
   "model_evaluation_btn": "Open Evaluation Form",
-  "model_evaluation_notes_placeholder": "Write additional note if any"
+  "model_evaluation_notes_placeholder": "Write additional note if any",
+  "chat_placeholder": "Chat with Anudesh",
+  
 };
 
 export const translate = (prop) => localisation[prop];
