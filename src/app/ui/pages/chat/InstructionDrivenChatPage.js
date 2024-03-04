@@ -164,7 +164,7 @@ const InstructionDrivenChatPage = () => {
               paddingY: "1.75rem",
               paddingX: "1.5rem",
               borderRadius: "0.5rem",
-              backgroundColor: "rgb(255 237 213)",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
               overflowX: "scroll",
             }}
           >
@@ -266,9 +266,8 @@ const InstructionDrivenChatPage = () => {
             sx={{
               borderRadius: "20px",
               padding: "10px",
-              backgroundColor: "#FFF",
               marginTop: "1.5rem",
-              backgroundColor: "rgb(255 237 213)",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
             }}
           >
             <Box
