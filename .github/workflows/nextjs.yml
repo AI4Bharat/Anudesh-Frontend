@@ -21,6 +21,11 @@ permissions:
   pages: write
   id-token: write
 
+env: 
+  CI: false
+  AZURE_CREDS: ${{ secrets.ANUDESH_AZURE_CREDS }}
+  AZURE_STORAGEKEY: ${{ secrets.ANUDESH_AZURE_STORAGEKEY_DEVELOP }}
+
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
@@ -91,6 +96,27 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
           path: ./out
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+            creds: ${{ env.AZURE_CREDS }}
+  
+      - name: Upload to blob storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+              az storage blob upload-batch --account-name anudeshdev --account-key ${{ env.AZURE_STORAGEKEY }} -d '$web' -s ./out --overwrite
+  
+      - name: Purge CDN endpoint
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+             az cdn endpoint purge --no-wait --content-paths  "/*" --profile-name anudesh-dev --name anudesh-dev --resource-group anudesh
+      
+      - name: Azure logout
+        run: |
+              az logout
+        if: always()
 
   # Deployment job
   deploy:
