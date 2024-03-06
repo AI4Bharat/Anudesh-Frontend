@@ -1,186 +1,342 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import CustomButton from '../common/Button'
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
+import CustomButton from "../common/Button";
+import { Link } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
-import { ThemeProvider, Grid } from "@mui/material";
+import {
+  ThemeProvider,
+  Grid,
+  Modal,
+  Fade,
+  FormControl,
+  FormHelperText,
+  Input,
+  InputLabel,
+  Box,
+  Backdrop,
+  Typography,
+  IconButton,
+} from "@mui/material";
+import InputAdornment from '@mui/material/InputAdornment';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import tableTheme from "../../themes/tableTheme";
-import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
-import { fetchGuestWorkspaceData } from "@/Lib/Features/GetGuestWorkspaces";
+import { fetchGuestWorkspaceData } from "@/Lib/Features/getGuestWorkspaces";
+import CustomizedSnackbars from "@/components/common/Snackbar";
+import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
 
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+};
 
 const GuestWorkspaceTable = (props) => {
-     /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const dispatch = useDispatch();
+  const { showManager, showCreatedBy } = props;
+  const [open, setOpen] = useState(false);
+  const [currentWorkspaceName, setCurrentWorkspaceName] = useState("");
+  const [currentWorkspaceId, setWorkspaceCurrentId] = useState("");
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [snackbar, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "success",
+  });
 
-    const classes = DatasetStyle();
-    const dispatch = useDispatch();
-    const { showManager, showCreatedBy } = props;
-    const guestWorkspaceData = useSelector(state => {
-      console.log('state', state);
-    //   state.getGuestWorkspace.data
-        state.getGuestWorkspace
-    });
-    const SearchWorkspace = useSelector((state) => state.searchProjectCard?.searchValue);
+  const [currentPageNumber, setCurrentPageNumber] = useState(1);
+  const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
+  const [totalWorkspaces, setTotalWorkspaces] = useState(10);
 
-    const [currentPageNumber, setCurrentPageNumber] = useState(1);
-    const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
-    const [totalWorkspaces, setTotalWorkspaces] = useState(10);
+  // const totalWorkspaceCount = useSelector(state => state.getGuestWorkspace.data.count);
 
+  const guestWorkspaceData = useSelector(
+    (state) => state.getGuestWorkspaces?.data
+  );
+  const SearchWorkspace = useSelector(
+    (state) => state.searchProjectCard?.searchValue,
+  );
 
-    // const totalWorkspaceCount = useSelector(state => state.getGuestWorkspace.data.count);
-    
+  const handleOpen = (workspace_name, workspace_id) => {
+    setWorkspaceCurrentId(workspace_id);
+    setCurrentWorkspaceName(workspace_name);
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
 
-    useEffect(() => {
-        dispatch(fetchGuestWorkspaceData(currentPageNumber)); 
-    }, [currentPageNumber,dispatch]);
+  useEffect(() => {
+    dispatch(fetchGuestWorkspaceData(currentPageNumber));
+  }, [currentPageNumber, dispatch]);
 
-    useEffect(() => {       
-        dispatch(fetchGuestWorkspaceData(currentPageNumber)); 
-      }, [])
+  useEffect(() => {
+    dispatch(fetchGuestWorkspaceData(currentPageNumber));
+  }, []);
 
-      const pageSearch = () => {
+  
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
 
-        return guestWorkspaceData.filter((el) => {
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
-            if (SearchWorkspace == "" ) {
-
-                return el;
-            } else if (
-                el.workspace_name
-                    ?.toLowerCase()
-                    .includes(SearchWorkspace?.toLowerCase())
-            ) {
-               console.log(el);
-                return el;
-            }
-            else if (
-                el.managers?.some(val => val.username
-                    ?.toLowerCase().includes(SearchWorkspace?.toLowerCase()) ))           
-                    
-                 {
-                    console.log(el);
-                return el;
-            }
-        }
-      )
-
-    }
-
-   
-    const columns = [
-        {
-            name: "id",
-            label: "Id",
-            options: {
-                filter: false,
-                sort: false,
-                align: "center",
-                setCellHeaderProps: sort => ({ style: { height: "70px", padding: "16px" } }),
-            }
-        },
-        {
-            name: "Name",
-            label: "Name",
-            options: {
-                filter: false,
-                sort: false,
-                align: "center",
-                setCellHeaderProps: sort => ({ style: { height: "70px", padding: "16px" } }),
-            }
-        },
-        {
-            name: "Manager",
-            label: "Manager",
-            options: {
-                filter: false,
-                sort: false,
-                align: "center",
-                display: showManager ? "true" : "exclude",
-                setCellHeaderProps: sort => ({ style: { height: "70px", padding: "16px" } }),
-            }
-        },
-        {
-            name: "Created By",
-            label: "Created By",
-            options: {
-                filter: false,
-                sort: false,
-                align: "center",
-                display: showCreatedBy ? "true" : "exclude",
-                setCellHeaderProps: sort => ({ style: { height: "70px", padding: "16px" } }),
-            }
-        },
-        {
-            name: "Actions",
-            label: "Actions",
-            options: {
-                filter: false,
-                sort: false,
-            }
-        }];
-      
-    const data = guestWorkspaceData && guestWorkspaceData.length > 0 ?pageSearch().map((el, i) => {
-        return [
-            el.id,
-            el.workspace_name,
-            el.managers.map((manager, index) => {
-                return manager.username
-            }).join(", "),
-            el.created_by && el.created_by.username,
-            <Link key={i} to={`/guest-workspaces/${el.id}`} style={{ textDecoration: "none" }}>
-                <CustomButton
-                    sx={{ borderRadius: 2 }}
-                    label="View"
-                />
-            </Link>
-        ]
-    })  : [];
-
-    const options = {
-        textLabels: {
-            body: {
-                noMatch: "No records",
-            },
-            toolbar: {
-                search: "Search",
-                viewColumns: "View Column",
-            },
-            pagination: { rowsPerPage: "Rows per page" },
-            options: { sortDirection: "desc" },
-        },
-        // customToolbar: fetchHeaderButton,
-        displaySelectToolbar: false,
-        fixedHeader: false,
-        filterType: "checkbox",
-        download: false,
-        print: false,
-        rowsPerPageOptions: [10, 25, 50, 100],
-        // rowsPerPage: PageInfo.count,
-        filter: false,
-        // page: PageInfo.page,
-        viewColumns: false,
-        selectableRows: "none",
-        search: false,
-        jumpToPage: true,
+  const handleSubmitPassword = async () => {
+    const body = {
+      workspace_password: password,
     };
 
+    const AuthenticationObj = new AuthenticateToWorkspaceAPI(currentWorkspaceId, body);
+    const res = await fetch(AuthenticationObj.apiEndPoint(), {
+        method: "PUT",
+        body: JSON.stringify(AuthenticationObj.getBody()),
+        headers: AuthenticationObj.getHeaders().headers,
+    }
+    );
+    const resData = await res.json();
+    if(resData?.message.includes('failed')) {
+      setSnackbarInfo({
+        open: true,
+        message: resData?.message,
+        variant: "error",
+      });
+    } else if(resData?.message.includes('successful')) {
+      setSnackbarInfo({
+        open: true,
+        message: resData?.message,
+        variant: "success",
+      });
+      handleClose();
+    }
+    console.log(resData);
+  };
 
+  const renderSnackBar = () => {
     return (
-        <div>
-            <Grid sx={{ mb: 1 }}>
-                <Search />
-            </Grid>
-            <ThemeProvider theme={tableTheme}>
-                <MUIDataTable
-                    title={""}
-                    data={data}
-                    columns={columns}
-                    options={options}
-                />
-            </ThemeProvider>
-        </div>
-    )
-}
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+
+  const pageSearch = () => {
+    return guestWorkspaceData.filter((el) => {
+      if (SearchWorkspace == "") {
+        return el;
+      } else if (
+        el.workspace_name
+          ?.toLowerCase()
+          .includes(SearchWorkspace?.toLowerCase())
+      ) {
+        console.log(el);
+        return el;
+      } else if (
+        el.managers?.some((val) =>
+          val.username?.toLowerCase().includes(SearchWorkspace?.toLowerCase()),
+        )
+      ) {
+        console.log(el);
+        return el;
+      }
+    });
+  };
+
+  const columns = [
+    {
+      name: "id",
+      label: "Id",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellHeaderProps: (sort) => ({
+          style: { height: "70px", padding: "16px" },
+        }),
+      },
+    },
+    {
+      name: "Name",
+      label: "Name",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellHeaderProps: (sort) => ({
+          style: { height: "70px", padding: "16px" },
+        }),
+      },
+    },
+    {
+      name: "Manager",
+      label: "Manager",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        display: showManager ? "true" : "exclude",
+        setCellHeaderProps: (sort) => ({
+          style: { height: "70px", padding: "16px" },
+        }),
+      },
+    },
+    {
+      name: "Created By",
+      label: "Created By",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        display: showCreatedBy ? "true" : "exclude",
+        setCellHeaderProps: (sort) => ({
+          style: { height: "70px", padding: "16px" },
+        }),
+      },
+    },
+    {
+      name: "Actions",
+      label: "Actions",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
+  ];
+
+  const data =
+    guestWorkspaceData && guestWorkspaceData.length > 0
+      ? pageSearch().map((el, i) => {
+          return [
+            el.id,
+            el.workspace_name,
+            el.managers
+              .map((manager, index) => {
+                return manager.username;
+              })
+              .join(", "),
+            el.created_by && el.created_by.username,
+            <CustomButton
+              key={i}
+              sx={{ borderRadius: 2 }}
+              label="Authenticate"
+              onClick={handleOpen.bind(null, el.workspace_name, el.id)}
+            />,
+          ];
+        })
+      : [];
+
+  const options = {
+    textLabels: {
+      body: {
+        noMatch: "No records",
+      },
+      toolbar: {
+        search: "Search",
+        viewColumns: "View Column",
+      },
+      pagination: { rowsPerPage: "Rows per page" },
+      options: { sortDirection: "desc" },
+    },
+    // customToolbar: fetchHeaderButton,
+    displaySelectToolbar: false,
+    fixedHeader: false,
+    filterType: "checkbox",
+    download: false,
+    print: false,
+    rowsPerPageOptions: [10, 25, 50, 100],
+    // rowsPerPage: PageInfo.count,
+    filter: false,
+    // page: PageInfo.page,
+    viewColumns: false,
+    selectableRows: "none",
+    search: false,
+    jumpToPage: true,
+  };
+
+  return (
+    <div>
+      {renderSnackBar()}
+      <Grid sx={{ mb: 1 }}>
+        <Search />
+      </Grid>
+      <ThemeProvider theme={tableTheme}>
+        <MUIDataTable
+          title={""}
+          data={data}
+          columns={columns}
+          options={options}
+        />
+      </ThemeProvider>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+            <FormControl>
+              <InputLabel htmlFor="my-input">Enter Password</InputLabel>
+              <Input
+                id="my-input"
+                type={showPassword ? "text" : "password"}
+                aria-describedby="enter-password"
+                value={password}
+                onChange={handlePasswordChange}
+                endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                        aria-label="toggle password visibility"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                }
+              />
+              <FormHelperText id="enter-password">
+                To enter{" "}
+                <Typography
+                  component="span"
+                  fontWeight="bold"
+                  fontSize={"12px"}
+                >
+                  {currentWorkspaceName}
+                </Typography>{" "}
+                workspace you must type in the password.
+              </FormHelperText>
+              <CustomButton
+                sx={{ borderRadius: 2, marginTop: "2rem" }}
+                label="Enter"
+                onClick={handleSubmitPassword}
+              />
+            </FormControl>
+          </Box>
+        </Fade>
+      </Modal>
+    </div>
+  );
+};
 
 export default GuestWorkspaceTable;
