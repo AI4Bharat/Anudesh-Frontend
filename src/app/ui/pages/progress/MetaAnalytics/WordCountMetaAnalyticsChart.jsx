@@ -14,6 +14,8 @@ import {
   import ResponsiveChartContainer from "@/components/common/ResponsiveChartContainer"
 
 export default function WordCountMetaAnalyticsChart(props) {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
     const {analyticsData,graphCategory} = props
     const classes = DatasetStyle();
     const [totalWordCount, setTotalWordCount] = useState();

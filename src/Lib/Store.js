@@ -59,11 +59,18 @@ import searchProjectCard from './Features/searchProjectCard';
 import getTaskAnalyticsData from './Features/Analytics/getTaskAnalyticsData';
 import getMetaAnalyticsData from './Features/Analytics/getMetaAnalyticsData';
 import getGuestWorkspaces from './Features/getGuestWorkspaces';
-
+import getAnnotationsTask from './Features/projects/getAnnotationsTask';
+import getTaskDetails from './Features/getTaskDetails';
+import GlossarysentenceAPI from './Features/actions/GlossarysentenceAPI';
+import AddGlossary from './Features/actions/AddGlossary';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        getTaskDetails:getTaskDetails,
+        getDomain:AddGlossary,
+        getAnnotationsTask:getAnnotationsTask,
+        GlossarysentenceAPI:GlossarysentenceAPI,
         searchProjectCard:searchProjectCard,
         DatasetSearchPopup:DatasetSearchPopup,
         GetFileTypes:GetFileTypes,

@@ -37,3 +37,4 @@ const getWorkspaceDetails = createSlice({
 });
 
 export default getWorkspaceDetails.reducer;
+

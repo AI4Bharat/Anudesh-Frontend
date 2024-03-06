@@ -174,8 +174,8 @@ const handleopenproject=(id,type)=>{
   };
 
   const handleRTLChange = (event) => {
-    let style;
     if (typeof window !== 'undefined') {
+    let style;
       if (event.target.checked) {
         localStorage.setItem("rtl", true);
         style = document.createElement("style");
@@ -766,7 +766,7 @@ const handleopenproject=(id,type)=>{
               md={3}
             >   
                 <a style={{ display: "flex", alignItems: "center" }}>
-                  <img
+                  <img 
                     onClick={() => navigate("/")} 
                     src="https://i.imgur.com/56Ut9oz.png"
                     alt="anudesh"

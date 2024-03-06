@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import ResponsiveChartContainer from "@/components/common/ResponsiveChartContainer";
 
 export default function AudioDurationChart(props) {
+     /* eslint-disable react-hooks/exhaustive-deps */
+
   const { analyticsData, graphCategory } = props;
   const classes = DatasetStyle();
   const [totalAudioHours, setTotalAudioHours] = useState();

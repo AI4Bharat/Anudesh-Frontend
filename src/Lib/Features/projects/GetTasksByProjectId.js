@@ -35,7 +35,7 @@ export const  fetchTasksByProjectId = createAsyncThunk(
 
 
 
-    const params = fetchParams(`${ENDPOINTS.getTasks+queryString}`);
+    const params = fetchParams(`${ENDPOINTS.getTasks}${queryString}`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

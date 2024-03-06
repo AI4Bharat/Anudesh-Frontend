@@ -9,19 +9,20 @@ const initialState = {
 
 export const fetchNextTask = createAsyncThunk(
   'getNextTask/fetchNextTask',
-  async (projectId,projectObj, { dispatch }) => {
+  async ({projectId,projectObj}) => {
+    console.log(projectObj,"lll");
     let queryStr = "";
-    labellingMode = localStorage.getItem("labellingMode");
-    searchFilters = JSON.parse(localStorage.getItem("searchFilters"));
-    console.log(this.searchFilters = JSON.parse(localStorage.getItem("searchFilters")),"searchFilterssearchFilters")
+    const labellingMode = window.localStorage.getItem("labellingMode");
+    const searchFilters = JSON.parse(window.localStorage.getItem("searchFilters"));
+    console.log(JSON.parse(window.localStorage.getItem("searchFilters")),"searchFilterssearchFilters")
     projectObj = projectObj;
-    if (localStorage.getItem("labelAll") ) {
-      Object.keys(this.searchFilters).forEach((key,index) => {
-        let keyValStr = `${key}=${this.searchFilters[key]}`;
+    if (window.localStorage.getItem("labelAll") ) {
+      Object.keys(searchFilters).forEach((key,index) => {
+        let keyValStr = `${key}=${searchFilters[key]}`;
         queryStr += index === 0 ? keyValStr : `&${keyValStr}`;
       });
     }
-    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/next/?${queryStr}`,"POST",projectObj);
+    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/next/?${queryStr}`,"POST",JSON.stringify(projectObj));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

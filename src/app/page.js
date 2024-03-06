@@ -1,36 +1,35 @@
-'use client';
-import RootLayout from './layout';
-import Home from './ui/pages/home/home';
-import {HashRouter, Route, Routes, Navigate} from 'react-router-dom';
-import {authenticateUser} from '@/utils/utils';
-import Login from './ui/pages/login/login';
-import Layout from './ui/Layout';
-import Chat from './ui/pages/chat/chat';
-import InstructionDrivenChatPage from './ui/pages/chat/InstructionDrivenChatPage';
-import MyOrganization from './ui/pages/organizations/organizations';
-import ProjectList from './ui/pages/projects/project';
-import Projects from './ui/pages/projects/projectDetails';
-import Dataset from './ui/pages/dataset/dataset';
-import Workspace from './ui/pages/workspace/workspace';
-import WorkspaceSettingTabs
-  from './ui/pages/workspace/workspacesetting/setting';
-import SignUp from './ui/pages/invite/invite';
-import ForgotPassword from './ui/pages/forgot-password/forgot-password';
-import Dashboard from './ui/pages/admin/Dashboard';
-import ProgressPage from './progress/progress';
-import ProfilePage from './profile/profile';
-import EditProfile from './ui/pages/edit-profile/edit-profile';
-import ChangePassword from './ui/pages/change-password/change-password';
-import ProjectSetting from '@/components/Project/ProjectSettings';
-import DatasetDetails from '@/components/datasets/DatasetDetails';
-import DatasetSettingTabs from '@/components/datasets/DatasetSettingTab';
-import AutomateDatasets from '@/components/datasets/AutomateDatasets';
-import CreateNewDatasetInstanceAPI
-  from '@/components/datasets/CreateNewDatasetInstance';
-import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
-import ModelInteractionEvaluation from './ui/pages/model_response_evaluation/model_response_evaluation';
+"use client";
+import RootLayout from "./layout";
+import Home from "./ui/pages/home/home"
+import { HashRouter, Route, Routes, Navigate } from "react-router-dom"
+import { authenticateUser } from "@/utils/utils";
+import Login from "./ui/pages/login/login";
+import Layout from "./ui/Layout";
+import Chat from "./ui/pages/chat/chat";
+import MyOrganization from "./ui/pages/organizations/organizations";
+import ProjectList from "./ui/pages/projects/project";
+import Projects from "./ui/pages/projects/projectDetails"
+import Dataset from "./ui/pages/dataset/dataset";
+import Workspace from "./ui/pages/workspace/workspace";
+import WorkspaceSettingTabs from "./ui/pages/workspace/workspacesetting/setting";
+import SignUp from "./ui/pages/invite/invite";
+import ForgotPassword from "./ui/pages/forgot-password/forgot-password";
+import Dashboard from "./ui/pages/admin/Dashboard"
+import ProgressPage from "./progress/progress";
+import ProfilePage from "./profile/profile";
+import EditProfile from "./ui/pages/edit-profile/edit-profile"
+import ChangePassword from "./ui/pages/change-password/change-password"
+import ProjectSetting from "@/components/Project/ProjectSettings";
+import DatasetDetails from "@/components/datasets/DatasetDetails";
+import DatasetSettingTabs from "@/components/datasets/DatasetSettingTab";
+import AutomateDatasets from "@/components/datasets/AutomateDatasets";
+import CreateNewDatasetInstanceAPI from "@/components/datasets/CreateNewDatasetInstance";
 import ProgressList from "./ui/pages/progress/ProgressList";
-
+import GuestWorkspaces from "./ui/pages/guest-workspaces/guestWorkspace";
+import AllTaskPage from "./ui/pages/chat/AllTaskPage";
+import ReviewPage from "./ui/pages/chat/ReviewPage";
+import AnnotatePage from "./ui/pages/chat/AnnotatePage";
+import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
 export default function Root() {
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({ user, children }) => {
@@ -97,19 +96,6 @@ export default function Root() {
               )}
             />
             <Route
-              path="projects/:projectId/task/:taskId"
-              // path="projects/alltask"
-              element={ProtectedRouteWrapper(
-                <Layout component={<InstructionDrivenChatPage />} />
-              )}
-            />
-            <Route
-              path="projects/evaluation"
-              element={ProtectedRouteWrapper(
-                <Layout component={<ModelInteractionEvaluation />} />
-              )}
-            />
-            <Route
               path="/edit-profile"
               element={ProtectedRouteWrapper(<Layout component={<EditProfile />} Backbutton={true} />)}
             />
@@ -150,6 +136,30 @@ export default function Root() {
               path="/progress/:id"
               element={ProtectedRouteWrapper(<Layout component={<ProgressPage />} Backbutton={true} />)}
             />
+            <Route
+          path="projects/:projectId/review/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<ReviewPage />} />
+          )}
+        />
+         <Route
+          path="projects/:projectId/Alltask/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<AllTaskPage />} />
+          )}
+          />
+          <Route
+          path="projects/:projectId/task/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<AnnotatePage />} />
+          )}
+          />
+          /<Route
+          path="projects/:projectId/SuperChecker/:taskId"
+          element={ProtectedRouteWrapper(
+            <Layout component={<SuperCheckerPage />} />
+          )}
+          />
             <Route
               path="analytics"
               element={ProtectedRouteWrapper(

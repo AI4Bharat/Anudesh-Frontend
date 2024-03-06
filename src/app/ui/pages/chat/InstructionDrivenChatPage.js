@@ -36,6 +36,8 @@ const style = {
 };
 
 const InstructionDrivenChatPage = () => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
@@ -168,7 +170,7 @@ const InstructionDrivenChatPage = () => {
               overflowX: "scroll",
             }}
           >
-            <Image
+            <img 
               width={50}
               height={50}
               src="https://i.imgur.com/56Ut9oz.png"
