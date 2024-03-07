@@ -6,8 +6,9 @@ import {
 import IconButton from '@mui/material/IconButton';
 import {styled} from '@mui/system';
 import { translate } from "@/config/localisation";
+import './textarea.css';
 
-export default function Textarea({handleButtonClick, handleOnchange}) {
+export default function Textarea({handleButtonClick, handleOnchange, size, grid_size, class_name}) {
   const orange = {
     200: 'pink',
     400: '#EE6633', //hover-border
@@ -54,18 +55,18 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
   return (
     <Grid
       item
-      xs={12}
+      xs={size}
       backgroundColor="#FFF"
       justifyContent={'center'}
       alignItems={'center'}
       display={'flex'}
       position={'fixed'}
       bottom={0}
-      width={'80.6em'}
-      borderTop={'1px solid #C6C6C6'}
+      width={grid_size}
+      className={class_name}
     >
       <Textarea
-        xs={12}
+        xs={size}
         maxRows={10}
         aria-label="empty textarea"
         placeholder={translate("chat_placeholder")}

@@ -37,6 +37,7 @@ const style = {
 
 const InstructionDrivenChatPage = () => {
     /* eslint-disable react-hooks/exhaustive-deps */
+  
 
   let inputValue = "";
   const classes = headerStyle();
@@ -170,7 +171,7 @@ const InstructionDrivenChatPage = () => {
               overflowX: "scroll",
             }}
           >
-            <img 
+            <Image 
               width={50}
               height={50}
               src="https://i.imgur.com/56Ut9oz.png"
@@ -322,8 +323,8 @@ const InstructionDrivenChatPage = () => {
           sx={{
             margin: "0.8rem 0",
             overflowY: "scroll",
-            minHeight: "38rem",
-            maxHeight: "38rem",
+            minHeight: "39rem",
+            maxHeight: "39rem",
             borderRadius: "20px",
             backgroundColor: "#FFF",
             paddingLeft: "0px !important",
@@ -339,7 +340,7 @@ const InstructionDrivenChatPage = () => {
               padding: "1rem 0 4rem",
             }}
           >
-            {showChatContainer ? renderChatHistory() : <Box>GIF</Box>}
+            {showChatContainer ? renderChatHistory() : null}       
             {loading && <Spinner />}
           </Box>
           <div ref={bottomRef} />
@@ -348,6 +349,9 @@ const InstructionDrivenChatPage = () => {
           <Textarea
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
+            size={12}
+            grid_size={'80.6rem'}
+            class_name={''}
           />
         </Grid>
       </Grid>

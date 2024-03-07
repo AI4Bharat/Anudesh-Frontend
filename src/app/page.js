@@ -30,6 +30,7 @@ import AllTaskPage from "./ui/pages/chat/AllTaskPage";
 import ReviewPage from "./ui/pages/chat/ReviewPage";
 import AnnotatePage from "./ui/pages/chat/AnnotatePage";
 import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
+
 export default function Root() {
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({ user, children }) => {
@@ -50,7 +51,7 @@ export default function Root() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/chat" element={<InstructionDrivenChatPage />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/invite/:inviteCode" element={<SignUp />} />
             <Route

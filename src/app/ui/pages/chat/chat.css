@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.css-1nelmh0-MuiGrid-root>.MuiGrid-item {
+  padding-left: 0px !important;
+} 
+
+.css-1dkglzz-MuiGrid-root>.MuiGrid-item {
+  padding-left: 0px !important;
+}
+
 .myInput{
   width: 51.25rem;
   outline: solid white;
