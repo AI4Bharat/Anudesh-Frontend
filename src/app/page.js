@@ -30,6 +30,7 @@ import AllTaskPage from "./ui/pages/chat/AllTaskPage";
 import ReviewPage from "./ui/pages/chat/ReviewPage";
 import AnnotatePage from "./ui/pages/chat/AnnotatePage";
 import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
+import CreateProject from "./new-project/newproject";
 export default function Root() {
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({ user, children }) => {
@@ -152,6 +153,12 @@ export default function Root() {
           path="projects/:projectId/task/:taskId"
           element={ProtectedRouteWrapper(
             <Layout component={<AnnotatePage />} />
+          )}
+          />
+          <Route
+          path="new-project/:id"
+          element={ProtectedRouteWrapper(
+            <Layout component={<CreateProject />} />
           )}
           />
           /<Route

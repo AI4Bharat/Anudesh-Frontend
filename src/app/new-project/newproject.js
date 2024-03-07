@@ -21,13 +21,13 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { createProject } from "@/Lib/Features/actions/projects";
 
-import ColumnList from "../../components/common/ColumnList";
-import OutlinedTextField from "../../components/common/OutlinedTextField";
-import Button from "../../components/common/Button";
-import MenuItems from "../../components/common/MenuItems";
-import  "../../styles/Dataset.css";
-import themeDefault from "../../themes/theme";
-import tableTheme from "../../themes/tableTheme";
+import ColumnList from "@/components/common/ColumnList";
+import OutlinedTextField from "@/components/common/OutlinedTextField";
+import Button from "@/components/common/Button";
+import MenuItems from "@/components/common/MenuItems";
+import  "@/styles/Dataset.css";
+import themeDefault from "@/themes/theme";
+import tableTheme from "@/themes/tableTheme";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
 
 const isNum = (str) => {
