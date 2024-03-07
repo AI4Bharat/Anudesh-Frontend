@@ -205,7 +205,6 @@ const AnnotatePage = () => {
         JSON.stringify(annotationNotesRef.current.getEditor().getContents())
       ).then(() => {
         getNextProject(projectId, taskData.id).then((res) => {
-          console.log("lll");
           // hideLoader();
           tasksComplete(res?.id || null);
         });
@@ -410,7 +409,6 @@ const AnnotatePage = () => {
     } else if ([4, 5, 6].includes(user.role)) {
       // filteredAnnotations = annotations.filter((a) => a.annotation_type === 1);
       filteredAnnotations = AnnotationsTaskDetails
-      console.log("lll", "4", taskData);
       disableDraft = true;
       disableSkip = true;
       disableUpdate = true;

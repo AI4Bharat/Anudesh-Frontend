@@ -414,7 +414,6 @@ const setNotes = (taskData, annotations) => {
         JSON.stringify(annotationNotesRef.current.getEditor().getContents())
       ).then(() => {
         getNextProject(projectId, taskData.id).then((res) => {
-          console.log("lll");
           // hideLoader();
           tasksComplete(res?.id || null);
         });
