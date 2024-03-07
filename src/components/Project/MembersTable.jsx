@@ -21,8 +21,8 @@ import {
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Search from "../common/Search";
-import UserRolesList from "../../utils/UsersRolesList";;
-import userRoles from "../../utils/Role";
+import UserRolesList from "../../utils/UsersRolesList";
+import userRoles from "@/utils/UserMappedByRole/Roles";
 import TextField from '@mui/material/TextField';
 import { fetchRemoveProjectMember } from "@/Lib/Features/projects/RemoveProjectMember";
 import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectReviewerAPI";
@@ -236,10 +236,13 @@ const MembersTable = (props) => {
 
   const addBtnClickHandler = async () => {
     setLoading(true);
+    const userRoleNumber = userRoles[userType];
+    const userRoleString = userRoleNumber.toString();
+
     const addMembersObj = new InviteUsersToOrgAPI(
         orgId,
         selectedUsers,
-        userType
+        userRoleString
       );
       const res = await fetch(addMembersObj.apiEndPoint(), {
         method: "POST",

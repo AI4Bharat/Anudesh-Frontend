@@ -33,6 +33,7 @@ const excludeCols = [
   "language",
   "audio_url",
   "speaker_0_details",
+  "interactions_json",
   "speaker_1_details",
   "machine_transcribed_json",
   "unverified_conversation_json",
@@ -118,7 +119,7 @@ const AllTaskTable = (props) => {
       let colList = ["id"];
       colList.push(
         ...Object.keys(AllTaskData[0].data).filter(
-          (el) => !excludeCols.includes(el)
+          (el) => !excludeCols.includes(el) 
         )
       );
       AllTaskData[0].task_status && colList.push("status");
@@ -135,7 +136,7 @@ const AllTaskTable = (props) => {
           },
         };
       });
-      console.log("colss", cols);
+      console.log("colss", data);
       setColumns(cols);
       setSelectedColumns(colList);
       setTasks(data);
