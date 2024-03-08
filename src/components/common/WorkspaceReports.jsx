@@ -46,9 +46,7 @@ const WorkspaceReports = () => {
   const WorkspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails.data
   );
-  console.log(WorkspaceDetails,"");
   const UserDetails = useSelector(state => state.getLoggedInData.data);
-  console.log(UserDetails);
   const [selectRange, setSelectRange] = useState([{
     startDate: new Date(Date.parse(WorkspaceDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
     endDate: new Date(),
@@ -235,7 +233,6 @@ const WorkspaceReports = () => {
     const { selection } = ranges;
     if (selection.endDate > new Date()) selection.endDate = new Date();
     setSelectRange([selection]);
-    console.log(selection, "selection");
   };
   const handleDateSubmit = (sendMail) => {
     if (radioButton === "payment") {

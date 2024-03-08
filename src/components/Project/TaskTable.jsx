@@ -83,7 +83,6 @@ const TaskTable = (props) => {
     (state) =>  state.GetTasksByProjectId?.data?.result
 
   );
-  console.log(taskList);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -105,7 +104,6 @@ const TaskTable = (props) => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
 
-  // console.log(ProjectDetails.project_stage == 2 ,ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id),"hhhhhhhhh")
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
 
@@ -177,7 +175,6 @@ const TaskTable = (props) => {
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   /* eslint-disable react-hooks/exhaustive-deps */
-  console.log(props.type);
 
   const getTaskListData = () => {
     const taskobj = {
@@ -427,7 +424,6 @@ const TaskTable = (props) => {
               ? `AudioTranscriptionLandingPage/${el.id}` : `task/${el.id}`} className={classes.link}>
               <CustomButton
                 onClick={() => {
-                  console.log("task id === ", el.id);
                   if (typeof window !== 'undefined') {
 
                   localStorage.removeItem("labelAll");
@@ -453,7 +449,6 @@ const TaskTable = (props) => {
               <CustomButton
                 disabled={ ProjectDetails.is_archived}
                 onClick={() => {
-                  console.log("task id === ", el.id);
                   if (typeof window !== 'undefined') {
 
                   localStorage.removeItem("labelAll");
@@ -495,11 +490,9 @@ const TaskTable = (props) => {
           },
         };
       });
-      console.log("colss", cols);
       setColumns(cols);
       setSelectedColumns(colList);
       setTasks(data);
-      console.log(colList, "colListcolList");
     } else {
       setTasks([]);
     }
@@ -513,7 +506,6 @@ const TaskTable = (props) => {
       return col;
     });
     setColumns(newCols);
-    console.log("columnss", newCols);
   }, [selectedColumns]);
 
   useEffect(() => {
@@ -596,7 +588,6 @@ const TaskTable = (props) => {
   }, [totalTaskCount, selectedFilters,ProjectDetails]);
 
   useEffect(() => {
-    console.log(NextTask);
     if (ProjectDetails?.project_type?.includes("Acoustic")) {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
@@ -607,7 +598,6 @@ const TaskTable = (props) => {
       }
     }else{
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-        console.log("labelling");
         navigate(
           `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
           NextTask?.id
@@ -837,7 +827,6 @@ const TaskTable = (props) => {
     onChangeRowsPerPage: (rowPerPageCount) => {
       setCurrentPageNumber(1);
       setCurrentRowPerPage(rowPerPageCount);
-      console.log("rowPerPageCount", rowPerPageCount);
     },
     filterType: "checkbox",
     selectableRows: "none",
@@ -863,9 +852,7 @@ const TaskTable = (props) => {
     serverSide: true,
     customToolbar: renderToolBar,
   };
-  console.log(props.type === "review" ,
-    ProjectDetails?.annotation_reviewers,
-    userDetails?.id,"valuesdata")
+
     if (typeof window !== 'undefined') {
 
   var emailId = localStorage.getItem("email_id");
@@ -883,7 +870,6 @@ const TaskTable = (props) => {
       unassignTasks();
     }else{
       window.alert("Invalid credentials, please try again");
-      console.log(rsp_data);
     }
   };
   return (

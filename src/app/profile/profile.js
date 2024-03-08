@@ -86,7 +86,6 @@ export default function ProfilePage () {
       const updateProfileImageAPIObj = new UpdateProfileImageAPI(LoggedInUserId,pickedFile);
       await axios.post(updateProfileImageAPIObj.apiEndPoint(), updateProfileImageAPIObj.getBody(), updateProfileImageAPIObj.getHeaders())
         .then(response => {
-          console.log(response.status)
           if (response.status == 200 || response.status == 201) {
             dispatch(fetchUserById(id))
             setLoading(false);

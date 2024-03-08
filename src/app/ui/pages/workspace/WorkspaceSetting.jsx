@@ -19,7 +19,6 @@ function WorkspaceSetting(props) {
    /* eslint-disable react-hooks/exhaustive-deps */
 
   const { onArchiveWorkspace } = props
-  console.log(props, "props")
   const { id } = useParams();
   const classes = DatasetStyle();
   const dispatch = useDispatch();
@@ -96,11 +95,9 @@ function WorkspaceSetting(props) {
       handleArchiveWorkspace();
     } else {
       window.alert("Invalid credentials, please try again");
-      console.log(rsp_data);
     }
   };
   const user = useSelector((state) => state.getLoggedInData?.data);
-  console.log(user);
   const handleDownloadProject = async () => {
     // SetTask([]) //used to clear the selected task statuses
     const projectObj = new DownloadAllProjects(workspaceDtails.id,user.id);

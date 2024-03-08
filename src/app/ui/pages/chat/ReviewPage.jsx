@@ -191,7 +191,6 @@ const setNotes = (taskData, annotations) => {
       annotationNotesRef.current.value = normalAnnotation?.annotation_notes ?? "";
       superCheckerNotesRef.current.value = superCheckerAnnotation?.supercheck_notes ?? "";
       reviewNotesRef.current.value =  userAnnotation?.review_notes ?? "";
-      console.log(annotationNotesRef,typeof(annotationNotesRef.current.value));
       try {
         const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
         annotationNotesRef.current.getEditor().setContents(newDelta2);
