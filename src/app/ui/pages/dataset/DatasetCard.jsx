@@ -36,7 +36,6 @@ const DatasetCards = (props) => {
 
 
   const handleChangePage = (e, newPage) => {
-    console.log("newPage", newPage);
     setPage(newPage);
   };
 

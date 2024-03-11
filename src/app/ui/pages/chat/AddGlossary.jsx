@@ -60,7 +60,6 @@ const AddGlossary = ({
   var data = Targetlanguage?.filter((e)=>e.LangCode.includes(selectedTargetLang))
   var Sourcedata = Sourcelanguage?.filter((e)=>e.LangCode.includes(selectedSourceLang))
 
-  console.log(Sourcedata,"SourcedataSourcedata" ,selectedSourceLang ==="en",Sourcelanguage )
 
   const allDomains = useSelector((state) => state.getDomain.data);
 

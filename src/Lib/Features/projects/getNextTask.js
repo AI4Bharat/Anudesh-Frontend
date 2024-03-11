@@ -10,7 +10,6 @@ const initialState = {
 export const fetchNextTask = createAsyncThunk(
   'getNextTask/fetchNextTask',
   async ({projectId,projectObj}) => {
-    console.log(projectObj,"lll");
     let queryStr = "";
     const labellingMode = window.localStorage.getItem("labellingMode");
     const searchFilters = JSON.parse(window.localStorage.getItem("searchFilters"));

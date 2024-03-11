@@ -56,7 +56,6 @@ export default function ProgressPage () {
         })
     }
   }
-  console.log(userRole.Admin ,loggedInUserData?.role);
 
   const renderSnackBar = () => {
     return (
