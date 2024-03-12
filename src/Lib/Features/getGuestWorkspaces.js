@@ -10,15 +10,14 @@ const initialState = {
 export const fetchGuestWorkspaceData = createAsyncThunk(
   'getGuestWorkspace/fetchGuestWorkspaceData',
   async (pageNumber, { dispatch }) => {
-    //list_guest_workspaces
-    const params = fetchParams(`${ENDPOINTS.getWorkspaces}`);
+    const params = fetchParams(`${ENDPOINTS.getWorkspaces}list_unauthenticated_guest_workspaces/`);
     return fetch(params.url, params.options)
       .then(response => response.json())
   }
 );
 
-const getGuestWorkspace = createSlice({
-  name: 'getGuestWorkspace',
+const getGuestWorkspaces = createSlice({
+  name: 'getGuestWorkspaces',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -37,7 +36,4 @@ const getGuestWorkspace = createSlice({
   },
 });
 
-export default getGuestWorkspace.reducer;
-
-
-
+export default getGuestWorkspaces.reducer;

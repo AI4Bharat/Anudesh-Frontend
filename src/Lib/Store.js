@@ -58,7 +58,7 @@ import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
 import searchProjectCard from './Features/searchProjectCard';
 import getTaskAnalyticsData from './Features/Analytics/getTaskAnalyticsData';
 import getMetaAnalyticsData from './Features/Analytics/getMetaAnalyticsData';
-import GetGuestWokspaces from './Features/GetGuestWorkspaces';
+import getGuestWorkspaces from './Features/getGuestWorkspaces';
 import getAnnotationsTask from './Features/projects/getAnnotationsTask';
 import getTaskDetails from './Features/getTaskDetails';
 import GlossarysentenceAPI from './Features/actions/GlossarysentenceAPI';
@@ -129,8 +129,7 @@ const makeStore = () => {
         getProjectDetails:getProjectDetails,
         getTaskAnalyticsData: getTaskAnalyticsData,
         getMetaAnalyticsData: getMetaAnalyticsData,
-        GetGuestWokspaces: GetGuestWokspaces,
-
+        getGuestWorkspaces: getGuestWorkspaces,
       },
     });
   };
