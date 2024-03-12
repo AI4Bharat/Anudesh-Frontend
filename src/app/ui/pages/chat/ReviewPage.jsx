@@ -43,6 +43,7 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
+import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 
 
 const StyledMenu = styled((props) => (
