@@ -23,7 +23,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Carousel from "react-material-ui-carousel";
 import IntroStyle from "@/styles/IntroStyle";
-import { dynamicCard, footer, operationalModes, info, banner } from "./config";
+import { dynamicCard, footer, operationalModes, info, banner, operationalDynamics } from "./config";
 import Svg from "@/assets/home_page1.svg";
 
 const DynamicCards = ({ card }) => {
@@ -130,7 +130,6 @@ const DynamicCards = ({ card }) => {
 const Home = () => {
   const navigate = useNavigate();
   window.sessionStorage.setItem('interaction_json', JSON.stringify([]));
-
 
   return (
     <>
@@ -281,7 +280,7 @@ const Home = () => {
 
       <div className="text-center pb-32">
         <div className="text-gray-700 text-6xl font-medium py-20">
-          Operational Dynamics
+          { operationalDynamics.heading }
         </div>
         <Carousel
           stopAutoPlayOnHover

@@ -41,6 +41,10 @@ export const footer ={
   content: 'ANUDESH - Developed at AI4Bharat Lab'
 };
 
+export const operationalDynamics = {
+  heading: 'Operational Dynamics',
+}
+
 export const operationalModes = {
   heading: 'Operational Modes',
   admin_mode: 'Admin Mode',

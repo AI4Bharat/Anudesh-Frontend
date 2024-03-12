@@ -2,11 +2,13 @@
 import "./chat.css";
 import Link from "next/link";
 import Image from "next/image";
+import { welcomeText, card1, card2, card3 } from './config';
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
 import Textarea from "@/components/Chat/TextArea";
+import { translate } from "@/config/localisation";
 import { useState, useEffect, useRef } from "react";
 import { Avatar, Box, Grid, Typography } from "@mui/material";
 import PostChatLogAPI from "@/app/actions/api/UnauthUserManagement/PostChatLogAPI";
@@ -218,7 +220,7 @@ const Chat = () => {
                     color: "#E95923",
                   }}
                 >
-                  Namaste
+                  { translate('general_chat_namaste') }
                 </Typography>
 
                 <Typography
@@ -228,7 +230,7 @@ const Chat = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  Welcome to Anudesh
+                  { translate('general_chat_welcome') }
                 </Typography>
 
                 <Typography
@@ -239,8 +241,7 @@ const Chat = () => {
                     overflowY: "scroll",
                   }}
                 >
-                  This page allows users to engage with the model freely,
-                  capturing interactions efficiently in an ordered tree format.
+                  { welcomeText.content }
                 </Typography>
               </Box>
             </Box>
@@ -296,7 +297,7 @@ const Chat = () => {
                       textAlign: "center",
                     }}
                   >
-                    What is Anudesh?
+                    { card1.heading }
                   </Typography>
 
                   <Typography
@@ -304,12 +305,7 @@ const Chat = () => {
                       paddingTop: "0.8rem",
                     }}
                   >
-                    Anudesh is an open-source platform dedicated to advancing
-                    the development of state-of-the-art Language Model Models
-                    for Indian languages. Our mission is to democratize access
-                    to advanced natural language processing technologies by
-                    creating high-quality conversational data. Create an account
-                    and get started today!
+                    { card1.content }
                   </Typography>
                 </Box>
                 <Box
@@ -328,7 +324,7 @@ const Chat = () => {
                       textAlign: "center",
                     }}
                   >
-                    How Can You Help?
+                    { card2.heading }
                   </Typography>
 
                   <Typography
@@ -336,12 +332,7 @@ const Chat = () => {
                       paddingTop: "0.8rem",
                     }}
                   >
-                    You can help us by getting by exploring our projects and
-                    contributing to our repositories. We look forward to
-                    collaborating with you! You can help us collect data based
-                    on instructiional prompts, rate the performance of models,
-                    evaluate model responses, do preferential ranking amongst
-                    models used, and analyse data using various metrics.
+                    { card2.content }
                   </Typography>
                 </Box>
                 <Box
@@ -360,7 +351,7 @@ const Chat = () => {
                       textAlign: "center",
                     }}
                   >
-                    Why Should You Contribute?
+                    { card3.heading }
                   </Typography>
 
                   <Typography
@@ -368,12 +359,7 @@ const Chat = () => {
                       paddingTop: "0.8rem",
                     }}
                   >
-                    By contributing to Anudesh, you can play a vital role in
-                    enhancing language understanding and generation capabilities
-                    in Indian languages. Whether you are a linguist, developer,
-                    or language enthusiast, there are many ways to get involved
-                    and make an impact. Join us in our journey to empower
-                    individuals and communities.
+                    { card3.content }
                   </Typography>
                 </Box>
               </Box>
