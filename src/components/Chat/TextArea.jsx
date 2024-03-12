@@ -1,19 +1,21 @@
-import {useState} from 'react';
-
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import './textarea.css';
+import {styled} from '@mui/system';
 import {Grid} from '@mui/material';
+import { translate } from "@/config/localisation";
+import IconButton from '@mui/material/IconButton';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   TextareaAutosize as BaseTextareaAutosize,
 } from '@mui/base/TextareaAutosize';
-import IconButton from '@mui/material/IconButton';
-import {styled} from '@mui/system';
 
-export default function Textarea({handleButtonClick, handleOnchange}) {
+export default function Textarea({handleButtonClick, handleOnchange, size, grid_size, class_name, loading}) {
   const orange = {
     200: 'pink',
     400: '#EE6633', //hover-border
     600: '#EE663366',
   };
+
   const grey = {
     50: '#F3F6F9',
     200: '#DAE2ED',
@@ -54,21 +56,21 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
   return (
     <Grid
       item
-      xs={12}
-      backgroundColor="#EEE"
+      xs={size}
+      backgroundColor="#FFF"
       justifyContent={'center'}
       alignItems={'center'}
       display={'flex'}
       position={'fixed'}
       bottom={0}
-      width={'80.6em'}
-      borderTop={'1px solid #C6C6C6'}
+      width={grid_size}
+      className={class_name}
     >
       <Textarea
-        xs={12}
+        xs={size}
         maxRows={10}
         aria-label="empty textarea"
-        placeholder="Chat with Anudesh"
+        placeholder={translate("chat_placeholder")}
         onChange={e => {
           handleOnchange (e.target.value);
         }}
@@ -81,6 +83,7 @@ export default function Textarea({handleButtonClick, handleOnchange}) {
       <IconButton size="large" onClick={handleButtonClick}>
         <SendRoundedIcon style={{color: '#EE6633', height: '4rem'}} />
       </IconButton>
+      {loading && <CircularProgress style={{ color: '#EE6633' }} />}
     </Grid>
   );
 }
