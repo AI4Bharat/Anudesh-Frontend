@@ -129,6 +129,8 @@ const DynamicCards = ({ card }) => {
 
 const Home = () => {
   const navigate = useNavigate();
+  window.sessionStorage.setItem('interaction_json', JSON.stringify([]));
+
 
   return (
     <>

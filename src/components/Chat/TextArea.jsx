@@ -1,14 +1,15 @@
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import './textarea.css';
+import {styled} from '@mui/system';
 import {Grid} from '@mui/material';
+import { translate } from "@/config/localisation";
+import IconButton from '@mui/material/IconButton';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   TextareaAutosize as BaseTextareaAutosize,
 } from '@mui/base/TextareaAutosize';
-import IconButton from '@mui/material/IconButton';
-import {styled} from '@mui/system';
-import { translate } from "@/config/localisation";
-import './textarea.css';
 
-export default function Textarea({handleButtonClick, handleOnchange, size, grid_size, class_name}) {
+export default function Textarea({handleButtonClick, handleOnchange, size, grid_size, class_name, loading}) {
   const orange = {
     200: 'pink',
     400: '#EE6633', //hover-border
@@ -82,6 +83,7 @@ export default function Textarea({handleButtonClick, handleOnchange, size, grid_
       <IconButton size="large" onClick={handleButtonClick}>
         <SendRoundedIcon style={{color: '#EE6633', height: '4rem'}} />
       </IconButton>
+      {loading && <CircularProgress style={{ color: '#EE6633' }} />}
     </Grid>
   );
 }

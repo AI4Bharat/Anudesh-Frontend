@@ -1,58 +1,72 @@
 "use client";
 import "./chat.css";
 import Link from "next/link";
-import { Avatar, Box, Grid, Typography } from "@mui/material";
-import { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
 import Image from "next/image";
-import Spinner from "@/components/common/Spinner";
-import Textarea from "@/components/Chat/TextArea";
+import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
-import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useNavigate } from "react-router-dom";
+import Textarea from "@/components/Chat/TextArea";
+import { useState, useEffect, useRef } from "react";
+import { Avatar, Box, Grid, Typography } from "@mui/material";
+import PostChatLogAPI from "@/app/actions/api/UnauthUserManagement/PostChatLogAPI";
+import PostChatInteractionAPI from "@/app/actions/api/UnauthUserManagement/PostChatInteractionAPI";
 
 const Chat = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const navigate = useNavigate();
   let inputValue = "";
   const classes = headerStyle();
-  const { taskId } = useParams();
-  const [chatHistory, setChatHistory] = useState([{}]);
-  const [annotationId, setAnnotationId] = useState();
+  const navigate = useNavigate();
   const bottomRef = useRef(null);
-  const [showChatContainer, setShowChatContainer] = useState(false);
   const [loading, setLoading] = useState(false);
-  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
-  const taskList = useSelector(
-    (state) => state.GetTasksByProjectId?.data?.result,
+  const [chatHistory, setChatHistory] = useState(() => {
+    return JSON.parse(sessionStorage.getItem("interaction_json")) || [];
+  });
+  const [showChatContainer, setShowChatContainer] = useState(
+    chatHistory.length > 0 ? true : false,
   );
-
+  const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    window.sessionStorage.setItem(
+      "interaction_json",
+      JSON.stringify(chatHistory),
+    );
   }, [chatHistory]);
 
   const handleButtonClick = async () => {
     if (inputValue) {
       setLoading(true);
       const body = {
-        annotation_notes: "",
-        annotation_status: "labeled",
-        result: inputValue,
-        lead_time: 0.0,
-        auto_save: "True",
+        message: inputValue,
       };
-      const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
+      const ChatInteractionObj = new PostChatInteractionAPI(body);
+      const interactionRes = await fetch(ChatInteractionObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(ChatInteractionObj.getBody()),
+        headers: ChatInteractionObj.getHeaders().headers,
       });
-      const data = await res.json();
-      setChatHistory((prevChatHistory) => {
-        data && data.result && setLoading(false);
-        return data && data.result ? [...data.result] : [...prevChatHistory];
+      const interactionData = await interactionRes.json();
+      interactionData &&
+        setChatHistory((prev) => [
+          ...prev,
+          {
+            prompt: inputValue,
+            output: interactionData.message,
+          },
+        ]);
+
+      const chatLogBody = {
+        message: inputValue,
+      };
+      const ChatLogObj = new PostChatLogAPI(chatLogBody);
+      const logRes = await fetch(ChatLogObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(ChatLogObj.getBody()),
+        headers: ChatLogObj.getHeaders().headers,
       });
+      const logData = await logRes.json();
+      logData?.message.includes("successfully") ? setLoading(false) : null;
     } else {
       alert("Please provide a prompt.");
     }
@@ -134,7 +148,8 @@ const Chat = () => {
     <>
       <Box
         sx={{ alignItems: "center" }}
-        className="pt-4 pb-2 flex justify-between px-20">
+        className="pt-4 pb-2 flex justify-between px-20"
+      >
         <Image
           onClick={() => navigate("/")}
           alt="Anudesh"
@@ -164,74 +179,73 @@ const Chat = () => {
           alignItems: "center",
         }}
       >
-        { !showChatContainer && <Grid item xs={8}>
-          <Box
-            sx={{
-              borderRadius: "20px",
-              padding: "10px",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              display: "flex",
-              justifyContent: "start",
-              alignItems: "center",
-              paddingX: "4rem",
-            }}
-          >
-            <Image
-              alt="Anudesh"
-              src="https://i.imgur.com/56Ut9oz.png"
-              width={50}
-              height={50}
-              className="w-[8rem] h-[8rem]"
-            />
-
+        {!showChatContainer && (
+          <Grid item xs={8}>
             <Box
               sx={{
+                borderRadius: "20px",
+                padding: "10px",
+                backgroundColor: "rgba(247, 184, 171, 0.2)",
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "start",
-                marginLeft: "1rem",
-                paddingY: "1rem",
+                justifyContent: "start",
+                alignItems: "center",
+                paddingX: "4rem",
               }}
             >
-              <Typography
-                variant="h3"
-                sx={{
-                  fontSize: "2rem",
-                  fontWeight: "800",
-                  color: "#E95923",
-                }}
-              >
-                {"Namaste"}
-              </Typography>
+              <Image
+                alt="Anudesh"
+                src="https://i.imgur.com/56Ut9oz.png"
+                width={50}
+                height={50}
+                className="w-[8rem] h-[8rem]"
+              />
 
-              <Typography
-                variant="subtitle1"
+              <Box
                 sx={{
-                  fontSize: "1.2rem",
-                  fontWeight: "bold",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "start",
+                  marginLeft: "1rem",
+                  paddingY: "1rem",
                 }}
               >
-                {"Welcome to Anudesh"}
-              </Typography>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontSize: "2rem",
+                    fontWeight: "800",
+                    color: "#E95923",
+                  }}
+                >
+                  Namaste
+                </Typography>
 
-              <Typography
-                paragraph={true}
-                sx={{
-                  fontSize: "1.2rem",
-                  // minHeight: "6rem",
-                  maxHeight: "6rem",
-                  overflowY: "scroll",
-                }}
-              >
-                {
-                  "This page allows users to engage with the model freely, capturing interactions efficiently in an ordered tree format."
-                }
-              </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontSize: "1.2rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Welcome to Anudesh
+                </Typography>
+
+                <Typography
+                  paragraph={true}
+                  sx={{
+                    fontSize: "1.2rem",
+                    maxHeight: "6rem",
+                    overflowY: "scroll",
+                  }}
+                >
+                  This page allows users to engage with the model freely,
+                  capturing interactions efficiently in an ordered tree format.
+                </Typography>
+              </Box>
             </Box>
-          </Box>
-        </Grid>
-        }
+          </Grid>
+        )}
 
         <Grid
           item
@@ -239,8 +253,8 @@ const Chat = () => {
           sx={{
             margin: "0.8rem 0",
             overflowY: "scroll",
-            minHeight: "39rem",
-            maxHeight: "39rem",
+            minHeight: showChatContainer ? "45rem" : "39rem",
+            maxHeight: showChatContainer ? "45rem" : "39rem",
             borderRadius: "20px",
             backgroundColor: "#FFF",
             paddingLeft: "0px !important",
@@ -271,22 +285,31 @@ const Chat = () => {
                     marginX: "10px",
                     width: "33%",
                     borderRadius: "20px",
-                    backgroundColor: 'rgba(247, 184, 171, 0.2)',
-                    padding: '2.5rem',
+                    backgroundColor: "rgba(247, 184, 171, 0.2)",
+                    padding: "2.5rem",
                   }}
                 >
-                  <Typography sx={{
-                    color: '#E95923',
-                    fontWeight: '600',
-                    textAlign: 'center',
-                  }}>
+                  <Typography
+                    sx={{
+                      color: "#E95923",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
                     What is Anudesh?
                   </Typography>
 
-                  <Typography sx={{
-                    paddingTop: '0.8rem',
-                  }}>
-                    Anudesh is an open-source platform dedicated to advancing the development of state-of-the-art Language Model Models for Indian languages. Our mission is to democratize access to advanced natural language processing technologies by creating high-quality conversational data. Create an account and get started today!
+                  <Typography
+                    sx={{
+                      paddingTop: "0.8rem",
+                    }}
+                  >
+                    Anudesh is an open-source platform dedicated to advancing
+                    the development of state-of-the-art Language Model Models
+                    for Indian languages. Our mission is to democratize access
+                    to advanced natural language processing technologies by
+                    creating high-quality conversational data. Create an account
+                    and get started today!
                   </Typography>
                 </Box>
                 <Box
@@ -294,22 +317,31 @@ const Chat = () => {
                     marginX: "10px",
                     width: "33%",
                     borderRadius: "20px",
-                    backgroundColor: 'rgba(247, 184, 171, 0.2)',
-                    padding: '2.5rem',
+                    backgroundColor: "rgba(247, 184, 171, 0.2)",
+                    padding: "2.5rem",
                   }}
                 >
-                  <Typography sx={{
-                    color: '#E95923',
-                    fontWeight: '600',
-                    textAlign: 'center',
-                  }}>
+                  <Typography
+                    sx={{
+                      color: "#E95923",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
                     How Can You Help?
                   </Typography>
 
-                  <Typography sx={{
-                    paddingTop: '0.8rem',
-                  }}>
-                    You can help us by getting by exploring our projects and contributing to our repositories. We look forward to collaborating with you! You can help us collect data based on instructiional prompts, rate the performance of models, evaluate model responses, do preferential ranking amongst models used, and analyse data using various metrics.
+                  <Typography
+                    sx={{
+                      paddingTop: "0.8rem",
+                    }}
+                  >
+                    You can help us by getting by exploring our projects and
+                    contributing to our repositories. We look forward to
+                    collaborating with you! You can help us collect data based
+                    on instructiional prompts, rate the performance of models,
+                    evaluate model responses, do preferential ranking amongst
+                    models used, and analyse data using various metrics.
                   </Typography>
                 </Box>
                 <Box
@@ -317,27 +349,35 @@ const Chat = () => {
                     marginX: "10px",
                     width: "33%",
                     borderRadius: "20px",
-                    backgroundColor: 'rgba(247, 184, 171, 0.2)',
-                    padding: '2.5rem',
+                    backgroundColor: "rgba(247, 184, 171, 0.2)",
+                    padding: "2.5rem",
                   }}
                 >
-                  <Typography sx={{
-                    color: '#E95923',
-                    fontWeight: '600',
-                    textAlign: 'center',
-                  }}>
+                  <Typography
+                    sx={{
+                      color: "#E95923",
+                      fontWeight: "600",
+                      textAlign: "center",
+                    }}
+                  >
                     Why Should You Contribute?
                   </Typography>
 
-                  <Typography sx={{
-                    paddingTop: '0.8rem',
-                  }}>
-                    By contributing to Anudesh, you can play a vital role in enhancing language understanding and generation capabilities in Indian languages. Whether you are a linguist, developer, or language enthusiast, there are many ways to get involved and make an impact. Join us in our journey to empower individuals and communities.
+                  <Typography
+                    sx={{
+                      paddingTop: "0.8rem",
+                    }}
+                  >
+                    By contributing to Anudesh, you can play a vital role in
+                    enhancing language understanding and generation capabilities
+                    in Indian languages. Whether you are a linguist, developer,
+                    or language enthusiast, there are many ways to get involved
+                    and make an impact. Join us in our journey to empower
+                    individuals and communities.
                   </Typography>
                 </Box>
               </Box>
             )}
-            {loading && <Spinner />}
           </Box>
           <div ref={bottomRef} />
         </Grid>
@@ -347,11 +387,11 @@ const Chat = () => {
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
             size={8}
-            grid_size={'100vw'}
-            class_name='textarea_grid'
+            grid_size={"100vw"}
+            class_name="textarea_grid"
+            loading={loading}
           />
         </Grid>
-        
       </Grid>
     </>
   );

@@ -10,18 +10,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
 import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Spinner from "@/components/common/Spinner";
-import Textarea from "@/components/Chat/TextArea";
+import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
-import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
+import { translate } from "@/config/localisation";
+import Textarea from "@/components/Chat/TextArea";
+import { useState, useEffect, useRef } from "react";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 
 const style = {
   position: "absolute",
@@ -37,8 +36,6 @@ const style = {
 
 const InstructionDrivenChatPage = () => {
     /* eslint-disable react-hooks/exhaustive-deps */
-  
-
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
@@ -340,8 +337,7 @@ const InstructionDrivenChatPage = () => {
               padding: "1rem 0 4rem",
             }}
           >
-            {showChatContainer ? renderChatHistory() : null}       
-            {loading && <Spinner />}
+            {showChatContainer ? renderChatHistory() : null}
           </Box>
           <div ref={bottomRef} />
         </Grid>
@@ -352,6 +348,7 @@ const InstructionDrivenChatPage = () => {
             size={12}
             grid_size={'80.6rem'}
             class_name={''}
+            loading={loading}
           />
         </Grid>
       </Grid>
