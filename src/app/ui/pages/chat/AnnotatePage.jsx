@@ -125,12 +125,10 @@ const AnnotatePage = () => {
     if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current) {
     fetchAnnotation(taskId).then((data) => {
       if (data && Array.isArray(data) && data.length > 0) {
-        console.log(annotationNotesRef);
         annotationNotesRef.current.value = data[0]?.annotation_notes ? data[0].annotation_notes: "";
         reviewNotesRef.current.value = data[0].review_notes ?data[0].review_notes: "";
         try {
           const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-          console.log(newDelta2);
           annotationNotesRef.current.getEditor().setContents(newDelta2);
         } catch (err) {
           if (err instanceof SyntaxError) {
@@ -205,7 +203,6 @@ const AnnotatePage = () => {
         JSON.stringify(annotationNotesRef.current.getEditor().getContents())
       ).then(() => {
         getNextProject(projectId, taskData.id).then((res) => {
-          console.log("lll");
           // hideLoader();
           tasksComplete(res?.id || null);
         });
@@ -410,7 +407,6 @@ const AnnotatePage = () => {
     } else if ([4, 5, 6].includes(user.role)) {
       // filteredAnnotations = annotations.filter((a) => a.annotation_type === 1);
       filteredAnnotations = AnnotationsTaskDetails
-      console.log("lll", "4", taskData);
       disableDraft = true;
       disableSkip = true;
       disableUpdate = true;
@@ -468,7 +464,6 @@ const AnnotatePage = () => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
-  console.log(taskData, Annotation);
   return (
     <>
       <Grid container spacing={2}>

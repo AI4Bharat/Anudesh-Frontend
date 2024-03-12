@@ -249,7 +249,6 @@ const AddUsersDialog = ({
   useEffect(() => {
     setAvailableUsers(getAvailableUsers(userType, projectDetails, workspaceAnnotators, workspaceDetails?.managers, orgUsers));
   }, [userType,projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])
-  console.log(availableUsers);
 
   const addBtnClickHandler = async () => {
     setLoading(true);

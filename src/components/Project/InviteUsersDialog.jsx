@@ -23,8 +23,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CustomButton from "../common/Button";
 import  "../../styles/Dataset.css";
 import { useState } from "react";
-import UserRolesList from "../../utils/UsersRolesList";
-
+import userRole from "@/utils/UserMappedByRole/Roles";
 const InviteUsersDialog = ({
   handleDialogClose,
   isOpen,
@@ -86,8 +85,7 @@ const InviteUsersDialog = ({
     setCsvFile(null);
     setbtn(null)
   };
-  console.log(selectedUsers);
-
+  
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
       <DialogTitle style={{ paddingBottom: 0 }}>Invite users to organization</DialogTitle>
@@ -191,9 +189,9 @@ const InviteUsersDialog = ({
             onChange={(e) => setUserType(e.target.value)}
             label="Select user role"
           >
-            {Object.keys(UserRolesList).map((el) => (
+            {Object.keys(userRole).map((el) => (
               <MenuItem key={el} value={el}>
-                {UserRolesList[el]}
+                {el}
               </MenuItem>
             ))}
           </Select>

@@ -514,7 +514,6 @@ const SuperCheckerPage = () => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
-  console.log(taskData, Annotation);
   return (
     <>
       <Grid container spacing={2}>
