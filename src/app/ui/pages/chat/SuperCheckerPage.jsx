@@ -514,6 +514,18 @@ const SuperCheckerPage = () => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
+  let componentToRender;
+  switch (ProjectDetails.project_type) {
+    case 'InstructionDrivenChat':
+      componentToRender = <InstructionDrivenChatPage />;
+      break;
+    case 'ModelInteractionEvaluation':
+      componentToRender = <ModelInteractionEvaluation />;
+      break;
+    default:
+      componentToRender = null;
+      break;
+  }
   return (
     <>
       <Grid container spacing={2}>
@@ -873,7 +885,7 @@ const SuperCheckerPage = () => {
               </Alert>
             )}
         </Grid>
-        <Grid item container>  <InstructionDrivenChatPage /></Grid>
+        <Grid item container>  {componentToRender} </Grid>
 
 
       </Grid>
