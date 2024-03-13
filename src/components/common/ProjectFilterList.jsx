@@ -20,6 +20,7 @@ import { translate } from "../../config/localisation";
 import DatasetStyle from "../../styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import roles from "../../utils/Role";
+import { snakeToTitleCase } from "@/utils/utils";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 
 const UserType = ["annotator", "reviewer","superchecker"];
@@ -144,7 +145,7 @@ const ProjectFilterList = (props) => {
                     }
                     onChange={(e) => setSelectedUserType(e.target.value)}
                     value={type}
-                    // label={snakeToTitleCase(type)}
+                    label={snakeToTitleCase(type)}
                     sx={{
                       fontSize: "1rem",
                     }}
@@ -162,6 +163,29 @@ const ProjectFilterList = (props) => {
             >
               Archived Projects :
             </Typography>
+            <FormGroup>
+              {archivedProjects.map((type) => {
+                return (
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        checked={
+                          selectedArchivedProject === type 
+                        }
+                        name={type}
+                        color="primary"
+                      />
+                    }
+                    onChange={(e) => setSelectedArchivedProject(e.target.value)}
+                    value={type}
+                    label={snakeToTitleCase(type)}
+                    sx={{
+                      fontSize: "1rem",
+                    }}
+                  />
+                );
+              })}
+            </FormGroup>
           </Grid>}
         </Grid>
         <Divider />
