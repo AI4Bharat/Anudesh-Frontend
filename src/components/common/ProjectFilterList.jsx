@@ -164,7 +164,7 @@ const ProjectFilterList = (props) => {
               Archived Projects :
             </Typography>
             <FormGroup>
-              {archivedProjects.map((type,i) => {
+              {archivedProjects.map((type, i) => {
                 return (
                   <FormControlLabel
                     key={i}
