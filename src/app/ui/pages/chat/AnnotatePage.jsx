@@ -40,6 +40,7 @@ import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
+import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 
 
 const AnnotatePage = () => {
@@ -68,6 +69,7 @@ const AnnotatePage = () => {
     message: "",
     variant: "success",
   });
+  console.log(ProjectDetails,"lll");
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
@@ -464,6 +466,20 @@ const AnnotatePage = () => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
+
+  let componentToRender;
+  switch (ProjectDetails.project_type) {
+    case 'InstructionDrivenChat':
+      componentToRender = <InstructionDrivenChatPage />;
+      break;
+    case 'ModelInteractionEvaluation':
+      componentToRender = <ModelInteractionEvaluation />;
+      break;
+    default:
+      componentToRender = null;
+      break;
+  }
+
   return (
     <>
       <Grid container spacing={2}>
@@ -704,7 +720,7 @@ const AnnotatePage = () => {
               </Alert>
             )}
         </Grid>
-        <Grid item container>  <InstructionDrivenChatPage /></Grid>
+        <Grid item container>  {componentToRender} </Grid>
 
 
       </Grid>

@@ -43,6 +43,7 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
+import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 
 
 const StyledMenu = styled((props) => (
@@ -763,6 +764,18 @@ const setNotes = (taskData, annotations) => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
+  let componentToRender;
+  switch (ProjectDetails.project_type) {
+    case 'InstructionDrivenChat':
+      componentToRender = <InstructionDrivenChatPage />;
+      break;
+    case 'ModelInteractionEvaluation':
+      componentToRender = <ModelInteractionEvaluation />;
+      break;
+    default:
+      componentToRender = null;
+      break;
+  }
   return (
     <>
       <Grid container spacing={2}>
@@ -1134,7 +1147,7 @@ const setNotes = (taskData, annotations) => {
               </Alert>
             )}
         </Grid>
-        <Grid item container >  <InstructionDrivenChatPage /></Grid>
+        <Grid item container >  {componentToRender}</Grid>
 
 
       </Grid>

@@ -350,7 +350,7 @@ const ModelInteractionEvaluation = () => {
 
   return (
     <>
-      <button onClick={handleSubmit}>{translate("button.submit")}</button>
+      <Button onClick={handleSubmit} label="Submit">Submit</Button>
       <div className={classes.container}>
         {InteractionDisplay()}
         {EvaluationForm()}
