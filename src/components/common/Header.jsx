@@ -29,7 +29,7 @@ import { useMediaQuery } from "@mui/material";
 import Logout from "@/Lib/Features/Logout";
 import Modal from "./Modal";
 import Image from "next/image";
-// import Transliteration from "../../container/Transliteration/Transliteration";
+import Transliteration from "../Transliteration/Transliteration";
 import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import UpdateUIPrefsAPI from "@/Lib/Features/user/UpdateUIPrefs";
@@ -1010,14 +1010,13 @@ const handleopenproject=(id,type)=>{
         style={{cursor:"pointer"}}
       // sx={{width: "400px"}}
       >
-        Transliteration
-        {/* <Transliteration
+        <Transliteration
           onCancelTransliteration={() => handleTransliterationModelClose}
           setIsSpaceClicked={setIsSpaceClicked}
           isSpaceClicked={isSpaceClicked}
           setShowTransliterationModel={setShowTransliterationModel}
 
-        /> */}
+        />
       </Modal>
     </Grid>
   );
