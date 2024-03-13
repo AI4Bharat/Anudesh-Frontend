@@ -164,9 +164,10 @@ const ProjectFilterList = (props) => {
               Archived Projects :
             </Typography>
             <FormGroup>
-              {archivedProjects.map((type) => {
+              {archivedProjects.map((type,i) => {
                 return (
                   <FormControlLabel
+                    key={i}
                     control={
                       <Radio
                         checked={
