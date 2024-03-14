@@ -137,6 +137,7 @@ const ProjectFilterList = (props) => {
                     key={i}
                     control={
                       <Radio
+                        key={i}
                         checked={selectedUserType === type }
                         name={type}
                         color="primary"
