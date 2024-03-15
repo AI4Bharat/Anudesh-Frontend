@@ -36,6 +36,7 @@ export default function Textarea({handleButtonClick, handleOnchange, language}) 
     400: '#EE6633', //hover-border
     600: '#EE663366',
   };
+
   const grey = {
     50: '#F3F6F9',
     200: '#DAE2ED',
@@ -47,15 +48,15 @@ export default function Textarea({handleButtonClick, handleOnchange, language}) 
   return (
     <Grid
       item
-      xs={12}
-      backgroundColor="#EEE"
+      xs={size}
+      backgroundColor="#FFF"
       justifyContent={'center'}
       alignItems={'center'}
       display={'flex'}
       position={'fixed'}
       bottom={0}
-      width={'80.6em'}
-      borderTop={'1px solid #C6C6C6'}
+      width={grid_size}
+      className={class_name}
     >
       <IndicTransliterate
         renderComponent={(props) => 
@@ -103,6 +104,7 @@ export default function Textarea({handleButtonClick, handleOnchange, language}) 
       <IconButton size="large" onClick={handleButtonClick}>
         <SendRoundedIcon style={{color: '#EE6633', height: '4rem'}} />
       </IconButton>
+      {loading && <CircularProgress style={{ color: '#EE6633' }} />}
     </Grid>
   );
 }

@@ -31,6 +31,7 @@ import ReviewPage from "./ui/pages/chat/ReviewPage";
 import AnnotatePage from "./ui/pages/chat/AnnotatePage";
 import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
 import CreateProject from "./new-project/newproject";
+
 export default function Root() {
   if (typeof window !== 'undefined') {
     const ProtectedRoute = ({ user, children }) => {

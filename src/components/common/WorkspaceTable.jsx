@@ -139,7 +139,8 @@ const WorkspaceTable = (props) => {
             </Link>
         ]
     })  : [];
-
+    console.log('DATA', data);
+    
     const options = {
         textLabels: {
             body: {
