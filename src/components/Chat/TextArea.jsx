@@ -1,5 +1,6 @@
+import './textarea.css';
 import {useEffect, useState} from 'react';
-
+import { translate } from "@/config/localisation";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import {Grid} from '@mui/material';
 // import {
@@ -9,6 +10,7 @@ import IconButton from '@mui/material/IconButton';
 // import {styled} from '@mui/system';
 import { IndicTransliterate } from '@ai4bharat/indic-transliterate';
 import LanguageCode from '@/utils/LanguageCode';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function Textarea({handleButtonClick, handleOnchange, language}) {
   const [text, setText] = useState("");
