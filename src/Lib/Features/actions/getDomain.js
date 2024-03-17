@@ -7,7 +7,7 @@ const initialState = {
     data: null,
 };
 
-export const fetchGetAddGlossary = createAsyncThunk('getAddGlossary/fetchGetAddGlossary', async (glossaryObj) => {
+export const fetchDomain = createAsyncThunk('getDomain/fetchDomain', async (glossaryObj) => {
   const url = `${"https://glossary-api.ai4bharat.org/glossary-explorer"}${ENDPOINTS.Glossary}domain`;
   const token = window.localStorage.getItem('anudesh_access_token');
   
@@ -16,7 +16,7 @@ export const fetchGetAddGlossary = createAsyncThunk('getAddGlossary/fetchGetAddG
   }
 
   const options = {
-      method: 'POST',
+      method: 'GET',
       body:JSON.stringify(glossaryObj),
       headers: {
           'Content-Type': 'application/json',
@@ -36,23 +36,23 @@ export const fetchGetAddGlossary = createAsyncThunk('getAddGlossary/fetchGetAddG
 });
 
 
-const getAddGlossary = createSlice({
-    name: 'getAddGlossary',
+const getDomain = createSlice({
+    name: 'getDomain',
     initialState,
     reducers: {},
     extraReducers(builder) {
         builder
-          .addCase(fetchGetAddGlossary.fulfilled, (state, action) => {
+          .addCase(fetchDomain.fulfilled, (state, action) => {
             state.status = 'succeeded'
             state.data = action.payload
           })
-          .addCase(fetchGetAddGlossary.pending, (state, action) => {
+          .addCase(fetchDomain.pending, (state, action) => {
             state.status = 'loading'
           })
-          .addCase(fetchGetAddGlossary.rejected, (state, action) => {
+          .addCase(fetchDomain.rejected, (state, action) => {
             state.status = 'failed'
             state.error = action.error.message
           })
       }
 });
-export default getAddGlossary.reducer;
+export default getDomain.reducer;

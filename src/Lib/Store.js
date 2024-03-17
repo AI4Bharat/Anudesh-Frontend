@@ -63,12 +63,14 @@ import getAnnotationsTask from './Features/projects/getAnnotationsTask';
 import getTaskDetails from './Features/getTaskDetails';
 import GlossarysentenceAPI from './Features/actions/GlossarysentenceAPI';
 import AddGlossary from './Features/actions/AddGlossary';
+import getDomain from './Features/actions/getDomain';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
         getTaskDetails:getTaskDetails,
-        getDomain:AddGlossary,
+        AddGlossary:AddGlossary,
+        getDomain:getDomain,
         getAnnotationsTask:getAnnotationsTask,
         GlossarysentenceAPI:GlossarysentenceAPI,
         searchProjectCard:searchProjectCard,

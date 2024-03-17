@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams,useNavigate } from "react-router-dom";
-import { Card, CircularProgress, Grid, Typography,Modal,Box } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, CircularProgress, Grid, Typography, Modal, Box,MenuItem, FormControl,Select} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { translate } from "@/config/localisation";
 import CustomButton from "@/components/common/Button";
@@ -16,6 +16,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeduplicateDataItems from "./DeduplicateDataItems";
 import UploaddataAPI from "@/app/actions/api/dataset/UploaddataAPI";
 import { fetchDatasetDownloadCSV } from "@/Lib/Features/datasets/GetDatasetDownloadCSV";
+import { fetchFileTypes } from "@/Lib/Features/datasets/GetFileTypes";
 
 
 const style = {
@@ -32,7 +33,7 @@ const style = {
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
 export default function DatasetSettings() {
-          /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const { datasetId } = useParams();
   // console.log('current',datasetId)
@@ -54,8 +55,8 @@ export default function DatasetSettings() {
 
   const GetFileTypes = useSelector((state) => state.GetFileTypes.data);
   const FileTypes = () => {
-    const projectObj = new GetFileTypesAPI();
-    dispatch(APITransport(projectObj));
+    // const projectObj = new GetFileTypesAPI();
+    dispatch(fetchFileTypes());
   };
 
   useEffect(() => {
@@ -108,13 +109,13 @@ export default function DatasetSettings() {
     UploadFile.append("filetype", filetype);
     UploadFile.append("deduplicate", switchs);
     setLoading(true);
-    const projectObj = new UploaddataAPI(datasetId,UploadFile);
+    const projectObj = new UploaddataAPI(datasetId, UploadFile);
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: projectObj.getBody(),
       headers: projectObj.getHeaders().headers,
     });
-	
+
     const resp = await res.json();
     setLoading(false);
     if (res.ok) {
@@ -130,7 +131,7 @@ export default function DatasetSettings() {
         variant: "error",
       });
     }
-	handleModalClose();
+    handleModalClose();
   };
 
   const handleswitchchange = () => {
@@ -257,11 +258,22 @@ export default function DatasetSettings() {
                           </Typography>
                         </Grid>
                         <Grid item xs={12} md={8} lg={8} xl={8} sm={12}>
-                          <MenuItems
-                            menuOptions={type}
-                            handleChange={(value) => setFiletype(value)}
-                            value={filetype}
-                          />
+                
+                          <FormControl fullWidth sx={{ minWidth: 120 }}>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={filetype}
+                              onChange={(e) => setFiletype(e.target.value)}
+                              sx={{ fontSize: "14px" }}
+                            >
+                              {type.map((option, index) => (
+                                <MenuItem key={index} value={option.value}>
+                                  {option.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
                         </Grid>
                       </Grid>
                       <Grid
@@ -318,7 +330,7 @@ export default function DatasetSettings() {
                   </Box>
                 </Modal>
               </div>
-           </>
+            </>
           )}
         </Grid>
       </Card>
