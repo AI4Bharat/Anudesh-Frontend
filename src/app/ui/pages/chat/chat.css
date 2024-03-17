@@ -10,6 +10,10 @@
   padding-left: 0px !important;
 }
 
+.code {
+  margin-top: 0px !important;
+}
+
 .myInput{
   width: 51.25rem;
   outline: solid white;

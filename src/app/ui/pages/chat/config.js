@@ -9,7 +9,7 @@ export const card1 = {
 
 export const card2 = {
     heading: 'How Can You Help?',
-    content: 'You can help us by getting by exploring our projects and contributing to our repositories. We look forward to collaborating with you! You can help us collect data based on instructiional prompts, rate the performance of models, evaluate model responses, do preferential ranking amongst models used, and analyse data using various metrics.'
+    content: 'You can help us by getting by exploring our projects and contributing to our repositories. We look forward to collaborating with you! You can help us collect data based on instructional prompts, rate the performance of models, evaluate model responses, do preferential ranking amongst models used, and analyse data using various metrics.'
 }
 
 export const card3 = {
