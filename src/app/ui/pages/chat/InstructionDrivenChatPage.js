@@ -74,6 +74,7 @@ const InstructionDrivenChatPage = () => {
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
+  const language = useSelector((state) => state.getProjectDetails?.data?.tgt_language) || "english";
 
   const handleOpen = () => {
     setOpen(true);
@@ -530,6 +531,7 @@ const InstructionDrivenChatPage = () => {
           <Textarea
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
+            language={language}
             size={12}
             grid_size={"80.6rem"}
             class_name={""}
