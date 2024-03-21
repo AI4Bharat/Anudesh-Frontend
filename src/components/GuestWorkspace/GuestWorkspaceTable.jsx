@@ -25,6 +25,7 @@ import Search from "../common/Search";
 import { fetchGuestWorkspaceData } from "@/Lib/Features/getGuestWorkspaces";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
+import { useNavigate } from 'react-router-dom';
 
 const style = {
   position: "absolute",
@@ -39,6 +40,7 @@ const style = {
 
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
   const [open, setOpen] = useState(false);
@@ -66,6 +68,7 @@ const GuestWorkspaceTable = (props) => {
   );
 
   const handleOpen = (workspace_name, workspace_id) => {
+    setPassword("");
     setWorkspaceCurrentId(workspace_id);
     setCurrentWorkspaceName(workspace_name);
     setOpen(true);
@@ -115,8 +118,8 @@ const GuestWorkspaceTable = (props) => {
         variant: "success",
       });
       handleClose();
+      navigate("/projects");
     }
-    console.log(resData);
   };
 
   const renderSnackBar = () => {
