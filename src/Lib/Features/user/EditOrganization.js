@@ -1,39 +1,44 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
+
 const initialState = {
   data: [],
   status: 'idle',
   error: null,
 };
 
-export const fetchDatasetsByType = createAsyncThunk(
-  'getDatasetsByType/fetchDatasetsByType',
-  async (datasetType, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/?dataset_type=${datasetType}`,"POST");
+export const FetchEditOrganization = createAsyncThunk(
+  'EditOrganization/FetchEditOrganization',
+  async ({orgId, organizationName }) => {
+    const body ={
+      title:organizationName
+    }
+
+    const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/`,"PUT",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }
 );
 
-const getDatasetsByType = createSlice({
-  name: 'getDatasetsByType',
+const EditOrganization = createSlice({
+  name: 'EditOrganization',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchDatasetsByType.pending, (state) => {
+      .addCase(FetchEditOrganization.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchDatasetsByType.fulfilled, (state, action) => {
+      .addCase(FetchEditOrganization.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
       })
-      .addCase(fetchDatasetsByType.rejected, (state, action) => {
+      .addCase(FetchEditOrganization.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });
   },
 });
 
-export default getDatasetsByType.reducer;
+export default EditOrganization.reducer;

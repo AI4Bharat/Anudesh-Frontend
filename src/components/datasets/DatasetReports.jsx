@@ -133,7 +133,7 @@ const DatasetReports = () => {
     if(projectReportType === 1){
       setReportRequested(true);
       const projectReportObj = ({
-        datasetI:datasetId,
+        datasetId:datasetId,
         projectType:selectedType,
         language:language
       })

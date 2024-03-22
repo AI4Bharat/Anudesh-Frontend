@@ -36,12 +36,19 @@ import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { MenuProps } from "../../utils/utils";
 import CustomizedSnackbars from "./Snackbar";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { useParams } from "react-router-dom";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
+import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
+import { fetchSendWorkspaceUserReports } from "@/Lib/Features/projects/SendWorkspaceUserReports";
+import { fetchWorkspaceUserReports } from "@/Lib/Features/projects/WorkspaceUserReports";
+import { fetchWorkspaceProjectReport } from "@/Lib/Features/projects/WorkspaceProjectReport";
+import { fetchWorkspaceDetailedProjectReports } from "@/Lib/Features/projects/WorkspaceDetailedProjectReports";
 
 const ProgressType = [{ name: "Annotation Stage", value: 1 }, { name: "Review Stage", value: 2 }, { name: "Super Check Stage", value: 3 }, { name: "All Stage", value: "AllStage" }]
 
 const WorkspaceReports = () => {
    /* eslint-disable react-hooks/exhaustive-deps */
+   const { id } = useParams();
 
   const WorkspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails.data
@@ -75,13 +82,14 @@ const WorkspaceReports = () => {
     message: "",
     variant: "success",
   });
+  const classes = DatasetStyle();
   const dispatch = useDispatch();
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const UserReports = useSelector(
-    (state) => state.getWorkspaceUserReports.data
+    (state) => state.WorkspaceUserReports.data
   );
   const ProjectReports = useSelector(
-    (state) => state.getWorkspaceProjectReports.data
+    (state) => state.WorkspaceProjectReport.data
   );
 
   const LanguageChoices = useSelector((state) => state.getLanguages.data);
@@ -236,15 +244,15 @@ const WorkspaceReports = () => {
   };
   const handleDateSubmit = (sendMail) => {
     if (radioButton === "payment") {
-      const userReportObj = new SendWorkspaceUserReportsAPI(
-        id,
-        UserDetails.id,
-        selectedType,
-        participationTypes,
-        format(selectRange[0].startDate, 'yyyy-MM-dd'),
-        format(selectRange[0].endDate, 'yyyy-MM-dd'),
-      );
-      dispatch(APITransport(userReportObj));
+      const userReportObj = (
+        {orgId:id,
+        userId:UserDetails.id,
+        projectType:selectedType,
+        participationTypes:participationTypes,
+        fromDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
+        toDate:format(selectRange[0].endDate, 'yyyy-MM-dd')
+      });
+      dispatch(fetchSendWorkspaceUserReports(userReportObj));
       setSnackbarInfo({
         open: true,
         message: "Report will be e-mailed to you shortly",
@@ -261,37 +269,37 @@ const WorkspaceReports = () => {
       setShowSpinner(true);
       setShowPicker(false);
       if (radioButton === "user") {
-        const userReportObj = new GetWorkspaceUserReportsAPI(
-          id,
-          selectedType,
-          format(selectRange[0].startDate, 'yyyy-MM-dd'),
-          format(selectRange[0].endDate, 'yyyy-MM-dd'),
-          language,
-          sendMail,
-          projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
-          reportfilter,
-        );
-        dispatch(APITransport(userReportObj));
+        const userReportObj = ({
+          workspaceId:id,
+          projectType:selectedType,
+          fromDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          toDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          language:language,
+          sendMail:sendMail,
+          reportsType:projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
+          reportfilter:reportfilter,
+        });
+        dispatch(fetchWorkspaceUserReports(userReportObj));
       } else if (radioButton === "project") {
         if(projectReportType === 1){
-        const projectReportObj = new GetWorkspaceProjectReportAPI(
-          id,
-          selectedType,
+        const projectReportObj = ({
+          workspaceId:id,
+          projectType:selectedType,
 
-          language,
-          sendMail,
-          projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
-        );
-        dispatch(APITransport(projectReportObj));
+          language:language,
+          sendMail:sendMail,
+          reportsType:projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
+        });
+        dispatch(fetchWorkspaceProjectReport(projectReportObj));
         }else if(projectReportType === 2){
-          const projectReportObj = new GetWorkspaceDetailedProjectReportsAPI(
-            Number(id),
-            selectedType,
-            userId,
-            statisticsType,
-            language,
-          );
-          dispatch(APITransport(projectReportObj));
+          const projectReportObj = ({
+            workId:Number(id),
+            projectType:selectedType,
+            userId:userId,
+            statistics:statisticsType,
+            language:language,
+          });
+          dispatch(fetchWorkspaceDetailedProjectReports(projectReportObj));
           setSnackbarInfo({
             open: true,
             message: "Report will be e-mailed to you shortly",

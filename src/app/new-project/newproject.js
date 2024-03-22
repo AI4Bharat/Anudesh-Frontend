@@ -105,9 +105,9 @@ const CreateProject = () => {
 
   //Fetch and display Project Domains
   useEffect(() => {
-    if(ProjectDomains.status !== "succeeded")
+    // if(ProjectDomains.status !== "succeeded")
       dispatch(fetchDomains());
-  }, [ProjectDomains, dispatch]);
+  }, []);
 
   useEffect(() => {
     if (UserData) {

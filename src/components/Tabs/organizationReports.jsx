@@ -11,8 +11,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import ColumnList from "../common/ColumnList";
 import Select from "@mui/material/Select";
-import { useParams } from "next/navigation";
+import { useParams } from 'react-router-dom';
 import  "../../styles/Dataset.css";
+import DatasetStyle from "@/styles/dataset";
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
@@ -88,11 +89,11 @@ console.log("End Date:", selectRange[0].endDate);
   });
 
   
-  // const { orgId } = useParams();
-  const orgId =1;
+  const { orgId } = useParams();
   const dispatch = useDispatch();
+  const classes = DatasetStyle();
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
-  const UserReports = useSelector((state) => state.getOrganizationUserReports?.data);
+  const UserReports = useSelector((state) => state.GetOrganizationUserReports.data);
   const ProjectReports = useSelector((state) => state.getOrganizationProjectReports?.data);
   const SuperCheck = useSelector((state) => state.getOrganizationAnnotatorQuality?.data);
   const LanguageChoices = useSelector((state) => state.getLanguages?.data);
@@ -270,12 +271,12 @@ console.log("End Date:", selectRange[0].endDate);
   const handleSubmit = (sendMail) => {
     if (radiobutton === "PaymentReports") {
     
-      dispatch(fetchSendOrganizationUserReports(orgId,
-        UserDetails.id,
-        selectedType,
-        participationTypes,
-        format(selectRange[0].startDate, 'yyyy-MM-dd'),
-        format(selectRange[0].endDate, 'yyyy-MM-dd'),));
+      dispatch(fetchSendOrganizationUserReports({orgId:orgId,
+        userId:UserDetails.id,
+        projectType:selectedType,
+        participationTypes:participationTypes,
+        fromDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
+        toDate:format(selectRange[0].endDate, 'yyyy-MM-dd')}));
       setSnackbarInfo({
         open: true,
         message: "Payment Reports will be e-mailed to you shortly",
@@ -301,38 +302,35 @@ console.log("End Date:", selectRange[0].endDate);
           variant: "error",
         })
       }
-      let ReviewData = []
+      let ReviewData ;
 
       if ((reportTypes === "Annotator" || reportTypes === "Reviewer") && reportfilter != "" && radiobutton === "UsersReports") {
 
         if (reportfilter.toString() == "Annotation Stage") {
-          ReviewData.push(1)
+          ReviewData=1
         } else if (reportfilter.toString() == "Review Stage") {
-          ReviewData.push(2)
+          ReviewData=2
         } else if (reportfilter.toString() == "Super Check Stage") {
-          ReviewData.push(3)
+          ReviewData=3
         }
-       
-        dispatch(fetchOrganizationUserReports(orgId,
-          selectedType,
-          format(selectRange[0].startDate, 'yyyy-MM-dd'),
-          format(selectRange[0].endDate, 'yyyy-MM-dd'),
-          reportTypes === "Annotator" ? "annotation" : reportTypes === "Reviewer" ? "review" : "supercheck",
-          targetLanguage,
-          sendMail,
-          ...ReviewData,
-));
+       console.log(selectedType);
+        dispatch(fetchOrganizationUserReports({orgId:orgId,
+          projectType:selectedType,
+          startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          endDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          reportsType:reportTypes === "Annotator" ? "annotation" : reportTypes === "Reviewer" ? "review" : "supercheck",
+          targetLanguage:targetLanguage,
+          sendMail:sendMail,
+          onlyReviewProjects:ReviewData}));
       } else if ((reportTypes === "SuperCheck" || reportfilter === "All Stage" && radiobutton === "UsersReports")) {
-        const supercheckObj = new GetOrganizationUserReportsAPI(
-          orgId,
-          selectedType,
-          format(selectRange[0].startDate, 'yyyy-MM-dd'),
-          format(selectRange[0].endDate, 'yyyy-MM-dd'),
-          "supercheck",
-          targetLanguage,
-          sendMail,
-        );
-        dispatch(APITransport(supercheckObj));
+        const supercheckObj = ({orgId:orgId,
+          projectType:selectedType,
+          startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          endDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          reportsType:"supercheck",
+          targetLanguage:targetLanguage,
+          sendMail:sendMail});
+        dispatch(fetchOrganizationUserReports(supercheckObj));
       }
       else if (radiobutton === "ProjectReports") {
         if(projectReportType === 1){
@@ -364,7 +362,7 @@ console.log("End Date:", selectRange[0].endDate);
     const value = event.target.value;
     setReportfilter(value);
   }
-
+console.log(ProjectReports,UserReports);
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -645,7 +643,7 @@ console.log("End Date:", selectRange[0].endDate);
       {showSpinner ? <div></div> : reportRequested && (
         <ThemeProvider theme={tableTheme}>
           <MUIDataTable
-            title={ProjectReports.length > 0 ? "Reports" : ""}
+            title={ProjectReports?.length > 0 ? "Reports" : ""}
             data={reportData}
             columns={columns.filter((col) => selectedColumns.includes(col.name))}
             options={options}

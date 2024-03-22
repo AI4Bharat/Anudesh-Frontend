@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/common/Button";
-import MenuItems from "@/components/common/MenuItems";
+import MenuItems from "../common/MenuItems";
 import Spinner from "@/components/common/Spinner";
 import Snackbar from "@/components/common/Snackbar";
 import DatasetStyle from "@/styles/dataset";
@@ -12,9 +12,9 @@ import roles from "@/utils/Role";
 import { MenuProps } from "@/utils/utils";
 import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";
 import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
-import { fetchDatasetsByType } from "@/Lib/Features/actions/getDatasetsByType";
 import { fetchIndicTransLanguages } from "@/Lib/Features/datasets/GetIndicTransLanguages";
 import AutomateDatasetsAPI from "@/app/actions/api/dataset/AutomateDatasetsAPI";
+import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
 
 const APi_Type = [{ Api_Typename: "indic-trans" }, { Api_Typename: "google" },{ Api_Typename: "azure" }]
 const InterAutomateDataset = () => {
@@ -42,11 +42,11 @@ const InterAutomateDataset = () => {
   //const [api_type, setApi_type] = useState("indic-trans");
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
-  const DatasetInstances = useSelector((state) => state.getDatasetsByType?.data);
-  const DatasetTypes = useSelector((state) => state.GetDatasetType?.data);
-  const LanguageChoicesIndicTrans = useSelector((state) => state.getIndicTransLanguages?.data);
-  const LanguageChoicesAll = useSelector((state) => state.getLanguageChoices?.data);
-  
+  const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
+  const DatasetTypes = useSelector((state) => state.GetDatasetType.data);
+  const LanguageChoicesIndicTrans = useSelector((state) => state.GetIndicTransLanguages.data);
+  const LanguageChoicesAll = useSelector((state) => state.getLanguages.data);
+  console.log(loggedInUserData,DatasetInstances,DatasetTypes,LanguageChoicesAll,LanguageChoicesIndicTrans);
   useEffect(() => {
     dispatch(fetchDatasetType());
     dispatch(fetchIndicTransLanguages());
@@ -90,14 +90,14 @@ const InterAutomateDataset = () => {
     setSrcDatasetType(value);
     setLoading(true);
     const instancesObj = (value);
-    dispatch(fetchDatasetsByType(instancesObj));
+    dispatch(fetchDatasetByType(instancesObj));
   };
 
   const handleTgtDatasetTypeChange = (value) => {
     setTgtDatasetType(value);
     setLoading(true);
     const instancesObj = (value);
-    dispatch(fetchDatasetsByType(instancesObj));
+    dispatch(fetchDatasetByType(instancesObj));
   };
 
   const handleTransModelChange = (value) => {
@@ -183,6 +183,20 @@ const api_type = translationModel===1?"indic-trans": translationModel===2?"googl
                 handleChange={handleSrcDatasetTypeChange}
                 value={srcDatasetType}
               />
+              {/* <FormControl fullWidth sx={{ minWidth: 120 }} >
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  onChange={handleSrcDatasetTypeChange}
+                  value={srcDatasetType}
+                >
+                  {srcDatasetTypes.map((option, index) => (
+                    <MenuItem key={index} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl> */}
             </Grid>
             <Grid
               className={classes.projectsettingGrid}
