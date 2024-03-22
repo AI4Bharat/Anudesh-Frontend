@@ -21,6 +21,24 @@ import { useState, useEffect, useRef } from "react";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { makeStyles } from "@mui/styles";
+import CustomizedSnackbars from "@/components/common/Snackbar";
+
+const useStyles = makeStyles((theme) => ({
+  tooltip: {
+    fontSize: "1rem !important", // Adjust the font size as needed
+  },
+}));
+
+const codeStyle = {
+  borderRadius: "0xp 0px 5px 5px",
+  width: "45vw",
+  overflowX: "scroll",
+  fontSize: "1.1rem",
+};
 
 const style = {
   position: "absolute",
@@ -35,7 +53,8 @@ const style = {
 };
 
 const InstructionDrivenChatPage = () => {
-    /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const tooltipStyle = useStyles();
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
@@ -46,6 +65,11 @@ const InstructionDrivenChatPage = () => {
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "success",
+  });
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
@@ -62,17 +86,88 @@ const InstructionDrivenChatPage = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory]);
 
+  const formatResponse = (response) => {
+    response = String(response);
+    const output = [];
+    let count = 0;
+
+    while (response) {
+      response = response.trim();
+      let index = response.indexOf("```");
+      if (index == -1) {
+        output.push({
+          type: "text",
+          value: response,
+        });
+        break;
+      } else {
+        count++;
+        if (count % 2 !== 0) {
+          output.push({
+            type: "text",
+            value: response.substring(0, index),
+          });
+          response = response.slice(index + 3);
+        } else if (count % 2 === 0) {
+          let next_space = response.indexOf("\n");
+          let language = response.substring(0, next_space);
+          response = response.slice(next_space + 1);
+          let new_index = response.indexOf("```");
+          let value = response.substring(0, new_index);
+          output.push({
+            type: "code",
+            value: value,
+            language: language,
+          });
+          response = response.slice(new_index + 3);
+        }
+      }
+    }
+    return output;
+  };
+
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+
+  const copyToClipboard = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setSnackbarInfo({
+        open: true,
+        message: "Copied to clipboard!",
+        variant: "success",
+      });
+    } catch (error) {
+      setSnackbarInfo({
+        open: true,
+        message: "Failed to copy to clipboard!",
+        variant: "error",
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const item = taskList.filter((task) => task.id == taskId);
       if (item && item[0])
         setInfo({
-          instruction_data: item[0]?.data?.instruction_data,
           hint: item[0]?.data?.hint,
           examples: item[0]?.data?.examples,
+          meta_info_intent: item[0]?.data?.meta_info_intent,
+          instruction_data: item[0]?.data?.instruction_data,
           meta_info_domain: item[0]?.data?.meta_info_domain,
           meta_info_language: item[0]?.data?.meta_info_language,
-          meta_info_intent: item[0]?.data?.meta_info_intent,
         });
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
@@ -80,7 +175,16 @@ const InstructionDrivenChatPage = () => {
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const data = await response.json();
-      setChatHistory((prevChatHistory) => (data ? [...data[0].result] : []));
+      let modifiedChatHistory;
+      if(data && [...data[0].result].length) {
+        modifiedChatHistory = data[0].result.map((interaction) => {
+          return {
+            ...interaction,
+            output: formatResponse(interaction.output),
+          };
+        });
+      }
+      setChatHistory((prevChatHistory) => (data ? [...modifiedChatHistory] : []));
       setAnnotationId(data[0].id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
     };
@@ -104,9 +208,18 @@ const InstructionDrivenChatPage = () => {
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
+      let modifiedChatHistory;
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
-        return data && data.result ? [...data.result] : [...prevChatHistory];
+        if(data && data.result) {
+          modifiedChatHistory = data.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }
+        return data && data.result ? [...modifiedChatHistory] : [...prevChatHistory];
       });
     } else {
       alert("Please provide a prompt.");
@@ -135,9 +248,9 @@ const InstructionDrivenChatPage = () => {
               display: "flex",
               justifyContent: "start",
               alignItems: "center",
-              paddingBottom: "1.5rem",
-              paddingX: "1.5rem",
+              padding: "1.5rem",
               borderRadius: "0.5rem",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
             }}
           >
             <Avatar
@@ -160,15 +273,12 @@ const InstructionDrivenChatPage = () => {
               width: "50vw",
               display: "flex",
               justifyContent: "start",
-              alignItems: "center",
-              paddingY: "1.75rem",
-              paddingX: "1.5rem",
+              alignItems: "start",
+              padding: "3.5rem 1.5rem 0rem",
               borderRadius: "0.5rem",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              overflowX: "scroll",
             }}
           >
-            <Image 
+            <Image
               width={50}
               height={50}
               src="https://i.imgur.com/56Ut9oz.png"
@@ -177,7 +287,81 @@ const InstructionDrivenChatPage = () => {
                 marginRight: "1rem",
               }}
             />
-            <ReactMarkdown className="flex-col">{message.output}</ReactMarkdown>
+            <Box className="flex-col">
+              {message.output.map((segment, index) =>
+                segment.type == "text" ? (
+                  <ReactMarkdown
+                    key={index}
+                    className="flex-col overflow-x-scroll"
+                  >
+                    {segment.value}
+                  </ReactMarkdown>
+                ) : (
+                  <>
+                    <Box
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignContent: "center",
+                        paddingX: "1rem",
+                        borderRadius: "5px 5px 0 0",
+                        backgroundColor: "#c5c5c5",
+                        paddingY: "0.8rem",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: "1rem",
+                          color: "#4e4e4e",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {segment.language}
+                      </p>
+                      <Tooltip
+                        title="Copy code to clipboard"
+                        classes={{ tooltip: tooltipStyle.tooltip }}
+                      >
+                        <button
+                          style={{
+                            display: "flex",
+                            justifyContent: "end",
+                            alignItems: "end",
+                          }}
+                          onClick={copyToClipboard.bind(null, segment.value)}
+                        >
+                          <ContentPasteIcon
+                            sx={{
+                              fontSize: "1.4rem",
+                              color: "#4e4e4e",
+                            }}
+                          />
+                          <p
+                            style={{
+                              paddingLeft: "0.2rem",
+                              fontSize: "1rem",
+                              color: "#4e4e4e",
+                              fontWeight: "500",
+                            }}
+                          >
+                            Copy
+                          </p>
+                        </button>
+                      </Tooltip>
+                    </Box>
+                    <SyntaxHighlighter
+                      language={segment.language}
+                      style={gruvboxDark}
+                      className="code"
+                      customStyle={codeStyle}
+                    >
+                      {segment.value}
+                    </SyntaxHighlighter>
+                  </>
+                ),
+              )}
+            </Box>
           </Box>
         </Box>,
       );
@@ -260,6 +444,7 @@ const InstructionDrivenChatPage = () => {
 
   return (
     <>
+      {renderSnackBar()}
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Box
@@ -346,8 +531,8 @@ const InstructionDrivenChatPage = () => {
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
             size={12}
-            grid_size={'80.6rem'}
-            class_name={''}
+            grid_size={"80.6rem"}
+            class_name={""}
             loading={loading}
           />
         </Grid>

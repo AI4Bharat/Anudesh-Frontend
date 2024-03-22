@@ -69,7 +69,6 @@ const AnnotatePage = () => {
     message: "",
     variant: "success",
   });
-  console.log(ProjectDetails,"lll");
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
