@@ -160,7 +160,7 @@ const InstructionDrivenChatPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const item = taskList.filter((task) => task.id == taskId);
+      const item = taskList?.filter((task) => task.id == taskId);
       if (item && item[0])
         setInfo({
           hint: item[0]?.data?.hint,
@@ -184,8 +184,8 @@ const InstructionDrivenChatPage = () => {
             output: formatResponse(interaction.output),
           };
         });
+        setChatHistory((prevChatHistory) => (data ? [...modifiedChatHistory] : []));
       }
-      setChatHistory((prevChatHistory) => (data ? [...modifiedChatHistory] : []));
       setAnnotationId(data[0].id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
     };
