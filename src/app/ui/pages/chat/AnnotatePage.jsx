@@ -245,7 +245,7 @@ const AnnotatePage = () => {
     setAutoSave(false);
     const PatchAPIdata = {
       annotation_status: value,
-      annotation_notes: JSON.stringify(annotationNotesRef.current.getEditor().getContents()),
+      annotation_notes: JSON.stringify(annotationNotesRef?.current?.getEditor().getContents()),
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0)
     };
