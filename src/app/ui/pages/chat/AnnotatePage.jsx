@@ -201,7 +201,7 @@ const AnnotatePage = () => {
         load_time.current,
         annotation.lead_time,
         "skipped",
-        JSON.stringify(annotationNotesRef.current.getEditor().getContents())
+        JSON.stringify(annotationNotesRef?.current?.getEditor().getContents())
       ).then(() => {
         getNextProject(projectId, taskData.id).then((res) => {
           // hideLoader();
