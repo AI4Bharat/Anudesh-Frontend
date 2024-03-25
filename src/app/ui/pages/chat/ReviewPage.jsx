@@ -13,7 +13,7 @@ import { styled, alpha } from "@mui/material/styles";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
+// const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
 
 // import ReactQuill, { Quill } from 'react-quill';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -43,7 +43,19 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
+import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
+
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+
+    return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
+  },
+  {
+    ssr: false
+  }
+);
 
 
 const StyledMenu = styled((props) => (
@@ -98,6 +110,7 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const lsfRef = useRef();
   const [assignedUsers, setAssignedUsers] = useState(null);
+  const [chatHistory, setChatHistory] = useState([{}]);
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
@@ -140,7 +153,6 @@ const ReviewPage = () => {
 
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
-  const [chatHistory, setChatHistory] = useState([]);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState('')
@@ -767,7 +779,7 @@ const setNotes = (taskData, annotations) => {
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case 'InstructionDrivenChat':
-      componentToRender = <InstructionDrivenChatPage />;
+      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
       break;
     case 'ModelInteractionEvaluation':
       componentToRender = <ModelInteractionEvaluation />;
