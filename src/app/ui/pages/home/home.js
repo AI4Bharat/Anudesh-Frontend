@@ -1,8 +1,8 @@
 "use client";
 import "./home.css";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useNavigate } from "react-router-dom";
-import { authenticateUser } from "@/utils/utils";
 import ChatIcon from "@mui/icons-material/Chat";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
 import RateReviewIcon from "@mui/icons-material/RateReview";
@@ -129,7 +129,12 @@ const DynamicCards = ({ card }) => {
 
 const Home = () => {
   const navigate = useNavigate();
-  window.sessionStorage.setItem('interaction_json', JSON.stringify([]));
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('interaction_json', JSON.stringify([]));
+    }
+  }, []);
+  
 
   return (
     <>
@@ -278,7 +283,7 @@ const Home = () => {
         </Box>
       </div>
 
-      <div className="text-center pb-32">
+      <div clasNsame="text-center pb-32">
         <div className="text-gray-700 text-6xl font-medium py-20">
           { operationalDynamics.heading }
         </div>
@@ -310,9 +315,9 @@ const Home = () => {
       </div>
 
       <div className="text-center bg-stone-800 py-6">
-        <div className="text-white text-2xl font-medium">
+        <Typography className="text-white" sx={{fontWeight: 'bold'}}>
           {footer.content}
-        </div>
+        </Typography>
       </div>
     </>
   );
