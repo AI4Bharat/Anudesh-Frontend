@@ -13,6 +13,10 @@ import {
   Tooltip,
   Typography,
   Popover,
+  Badge,
+  Stack,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
@@ -36,6 +40,15 @@ import UpdateUIPrefsAPI from "@/Lib/Features/user/UpdateUIPrefs";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import { Link, NavLink } from "react-router-dom";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
+import NotificationAPI from "@/app/actions/api/Notification/Notification";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import GradingSharpIcon from '@mui/icons-material/GradingSharp';
+import { formatDistanceToNow, format } from 'date-fns';
+import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
+import APITransport from "@/app/actions/apitransport/apitransport"
 
 const Header = () => {
        /* eslint-disable react-hooks/exhaustive-deps */
@@ -45,8 +58,8 @@ const Header = () => {
   const [anchorElHelp, setAnchorElHelp] = useState(null);
   const [isSpaceClicked, setIsSpaceClicked] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
-  const [showTransliterationModel, setShowTransliterationModel] =
-    useState(false);
+  const [showTransliterationModel, setShowTransliterationModel] = useState(false);
+  const [anchorElNotification, setAnchorElNotification] = useState(null);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -54,6 +67,9 @@ const Header = () => {
   });
   //const[checkClUI,setCheckClUI]=useState(null)
   const [moreHorizonAnchorEl, setMoreHorizonAnchorEl] = useState(null);
+  const [Notification, setnotification] = useState()
+  const [unread, setunread] = useState(null)
+  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
 
   if(localStorage.getItem("source") !== undefined){
     localStorage.setItem("source", "anudesh-frontend");
@@ -89,6 +105,59 @@ const Header = () => {
   const getLoggedInUserData = () => {
     dispatch(FetchLoggedInUserData("me"));
   };
+
+  const fetchNotifications = () => {
+    let apiObj = new NotificationAPI();
+    const endpoint = unread == null ? apiObj.apiEndPoint() : `${apiObj.apiEndPoint()}?seen=${unread}`;
+
+    fetch(endpoint, {
+      method: "get",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        if (response.ok) {
+          const data = await response?.json();
+          setnotification(data);
+          console.log(Notification?.length, data);
+        } else {
+          console.error("Error fetching notifications:", response.status, response.statusText);
+          setnotification([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching notifications:", error);
+      });
+  };
+  const markAsRead =  (notificationId) => {
+    const task = new NotificationPatchAPI(notificationId);
+    setSelectedNotificationId(notificationId);
+     dispatch(APITransport(task));
+     fetchNotifications()
+
+  };
+
+  const markAllAsRead =  () => {
+    const notificationIds = Notification.map((notification) => notification.id);
+    const tasks = new NotificationPatchAPI(notificationIds);
+    setSelectedNotificationId(notificationIds)
+     dispatch(APITransport(tasks));
+     fetchNotifications()
+
+  };
+
+  const handleMarkAllAsReadClick =  () => {
+    markAllAsRead();
+  };
+
+  const handleMarkAsRead =  (notificationId) => {
+    markAsRead(notificationId);
+  };
+
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [unread,selectedNotificationId]);
   
   useEffect(() => {
     getLoggedInUserData();
@@ -177,6 +246,14 @@ const handleopenproject=(id,type)=>{
     setAnchorElSettings(null);
   };
 
+  const handleOpenNotification = (event) => {
+    setAnchorElNotification(event.currentTarget);
+  };
+
+  const handleCloseNotification = () => {
+    setAnchorElNotification(null);
+  };
+
   const handleRTLChange = (event) => {
     if (typeof window !== 'undefined') {
     let style;
@@ -248,6 +325,9 @@ const handleopenproject=(id,type)=>{
       />
     );
   };
+
+  const unseenNotifications = Notification?.length > 0 && Notification?.filter(notification => notification?.seen_json ==true || !notification?.seen_json[loggedInUserData.id]);
+  console.log(unseenNotifications,'unseen notification');
 
   const renderTabs = () => {
     if (
@@ -817,6 +897,17 @@ const handleopenproject=(id,type)=>{
                   spacing={2}
                   sx={{ textAlign: "center", alignItems: "center", }}
                 >
+                <Grid item xs={3} sm={3} md={2}>
+                    <Tooltip title="Notifications">
+                      <IconButton onClick={handleOpenNotification}>
+                        <Badge badgeContent={unseenNotifications?.length>0 ?unseenNotifications?.length: null} color="primary">
+                          <NotificationsIcon color="primary.dark" fontSize="large" />
+                        </Badge>
+
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+{/* 
                   { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
                   <Grid item xs={3} sm={3} md={2}>
                     <Tooltip title="Analytics">
@@ -827,9 +918,9 @@ const handleopenproject=(id,type)=>{
                         />
                       </IconButton>
                     </Tooltip>
-                  </Grid>}
+                  </Grid>} */}
 
-                  { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
+                  {/* { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
                   <Grid item xs={3} sm={3} md={2}>
                     <Tooltip title="Leaderboard">
                       <IconButton onClick={handleLeaderboard} style={{"display": "flex", "justifyContent": "center", "alignItems": "center"}}>
@@ -840,7 +931,7 @@ const handleopenproject=(id,type)=>{
                         <h3 className="text-orange-600 text-sm font-bold mt-4">100</h3>
                       </IconButton>
                     </Tooltip>
-                  </Grid> }
+                  </Grid> } */}
 
                   <Grid item xs={3} sm={3} md={2}>
                     <Tooltip title="Help">
@@ -994,6 +1085,113 @@ const handleopenproject=(id,type)=>{
                     </MenuItem>
                   ))}
                 </Menu>
+                <Menu
+                  sx={{ mt: "45px", display: "flex", flexDirection: "row" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElNotification}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  style={{ overflow: "scroll" }}
+                  open={Boolean(anchorElNotification)}
+                  onClose={handleCloseNotification}
+                >
+                  <Stack direction="row" style={{ justifyContent: "space-between", padding: "0 10px 0 10px" }} >
+                    <Typography variant="h4">Notifications</Typography>
+                    {Notification && Notification?.length > 0 && unseenNotifications?.length > 0 ? <Tooltip title="Mark all as read"><IconButton aria-label="More" onClick={handleMarkAllAsReadClick}>
+                      <GradingSharpIcon color="primary"/>
+                    </IconButton> </Tooltip>: null}
+                  </Stack>
+                  <Stack direction="row" spacing={2} style={{ padding: "0 0 10px 10px" }}>
+                    <Tabs value={value} onChange={handleChange} sx={{
+                      '& .MuiTabs-indicator': {
+                        backgroundColor: theme => theme.palette.primary.main,
+                      }
+                    }}>
+                      <Tab label="All" onClick={() => handleTabChange(0)} />
+                      <Tab label="Unread" onClick={() => handleTabChange(1)} />
+                    </Tabs>
+                  </Stack>
+                  {Notification && Notification?.length > 0 ? (
+                    <>
+                      {Notification.map((notification, index) => (
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
+                          <div style={{ marginRight: '10px' ,cursor:"pointer"}}>
+                            <FiberManualRecordIcon color={notification?.seen_json
+                              ? notification?.seen_json[loggedInUserData.id]
+                                ? 'action'
+                                : 'primary'
+                              : "primary"} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%' ,cursor:"pointer"}}>
+                            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+                              <Typography variant="subtitle2">{`ID: ${notification?.title?.split('-')[0]}`}</Typography>
+                              <Typography style={{ paddingLeft: "10px" }} variant="subtitle2">{`TITLE: ${notification?.notification_type}`}</Typography>
+                              <Typography style={{ padding: "5px 5px 0px 5px" }} variant="caption" color="action">{`${formatDistanceToNow(new Date(notification?.created_at), { addSuffix: true })}`}</Typography>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: "space-between" }}>
+                              <Typography style={{ justifyContent: "flex-start", width: '100%' }} variant="body2">{notification?.title?.split('-')[1]}</Typography>
+                              {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
+                              <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
+                                <CheckCircleOutlineRoundedIcon color="primary"/>
+                              </IconButton></Tooltip>:null}
+                            </div>
+                            <Typography variant="caption" color="action">{`Sent on: ${format(new Date(notification?.created_at), 'MMM d, yyyy')}`}</Typography>
+                            {index !== Notification?.length - 1 && <Divider />} 
+                          </div>
+  
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                      <NotificationsOffIcon color="disabled" fontSize="large" />
+                      <Typography variant="h5" color="textSecondary" style={{ marginTop: '10px' }}>
+                        No notifications found
+                      </Typography>
+                    </div>
+                  )}
+                </Menu>
+                <Popover
+                  open={Boolean(moreHorizonAnchorEl)}
+                  anchorEl={moreHorizonAnchorEl}
+                  onClose={handleMoreHorizonClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                >
+                  <MenuItem onClick={handleMarkAllAsReadClick}>Mark All as read</MenuItem>
+                </Popover>
+                <Popover
+                  open={Boolean(popoverAnchorEl)}
+                  anchorEl={popoverAnchorEl}
+                  onClose={handlePopoverClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                >
+
+                    <MenuItem onClick={handleMarkAsRead}>Mark as Read</MenuItem>
+
+                </Popover>
+
               </Box>
             </Toolbar>
           </AppBar>

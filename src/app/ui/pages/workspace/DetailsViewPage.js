@@ -391,7 +391,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 export async function getServerSideProps() {
   try {
-    const response = await axios.get('https://backend.dev.anudesh.ai4bharat.org//users/account/me/fetch');
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/account/me/fetch`);
 
     const initialUserData = response.data;
 
