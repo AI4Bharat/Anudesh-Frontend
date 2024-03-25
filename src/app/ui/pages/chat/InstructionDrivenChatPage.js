@@ -74,7 +74,9 @@ const InstructionDrivenChatPage = () => {
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
-  const language = useSelector((state) => state.getProjectDetails?.data?.tgt_language) || "english";
+  const language =
+    useSelector((state) => state.getProjectDetails?.data?.tgt_language) ||
+    "english";
 
   const handleOpen = () => {
     setOpen(true);
@@ -177,7 +179,7 @@ const InstructionDrivenChatPage = () => {
       });
       const data = await response.json();
       let modifiedChatHistory;
-      if(data && [...data[0].result].length) {
+      if (data && [...data[0].result].length) {
         modifiedChatHistory = data[0].result.map((interaction) => {
           return {
             ...interaction,
@@ -212,7 +214,7 @@ const InstructionDrivenChatPage = () => {
       let modifiedChatHistory;
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
-        if(data && data.result) {
+        if (data && data.result) {
           modifiedChatHistory = data.result.map((interaction) => {
             return {
               ...interaction,
@@ -220,7 +222,9 @@ const InstructionDrivenChatPage = () => {
             };
           });
         }
-        return data && data.result ? [...modifiedChatHistory] : [...prevChatHistory];
+        return data && data.result
+          ? [...modifiedChatHistory]
+          : [...prevChatHistory];
       });
     } else {
       alert("Please provide a prompt.");
