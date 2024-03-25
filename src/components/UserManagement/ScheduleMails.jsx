@@ -184,35 +184,35 @@ const ScheduleMails = () => {
   useEffect(() => {
     workspaceData && workspaceData.length > 0 && setWorkspaces(workspaceData);
   }, [workspaceData]);
-
   useEffect(() => {
     if (scheduledMails?.length) {
       let tempColumns = [];
       let tempSelected = [];
-      Object.keys(scheduledMails[0]).forEach((key) => {
+      const updatedScheduledMails = scheduledMails.map(mail => {
+        const updatedMail = { ...mail }; 
+        Object.keys(mail).forEach(key => {
+          tempColumns.push({
+            name: key,
+            label: key,
+            options: {
+              filter: false,
+              sort: true,
+              align: "center",
+            },
+          });
+          key !== "id" && tempSelected.push(key);
+        });
         tempColumns.push({
-          name: key,
-          label: key,
+          name: "Actions",
+          label: "Actions",
           options: {
             filter: false,
             sort: true,
             align: "center",
           },
         });
-        key !== "id" && tempSelected.push(key);
-      });
-      tempColumns.push({
-        name: "Actions",
-        label: "Actions",
-        options: {
-          filter: false,
-          sort: true,
-          align: "center",
-        },
-      });
-      tempSelected.push("Actions");
-      scheduledMails.map((mail) => {
-        mail.Actions = (
+        tempSelected.push("Actions");
+        updatedMail.Actions = (
           <Box
             sx={{
               display: "flex",
@@ -221,18 +221,18 @@ const ScheduleMails = () => {
             }}
           >
             <CustomButton
-              label={mail["Status"] === "Enabled" ? "Pause" : "Resume"}
-              onClick={() => updateScheduledMail(mail)} />
+              label={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
+              onClick={() => updateScheduledMail(updatedMail)} />
             <CustomButton
               label="Delete"
               sx={{ backgroundColor: "#EC0000" }}
-              onClick={() => deleteScheduledMail(mail)} />
+              onClick={() => deleteScheduledMail(updatedMail)} />
           </Box>
         );
-        return mail;
+        return updatedMail;
       });
       setColumns(tempColumns);
-      setTableData(scheduledMails);
+      setTableData(updatedScheduledMails);
       setSelectedColumns(tempSelected);
     } else {
       setColumns([]);
@@ -241,7 +241,7 @@ const ScheduleMails = () => {
     }
     setShowSpinner(false);
   }, [scheduledMails]);
-
+  
   const renderToolBar = () => {
     return (
       <Box

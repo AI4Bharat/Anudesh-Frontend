@@ -28,7 +28,8 @@ import {
 } from "@ai4bharat/indic-transliterate";
 import "../../../../IndicTransliterate/index.css";
 import { MenuProps } from "@/utils/utils";
-import { setDomain } from "@/Lib/Features/actions/AddGlossary";
+import { fetchGetAddGlossary, setDomain } from "@/Lib/Features/actions/AddGlossary";
+import { fetchDomain } from "@/Lib/Features/actions/getDomain";
 
 const AddGlossary = ({
   openDialog,
@@ -61,11 +62,11 @@ const AddGlossary = ({
   var Sourcedata = Sourcelanguage?.filter((e)=>e.LangCode.includes(selectedSourceLang))
 
 
-  const allDomains = useSelector((state) => state.getDomain.data);
+  const allDomains = useSelector((state) => state.getDomain?.data?.domains);
 
   useEffect(() => {
-    const domainApiObj = new getDomains();
-    dispatch(setDomain(domainApiObj));
+    // const domainApiObj = new getDomains();
+    dispatch(fetchDomain());
   }, []);
 
   const onSubmit = async () => {
@@ -98,7 +99,7 @@ const AddGlossary = ({
       ],
     };
     const domainApiObj = new AddGlossaryAPI(AddGlossaryData);
-    // dispatch(setDomain(domainApiObj));
+    dispatch(fetchGetAddGlossary(AddGlossaryData));
     const res = await fetch(domainApiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(domainApiObj.getBody()),

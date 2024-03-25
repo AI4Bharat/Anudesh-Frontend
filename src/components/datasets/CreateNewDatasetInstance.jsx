@@ -6,6 +6,9 @@ import {
   Tabs,
   ThemeProvider,
   Typography,
+  MenuItem,
+  FormControl,
+  Select
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
@@ -222,13 +225,24 @@ const CollectionProject = (props) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <MenuItems
-                menuOptions={type}
-                handleChange={(value) => setDatasettype(value)}
-                value={datasettype}
-                helperText={errors.dataset_type ? errors.dataset_type : ""}
-                error={errors.dataset_type ? true : false}
-              />
+            <FormControl fullWidth sx={{ minWidth: 120 }} >
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  onChange={(e) => setDatasettype(e.target.value)}
+                  value={datasettype}
+                  helperText={errors.dataset_type ? errors.dataset_type : ""}
+                  error={errors.dataset_type ? true : false}  
+                  sx={{ fontSize: "14px" }}
+                >
+                  {type.map((option, index) => (
+                    <MenuItem key={index} value={option.value}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
             </Grid>
             <Grid
               className={classes.projectsettingGrid}

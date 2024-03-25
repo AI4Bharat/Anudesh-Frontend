@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchFileTypes = createAsyncThunk(
   'GetFileTypes/fetchFileTypes',
-  async ( { dispatch }) => {
+  async ( ) => {
     
     const params = fetchParams(`${ENDPOINTS.getDatasets}instances/accepted_filetypes/`);
     return fetch(params.url, params.options)

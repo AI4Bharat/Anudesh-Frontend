@@ -7,8 +7,8 @@ const initialState = {
   error: null,
 };
 
-export const fetchSendOrganizationUserReports = createAsyncThunk(
-  'SendOrganizationUserReports/fetchSendOrganizationUserReports',
+export const fetchSendWorkspaceUserReports = createAsyncThunk(
+  'SendWorkspaceUserReports/fetchSendWorkspaceUserReports',
   async ({orgId, userId, projectType, participationTypes, fromDate, toDate}) => {
     const body = {
         project_type: projectType,
@@ -23,24 +23,24 @@ export const fetchSendOrganizationUserReports = createAsyncThunk(
   }
 );
 
-const SendOrganizationUserReports = createSlice({
-  name: 'SendOrganizationUserReports',
+const SendWorkspaceUserReports = createSlice({
+  name: 'SendWorkspaceUserReports',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchSendOrganizationUserReports.pending, (state) => {
+      .addCase(fetchSendWorkspaceUserReports.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchSendOrganizationUserReports.fulfilled, (state, action) => {
+      .addCase(fetchSendWorkspaceUserReports.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
       })
-      .addCase(fetchSendOrganizationUserReports.rejected, (state, action) => {
+      .addCase(fetchSendWorkspaceUserReports.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });
   },
 });
 
-export default SendOrganizationUserReports.reducer;
+export default SendWorkspaceUserReports.reducer;

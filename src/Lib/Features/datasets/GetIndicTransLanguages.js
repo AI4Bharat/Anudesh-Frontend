@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchIndicTransLanguages = createAsyncThunk(
   'GetIndicTransLanguages/fetchIndicTransLanguages',
-  async ( { dispatch }) => {
+  async () => {
     const params = fetchParams(`${ENDPOINTS.functions}get_indic_trans_supported_languages`);
     return fetch(params.url, params.options)
         .then(response => response.json())

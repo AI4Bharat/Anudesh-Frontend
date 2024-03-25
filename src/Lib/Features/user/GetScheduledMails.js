@@ -9,8 +9,8 @@ const initialState = {
 
 export const fetchScheduledMails = createAsyncThunk(
   'GetScheduledMails/fetchScheduledMails',
-  async (projectId, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/export_project_tasks/`);
+  async (userId,{dispatch}) => {
+    const params = fetchParams(`${ENDPOINTS.getUsers}${userId}/get_scheduled_mails/`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

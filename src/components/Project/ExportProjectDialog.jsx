@@ -23,7 +23,7 @@ import {
   import { snakeToTitleCase } from "@/utils/utils";
   import DatasetStyle from "@/styles/dataset";
   import CancelIcon from "@mui/icons-material/Cancel";
-import { fetchDatasetsByType } from "@/Lib/Features/actions/getDatasetsByType";
+  import { fetchDatasetByType } from '@/Lib/Features/datasets/getDatasetByType';
   
   const ExportProjectDialog = ({
     OpenExportProjectDialog,
@@ -49,7 +49,7 @@ import { fetchDatasetsByType } from "@/Lib/Features/actions/getDatasetsByType";
     );
   
     useEffect(() => {
-      dispatch(fetchDatasetsByType(projectType));
+      dispatch(fetchDatasetByType(projectType));
     }, []);
   
     useEffect(() => {

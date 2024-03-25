@@ -23,7 +23,11 @@ export default function MenuItems(props) {
           sx={{fontSize:"14px" }}
        
         >
-         
+           { 
+            props.menuOptions.map(menu  => {
+                    return  <MenuItem disabled={menu.disabled} key={menu.value} value={menu.value}> {menu.name}</MenuItem>
+                })
+            }
         </Select>
       </FormControl>
      

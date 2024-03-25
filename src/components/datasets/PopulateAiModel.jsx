@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import MenuItems from "@/components/common/MenuItems";
 import { MenuProps } from "@/utils/utils";
 import themeDefault from "@/themes/theme";
-import { fetchDatasetsByType } from '@/Lib/Features/actions/getDatasetsByType';
+import { fetchDatasetByType } from '@/Lib/Features/datasets/getDatasetByType';
 import { fetchDataitemsById } from '@/Lib/Features/datasets/GetDataitemsById';
 import aiModel from '@/app/actions/api/dataset/aiModel';
 
@@ -138,7 +138,7 @@ const PopulateAiModel = () => {
   const handleSrcDatasetTypeChange = (value) => {
     setSrcDatasetType(value);
     setLoading(true);
-    dispatch(fetchDatasetsByType(value));
+    dispatch(fetchDatasetByType(value));
   };
 
   const handleField =(value)=>{

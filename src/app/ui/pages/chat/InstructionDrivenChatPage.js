@@ -186,9 +186,7 @@ const InstructionDrivenChatPage = () => {
             output: formatResponse(interaction.output),
           };
         });
-        setChatHistory((prevChatHistory) =>
-          data ? [...modifiedChatHistory] : [],
-        );
+        setChatHistory((prevChatHistory) => (data ? [...modifiedChatHistory] : []));
       }
       setAnnotationId(data[0].id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
