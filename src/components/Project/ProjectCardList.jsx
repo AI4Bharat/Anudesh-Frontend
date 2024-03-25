@@ -127,19 +127,19 @@ const ProjectCardList = (props) => {
         }),
       },
     },
-    {
-      name: "project_mode",
-      label: "Project Mode",
-      options: {
-        filter: false,
-        sort: false,
-        align: "center",
-        display: 'false', 
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
-        }),
-      },
-    },
+    // {
+    //   name: "project_mode",
+    //   label: "Project Mode",
+    //   options: {
+    //     filter: false,
+    //     sort: false,
+    //     align: "center",
+    //     display: 'false', 
+    //     setCellHeaderProps: (sort) => ({
+    //       style: { height: "70px", fontSize: "16px", padding: "16px" },
+    //     }),
+    //   },
+    // },
     {
       name: "workspace_id",
       label: "Workspace Id",
@@ -169,6 +169,7 @@ const ProjectCardList = (props) => {
   const data =
     projectData && projectData.length > 0
       ? pageSearch().map((el, i) => {
+        console.log('dets ', el);
           const userRole =
             el.project_stage &&
             UserMappedByProjectStage(el.project_stage).element;
