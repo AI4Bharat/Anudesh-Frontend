@@ -22,9 +22,9 @@ export default function DatasetList() {
   const classes = DatasetStyle();
   const navigate = useNavigate();
   const [radiobutton, setRadiobutton] = useState(true);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const datasetList = useSelector((state) => state.GetDatasets.data);
-  const apiLoading = useSelector((state) => state.apiStatus.loading);
+  const apiLoading = useSelector((state) => state.GetDatasets.status !== "succeeded");
 
   const [selectedFilters, setsSelectedFilters] = useState({
     dataset_visibility: "",
@@ -63,13 +63,10 @@ export default function DatasetList() {
   const handleAutomateButton = (e) => {
     navigate("/datasets/automate");
   };
-   useEffect(() => {
-      setLoading(apiLoading);
-  }, [apiLoading])
-
+  
   return (
     <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
+      {apiLoading ? <Spinner /> : <> 
 
       <Grid container className={classes.root}>
         <Grid item style={{ flexGrow: "0" }}>
@@ -146,6 +143,7 @@ export default function DatasetList() {
           )}
         </Box>
       </Box>
+      </>}
     </ThemeProvider>
   );
 }

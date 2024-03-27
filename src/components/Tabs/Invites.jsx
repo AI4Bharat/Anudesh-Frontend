@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import MembersTable from "../Project/MembersTable";
 // import GetOragnizationUsersAPI from "../../../../redux/actions/api/Organization/GetOragnizationUsers";
+import Spinner from "@/components/common/Spinner"
 
 const Invites = (props) => {
     const {hideButton,reSendButton} = props;
@@ -15,7 +16,7 @@ const Invites = (props) => {
     // const { orgId } = useParams();
     const orgId =1;
     const OrganizationUserData = useSelector(state => state.getOrganizationUsers.data);
-
+    const apiLoading = useSelector((state) => state.getOrganizationUsers.status !== "succeeded");
     const getOrganizationMembersData = () => {
         dispatch(fetchOrganizationUsers(orgId));
     }
@@ -26,11 +27,15 @@ const Invites = (props) => {
     }, []);
     
     return (
-        <MembersTable
-            reSendButton ={reSendButton}
-            hideButton = {hideButton ? hideButton : false}
-            dataSource={OrganizationUserData && OrganizationUserData.length > 0 && OrganizationUserData.filter((el, i) => { return !el.has_accepted_invite })}
-        />
+        <React.Fragment> 
+        { apiLoading ? <Spinner /> : 
+            <MembersTable
+                reSendButton ={reSendButton}
+                hideButton = {hideButton ? hideButton : false}
+                dataSource={OrganizationUserData && OrganizationUserData.length > 0 && OrganizationUserData.filter((el, i) => { return !el.has_accepted_invite })}
+            />
+        }
+        </React.Fragment>
     )
 }
 

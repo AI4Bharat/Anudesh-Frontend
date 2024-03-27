@@ -394,7 +394,7 @@ console.log(ProjectReports,UserReports);
         >
 
           <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
-            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", }}>
+            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px" }}>
               Select Report Type :
             </Typography>
           </Grid >

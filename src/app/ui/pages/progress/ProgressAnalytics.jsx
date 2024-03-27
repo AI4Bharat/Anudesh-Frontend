@@ -201,34 +201,34 @@ function ProgressList() {
   }, []);
 
   const getCumulativeTasksData = async (payload, OrgId) => {
-    setLoading(true);
+    // setLoading(true);
     console.log("payload, OrgId", payload, OrgId);
     const cumulativeTasksAPIObj = new CumulativeTasksAPI(payload, OrgId, metaInfo);
     await axios.post(cumulativeTasksAPIObj.apiEndPoint(), cumulativeTasksAPIObj.getBody(), cumulativeTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setCumulativeTasksData(response.data);
-          setLoading(false);
+          // setLoading(false);
           console.log("CumulativeTasksData -----", response);
         } else {
-          setLoading(false);
+          // setLoading(false);
         }
       })
       .catch(err => {
-        setLoading(false);
+        // setLoading(false);
         console.log("err - ", err);
       })
   }
 
   const getPeriodicalTasksData = async (payload, OrgId) => {
-    setLoading(true);
+    // setLoading(true);
     console.log("payload, OrgId", payload, OrgId);
     const periodicalTasksAPIObj = new PeriodicalTasks(payload, OrgId, metaInfo);
     await axios.post(periodicalTasksAPIObj.apiEndPoint(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setPeriodicalTasksData(response.data);
-          setLoading(false);
+          // setLoading(false);
           console.log("PeriodicalTasksData -----", response);
         } else {
           setLoading(false);
@@ -792,7 +792,7 @@ function ProgressList() {
 
   return (
     <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
       <Card
         sx={{
           width: "100%",
