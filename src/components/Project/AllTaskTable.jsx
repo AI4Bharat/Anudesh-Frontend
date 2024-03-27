@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
+import Spinner from "@/components/common/Spinner"
 import {
   ThemeProvider,
   Grid,
@@ -66,6 +67,7 @@ const AllTaskTable = (props) => {
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const AllTaskData = useSelector((state) => state.getAllTaskData.data.result);
+  const apiLoading = useSelector((state) => state.getAllTaskData.status !== "succeeded")
   const totalTaskCount = useSelector((state) => state.getAllTaskData.data.total_count);
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
   const userDetails = useSelector((state) => state.getLoggedInData.data);
@@ -136,7 +138,7 @@ const AllTaskTable = (props) => {
           },
         };
       });
-      console.log("colss", data);
+      // console.log("colss", data);
       setColumns(cols);
       setSelectedColumns(colList);
       setTasks(data);
@@ -257,6 +259,8 @@ const handleSearchClose = () => {
 };
 
   return (
+    <React.Fragment>
+    {apiLoading ? <Spinner /> :  
     <div>
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
@@ -289,6 +293,8 @@ const handleSearchClose = () => {
                     onchange={GetAllTasksdata}
                 />}
     </div>
+    }
+    </React.Fragment>
   );
 };
 

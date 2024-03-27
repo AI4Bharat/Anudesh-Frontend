@@ -18,26 +18,24 @@ export default function ProjectList() {
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(true);
   const [selectedFilters, setsSelectedFilters] = useState({
     project_type: "",
     project_user_type: "",
     archived_projects: "",
   });
-  const apiLoading = useSelector((state) => state.apiStatus.loading);
+  const apiLoading = useSelector((state) => state.getProjects.status === "loading");
   const projectData = useSelector((state) => state.getProjects.data);
   
-  const getDashboardprojectData = () => {
-    setLoading(true);
-    dispatch(fetchProjects(selectedFilters))
-  };
+  // const getDashboardprojectData = () => {
+  //   dispatch(fetchProjects(selectedFilters))
+  // };
+
+  // useEffect(() => {
+  //   // setLoading(false);
+  // }, [projectData]);
 
   useEffect(() => {
-    setLoading(false);
-  }, [projectData]);
-
-  useEffect(() => {
-    setLoading(true);
     dispatch(fetchProjects(selectedFilters))
   }, [selectedFilters,dispatch]);
 
@@ -49,8 +47,8 @@ const [radiobutton, setRadiobutton] = useState(true);
   };
   return (
     <ThemeProvider theme={themeDefault}>
-      {/* {loading && <Spinner />} */}
-
+      {apiLoading ? <Spinner /> :  
+      <>
       {/* <Grid container direction="row" columnSpacing={3} rowSpacing={2} sx={{ position: "static", bottom: "-51px", left: "20px" }} > */}
       <Grid container className="root">
         <Grid item style={{ flexGrow: "0" }}>
@@ -104,6 +102,8 @@ const [radiobutton, setRadiobutton] = useState(true);
           )}
         </Box>
       </Box>
+      </>
+      }
     </ThemeProvider>
   );
 }

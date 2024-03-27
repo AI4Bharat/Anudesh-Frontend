@@ -37,7 +37,7 @@ const ProjectTable = (props) => {
   const workspacesproject = useSelector(
     (state) => state.getWorkspaceProjectData.data
   );
-  console.log(workspacesproject);
+  // console.log(workspacesproject);
   const SearchWorkspaceProjects = useSelector(
     (state) => state.searchProjectCard?.searchValue
   );
