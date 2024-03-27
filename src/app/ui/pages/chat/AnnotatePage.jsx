@@ -87,6 +87,7 @@ const AnnotatePage = () => {
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
+  const [currentInteraction, setCurrentInteraction] = useState({});
 
   const [annotations, setAnnotations] = useState([]);
 
@@ -256,7 +257,12 @@ console.log(annotationNotesRef);
     lead_time,
   ) => {
     // if (typeof window !== "undefined") {
-      console.log(id);
+      let resultValue;
+      if (ProjectDetails.project_type == "InstructionDrivenChat") {
+        resultValue = chatHistory;
+      } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
+        resultValue = currentInteraction;
+      }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -264,7 +270,7 @@ console.log(annotationNotesRef);
       annotation_notes: JSON.stringify(annotationNotesRef?.current?.getEditor().getContents()),
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      result:chatHistory,
+      result:resultValue,
       task_id:taskId,
       auto_save:autoSave
     };
@@ -493,7 +499,7 @@ console.log(annotationNotesRef);
       componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
       break;
     case 'ModelInteractionEvaluation':
-      componentToRender = <ModelInteractionEvaluation />;
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction}/>;
       break;
     default:
       componentToRender = null;

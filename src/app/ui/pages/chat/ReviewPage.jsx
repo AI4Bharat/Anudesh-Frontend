@@ -116,6 +116,8 @@ const ReviewPage = () => {
   const { projectId, taskId } = useParams();
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
+  const [currentInteraction, setCurrentInteraction] = useState({});
+
   let loaded = useRef();
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
@@ -465,6 +467,12 @@ const setNotes = (taskData, annotations) => {
     parentannotation,
   ) => {
     if (typeof window !== "undefined") {
+      let resultValue;
+      if (project_type === "InstructionDrivenChat") {
+        resultValue = chatHistory;
+      } else if (project_type === "ModelInteractionEvaluation") {
+        resultValue = currentInteraction;
+      }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -477,6 +485,7 @@ const setNotes = (taskData, annotations) => {
         value === "accepted_with_major_changes") && {
         parent_annotation: parentannotation,
       }),
+      result:resultValue
     };
     if (
       ["draft", "skipped", "to_be_revised"].includes(value) ||
@@ -782,7 +791,7 @@ const setNotes = (taskData, annotations) => {
       componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
       break;
     case 'ModelInteractionEvaluation':
-      componentToRender = <ModelInteractionEvaluation />;
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction}/>;
       break;
     default:
       componentToRender = null;

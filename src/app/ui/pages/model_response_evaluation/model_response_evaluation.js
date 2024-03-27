@@ -34,12 +34,11 @@ const questions = [
   "Express moral judgement",
 ];
 
-const ModelInteractionEvaluation = () => {
+const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) => {
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteraction] = useState([]);
   const [forms, setForms] = useState([]);
-  const [currentInteraction, setCurrentInteraction] = useState({});
-
+console.log(currentInteraction);
   useEffect(() => {
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(13);
