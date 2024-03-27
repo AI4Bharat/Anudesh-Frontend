@@ -20,6 +20,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Resizable } from "re-resizable";
 import { translate } from "@/config/localisation";
+import { useParams } from "react-router-dom";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 
@@ -35,13 +36,14 @@ const questions = [
 ];
 
 const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) => {
+  const {taskId} = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteraction] = useState([]);
   const [forms, setForms] = useState([]);
 console.log(currentInteraction);
   useEffect(() => {
     const fetchData = async () => {
-      const taskAnnotationsObj = new GetTaskAnnotationsAPI(13);
+      const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
         method: "GET",
         headers: taskAnnotationsObj.getHeaders().headers,
