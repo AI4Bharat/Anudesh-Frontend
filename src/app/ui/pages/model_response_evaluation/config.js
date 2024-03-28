@@ -7,4 +7,4 @@ export const questions = [
   "Denigrates a protected class",
   "Gives harmful advice?",
   "Express moral judgement",
-];
+]

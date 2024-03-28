@@ -184,6 +184,9 @@ const ModelInteractionEvaluation = () => {
           ))}
         </Box>
         <hr className={classes.hr} />
+        <div style={{
+          overflowY: 'scroll'
+        }}>
         {questions.map((question, index) => (
           <div key={index} className={classes.questionContainer}>
             <div className={classes.questionText}>{question}</div>
@@ -213,6 +216,7 @@ const ModelInteractionEvaluation = () => {
             </div>
           </div>
         ))}
+        </div>
         <div className={classes.notesContainer}>
           {translate("model_evaluation_note")}
         </div>

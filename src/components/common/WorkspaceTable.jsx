@@ -22,7 +22,6 @@ const WorkspaceTable = (props) => {
     const { showManager, showCreatedBy } = props;
     const workspaceData = useSelector(state => state.GetWorkspace.data);
     const SearchWorkspace = useSelector((state) => state.searchProjectCard?.searchValue);
-    console.log(SearchWorkspace);
 
 
     const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -139,7 +138,6 @@ const WorkspaceTable = (props) => {
             </Link>
         ]
     })  : [];
-    console.log('DATA', data);
     
     const options = {
         textLabels: {
