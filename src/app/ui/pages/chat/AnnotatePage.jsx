@@ -502,8 +502,6 @@ const AnnotatePage = () => {
                 onClick={() => {
                   localStorage.removeItem("labelAll");
                   navigate(`/projects/${projectId}`);
-                  //window.location.replace(`/#/projects/${projectId}`);
-                  //window.location.reload();
                 }}
               >
                 Back to Project

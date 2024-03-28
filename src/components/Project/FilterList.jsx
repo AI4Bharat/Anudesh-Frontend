@@ -54,7 +54,6 @@ const FilterList = (props) => {
     // let pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
     //   (pull == 'Not Pulled By reviewer' || pull == 'Not Pulled By SuperChecker') ? true :
     //     ''
-    console.log(pullvalue);
     updateFilters({
       ...currentFilters,
       [statusvalue]: selectedStatus,

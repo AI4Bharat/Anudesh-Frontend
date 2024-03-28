@@ -1,53 +1,46 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import fetchParams from "../../fetchParams";
-import ENDPOINTS from "../../../config/apiendpoint";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import fetchParams from '../../fetchParams';
+import ENDPOINTS from "../../../config/apiendpoint"
 const initialState = {
   data: [],
-  status: "idle",
+  status: 'idle',
   error: null,
 };
 
 export const fetchNextTask = createAsyncThunk(
-  "getNextTask/fetchNextTask",
-  async ({ projectId, projectObj }) => {
+  'getNextTask/fetchNextTask',
+  async ({projectId,projectObj}) => {
     let queryStr = "";
     const labellingMode = window.localStorage.getItem("labellingMode");
-    const searchFilters = JSON.parse(
-      window.localStorage.getItem("searchFilters"),
-    );
+    const searchFilters = JSON.parse(window.localStorage.getItem("searchFilters"));
     projectObj = projectObj;
-    if (window.localStorage.getItem("labelAll")) {
-      Object.keys(searchFilters).forEach((key, index) => {
+    if (window.localStorage.getItem("labelAll") ) {
+      Object.keys(searchFilters).forEach((key,index) => {
         let keyValStr = `${key}=${searchFilters[key]}`;
         queryStr += index === 0 ? keyValStr : `&${keyValStr}`;
       });
     }
-    const params = fetchParams(
-      `${ENDPOINTS.getProjects}${projectId}/next/?${queryStr}`,
-      "POST",
-      JSON.stringify(projectObj),
-    );
-    return fetch(params.url, params.options).then((response) =>
-      response.json(),
-    );
-  },
+    const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/next/?${queryStr}`,"POST",JSON.stringify(projectObj));
+    return fetch(params.url, params.options)
+        .then(response => response.json())
+  }
 );
 
 const getNextTask = createSlice({
-  name: "getNextTask",
+  name: 'getNextTask',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchNextTask.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(fetchNextTask.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status = 'succeeded';
         state.data = action.payload;
       })
       .addCase(fetchNextTask.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = 'failed';
         state.error = action.error.message;
       });
   },

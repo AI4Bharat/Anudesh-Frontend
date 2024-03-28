@@ -154,7 +154,6 @@ export default function DeleteProjectTasks() {
         handleok();
         }else{
         window.alert("Invalid credentials, please try again");
-        console.log(rsp_data);
         }
     };
 
