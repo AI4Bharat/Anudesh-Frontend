@@ -8,7 +8,7 @@ import {
   TextField
 } from "@mui/material";
 import { translate } from "../../config/localisation";
-// import { snakeToTitleCase } from "../../../utils/utils";
+import { snakeToTitleCase } from "@/utils/utils";
 import  "../../styles/Dataset.css";
 // import { translate } from "../../../../assets/localisation";
 
