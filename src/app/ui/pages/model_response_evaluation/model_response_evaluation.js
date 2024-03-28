@@ -22,6 +22,7 @@ import { Resizable } from "re-resizable";
 import { translate } from "@/config/localisation";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
+import { useParams } from "react-router-dom";
 
 const questions = [
   "Fails to follow the correct instruction/task?",
@@ -36,68 +37,77 @@ const questions = [
 
 const ModelInteractionEvaluation = () => {
   const classes = ModelResponseEvaluationStyle();
-  const [interactions, setInteraction] = useState([]);
+  const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
   const [currentInteraction, setCurrentInteraction] = useState({});
+  const { taskId } = useParams();
+
+  // check for the cases where the form is not present what is being consoled
+  useEffect(() => {
+    console.log(currentInteraction);
+  }, [currentInteraction])
 
   useEffect(() => {
     const fetchData = async () => {
-      const taskAnnotationsObj = new GetTaskAnnotationsAPI(13);
+      const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
         method: "GET",
         headers: taskAnnotationsObj.getHeaders().headers,
       });
-      const annotationData = await response.json();
-      //filter for id 13, 13 is obtained from params
-      const taskData = annotationData.filter((form) => form.id === 13);
-      const taskForms = taskData[0].result;
-      setForms((prev) => [...taskForms]);
+      const annotationForms = await response.json();
+      setForms(annotationForms[0]?.result.length ? [...annotationForms[0]?.result] : [])
     };
     fetchData();
-  }, []);
+  }, [taskId]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const taskDetailsObj = new GetTaskDetailsAPI(13); 
+      const taskDetailsObj = new GetTaskDetailsAPI(taskId);
       const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
         method: "GET",
-        headers: taskDetailsObj.getHeaders().headers, 
-      },
-      );
+        headers: taskDetailsObj.getHeaders().headers,
+      });
       const taskData = await taskResponse.json();
-      setInteraction(taskData ? [...taskData.data?.interactions_json] : []);
+      setInteractions(taskData ? [...taskData.data?.interactions_json] : []);
     };
     fetchData();
-  }, [forms]);
+  }, [forms, taskId]);
 
   useEffect(() => {
     if (forms && interactions) {
       let defaultFormIndex = interactions[0]?.prompt_output_pair_id;
-      let currentForm = forms[defaultFormIndex]?.form_output_json;
+      let currentForm = forms.filter(
+        (form) => form.prompt_output_pair_id == defaultFormIndex,
+      );
       currentForm &&
         setCurrentInteraction((prev) => {
           return {
             prompt: interactions[0]?.prompt,
             output: interactions[0]?.output,
             prompt_output_pair_id: interactions[0]?.prompt_output_pair_id,
-            rating: currentForm?.rating,
-            additional_note: currentForm?.additional_note,
-            questions_response: currentForm?.questions_response?.map((obj) => {
-              let response = "";
-              if (obj) {
-                Object.entries(obj).forEach(([key, value]) => {
-                  response = value;
-                });
-              }
-              return response;
-            }),
+            rating: currentForm[0]?.form_output_json?.rating,
+            additional_note: currentForm[0]?.form_output_json?.additional_note,
+            questions_response:
+              currentForm[0]?.form_output_json?.questions_response?.map(
+                (obj) => {
+                  let response = "";
+                  if (obj) {
+                    Object.entries(obj).forEach(([key, value]) => {
+                      response = value;
+                    });
+                  }
+                  return response;
+                },
+              ),
           };
         });
     }
   }, [forms, interactions]);
 
   const handleOptionChange = (index, answer) => {
-    const newAnswers = [...currentInteraction.questions_response];
+    const newAnswers = currentInteraction.questions_response
+      ? [...currentInteraction.questions_response]
+      : [...Array(questions.length)].fill(null);
     newAnswers[index] = answer;
     setCurrentInteraction((prev) => {
       return {
@@ -125,43 +135,29 @@ const ModelInteractionEvaluation = () => {
     });
   };
 
-  const handleSubmit = () => {
-    console.log(
-      JSON.stringify({
-        form_output_json: {
-          rating: currentInteraction.rating,
-          questions_response: currentInteraction.questions_response,
-          additional_note: currentInteraction.additional_note,
-        },
-        output_likert_score: null,
-        time_taken: 0.0,
-        prompt_output_pair_id: currentInteraction.prompt_output_pair_id,
-      }),
-    );
-  };
-
   const handleFormBtnClick = (e) => {
     const currInteractionPair = interactions.filter(
       (interaction) => interaction.prompt_output_pair_id == e.target.id,
     )[0];
     const currFormResponse = forms.filter(
       (form) => form.prompt_output_pair_id == e.target.id,
-    )[0].form_output_json;
+    );
     setCurrentInteraction((prev) => ({
       prompt: currInteractionPair.prompt,
       output: currInteractionPair.output,
       prompt_output_pair_id: currInteractionPair.prompt_output_pair_id,
-      rating: currFormResponse.rating,
-      additional_note: currFormResponse.additional_note,
-      questions_response: currFormResponse?.questions_response?.map((obj) => {
-        let response = "";
-        if (obj) {
-          Object.entries(obj).forEach(([key, value]) => {
-            response = value;
-          });
-        }
-        return response;
-      }),
+      rating: currFormResponse?.form_output_json?.rating,
+      additional_note: currFormResponse?.form_output_json?.additional_note,
+      questions_response:
+        currFormResponse?.form_output_json?.questions_response?.map((obj) => {
+          let response = "";
+          if (obj) {
+            Object.entries(obj).forEach(([key, value]) => {
+              response = value;
+            });
+          }
+          return response;
+        }),
     }));
   };
 
@@ -212,7 +208,7 @@ const ModelInteractionEvaluation = () => {
                 value={
                   currentInteraction?.questions_response
                     ? currentInteraction.questions_response[index]
-                    : "No"
+                    : null
                 }
                 onChange={(event) =>
                   handleOptionChange(index, event.target.value)
@@ -350,7 +346,6 @@ const ModelInteractionEvaluation = () => {
 
   return (
     <>
-      <Button onClick={handleSubmit} label="Submit">Submit</Button>
       <div className={classes.container}>
         {InteractionDisplay()}
         {EvaluationForm()}
