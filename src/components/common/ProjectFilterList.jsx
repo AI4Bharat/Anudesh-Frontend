@@ -51,14 +51,17 @@ const ProjectFilterList = (props) => {
     dispatch(fetchProjectDomains());
   }, [dispatch]);
   useEffect(() => {
+    let types = [];
     if (ProjectTypes) {
-      let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
-        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
-        types.push(...subTypes);
+        if (ProjectTypes[key] && ProjectTypes[key]["project_types"]) {
+          let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+          types.push(...subTypes);
+        }
       });
-      setProjectTypes(types);
     }
+    setProjectTypes(types);
+    
   }, [ProjectTypes]);
 
   const handleChange = (e) => {
