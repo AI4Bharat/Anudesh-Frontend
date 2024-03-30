@@ -107,7 +107,6 @@ export default function Textarea({
         value={text}
         onChangeText={(text) => {
           setText(text);
-          adjustTextareaHeight();
         }}
         onKeyDown={handleKeyDown}
         lang={targetLang}

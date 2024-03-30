@@ -15,6 +15,7 @@ import { width } from "@mui/system";
 import { fetchDatasetProjects } from "@/Lib/Features/datasets/GetDatasetProjects";
 import GetExportProjectButtonAPI from "@/app/actions/api/Projects/GetExportProjectButtonAPI";
 import GetPullNewDataAPI from "@/app/actions/api/Projects/GetPullNewDataAPI";
+import { fetchExportProjectButton } from "@/Lib/Features/datasets/GetExportProjectButton";
 
 const columns = [
 	{
@@ -87,8 +88,6 @@ const options = {
 };
 
 export default function DatasetProjectsTable({ datasetId }) {
-	  /* eslint-disable react-hooks/exhaustive-deps */
-
 	const dispatch = useDispatch();
 	const datasetProjects = useSelector((state) =>
 		state.GetDatasetProjects?.data);
@@ -101,14 +100,16 @@ export default function DatasetProjectsTable({ datasetId }) {
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		dispatch(fetchDatasetProjects((datasetId)));
-	}, [dispatch, datasetId]);
+		dispatch(fetchDatasetProjects(datasetId));
+	}, [ datasetId]);
 
 	const getExportProjectButton = async (project) => {
 		setLoading(true);
+		const projectObj1 = project.project_type === "ConversationTranslation" ?
+			({projectId:project.id, datasetId:project.dataset_id[0]}) : ({projectId:project.id});
 		const projectObj = project.project_type === "ConversationTranslation" ?
 			new GetExportProjectButtonAPI(project.id, project.dataset_id[0]) : new GetExportProjectButtonAPI(project.id);
-		dispatch(APITransport(projectObj));
+		dispatch(fetchExportProjectButton(projectObj1));
 		const res = await fetch(projectObj.apiEndPoint(), {
 			method: "POST",
 			body: JSON.stringify(projectObj.getBody()),
@@ -132,7 +133,7 @@ export default function DatasetProjectsTable({ datasetId }) {
 		}
 	}
 	const SearchWorkspaceMembers = useSelector(
-		(state) => state.searchProjectCard?.searchValue
+		(state) => state.SearchProjectCard?.searchValue
 	  );
   const pageSearch = () => {
     return datasetProjects.filter((el) => {

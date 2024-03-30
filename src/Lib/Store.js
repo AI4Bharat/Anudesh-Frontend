@@ -63,12 +63,26 @@ import getAnnotationsTask from './Features/projects/getAnnotationsTask';
 import getTaskDetails from './Features/getTaskDetails';
 import GlossarysentenceAPI from './Features/actions/GlossarysentenceAPI';
 import AddGlossary from './Features/actions/AddGlossary';
+import getDomain from './Features/actions/getDomain';
+import EditOrganization from './Features/user/EditOrganization';
+import SendWorkspaceUserReports from './Features/projects/SendWorkspaceUserReports';
+import WorkspaceUserReports from './Features/projects/WorkspaceUserReports';
+import WorkspaceProjectReport from './Features/projects/WorkspaceProjectReport';
+import getDatasetByType from './Features/datasets/getDatasetByType';
+import GetExportProjectButton from './Features/datasets/GetExportProjectButton';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        GetExportProjectButton:GetExportProjectButton,
+        getDatasetByType:getDatasetByType,
+        WorkspaceProjectReport:WorkspaceProjectReport,
+        WorkspaceUserReports:WorkspaceUserReports,
+        SendWorkspaceUserReports:SendWorkspaceUserReports,
+        EditOrganization:EditOrganization,
         getTaskDetails:getTaskDetails,
-        getDomain:AddGlossary,
+        AddGlossary:AddGlossary,
+        getDomain:getDomain,
         getAnnotationsTask:getAnnotationsTask,
         GlossarysentenceAPI:GlossarysentenceAPI,
         searchProjectCard:searchProjectCard,

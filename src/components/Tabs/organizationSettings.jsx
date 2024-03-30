@@ -1,36 +1,36 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
-// import {useDispatch,useSelector} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
+import { useNavigate } from "react-router-dom";
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
 import OutlinedTextField from "../common/OutlinedTextField";
 import { Divider, Grid, Typography } from "@mui/material";
+import { FetchEditOrganization } from "@/Lib/Features/user/EditOrganization";
 // import EditOrganizationAPI from "../../../../redux/actions/api/Organization/EditOrganization";
 
 const OrganizationSettings = (props) => {
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [organizationName, setOrganizationName] = useState("");
-    // let navigate = useNavigate();
+    let navigate = useNavigate();
         
-    // const orgId = useSelector(state=>state.fetchLoggedInUserData.data.organization.id);
-    // const orgName = useSelector(state=>state.fetchLoggedInUserData.data.organization.title);
+    const orgId = useSelector(state=>state.getLoggedInData.data.organization.id);
+    const orgName = useSelector(state=>state.getLoggedInData.data.organization.title);
 
 
-    // const onSubmitClick = ()=>{
+    const onSubmitClick = ()=>{
+               
+        dispatch(FetchEditOrganization({ orgId, organizationName}));
         
-    //     const organizationDataObj = new EditOrganizationAPI(orgId, organizationName);
-       
-    //     dispatch(APITransport(organizationDataObj));
-        
-    //     navigate(`/my-organization/${orgId}`)
+        navigate(`/organizations/${orgId}`)
 
-    // }
+    }
 
 
-    // useEffect(()=>{
-    //     setOrganizationName(orgName ? orgName : "");
-    // },[]);
+    useEffect(()=>{
+        setOrganizationName(orgName ? orgName : "");
+    },[]);
 
     return (
         <Grid
@@ -50,7 +50,7 @@ const OrganizationSettings = (props) => {
                     />
                 <CustomButton 
                     label={"Change"} 
-                    // onClick={()=>onSubmitClick()}
+                    onClick={()=>onSubmitClick()}
                     sx={{mt:5, width : "100%", borderRadius : 2}} 
                 />
             

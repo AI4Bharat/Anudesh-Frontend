@@ -39,6 +39,10 @@ import AddUsersDialog from "../../../../components/common/AddUsersDialog";
 import addUserTypes from "../../../../Constants/addUserTypes";
 import GetWorkspacesDetailsAPI from "../../../actions/api/workspace/getWorkspaceDetails";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import TaskAnalytics from "../progress/TaskAnalytics/TaskAnalytics";
+import MetaAnalytics from "../progress/MetaAnalytics/MetaAnalytics";
+import ProgressAnalytics from "../progress/ProgressAnalytics";
+import userRole from "@/utils/Role";
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -72,7 +76,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
     // const id = 1;
     // const orgId = 1;
     const classes = DatasetStyle();
-    // const userDetails = useSelector((state) => state.fetchLoggedInUserData.data);
+    const userDetails = useSelector((state) => state.getLoggedInData.data);
     const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
     const [user,setuser] = useState(initialUserData)
@@ -162,9 +166,9 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
                   <Typography variant="h3">{title}</Typography>
                 </Grid>
   
-                {/* {(userRole.Annotator !== userDetails?.role ||
+                {(userRole.Annotator !== userDetails?.role ||
                   userRole.Reviewer !== userDetails?.role ||
-                  userRole.SuperChecker !== userDetails?.role) && ( */}
+                  userRole.SuperChecker !== userDetails?.role) && (
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                     <Tooltip title={translate("label.showProjectSettings")}>
                       <IconButton
@@ -178,7 +182,7 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
                       </IconButton>
                     </Tooltip>
                   </Grid>
-                {/* )} */}
+                )} 
               </Grid>
             {/* )} */}
             <Typography variant="body1" gutterBottom component="div">
@@ -375,9 +379,9 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
             {pageType === componentType.Type_Workspace && <WorkspaceReports />}
           </TabPanel>
           <TabPanel value={value} index={4}>
-            {/* {pageType === componentType.Type_Workspace && selectmenu=== "TaskAnalytics" && <TaskAnalytics />}
+            {pageType === componentType.Type_Workspace && selectmenu=== "TaskAnalytics" && <TaskAnalytics />}
             {pageType === componentType.Type_Workspace && selectmenu=== "MetaAnalytics" && <MetaAnalytics />}
-            {pageType === componentType.Type_Workspace && selectmenu=== "AdvanceAnalytics" && <ProgressAnalytics />} */}
+            {pageType === componentType.Type_Workspace && selectmenu=== "AdvanceAnalytics" && <ProgressAnalytics />}
             {pageType === componentType.Type_Organization && (
               <OrganizationSettings />
             )}
