@@ -21,7 +21,6 @@ const DatasetDetails = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
     const { datasetId } = useParams();
-    console.log(datasetId)
     const [selectedTab, setSelectedTab] = useState(0);
     const [datasetData, setDatasetData] = useState(
         [

@@ -22,7 +22,6 @@ const SuperCheckerFilter = (props) => {
   const { filterStatusData, currentFilters, updateFilters } = props;
   const [selectedStatus, setSelectedStatus] = useState(currentFilters?.supercheck_status);
   const [selectAnnotator, setSelectAnnotator] = useState("All");
-console.log(currentFilters,"currentFilters")
 
   
 

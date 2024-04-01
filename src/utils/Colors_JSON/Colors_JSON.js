@@ -34,8 +34,6 @@
 //     opacityDiff += 0.1;
 // }
 
-//     console.log("colorArr --- ", colorArr);
-
 //     return colorArr;
 // }
 

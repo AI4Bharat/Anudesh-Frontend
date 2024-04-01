@@ -89,6 +89,7 @@ const ModelResponseEvaluationStyle = makeStyles ({
     width: '20%',
     marginLeft: '0.5rem',
     marginBottom: '0.5rem',
+    display: 'flex',
   },
   notesContainer: {
     fontWeight: 'bold',

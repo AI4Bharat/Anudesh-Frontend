@@ -62,8 +62,6 @@ const OrganizationReports = () => {
     endDate: new Date(),
     key: "selection"
   }]);
-  console.log("Start Date:", selectRange[0].startDate);
-console.log("End Date:", selectRange[0].endDate);
   // const [rangeValue, setRangeValue] = useState([format(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), 'yyyy-MM-dd'), Date.now()]);
   const [showPicker, setShowPicker] = useState(false);
   const [projectTypes, setProjectTypes] = useState([]);
@@ -263,7 +261,6 @@ console.log("End Date:", selectRange[0].endDate);
     const { selection } = ranges;
     if (selection.endDate > new Date()) selection.endDate = new Date();
     setSelectRange([selection]);
-    console.log(selection, "selection");
   };
 
   const userId = useSelector((state) => state.getLoggedInData.data.id);
@@ -313,7 +310,6 @@ console.log("End Date:", selectRange[0].endDate);
         } else if (reportfilter.toString() == "Super Check Stage") {
           ReviewData=3
         }
-       console.log(selectedType);
         dispatch(fetchOrganizationUserReports({orgId:orgId,
           projectType:selectedType,
           startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
@@ -362,7 +358,6 @@ console.log("End Date:", selectRange[0].endDate);
     const value = event.target.value;
     setReportfilter(value);
   }
-console.log(ProjectReports,UserReports);
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
