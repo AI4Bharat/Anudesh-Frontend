@@ -277,7 +277,6 @@ const TaskTable = (props) => {
       });
     }
   };
-  // console.log(selectedFilters);
   const labelAllTasks = () => {
     let search_filters = Object?.keys(selectedFilters)
       .filter((key) => key?.startsWith("search_"))
@@ -552,7 +551,7 @@ const TaskTable = (props) => {
       totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
       Object.keys(selectedFilters).filter((key) =>
         key.startsWith("search_")
-      ) === []
+      ) == []
     ) {
       setPullDisabled(
         `You have too many ${

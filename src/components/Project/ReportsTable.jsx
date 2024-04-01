@@ -155,7 +155,6 @@ const ReportsTable = (props) => {
             headers: projectObj.getHeaders().headers,
         });
         const resp = await res.json();
-        console.log(resp, "resp")
         if (resp.message) {
             setSnackbarInfo({
                 open: true,

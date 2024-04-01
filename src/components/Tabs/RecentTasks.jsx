@@ -66,7 +66,6 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
           return [];
         });
         let colList = [];
-        console.log(...Object.keys(RecentTasks.results.results[0]));
         if (RecentTasks.results.results.length > 0 && typeof RecentTasks.results.results[0] === 'object') {
   
           colList.push(
@@ -85,7 +84,6 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
             },
           };
         });
-        console.log("colss", cols, colList);
         setColumns(cols);
         setSelectedColumns(colList);
         setTasks(data);

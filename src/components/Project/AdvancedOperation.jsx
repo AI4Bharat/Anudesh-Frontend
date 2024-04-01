@@ -420,7 +420,6 @@ import LoginAPI from "@/app/actions/api/user/Login";
         handleok();
       } else {
         window.alert("Invalid credentials, please try again");
-        console.log(rsp_data);
       }
     };
     return (

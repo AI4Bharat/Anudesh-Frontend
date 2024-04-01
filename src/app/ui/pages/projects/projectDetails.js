@@ -103,9 +103,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
     },
   }));
   const Projects = () => {
-    // console.log("props", props)
     const { id } = useParams();
-    // const id = 1
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },

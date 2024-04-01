@@ -1,4 +1,14 @@
-import { Card, FormControl, Grid, MenuItem, Select, ThemeProvider, InputLabel, Typography,Switch } from "@mui/material";
+import {
+  Card,
+  FormControl,
+  Grid,
+  MenuItem,
+  Select,
+  ThemeProvider,
+  InputLabel,
+  Typography,
+  Switch,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { useNavigate } from "react-router-dom";
@@ -16,9 +26,13 @@ import { fetchIndicTransLanguages } from "@/Lib/Features/datasets/GetIndicTransL
 import AutomateDatasetsAPI from "@/app/actions/api/dataset/AutomateDatasetsAPI";
 import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
 
-const APi_Type = [{ Api_Typename: "indic-trans" }, { Api_Typename: "google" },{ Api_Typename: "azure" }]
+const APi_Type = [
+  { Api_Typename: "indic-trans" },
+  { Api_Typename: "google" },
+  { Api_Typename: "azure" },
+];
 const InterAutomateDataset = () => {
-        /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const navigate = useNavigate();
   const classes = DatasetStyle();
@@ -26,27 +40,32 @@ const InterAutomateDataset = () => {
 
   const [srcDatasetTypes, setSrcDatasetTypes] = useState([]);
   const [tgtDatasetTypes, setTgtDatasetTypes] = useState([]);
-  const [srcDatasetType, setSrcDatasetType] = useState('');
-  const [tgtDatasetType, setTgtDatasetType] = useState('');
+  const [srcDatasetType, setSrcDatasetType] = useState("");
+  const [tgtDatasetType, setTgtDatasetType] = useState("");
   const [srcInstances, setSrcInstances] = useState([]);
   const [tgtInstances, setTgtInstances] = useState([]);
-  const [srcInstance, setSrcInstance] = useState('');
-  const [tgtInstance, setTgtInstance] = useState('');
+  const [srcInstance, setSrcInstance] = useState("");
+  const [tgtInstance, setTgtInstance] = useState("");
   const [languageChoices, setLanguageChoices] = useState([]);
   const [languages, setLanguages] = useState([]);
-  const [translationModel, setTranslationModel] = useState('');
-  const [checks, setChecks] = useState('False');
+  const [translationModel, setTranslationModel] = useState("");
+  const [checks, setChecks] = useState("False");
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(true);
-  const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: '' });
+  const [snackbarState, setSnackbarState] = useState({
+    open: false,
+    message: "",
+    variant: "",
+  });
   //const [api_type, setApi_type] = useState("indic-trans");
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
   const DatasetTypes = useSelector((state) => state.GetDatasetType.data);
-  const LanguageChoicesIndicTrans = useSelector((state) => state.GetIndicTransLanguages.data);
+  const LanguageChoicesIndicTrans = useSelector(
+    (state) => state.GetIndicTransLanguages.data,
+  );
   const LanguageChoicesAll = useSelector((state) => state.getLanguages.data);
-  console.log(loggedInUserData,DatasetInstances,DatasetTypes,LanguageChoicesAll,LanguageChoicesIndicTrans);
   useEffect(() => {
     dispatch(fetchDatasetType());
     dispatch(fetchIndicTransLanguages());
@@ -60,7 +79,7 @@ const InterAutomateDataset = () => {
         temp.push({
           name: element,
           value: element,
-          disabled: (element !== "SentenceText" && element !== "Conversation")
+          disabled: element !== "SentenceText" && element !== "Conversation",
         });
       });
       setSrcDatasetTypes(temp);
@@ -69,7 +88,10 @@ const InterAutomateDataset = () => {
         temp.push({
           name: element,
           value: element,
-          disabled: (srcDatasetType === "SentenceText" ? element !== "TranslationPair" : element !== "Conversation")
+          disabled:
+            srcDatasetType === "SentenceText"
+              ? element !== "TranslationPair"
+              : element !== "Conversation",
         });
       });
       setTgtDatasetTypes(temp);
@@ -89,14 +111,14 @@ const InterAutomateDataset = () => {
   const handleSrcDatasetTypeChange = (value) => {
     setSrcDatasetType(value);
     setLoading(true);
-    const instancesObj = (value);
+    const instancesObj = value;
     dispatch(fetchDatasetByType(instancesObj));
   };
 
   const handleTgtDatasetTypeChange = (value) => {
     setTgtDatasetType(value);
     setLoading(true);
-    const instancesObj = (value);
+    const instancesObj = value;
     dispatch(fetchDatasetByType(instancesObj));
   };
 
@@ -105,42 +127,82 @@ const InterAutomateDataset = () => {
     setLanguages([]);
     if (value === 1) {
       if (!LanguageChoicesIndicTrans?.supported_languages)
-        setSnackbarState({ open: true, message: "Error fetching language list", variant: "error" })
-      else setLanguageChoices(LanguageChoicesIndicTrans?.supported_languages.map(lang => {
-        return {
-          name: lang,
-          value: lang
-        }
-      }));
+        setSnackbarState({
+          open: true,
+          message: "Error fetching language list",
+          variant: "error",
+        });
+      else
+        setLanguageChoices(
+          LanguageChoicesIndicTrans?.supported_languages.map((lang) => {
+            return {
+              name: lang,
+              value: lang,
+            };
+          }),
+        );
     } else {
       if (!LanguageChoicesAll)
-        setSnackbarState({ open: true, message: "Error fetching language list", variant: "error" })
-      else setLanguageChoices(LanguageChoicesAll.map(lang => {
-        return {
-          name: lang[0],
-          value: lang[0]
-        }
-      }));
+        setSnackbarState({
+          open: true,
+          message: "Error fetching language list",
+          variant: "error",
+        });
+      else
+        setLanguageChoices(
+          LanguageChoicesAll.map((lang) => {
+            return {
+              name: lang[0],
+              value: lang[0],
+            };
+          }),
+        );
     }
   };
 
-const api_type = translationModel===1?"indic-trans": translationModel===2?"google":translationModel===3?"azure":"indic-trans-v2";
+  const api_type =
+    translationModel === 1
+      ? "indic-trans"
+      : translationModel === 2
+        ? "google"
+        : translationModel === 3
+          ? "azure"
+          : "indic-trans-v2";
   const handleConfirm = () => {
-    const apiObj = new AutomateDatasetsAPI(srcInstance, tgtInstance, languages, loggedInUserData.organization.id,checks,api_type,checked);
+    const apiObj = new AutomateDatasetsAPI(
+      srcInstance,
+      tgtInstance,
+      languages,
+      loggedInUserData.organization.id,
+      checks,
+      api_type,
+      checked,
+    );
     setLoading(true);
     fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
-    }).then(async (res) => {
-      setLoading(false);
-      if (!res.ok) throw await res.json();
-      else return await res.json();
-    }).then((res) => {
-      setSnackbarState({ open: true, message: res.message, variant: "success" });
-    }).catch((err) => {
-      setSnackbarState({ open: true, message: err.message, variant: "error" });
-    });
+    })
+      .then(async (res) => {
+        setLoading(false);
+        if (!res.ok) throw await res.json();
+        else return await res.json();
+      })
+      .then((res) => {
+        setSnackbarState({
+          open: true,
+          message: res.message,
+          variant: "success",
+        });
+      })
+      .catch((err) => {
+        setSnackbarState({
+          open: true,
+          message: err.message,
+          variant: "error",
+        });
+      });
   };
 
   if (roles?.Annotator === loggedInUserData?.role) return navigate("/projects");
@@ -156,7 +218,7 @@ const api_type = translationModel===1?"indic-trans": translationModel===2?"googl
   return (
     <ThemeProvider theme={themeDefault}>
       {loading && <Spinner />}
-      <Grid container direction="row"  paddingTop={3}>
+      <Grid container direction="row" paddingTop={3}>
         <Card className={classes.workspaceCard}>
           <Grid item xs={2} sm={2} md={2} lg={2} xl={2}></Grid>
           <Grid item xs={8} sm={8} md={8} lg={8} xl={8} sx={{ pb: "6rem" }}>
@@ -217,138 +279,153 @@ const api_type = translationModel===1?"indic-trans": translationModel===2?"googl
                 value={tgtDatasetType}
               />
             </Grid>
-            {srcDatasetType && srcInstances.length > 0 && <>
-              <Grid
-                className={classes.projectsettingGrid}
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                xl={12}
-              >
-                <Typography gutterBottom components="div">
-                  Source dataset instance:
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}> 
-            <FormControl fullWidth >
-            <Select
-              labelId="project-type-label"
-              id="project-type-select"
-              value={srcInstance}
-              onChange={(e) => setSrcInstance(e.target.value)}
-              MenuProps={MenuProps}
-            >
-              {srcInstances.map((type, index) => (
-                <MenuItem value={type.instance_id} key={index}>
-                  {type.instance_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-              </Grid>
-            </>}
-            {tgtDatasetType && tgtInstances.length > 0 && <>
-              <Grid
-                className={classes.projectsettingGrid}
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                xl={12}
-              >
-                <Typography gutterBottom components="div">
-                  Target dataset instance:
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>    
-            <FormControl fullWidth >
-            <Select
-              labelId="project-type-label"
-              id="project-type-select"
-              value={tgtInstance}
-              onChange={(e) => setTgtInstance(e.target.value)}
-              MenuProps={MenuProps}
-            >
-              {tgtInstances.map((type, index) => (
-                <MenuItem value={type.instance_id} key={index}>
-                  {type.instance_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-              </Grid>
-            </>}
-            {tgtDatasetType === "TranslationPair" && <>
-              <Grid
-                className={classes.projectsettingGrid}
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                xl={12}
-              >
-                <Typography gutterBottom components="div">
-                  Choice of translation model:
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                <MenuItems
-                  menuOptions={[{
-                    name: "AI4Bharat IndicTrans",
-                    value: 1
-                  }, ...((roles?.OrganizationOwner === loggedInUserData?.role || roles?.Admin === loggedInUserData?.role )? [{
-                    name: "Google Translate",
-                    value: 2
-                  },{
-                    name: "Microsoft Azure Translate",
-                    value: 3
-                  },{
-                    name: "AI4Bharat IndicTrans V2",
-                    value: 4
-                  }] : [])]}
-                  handleChange={handleTransModelChange}
-                  value={translationModel}
-                />
-              </Grid>
-            </>}
-            {translationModel && <>
-              <Grid
-                className={classes.projectsettingGrid}
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                xl={12}
-              >
-                <Typography gutterBottom components="div">
-                  Target Languages:
-                </Typography>
-              </Grid>
-              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                <FormControl
-                  fullWidth
-                  sx={{ minWidth: 120 }}
+            {srcDatasetType && srcInstances.length > 0 && (
+              <>
+                <Grid
+                  className={classes.projectsettingGrid}
+                  xs={12}
+                  sm={12}
+                  md={12}
+                  lg={12}
+                  xl={12}
                 >
-                  <Select
-                    labelId="language-select-label"
-                    id="language-select"
-                    onChange={(e) => {
-                      setLanguages(e.target.value);
-                       console.log(e.target.value,"e.target.value")}}
-                    value={languages}
-                    multiple
-                    MenuProps={MenuProps}
-                  >
-                    {languageChoices.map((lang) => (
-                      <MenuItem key={lang.name} value={lang.name}>
-                        {lang.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </>}
+                  <Typography gutterBottom components="div">
+                    Source dataset instance:
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                  <FormControl fullWidth>
+                    <Select
+                      labelId="project-type-label"
+                      id="project-type-select"
+                      value={srcInstance}
+                      onChange={(e) => setSrcInstance(e.target.value)}
+                      MenuProps={MenuProps}
+                    >
+                      {srcInstances.map((type, index) => (
+                        <MenuItem value={type.instance_id} key={index}>
+                          {type.instance_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </>
+            )}
+            {tgtDatasetType && tgtInstances.length > 0 && (
+              <>
+                <Grid
+                  className={classes.projectsettingGrid}
+                  xs={12}
+                  sm={12}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                >
+                  <Typography gutterBottom components="div">
+                    Target dataset instance:
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                  <FormControl fullWidth>
+                    <Select
+                      labelId="project-type-label"
+                      id="project-type-select"
+                      value={tgtInstance}
+                      onChange={(e) => setTgtInstance(e.target.value)}
+                      MenuProps={MenuProps}
+                    >
+                      {tgtInstances.map((type, index) => (
+                        <MenuItem value={type.instance_id} key={index}>
+                          {type.instance_name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </>
+            )}
+            {tgtDatasetType === "TranslationPair" && (
+              <>
+                <Grid
+                  className={classes.projectsettingGrid}
+                  xs={12}
+                  sm={12}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                >
+                  <Typography gutterBottom components="div">
+                    Choice of translation model:
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                  <MenuItems
+                    menuOptions={[
+                      {
+                        name: "AI4Bharat IndicTrans",
+                        value: 1,
+                      },
+                      ...(roles?.OrganizationOwner === loggedInUserData?.role ||
+                      roles?.Admin === loggedInUserData?.role
+                        ? [
+                            {
+                              name: "Google Translate",
+                              value: 2,
+                            },
+                            {
+                              name: "Microsoft Azure Translate",
+                              value: 3,
+                            },
+                            {
+                              name: "AI4Bharat IndicTrans V2",
+                              value: 4,
+                            },
+                          ]
+                        : []),
+                    ]}
+                    handleChange={handleTransModelChange}
+                    value={translationModel}
+                  />
+                </Grid>
+              </>
+            )}
+            {translationModel && (
+              <>
+                <Grid
+                  className={classes.projectsettingGrid}
+                  xs={12}
+                  sm={12}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                >
+                  <Typography gutterBottom components="div">
+                    Target Languages:
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                  <FormControl fullWidth sx={{ minWidth: 120 }}>
+                    <Select
+                      labelId="language-select-label"
+                      id="language-select"
+                      onChange={(e) => {
+                        setLanguages(e.target.value);
+                      }}
+                      value={languages}
+                      multiple
+                      MenuProps={MenuProps}
+                    >
+                      {languageChoices.map((lang) => (
+                        <MenuItem key={lang.name} value={lang.name}>
+                          {lang.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </>
+            )}
             <Grid
               className={classes.projectsettingGrid}
               xs={12}
@@ -363,40 +440,42 @@ const api_type = translationModel===1?"indic-trans": translationModel===2?"googl
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
               <MenuItems
-                menuOptions={[{
-                  name: "True",
-                  value: "True"
-                }, {
-                  name: "False",
-                  value: "False"
-                }]}
+                menuOptions={[
+                  {
+                    name: "True",
+                    value: "True",
+                  },
+                  {
+                    name: "False",
+                    value: "False",
+                  },
+                ]}
                 handleChange={(value) => setChecks(value)}
                 value={checks}
               />
             </Grid>
             <Grid container direction="row">
-            <Grid
-              className={classes.projectsettingGrid}
-              xs={12}
-              sm={12}
-              md={4}
-              lg={4}
-              xl={4}
-            >
-              <Typography gutterBottom components="div">
-              Automate missing items only:
-              </Typography>
+              <Grid
+                className={classes.projectsettingGrid}
+                xs={12}
+                sm={12}
+                md={4}
+                lg={4}
+                xl={4}
+              >
+                <Typography gutterBottom components="div">
+                  Automate missing items only:
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={5} lg={5} xl={5} sm={12}>
+                <Switch
+                  checked={checked}
+                  onChange={handleChangeAutomatemissingitems}
+                  inputProps={{ "aria-label": "controlled" }}
+                  sx={{ mt: 2, ml: 2 }}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={5} lg={5} xl={5} sm={12} >
-            <Switch
-              checked={checked}
-              onChange={handleChangeAutomatemissingitems}
-              inputProps={{ 'aria-label': 'controlled' }}
-              sx={{mt:2,ml:2}}
-             />
-            </Grid>
-            </Grid>
-            
 
             {/* <Grid
               className={classes.projectsettingGrid}
@@ -443,12 +522,13 @@ const api_type = translationModel===1?"indic-trans": translationModel===2?"googl
                 style={{ margin: "0px 20px 0px 0px" }}
                 label={"Confirm"}
                 onClick={handleConfirm}
-                disabled={srcDatasetType === "SentenceText" ? !srcInstance || !tgtInstance || !languages.length : !srcInstance || !tgtInstance}
+                disabled={
+                  srcDatasetType === "SentenceText"
+                    ? !srcInstance || !tgtInstance || !languages.length
+                    : !srcInstance || !tgtInstance
+                }
               />
-              <Button
-                label={"Cancel"}
-                onClick={() => navigate(`/datasets/`)}
-              />
+              <Button label={"Cancel"} onClick={() => navigate(`/datasets/`)} />
             </Grid>
           </Grid>
         </Card>
@@ -456,7 +536,7 @@ const api_type = translationModel===1?"indic-trans": translationModel===2?"googl
       <Snackbar
         {...snackbarState}
         handleClose={() => setSnackbarState({ ...snackbarState, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         hide={2000}
       />
     </ThemeProvider>

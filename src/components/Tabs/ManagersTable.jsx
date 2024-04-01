@@ -213,7 +213,6 @@ const handleRemoveWorkspaceManager = async(userid)=>{
             setConfirmationDialog(false);
           }else{
             window.alert("Invalid credentials, please try again");
-            console.log(rsp_data);
           }
         };
 

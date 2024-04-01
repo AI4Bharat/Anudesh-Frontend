@@ -117,7 +117,6 @@ const CollectionProject = (props) => {
     );
 };
 
-  console.log(loggedInUserData,"loggedInUserData")
   return (
     <ThemeProvider theme={themeDefault}>
       {/* <Header /> */}
