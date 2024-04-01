@@ -73,7 +73,7 @@ export default function MetaAnalytics(props) {
       }
 
       useEffect(() => {
-        if(metaAnalyticsData.length > 0){
+        if(metaAnalyticsData.length >= 0){
           setLoading(false);
 
         }

@@ -80,7 +80,8 @@ import userRole from "@/utils/Role";
     const dispatch = useDispatch();
     const [value, setValue] = React.useState(0);
     const [user,setuser] = useState(initialUserData)
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
+    const apiLoading = useSelector((state) => pageType === componentType.Type_Workspace && state.getWorkspaceDetails.status !== "succeeded");
     const [addAnnotatorsDialogOpen, setAddAnnotatorsDialogOpen] =
       React.useState(false);
     const [addManagersDialogOpen, setAddManagersDialogOpen] =
@@ -141,7 +142,7 @@ import userRole from "@/utils/Role";
     }
     return (
       <ThemeProvider theme={themeDefault}>
-        {loading && <Spinner />}
+        {apiLoading ?  <Spinner /> :
         <Grid
           container
           direction="row"
@@ -370,7 +371,7 @@ import userRole from "@/utils/Role";
             )}
             {pageType === componentType.Type_Organization && (
               <Invites hideButton={true} reSendButton={true} />
-            )}
+           )}
           </TabPanel>
           <TabPanel value={value} index={3}>
             {pageType === componentType.Type_Organization && (
@@ -388,6 +389,7 @@ import userRole from "@/utils/Role";
           </TabPanel>
         </Card>
       </Grid>
+      }
     </ThemeProvider>
   );
 };

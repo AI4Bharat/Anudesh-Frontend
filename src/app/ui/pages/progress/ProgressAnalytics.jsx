@@ -201,30 +201,30 @@ function ProgressList() {
   }, []);
 
   const getCumulativeTasksData = async (payload, OrgId) => {
-    setLoading(true);
+    // setLoading(true);
     const cumulativeTasksAPIObj = new CumulativeTasksAPI(payload, OrgId, metaInfo);
     await axios.post(cumulativeTasksAPIObj.apiEndPoint(), cumulativeTasksAPIObj.getBody(), cumulativeTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setCumulativeTasksData(response.data);
-          setLoading(false);
+          // setLoading(false);
         } else {
-          setLoading(false);
+          // setLoading(false);
         }
       })
       .catch(err => {
-        setLoading(false);
+        // setLoading(false);
       })
   }
 
   const getPeriodicalTasksData = async (payload, OrgId) => {
-    setLoading(true);
+    // setLoading(true);
     const periodicalTasksAPIObj = new PeriodicalTasks(payload, OrgId, metaInfo);
     await axios.post(periodicalTasksAPIObj.apiEndPoint(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setPeriodicalTasksData(response.data);
-          setLoading(false);
+          // setLoading(false);
         } else {
           setLoading(false);
         }
@@ -773,7 +773,7 @@ function ProgressList() {
 
   return (
     <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
       <Card
         sx={{
           width: "100%",

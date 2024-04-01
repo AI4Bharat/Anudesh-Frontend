@@ -12,6 +12,7 @@ import Search from "../common/Search";
 // import Link from 'next/link';
 import { setWorkspace } from "@/Lib/Features/GetWorkspace";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
+import Spinner from "@/components/common/Spinner";
 
 const WorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -22,6 +23,9 @@ const WorkspaceTable = (props) => {
   const workspaceData = useSelector((state) => state.GetWorkspace.data);
   const SearchWorkspace = useSelector(
     (state) => state.searchProjectCard?.searchValue,
+  );
+  const apiLoading = useSelector(
+    (state) => state.GetWorkspace.status !== "succeeded",
   );
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -49,12 +53,14 @@ const WorkspaceTable = (props) => {
           ?.toLowerCase()
           .includes(SearchWorkspace?.toLowerCase())
       ) {
+        console.log(el);
         return el;
       } else if (
         el.managers?.some((val) =>
           val.username?.toLowerCase().includes(SearchWorkspace?.toLowerCase()),
         )
       ) {
+        console.log(el);
         return el;
       }
     });
@@ -143,6 +149,7 @@ const WorkspaceTable = (props) => {
           ];
         })
       : [];
+  // console.log('DATA', data);
 
   const options = {
     textLabels: {
@@ -174,21 +181,26 @@ const WorkspaceTable = (props) => {
 
   return (
     <div>
-      <Grid sx={{ mb: 1 }}>
-        <Search />
-      </Grid>
-      {workspaceData && (
-        <ThemeProvider theme={tableTheme}>
-          <MUIDataTable
-            title={""}
-            data={data}
-            columns={columns}
-            options={options}
-          />
-        </ThemeProvider>
+      {apiLoading ? (
+        <Spinner />
+      ) : (
+        <div>
+          <Grid sx={{ mb: 1 }}>
+            <Search />
+          </Grid>
+          {workspaceData && (
+            <ThemeProvider theme={tableTheme}>
+              <MUIDataTable
+                title={""}
+                data={data}
+                columns={columns}
+                options={options}
+              />
+            </ThemeProvider>
+          )}
+        </div>
       )}
     </div>
   );
 };
-
 export default WorkspaceTable;

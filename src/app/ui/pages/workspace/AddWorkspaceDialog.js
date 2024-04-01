@@ -22,8 +22,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
     
    
     const addBtnClickHandler = async (event) => {
-        setWorkspaceName('');
-        dialogCloseHandler();
+        setLoading(true);
         if (!workspaceName) return;
 
         //  setLoading(true);
@@ -46,11 +45,11 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
 
         if (createWorkspaceRes.ok) {
             dispatch(fetchWorkspaceCreateData(1));
-            return createWorkspaceRespData;    
         }
-
-        setLoading(false)
-       
+        dialogCloseHandler();
+        setLoading(false);
+        setWorkspaceName('');
+        return createWorkspaceRespData;    
 
     }
 

@@ -160,7 +160,7 @@ const TaskTable = (props) => {
   );
   const [pullDisabled, setPullDisabled] = useState("");
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
-  const apiLoading = useSelector((state) => state.apiStatus.loading);
+  const apiLoading = useSelector((state) => state.GetTasksByProjectId.status !=="succeeded");
   const [searchAnchor, setSearchAnchor] = useState(null);
   const searchOpen = Boolean(searchAnchor);
   const [searchedCol, setSearchedCol] = useState();
@@ -173,7 +173,7 @@ const TaskTable = (props) => {
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
   const [labellingStarted, setLabellingStarted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const getTaskListData = () => {
