@@ -39,7 +39,6 @@ const DatasetSearchPopup = (props) => {
     }); 
   }
   };
-console.log(searchedCol,"searchedCol",searchValue)
 
   const handleClearSearch = (e) => {
     if (typeof window !== 'undefined') {

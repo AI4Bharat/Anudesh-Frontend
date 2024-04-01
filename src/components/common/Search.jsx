@@ -5,6 +5,7 @@ import themeDefault from '../../themes/theme'
  import  "../../styles/Dataset.css";
  import { useDispatch, useSelector } from "react-redux";
 import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
 
 const Search = (props) => {
   const ref = useRef(null);
@@ -16,10 +17,9 @@ const Search = (props) => {
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
   const [searchValue, setSearchValue] = useState("");
 
-
-  useEffect(() => {
-    if (ref) ref.current.focus();
-  }, [ref]);
+  // useEffect(() => {
+  //   if (ref) ref.current.focus();
+  // }, [ref]);
 
   useEffect(() => {
     dispatch(setSearchProjectCard(""));
@@ -29,7 +29,9 @@ const Search = (props) => {
     setSearchValue(value);
     dispatch(setSearchProjectCard(value));
   };
- 
+
+  const targetLang = localStorage.getItem("language") || "en";
+  const globalTransliteration = localStorage.getItem("globalTransliteration") === "true" ? true : false;
 
   return (
    <Grid container justifyContent="end" sx={{marginTop:"20px"}}>
@@ -37,16 +39,30 @@ const Search = (props) => {
                     <Grid className="searchIcon">
                         <SearchIcon fontSize="small" />
                     </Grid>
+                    {globalTransliteration ? 
+                    <IndicTransliterate 
+                    renderComponent={(props) => (
+                      <textarea
+                      sx={{ ml: 4 }}
+                      placeholder="Search..."
+                      {...props}
+                      />
+                    )}
+                    value={searchValue}
+                    onChangeText={(text) => {
+                      handleChangeName(text);
+                    }}
+                    lang={targetLang}
+                    style={{background:"#F0F0F0", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%"}}
+                    /> : 
                     <InputBase
                         sx={{ ml: 4 }}
-                        inputRef={ref}
+                        // inputRef={ref}
                         placeholder="Search..."
                         value={searchValue}
                         onChange={(e) => handleChangeName(e.target.value)}
-                         
                         inputProps={{ "aria-label": "search" }}
-                        
-                    />
+                    />}
                 </Grid>
                 </Grid>
           

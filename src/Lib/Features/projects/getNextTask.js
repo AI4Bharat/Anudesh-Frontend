@@ -13,7 +13,6 @@ export const fetchNextTask = createAsyncThunk(
     let queryStr = "";
     const labellingMode = window.localStorage.getItem("labellingMode");
     const searchFilters = JSON.parse(window.localStorage.getItem("searchFilters"));
-    console.log(JSON.parse(window.localStorage.getItem("searchFilters")),"searchFilterssearchFilters")
     projectObj = projectObj;
     if (window.localStorage.getItem("labelAll") ) {
       Object.keys(searchFilters).forEach((key,index) => {

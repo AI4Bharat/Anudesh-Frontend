@@ -105,7 +105,7 @@ const AllTaskTable = (props) => {
           <Link to={ProjectDetails?.project_type?.includes("Acoustic") ?
           `AllAudioTranscriptionLandingPage/${el.id}` : `Alltask/${el.id}`} className={classes.link}>
           <CustomButton
-              onClick={() => { console.log("task id === ", el.id); localStorage.removeItem("labelAll") }}
+              onClick={() => { localStorage.removeItem("labelAll") }}
               sx={{ p: 1, borderRadius: 2 }}
               label={<Typography sx={{ color: "#FFFFFF" }} variant="body2">
                    View
@@ -136,7 +136,6 @@ const AllTaskTable = (props) => {
           },
         };
       });
-      console.log("colss", data);
       setColumns(cols);
       setSelectedColumns(colList);
       setTasks(data);
@@ -153,7 +152,6 @@ const AllTaskTable = (props) => {
       return col;
     });
     setColumns(newCols);
-    // console.log("columnss", newCols);
   }, [selectedColumns]);
 
 
@@ -229,7 +227,6 @@ const handleSearchClose = () => {
     onChangeRowsPerPage: (rowPerPageCount) => {
         setCurrentPageNumber(1);
         setCurrentRowPerPage(rowPerPageCount);
-        console.log("rowPerPageCount", rowPerPageCount)
     },
     filterType: 'checkbox',
     selectableRows: "none",

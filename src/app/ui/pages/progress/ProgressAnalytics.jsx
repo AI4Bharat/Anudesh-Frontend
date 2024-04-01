@@ -202,61 +202,52 @@ function ProgressList() {
 
   const getCumulativeTasksData = async (payload, OrgId) => {
     setLoading(true);
-    console.log("payload, OrgId", payload, OrgId);
     const cumulativeTasksAPIObj = new CumulativeTasksAPI(payload, OrgId, metaInfo);
     await axios.post(cumulativeTasksAPIObj.apiEndPoint(), cumulativeTasksAPIObj.getBody(), cumulativeTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setCumulativeTasksData(response.data);
           setLoading(false);
-          console.log("CumulativeTasksData -----", response);
         } else {
           setLoading(false);
         }
       })
       .catch(err => {
         setLoading(false);
-        console.log("err - ", err);
       })
   }
 
   const getPeriodicalTasksData = async (payload, OrgId) => {
     setLoading(true);
-    console.log("payload, OrgId", payload, OrgId);
     const periodicalTasksAPIObj = new PeriodicalTasks(payload, OrgId, metaInfo);
     await axios.post(periodicalTasksAPIObj.apiEndPoint(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setPeriodicalTasksData(response.data);
           setLoading(false);
-          console.log("PeriodicalTasksData -----", response);
         } else {
           setLoading(false);
         }
       })
       .catch(err => {
         setLoading(false);
-        console.log("err - ", err);
       })
   }
 
   const getSecondaryPeriodicalTasksData = async (payload, OrgId) => {
     setLoading(true);
-    console.log("payload, OrgId", payload, OrgId);
     const periodicalTasksAPIObj = new PeriodicalTasks(payload, OrgId, metaInfo);
     await axios.post(periodicalTasksAPIObj.apiEndPoint(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setSecondaryPeriodicalTasksData(response.data);
           setLoading(false);
-          console.log("PeriodicalTasksData -----", response);
         } else {
           setLoading(false);
         }
       })
       .catch(err => {
         setLoading(false);
-        console.log("err - ", err);
       })
   }
 
@@ -531,13 +522,10 @@ function ProgressList() {
     let svgChData;
     if (chartTypes === availableChartType.Individual) {
       if (baseperiod === "Cumulative") {
-        // console.log("CumulativeTasksData - ", CumulativeTasksData);
-        // debugger
         svgChData = CumulativeTasksData.map((el, i) => {
           return {
             name: el.language,
             value: getCumulativeMetaInfo(el),
-            // stack: el.language
           }
         })
         const labels = CumulativeTasksData && CumulativeTasksData.map((el, i) => el.language)
@@ -565,14 +553,10 @@ function ProgressList() {
             value: el.data,
           }
         })
-        console.log("PeriodicalTasksData - ", PeriodicalTasksData);
-        // debugger
         chData = {
           labels,
           datasets:
             PeriodicalTasksData?.map((el, i) => {
-              console.log("el.date_range ----- ", el.date_range);
-              console.log("splitted date range --- ", el.date_range.split("To"))
               return {
                 label: formatDateRangeChartLabel(el.date_range),
                 data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
@@ -586,7 +570,6 @@ function ProgressList() {
             }),
 
         };
-        // console.log("data data - ", data);
       }
 
     } else {
@@ -624,8 +607,6 @@ function ProgressList() {
         };
       } else if (baseperiod !== "Cumulative" && comparisonperiod !== "Cumulative" && baseperiod != comparisonperiod) {
         const labels = PeriodicalTasksData[0]?.data && PeriodicalTasksData[0]?.data.map((el, i) => el.language);
-        console.log("baseperiod ----  ", baseperiod);
-        console.log("comparisonperiod ---- ", comparisonperiod);
         const PeriodicalTasksDataset = PeriodicalTasksData?.map((el, i) => {
           return {
             label: formatDateRangeChartLabel(el.date_range),

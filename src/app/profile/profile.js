@@ -89,14 +89,12 @@ export default function ProfilePage () {
           if (response.status == 200 || response.status == 201) {
             dispatch(fetchUserById(id))
             setLoading(false);
-            console.log("updateProfileImageData -----", response);
           } else {
             setLoading(false);
           }
         })
         .catch(err => {
           setLoading(false);
-          console.log("err - ", err);
         })
       }
   }

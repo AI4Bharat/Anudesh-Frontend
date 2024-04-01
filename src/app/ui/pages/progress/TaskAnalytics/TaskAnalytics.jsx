@@ -77,7 +77,6 @@ const TaskAnalytics = (props) => {
 
   return (
     <>
-      {/* {console.log(taskAnalyticsData[0])} */}
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
         <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">

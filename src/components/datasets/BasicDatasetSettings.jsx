@@ -32,7 +32,6 @@ const BasicDatasetSettings = (props) => {
     const dispatch = useDispatch();
     const apiLoading = useSelector(state => state.apiStatus.loading);
     const DatasetDetails = useSelector(state => state.getDatasetDetails.data);
-    console.log(DatasetDetails)
    
     const GetDatasetDetails = () => {
         dispatch(fetchDatasetDetails(datasetId));

@@ -169,7 +169,6 @@ const ProjectCardList = (props) => {
   const data =
     projectData && projectData.length > 0
       ? pageSearch().map((el, i) => {
-        console.log('dets ', el);
           const userRole =
             el.project_stage &&
             UserMappedByProjectStage(el.project_stage).element;

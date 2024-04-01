@@ -11,7 +11,6 @@ export default function SimpleModal(props) {
     // const left = 50;
   if (typeof window !== 'undefined') {
     const mediaQuery = window.matchMedia('(max-width: 768px)')
-    console.log("mediaQuery", mediaQuery);
     if (isTransliteration && mediaQuery.matches) {
       return {
         transform:' translate(20%, 25%)',
