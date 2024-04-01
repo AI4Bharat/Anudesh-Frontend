@@ -18,16 +18,17 @@ const TaskAnalytics = (props) => {
     /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("ContextualTranslationEditing");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const taskAnalyticsData = useSelector(
     (state) => state.getTaskAnalyticsData.data
   );
+  
+  const [loading, setLoading] = useState(false);
 
   const getTaskAnalyticsdata = () => {
-     setLoading(true)
+    setLoading(true)
     const userObj = new TaskAnalyticsDataAPI(selectedType);
     dispatch(APITransport(userObj));
   };
@@ -70,14 +71,13 @@ const TaskAnalytics = (props) => {
   }
 
   useEffect(() => {
-    if(taskAnalyticsData.length > 0){
+    if(taskAnalyticsData.length >= 0){
       setLoading(false);
     }
   }, [taskAnalyticsData]);
 
   return (
     <>
-      {/* {console.log(taskAnalyticsData[0])} */}
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
         <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">

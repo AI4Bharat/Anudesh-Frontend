@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Divider,
@@ -10,27 +10,23 @@ import {
   FormControlLabel,
   Radio,
   Autocomplete,
-  Box
+  Box,
 } from "@mui/material";
 import { translate } from "../../config/localisation";
-import  "../../styles/Dataset.css";
+import "../../styles/Dataset.css";
 import { snakeToTitleCase } from "@/utils/utils";
-// import { translate } from "../../../../assets/localisation";
 
 const AllTasksFilterList = (props) => {
-          
-  const { filterStatusData, currentFilters, updateFilters,onchange} = props;
-  const [selectedStatus, setSelectedStatus] = useState(currentFilters.task_status);
+  const { filterStatusData, currentFilters, updateFilters, onchange } = props;
+  const [selectedStatus, setSelectedStatus] = useState(
+    currentFilters.task_status,
+  );
   const [selectAnnotator, setSelectAnnotator] = useState("All");
-console.log(currentFilters,"selectedStatus")
 
   const handleStatusChange = (e) => {
-    onchange()
+    onchange();
     props.handleClose();
-   
   };
-
-  
 
   return (
     <div>
@@ -49,43 +45,45 @@ console.log(currentFilters,"selectedStatus")
         }}
       >
         <Box className="filterContainer">
-            <Typography variant="body2" sx={{ mr: 5, fontWeight: "700" }} className="filterTypo">
-              {translate("label.filter.status")} :
-            </Typography>
-            <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
-              {filterStatusData.Status.map((item,i) => {
-                return (
-                  <FormControlLabel
-                    key={i}
-                    control={
-                        <Checkbox
-                        overlay
-                        disableIcon
-                        checked={selectedStatus.includes(item)}
-                      
-                      
-                        
-                        variant="soft"
-                      />
+          <Typography
+            variant="body2"
+            sx={{ mr: 5, fontWeight: "700" }}
+            className="filterTypo"
+          >
+            {translate("label.filter.status")} :
+          </Typography>
+          <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
+            {filterStatusData.Status.map((item, i) => {
+              return (
+                <FormControlLabel
+                  key={i}
+                  control={
+                    <Checkbox
+                      overlay
+                      disableIcon
+                      checked={selectedStatus.includes(item)}
+                      variant="soft"
+                    />
+                  }
+                  onChange={(event) => {
+                    if (event.target.checked) {
+                      setSelectedStatus((val) => [...val, item]);
+                    } else {
+                      setSelectedStatus((val) =>
+                        val?.filter((text) => text !== item),
+                      );
                     }
-                    onChange={(event) => {
-                        if (event.target.checked) {
-                            setSelectedStatus((val) => [...val, item]);
-                        } else {
-                            setSelectedStatus((val) => val?.filter((text) => text !== item));
-                        }
-                      }}
-                      value={selectedStatus}
-                    label={snakeToTitleCase(item)}
-                    sx={{
-                      fontSize: "1rem",
-                    }} 
-                  />
-                );
-              })}
+                  }}
+                  value={selectedStatus}
+                  label={snakeToTitleCase(item)}
+                  sx={{
+                    fontSize: "1rem",
+                  }}
+                />
+              );
+            })}
 
-
-{/* {filterStatusData?.Status.map((item, index) => (
+            {/* {filterStatusData?.Status.map((item, index) => (
                         
                         <Checkbox
                           overlay
@@ -104,39 +102,38 @@ console.log(currentFilters,"selectedStatus")
                         />
       
                     ))} */}
-
-            </FormGroup>
-            <Divider />
-            <Box 
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                columnGap: "10px",
-              }}
+          </FormGroup>
+          <Divider />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              columnGap: "10px",
+            }}
+          >
+            <Button
+              onClick={props.handleClose}
+              variant="outlined"
+              color="primary"
+              size="small"
+              className="clearAllBtn"
             >
-              <Button
-                onClick={props.handleClose}
-                variant="outlined"
-                color="primary"
-                size="small"
-                className="clearAllBtn"
-              >
-                {" "}
-                {translate("button.cancel")}
-              </Button>
-              <Button
-                onClick={handleStatusChange}
-                variant="contained"
-                color="primary"
-                size="small"
-                className="clearAllBtn"
-              >
-                {" "}
-                {translate("button.Apply")}
-              </Button>
-            </Box>
+              {" "}
+              {translate("button.cancel")}
+            </Button>
+            <Button
+              onClick={handleStatusChange}
+              variant="contained"
+              color="primary"
+              size="small"
+              className="clearAllBtn"
+            >
+              {" "}
+              {translate("button.Apply")}
+            </Button>
+          </Box>
         </Box>
       </Popover>
     </div>

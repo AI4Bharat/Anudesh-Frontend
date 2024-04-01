@@ -249,7 +249,7 @@ const SuperCheckerTasks = (props) => {
             ? `SuperCheckerAudioTranscriptionLandingPage/${el.id}` : `SuperChecker/${el.id}`} className={classes.link}>
             <CustomButton
               disabled={ProjectDetails.is_archived}
-              onClick={() => { console.log("task id === ", el.id); if (typeof window !== 'undefined') {
+              onClick={() => { if (typeof window !== 'undefined') {
                 localStorage.removeItem("labelAll")}}}
               sx={{ p: 1, borderRadius: 2 }}
               label={<Typography sx={{ color: "#FFFFFF" }} variant="body2">
@@ -279,7 +279,6 @@ const SuperCheckerTasks = (props) => {
           },
         };
       });
-      console.log("colss", cols);
       setColumns(cols);
       setSelectedColumns(colList);
       setTasks(data);
@@ -296,7 +295,6 @@ const SuperCheckerTasks = (props) => {
       return col;
     });
     setColumns(newCols);
-    console.log("columnss", newCols);
   }, [selectedColumns]);
 
 
@@ -499,7 +497,6 @@ setLabellingStarted(true);
     onChangeRowsPerPage: (rowPerPageCount) => {
         setCurrentPageNumber(1);
         setCurrentRowPerPage(rowPerPageCount);
-        console.log("rowPerPageCount", rowPerPageCount)
     },
     filterType: 'checkbox',
     selectableRows: "none",
@@ -555,7 +552,6 @@ if (typeof window !== 'undefined') {
       unassignTasks();
     }else{
       window.alert("Invalid credentials, please try again");
-      console.log(rsp_data);
     }
   };
 

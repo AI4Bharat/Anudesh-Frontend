@@ -256,7 +256,6 @@ const AnnotatorsTable = (props) => {
       setConfirmationDialog(false);
     }else{
       window.alert("Invalid credentials, please try again");
-      console.log(rsp_data);
     }
   };
     return (

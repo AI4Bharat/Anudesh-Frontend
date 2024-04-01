@@ -162,9 +162,10 @@ const DatasetStyle = makeStyles({
     textDecoration: "none"
   },
   progress: {
-    position: 'relative',
-    top: '40%',
-    left: '46%'
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
 
   },
   progressDiv: {

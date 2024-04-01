@@ -53,10 +53,14 @@ const ProjectFilterList = (props) => {
   useEffect(() => {
     if (ProjectTypes) {
       let types = [];
-      Object.keys(ProjectTypes).forEach((key) => {
-        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
-        types.push(...subTypes);
-      });
+      if (ProjectTypes) {
+        Object.keys(ProjectTypes).forEach((key) => {
+          if (ProjectTypes[key] && ProjectTypes[key]["project_types"]) {
+            let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+            types.push(...subTypes);
+          }
+        });
+      }
       setProjectTypes(types);
     }
   }, [ProjectTypes]);

@@ -145,14 +145,12 @@ const GuestWorkspaceTable = (props) => {
           ?.toLowerCase()
           .includes(SearchWorkspace?.toLowerCase())
       ) {
-        console.log(el);
         return el;
       } else if (
         el.managers?.some((val) =>
           val.username?.toLowerCase().includes(SearchWorkspace?.toLowerCase()),
         )
       ) {
-        console.log(el);
         return el;
       }
     });

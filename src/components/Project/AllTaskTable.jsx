@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
+import Spinner from "@/components/common/Spinner"
 import {
   ThemeProvider,
   Grid,
@@ -66,6 +67,7 @@ const AllTaskTable = (props) => {
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const AllTaskData = useSelector((state) => state.getAllTaskData.data.result);
+  const apiLoading = useSelector((state) => state.getAllTaskData.status !== "succeeded")
   const totalTaskCount = useSelector((state) => state.getAllTaskData.data.total_count);
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
   const userDetails = useSelector((state) => state.getLoggedInData.data);
@@ -105,7 +107,7 @@ const AllTaskTable = (props) => {
           <Link to={ProjectDetails?.project_type?.includes("Acoustic") ?
           `AllAudioTranscriptionLandingPage/${el.id}` : `Alltask/${el.id}`} className={classes.link}>
           <CustomButton
-              onClick={() => { console.log("task id === ", el.id); localStorage.removeItem("labelAll") }}
+              onClick={() => { localStorage.removeItem("labelAll") }}
               sx={{ p: 1, borderRadius: 2 }}
               label={<Typography sx={{ color: "#FFFFFF" }} variant="body2">
                    View
@@ -136,7 +138,6 @@ const AllTaskTable = (props) => {
           },
         };
       });
-      console.log("colss", data);
       setColumns(cols);
       setSelectedColumns(colList);
       setTasks(data);
@@ -153,7 +154,6 @@ const AllTaskTable = (props) => {
       return col;
     });
     setColumns(newCols);
-    // console.log("columnss", newCols);
   }, [selectedColumns]);
 
 
@@ -229,7 +229,6 @@ const handleSearchClose = () => {
     onChangeRowsPerPage: (rowPerPageCount) => {
         setCurrentPageNumber(1);
         setCurrentRowPerPage(rowPerPageCount);
-        console.log("rowPerPageCount", rowPerPageCount)
     },
     filterType: 'checkbox',
     selectableRows: "none",
@@ -257,6 +256,8 @@ const handleSearchClose = () => {
 };
 
   return (
+    <React.Fragment>
+    {apiLoading ? <Spinner /> :  
     <div>
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
@@ -289,6 +290,8 @@ const handleSearchClose = () => {
                     onchange={GetAllTasksdata}
                 />}
     </div>
+    }
+    </React.Fragment>
   );
 };
 

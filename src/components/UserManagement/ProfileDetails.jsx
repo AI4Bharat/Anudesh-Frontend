@@ -35,7 +35,6 @@ const userDetails = useSelector((state) => state.getUserById?.data);
 const LoggedInUserId = useSelector((state) => state.getLoggedInData?.data.id);
 const dispatch = useDispatch();
 const LanguageList = useSelector(state => state.fetchLanguages?.data);
-console.log(userDetails?.city,"city",LoggedInUserId,userDetails,newDetails)
 const getLanguageList = () => {
 
     dispatch(fetchLanguages());
