@@ -103,8 +103,8 @@ jobs:
       - name: Azure login
         uses: azure/login@v2
         with:
+          auth-type: IDENTITY 
           creds: ${{ secrets.AZURE_CREDS }}
-          allow-no-subscriptions: true
   
       - name: Upload to blob storage
         uses: azure/CLI@v1
