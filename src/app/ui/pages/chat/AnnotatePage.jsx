@@ -42,6 +42,8 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+  /* eslint-disable react-hooks/exhaustive-deps */
+
 const ReactQuill = dynamic(
   async () => {
     const { default: RQ } = await import("react-quill");
@@ -53,7 +55,7 @@ const ReactQuill = dynamic(
   }
 );
 
-
+ReactQuill.displayName = "ReactQuill"
 
 const AnnotatePage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -273,7 +275,7 @@ console.log(annotationNotesRef);
       result:resultValue,
       task_id:taskId,
       auto_save:autoSave,
-      interaction_llm:False
+      interaction_llm:"False"
     };
     console.log(value);
     if (["draft", "skipped","labeled"].includes(value)) {
@@ -694,7 +696,13 @@ console.log(annotationNotesRef);
                       value="Skip"
                       type="default"
                       variant="outlined"
-                      onClick={() => onSkipTask()}
+                      onClick={() =>
+                        handleAnnotationClick(
+                          "skipped",
+                          Annotation.id,
+                          Annotation.lead_time,
+                        )
+                      }
                       style={{
                         minWidth: "150px",
                         color: "black",

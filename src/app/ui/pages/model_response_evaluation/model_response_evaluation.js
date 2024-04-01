@@ -36,6 +36,8 @@ const questions = [
 ];
 
 const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const {taskId} = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteraction] = useState([]);

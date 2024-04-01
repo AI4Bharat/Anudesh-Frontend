@@ -46,6 +46,8 @@ import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+  /* eslint-disable react-hooks/exhaustive-deps */
+
 const ReactQuill = dynamic(
   async () => {
     const { default: RQ } = await import("react-quill");
