@@ -33,7 +33,6 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
-  const [currentInteraction, setCurrentInteraction] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
