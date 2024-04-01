@@ -284,7 +284,7 @@ const Home = () => {
       </div>
 
       <div clasNsame="text-center pb-32">
-        <div className="text-gray-700 text-6xl font-medium py-20">
+        <div className="text-center text-gray-700 text-6xl font-medium py-20">
           { operationalDynamics.heading }
         </div>
         <Carousel

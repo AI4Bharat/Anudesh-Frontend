@@ -36,7 +36,6 @@ export default function DatasetSettings() {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { datasetId } = useParams();
-  // console.log('current',datasetId)
   const dispatch = useDispatch();
   const fileRef = useRef();
   const [loading, setLoading] = useState(false);
@@ -46,7 +45,6 @@ export default function DatasetSettings() {
   const [type, setType] = useState([]);
   const [switchs, setswitchs] = useState("True");
   const [anchorEl, setAnchorEl] = useState(null);
-  console.log(file, filetype, switchs, "switchs");
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -73,7 +71,6 @@ export default function DatasetSettings() {
   }, [GetFileTypes]);
 
   const handleClick = () => {
-    console.log("called download");
     setLoading(true);
     dispatch(fetchDatasetDownloadCSV((datasetId)));
   };
@@ -83,13 +80,10 @@ export default function DatasetSettings() {
   }, [setLoading]);
 
   const handleOnChange = (e) => {
-    // const [file] = e.target.files;
     setFile(e.target.files[0]);
-    console.log("select file ", e.target.files[0]);
   };
   const handleChange = (file) => {
     setFile(file[0]);
-    console.log("drag and drop file ", file);
   };
 
   const handleUpload = (e) => {

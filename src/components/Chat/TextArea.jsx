@@ -1,16 +1,15 @@
 import "./textarea.css";
 import { useEffect, useState } from "react";
-import { translate } from "@/config/localisation";
-import SendRoundedIcon from "@mui/icons-material/SendRounded";
-import { Grid } from "@mui/material";
-// import {
-//   TextareaAutosize as BaseTextareaAutosize,
-// } from '@mui/base/TextareaAutosize';
-import IconButton from "@mui/material/IconButton";
-// import {styled} from '@mui/system';
+import {styled} from '@mui/system';
+ import {Grid} from '@mui/material';
+ import { translate } from "@/config/localisation";
+ import IconButton from '@mui/material/IconButton';
+ import SendRoundedIcon from '@mui/icons-material/SendRounded';
+ import CircularProgress from '@mui/material/CircularProgress';
+ import {
+   TextareaAutosize as BaseTextareaAutosize,
+ } from '@mui/base/TextareaAutosize';
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
-import LanguageCode from "@/utils/LanguageCode";
-import CircularProgress from "@mui/material/CircularProgress";
 
 const orange = {
   200: "pink",
@@ -29,28 +28,20 @@ const grey = {
 export default function Textarea({
   handleButtonClick,
   handleOnchange,
-  language,
   size,
   grid_size,
   class_name,
   loading,
 }) {
   const [text, setText] = useState("");
-  const [targetLang, setTargetLang] = useState("en");
+  const targetLang = localStorage.getItem("language") || "en";
+  const globalTransliteration = localStorage.getItem("globalTransliteration") === "true" ? true : false;
 
   useEffect(() => {
     if (text != "") {
       handleOnchange(text);
     }
   }, [text]);
-
-  useEffect(() => {
-    const langs = LanguageCode.languages;
-    if (language) {
-      const filtereddata = langs.filter((el) => el.label === language);
-      setTargetLang(filtereddata[0]?.code);
-    }
-  }, [language]);
 
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
@@ -77,6 +68,35 @@ export default function Textarea({
     }
   };
 
+  const Textarea = styled (BaseTextareaAutosize) (
+    ({theme}) => `
+    resize: none;
+    margin-right: 5px;
+    font-size: 1rem;
+    width: 60%;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 12px;
+    border-radius: 12px 12px 0 12px;
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+    background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+    border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
+    box-shadow: 0px 2px 2px ${theme.palette.mode === 'dark' ? grey[900] : grey[50]};
+    &:hover {
+      border-color: ${orange[400]};
+    }
+    &:focus {
+      outline: 0;
+      border-color: ${orange[400]};
+      box-shadow: 0 0 0 3px ${theme.palette.mode === 'dark' ? orange[600] : orange[200]};
+    }
+    // firefox
+    &:focus-visible {
+      outline: 0;
+    }
+  `
+  );
+
   return (
     <Grid
       item
@@ -90,6 +110,8 @@ export default function Textarea({
       width={grid_size}
       className={class_name}
     >
+      {globalTransliteration ?
+      
       <IndicTransliterate
         renderComponent={(props) => (
           <textarea
@@ -126,6 +148,22 @@ export default function Textarea({
           boxShadow: `0px 2px 2px ${grey[50]}`,
         }}
       />
+      :
+      <Textarea
+         xs={size}
+         maxRows={10}
+         aria-label="empty textarea"
+         placeholder={translate("chat_placeholder")}
+         onChange={e => {
+           handleOnchange (e.target.value);
+         }}
+         onKeyDown={e => {
+           if (e.key === 'Enter' && e.ctrlKey) {
+             handleButtonClick ();
+           }
+         }}
+       />
+      }
       <IconButton
         size="large"
         onClick={() => {

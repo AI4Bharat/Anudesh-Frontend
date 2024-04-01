@@ -29,6 +29,7 @@ import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectRe
 import ResendUserInviteAPI, { fetchResendUserInvite } from "@/app/actions/api/Projects/ResendUserInvite";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
+import Spinner from "@/components/common/Spinner";
 
 const columns = [
   {
@@ -96,7 +97,9 @@ const MembersTable = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
-  const [loading, setLoading] = useState(false);
+  const apiLoading = useSelector((state) => state.getOrganizationUsers.status !== "succeeded");
+
+  const [loading, setLoading] = useState(apiLoading);
   const {
     dataSource,
     hideButton,
@@ -116,7 +119,6 @@ const MembersTable = (props) => {
   const [userType, setUserType] = useState(Object.keys(UserRolesList)[0]);
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const apiLoading = useSelector((state) => state.apiStatus.loading);
   const SearchWorkspaceMembers = useSelector(
     (state) => state.searchProjectCard?.searchValue
   );
@@ -161,7 +163,6 @@ const MembersTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
-    setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,
@@ -191,7 +192,6 @@ const MembersTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
-    setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,
@@ -217,7 +217,6 @@ const MembersTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
-    setLoading(false);
     if (res.ok) {
       setSnackbarInfo({ 
         open: true,
@@ -256,6 +255,7 @@ const MembersTable = (props) => {
           message: resp?.message,
           variant: "success",
         });
+        setLoading(false);
         dispatch(fetchOrganizationUsers(id));
       }else {
         setSnackbarInfo({
@@ -265,7 +265,7 @@ const MembersTable = (props) => {
         });
       }
       handleUserDialogClose();
-    setLoading(false);
+    // setLoading(false);
     setSelectedUsers([ ]);
     setSelectedEmails([]);
     setCsvFile(null);
@@ -300,9 +300,9 @@ const MembersTable = (props) => {
 
 
   
-  useEffect(() => {
-    setLoading(apiLoading);
-  }, [apiLoading]);
+  // useEffect(() => {
+  //   setLoading(apiLoading);
+  // }, [apiLoading]);
 
   const projectlist = (el) => {
     let temp = false;
@@ -459,7 +459,6 @@ const MembersTable = (props) => {
         setConfirmationDialog(false);
       }else{
         window.alert("Invalid credentials, please try again");
-        console.log(rsp_data);
       }}
     else if(memberOrReviewer === "superchecker"){
       if(pin === "0104"){
@@ -471,6 +470,8 @@ const MembersTable = (props) => {
     }
   };
   return (
+    <React.Fragment>
+    {loading ? <Spinner /> : <>
     <React.Fragment>
       {userRole !== 1 && !hideButton ? (
         <CustomButton
@@ -580,6 +581,8 @@ const MembersTable = (props) => {
           // filter={false}
         />
       </ThemeProvider>
+    </React.Fragment>
+    </> }
     </React.Fragment>
   );
 };

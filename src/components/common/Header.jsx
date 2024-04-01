@@ -17,6 +17,10 @@ import {
   Stack,
   Tabs,
   Tab,
+  Switch,
+  Select,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
@@ -824,6 +828,14 @@ const handleopenproject=(id,type)=>{
     }
   };
 
+  const [globalTransliteration, setGlobalTransliteration] = useState(localStorage.getItem("globalTransliteration")=== "true" ? true : false);
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "");
+
+  useEffect(() => {
+    localStorage.setItem("globalTransliteration", globalTransliteration);
+    localStorage.setItem("language", language);
+  }, [language, globalTransliteration]);
+
   return (
     <Grid container direction="row" style={{ zIndex: 1 }}>
       <Box
@@ -1010,6 +1022,43 @@ const handleopenproject=(id,type)=>{
                       )}
                     </MenuItem>
                   ))}
+                  <MenuItem>
+                    <Typography variant="body2" textAlign="center">
+                      Global Transliteration
+                    </Typography>
+                    <Switch onClick={() => {setGlobalTransliteration(!globalTransliteration)}} checked={globalTransliteration}/>
+                  </MenuItem>
+                  <MenuItem>
+                    {globalTransliteration && <FormControl fullWidth>
+                    <InputLabel id="language-select-label">Language</InputLabel>
+                    <Select label="Language" labelId="language-select-label" value={language} onChange={(e) => {setLanguage(e.target.value)}}>
+                      <MenuItem disabled value=""></MenuItem>
+                      <MenuItem value="hi">Hindi</MenuItem>
+                      <MenuItem value="mr">Marathi</MenuItem>
+                      <MenuItem value="ta">Tamil</MenuItem>
+                      <MenuItem value="te">Telugu</MenuItem>
+                      <MenuItem value="kn">Kannada</MenuItem>
+                      <MenuItem value="gu">Gujarati</MenuItem>
+                      <MenuItem value="pa">Punjabi</MenuItem>
+                      <MenuItem value="bn">Bengali</MenuItem>
+                      <MenuItem value="ml">Malayalam</MenuItem>
+                      <MenuItem value="as">Assamese</MenuItem>
+                      <MenuItem value="brx">Bodo</MenuItem>
+                      <MenuItem value="doi">Dogri</MenuItem>
+                      <MenuItem value="ks">Kashmiri</MenuItem>
+                      <MenuItem value="mai">Maithili</MenuItem>
+                      <MenuItem value="mni">Manipuri</MenuItem>
+                      <MenuItem value="ne">Nepali</MenuItem>
+                      <MenuItem value="or">Odia</MenuItem>
+                      <MenuItem value="sd">Sindhi</MenuItem>
+                      <MenuItem value="si">Sinhala</MenuItem>
+                      <MenuItem value="ur">Urdu</MenuItem>
+                      <MenuItem value="sat">Santali</MenuItem>
+                      <MenuItem value="sa">Sanskrit</MenuItem>
+                      <MenuItem value="gom">Goan Konkani</MenuItem>
+                    </Select>
+                    </FormControl>}
+                  </MenuItem>
                 </Menu>
                 <Menu
                   sx={{ mt: "45px" }}

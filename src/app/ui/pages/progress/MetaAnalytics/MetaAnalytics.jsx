@@ -73,14 +73,13 @@ export default function MetaAnalytics(props) {
       }
 
       useEffect(() => {
-        if(metaAnalyticsData.length > 0){
+        if(metaAnalyticsData.length >= 0){
           setLoading(false);
 
         }
       }, [metaAnalyticsData]);
   return (
     <div>
-      {console.log(metaAnalyticsData[0])}
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
         <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">

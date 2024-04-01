@@ -103,9 +103,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
     },
   }));
   const Projects = () => {
-    // console.log("props", props)
     const { id } = useParams();
-    // const id = 1
     const classes = DatasetStyle();
     const [projectData, setProjectData] = useState([
       { name: "Project ID", value: null },
@@ -182,13 +180,12 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
       ]);
     }
     }, [ProjectDetails.id]);
-    const [loading, setLoading] = useState(false);
     const [annotationreviewertype, setAnnotationreviewertype] = useState();
     const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
       setValue(newValue);
     };
-    const apiLoading = useSelector((state) => state.apiStatus.loading);
+    const apiLoading = useSelector((state) => state.getProjectDetails.status !== "succeeded");
     const isAnnotators =
       (userRole.WorkspaceManager === loggedInUserData?.role ||
         userRole.OrganizationOwner === loggedInUserData?.role ||
@@ -217,10 +214,6 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
 
   /* eslint-disable react-hooks/exhaustive-deps */
 
-    useEffect(() => {
-      setLoading(apiLoading);
-    }, [apiLoading]);
-  
     let projectdata = ProjectDetails?.annotators?.filter((x) => {
       return ProjectDetails?.annotation_reviewers?.find(
         (choice) => choice.id === x.id
@@ -406,8 +399,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
   
     return (
       <ThemeProvider theme={themeDefault}>
-        {/* <Header /> */}
-        {loading && <Spinner />}
+        {apiLoading ? <Spinner /> : 
         <Grid
           container
           direction="row"
@@ -466,6 +458,7 @@ import AllTaskTable from "@/components/Project/AllTaskTable";
             {renderTabs()}
           </Card>
         </Grid>
+        }
       </ThemeProvider>
     );
   };

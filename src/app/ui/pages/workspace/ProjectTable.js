@@ -1,31 +1,41 @@
-'use client'
-import React, { useState, useEffect ,useCallback} from "react";
-import { Link, useNavigate,useParams } from "react-router-dom";
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider, Grid ,Button} from "@mui/material";
+import { ThemeProvider, Grid, Button } from "@mui/material";
 import tableTheme from "../../../../themes/tableTheme";
 import Search from "../../../../components/common/Search";
 import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
-import APITransport from "../../../../Lib/apiTransport/apitransport"
+import APITransport from "../../../../Lib/apiTransport/apitransport";
 // import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
 import UserMappedByProjectStage from "../../../../utils/UserMappedByProjectStage";
 import GetWorkspacesProjectDetailsAPI from "../../../actions/api/workspace/GetWorkspaceProject";
 
-
 const ProjectTable = (props) => {
- /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
-  const CustomButton = ({ label, buttonVariant, color, disabled = false, ...rest }) => (
-    <Button {...rest} variant={buttonVariant ? buttonVariant : "contained"} color={color ? color : "primary"} disabled={disabled}>
+  const CustomButton = ({
+    label,
+    buttonVariant,
+    color,
+    disabled = false,
+    ...rest
+  }) => (
+    <Button
+      {...rest}
+      variant={buttonVariant ? buttonVariant : "contained"}
+      color={color ? color : "primary"}
+      disabled={disabled}
+    >
       {label}
     </Button>
-  )
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { id } = useParams();
-  
+
   // const getWorkspace = () => {
   //   dispatch(fetchWorkspaceProjectData(1));
   // };
@@ -35,13 +45,11 @@ const ProjectTable = (props) => {
   }, [dispatch]);
 
   const workspacesproject = useSelector(
-    (state) => state.getWorkspaceProjectData.data
+    (state) => state.getWorkspaceProjectData.data,
   );
-  console.log(workspacesproject);
   const SearchWorkspaceProjects = useSelector(
-    (state) => state.searchProjectCard?.searchValue
+    (state) => state.searchProjectCard?.searchValue,
   );
-
 
   const pageSearch = () => {
     return workspacesproject.filter((el) => {
@@ -52,26 +60,33 @@ const ProjectTable = (props) => {
       ) {
         return el;
       } else if (
-        el.id.toString()?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+        el.id
+          .toString()
+          ?.toLowerCase()
+          .includes(SearchWorkspaceProjects?.toLowerCase())
       ) {
         return el;
       } else if (
-        el.tgt_language?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+        el.tgt_language
+          ?.toLowerCase()
+          .includes(SearchWorkspaceProjects?.toLowerCase())
       ) {
         return el;
       } else if (
-        el.project_type?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+        el.project_type
+          ?.toLowerCase()
+          .includes(SearchWorkspaceProjects?.toLowerCase())
       ) {
         return el;
-      }
-      else if (
-        UserMappedByProjectStage(el.project_stage)?.name?.toLowerCase().includes(SearchWorkspaceProjects?.toLowerCase())
+      } else if (
+        UserMappedByProjectStage(el.project_stage)
+          ?.name?.toLowerCase()
+          .includes(SearchWorkspaceProjects?.toLowerCase())
       ) {
         return el;
       }
     });
   };
-
 
   const columns = [
     {
@@ -82,7 +97,7 @@ const ProjectTable = (props) => {
         sort: false,
         align: "center",
         setCellHeaderProps: (sort) => ({
-          style: { height: "70px", padding:"16px" },
+          style: { height: "70px", padding: "16px" },
         }),
       },
     },
@@ -94,11 +109,10 @@ const ProjectTable = (props) => {
         sort: false,
         align: "center",
         setCellHeaderProps: (sort) => ({
-          style: { height: "70px",},
+          style: { height: "70px" },
         }),
       },
     },
-
 
     {
       name: "project_stage",
@@ -108,7 +122,7 @@ const ProjectTable = (props) => {
         sort: false,
         align: "center",
         setCellHeaderProps: (sort) => ({
-          style: { height: "70px",  },
+          style: { height: "70px" },
         }),
       },
     },
@@ -120,7 +134,7 @@ const ProjectTable = (props) => {
         sort: false,
         align: "center",
         setCellHeaderProps: (sort) => ({
-          style: { height: "70px",   },
+          style: { height: "70px" },
         }),
       },
     },
@@ -132,7 +146,7 @@ const ProjectTable = (props) => {
         sort: false,
         align: "center",
         setCellHeaderProps: (sort) => ({
-          style: { height: "70px",  },
+          style: { height: "70px" },
         }),
       },
     },
@@ -144,23 +158,29 @@ const ProjectTable = (props) => {
         sort: false,
         align: "center",
         setCellHeaderProps: (sort) => ({
-            style: { height: "70px",  },
-          }),
+          style: { height: "70px" },
+        }),
       },
     },
   ];
 
   const data =
-  workspacesproject && workspacesproject.length > 0
+    workspacesproject && workspacesproject.length > 0
       ? pageSearch().map((el, i) => {
-        const userRole = el.project_stage && UserMappedByProjectStage(el.project_stage).element;
+          const userRole =
+            el.project_stage &&
+            UserMappedByProjectStage(el.project_stage).element;
           return [
             el.id,
             el.title,
-            userRole ? userRole :  el.project_stage,
-            el.tgt_language == null ?"-": el.tgt_language,
+            userRole ? userRole : el.project_stage,
+            el.tgt_language == null ? "-" : el.tgt_language,
             el.project_type,
-            <Link key={i} to={`/projects/${el.id}`} style={{ textDecoration: "none" }}>
+            <Link
+              key={i}
+              to={`/projects/${el.id}`}
+              style={{ textDecoration: "none" }}
+            >
               <CustomButton sx={{ borderRadius: 2 }} label="View" />
             </Link>,
           ];

@@ -205,7 +205,6 @@ const renderSnackBar = () => {
         handleok();
       }else{
         window.alert("Invalid credentials, please try again");
-        console.log(rsp_data);
       }
     }else if(radiobutton === "superChecker"){
       if(pin === "9327"){
