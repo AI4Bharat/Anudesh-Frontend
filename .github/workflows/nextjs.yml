@@ -103,9 +103,9 @@ jobs:
       - name: Azure login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ef2bacbd-760d-4fd7-9424-2f05f72d2129
+          tenant-id: e8c7129c-a064-44d3-ab82-4fc378cd5f43
+          subscription-id: 0535e45f-6694-4e9e-ae1b-32ee98727227
           allow-no-subscriptions: true
   
       - name: Upload to blob storage
