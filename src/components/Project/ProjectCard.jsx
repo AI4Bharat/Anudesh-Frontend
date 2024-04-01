@@ -45,6 +45,7 @@ const Projectcard = (props) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
+ 
   const pageSearch = () => {
     return projectData.filter((el) => {
       if (SearchProject == "") {
@@ -69,14 +70,13 @@ const Projectcard = (props) => {
           el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
         ) {
           return el;}
-          // else if (
-          //   UserMappedByProjectStage(el.project_stage)
-          //     ?.name?.toLowerCase()
-          //     .includes(SearchProject?.toLowerCase())
-          // ) {
-
+          else if (
+            UserMappedByProjectStage(el.project_stage)
+              ?.name?.toLowerCase()
+              .includes(SearchProject?.toLowerCase())
+          ) {
             return el;
-          // }
+          }
     });
   };
 

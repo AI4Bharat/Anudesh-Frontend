@@ -103,7 +103,7 @@ export default function ProfilePage () {
 
 
   useEffect(() => {
-    // setLoading(true);
+    setLoading(true);
     dispatch(fetchUserById(id));
   }, [id]);
 

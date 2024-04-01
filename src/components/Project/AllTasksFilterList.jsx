@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { translate } from "../../config/localisation";
 import  "../../styles/Dataset.css";
-// import { snakeToTitleCase } from "../../../utils/utils";
+import { snakeToTitleCase } from "@/utils/utils";
 // import { translate } from "../../../../assets/localisation";
 
 const AllTasksFilterList = (props) => {

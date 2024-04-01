@@ -56,11 +56,13 @@ const fetchAllUsers = (userType, id, dispatch) => {
 const getAvailableUsers = (userType, projectDetails, workspaceAnnotators, workspaceManagers, orgUsers) => {
   switch (userType) {
     case addUserTypes.PROJECT_ANNOTATORS:
+      console.log(workspaceAnnotators);
       return workspaceAnnotators
         .filter(
           (workspaceAnnotator) =>
             projectDetails?.annotators.findIndex(
-              (projectUser) => projectUser?.id === workspaceAnnotator?.id
+              (projectUser) => {projectUser?.id === workspaceAnnotator?.id
+              console.log(projectUser?.id,workspaceAnnotator?.id);}
             ) === -1
         )
         .map((user) => ({ id: user.id, email: user.email, username: user.username }));
@@ -222,7 +224,7 @@ const AddUsersDialog = ({
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const projectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const workspaceAnnotators = useSelector((state) => state.getWorkspacesAnnotatorsData?.data);
+  const workspaceAnnotators = useSelector((state) => state.getWorkspacesAnnotatorsData.data);
   // const workspaceManagers = useSelector((state) => state.getWorkspacesManagersData?.data);
   const workspaceDetails = useSelector((state) => state.getWorkspaceDetails?.data);
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
@@ -245,10 +247,10 @@ const AddUsersDialog = ({
     }
     if (id) fetchAllUsers(userType, id, dispatch);
   }, [userType, id, projectDetails,dispatch])
-
+console.log(availableUsers);
   useEffect(() => {
     setAvailableUsers(getAvailableUsers(userType, projectDetails, workspaceAnnotators, workspaceDetails?.managers, orgUsers));
-  }, [userType,projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])
+  }, [projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])
 
   const addBtnClickHandler = async () => {
     setLoading(true);

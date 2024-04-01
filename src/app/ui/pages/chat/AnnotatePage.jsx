@@ -272,7 +272,8 @@ console.log(annotationNotesRef);
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
       result:resultValue,
       task_id:taskId,
-      auto_save:autoSave
+      auto_save:autoSave,
+      interaction_llm:False
     };
     console.log(value);
     if (["draft", "skipped","labeled"].includes(value)) {

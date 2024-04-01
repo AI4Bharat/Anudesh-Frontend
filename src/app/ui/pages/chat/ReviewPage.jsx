@@ -485,10 +485,13 @@ const setNotes = (taskData, annotations) => {
         value === "accepted_with_major_changes") && {
         parent_annotation: parentannotation,
       }),
-      result:resultValue
+      result:resultValue,
+      interaction_llm:False,
+      task_id:taskId,
+      auto_save:autoSave
     };
     if (
-      ["draft", "skipped", "to_be_revised"].includes(value) ||
+      ["draft", "skipped", "to_be_revised","labeled"].includes(value) ||
       (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value) )
     ) {
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -979,7 +982,7 @@ const setNotes = (taskData, annotations) => {
                   </Button>
                 </Tooltip>
               </Grid>
-                            {(disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
+              {(disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
                 (user) => user === userData.id
               )) || (!disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
                 (user) => user === userData.id

@@ -350,8 +350,16 @@ const SuperCheckerPage = () => {
     parentannotation,
     reviewNotesValue,
   ) => {
+    let resultValue;
+    if (project_type === "InstructionDrivenChat") {
+      resultValue = chatHistory;
+    } else if (project_type === "ModelInteractionEvaluation") {
+      resultValue = currentInteraction;
+    }
+
     setLoading(true);
     setAutoSave(false);
+
     const PatchAPIdata = {
       annotation_status: value,
       supercheck_notes: JSON.stringify(superCheckerNotesRef.current.getEditor().getContents()),
@@ -362,9 +370,13 @@ const SuperCheckerPage = () => {
         value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
+      result:resultValue,
+      interaction_llm:False,
+      task_id:taskId,
+      auto_save:autoSave
     };
     if (
-      ["draft", "skipped", "rejected"].includes(value) ||
+      ["draft", "skipped", "rejected","labeled"].includes(value) ||
       (["validated", "validated_with_changes"].includes(value) )
     ) {
       if(value === "rejected") PatchAPIdata["result"] = [];

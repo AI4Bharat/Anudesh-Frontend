@@ -59,7 +59,7 @@ console.log(currentInteraction);
 
   useEffect(() => {
     const fetchData = async () => {
-      const taskDetailsObj = new GetTaskDetailsAPI(13); 
+      const taskDetailsObj = new GetTaskDetailsAPI(taskId); 
       const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
         method: "GET",
         headers: taskDetailsObj.getHeaders().headers, 

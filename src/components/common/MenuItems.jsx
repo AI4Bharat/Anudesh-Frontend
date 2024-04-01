@@ -24,7 +24,7 @@ export default function MenuItems(props) {
        
         >
            { 
-            props.menuOptions.map(menu  => {
+            props.menuOptions?.map(menu  => {
                     return  <MenuItem disabled={menu.disabled} key={menu.value} value={menu.value}> {menu.name}</MenuItem>
                 })
             }
