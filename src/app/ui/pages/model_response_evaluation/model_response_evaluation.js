@@ -20,7 +20,6 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Resizable } from "re-resizable";
 import { translate } from "@/config/localisation";
-import { useParams } from "react-router-dom";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
