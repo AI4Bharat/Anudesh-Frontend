@@ -35,6 +35,8 @@ export default function Textarea({
   class_name,
   loading,
 }) {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const [text, setText] = useState("");
   const [targetLang, setTargetLang] = useState("en");
 

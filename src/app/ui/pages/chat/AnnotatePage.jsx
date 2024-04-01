@@ -42,8 +42,7 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
-  /* eslint-disable react-hooks/exhaustive-deps */
-
+// eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
     const { default: RQ } = await import("react-quill");
@@ -55,9 +54,10 @@ const ReactQuill = dynamic(
   }
 );
 
-ReactQuill.displayName = "ReactQuill"
 
 const AnnotatePage = () => {
+  // eslint-disable-next-line react/display-name
+
   /* eslint-disable react-hooks/exhaustive-deps */
   let inputValue = "";
   const classes = headerStyle();

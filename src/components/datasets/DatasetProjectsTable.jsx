@@ -88,7 +88,8 @@ const options = {
 };
 
 export default function DatasetProjectsTable({ datasetId }) {
-	const dispatch = useDispatch();
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const dispatch = useDispatch();
 	const datasetProjects = useSelector((state) =>
 		state.GetDatasetProjects?.data);
 
