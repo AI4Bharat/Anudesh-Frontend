@@ -33,6 +33,8 @@ export default function Textarea({
   class_name,
   loading,
 }) {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const [text, setText] = useState("");
   const targetLang = localStorage.getItem("language") || "en";
   const globalTransliteration = localStorage.getItem("globalTransliteration") === "true" ? true : false;

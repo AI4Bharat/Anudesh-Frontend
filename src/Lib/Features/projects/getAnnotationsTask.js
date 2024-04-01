@@ -9,9 +9,9 @@ const initialState = {
 
 export const fetchAnnotationsTask = createAsyncThunk(
   'getAnnotationsTask/fetchAnnotationsTask',
-  async (taskId, { dispatch }) => {
+  async (taskId) => {
     
-    const params = fetchParams(`${ENDPOINTS.getTasks}${taskId}/annotations/?enable_chitralekha_UI=true`);
+    const params = fetchParams(`${ENDPOINTS.getTasks}${taskId}/annotations/`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

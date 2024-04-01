@@ -8,7 +8,11 @@ import CustomizedSnackbars from "../common/Snackbar";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+  /* eslint-disable react-hooks/exhaustive-deps */
+
 const Transliteration = (props) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
   const { onCancelTransliteration ,setIsSpaceClicked,isSpaceClicked,setShowTransliterationModel} = props;
   const params = useParams();
   const classes = GlobalStyles();

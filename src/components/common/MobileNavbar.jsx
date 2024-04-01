@@ -16,10 +16,11 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { Menu } from "@mui/icons-material";
-
+import Logout from "@/Lib/Features/Logout";
 import headerStyle from "@/styles/Header";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
-
+import {  useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 // const useStyles = makeStyles(() => ({
 //   Navlink: {
 //     textDecoration: "none",
@@ -42,9 +43,21 @@ const handleChangePassword = async (email) => {
   };
 
 function MobileNavbar(props) {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
   const { loggedInUserData, appSettings, userSettings, tabs } = props;
   const [openDrawer, setOpenDrawer] = useState(false);
   const classes = headerStyle();
+
+  const onLogoutClick = () => {
+    dispatch(Logout());
+    // ExpireSession();
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+    }
+    navigate("/");
+  };
+
 
   return (
     <>
@@ -110,7 +123,7 @@ function MobileNavbar(props) {
                 <Divider />
                 <List>
                     {appSettings.map((setting) => (
-                        <ListItem key={setting} onClick={setting.onclick}>
+                        <ListItem key={setting}  style={{cursor:"pointer"}} onClick={setting.onclick}>
                             {setting.control ? 
                                 <FormControlLabel
                                     control={setting.control}
@@ -133,20 +146,20 @@ function MobileNavbar(props) {
                 <Divider />
                 <List>
                     {userSettings.map((setting) => (
-                        <ListItem key={setting} onClick={() => {setting.onclick(); setOpenDrawer(false)}}>
+                        <ListItem key={setting} style={{cursor:"pointer"}} onClick={() => {setting.onclick(); setOpenDrawer(false)}}>
                             <Typography variant="body1" textAlign="center">
                                 {setting.name}
                             </Typography>
                         </ListItem>
                     ))}
                     {!loggedInUserData.guest_user && 
-                        <ListItem key={3} onClick={() => {setOpenDrawer(false); handleChangePassword(loggedInUserData.email);}}>
+                        <ListItem key={3} style={{cursor:"pointer"}}  onClick={() => {setOpenDrawer(false); handleChangePassword(loggedInUserData.email);}}>
                             <Typography variant="body1" textAlign="center">
                             Change Password
                             </Typography>
                         </ListItem>
                     }
-                    <ListItem key={4} onClick={() => onLogoutClick() }>
+                    <ListItem key={4}  style={{cursor:"pointer"}}  onClick={() => onLogoutClick() }>
                         <Typography variant="body1" textAlign="center">
                         Logout
                         </Typography>

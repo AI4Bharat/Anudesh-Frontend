@@ -1,15 +1,7 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
+import { useState, useRef, useEffect,LegacyRef } from "react";
+import { Grid, Box, Avatar, Typography, Tooltip, Button, Alert } from "@mui/material";
 import Image from "next/image";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
@@ -18,10 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => <p>Loading ...</p>,
-});
+// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+// import type ReactQuill from 'react-quill'
 
 // import ReactQuill, { Quill } from 'react-quill';
 import "./editor.css";
@@ -52,10 +42,22 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+// eslint-disable-next-line react/display-name
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+
+    return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
+  },
+  {
+    ssr: false
+  }
+);
 
 const AnnotatePage = () => {
-  /* eslint-disable react-hooks/exhaustive-deps */
+  // eslint-disable-next-line react/display-name
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   let inputValue = "";
   const classes = headerStyle();
   const dispatch = useDispatch();
@@ -64,6 +66,7 @@ const AnnotatePage = () => {
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
+  const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
   let loaded = useRef();
@@ -79,28 +82,31 @@ const AnnotatePage = () => {
     message: "",
     variant: "success",
   });
+  console.log(ProjectDetails,"lll");
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
+  const [currentInteraction, setCurrentInteraction] = useState({});
 
   const [annotations, setAnnotations] = useState([]);
 
-  const annotationNotesRef = useRef(null);
+  const annotationNotesRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
-  const reviewNotesRef = useRef(null);
+
+  const reviewNotesRef = useRef(false);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
   );
+
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
-  const [chatHistory, setChatHistory] = useState([]);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
@@ -112,7 +118,7 @@ const AnnotatePage = () => {
   const handleGlossaryClick = () => {
     setShowGlossary(!showGlossary);
   };
-
+console.log(annotationNotesRef);
   const modules = {
     toolbar: [
       [{ size: [] }],
@@ -211,10 +217,11 @@ const AnnotatePage = () => {
       tasksComplete(res?.id || null);
     });
   };
-  // let Annotation = AnnotationsTaskDetails.filter(
-  //   (annotation) => annotation.annotation_type === 1
-  // )[0];
-  let Annotation = AnnotationsTaskDetails;
+  let Annotation = AnnotationsTaskDetails.filter(
+    (annotation) => annotation.annotation_type === 1
+  )[0];
+  // let Annotation = AnnotationsTaskDetails
+  console.log(Annotation,AnnotationsTaskDetails);
   const onSkipTask = () => {
     // if (typeof window !== "undefined") {
     //   message.warning('Notes will not be saved for skipped tasks!');
@@ -262,8 +269,19 @@ const AnnotatePage = () => {
     }
     // }
   };
-  const handleAnnotationClick = async (value, id, lead_time) => {
+  console.log(annotationNotesRef);
+  const handleAnnotationClick = async (
+    value,
+    id,
+    lead_time,
+  ) => {
     // if (typeof window !== "undefined") {
+      let resultValue;
+      if (ProjectDetails.project_type == "InstructionDrivenChat") {
+        resultValue = chatHistory;
+      } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
+        resultValue = currentInteraction;
+      }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -273,8 +291,14 @@ const AnnotatePage = () => {
       ),
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+      result:resultValue,
+      task_id:taskId,
+      auto_save:autoSave,
+      interaction_llm:"False"
     };
-    if (["draft", "skipped"].includes(value)) {
+    console.log(value);
+    if (["draft", "skipped","labeled"].includes(value)) {
+      console.log("lll");
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
@@ -470,11 +494,11 @@ const AnnotatePage = () => {
 
   let componentToRender;
   switch (ProjectDetails.project_type) {
-    case "InstructionDrivenChat":
-      componentToRender = <InstructionDrivenChatPage />;
+    case 'InstructionDrivenChat':
+      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
       break;
-    case "ModelInteractionEvaluation":
-      componentToRender = <ModelInteractionEvaluation />;
+    case 'ModelInteractionEvaluation':
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction}/>;
       break;
     default:
       componentToRender = null;
@@ -519,7 +543,7 @@ const AnnotatePage = () => {
               marginLeft: "5px",
             }}
           >
-            {!loading && (
+            {/* ( */}
               <Button
                 endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
                 variant="contained"
@@ -529,7 +553,7 @@ const AnnotatePage = () => {
               >
                 Notes {reviewtext.trim().length === 0 ? "" : "*"}
               </Button>
-            )}
+            {/* )} */}
 
             <div
               // className={styles.collapse}
@@ -539,14 +563,14 @@ const AnnotatePage = () => {
               }}
             >
               <ReactQuill
-                ref={annotationNotesRef}
+                forwardedRef={annotationNotesRef}
                 modules={modules}
                 formats={formats}
                 bounds={"#note"}
                 placeholder="Annotation Notes"
               ></ReactQuill>
               <ReactQuill
-                ref={reviewNotesRef}
+                forwardedRef={reviewNotesRef}
                 modules={modules}
                 formats={formats}
                 bounds={"#note"}

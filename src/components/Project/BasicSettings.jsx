@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
-import fetchLanguages from "@/Lib/Features/fetchLanguages";
+import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 
 
@@ -39,10 +39,10 @@ const BasicSettings = (props) => {
   
 
     useEffect(() => {
-        if (ProjectDetails.project_type === "MonolingualTranslation" ||ProjectDetails.project_type === "SemanticTextualSimilarity" || ProjectDetails.project_type === "TranslationEditing" || ProjectDetails.project_type === "ContextualTranslationEditing"|| ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing") {
+        // if (ProjectDetails.project_type === "MonolingualTranslation" ||ProjectDetails.project_type === "SemanticTextualSimilarity" || ProjectDetails.project_type === "TranslationEditing" || ProjectDetails.project_type === "ContextualTranslationEditing"|| ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing") {
             getLanguageChoices();
             setShowLanguage(true);
-        }
+        // }
 
     }, [ProjectDetails]);
 
@@ -59,8 +59,8 @@ const BasicSettings = (props) => {
         setSourceLanguage(ProjectDetails?.src_language)
     }, [ProjectDetails]);
 
-    const LanguageChoices = useSelector((state) => state.getLanguages.data);
-    
+    const LanguageChoices = useSelector((state) => state.getLanguages.data.language);
+
     const getLanguageChoices = () => {
         dispatch(fetchLanguages());
     };
@@ -69,7 +69,7 @@ const BasicSettings = (props) => {
         if (LanguageChoices && LanguageChoices.length > 0) {
             let temp = [];
             LanguageChoices.forEach((element) => {
-                temp.push(element[0]
+                temp.push(element
                     //     {
                     //     name: element[0],
                     //     value: element[0],

@@ -13,7 +13,7 @@ const initialState = {
 };
 
 export const createProject = createAsyncThunk('projects/createProject', async (body) => {
-    const params = fetchParams("/projects/", "POST", body);
+    const params = fetchParams("/projects/", "POST", JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
 });
