@@ -97,9 +97,6 @@ const MembersTable = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
-  const apiLoading = useSelector((state) => state.getOrganizationUsers.status !== "succeeded");
-
-  const [loading, setLoading] = useState(apiLoading);
   const {
     dataSource,
     hideButton,
@@ -117,7 +114,7 @@ const MembersTable = (props) => {
   const [csvFile, setCsvFile] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [userType, setUserType] = useState(Object.keys(UserRolesList)[0]);
-  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const userDetails = useSelector((state) => state.getProjectDetails.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
   const SearchWorkspaceMembers = useSelector(
     (state) => state.searchProjectCard?.searchValue
@@ -433,7 +430,7 @@ const MembersTable = (props) => {
       />
     );
   };
-
+  const [loading, setLoading] = useState(false);
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [elEmail, setElEmail] = useState("");
   const [elId, setElId] = useState("");
@@ -470,8 +467,6 @@ const MembersTable = (props) => {
     }
   };
   return (
-    <React.Fragment>
-    {loading ? <Spinner /> : <>
     <React.Fragment>
       {userRole !== 1 && !hideButton ? (
         <CustomButton
@@ -581,8 +576,6 @@ const MembersTable = (props) => {
           // filter={false}
         />
       </ThemeProvider>
-    </React.Fragment>
-    </> }
     </React.Fragment>
   );
 };
