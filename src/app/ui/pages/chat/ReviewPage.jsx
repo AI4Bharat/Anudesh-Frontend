@@ -13,7 +13,7 @@ import { styled, alpha } from "@mui/material/styles";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
+// const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
 
 // import ReactQuill, { Quill } from 'react-quill';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -43,7 +43,21 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
+import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
+
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+  /* eslint-disable react-hooks/exhaustive-deps */
+
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+
+    return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
+  },
+  {
+    ssr: false
+  }
+);
 
 
 const StyledMenu = styled((props) => (
@@ -98,11 +112,14 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const lsfRef = useRef();
   const [assignedUsers, setAssignedUsers] = useState(null);
+  const [chatHistory, setChatHistory] = useState([{}]);
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
+  const [currentInteraction, setCurrentInteraction] = useState({});
+
   let loaded = useRef();
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
@@ -140,7 +157,6 @@ const ReviewPage = () => {
 
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
-  const [chatHistory, setChatHistory] = useState([]);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState('')
@@ -453,6 +469,12 @@ const setNotes = (taskData, annotations) => {
     parentannotation,
   ) => {
     if (typeof window !== "undefined") {
+      let resultValue;
+      if (project_type === "InstructionDrivenChat") {
+        resultValue = chatHistory;
+      } else if (project_type === "ModelInteractionEvaluation") {
+        resultValue = currentInteraction;
+      }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -465,9 +487,13 @@ const setNotes = (taskData, annotations) => {
         value === "accepted_with_major_changes") && {
         parent_annotation: parentannotation,
       }),
+      result:resultValue,
+      interaction_llm:False,
+      task_id:taskId,
+      auto_save:autoSave
     };
     if (
-      ["draft", "skipped", "to_be_revised"].includes(value) ||
+      ["draft", "skipped", "to_be_revised","labeled"].includes(value) ||
       (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value) )
     ) {
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -767,10 +793,10 @@ const setNotes = (taskData, annotations) => {
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case 'InstructionDrivenChat':
-      componentToRender = <InstructionDrivenChatPage />;
+      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
       break;
     case 'ModelInteractionEvaluation':
-      componentToRender = <ModelInteractionEvaluation />;
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction}/>;
       break;
     default:
       componentToRender = null;
@@ -958,7 +984,7 @@ const setNotes = (taskData, annotations) => {
                   </Button>
                 </Tooltip>
               </Grid>
-                            {(disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
+              {(disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
                 (user) => user === userData.id
               )) || (!disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
                 (user) => user === userData.id

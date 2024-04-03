@@ -11,6 +11,8 @@ import { FetchEditOrganization } from "@/Lib/Features/user/EditOrganization";
 // import EditOrganizationAPI from "../../../../redux/actions/api/Organization/EditOrganization";
 
 const OrganizationSettings = (props) => {
+      /* eslint-disable react-hooks/exhaustive-deps */
+
     const dispatch = useDispatch();
     const [organizationName, setOrganizationName] = useState("");
     let navigate = useNavigate();

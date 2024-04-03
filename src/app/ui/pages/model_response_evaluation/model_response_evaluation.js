@@ -25,12 +25,13 @@ import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
 import { questions } from "./config";
 
-const ModelInteractionEvaluation = () => {
+const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+
+  const {taskId} = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
-  const [currentInteraction, setCurrentInteraction] = useState({});
-  const { taskId } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {

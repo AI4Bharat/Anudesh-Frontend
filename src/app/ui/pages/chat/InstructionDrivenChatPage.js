@@ -52,13 +52,12 @@ const style = {
   pb: 3,
 };
 
-const InstructionDrivenChatPage = () => {
+const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
-  const [chatHistory, setChatHistory] = useState([{}]);
   const [info, setInfo] = useState({});
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);

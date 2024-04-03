@@ -29,6 +29,8 @@ import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectRe
 import ResendUserInviteAPI, { fetchResendUserInvite } from "@/app/actions/api/Projects/ResendUserInvite";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
+import LoginAPI from "@/app/actions/api/user/Login";
+import RemoveWorkspaceFrozenUserAPI from "@/app/actions/api/workspace/RemoveWorkspaceFrozenUserAPI";
 import Spinner from "@/components/common/Spinner";
 
 const columns = [
@@ -122,6 +124,7 @@ const MembersTable = (props) => {
   const loggedInUserData = useSelector(
     (state) => state.getLoggedInData.data
   );
+
   const pageSearch = () => {
     return dataSource.filter((el) => {
       if (SearchWorkspaceMembers == "") {
@@ -153,7 +156,8 @@ const MembersTable = (props) => {
   };
 
   const handleProjectMember = async (userid) => {
-    dispatch(fetchRemoveProjectMember(id, { ids: [userid] }));
+    dispatch(fetchRemoveProjectMember({projectId:id, projectObj:[userid]}));
+    const projectObj = new RemoveProjectReviewerAPI(id, { ids: [userid] });
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -270,7 +274,7 @@ const MembersTable = (props) => {
     setUserType(Object.keys(UserRolesList)[0])
   };
   const handleRemoveFrozenUsers = async (FrozenUserId) => {
-    const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
+    const projectObj = new RemoveWorkspaceFrozenUserAPI(id, { ids: [FrozenUserId] });
     //dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
@@ -296,7 +300,7 @@ const MembersTable = (props) => {
   };
 
 
-  
+  // console.log(userRoles,loggedInUserData?.role);
   // useEffect(() => {
   //   setLoading(apiLoading);
   // }, [apiLoading]);

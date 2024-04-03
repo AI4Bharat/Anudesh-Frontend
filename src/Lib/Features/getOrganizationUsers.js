@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchOrganizationUsers = createAsyncThunk(
   'getOrganizationUsers/fetchOrganizationUsers',
-  async (orgId, { dispatch }) => {
+  async (orgId) => {
     const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/users/`);
     return fetch(params.url, params.options)
         .then(response => response.json())

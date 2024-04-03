@@ -18,9 +18,9 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
-
+import { MenuProps } from "@/utils/utils";
 import { createProject } from "@/Lib/Features/actions/projects";
-
+import { useNavigate } from "react-router-dom";
 import ColumnList from "@/components/common/ColumnList";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
 import Button from "@/components/common/Button";
@@ -29,11 +29,29 @@ import  "@/styles/Dataset.css";
 import themeDefault from "@/themes/theme";
 import tableTheme from "@/themes/tableTheme";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
+import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
+import { fetchDatasetSearchPopup } from "@/Lib/Features/datasets/DatasetSearchPopup";
+import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
   return reg.test(String(str));
 };
+
+const projectStage = [
+  { name: "Annotation Stage", value: 1 },
+  { name: "Review Stage", value: 2 },
+  { name: "Super-Check Stage", value: 3 }
+];
+
+const CreateAnnotationsAutomatically = [
+  { name: "None", value: "none" },
+  { name: "Annotation", value: "annotation" },
+  { name: "Review", value: "review" },
+  { name: "Supercheck", value: "supercheck" }
+];
+
 
 const CreateProject = () => {
 
@@ -45,9 +63,15 @@ const CreateProject = () => {
   //and uncomment this after implementing dynamic routes:
   //const { workspaceId } = useParams();
 
-  const ProjectDomains = useSelector(state => state.domains.domains);
+  const ProjectDomains = useSelector(state => state.domains?.domains);
+  const ProjectDomains1 = useSelector(state => console.log(state));
+  const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
+  // const DatasetFields = useSelector((state) => state.getDatasetFields.data);
+  const LanguageChoices = useSelector((state) => state.getLanguages.data?.language);
+  const DataItems = useSelector((state) => state.GetDataitemsById.data);
   const NewProject = useSelector(state => state.projects.newProject);
-  const UserData = useSelector(state => state.user.data);
+  const UserData = useSelector(state => state.getLoggedInData.data);
+  const navigate = useNavigate();
 
   const [domains, setDomains] = useState([]);
   const [projectTypes, setProjectTypes] = useState(null);
@@ -108,8 +132,60 @@ const CreateProject = () => {
     // if(ProjectDomains.status !== "succeeded")
       dispatch(fetchDomains());
   }, []);
+  const onSelectDomain = (value) => {
+    setSelectedDomain(value);
+  };
 
   useEffect(() => {
+    setTotalDataitems(DataItems.count);
+    let fetchedItems = DataItems.results;
+    setTableData(fetchedItems);
+    let tempColumns = [];
+    let tempSelected = [];
+    if (fetchedItems?.length) {
+      Object.keys(fetchedItems[0]).forEach((keys) => {
+        if (!excludeKeys.includes(keys)) {
+          tempColumns.push({
+            name: keys,
+            label: snakeToTitleCase(keys),
+            options: {
+              filter: false,
+              sort: false,
+              align: "center",
+              customHeadLabelRender: customColumnHead,
+              customBodyRender: (value) => {
+                if ((keys == "metadata_json" || keys == "prediction_json" || keys == "ocr_prediction_json" || keys == "transcribed_json" || keys == "draft_data_json" || keys == "ocr_transcribed_json") && value !== null) {
+                  const data = JSON.stringify(value)
+                  const metadata = data.replace(/\\/g, "");
+                  return metadata;
+                } else {
+                  return value;
+                }
+              },
+            },
+          });
+          tempSelected.push(keys);
+        }
+      });
+    }
+    setColumns(tempColumns);
+    setSelectedColumns(tempSelected);
+  }, [DataItems]);
+
+
+  useEffect(() => {
+    if (LanguageChoices && LanguageChoices.length > 0) {
+      let temp = [];
+      LanguageChoices.forEach((element) => {
+        temp.push({
+          name: element,
+          value: element,
+        });
+      });
+      setLanguageOptions(temp);
+    }
+  }, [LanguageChoices]);
+    useEffect(() => {
     if (UserData) {
       const tempDomains = [];
       const tempTypes = {};
@@ -121,7 +197,6 @@ const CreateProject = () => {
         const tempTypesArr = [];
         for (const project_type in ProjectDomains[domain]["project_types"]) {
           tempTypesArr.push(project_type);
-
           if (
             ProjectDomains[domain]["project_types"][project_type][
             "input_dataset"
@@ -165,7 +240,43 @@ const CreateProject = () => {
       setDatasetTypes(tempDatasetTypes);
       setColumnFields(tempColumnFields);
     }
-  }, [ProjectDomains, UserData]);
+  }, [ProjectDomains]);
+
+  const handleRandomChange = (e) => {
+    setRandom(e.target.value);
+    setSamplingParameters(
+      e.target.value ? { fraction: parseFloat(e.target.value / 100) } : null
+    );
+  };
+
+  const onSelectProjectType = (value) => {
+    setSelectedType(value);
+    dispatch(fetchDatasetByType(datasetTypes[value]));
+  };
+  useEffect(() => {
+    setSelectedType("");
+    setSamplingParameters(null);
+    setConfirmed(false);
+    dispatch(fetchLanguages());
+    setTableData([]);
+    setCurrentPageNumber(1);
+    setCurrentRowPerPage(10);
+  }, [selectedDomain]);
+
+  const handleSearchClose = () => {
+    setSearchAnchor(null);
+  };
+
+
+
+  useEffect(() => {
+    let tempInstanceIds = {};
+    for (const instance in DatasetInstances) {
+      tempInstanceIds[DatasetInstances[instance]["instance_id"]] =
+        DatasetInstances[instance]["instance_name"];
+    }
+    setInstanceIds(tempInstanceIds);
+  }, [DatasetInstances]);
 
   const handleCreateProject = () => {
     const data = {
@@ -185,11 +296,75 @@ const CreateProject = () => {
     };
     dispatch(createProject(data));
   };
+
   useEffect(() => {
-    if(NewProject.status === "succeeded")
-      router.push(`/projects`);
-  }, [NewProject, router]);
-  
+    if (NewProject.id) {
+      navigate(`/projects/${NewProject.id}`, { replace: true });
+      window.location.reload();
+    }
+  }, [NewProject]);
+  useEffect(() => {
+    getsearchdataitems();
+  }, [currentPageNumber, currentRowPerPage, selectedFilters]);
+
+  const getsearchdataitems = () => {
+    const searchPopupdata = {
+      instance_ids: selectedInstances,
+      search_keys: selectedFilters,
+    };
+    dispatch(fetchDatasetSearchPopup(searchPopupdata));
+  };
+
+  const onSelectInstances = (e) => {
+    setSelectedInstances(e.target.value);
+    setSamplingMode(null);
+    setSamplingParameters(null);
+  };
+
+  const handleReviewToggle = async (e) => {
+    setTaskReviews(e.target.value);
+  };
+
+  const handleChangeInstances = () => {
+    setConfirmed(false);
+    setTableData([]);
+    setCurrentPageNumber(1);
+    setCurrentRowPerPage(10);
+    setSamplingMode(null);
+    setSamplingParameters(null);
+  };
+
+  const getDataItems = () => {
+    const dataObj = (
+      selectedInstances,
+      datasetTypes[selectedType],
+      selectedFilters,
+      currentPageNumber,
+      currentRowPerPage
+    );
+    dispatch(fetchDatasetByType(dataObj));
+  };
+
+  const onSelectSamplingMode = (value) => {
+    setSamplingMode(value);
+    if (value === "f") {
+      setSamplingParameters({});
+    }
+  };
+  const onConfirmSelections = () => {
+    setConfirmed(true);
+    getDataItems();
+  };
+
+  const handleChangeCreateAnnotationsAutomatically = (e) => {
+    setsCreateannotationsAutomatically(e.target.value)
+  }
+
+  useEffect(() => {
+    if (selectedInstances && datasetTypes) {
+      getDataItems();
+    }
+  }, [currentPageNumber, currentRowPerPage]);
   const renderToolBar = () => {
     return (
       <Grid container spacing={0} md={12}>
@@ -361,7 +536,10 @@ const CreateProject = () => {
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <MenuItems
+                <MenuItems
+                    menuOptions={domains}
+                    handleChange={onSelectDomain}
+                    value={selectedDomain}
                   />
                 </Grid>
               </>
@@ -526,6 +704,7 @@ const CreateProject = () => {
                           MenuProps={MenuProps}
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
+                          onChange={onSelectInstances}
                           value={selectedInstances}
                           multiple={true}
                           renderValue={(selected) => (
@@ -706,6 +885,7 @@ const CreateProject = () => {
                   <OutlinedTextField
                     fullWidth
                     value={random}
+                    onChange={handleRandomChange}
                   />
                 </Grid>
               </>
@@ -839,6 +1019,7 @@ const CreateProject = () => {
                       labelId="task-Reviews-label"
                       id="task-Reviews-select"
                       value={createannotationsAutomatically}
+                      onChange={handleChangeCreateAnnotationsAutomatically}
                     >
                       {CreateAnnotationsAutomatically.map((type, index) => (
                         <MenuItem value={type.value} key={index}>
@@ -895,13 +1076,23 @@ const CreateProject = () => {
               />
               <Button
                 label={"Cancel"}
-                onClick={() => router.push(`/workspace/${workspaceId}`)}
+                onClick={() => navigate(`/workspaces/${workspaceId}`)}
               />
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12} />
           </Grid>
         </Card>{" "}
       </Grid>
+      {searchOpen && (
+        <DatasetSearchPopup
+          open={searchOpen}
+          anchorEl={searchAnchor}
+          handleClose={handleSearchClose}
+          updateFilters={setsSelectedFilters}
+          currentFilters={selectedFilters}
+          searchedCol={searchedCol}
+        />
+      )}
 
     </ThemeProvider>
   );

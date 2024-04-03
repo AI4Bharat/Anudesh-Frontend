@@ -29,6 +29,7 @@ const excludeKeys = [
   "conversation_json",
   "machine_translated_conversation_json",
   "speakers_json",
+  "interactions_json",
   "unverified_conversation_json",
   "annotation_bboxes",
   "annotation_labels",

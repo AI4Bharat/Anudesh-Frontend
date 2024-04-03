@@ -9,8 +9,8 @@ const initialState = {
 
 export const fetchLanguages = createAsyncThunk(
   'getLanguages/fetchLanguages',
-  async (pageNumber, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.getProjects}types/`);
+  async (pageNumber) => {
+    const params = fetchParams(`${ENDPOINTS.getLanguages}fetch/`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }
