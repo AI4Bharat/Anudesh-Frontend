@@ -103,9 +103,9 @@ jobs:
       - name: Azure login
         uses: azure/login@v2
         with:
-          username: e821e9f6-6165-44dd-87e7-0fa339e09b0b
-          password: y1s8Q~4NvLn89vA21hI9-LE.j2juNbL9Ke3cva8I
-          tenant: e8c7129c-a064-44d3-ab82-4fc378cd5f43
+          client-id: e821e9f6-6165-44dd-87e7-0fa339e09b0b
+          client-secret: y1s8Q~4NvLn89vA21hI9-LE.j2juNbL9Ke3cva8I
+          tenant-id: e8c7129c-a064-44d3-ab82-4fc378cd5f43
           allow-no-subscriptions: true
   
       - name: Upload to blob storage
