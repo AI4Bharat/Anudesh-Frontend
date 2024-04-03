@@ -108,12 +108,6 @@ jobs:
           tenant-id: e8c7129c-a064-44d3-ab82-4fc378cd5f43
           subscription-id: 0535e45f-6694-4e9e-ae1b-32ee98727227
   
-      - name: Upload to blob storage
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-              az storage blob upload-batch --account-name anudeshdev --account-key ${{ env.AZURE_STORAGEKEY }} -d '$web' -s ./out --overwrite
-  
       - name: Purge CDN endpoint
         uses: azure/CLI@v1
         with:
