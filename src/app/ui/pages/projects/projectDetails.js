@@ -32,7 +32,7 @@ import {
   import userRole from "../../../../utils/UsersRolesList";
   import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
   import SuperChecker from "../../../../components/Project/SuperChecker";
-import AllTaskTable from "@/components/Project/AllTaskTable";
+  import AllTaskTable from "@/components/Project/AllTaskTable";
 
   const menuOptions = [
     { name: "Tasks", isChecked: false, component: () => null },
