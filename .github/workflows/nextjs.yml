@@ -112,7 +112,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-              az storage blob upload-batch --account-name anudeshdev --account-key ${{ env.AZURE_STORAGEKEY }} -d '$web' -s ./next --overwrite
+              az storage blob upload-batch --account-name anudeshdev --account-key ${{ env.AZURE_STORAGEKEY }} -d '$web' -s ./out --overwrite
   
       - name: Purge CDN endpoint
         uses: azure/CLI@v1
