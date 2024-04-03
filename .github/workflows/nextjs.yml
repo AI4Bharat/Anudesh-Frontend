@@ -106,6 +106,7 @@ jobs:
           client-id: e821e9f6-6165-44dd-87e7-0fa339e09b0b
           client-secret: y1s8Q~4NvLn89vA21hI9-LE.j2juNbL9Ke3cva8I
           tenant-id: e8c7129c-a064-44d3-ab82-4fc378cd5f43
+          subscription-id: 0535e45f-6694-4e9e-ae1b-32ee98727227
   
       - name: Upload to blob storage
         uses: azure/CLI@v1
