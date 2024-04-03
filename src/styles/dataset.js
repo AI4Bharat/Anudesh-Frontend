@@ -176,7 +176,8 @@ const DatasetStyle = makeStyles({
     height: '100%',
     top: 0,
     left: 0,
-    opacity: 1
+    opacity: 1,
+    pointerEvents: 'none',
   },
   search: {
     //position: "relative",
