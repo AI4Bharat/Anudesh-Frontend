@@ -199,6 +199,7 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
         result: inputValue,
         lead_time: 0.0,
         auto_save: "True",
+        task_id:taskId,
       };
       const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
@@ -289,7 +290,7 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
               }}
             />
             <Box className="flex-col">
-              {message.output.map((segment, index) =>
+              {message?.output?.map((segment, index) =>
                 segment.type == "text" ? (
                   <ReactMarkdown
                     key={index}

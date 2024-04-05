@@ -165,7 +165,7 @@ const ProjectCardList = (props) => {
       },
     },
   ];
-
+console.log(projectData);
   const data =
     projectData && projectData.length > 0
       ? pageSearch().map((el, i) => {

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from "react";
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import MUIDataTable from "mui-datatables";
 import {
   Box,
@@ -19,9 +19,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { MenuProps } from "@/utils/utils";
+import { useParams } from "react-router-dom";
 import { createProject } from "@/Lib/Features/actions/projects";
 import { useNavigate } from "react-router-dom";
 import ColumnList from "@/components/common/ColumnList";
+import { snakeToTitleCase } from "@/utils/utils";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
 import Button from "@/components/common/Button";
 import MenuItems from "@/components/common/MenuItems";
@@ -33,6 +35,7 @@ import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
 import { fetchDatasetSearchPopup } from "@/Lib/Features/datasets/DatasetSearchPopup";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
+import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -57,19 +60,17 @@ const CreateProject = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  
+  const { id } = useParams();
   //remove this line:
-  const workspaceId = 1;
   //and uncomment this after implementing dynamic routes:
   //const { workspaceId } = useParams();
-
   const ProjectDomains = useSelector(state => state.domains?.domains);
   const ProjectDomains1 = useSelector(state => console.log(state));
   const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
   // const DatasetFields = useSelector((state) => state.getDatasetFields.data);
   const LanguageChoices = useSelector((state) => state.getLanguages.data?.language);
   const DataItems = useSelector((state) => state.GetDataitemsById.data);
-  const NewProject = useSelector(state => state.projects.newProject);
+  const NewProject = useSelector(state => state.projects.newProject?.res);
   const UserData = useSelector(state => state.getLoggedInData.data);
   const navigate = useNavigate();
 
@@ -191,7 +192,7 @@ const CreateProject = () => {
       const tempTypes = {};
       const tempDatasetTypes = {};
       const tempColumnFields = {};
-      let tempVariableParameters = {};
+      // let tempVariableParameters = {};
       for (const domain in ProjectDomains) {
         tempDomains.push(domain);
         const tempTypesArr = [];
@@ -211,19 +212,19 @@ const CreateProject = () => {
               "input_dataset"
               ]["fields"];
           }
-          let temp =
-            ProjectDomains[domain]["project_types"][project_type][
-            "output_dataset"
-            ]["fields"]["variable_parameters"];
-          if (temp) {
-            tempVariableParameters[project_type] = {
-              variable_parameters: temp,
-              output_dataset:
-                ProjectDomains[domain]["project_types"][project_type][
-                "output_dataset"
-                ]["class"],
-            };
-          }
+          // let temp =
+          //   ProjectDomains[domain]["project_types"][project_type][
+          //   "output_dataset"
+          //   ]["fields"]["variable_parameters"];
+          // if (temp) {
+          //   tempVariableParameters[project_type] = {
+          //     variable_parameters: temp,
+          //     output_dataset:
+          //       ProjectDomains[domain]["project_types"][project_type][
+          //       "output_dataset"
+          //       ]["class"],
+          //   };
+          // }
         }
         tempTypes[domain] = tempTypesArr;
       }
@@ -235,7 +236,7 @@ const CreateProject = () => {
           };
         })
       );
-      setVariableParameters(tempVariableParameters);
+      // setVariableParameters(tempVariableParameters);
       setProjectTypes(tempTypes);
       setDatasetTypes(tempDatasetTypes);
       setColumnFields(tempColumnFields);
@@ -277,24 +278,33 @@ const CreateProject = () => {
     }
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
-
+console.log(UserData?.id);
   const handleCreateProject = () => {
-    const data = {
+    const newProject = {
       title: title,
       description: description,
+      created_by: UserData?.id,
+      is_archived: false,
+      is_published: false,
+      users: [UserData?.id],
+      workspace_id: id,
+      organization_id: UserData?.organization?.id,
       project_type: selectedType,
       src_language: sourceLanguage,
       tgt_language: targetLanguage,
       dataset_id: selectedInstances,
+      label_config: "string",
       sampling_mode: samplingMode,
       sampling_parameters_json: samplingParameters,
-      variable_parameters: selectedVariableParameters,
+      // variable_parameters: selectedVariableParameters,
       filter_string: filterString,
       project_stage: taskReviews,
       required_annotators_per_task: selectedAnnotatorsNum,
       automatic_annotation_creation_mode: createannotationsAutomatically,
     };
-    dispatch(createProject(data));
+    if (sourceLanguage) newProject["src_language"] = sourceLanguage;
+    if (targetLanguage) newProject["tgt_language"] = targetLanguage;
+    dispatch(createProject(newProject));
   };
 
   useEffect(() => {
@@ -333,16 +343,15 @@ const CreateProject = () => {
     setSamplingMode(null);
     setSamplingParameters(null);
   };
-
   const getDataItems = () => {
-    const dataObj = (
-      selectedInstances,
-      datasetTypes[selectedType],
-      selectedFilters,
-      currentPageNumber,
-      currentRowPerPage
-    );
-    dispatch(fetchDatasetByType(dataObj));
+    const dataObj = ({
+      instanceIds:selectedInstances,
+      datasetType:datasetTypes[selectedType],
+      selectedFilters:selectedFilters,
+      pageNo:currentPageNumber,
+      countPerPage:currentRowPerPage
+    });
+    dispatch(fetchDataitemsById(dataObj));
   };
 
   const onSelectSamplingMode = (value) => {
@@ -575,7 +584,7 @@ const CreateProject = () => {
               </>
             )}
 
-            {selectedType &&
+            {/* {selectedType &&
               variableParameters?.[selectedType]?.variable_parameters !==
               undefined && (
                 <>
@@ -602,7 +611,7 @@ const CreateProject = () => {
                     />
                   </Grid>
                 </>
-              )}
+              )} */}
             {selectedDomain && (
                 <>
                   <Grid
@@ -1068,15 +1077,13 @@ const CreateProject = () => {
                     selectedType &&
                     selectedInstances &&
                     domains &&
-                    samplingMode &&
-                    selectedVariableParameters
-                    ? false
-                    : true
+                    samplingMode 
+                    ? false:true
                 }
               />
               <Button
                 label={"Cancel"}
-                onClick={() => navigate(`/workspaces/${workspaceId}`)}
+                onClick={() => navigate(`/workspaces/${id}`)}
               />
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12} />
