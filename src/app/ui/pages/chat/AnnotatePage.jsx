@@ -40,6 +40,7 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
+import CustomizedSnackbars from "@/components/common/Snackbar";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 // eslint-disable-next-line react/display-name
@@ -504,10 +505,25 @@ console.log(annotationNotesRef);
       componentToRender = null;
       break;
   }
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+
 
   return (
     <>
       <Grid container spacing={2}>
+      {renderSnackBar()}
         <Grid item>
           <Box
             sx={{

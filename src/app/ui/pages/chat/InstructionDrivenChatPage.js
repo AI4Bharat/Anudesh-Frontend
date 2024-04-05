@@ -219,12 +219,23 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
             };
           });
         }
+        else{
+          setSnackbarInfo({
+            open: true,
+            message: data?.message,
+            variant: "error",
+          })
+        }
         return data && data.result
           ? [...modifiedChatHistory]
           : [...prevChatHistory];
       });
     } else {
-      alert("Please provide a prompt.");
+      setSnackbarInfo({
+        open: true,
+        message: "please provide a prompt",
+        variant: "error",
+      })
     }
     setShowChatContainer(true);
   };

@@ -278,7 +278,6 @@ const CreateProject = () => {
     }
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
-console.log(UserData?.id);
   const handleCreateProject = () => {
     const newProject = {
       title: title,
