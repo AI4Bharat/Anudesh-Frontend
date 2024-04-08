@@ -12,6 +12,7 @@ import GetQueuedTaskDetailsAPI from "@/Lib/Features/getQueuedTaskDetails";
 import { Box } from "@mui/material";
 import { Typography } from "@mui/material";
 
+/* eslint-disable react-hooks/exhaustive-deps */
 const QueuedTasksDetails = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

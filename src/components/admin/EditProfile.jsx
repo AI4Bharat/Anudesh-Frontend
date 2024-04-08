@@ -55,15 +55,14 @@ const EditProfile = (props) => {
 
   const LanguageList = useSelector((state) => state.fetchLanguages?.data);
 
-  const getLanguageList = () => {
+  const getLanguageList = useCallback(() => {
     const langObj = new FetchLanguagesAPI();
-
     dispatch(APITransport(langObj));
-  };
-
+  }, [dispatch]); 
+  
   useEffect(() => {
     getLanguageList();
-  }, []);
+  }, [getLanguageList]);
 
   useEffect(() => {
     if (LanguageList) {
@@ -196,7 +195,7 @@ const EditProfile = (props) => {
               {participationTypes &&
                 participationTypes.length > 0 &&
                 participationTypes.map((el, i) => {
-                  return <MenuItem value={el.value}>{el.name}</MenuItem>;
+                  return <MenuItem key={i} value={el.value}>{el.name}</MenuItem>
                 })}
             </Select>
           </FormControl>
