@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
-// import APITransport from "@/Lib/apiTransport/apitransport"
+import APITransport from "@/Lib/apiTransport/apitransport"
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider, Grid, IconButton } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
@@ -33,8 +33,8 @@ const QueuedTasksDetails = (props) => {
   const getUserDetail = () => {
     // setLoading(true);
     const UserObj = new GetQueuedTaskDetailsAPI();
-    console.log(UserObj)
-    // dispatch(APITransport(UserObj));
+    // console.log(UserObj)
+    dispatch(APITransport(UserObj));
   };
 
   useEffect(() => {
