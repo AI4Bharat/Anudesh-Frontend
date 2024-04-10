@@ -199,6 +199,7 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
         result: inputValue,
         lead_time: 0.0,
         auto_save: "True",
+        task_id:taskId,
       };
       const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
@@ -218,12 +219,23 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
             };
           });
         }
+        else{
+          setSnackbarInfo({
+            open: true,
+            message: data?.message,
+            variant: "error",
+          })
+        }
         return data && data.result
           ? [...modifiedChatHistory]
           : [...prevChatHistory];
       });
     } else {
-      alert("Please provide a prompt.");
+      setSnackbarInfo({
+        open: true,
+        message: "please provide a prompt",
+        variant: "error",
+      })
     }
     setShowChatContainer(true);
   };
@@ -289,7 +301,7 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
               }}
             />
             <Box className="flex-col">
-              {message.output.map((segment, index) =>
+              {message?.output?.map((segment, index) =>
                 segment.type == "text" ? (
                   <ReactMarkdown
                     key={index}

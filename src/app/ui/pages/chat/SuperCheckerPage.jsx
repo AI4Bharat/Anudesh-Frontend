@@ -539,9 +539,24 @@ const SuperCheckerPage = () => {
       componentToRender = null;
       break;
   }
+
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
   return (
     <>
       <Grid container spacing={2}>
+        {renderSnackBar()}
         <Grid item >
           <Box
             sx={{
