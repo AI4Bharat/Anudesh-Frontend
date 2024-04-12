@@ -3,7 +3,6 @@ import GlobalStyles from "@/styles/LayoutStyles";
 import BackButton from "@/components/common/BackButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { translate } from "@/config/localisation";
-import ErrorBoundary from "../ErrorBoundary";
 const Header = React.lazy(() => import("@/components/common/Header"));
 
 
@@ -56,7 +55,7 @@ const Layout= (props) => {
            < BackButton startIcon={<  ArrowBackIcon />} sx={{ color:"white" ,   mb:2 ,mt:2 }} backPressNavigationPath={backPressNavigationPath ? backPressNavigationPath : ""} label={translate("label.backToPreviousPage")}/>
            }
           <Suspense fallback={<div>Loading....</div>}>
-          <ErrorBoundary>{component}</ErrorBoundary>
+            {component}
           </Suspense>
         </div>
       </div>
