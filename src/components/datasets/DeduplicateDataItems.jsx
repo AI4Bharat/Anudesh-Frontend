@@ -76,7 +76,7 @@ export default function DeduplicateDataItems() {
 useEffect(() => {
   const storedData = localStorage.getItem("Dataitem");
 
-  if (storedData!=="undefined") {
+  if (storedData) {
       const Dataitems = JSON.parse(storedData);
       setDataitemsvalues(Dataitems)  
   }

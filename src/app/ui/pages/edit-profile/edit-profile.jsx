@@ -197,7 +197,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Phone"
                 name="phone"
-                value={userDetails?.phone}
+                value={newDetails?.phone}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -217,7 +217,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Username"
                 name="username"
-                value={userDetails?.username}
+                value={newDetails?.username}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -228,9 +228,9 @@ const MyProfile = () => {
               fullWidth
               label="Gender"
               name="gender"
-              value={userDetails?.gender === 'M' ? 'Male' :
-              userDetails?.gender === 'F' ? 'Female' :
-              userDetails?.gender === 'O' ? 'Other' : ''}
+              value={newDetails?.gender === 'M' ? 'Male' :
+              newDetails?.gender === 'F' ? 'Female' :
+              newDetails?.gender === 'O' ? 'Other' : ''}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -239,7 +239,7 @@ const MyProfile = () => {
               fullWidth
               label="City"
               name="city"
-              value={userDetails?.city}
+              value={newDetails?.city}
               onChange={handleFieldChange}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
@@ -249,7 +249,7 @@ const MyProfile = () => {
               fullWidth
               label="Address"
               name="address"
-              value={userDetails?.address}
+              value={newDetails?.address}
               onChange={handleFieldChange}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
@@ -259,7 +259,7 @@ const MyProfile = () => {
               fullWidth
               label="State"
               name="state"
-              value={userDetails?.state}
+              value={newDetails?.state}
               onChange={handleFieldChange}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
@@ -269,7 +269,7 @@ const MyProfile = () => {
               fullWidth
               label="Pincode"
               name="pincode"
-              value={userDetails?.pin_code}
+              value={newDetails?.pin_code}
               onChange={handleFieldChange}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
@@ -279,7 +279,7 @@ const MyProfile = () => {
               fullWidth
               label="Age"
               name="age"
-              value={userDetails?.age}
+              value={newDetails?.age}
               onChange={handleFieldChange}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
@@ -289,7 +289,7 @@ const MyProfile = () => {
               fullWidth
               label="Qualification"
               name="qualification"
-              value={userDetails?.qualification}
+              value={newDetails?.qualification}
               onChange={handleFieldChange}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
