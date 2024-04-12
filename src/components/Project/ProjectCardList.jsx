@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from "react-redux";
 import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
-import { error } from "@/app/actions/string";
 
 const ProjectCardList = (props) => {
        /* eslint-disable react-hooks/exhaustive-deps */
