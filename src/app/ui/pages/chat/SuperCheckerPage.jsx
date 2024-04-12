@@ -309,7 +309,7 @@ const SuperCheckerPage = () => {
   const onNextAnnotation = async () => {
     // showLoader();
     setLoading(true)
-    getNextProject(projectId, taskId).then((res) => {
+    getNextProject(projectId, taskId, "supercheck").then((res) => {
       //   hideLoader();
       setLoading(false)
       // window.location.href = `/projects/${projectId}/task/${res.id}`;

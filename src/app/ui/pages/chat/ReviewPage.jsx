@@ -402,7 +402,7 @@ const setNotes = (taskData, annotations) => {
   const onNextAnnotation = async () => {
     // showLoader();
     setLoading(true)
-    getNextProject(projectId, taskId).then((res) => {
+    getNextProject(projectId, taskId, "review").then((res) => {
       //   hideLoader();
       setLoading(false)
       // window.location.href = `/projects/${projectId}/task/${res.id}`;

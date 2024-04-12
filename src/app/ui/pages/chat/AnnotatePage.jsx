@@ -70,6 +70,7 @@ const AnnotatePage = () => {
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
+  
   let loaded = useRef();
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
