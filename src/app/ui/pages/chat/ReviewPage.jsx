@@ -13,9 +13,6 @@ import { styled, alpha } from "@mui/material/styles";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-// const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
-
-// import ReactQuill, { Quill } from 'react-quill';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
@@ -47,6 +44,7 @@ import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
   /* eslint-disable react-hooks/exhaustive-deps */
+// eslint-disable-next-line react/display-name
 
 const ReactQuill = dynamic(
   async () => {
@@ -133,7 +131,7 @@ const ReviewPage = () => {
     message: "",
     variant: "success",
   });
-  const [disableSkipButton, setdisableSkipButton] = useState(false);
+  const [disableSkip, setdisableSkip] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
@@ -186,9 +184,9 @@ const ReviewPage = () => {
     'color', 'background',
     'script']
 
-useEffect(()=>{
-  setNotes(taskData, annotations);
-},[])
+
+
+
 const setNotes = (taskData, annotations) => {
   if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
 
@@ -399,52 +397,50 @@ const setNotes = (taskData, annotations) => {
     taskData?.id && showAssignedUsers();
   }, [taskData]);
 
-  const onNextAnnotation = async () => {
-    // showLoader();
-    setLoading(true)
-    getNextProject(projectId, taskId, "review").then((res) => {
-      //   hideLoader();
+
+  const onNextAnnotation = async (value) => {
+    setLoading(true);
+    const nextAPIData = {
+      id: projectId,
+      current_task_id: taskId,
+      mode: "review",
+      annotation_status: labellingMode,
+    };
+
+    let apiObj = new GetNextProjectAPI(projectId, nextAPIData)
+    var rsp_data = []
+    fetch(apiObj.apiEndPoint(), {
+      method: 'post',
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers
+    }).then(async response => {
+      rsp_data = await response.json();
       setLoading(false)
-      // window.location.href = `/projects/${projectId}/task/${res.id}`;
-      tasksComplete(res?.id || null);
-    });
-  };
-  // let Annotation = AnnotationsTaskDetails.filter(
-  //   (annotation) => annotation.annotation_type === 1
-  // )[0];
-  let Annotation = AnnotationsTaskDetails
-  const onSkipTask = () => {
-    // if (typeof window !== "undefined") {
-    //   message.warning('Notes will not be saved for skipped tasks!');
-    let annotation = annotations.find(
-      (annotation) => !annotation.parentAnnotation
-    );
-    if (annotation) {
-      // showLoader();
-      patchAnnotation(
-        null,
-        annotation.id,
-        load_time.current,
-        annotation.lead_time,
-        "skipped",
-        JSON.stringify(annotationNotesRef.current.getEditor().getContents())
-      ).then(() => {
-        getNextProject(projectId, taskData.id).then((res) => {
-          // hideLoader();
-          tasksComplete(res?.id || null);
-        });
+      if (response.ok) {
+        setNextData(rsp_data);
+        tasksComplete(rsp_data?.id || null);
+        getAnnotationsTaskData(rsp_data.id);
+        getTaskData(rsp_data.id);
+      } 
+    }).catch((error) => {
+      setSnackbarInfo({
+        open: true,
+        message: "No more tasks to label",
+        variant: "info",
       });
-    // }
-  }
-  }
+      setTimeout(() => {
+        localStorage.removeItem("labelAll");
+        window.location.replace(`/#/projects/${projectId}`);
+      }, 1000);
+    });
 
-
+  }
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
     if (id) {
         resetNotes();
       // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-      navigate(`/projects/${projectId}/task/${id}`);
+      navigate(`/projects/${projectId}/review/${id}`);
     } else {
       // navigate(-1);
         resetNotes();
@@ -470,16 +466,16 @@ const setNotes = (taskData, annotations) => {
   ) => {
     if (typeof window !== "undefined") {
       let resultValue;
-      if (project_type === "InstructionDrivenChat") {
+      if (ProjectDetails.project_type === "InstructionDrivenChat") {
         resultValue = chatHistory;
-      } else if (project_type === "ModelInteractionEvaluation") {
+      } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = currentInteraction;
       }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
       annotation_status: value,
-      review_notes: JSON.stringify(reviewNotesRef.current.getEditor().getContents()),
+      review_notes: JSON.stringify(reviewNotesRef?.current?.getEditor().getContents()),
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
       ...((value === "to_be_revised" || value === "accepted" ||
@@ -488,12 +484,12 @@ const setNotes = (taskData, annotations) => {
         parent_annotation: parentannotation,
       }),
       result:resultValue,
-      interaction_llm:False,
+      interaction_llm:"False",
       task_id:taskId,
       auto_save:autoSave
     };
     if (
-      ["draft", "skipped", "to_be_revised","labeled"].includes(value) ||
+      ["draft", "skipped", "to_be_revised"].includes(value) ||
       (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value) )
     ) {
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -534,61 +530,6 @@ const setNotes = (taskData, annotations) => {
   }
   };
 
-  const handleAnnotationClick = async (
-    value,
-    id,
-    lead_time,
-  ) => {
-    if (typeof window !== "undefined") {
-    setLoading(true);
-    setAutoSave(false);
-    const PatchAPIdata = {
-      annotation_status: value,
-      annotation_notes: JSON.stringify(annotationNotesRef.current.getEditor().getContents()),
-      lead_time:
-        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0)
-    };
-    if (["draft", "skipped"].includes(value)) {
-      const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      // dispatch(APITransport(GlossaryObj));
-      const res = await fetch(TaskObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(TaskObj.getBody()),
-        headers: TaskObj.getHeaders().headers,
-      });
-      const resp = await res.json();
-      if (res.ok) {
-        if (localStorage.getItem("labelAll") || value === "skipped") {
-          onNextAnnotation(resp.task);
-        }
-        setSnackbarInfo({
-          open: true,
-          message: resp?.message,
-          variant: "success",
-        });
-      } else {
-        setAutoSave(true);
-        setSnackbarInfo({
-          open: true,
-          message: resp?.message,
-          variant: "error",
-        });
-      }
-    } else {
-      setAutoSave(true);
-      setSnackbarInfo({
-        open: true,
-        message: "Error in saving annotation",
-        variant: "error",
-      });
-
-    }
-    setLoading(false);
-    setShowNotes(false);
-  }
-  };
-  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-
 
 
   const getAnnotationsTaskData = (id) => {
@@ -601,6 +542,7 @@ const setNotes = (taskData, annotations) => {
     getProjectDetails();
     getTaskData(taskId);
   }, []);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -610,16 +552,6 @@ const setNotes = (taskData, annotations) => {
     setAnchorEl(null);
   };
 
-  const handleReviseClick = async () => {
-    review_status.current = "to_be_revised";
-    lsfRef.current.store.submitAnnotation();
-  };
-
-  const handleAcceptClick = async (status) => {
-    review_status.current = status;
-    lsfRef.current.store.submitAnnotation();
-    handleClose();
-  };
 
   const filterAnnotations = (annotations, user, taskData) => {
     let filteredAnnotations = annotations;
@@ -726,8 +658,9 @@ const setNotes = (taskData, annotations) => {
       disablebtn = true;
       disableSkip = true;
     }
+    console.log(disable,disablebtn,disableSkip);
     setAutoSave(!disablebtn);
-    setdisableSkipButton(disableSkip);
+    setdisableSkip(disableSkip);
     setDisableBtns(disablebtn);
     setDisableButton(disableButton);
     setFilterMessage(filterMessage);
@@ -747,8 +680,12 @@ const setNotes = (taskData, annotations) => {
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
   
 
+  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 
+  useEffect(()=>{
+    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
 
+  },[taskDataArr,AnnotationsTaskDetails]);
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -760,14 +697,12 @@ const setNotes = (taskData, annotations) => {
     });
     const resp = await res.json();
     if (
-      !res.ok ||
-      resp?.data?.audio_url === "" ||
-      resp?.data?.audio_url === null
+      !res.ok 
     ) {
       setLoading(true);
       setSnackbarInfo({
         open: true,
-        message: "Audio Server is down, please try after sometime",
+        message: resp?.message,
         variant: "error",
       });
     } else {
@@ -790,6 +725,7 @@ const setNotes = (taskData, annotations) => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
+
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case 'InstructionDrivenChat':
@@ -802,8 +738,22 @@ const setNotes = (taskData, annotations) => {
       componentToRender = null;
       break;
   }
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
   return (
     <>
+    {loading && <Spinner />}
       <Grid container spacing={2}>
       {renderSnackBar()}
         <Grid item >
@@ -814,7 +764,7 @@ const setNotes = (taskData, annotations) => {
               marginLeft: "5px"
             }}
           >
-            {!loading && <Button
+             <Button
               value="Back to Project"
               startIcon={<  ArrowBackIcon />}
               variant="contained"
@@ -828,7 +778,7 @@ const setNotes = (taskData, annotations) => {
               }}
             >
               Back to Project
-            </Button>}
+            </Button>
           </Box>
         </Grid>
         <Grid item xs={12}>
@@ -841,7 +791,7 @@ const setNotes = (taskData, annotations) => {
               marginLeft: "5px"
             }}
           >
-            {!loading && (
+             
               <Button
                 endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
                 variant="contained"
@@ -853,7 +803,7 @@ const setNotes = (taskData, annotations) => {
               >
                 Notes {reviewtext.trim().length === 0 ? "" : "*"}
               </Button>
-            )}
+            
 
             <div
               // className={styles.collapse}
@@ -930,72 +880,98 @@ const setNotes = (taskData, annotations) => {
        
             </Typography>
             </Grid> */}
+   {!disableBtns && taskData?.review_user === userData?.id && (
+          <Grid item>
+            <Tooltip title="Save task for later">
+              <Button
+                value="Draft"
+                type="default"
+                variant="outlined"
+                onClick={() =>
+                  handleReviewClick(
+                    "draft",
+                    review.id,
+                    review.lead_time,
+                  )
+                }
+                style={{
+                  minWidth: "150px",
+                  color: "black",
+                  borderRadius: "5px",
+                  border: "0px",
+                  pt: 2,
+                  pb: 2,
+                  backgroundColor: "#ffe0b2",
+                }}
+                // className="lsf-button"
+              >
+                Draft
+              </Button>
+            </Tooltip>
+            {/* )} */}
+          </Grid>
+        )}
 
-              {(disableBtns && Array.isArray(taskData.review_user) && taskData?.review_user?.some(
-                (user) => user === userData.id
-              )) || (!disableBtns && Array.isArray(taskData.review_user) && taskData?.review_user.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item >
-                  <Tooltip title="Save task for later">
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleReviewClick(
-                          "draft",
-                          review.id,
-                          review.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        color: "black",
-                        borderRadius:"5px",
-                        border:"0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor:"#ffe0b2"
-                      }}
-                    // className="lsf-button"
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip>
-                </Grid>
-              ) : null}
+        <Grid item>
+          <Tooltip title="Go to next task">
+            <Button
+              value="Next"
+              type="default"
+              onClick={() => onNextAnnotation("next", getNextTask?.id)}
+              style={{
+                minWidth: "150px",
+                color: "black",
+                borderRadius: "5px",
+                border: "0px",
+                pt: 2,
+                pb: 2,
+                backgroundColor: "#ffe0b2",
+              }}
+            >
+              Next
+            </Button>
+          </Tooltip>
+        </Grid>
 
-              <Grid item >
-                <Tooltip title="Go to next task">
-                  <Button
-                    value="Next"
-                    type="default"
-                    onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                        borderRadius:"5px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor:"#ffe0b2"
-                    }}
-                  >
-                    Next
-                  </Button>
-                </Tooltip>
-              </Grid>
-              {(disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
-                (user) => user === userData.id
-              )) || (!disableBtns && !disableButton && Array.isArray(taskData.review_user) && taskData?.review_user.some(
-                (user) => user === userData.id
-              )) ? (
-              // {!disableBtns && !disableButton && taskData?.review_user === userData?.id && (
-                <Grid item >
+        <Grid item>
+          {!disableSkip && taskData?.review_user === userData?.id && (
+            <Tooltip title="skip to next task">
+              <Button
+                value="Skip"
+                type="default"
+                variant="outlined"
+                onClick={() =>
+                  handleReviewClick(
+                    "skipped",
+                    review.id,
+                    review.lead_time,
+                  )
+                }
+                style={{
+                  minWidth: "150px",
+                  color: "black",
+                  borderRadius: "5px",
+                  border: "0px",
+                  pt: 2,
+                  pb: 2,
+                  backgroundColor: "#ffe0b2",
+                }}
+                // className="lsf-button"
+              >
+                Skip
+              </Button>
+            </Tooltip>
+          )}
+        </Grid>
+        {!disableBtns &&
+          !disableButton &&
+          taskData?.review_user === userData?.id && (
+            <Grid item>
               <Tooltip title="Revise Annotation">
                 <Button
                   value="to_be_revised"
                   type="default"
+                  variant="outlined"
                   onClick={() =>
                     handleReviewClick(
                       "to_be_revised",
@@ -1007,86 +983,45 @@ const setNotes = (taskData, annotations) => {
                   style={{
                     minWidth: "150px",
                     color: "black",
-                    borderRadius:"5px",
-                    border:"0px",
+                    borderRadius: "5px",
+                    border: "0px",
                     pt: 2,
                     pb: 2,
-                    backgroundColor:"#ffe0b2"
+                    backgroundColor: "#ffe0b2",
                   }}
-                  className="lsf-button"
                 >
                   Revise
                 </Button>
               </Tooltip>
-              </Grid>
-                            ) : null}
-
-              {(disableBtns && Array.isArray(taskData.review_user) && taskData?.review_user.some(
-                (user) => user === userData.id
-              )) || (!disableBtns && Array.isArray(taskData.review_user) && taskData?.review_user.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item >              
-                <Tooltip title="Accept Annotation">
-                <Button
-                  id="accept-button"
-                  value="Accept"
-                  type="default"
-                  aria-controls={open ? "accept-menu" : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={open ? "true" : undefined}
-                  style={{
-                    minWidth: "150px",
-                    color: "black",
-                    borderRadius:"5px",
-                    border:"0px",
-                    pt: 2,
-                    pb: 2,
-                    backgroundColor:"#ffe0b2"
-                  }}
-                  className="lsf-button"
-                  onClick={handleClick}
-                  endIcon={<KeyboardArrowDownIcon />}
-                >
-                  Accept
-                </Button>
-              </Tooltip>
-              </Grid>
-                            ) : null}
-              {(disableSkipButton && Array.isArray(taskData.review_user) && taskData.review_user.some(
-                (user) => user === userData.id
-              )) || (!disableSkipButton && Array.isArray(taskData.review_user) && taskData.review_user.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item>
-                  <Tooltip title="skip to next task">
-                    <Button
-                      value="Skip"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleReviewClick(
-                          "skipped",
-                          review.id,
-                          review.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        color: "black",
-                        borderRadius:"5px",
-                        border:"0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor:"#ffe0b2"
-                      }}
-                    // className="lsf-button"
-                    >
-                      Skip
-                    </Button>
-                  </Tooltip>
-                  </Grid>) : null}
-                  <StyledMenu
+            </Grid>
+          )}
+        <Grid item>
+          {!disableBtns && taskData?.review_user === userData?.id && (
+            <Tooltip title="Accept Annotation">
+              <Button
+                id="accept-button"
+                value="Accept"
+                type="default"
+                aria-controls={open ? "accept-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                style={{
+                  minWidth: "150px",
+                  color: "black",
+                  borderRadius: "5px",
+                  border: "0px",
+                  pt: 2,
+                  pb: 2,
+                  backgroundColor: "#ffe0b2",
+                }}
+                onClick={handleClick}
+                endIcon={<KeyboardArrowDownIcon />}
+              >
+                Accept
+              </Button>
+            </Tooltip>
+          )}
+          <StyledMenu
             id="accept-menu"
             MenuListProps={{
               "aria-labelledby": "accept-button",
@@ -1135,40 +1070,8 @@ const setNotes = (taskData, annotations) => {
               with Major Changes
             </MenuItem>
           </StyledMenu>
-              {/* {(disableBtns && taskData && taskData.annotation_users.some(
-                (user) => user === userData.id
-              )) || (!disableBtns && taskData && taskData.annotation_users.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item >
-                  <Tooltip>
-                    <Button
-                      value="Updata"
-                      type="default"
-                      variant="contained"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "labeled",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        backgroundColor: "#ee6633",
-                        color: "black",
-                        borderRadius:"10px",
-                        pt: 2,
-                      }}
-                    >
-                      Update
-                    </Button>
-                  </Tooltip>
-                </Grid>
-                ) : null}  */}
-               {/* </Box> */}
-            </Grid>
-            {filterMessage && (
+        </Grid>
+      </Grid>            {filterMessage && (
               <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
                 {filterMessage}
               </Alert>

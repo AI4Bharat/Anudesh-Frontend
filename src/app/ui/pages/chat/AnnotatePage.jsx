@@ -55,6 +55,7 @@ const ReactQuill = dynamic(
   }
 );
 
+
 const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
@@ -209,46 +210,50 @@ console.log(annotationNotesRef);
     taskData?.id && showAssignedUsers();
   }, [taskData]);
 
-  const onNextAnnotation = async () => {
-    // showLoader();
+ 
+  const onNextAnnotation = async (value) => {
     setLoading(true);
-    getNextProject(projectId, taskId).then((res) => {
-      //   hideLoader();
-      setLoading(false);
-      // window.location.href = `/projects/${projectId}/task/${res.id}`;
-      tasksComplete(res?.id || null);
-    });
+    const nextAPIData = {
+      id: projectId,
+      current_task_id: taskId,
+      mode: "annotation",
+      annotation_status: labellingMode,
+    };
+
+    let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    var rsp_data = [];
+    fetch(apiObj.apiEndPoint(), {
+      method: "post",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        rsp_data = await response.json();
+        setLoading(false);
+        if (response.ok) {
+          setNextData(rsp_data);
+          tasksComplete(rsp_data?.id || null);
+          getAnnotationsTaskData(rsp_data?.id);
+          getTaskData(rsp_data?.id)
+        }
+      })
+      .catch((error) => {
+        setSnackbarInfo({
+          open: true,
+          message: "No more tasks to label",
+          variant: "info",
+        });
+        setTimeout(() => {
+          localStorage.removeItem("labelAll");
+          window.location.replace(`/#/projects/${projectId}`);
+        }, 1000);
+      });
   };
   let Annotation = AnnotationsTaskDetails.filter(
     (annotation) => annotation.annotation_type === 1
   )[0];
-  // let Annotation = AnnotationsTaskDetails
   console.log(Annotation,AnnotationsTaskDetails);
-  const onSkipTask = () => {
-    // if (typeof window !== "undefined") {
-    //   message.warning('Notes will not be saved for skipped tasks!');
-    let annotation = annotations.find(
-      (annotation) => !annotation.parentAnnotation,
-    );
-    if (annotation) {
-      // showLoader();
-      patchAnnotation(
-        null,
-        annotation.id,
-        load_time.current,
-        annotation.lead_time,
-        "skipped",
-        JSON.stringify(annotationNotesRef?.current?.getEditor().getContents()),
-      ).then(() => {
-        getNextProject(projectId, taskData.id).then((res) => {
-          // hideLoader();
-          tasksComplete(res?.id || null);
-        });
-      });
-      // }
-    }
-  };
-
+ 
   const tasksComplete = (id) => {
     // if (typeof window !== "undefined") {
     if (id) {
@@ -318,6 +323,7 @@ console.log(annotationNotesRef);
           message: resp?.message,
           variant: "success",
         });
+       
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -326,6 +332,8 @@ console.log(annotationNotesRef);
           variant: "error",
         });
       }
+      setLoading(false);
+
     } else {
       setAutoSave(true);
       setSnackbarInfo({
@@ -354,11 +362,11 @@ console.log(annotationNotesRef);
     getProjectDetails();
     getTaskData(taskId);
   }, []);
-
   const filterAnnotations = (annotations, user) => {
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
+    let Message = "";
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
       return (
@@ -366,43 +374,44 @@ console.log(annotationNotesRef);
       );
     });
     let userAnnotationData = annotations.find(
-      (annotation) => annotation.annotation_type === 2,
+      (annotation) => annotation.annotation_type === 2
     );
 
     if (userAnnotation) {
       if (userAnnotation.annotation_status === "labeled") {
         const superCheckedAnnotation = annotations.find(
-          (annotation) => annotation.annotation_type === 3,
+          (annotation) => annotation.annotation_type === 3
         );
         let review = annotations.find(
           (annotation) =>
             annotation.parent_annotation === userAnnotation.id &&
-            annotation.annotation_type === 2,
+            annotation.annotation_type === 2
         );
         if (
           superCheckedAnnotation &&
           ["draft", "skipped", "validated", "validated_with_changes"].includes(
-            superCheckedAnnotation.annotation_status,
+            superCheckedAnnotation.annotation_status
           )
         ) {
           filteredAnnotations = [superCheckedAnnotation];
-          setFilterMessage(
-            "This is the Super Checker's Annotation in read only mode",
-          );
+
+          Message =
+            "This is the Super Checker's Annotation in read only mode";
+
           disableDraft = true;
           disableSkip = true;
           disableUpdate = true;
         } else if (
           review &&
           ["skipped", "draft", "rejected", "unreviewed"].includes(
-            review.annotation_status,
+            review.annotation_status
           )
         ) {
           filteredAnnotations = [userAnnotation];
           disableDraft = true;
           disableSkip = true;
           disableUpdate = true;
-          setFilterMessage("This task is being reviewed by the reviewer");
+          Message = "This task is being reviewed by the reviewer";
         } else if (
           review &&
           [
@@ -415,9 +424,8 @@ console.log(annotationNotesRef);
           disableDraft = true;
           disableSkip = true;
           disableUpdate = true;
-          setFilterMessage(
-            "This is the Reviewer's Annotation in read only mode",
-          );
+          Message =
+            "This is the Reviewer's Annotation in read only mode";
         } else {
           filteredAnnotations = [userAnnotation];
         }
@@ -427,34 +435,40 @@ console.log(annotationNotesRef);
       ) {
         filteredAnnotations = [userAnnotation];
         disableSkip = true;
-        setFilterMessage(
-          "Skip button is disabled, since the task is being reviewed",
-        );
+
+        Message =
+          "Skip button is disabled, since the task is being reviewed";
       } else if (
         userAnnotation &&
         ["to_be_revised"].includes(userAnnotation.annotation_status)
       ) {
         filteredAnnotations = [userAnnotation];
         disableSkip = true;
-        setDisableButton(true);
-        setFilterMessage(
-          "Skip button is disabled, since the task is being reviewed",
-        );
+        Message =
+          "Skip button is disabled, since the task is being reviewed";
       } else {
         filteredAnnotations = [userAnnotation];
       }
+
     } else if ([4, 5, 6].includes(user.role)) {
-      // filteredAnnotations = annotations.filter((a) => a.annotation_type === 1);
-      filteredAnnotations = AnnotationsTaskDetails;
+      filteredAnnotations = annotations.filter((a) => a.annotation_type === 1);
       disableDraft = true;
       disableSkip = true;
       disableUpdate = true;
     }
+    setAutoSave(!disableUpdate);
     setAnnotations(filteredAnnotations);
     setDisableBtns(disableDraft);
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
-    return [filteredAnnotations, disableDraft, disableSkip, disableUpdate];
+    setFilterMessage(Message);
+    return [
+      filteredAnnotations,
+      disableDraft,
+      disableSkip,
+      disableUpdate,
+      Message,
+    ];
   };
 
   const getTaskData = async (id) => {
@@ -467,14 +481,12 @@ console.log(annotationNotesRef);
     });
     const resp = await res.json();
     if (
-      !res.ok ||
-      resp?.data?.audio_url === "" ||
-      resp?.data?.audio_url === null
+      !res.ok
     ) {
       setLoading(true);
       setSnackbarInfo({
         open: true,
-        message: "Audio Server is down, please try after sometime",
+        message: resp?.message,
         variant: "error",
       });
     } else {
@@ -523,6 +535,7 @@ console.log(annotationNotesRef);
 
   return (
     <>
+     {loading && <Spinner />}
       <Grid container spacing={2}>
       {renderSnackBar()}
         <Grid item>
@@ -533,7 +546,6 @@ console.log(annotationNotesRef);
               marginLeft: "5px",
             }}
           >
-            {!loading && (
               <Button
                 value="Back to Project"
                 startIcon={<ArrowBackIcon />}
@@ -547,7 +559,6 @@ console.log(annotationNotesRef);
               >
                 Back to Project
               </Button>
-            )}
           </Box>
         </Grid>
         <Grid item xs={12}>
@@ -653,129 +664,119 @@ console.log(annotationNotesRef);
             </Typography>
             </Grid> */}
 
-            {(disableBtns &&
-              taskData &&
-              taskData.annotation_users.some((user) => user === userData.id)) ||
-            (!disableBtns &&
-              taskData &&
-              taskData.annotation_users.some(
-                (user) => user === userData.id,
-              )) ? (
-              <Grid item>
-                <Tooltip title="Save task for later">
-                  <Button
-                    value="Draft"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleAnnotationClick(
-                        "draft",
-                        Annotation.id,
-                        Annotation.lead_time,
-                      )
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Draft
-                  </Button>
-                </Tooltip>
-              </Grid>
-            ) : null}
-
+{!disableBtns &&
+          taskData?.annotation_users?.some((users) => users === userData.id) && (
             <Grid item>
-              <Tooltip title="Go to next task">
+              <Tooltip title="Save task for later">
                 <Button
-                  value="Next"
+                  value="Draft"
                   type="default"
-                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  variant="outlined"
+                  onClick={() =>
+                    handleAnnotationClick(
+                      "draft",
+                      Annotation.id,
+                      Annotation.lead_time,
+                    )
+                  }
                   style={{
                     minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
+                    border: "0px",
                     pt: 2,
                     pb: 2,
                     backgroundColor: "#ffe0b2",
                   }}
+                  // className="lsf-button"
                 >
-                  Next
+                  Draft
+                </Button>
+              </Tooltip>
+              {/* )} */}
+            </Grid>
+          )}
+        <Grid item>
+          <Tooltip title="Go to next task">
+            <Button
+              value="Next"
+              type="default"
+              onClick={() => onNextAnnotation("next", getNextTask?.id)}
+              style={{
+                minWidth: "150px",
+                color: "black",
+                borderRadius: "5px",
+                border: "0px",
+                pt: 2,
+                pb: 2,
+                backgroundColor: "#ffe0b2",
+              }}
+            >
+              Next
+            </Button>
+          </Tooltip>
+        </Grid>
+        {!disableSkipButton &&
+          taskData?.annotation_users?.some((users) => users === userData.id) && (
+            <Grid item>
+              <Tooltip title="skip to next task">
+                <Button
+                  value="Skip"
+                  type="default"
+                  variant="outlined"
+                  onClick={() =>
+                    handleAnnotationClick(
+                      "skipped",
+                      Annotation.id,
+                      Annotation.lead_time,
+                    )
+                  }
+                  style={{
+                    minWidth: "150px",
+                    color: "black",
+                    borderRadius: "5px",
+                    border: "0px",
+                    pt: 2,
+                    pb: 2,
+                    backgroundColor: "#ffe0b2",
+                  }}
+                  // className="lsf-button"
+                >
+                  Skip
                 </Button>
               </Tooltip>
             </Grid>
-            {(disableSkipButton &&
-              taskData &&
-              taskData.annotation_users.some((user) => user === userData.id)) ||
-            (!disableSkipButton &&
-              taskData &&
-              taskData.annotation_users.some(
-                (user) => user === userData.id,
-              )) ? (
-              <Grid item>
-                <Tooltip title="skip to next task">
-                  <Button
-                    value="Skip"
-                    type="default"
-                    variant="outlined"
-                    onClick={() => onSkipTask()}
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Skip
-                  </Button>
-                </Tooltip>
-              </Grid>
-            ) : null}
-            {(disableUpdateButton &&
-              taskData &&
-              taskData.annotation_users.some((user) => user === userData.id)) ||
-            (!disableUpdateButton &&
-              taskData &&
-              taskData.annotation_users.some(
-                (user) => user === userData.id,
-              )) ? (
-              <Grid item>
-                <Tooltip>
-                  <Button
-                    value="Updata"
-                    type="default"
-                    variant="contained"
-                    onClick={() =>
-                      handleAnnotationClick(
-                        "labeled",
-                        Annotation.id,
-                        Annotation.lead_time,
-                      )
-                    }
-                    style={{
-                      minWidth: "150px",
-                      backgroundColor: "#ee6633",
-                      color: "black",
-                      borderRadius: "10px",
-                      pt: 2,
-                    }}
-                  >
-                    Update
-                  </Button>
-                </Tooltip>
-              </Grid>
-            ) : null}
-            {/* </Box> */}
+          )}
+        {!disableUpdateButton &&
+          taskData?.annotation_users?.some((users) => users === userData.id) && (
+            <Grid item>
+              <Tooltip>
+                <Button
+                  value="Updata"
+                  type="default"
+                  variant="contained"
+                  onClick={() =>
+                    handleAnnotationClick(
+                      "labeled",
+                      Annotation.id,
+                      Annotation.lead_time,
+                    )
+                  }
+                  style={{
+                    minWidth: "150px",
+                    color: "black",
+                    borderRadius: "5px",
+                    border: "0px",
+                    pt: 2,
+                    pb: 2,
+                    backgroundColor: "#ee6633",
+                  }}
+                >
+                  Update
+                </Button>
+              </Tooltip>
+            </Grid>
+          )}
           </Grid>
           {filterMessage && (
             <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>

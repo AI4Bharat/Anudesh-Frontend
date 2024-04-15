@@ -42,6 +42,7 @@ const fetchAllUsers = (userType, id, dispatch) => {
     case addUserTypes.PROJECT_ANNOTATORS:
       case addUserTypes.PROJECT_SUPERCHECKER:
     case addUserTypes.PROJECT_REVIEWER:
+      console.log(id);
       dispatch(fetchWorkspacesAnnotatorsData(id))
       break;
     case addUserTypes.ANNOTATOR:
@@ -54,6 +55,9 @@ const fetchAllUsers = (userType, id, dispatch) => {
 }
 
 const getAvailableUsers = (userType, projectDetails, workspaceAnnotators, workspaceManagers, orgUsers) => {
+  if (!Array.isArray(workspaceAnnotators)) {
+    return [];
+  }
   switch (userType) {
     case addUserTypes.PROJECT_ANNOTATORS:
       console.log(workspaceAnnotators);
@@ -68,8 +72,7 @@ const getAvailableUsers = (userType, projectDetails, workspaceAnnotators, worksp
         .map((user) => ({ id: user.id, email: user.email, username: user.username }));
       break;
       case addUserTypes.PROJECT_REVIEWER:
-        return workspaceAnnotators
-          .filter(
+        return workspaceAnnotators.filter(
             (workspaceAnnotator) =>
               projectDetails?.annotation_reviewers.findIndex(
                 (projectUser) => projectUser?.id === workspaceAnnotator?.id
@@ -225,6 +228,8 @@ const AddUsersDialog = ({
   const [loading, setLoading] = useState(false);
   const projectDetails = useSelector((state) => state.getProjectDetails?.data);
   const workspaceAnnotators = useSelector((state) => state.getWorkspacesAnnotatorsData.data);
+  const workspaceAnnotators1 = useSelector((state) => console.log(state));
+
   // const workspaceManagers = useSelector((state) => state.getWorkspacesManagersData?.data);
   const workspaceDetails = useSelector((state) => state.getWorkspaceDetails?.data);
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
@@ -245,9 +250,10 @@ const AddUsersDialog = ({
       default:
         break;
     }
+    console.log(id);
     if (id) fetchAllUsers(userType, id, dispatch);
-  }, [userType, id, projectDetails,dispatch])
-console.log(availableUsers);
+  }, [userType, id, projectDetails])
+console.log(workspaceAnnotators);
   useEffect(() => {
     setAvailableUsers(getAvailableUsers(userType, projectDetails, workspaceAnnotators, workspaceDetails?.managers, orgUsers));
   }, [projectDetails, workspaceAnnotators, workspaceDetails, orgUsers])

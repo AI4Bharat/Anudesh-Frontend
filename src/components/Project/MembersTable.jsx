@@ -30,7 +30,7 @@ import ResendUserInviteAPI, { fetchResendUserInvite } from "@/app/actions/api/Pr
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 import LoginAPI from "@/app/actions/api/user/Login";
-import RemoveWorkspaceFrozenUserAPI from "@/app/actions/api/workspace/RemoveWorkspaceFrozenUserAPI";
+import RemoveFrozenUserAPI from "@/app/actions/api/Projects/RemoveFrozenUserAPI";
 import Spinner from "@/components/common/Spinner";
 
 const columns = [
@@ -145,7 +145,7 @@ const MembersTable = (props) => {
 
   useEffect(() => {
     userDetails && setUserRole(userDetails.role);
-  }, [userDetails]);
+  }, []);
 
   const handleUserDialogClose = () => {
     setAddUserDialogOpen(false);
@@ -193,6 +193,7 @@ const MembersTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
+    setLoading(false)
     if (res.ok) {
       setSnackbarInfo({
         open: true,
@@ -218,6 +219,8 @@ const MembersTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
+    setLoading(false)
+
     if (res.ok) {
       setSnackbarInfo({ 
         open: true,
@@ -256,7 +259,6 @@ const MembersTable = (props) => {
           message: resp?.message,
           variant: "success",
         });
-        setLoading(false);
         dispatch(fetchOrganizationUsers(id));
       }else {
         setSnackbarInfo({
@@ -266,7 +268,7 @@ const MembersTable = (props) => {
         });
       }
       handleUserDialogClose();
-    // setLoading(false);
+    setLoading(false);
     setSelectedUsers([ ]);
     setSelectedEmails([]);
     setCsvFile(null);
@@ -274,7 +276,7 @@ const MembersTable = (props) => {
     setUserType(Object.keys(UserRolesList)[0])
   };
   const handleRemoveFrozenUsers = async (FrozenUserId) => {
-    const projectObj = new RemoveWorkspaceFrozenUserAPI(id, { ids: [FrozenUserId] });
+    const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
     //dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
@@ -282,7 +284,7 @@ const MembersTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
-    // setLoading(false);
+    setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,

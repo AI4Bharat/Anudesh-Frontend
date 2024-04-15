@@ -13,9 +13,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
 import MenuItem from "@mui/material/MenuItem";
 import Menu, { MenuProps } from "@mui/material/Menu";
-const ReactQuill = dynamic(() => import("react-quill"),  { ssr: false, loading: () => <p>Loading ...</p>, });  
-
-// import ReactQuill, { Quill } from 'react-quill';
 import "./editor.css"
 import 'quill/dist/quill.snow.css';
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -45,6 +42,21 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+// eslint-disable-next-line react/display-name
+
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+
+    return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
+  },
+  {
+    ssr: false
+  }
+);
+
 
 const StyledMenu = styled((props) => (
     <Menu
@@ -306,27 +318,56 @@ const SuperCheckerPage = () => {
     taskData?.id && showAssignedUsers();
   }, [taskData]);
 
-  const onNextAnnotation = async () => {
-    // showLoader();
-    setLoading(true)
-    getNextProject(projectId, taskId, "supercheck").then((res) => {
-      //   hideLoader();
-      setLoading(false)
-      // window.location.href = `/projects/${projectId}/task/${res.id}`;
-      tasksComplete(res?.id || null);
-    });
+  const onNextAnnotation = async (value) => {
+    setLoading(true);
+    const nextAPIData = {
+      id: projectId,
+      current_task_id: taskId,
+      mode: "supercheck",
+      annotation_status: labellingMode,
+    };
+
+    let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    var rsp_data = [];
+    fetch(apiObj.apiEndPoint(), {
+      method: "post",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        rsp_data = await response.json();
+        setLoading(false);
+        if (response.ok) {
+          setNextData(rsp_data);
+          tasksComplete(rsp_data?.id || null);
+          getAnnotationsTaskData(rsp_data.id);
+          getTaskData(rsp_data.id)
+        }
+      })
+      .catch((error) => {
+        setSnackbarInfo({
+          open: true,
+          message: "No more tasks to label",
+          variant: "info",
+        });
+        setTimeout(() => {
+          localStorage.removeItem("labelAll");
+          window.location.replace(`/#/projects/${projectId}`);
+        }, 1000);
+      });
   };
+
+
   let SuperChecker = AnnotationsTaskDetails.filter(
     (annotation) => annotation.annotation_type === 3
   )[0];
-  let Annotation = AnnotationsTaskDetails
 
   const tasksComplete = (id) => {
     // if (typeof window !== "undefined") {
     if (id) {
         resetNotes();
       // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-      navigate(`/projects/${projectId}/task/${id}`);
+      navigate(`/projects/${projectId}/SuperChecker/${id}`);
     } else {
       // navigate(-1);
         resetNotes();
@@ -351,9 +392,9 @@ const SuperCheckerPage = () => {
     reviewNotesValue,
   ) => {
     let resultValue;
-    if (project_type === "InstructionDrivenChat") {
+    if (ProjectDetails.project_type === "InstructionDrivenChat") {
       resultValue = chatHistory;
-    } else if (project_type === "ModelInteractionEvaluation") {
+    } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
       resultValue = currentInteraction;
     }
 
@@ -362,7 +403,7 @@ const SuperCheckerPage = () => {
 
     const PatchAPIdata = {
       annotation_status: value,
-      supercheck_notes: JSON.stringify(superCheckerNotesRef.current.getEditor().getContents()),
+      supercheck_notes: JSON.stringify(superCheckerNotesRef?.current?.getEditor().getContents()),
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
       ...((value === "rejected" ||
@@ -371,12 +412,12 @@ const SuperCheckerPage = () => {
         parent_annotation: parentannotation,
       }),
       result:resultValue,
-      interaction_llm:False,
+      interaction_llm:"False",
       task_id:taskId,
       auto_save:autoSave
     };
     if (
-      ["draft", "skipped", "rejected","labeled"].includes(value) ||
+      ["draft", "skipped", "rejected"].includes(value) ||
       (["validated", "validated_with_changes"].includes(value) )
     ) {
       if(value === "rejected") PatchAPIdata["result"] = [];
@@ -493,14 +534,12 @@ const SuperCheckerPage = () => {
     });
     const resp = await res.json();
     if (
-      !res.ok ||
-      resp?.data?.audio_url === "" ||
-      resp?.data?.audio_url === null
+      !res.ok
     ) {
       setLoading(true);
       setSnackbarInfo({
         open: true,
-        message: "Audio Server is down, please try after sometime",
+        message: resp?.message,
         variant: "error",
       });
     } else {
@@ -555,6 +594,7 @@ const SuperCheckerPage = () => {
   };
   return (
     <>
+    {loading && <Spinner />}
       <Grid container spacing={2}>
         {renderSnackBar()}
         <Grid item >
@@ -565,7 +605,7 @@ const SuperCheckerPage = () => {
               marginLeft: "5px"
             }}
           >
-            {!loading && <Button
+            <Button
               value="Back to Project"
               startIcon={<  ArrowBackIcon />}
               variant="contained"
@@ -579,7 +619,7 @@ const SuperCheckerPage = () => {
               }}
             >
               Back to Project
-            </Button>}
+            </Button>
           </Box>
         </Grid>
         <Grid item xs={12}>
@@ -592,7 +632,7 @@ const SuperCheckerPage = () => {
               marginLeft: "5px"
             }}
           >
-            {!loading && (
+             
               <Button
                 endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
                 variant="contained"
@@ -604,7 +644,7 @@ const SuperCheckerPage = () => {
               >
                 Notes {reviewtext.trim().length === 0 ? "" : "*"}
               </Button>
-            )}
+            
 
             <div
               // className={styles.collapse}
@@ -710,95 +750,83 @@ const SuperCheckerPage = () => {
             </Typography>
             </Grid> */}
 
-              {(disableBtns && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
-                (user) => user === userData.id
-              )) || (!disableBtns && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item >
-                  <Tooltip title="Save task for later">
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleSuperCheckerClick(
-                          "draft",
-                          SuperChecker.id,
-                          SuperChecker.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        color: "black",
-                        borderRadius:"5px",
-                        border:"0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor:"#ffe0b2"
-                      }}
-                    // className="lsf-button"
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip>
-                </Grid>
-              ) : null}
+{taskData?.super_check_user === user?.id && (
+            <Tooltip title="Save task for later">
+              <Button
+                value="Draft"
+                type="default"
+                variant="outlined"
+                onClick={() =>
+                  handleSuperCheckerClick(
+                    "draft",
+                    SuperChecker.id,
+                    SuperChecker.lead_time,
+                  )
+                }
+                style={{
+                  minWidth: "120px",
+                  border: "1px solid gray",
+                  color: "#e80",
+                  pt: 2,
+                  pb: 2,
+                }}
+                // className="lsf-button"
+              >
+                Draft
+              </Button>
+            </Tooltip>
+          )}
+        </Grid>
 
-              <Grid item >
-                <Tooltip title="Go to next task">
-                  <Button
-                    value="Next"
-                    type="default"
-                    onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                        borderRadius:"5px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor:"#ffe0b2"
-                    }}
-                  >
-                    Next
-                  </Button>
-                </Tooltip>
-              </Grid>
-              {(disableSkipButton && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
-                (user) => user === userData.id
-              )) || (!disableSkipButton && Array.isArray(taskData.super_check_user) && taskData.super_check_user.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item>
-                  <Tooltip title="skip to next task">
-                    <Button
-                      value="Skip"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleSuperCheckerClick(
-                          "skipped",
-                          SuperChecker.id,
-                          SuperChecker.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        color: "black",
-                        borderRadius:"5px",
-                        border:"0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor:"#ffe0b2"
-                      }}
-                    // className="lsf-button"
-                    >
-                      Skip
-                    </Button>
-                  </Tooltip>
-                  </Grid>) : null}
-                  <Grid item>
-          {taskData?.super_check_user === userData?.id && (
+        <Grid item>
+          <Tooltip title="Go to next task">
+            <Button
+              value="Next"
+              type="default"
+              onClick={() => onNextAnnotation("next", getNextTask?.id)}
+              style={{
+                minWidth: "120px",
+                border: "1px solid gray",
+                color: "#09f",
+                pt: 2,
+                pb: 2,
+              }}
+            >
+              Next
+            </Button>
+          </Tooltip>
+        </Grid>
+
+        <Grid item>
+          {!disableSkip && taskData?.super_check_user === user?.id && (
+            <Tooltip title="skip to next task">
+              <Button
+                value="Skip"
+                type="default"
+                variant="outlined"
+                onClick={() =>
+                  handleSuperCheckerClick(
+                    "skipped",
+                    SuperChecker.id,
+                    SuperChecker.lead_time,
+                  )
+                }
+                style={{
+                  minWidth: "120px",
+                  border: "1px solid gray",
+                  color: "#d00",
+                  pt: 2,
+                  pb: 2,
+                }}
+                // className="lsf-button"
+              >
+                Skip
+              </Button>
+            </Tooltip>
+          )}
+        </Grid>
+        <Grid item>
+          {taskData?.super_check_user === user?.id && (
             <Tooltip title="Reject">
               <Button
                 value="rejected"
@@ -813,7 +841,7 @@ const SuperCheckerPage = () => {
                   )
                 }
                 disabled={
-                  ProjectDetails.revision_loop_count >
+                  ProjectData.revision_loop_count >
                   taskData?.revision_loop_count?.super_check_count
                     ? false
                     : true
@@ -822,7 +850,7 @@ const SuperCheckerPage = () => {
                   minWidth: "120px",
                   border: "1px solid gray",
                   color: (
-                    ProjectDetails.revision_loop_count >
+                    ProjectData.revision_loop_count >
                     taskData?.revision_loop_count?.super_check_count
                       ? false
                       : true
@@ -838,38 +866,31 @@ const SuperCheckerPage = () => {
             </Tooltip>
           )}
         </Grid>
-              {/* {(disableUpdateButton && taskData && taskData.annotation_users.some(
-                (user) => user === userData.id
-              )) || (!disableUpdateButton && taskData && taskData.annotation_users.some(
-                (user) => user === userData.id
-              )) ? (
-                <Grid item >
-                  <Tooltip>
-                    <Button
-                      value="Updata"
-                      type="default"
-                      variant="contained"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "labeled",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        backgroundColor: "#ee6633",
-                        color: "black",
-                        borderRadius:"10px",
-                        pt: 2,
-                      }}
-                    >
-                      Update
-                    </Button>
-                  </Tooltip>
-                </Grid>
-              ) : null} */}
-               <StyledMenu
+        <Grid item>
+          {taskData?.super_check_user === user?.id && (
+            <Tooltip title="Validate">
+              <Button
+                id="accept-button"
+                value="Validate"
+                type="default"
+                aria-controls={open ? "accept-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                style={{
+                  minWidth: "120px",
+                  border: "1px solid gray",
+                  color: "#52c41a",
+                  pt: 3,
+                  pb: 3,
+                }}
+                onClick={handleClick}
+                endIcon={<KeyboardArrowDownIcon />}
+              >
+                Validate
+              </Button>
+            </Tooltip>
+          )}
+          <StyledMenu
             id="accept-menu"
             MenuListProps={{
               "aria-labelledby": "accept-button",
@@ -905,9 +926,7 @@ const SuperCheckerPage = () => {
               Validated with Changes
             </MenuItem>
           </StyledMenu>
-              {/* </Box> */}
-            </Grid>
-            {filterMessage && (
+        </Grid>            {filterMessage && (
               <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
                 {filterMessage}
               </Alert>
