@@ -3,7 +3,6 @@ import GlobalStyles from "@/styles/LayoutStyles";
 import BackButton from "@/components/common/BackButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { translate } from "@/config/localisation";
-import ErrorBoundary from "../ErrorBoundary";
 const Header = React.lazy(() => import("@/components/common/Header"));
 
 
