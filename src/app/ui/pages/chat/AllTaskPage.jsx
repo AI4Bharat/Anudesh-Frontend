@@ -557,9 +557,12 @@ const AllTaskPage = () => {
             </div>
             <Button
               variant="contained"
-              style={{ marginLeft: "10px" ,backgroundColor:"#bf360c"}}
-              endIcon={showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+              style={{ marginLeft: "10px",backgroundColor: "lightgrey" ,color:"black" }}
+              endIcon={
+                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
+              }
               onClick={handleGlossaryClick}
+              disabled
             >
               Glossary
             </Button>
@@ -569,7 +572,7 @@ const AllTaskPage = () => {
               paddingBottom: "16px",
             }}
           >
-            <Glossary taskData={taskData} />
+            {/* <Glossary taskData={taskData} /> */}
           </div>
             </Box>
             <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%" ,marginTop:"3px",marginBottom:"25px"}}>

@@ -175,15 +175,17 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
       });
       const data = await response.json();
       let modifiedChatHistory;
-      if (data && [...data[0].result].length) {
-        modifiedChatHistory = data[0].result.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
-        setChatHistory((prevChatHistory) => (data ? [...modifiedChatHistory] : []));
-      }
+     if (data && [...data[0].result].length) {
+      modifiedChatHistory = data[0].result.map((interaction) => {
+        return {
+          ...interaction,
+          output: formatResponse(interaction.output),
+        };
+      });
+      setChatHistory([...modifiedChatHistory]);
+    } else {
+      setChatHistory([]);
+    }
       setAnnotationId(data[0].id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
     };

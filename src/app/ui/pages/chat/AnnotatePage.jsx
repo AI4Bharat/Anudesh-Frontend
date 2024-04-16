@@ -609,11 +609,12 @@ console.log(annotationNotesRef);
             </div>
             <Button
               variant="contained"
-              style={{ marginLeft: "10px", backgroundColor: "#bf360c" }}
+              style={{ marginLeft: "10px", backgroundColor: "lightgrey" ,color:"black" }}
               endIcon={
                 showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
               }
               onClick={handleGlossaryClick}
+              disabled
             >
               Glossary
             </Button>
@@ -623,7 +624,7 @@ console.log(annotationNotesRef);
                 paddingBottom: "16px",
               }}
             >
-              <Glossary taskData={taskData} />
+              {/* <Glossary taskData={taskData} /> */}
             </div>
           </Box>
           <Grid

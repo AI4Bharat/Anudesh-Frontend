@@ -673,9 +673,12 @@ const SuperCheckerPage = () => {
             </div>
             <Button
               variant="contained"
-              style={{ marginLeft: "10px" ,backgroundColor:"#bf360c"}}
-              endIcon={showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+              style={{ marginLeft: "10px", backgroundColor: "lightgrey" ,color:"black" }}
+              endIcon={
+                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
+              }
               onClick={handleGlossaryClick}
+              disabled
             >
               Glossary
             </Button>
@@ -685,7 +688,7 @@ const SuperCheckerPage = () => {
               paddingBottom: "16px",
             }}
           >
-            <Glossary taskData={taskData} />
+            {/* <Glossary taskData={taskData} /> */}
           </div>
           <div>
         {ProjectDetails.revision_loop_count >
