@@ -13,7 +13,8 @@ import { useDispatch,useSelector } from "react-redux";
 import LoginAPI from "../../../actions/api/user/Login"
 import { useNavigate,useParams } from "react-router-dom";
 import DownloadAllProjects from "../../../actions/api/Projects/DownloadAllProjects";
-import GetArchiveProjectAPI, { fetchArchiveProject } from "../../../../Lib/Features/projects/GetArchiveProject";
+import { fetchArchiveProject } from "../../../../Lib/Features/projects/GetArchiveProject";
+import ArchiveWorkspaceAPI from "@/app/actions/api/Projects/GetArchiveProjectAPI";
 
 function WorkspaceSetting(props) {
    /* eslint-disable react-hooks/exhaustive-deps */
@@ -33,8 +34,7 @@ function WorkspaceSetting(props) {
   const workspaceDtails = useSelector(state => state.getWorkspaceDetails.data);
 
   const handleArchiveWorkspace = async () => {
-    const projectObj = new GetArchiveProjectAPI(id, id);
-    dispatch(fetchArchiveProject(id, id));
+    const projectObj = new ArchiveWorkspaceAPI(id, id);
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -99,9 +99,7 @@ function WorkspaceSetting(props) {
   };
   const user = useSelector((state) => state.getLoggedInData?.data);
   const handleDownloadProject = async () => {
-    // SetTask([]) //used to clear the selected task statuses
     const projectObj = new DownloadAllProjects(workspaceDtails.id,user.id);
-    dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -162,7 +160,7 @@ function WorkspaceSetting(props) {
       </Dialog>
 
       <CustomButton
-        sx={{ backgroundColor: "#cf5959", "&:hover": { backgroundColor: "#cf5959", } }}
+        sx={{ backgroundColor: "#ee6633", "&:hover": { backgroundColor: "#ee6633" } }}
         className={classes.settingsButton}
         onClick={handleClickOpen}
         label={"Archive Workspace"}
@@ -179,7 +177,7 @@ function WorkspaceSetting(props) {
         mt={2}
       >
         <CustomButton
-      sx={{backgroundColor : "#2C2799", "&:hover" : {backgroundColor : "rgba(0, 0, 0, .85)",}}} 
+      sx={{backgroundColor : "#ffe0b2",color:"black", "&:hover" : {backgroundColor : "#ffe0b2",}}} 
       label={"Download All Projects"}
       className={classes.settingsButton}
         variant="contained"

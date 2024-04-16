@@ -25,9 +25,9 @@
 //   };
 
 //   render() {
-//     if (this.state.hasError==true) {
+//     if (this.state.hasError) {
 //       return (
-//         <div>
+//         <div style={{overflow:"auto"}}>
 //           <Error error={this.state.error} reset={this.resetError} onClose={this.onClose}/>
 //         </div>
 //       );

@@ -150,12 +150,12 @@ import userRole from "@/utils/Role";
           alignItems="center"
         >
           <Card className={classes.workspaceCard}>
-            {/* {pageType === componentType.Type_Organization && ( */}
+            {pageType === componentType.Type_Organization && (
               <Typography variant="h2" gutterBottom component="div">
                { title}
               </Typography>
-            {/* )} */}
-            {/* {pageType === componentType.Type_Workspace && ( */}
+             )} 
+            {pageType === componentType.Type_Workspace && (
               <Grid
                 container
                 direction="row"
@@ -185,7 +185,7 @@ import userRole from "@/utils/Role";
                   </Grid>
                 )} 
               </Grid>
-            {/* )} */}
+            )}
             <Typography variant="body1" gutterBottom component="div">
               Created by : 
             </Typography>
