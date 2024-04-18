@@ -379,6 +379,7 @@ const SuperCheckerPage = () => {
       ["draft", "skipped", "rejected","labeled"].includes(value) ||
       (["validated", "validated_with_changes"].includes(value) )
     ) {
+      delete PatchAPIdata.auto_save;
       if(value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       const res = await fetch(TaskObj.apiEndPoint(), {
