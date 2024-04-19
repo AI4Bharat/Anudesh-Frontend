@@ -13,13 +13,15 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import UserInfo from "./UserInfo";
 import Spinner from "../../../../components/common/Spinner";
 import { el } from "date-fns/locale";
-import GetUserDetailUpdateAPI from "../../../actions/api/Dashboard/GetUserDetailUpdateAPI";
-import { fetchUserDetails } from "@/Lib/Features/user/getUserDetails";
+import GetUserDetailUpdateAPI from "@/app/actions/api/Admin/EditProfile";
+import GetUserDetailAPI from "@/app/actions/api/Admin/UserDetail";
 
+import { fetchUserDetails } from "@/Lib/Features/user/getUserDetails";
+ 
 const UserDetail = (props) => {
    /* eslint-disable react-hooks/exhaustive-deps */
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
@@ -45,7 +47,8 @@ const UserDetail = (props) => {
   );
   const getUserDetail = () => {
     setLoading(true);
-    dispatch(fetchUserDetails());
+    const UserObj = new GetUserDetailAPI();
+    dispatch(fetchUserDetails(UserObj))
   };
 
   useEffect(() => {

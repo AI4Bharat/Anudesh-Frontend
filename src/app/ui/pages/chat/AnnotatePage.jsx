@@ -306,6 +306,7 @@ console.log(annotationNotesRef);
     console.log(value);
     if (["draft", "skipped","labeled"].includes(value)) {
       console.log("lll");
+      delete PatchAPIdata.auto_save;
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
