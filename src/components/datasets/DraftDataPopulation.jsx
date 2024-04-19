@@ -50,7 +50,7 @@ const DraftDataPopulation = () => {
   // const Fields = ["draft_data_json", "input_language", "output_language", "input_text", "output_text", "machine_translation", "context", "labse_score", "rating", "domain", "parent_data", "instance_id"];
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
-  const DatasetInstances = useSelector((state) => state.getDatasetsByType?.data);
+  const DatasetInstances = useSelector((state) => state.getDatasetByType?.data);
   const DatasetTypes = useSelector((state) => state.GetDatasetType?.data);
   const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
 
@@ -61,8 +61,8 @@ const DraftDataPopulation = () => {
       DatasetTypes.forEach((element) => {
         temp.push({
           name: element,
-          value: element
-          // disabled: (element !== "SentenceText" && element !== "Conversation")
+          value: element,
+          disabled: (element !== "Instruction" && element !== "Interaction")
         });
       });
       setSrcDatasetTypes(temp);
@@ -70,8 +70,8 @@ const DraftDataPopulation = () => {
       DatasetTypes.forEach((element) => {
         temp.push({
           name: element,
-          value: element
-          // disabled: (srcDatasetType === "SentenceText" ? element !== "TranslationPair" : element !== "Conversation")
+          value: element,
+          disabled: (srcDatasetType === "SentenceText" ? element !== "TranslationPair" :(element !== "Instruction" && element !== "Interaction"))
         });
       });
     }
@@ -115,7 +115,7 @@ const DraftDataPopulation = () => {
   const handleField =(value)=>{
     setSrcInstance(value);
     setLoading(true);
-    const fieldObj =(value,srcDatasetType);
+    const fieldObj =({instanceIds:value,datasetType:srcDatasetType});
     dispatch(fetchDataitemsById(fieldObj));
   }
 

@@ -39,7 +39,7 @@ import 'react-date-range/dist/theme/default.css';
   import { DateRangePicker, defaultStaticRanges } from "react-date-range";
   import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
   import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-//   import { useParams } from "react-router-dom";
+  import { useParams } from "react-router-dom";
   import Spinner from "../../components/common/Spinner";
   import { MenuProps } from "../../utils/utils";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
@@ -48,7 +48,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
 
   const   MyProgress = () => {
      /* eslint-disable react-hooks/exhaustive-deps */
-
+     const { id } = useParams();
     const UserDetails = useSelector((state) => state.getLoggedInData.data);
     const [selectRange, setSelectRange] = useState([{
       startDate: new Date(Date.parse(UserDetails?.date_joined, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),

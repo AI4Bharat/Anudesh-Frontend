@@ -9,9 +9,9 @@ const initialState = {
 
 export const fetchUserAnalytics = createAsyncThunk(
   'GetUserAnalytics/fetchUserAnalytics',
-  async (progressObj, { dispatch }) => {
+  async ({progressObj}) => {
     
-    const params = fetchParams(`${ENDPOINTS.getUsers}user_analytics/`,"POST",progressObj);
+    const params = fetchParams(`${ENDPOINTS.getUsers}user_analytics/`,"POST",JSON.stringify(progressObj));
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

@@ -11,7 +11,7 @@ import CustomizedSnackbars from "../common/Snackbar";
 import { snakeToTitleCase } from "@/utils/utils";
 import Spinner from "../common/Spinner";
 import { fetchDatasetDetails } from "@/Lib/Features/datasets/getDatasetDetails";
-import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
+import GetSaveButtonAPI from "@/app/actions/api/dataset/GetSaveButtonAPI";
 
 
 
@@ -60,7 +60,6 @@ const BasicDatasetSettings = (props) => {
             users: DatasetDetails.users,
         }
         const DatasetObj = new GetSaveButtonAPI(datasetId, sendData);
-        dispatch(APITransport(DatasetObj));
         const res = await fetch(DatasetObj.apiEndPoint(), {
             method: "PUT",
             body: JSON.stringify(DatasetObj.getBody()),

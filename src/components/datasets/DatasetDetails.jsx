@@ -49,7 +49,8 @@ const DatasetDetails = () => {
             },
             {
                 name: "Description",
-                value: DatasetDetails.description
+                value: DatasetDetails.instance_description
+                
             },
             {
                 name: "Datset Type",

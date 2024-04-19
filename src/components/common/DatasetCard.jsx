@@ -1,13 +1,14 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import { Grid } from '@mui/material';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 const DatasetCard = (props) => {
 
     const { datasetObj } = props
+    console.log(datasetObj.instance_id);
     return (
-        <Link href={`/datasets/${datasetObj.instance_id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/datasets/${datasetObj.instance_id}`} style={{ textDecoration: "none" }}>
             <Grid
                 elevation={2}
                 className={props.classAssigned}
