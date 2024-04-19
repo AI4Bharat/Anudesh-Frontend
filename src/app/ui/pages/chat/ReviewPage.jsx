@@ -496,6 +496,7 @@ const setNotes = (taskData, annotations) => {
       ["draft", "skipped", "to_be_revised","labeled"].includes(value) ||
       (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value) )
     ) {
+      delete PatchAPIdata.auto_save;
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
