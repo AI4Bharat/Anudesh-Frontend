@@ -55,7 +55,6 @@ const DatasetFilterList = (props) => {
       let temp = [];
       datasetType.forEach((element) => {
         temp.push({
-        
           name: element,
           value: element,
 
@@ -75,6 +74,7 @@ const DatasetFilterList = (props) => {
     });
     props.handleClose();
   };
+  console.log(selectDatasetVisibility,selectedDatasetType);
 
   const handleChangeCancelAll = () => {
     updateFilters({

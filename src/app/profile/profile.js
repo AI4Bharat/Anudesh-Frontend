@@ -98,6 +98,7 @@ export default function ProfilePage () {
         })
       }
   }
+  console.log(UserDetails.languages);
 
 
   useEffect(() => {
@@ -165,9 +166,8 @@ export default function ProfilePage () {
                 </Card>
                 {userDetails?.languages.length > 0 && (
                   <Typography variant="body1" sx={{ display: "flex", gap: "5px", alignItems: "center", alignSelf: 'center', textAlign: 'center' }}>Languages:
-                    {userDetails?.languages.map
-                      (lang,index => <Chip label={lang} key={index} variant="outlined" sx={{ ml: 1 }}></Chip>
-                      )}
+                    {userDetails?.languages.map((lang, index) => (
+      <Chip label={lang} key={index} variant="outlined" sx={{ ml: 1 }} />))}
                   </Typography>
                 )}
                 {/* {LoggedInUserId === userDetails?.id && */}

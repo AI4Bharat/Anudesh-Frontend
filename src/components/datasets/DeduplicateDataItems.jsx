@@ -83,7 +83,7 @@ useEffect(() => {
 }, [])
 
 
-
+console.log(dataitemsvalues);
 useEffect(() => {
   let fetchedItems =dataitemsvalues.results;
 
