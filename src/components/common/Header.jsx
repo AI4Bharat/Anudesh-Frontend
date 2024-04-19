@@ -861,10 +861,12 @@ const handleopenproject=(id,type)=>{
               md={3}
             >   
                 <a style={{ display: "flex", alignItems: "center" }}>
-                  <img 
+                  <Image 
                     onClick={() => navigate("/")} 
                     src="https://i.imgur.com/56Ut9oz.png"
                     alt="anudesh"
+                    height="100"
+                    width="100"
                     className={classes.headerLogo}
                     sx={{ marginTop: "5%" }}
                   />
