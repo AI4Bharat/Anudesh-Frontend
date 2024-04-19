@@ -5,6 +5,7 @@ import { useState } from 'react'
 import AnnotationDetails from './AnnotationDetails';
 import TaskDetails from './TaskDetails';
 import UserDetail from './UserDetails';
+import QueuedTasksDetails from './QueuedTasksDetails';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -42,6 +43,7 @@ const Admin = () => {
                     <Tab label="Task Details" sx={{ fontSize: 17, fontWeight: '700', marginRight: '28px !important' }} />
                     <Tab label="Annotation Details" sx={{ fontSize: 17, fontWeight: '700', marginRight: '28px !important' }} />
                     <Tab label="User Details" sx={{ fontSize: 17, fontWeight: '700', marginRight: '28px !important' }} />
+                    <Tab label="Queued Tasks Status" sx={{ fontSize: 17, fontWeight: '700', marginRight: '28px !important' }} />
                 </Tabs>
             </Box>
             <Box sx={{ p: 1}}>
@@ -57,6 +59,9 @@ const Admin = () => {
                 </TabPanel> 
                 <TabPanel value={tabValue} index={2}>
                     <UserDetail  />  
+                </TabPanel> 
+                <TabPanel value={tabValue} index={3}>
+                    <QueuedTasksDetails  />  
                 </TabPanel> 
             </Box>
         </>

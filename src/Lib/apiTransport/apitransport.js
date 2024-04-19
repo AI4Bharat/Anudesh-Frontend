@@ -1,6 +1,6 @@
 import axios from "axios";
-import C from "../../app/actions/constants";
-import Strings from "../../app/actions/string";
+import C from "@/app/actions/constants"
+import Strings from "@/app/actions/string";
 
 function dispatchAPIAsync(api) {
   return {

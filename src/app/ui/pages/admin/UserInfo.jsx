@@ -16,7 +16,7 @@ import {
   import React from "react";
   import { useState } from "react";
   import { useSelector } from "react-redux";
-  // import EditProfile from "./EditProfile";
+  import EditProfile from "../../../../components/admin/EditProfile";
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -97,7 +97,7 @@ import {
                 </Box>
                 <Box sx={{ p: 1 }}>
                   <TabPanel value={tabValue} index={0}>
-                    {/* <EditProfile
+                    <EditProfile
                       handleCloseDialog={handleCloseDialog}
                       setRole={setRole}
                       submit={submit}
@@ -115,7 +115,7 @@ import {
                       ParticipationType={ParticipationType}
                       Role={Role}
                       setParticipationType={setParticipationType}
-                    /> */}
+                    />
                   </TabPanel>
                 </Box>
               </Grid>
@@ -127,4 +127,4 @@ import {
   };
   
   export default UserInfo;
-  
+ 
