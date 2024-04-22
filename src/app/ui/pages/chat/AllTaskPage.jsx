@@ -41,6 +41,7 @@ import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
+import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 
 
 const AllTaskPage = () => {
@@ -69,6 +70,7 @@ const AllTaskPage = () => {
     message: "",
     variant: "success",
   });
+  const [currentInteraction, setCurrentInteraction] = useState({});
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
@@ -177,17 +179,16 @@ const AllTaskPage = () => {
   const onNextAnnotation = async () => {
     // showLoader();
     setLoading(true)
-    getNextProject(projectId, taskId).then((res) => {
+    getNextProject(projectId, taskId,"Alltask").then((res) => {
       //   hideLoader();
       setLoading(false)
       // window.location.href = `/projects/${projectId}/task/${res.id}`;
       tasksComplete(res?.id || null);
     });
   };
-  // let Annotation = AnnotationsTaskDetails.filter(
-  //   (annotation) => annotation.annotation_type === 1
-  // )[0];
-  let Annotation = AnnotationsTaskDetails
+  let Annotation = AnnotationsTaskDetails.filter(
+    (annotation) => annotation.annotation_type === 1
+  )[0];
   const onSkipTask = () => {
     // if (typeof window !== "undefined") {
     //   message.warning('Notes will not be saved for skipped tasks!');
@@ -460,7 +461,18 @@ const AllTaskPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
-
+  let componentToRender;
+  switch (ProjectDetails.project_type) {
+    case 'InstructionDrivenChat':
+      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
+      break;
+    case 'ModelInteractionEvaluation':
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction}/>;
+      break;
+    default:
+      componentToRender = null;
+      break;
+  }
   useEffect(() => {
     if (AnnotationsTaskDetails?.length > 0) {
       setLoading(false);
@@ -545,9 +557,12 @@ const AllTaskPage = () => {
             </div>
             <Button
               variant="contained"
-              style={{ marginLeft: "10px" ,backgroundColor:"#bf360c"}}
-              endIcon={showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+              style={{ marginLeft: "10px",backgroundColor: "lightgrey" ,color:"black" }}
+              endIcon={
+                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
+              }
               onClick={handleGlossaryClick}
+              disabled
             >
               Glossary
             </Button>
@@ -557,7 +572,7 @@ const AllTaskPage = () => {
               paddingBottom: "16px",
             }}
           >
-            <Glossary taskData={taskData} />
+            {/* <Glossary taskData={taskData} /> */}
           </div>
             </Box>
             <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%" ,marginTop:"3px",marginBottom:"25px"}}>
@@ -706,7 +721,8 @@ const AllTaskPage = () => {
               </Alert>
             )}
         </Grid>
-        <Grid item container >  <InstructionDrivenChatPage /></Grid>
+        <Grid item container >{" "}
+          {componentToRender}{" "}</Grid>
 
 
       </Grid>

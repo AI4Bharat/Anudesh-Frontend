@@ -24,12 +24,13 @@ export default function DatasetList() {
   const [radiobutton, setRadiobutton] = useState(true);
   // const [loading, setLoading] = useState(false);
   const datasetList = useSelector((state) => state.GetDatasets.data);
-  const apiLoading = useSelector((state) => state.GetDatasets.status !== "succeeded");
+  const apiLoading = useSelector((state) => state.GetDatasets.status == "loading" );
 
   const [selectedFilters, setsSelectedFilters] = useState({
     dataset_visibility: "",
     dataset_type: "",
   });
+  console.log(selectedFilters);
   const getDashboardprojectData = () => {
     dispatch(fetchDatasets(selectedFilters));
   };

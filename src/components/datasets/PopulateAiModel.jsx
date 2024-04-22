@@ -53,7 +53,7 @@ const PopulateAiModel = () => {
   // const Fields = ["draft_data_json", "input_language", "output_language", "input_text", "output_text", "machine_translation", "context", "labse_score", "rating", "domain", "parent_data", "instance_id"];
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
-  const DatasetInstances = useSelector((state) => state.getDatasetsByType?.data);
+  const DatasetInstances = useSelector((state) => state.getDatasetByType?.data);
   const DatasetTypes = useSelector((state) => state.GetDatasetType?.data);
   const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
 
@@ -92,7 +92,7 @@ const PopulateAiModel = () => {
         temp.push({
           name: element,
           value: element,
-          disabled: (element !== "OCRDocument" && element !=="SpeechConversation" )
+          disabled: (element !== "Instruction" && element !=="Interaction" )
         });
       });
       setSrcDatasetTypes(temp);
@@ -101,7 +101,7 @@ const PopulateAiModel = () => {
         temp.push({
           name: element,
           value: element,
-          disabled: (srcDatasetType === "SentenceText" ? element !== "TranslationPair" : element !== "Conversation")
+          disabled: (srcDatasetType === "SentenceText" ? element !== "TranslationPair" : (element !== "Instruction" && element !=="Interaction" ))
         });
       });
     }
@@ -146,6 +146,7 @@ const PopulateAiModel = () => {
     setLoading(true);
     dispatch(fetchDataitemsById(value,srcDatasetType));
   }
+  console.log(srcDatasetType,srcInstances,DatasetInstances,loading);
 
 
   const handleConfirm = async () => {

@@ -21,7 +21,6 @@ import {
 } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
 import MUIDataTable from "mui-datatables";
-import Glossarysentence from "../../../actions/api/Annotate/GlossarySentence"
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import LanguageCode from "../../../../utils/LanguageCode";
@@ -37,6 +36,7 @@ import UpVoteAndDownVoteAPI from "../../../actions/api/Annotate/UpVoteAndDownVot
 // import SuggestAnEdit from "./SuggestAnEdit";
 import SuggestAnEditAPI from "../../../actions/api/Annotate/SuggestAnEditAPI";
 import { setGlossarySentence } from "@/Lib/Features/actions/GlossarysentenceAPI";
+import GlossarysentenceAPI from "@/app/actions/api/Annotate/GlossarySentence";
 
 export default function Glossary(props) {
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -44,6 +44,7 @@ export default function Glossary(props) {
   const { taskData } = props;
   const dispatch = useDispatch();
   const Glossarysentence = useSelector((state) => state.getGlossarySentenceAPI?.data);
+  const Glossarysentence1 = useSelector((state) => console.log(state));
   const SearchWorkspaceMembers = useSelector(
     (state) => state.searchProjectCard.searchValue
   );
@@ -83,7 +84,7 @@ export default function Glossary(props) {
 
 
 
-  const searchGlossary = () =>{
+  const searchGlossary = async () =>{
     if (taskData && taskData.data) {
       const filtereddata = language.filter(
         (el) => el.label === taskData.data?.input_language
@@ -99,10 +100,23 @@ export default function Glossary(props) {
         inputs: [taskData.data?.input_text],
         tgtLanguage: filtereddata[0]?.code,
       };
-      // const GlossaryObj = new Glossarysentence(Glossarysentencedata);
-      dispatch(setGlossarySentence(Glossarysentencedata));
+      const GlossaryObj = new GlossarysentenceAPI(Glossarysentencedata);
+      const res = await fetch(GlossaryObj.apiEndPoint(),  {
+        method: "POST",
+        body: JSON.stringify(GlossaryObj.getBody()),
+        headers: GlossaryObj.getHeaders().headers,
+      })
+      const resp = await res.json();
+      if (res.ok) {
+        dispatch(setGlossarySentence(resp))
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+      }
     }
-
   }
 
 

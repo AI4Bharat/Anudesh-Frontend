@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchProjectDetails = createAsyncThunk(
   'getProjectDetails/fetchProjectDetails',
-  async (projectId, { dispatch }) => {
+  async (projectId) => {
     const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}`);
     return fetch(params.url, params.options)
         .then(response => response.json())

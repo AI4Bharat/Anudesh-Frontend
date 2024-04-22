@@ -187,6 +187,7 @@ const TaskTable = (props) => {
       rejected: rejected,
       pull: pull
     };
+    console.log("yes");
     dispatch(fetchTasksByProjectId(taskobj));
   };
  
@@ -254,7 +255,7 @@ const TaskTable = (props) => {
         ? new DeallocateTasksAPI(id, selectedFilters.annotation_status)
         : new DeallocateReviewTasksAPI(id, selectedFilters.review_status);
     const res = await fetch(deallocateObj.apiEndPoint(), {
-      method: "GET",
+      method: "POST",
       body: JSON.stringify(deallocateObj.getBody()),
       headers: deallocateObj.getHeaders().headers,
     });
@@ -272,7 +273,7 @@ const TaskTable = (props) => {
     } else {
       setSnackbarInfo({
         open: true,
-        message: resp?.message,
+        message: resp?.detail,
         variant: "error",
       });
     }
@@ -399,6 +400,7 @@ const TaskTable = (props) => {
         : selectedFilters.review_status
     );
     }
+    console.log("yeeess");
   }, [selectedFilters]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {

@@ -2,8 +2,11 @@
 import { Box,Grid,Tab, Card,Tabs, Typography, Divider } from '@mui/material'
 import React from 'react'
 import { useState } from 'react'
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from 'react-router-dom';
 import BasicWorkspaceSettings from '../BasicWorkspaceSettings';
 import WorkspaceSetting from '../WorkspaceSetting';
+import { fetchWorkspaceDetails } from '@/Lib/Features/getWorkspaceDetails';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -30,6 +33,16 @@ const WorkspaceSettingTabs = () => {
     const handleTabChange = (e, v) => {
         setTabValue(v)
     }
+    const dispatch = useDispatch();
+
+const {id} = useParams();
+
+const workspaceDtails = useSelector(state=>state.getWorkspaceDetails.data);
+const getWorkspaceDetails = ()=>{
+    dispatch(fetchWorkspaceDetails(id));
+  }
+
+
 
 
     return (
@@ -69,9 +82,9 @@ const WorkspaceSettingTabs = () => {
                 </TabPanel>
                 <TabPanel value={tabValue} index={1}>
                     <WorkspaceSetting 
-                        // title={workspaceDtails && workspaceDtails.workspace_name}
-                        // createdBy={workspaceDtails && workspaceDtails.created_by ?.username}
-                        // onArchiveWorkspace={()=>getWorkspaceDetails()}
+                        title={workspaceDtails && workspaceDtails.workspace_name}
+                        createdBy={workspaceDtails && workspaceDtails.created_by?.username}
+                        onArchiveWorkspace={()=>getWorkspaceDetails()}
                     />
                 </TabPanel>
             </Box>

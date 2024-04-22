@@ -61,6 +61,8 @@ const InterAutomateDataset = () => {
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
+  const DatasetInstances1 = useSelector((state) => console.log(state));
+
   const DatasetTypes = useSelector((state) => state.GetDatasetType.data);
   const LanguageChoicesIndicTrans = useSelector(
     (state) => state.GetIndicTransLanguages.data,
@@ -79,7 +81,7 @@ const InterAutomateDataset = () => {
         temp.push({
           name: element,
           value: element,
-          disabled: element !== "SentenceText" && element !== "Conversation",
+          disabled: element !== "Instruction" && element !== "Interaction",
         });
       });
       setSrcDatasetTypes(temp);
@@ -91,7 +93,7 @@ const InterAutomateDataset = () => {
           disabled:
             srcDatasetType === "SentenceText"
               ? element !== "TranslationPair"
-              : element !== "Conversation",
+              : element !== "Instruction" && element !== "Interaction",
         });
       });
       setTgtDatasetTypes(temp);
@@ -210,6 +212,7 @@ const InterAutomateDataset = () => {
   // const handleAPi_Type = (e) => {
   //   setApi_type(e.target.value)
   // }
+  console.log(srcDatasetType,srcInstances,DatasetInstances,loading);
 
   const handleChangeAutomatemissingitems = (event) => {
     setChecked(event.target.checked);
@@ -522,11 +525,8 @@ const InterAutomateDataset = () => {
                 style={{ margin: "0px 20px 0px 0px" }}
                 label={"Confirm"}
                 onClick={handleConfirm}
-                disabled={
-                  srcDatasetType === "SentenceText"
-                    ? !srcInstance || !tgtInstance || !languages.length
-                    : !srcInstance || !tgtInstance
-                }
+                disabled={srcDatasetType === "SentenceText" ? !srcInstance || !tgtInstance || !languages.length : !srcInstance || !tgtInstance}
+
               />
               <Button label={"Cancel"} onClick={() => navigate(`/datasets/`)} />
             </Grid>

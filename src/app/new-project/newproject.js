@@ -307,7 +307,7 @@ const CreateProject = () => {
   };
 
   useEffect(() => {
-    if (NewProject.id) {
+    if (NewProject?.id) {
       navigate(`/projects/${NewProject.id}`, { replace: true });
       window.location.reload();
     }

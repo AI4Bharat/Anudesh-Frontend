@@ -11,6 +11,7 @@ import {
   Select,
   ThemeProvider,
 } from "@mui/material";
+import CustomizedSnackbars from "../common/Snackbar";
 import { addMonths, parse } from "date-fns";
 import { DateRangePicker } from "react-date-range";
 import { useParams } from "react-router-dom";
@@ -32,6 +33,12 @@ const ProjectLogs = () => {
   const [projectLogs, setProjectLogs] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "success",
+  });
+
   const [selectRange, setSelectRange] = useState([
     {
       startDate: addMonths(new Date(), -3),
@@ -75,8 +82,16 @@ const ProjectLogs = () => {
     })
       .then(async (res) => {
         setLoading(false);
-        if (!res.ok) throw await res.json();
-        else return await res.json();
+        if (res.status==204) {
+          setSnackbarInfo({
+            open: true,
+            message: "No content Available",
+            variant: "error",
+          })
+          return [];
+      }else{
+          return await res.json()
+        };
       })
       .then((res) => {
         setAllLogs(res);
@@ -116,9 +131,25 @@ const ProjectLogs = () => {
     viewColumns: true,
     jumpToPage: true,
   };
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+
 
   return (
     <React.Fragment>
+            {renderSnackBar()}
+
       <Grid
         container
         direction="row"

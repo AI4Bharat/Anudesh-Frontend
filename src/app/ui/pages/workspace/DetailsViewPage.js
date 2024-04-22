@@ -81,7 +81,7 @@ import userRole from "@/utils/Role";
     const [value, setValue] = React.useState(0);
     const [user,setuser] = useState(initialUserData)
     // const [loading, setLoading] = useState(false);
-    const apiLoading = useSelector((state) => pageType === componentType.Type_Workspace && state.getWorkspaceDetails.status !== "succeeded");
+    const apiLoading = useSelector((state) => pageType === componentType.Type_Workspace && state.getWorkspaceDetails.status == "loading");
     const [addAnnotatorsDialogOpen, setAddAnnotatorsDialogOpen] =
       React.useState(false);
     const [addManagersDialogOpen, setAddManagersDialogOpen] =
@@ -150,12 +150,12 @@ import userRole from "@/utils/Role";
           alignItems="center"
         >
           <Card className={classes.workspaceCard}>
-            {/* {pageType === componentType.Type_Organization && ( */}
+            {pageType === componentType.Type_Organization && (
               <Typography variant="h2" gutterBottom component="div">
                { title}
               </Typography>
-            {/* )} */}
-            {/* {pageType === componentType.Type_Workspace && ( */}
+             )} 
+            {pageType === componentType.Type_Workspace && (
               <Grid
                 container
                 direction="row"
@@ -185,9 +185,9 @@ import userRole from "@/utils/Role";
                   </Grid>
                 )} 
               </Grid>
-            {/* )} */}
+            )}
             <Typography variant="body1" gutterBottom component="div">
-              Created by : 
+              Created by :  {createdBy}
             </Typography>
             <Box>
             <Tabs
@@ -395,22 +395,6 @@ import userRole from "@/utils/Role";
 };
 
 
-export async function getServerSideProps() {
-  try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/account/me/fetch`);
-
-    const initialUserData = response.data;
-
-    return {
-      props: { initialUserData },
-    };
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    return {
-      props: { initialUserData: null }, 
-    };
-  }
-}
 
 
 export default DetailsViewPage;
