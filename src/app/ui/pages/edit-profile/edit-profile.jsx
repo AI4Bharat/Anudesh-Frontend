@@ -6,19 +6,19 @@ import { useSelector, useDispatch } from "react-redux";
 import Snackbar from "../../../../components/common/Snackbar";
 import UpdateEmailDialog from "../../../../components/common/UpdateEmailDialog"
 import UserMappedByRole from "../../../../utils/UserMappedByRole/UserMappedByRole";
-import {participationType} from '../../../../config/dropDownValues';
+import { participationType } from '../../../../config/dropDownValues';
 import { MenuProps } from "../../../../utils/utils";
-import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import UpdateEmailAPI from "@/app/actions/api/user/UpdateEmailAPI";
 import UpdateProfileAPI from "@/app/actions/api/user/UpdateProfileAPI";
 
 
 const MyProfile = () => {
-   /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const [newDetails, setNewDetails] = useState();
   const [initLangs, setInitLangs] = useState([]);
-  const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: ''});
+  const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: '' });
   const [email, setEmail] = useState("");
   const [originalEmail, setOriginalEmail] = useState("");
   const [enableVerifyEmail, setEnableVerifyEmail] = useState(false);
@@ -31,7 +31,7 @@ const MyProfile = () => {
 
   const getLanguageList = () => {
 
-      dispatch(fetchLanguages());
+    dispatch(fetchLanguages());
   }
 
   useEffect(() => {
@@ -56,8 +56,9 @@ const MyProfile = () => {
       qualification: userDetails.qualification,
       state: userDetails.state,
       pin_code: userDetails.pin_code,
-      address:userDetails.address,
-      availability_status:userDetails.availability_status,
+      address: userDetails.address,
+      gender: userDetails.gender,
+      availability_status: userDetails.availability_status,
       participation_type: userDetails.participation_type
     });
     setEmail(userDetails.email);
@@ -100,13 +101,13 @@ const MyProfile = () => {
   const handleEmailDialogClose = () => {
     setShowEmailDialog(false);
   };
-  
+
   const handleVerificationSuccess = () => {
     setEnableVerifyEmail(false);
     setOriginalEmail(email);
     setSnackbarState({ open: true, message: "Email successfully updated", variant: "success" });
   }
-  
+
   const handleSubmit = () => {
     const apiObj = new UpdateProfileAPI(
       newDetails.username,
@@ -120,6 +121,7 @@ const MyProfile = () => {
       newDetails.pin_code,
       newDetails.age,
       newDetails.city,
+      newDetails.gender,
       newDetails.availability_status,
       newDetails.participation_type
     );
@@ -136,7 +138,11 @@ const MyProfile = () => {
       })
     });
   }
-
+  const genderOptions = [
+    { value: 'M', label: 'Male' },
+    { value: 'F', label: 'Female' },
+    { value: 'O', label: 'Other' }
+  ];
   return (
     <ThemeProvider theme={themeDefault}>
       {/* <Header /> */}
@@ -190,13 +196,13 @@ const MyProfile = () => {
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
                   endAdornment: (enableVerifyEmail && <InputAdornment position="end">
-                    <Button variant="text" color="primary" onClick={handleUpdateEmail} sx={{gap:"4px"}}>
-                      {emailVerifyLoading && <CircularProgress size="1rem" color="primary"/>}VERIFY EMAIL
+                    <Button variant="text" color="primary" onClick={handleUpdateEmail} sx={{ gap: "4px" }}>
+                      {emailVerifyLoading && <CircularProgress size="1rem" color="primary" />}VERIFY EMAIL
                     </Button>
                   </InputAdornment>)
                 }}
               ></OutlinedTextField>
-              <UpdateEmailDialog 
+              <UpdateEmailDialog
                 isOpen={showEmailDialog}
                 handleClose={handleEmailDialogClose}
                 oldEmail={userDetails.email}
@@ -235,77 +241,83 @@ const MyProfile = () => {
               ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              disabled
-              fullWidth
-              label="Gender"
-              name="gender"
-              value={newDetails?.gender === 'M' ? 'Male' :
-              newDetails?.gender === 'F' ? 'Female' :
-              newDetails?.gender === 'O' ? 'Other' : ''}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              fullWidth
-              label="City"
-              name="city"
-              value={newDetails?.city}
-              onChange={handleFieldChange}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              fullWidth
-              label="Address"
-              name="address"
-              value={newDetails?.address}
-              onChange={handleFieldChange}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              fullWidth
-              label="State"
-              name="state"
-              value={newDetails?.state}
-              onChange={handleFieldChange}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              fullWidth
-              label="Pincode"
-              name="pincode"
-              value={newDetails?.pin_code}
-              onChange={handleFieldChange}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              fullWidth
-              label="Age"
-              name="age"
-              value={newDetails?.age}
-              onChange={handleFieldChange}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <OutlinedTextField
-              fullWidth
-              label="Qualification"
-              name="qualification"
-              value={newDetails?.qualification}
-              onChange={handleFieldChange}
-              InputLabelProps={{ shrink: true }}
-            ></OutlinedTextField>
-          </Grid>
+              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Gender</InputLabel>
+              <Select
+                fullWidth
+                labelId="gender-label"
+                name="gender"  
+                value={newDetails?.gender || ''}
+                onChange={handleFieldChange}
+                style={{ zIndex: "0" }}
+                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+              >
+                {genderOptions.map((option, index) => (
+                  <MenuItem key={index} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                fullWidth
+                label="City"
+                name="city"
+                value={newDetails?.city}
+                onChange={handleFieldChange}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                fullWidth
+                label="Address"
+                name="address"
+                value={newDetails?.address}
+                onChange={handleFieldChange}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                fullWidth
+                label="State"
+                name="state"
+                value={newDetails?.state}
+                onChange={handleFieldChange}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                fullWidth
+                label="Pincode"
+                name="pincode"
+                value={newDetails?.pin_code}
+                onChange={handleFieldChange}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                fullWidth
+                label="Age"
+                name="age"
+                value={newDetails?.age}
+                onChange={handleFieldChange}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                fullWidth
+                label="Qualification"
+                name="qualification"
+                value={newDetails?.qualification}
+                onChange={handleFieldChange}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
               <OutlinedTextField
                 disabled
@@ -315,7 +327,7 @@ const MyProfile = () => {
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
-            
+
             {/* <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <InputLabel id="availability-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Availability Status</InputLabel>
               <Select
@@ -331,15 +343,15 @@ const MyProfile = () => {
               </Select>
             </Grid> */}
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Languages</InputLabel>
+              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Languages</InputLabel>
               <Select
                 multiple
                 fullWidth
                 labelId="lang-label"
                 name="languages"
-                value={newDetails?.languages? newDetails.languages : []}
+                value={newDetails?.languages ? newDetails.languages : []}
                 onChange={handleFieldChange}
-                style={{zIndex: "0"}}
+                style={{ zIndex: "0" }}
                 MenuProps={MenuProps}
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
                 renderValue={(selected) => (
@@ -369,49 +381,49 @@ const MyProfile = () => {
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
-              </Grid>
-              <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Participation Type</InputLabel>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Participation Type</InputLabel>
               <Select
                 fullWidth
                 labelId="lang-label"
                 name="participation_type"
-                value={newDetails?.participation_type? newDetails.participation_type : []}
+                value={newDetails?.participation_type ? newDetails.participation_type : []}
                 onChange={handleFieldChange}
-                style={{zIndex: "0"}}
+                style={{ zIndex: "0" }}
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
               >
-                {participationType?.length && participationType.map((type,i) => (
+                {participationType?.length && participationType.map((type, i) => (
                   <MenuItem
-                    key={i+1}
-                    value={i+1}
+                    key={i + 1}
+                    value={i + 1}
                   >
                     {type}
                   </MenuItem>
                 ))}
               </Select>
             </Grid>
-            <Grid 
-                container 
-                direction="row"
-                justifyContent="flex-end"
-                style={{marginTop: 20}}
+            <Grid
+              container
+              direction="row"
+              justifyContent="flex-end"
+              style={{ marginTop: 20 }}
             >
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                >
-                    Update Profile
-                </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+              >
+                Update Profile
+              </Button>
             </Grid>
           </Grid>
         </Card>
       </Grid>
-      <Snackbar 
-        {...snackbarState} 
-        handleClose={()=> setSnackbarState({...snackbarState, open: false})} 
-        anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+      <Snackbar
+        {...snackbarState}
+        handleClose={() => setSnackbarState({ ...snackbarState, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         hide={2000}
       />
     </ThemeProvider>

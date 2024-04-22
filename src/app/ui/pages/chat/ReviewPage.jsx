@@ -143,7 +143,6 @@ const ReviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
-
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
@@ -187,127 +186,172 @@ const ReviewPage = () => {
 
 
 
-const setNotes = (taskData, annotations) => {
-  if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
+  const setNotes = (taskData, annotations) => {
+    if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
 
-  if (annotations && Array.isArray(annotations) && annotations.length > 0) {
-    let userAnnotation = annotations.find(
-      (annotation) =>
-        annotation.completed_by === userData.id &&
-        annotation.annotation_type === 2
-    );
-    if (userAnnotation) {
-      let normalAnnotation = annotations.find(
-        (annotation) => annotation.id === userAnnotation.parent_annotation
+    if (annotations && annotations.length > 0) {
+      let userAnnotation = annotations.find(
+        (annotation) =>
+          annotation.completed_by === userData.id &&
+          annotation.annotation_type === 2
       );
-      let superCheckerAnnotation = annotations.find(
-        (annotation) => annotation.parent_annotation === userAnnotation.id
-      );
-      annotationNotesRef.current.value = normalAnnotation?.annotation_notes ?? "";
-      superCheckerNotesRef.current.value = superCheckerAnnotation?.supercheck_notes ?? "";
-      reviewNotesRef.current.value =  userAnnotation?.review_notes ?? "";
-      try {
-        const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-        annotationNotesRef.current.getEditor().setContents(newDelta2);
-      } catch (err) {
-        if(err){
-          const newDelta2 = annotationNotesRef.current.value;
-          annotationNotesRef.current.getEditor().setText(newDelta2);  
-        }
-      }
-      
-      try {
-        const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
-        reviewNotesRef.current.getEditor().setContents(newDelta1);
-      } catch (err) {
-        if(err){
-          const newDelta1 = reviewNotesRef.current.value;
-          reviewNotesRef.current.getEditor().setText(newDelta1); 
-        }
-      }
-      try {
-        const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
-        superCheckerNotesRef.current.getEditor().setContents(newDelta3);
-      } catch (err) {
-        if(err){
-          const newDelta3 = superCheckerNotesRef.current.value;
-          superCheckerNotesRef.current.getEditor().setText(newDelta3); 
-        }
-      }
-      setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-
-    } else {
-      let reviewerAnnotations = annotations.filter(
-        (annotation) => annotation.annotation_type === 2
-      );
-      if (reviewerAnnotations.length > 0) {
-        let correctAnnotation = reviewerAnnotations.find(
-          (annotation) => annotation.id === taskData.correct_annotation
+      if (userAnnotation) {
+        let normalAnnotation = annotations.find(
+          (annotation) => annotation.id === userAnnotation.parent_annotation
         );
-        if (correctAnnotation) {
-          reviewNotesRef.current.value = correctAnnotation.review_notes ?? "";
-          annotationNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.id === correctAnnotation.parent_annotation
-            )?.annotation_notes ?? "";
-          superCheckerNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.parent_annotation === correctAnnotation.id
-            )?.supercheck_notes ?? "";
-            try {
-              const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-              annotationNotesRef.current.getEditor().setContents(newDelta2);
-            } catch (err) {
-              if(err){
-                const newDelta2 = annotationNotesRef.current.value;
-                annotationNotesRef.current.getEditor().setText(newDelta2);                 }
-            }
-            
-            try {
-              const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
-              reviewNotesRef.current.getEditor().setContents(newDelta1);
-            } catch (err) {
-              if(err){
-                const newDelta1 = reviewNotesRef.current.value;
-              reviewNotesRef.current.getEditor().setText(newDelta1);  
+        let superCheckerAnnotation = annotations.find(
+          (annotation) => annotation.parent_annotation === userAnnotation.id
+        );
+        annotationNotesRef.current.value = normalAnnotation?.annotation_notes ?? "";
+        reviewNotesRef.current.value = userAnnotation?.review_notes ?? "";
+        superCheckerNotesRef.current.value = superCheckerAnnotation?.supercheck_notes ?? "";
+        try {
+          const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if(err){
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);  
+          }
+        }
+        
+        try {
+          const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if(err){
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1); 
+          }
+        }
+        try {
+          const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
+          superCheckerNotesRef.current.getEditor().setContents(newDelta3);
+        } catch (err) {
+          if(err){
+            const newDelta3 = superCheckerNotesRef.current.value;
+            superCheckerNotesRef.current.getEditor().setText(newDelta3); 
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText())
+        setreviewtext(reviewNotesRef.current.getEditor().getText())
+        setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+
+      } else {
+        let reviewerAnnotations = annotations.filter(
+          (annotation) => annotation.annotation_type === 2
+        );
+        if (reviewerAnnotations.length > 0) {
+          let correctAnnotation = reviewerAnnotations.find(
+            (annotation) => annotation.id === taskData.correct_annotation
+          );
+          if (correctAnnotation) {
+            reviewNotesRef.current.value = correctAnnotation.review_notes ?? "";
+            annotationNotesRef.current.value =
+              annotations.find(
+                (annotation) =>
+                  annotation.id === correctAnnotation.parent_annotation
+              )?.annotation_notes ?? "";
+            superCheckerNotesRef.current.value =
+              annotations.find(
+                (annotation) =>
+                  annotation.parent_annotation === correctAnnotation.id
+              )?.supercheck_notes ?? "";
+              try {
+                const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+                annotationNotesRef.current.getEditor().setContents(newDelta2);
+              } catch (err) {
+                if(err){
+                  const newDelta2 = annotationNotesRef.current.value;
+                  annotationNotesRef.current.getEditor().setText(newDelta2);  
+                }
               }
-            }
-            try {
-              const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
-              superCheckerNotesRef.current.getEditor().setContents(newDelta3);
-            } catch (err) {
-              if(err){
-                const newDelta3 = superCheckerNotesRef.current.value;
-                superCheckerNotesRef.current.getEditor().setText(newDelta3);
+              
+              try {
+                const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
+                reviewNotesRef.current.getEditor().setContents(newDelta1);
+              } catch (err) {
+                if(err){
+                  const newDelta1 = reviewNotesRef.current.value;
+                  reviewNotesRef.current.getEditor().setText(newDelta1); 
+                }
               }
-            }      
-      setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+              try {
+                const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
+                superCheckerNotesRef.current.getEditor().setContents(newDelta3);
+              } catch (err) {
+                if(err){
+                  const newDelta3 = superCheckerNotesRef.current.value;
+                  superCheckerNotesRef.current.getEditor().setText(newDelta3); 
+                }
+              }
+                   setannotationtext(annotationNotesRef.current.getEditor().getText())
+            setreviewtext(reviewNotesRef.current.getEditor().getText())
+            setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+    
+          } else {
+            reviewNotesRef.current.value =
+              reviewerAnnotations[0].review_notes ?? "";
+            annotationNotesRef.current.value =
+              annotations.find(
+                (annotation) =>
+                  annotation.id === reviewerAnnotations[0]?.parent_annotation
+              )?.annotation_notes ?? "";
+            superCheckerNotesRef.current.value =
+              annotations.find(
+                (annotation) =>
+                  annotation.parent_annotation === reviewerAnnotations[0]?.id
+              )?.supercheck_notes ?? "";
+              try {
+                const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+                annotationNotesRef.current.getEditor().setContents(newDelta2);
+              } catch (err) {
+                if(err){
+                  const newDelta2 = annotationNotesRef.current.value;
+                  annotationNotesRef.current.getEditor().setText(newDelta2);  
+                }
+              }
+              
+              try {
+                const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
+                reviewNotesRef.current.getEditor().setContents(newDelta1);
+              } catch (err) {
+                if(err){
+                  const newDelta1 = reviewNotesRef.current.value;
+                  reviewNotesRef.current.getEditor().setText(newDelta1); 
+                }
+              }
+              try {
+                const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
+                superCheckerNotesRef.current.getEditor().setContents(newDelta3);
+              } catch (err) {
+                if(err){
+                  const newDelta3 = superCheckerNotesRef.current.value;
+                  superCheckerNotesRef.current.getEditor().setText(newDelta3); 
+                }
+              }
+      
+            setannotationtext(annotationNotesRef.current.getEditor().getText())
+            setreviewtext(reviewNotesRef.current.getEditor().getText())
+            setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+    
+          }
         } else {
-          reviewNotesRef.current.value =
-            reviewerAnnotations[0].review_notes ?? "";
+          let normalAnnotation = annotations.find(
+            (annotation) => annotation.annotation_type === 1
+          );
           annotationNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.id === reviewerAnnotations[0].parent_annotation
-            )?.annotation_notes ?? "";
+            normalAnnotation.annotation_notes ?? "";
+          reviewNotesRef.current.value = normalAnnotation.review_notes ?? "";
           superCheckerNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.parent_annotation === reviewerAnnotations[0].id
-            )?.supercheck_notes ?? "";
+            normalAnnotation.supercheck_notes ?? "";
             try {
               const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
               annotationNotesRef.current.getEditor().setContents(newDelta2);
             } catch (err) {
               if(err){
                 const newDelta2 = annotationNotesRef.current.value;
-                annotationNotesRef.current.getEditor().setText(newDelta2);   
+                annotationNotesRef.current.getEditor().setText(newDelta2);  
               }
             }
             
@@ -317,7 +361,7 @@ const setNotes = (taskData, annotations) => {
             } catch (err) {
               if(err){
                 const newDelta1 = reviewNotesRef.current.value;
-              reviewNotesRef.current.getEditor().setText(newDelta1); 
+                reviewNotesRef.current.getEditor().setText(newDelta1); 
               }
             }
             try {
@@ -329,59 +373,25 @@ const setNotes = (taskData, annotations) => {
                 superCheckerNotesRef.current.getEditor().setText(newDelta3); 
               }
             }
-            setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+              setannotationtext(annotationNotesRef.current.getEditor().getText())
+          setreviewtext(reviewNotesRef.current.getEditor().getText())
+          setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+  
         }
-      } else {
-        let normalAnnotation = annotations.find(
-          (annotation) => annotation.annotation_type === 1
-        );
-        annotationNotesRef.current.value = normalAnnotation.annotation_notes ?? "";
-      superCheckerNotesRef.current.value = normalAnnotation.supercheck_notes ?? "";
-      reviewNotesRef.current.value =  normalAnnotation.review_notes ?? "";
-      try {
-        const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-        annotationNotesRef.current.getEditor().setContents(newDelta2);
-      } catch (err) {
-        if(err){
-          const newDelta2 = annotationNotesRef.current.value;
-          annotationNotesRef.current.getEditor().setText(newDelta2); 
-        }
-      }
-      
-      try {
-        const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
-        reviewNotesRef.current.getEditor().setContents(newDelta1);
-      } catch (err) {
-        if(err){
-          const newDelta1 = reviewNotesRef.current.value;
-          reviewNotesRef.current.getEditor().setText(newDelta1);   
-        }
-      }
-      try {
-        const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
-        superCheckerNotesRef.current.getEditor().setContents(newDelta3);
-      } catch (err) {
-        if(err){
-          const newDelta3 = superCheckerNotesRef.current.value;
-          superCheckerNotesRef.current.getEditor().setText(newDelta3); 
-        }
-      }
-      setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
       }
     }
   }
-}
-};
+  };
 
+  useEffect(()=>{
+    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
+
+  },[taskDataArr,AnnotationsTaskDetails]);
 
   const resetNotes = () => {
     if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
+
     setShowNotes(false);
-    annotationNotesRef.current.getEditor().setContents([]);
     reviewNotesRef.current.getEditor().setContents([]);
     }
   };
@@ -389,6 +399,7 @@ const setNotes = (taskData, annotations) => {
   useEffect(() => {
     resetNotes();
   }, [taskId]);
+
 
   useEffect(() => {
     const showAssignedUsers = async () => {
@@ -683,10 +694,7 @@ const setNotes = (taskData, annotations) => {
 
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 
-  useEffect(()=>{
-    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
-
-  },[taskDataArr,AnnotationsTaskDetails]);
+ 
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -800,9 +808,12 @@ const setNotes = (taskData, annotations) => {
                   reviewtext.trim().length === 0 ? "primary" : "success"
                 }
                 onClick={handleCollapseClick}
-              style={{ backgroundColor:"#bf360c"}}
+                style={{ backgroundColor: annotationtext.trim().length === 0 &&
+                  supercheckertext.trim().length === 0 ? "#bf360c" : "green" }}
               >
-                Notes {reviewtext.trim().length === 0 ? "" : "*"}
+               Notes{" "}
+                {annotationtext.trim().length === 0 &&
+                supercheckertext.trim().length === 0 ? "" : "*"}
               </Button>
             
 
@@ -815,7 +826,7 @@ const setNotes = (taskData, annotations) => {
               }}
             >
                <ReactQuill
-              ref={annotationNotesRef}
+              forwardedRef={annotationNotesRef}
               modules={modules}
               bounds={"#note"}
               formats={formats}
@@ -823,14 +834,14 @@ const setNotes = (taskData, annotations) => {
               readOnly={true}
             ></ReactQuill>
             <ReactQuill
-              ref={reviewNotesRef}
+              forwardedRef={reviewNotesRef}
               modules={modules}
               bounds={"#note"}
               formats={formats}
               placeholder="Review Notes"
             ></ReactQuill>
             <ReactQuill
-              ref={superCheckerNotesRef}
+              forwardedRef={superCheckerNotesRef}
               modules={modules}
               bounds={"#note"}
               formats={formats}
@@ -840,6 +851,7 @@ const setNotes = (taskData, annotations) => {
             </div>
             <Button
               variant="contained"
+
               style={{ marginLeft: "10px", backgroundColor: "lightgrey" ,color:"black"}}
               endIcon={
                 showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />

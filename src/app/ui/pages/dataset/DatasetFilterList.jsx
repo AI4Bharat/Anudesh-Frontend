@@ -35,9 +35,9 @@ const DatasetFilterList = (props) => {
   } = props;
   /* eslint-disable react-hooks/exhaustive-deps */
 
-  const [selectDatasetVisibility, setSelectDatasetVisibility] = useState("");
-  const [selectedDatasetType, setSelectedDatasetType] = useState("");
-    const [type, setType] = useState([]);
+  const [selectDatasetVisibility, setSelectDatasetVisibility] = useState(currentFilters.dataset_visibility || "");
+  const [selectedDatasetType, setSelectedDatasetType] = useState(currentFilters.dataset_type || "");
+      const [type, setType] = useState([]);
 
   
   const datasetType = useSelector(state => state.GetDatasetType.data);

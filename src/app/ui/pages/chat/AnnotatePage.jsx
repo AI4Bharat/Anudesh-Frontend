@@ -141,51 +141,39 @@ console.log(annotationNotesRef);
     "background",
     "script",
   ];
-
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      fetchAnnotation(taskId).then((data) => {
-        if (data && Array.isArray(data) && data.length > 0) {
-          annotationNotesRef.current.value = data[0]?.annotation_notes
-            ? data[0].annotation_notes
-            : "";
-          reviewNotesRef.current.value = data[0].review_notes
-            ? data[0].review_notes
-            : "";
-          try {
-            const newDelta2 =
-              annotationNotesRef.current.value !== ""
-                ? JSON.parse(annotationNotesRef.current.value)
-                : "";
-            annotationNotesRef.current.getEditor().setContents(newDelta2);
-          } catch (err) {
-            if (err instanceof SyntaxError) {
-              const newDelta2 = annotationNotesRef.current.value;
-              annotationNotesRef.current.getEditor().setText(newDelta2);
-            }
-          }
-          try {
-            const newDelta1 =
-              reviewNotesRef.current.value != ""
-                ? JSON.parse(reviewNotesRef.current.value)
-                : "";
-            reviewNotesRef.current.getEditor().setContents(newDelta1);
-          } catch (err) {
-            if (err instanceof SyntaxError) {
-              const newDelta1 = reviewNotesRef.current.value;
-              reviewNotesRef.current.getEditor().setText(newDelta1);
-            }
-          }
-          setannotationtext(annotationNotesRef.current.getEditor().getText());
-          setreviewtext(reviewNotesRef.current.getEditor().getText());
+    if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
+      annotationNotesRef.current.value = AnnotationsTaskDetails[0].annotation_notes ?? "";
+      reviewNotesRef.current.value = AnnotationsTaskDetails[0].review_notes ?? "";
+      try {
+        const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+        annotationNotesRef.current.getEditor().setContents(newDelta2);
+      } catch (err) {
+        if(err){
+          const newDelta2 = annotationNotesRef.current.value;
+          annotationNotesRef.current.getEditor().setText(newDelta2);
         }
-      });
+      }
+      
+      try {
+        const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
+        reviewNotesRef.current.getEditor().setContents(newDelta1);
+      } catch (err) {
+        if(err){
+          const newDelta1 = reviewNotesRef.current.value;
+          reviewNotesRef.current.getEditor().setText(newDelta1);
+        }
+      }
+      setannotationtext(annotationNotesRef.current.getEditor().getText())
+      setreviewtext(reviewNotesRef.current.getEditor().getText())
     }
-  }, [taskId]);
+  }
+  }, [AnnotationsTaskDetails]);
 
   const resetNotes = () => {
     if (
@@ -193,9 +181,9 @@ console.log(annotationNotesRef);
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      setShowNotes(false);
-      annotationNotesRef.current.getEditor().setContents([]);
-      reviewNotesRef.current.getEditor().setContents([]);
+    setShowNotes(false);
+    annotationNotesRef.current.getEditor().setContents([]);
+    reviewNotesRef.current.getEditor().setContents([]);
     }
   };
 
@@ -578,7 +566,7 @@ console.log(annotationNotesRef);
                 variant="contained"
                 color={reviewtext.trim().length === 0 ? "primary" : "success"}
                 onClick={handleCollapseClick}
-                style={{ backgroundColor: "#bf360c" }}
+                style={{ backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green" }}
               >
                 Notes {reviewtext.trim().length === 0 ? "" : "*"}
               </Button>
