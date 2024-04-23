@@ -113,6 +113,7 @@ const SuperCheckerPage = () => {
   const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
   const [supercheckertext,setsupercheckertext] = useState('');
+  const [currentInteraction, setCurrentInteraction] = useState({});
 
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
@@ -574,10 +575,10 @@ const SuperCheckerPage = () => {
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case 'InstructionDrivenChat':
-      componentToRender = <InstructionDrivenChatPage />;
+      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory} />;
       break;
     case 'ModelInteractionEvaluation':
-      componentToRender = <ModelInteractionEvaluation />;
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction} />;
       break;
     default:
       componentToRender = null;

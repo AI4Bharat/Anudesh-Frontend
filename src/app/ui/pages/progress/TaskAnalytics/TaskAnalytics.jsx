@@ -19,7 +19,7 @@ const TaskAnalytics = (props) => {
 
   const dispatch = useDispatch();
   const [projectTypes, setProjectTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState("ContextualTranslationEditing");
+  const [selectedType, setSelectedType] = useState("AllTypes");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const taskAnalyticsData = useSelector(
     (state) => state.getTaskAnalyticsData.data
@@ -30,7 +30,6 @@ const TaskAnalytics = (props) => {
   const getTaskAnalyticsdata = () => {
     setLoading(true)
     const userObj = new TaskAnalyticsDataAPI(selectedType);
-    dispatch(APITransport(userObj));
   };
 
   const audioProjectTypes=[
