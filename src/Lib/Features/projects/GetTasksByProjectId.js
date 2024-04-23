@@ -11,7 +11,6 @@ export const  fetchTasksByProjectId = createAsyncThunk(
   'GetTasksByProjectId/fetchTasksByProjectId',
   async (payload) => {
     const { id, currentPageNumber, currentRowPerPage, selectedFilters, taskType, pullvalue,rejected,pull } = payload;
-    console.log("yesin");
     let queryString = `?project_id=${id}${currentPageNumber ? "&page="+currentPageNumber : ""}${currentRowPerPage ?"&records="+currentRowPerPage : ""}`;
     let querystr = pull === "All" ?"": `&editable=${pullvalue}`
     let querystr1 = rejected === true ?`&rejected=`+"True":""

@@ -85,7 +85,6 @@ const AnnotatePage = () => {
     message: "",
     variant: "success",
   });
-  console.log(ProjectDetails,"lll");
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
@@ -121,7 +120,6 @@ const AnnotatePage = () => {
   const handleGlossaryClick = () => {
     setShowGlossary(!showGlossary);
   };
-console.log(annotationNotesRef);
   const modules = {
     toolbar: [
       [{ size: [] }],
@@ -252,7 +250,6 @@ console.log(annotationNotesRef);
   let Annotation = AnnotationsTaskDetails.filter(
     (annotation) => annotation.annotation_type === 1
   )[0];
-  console.log(Annotation,AnnotationsTaskDetails);
  
   const tasksComplete = (id) => {
     // if (typeof window !== "undefined") {
@@ -276,7 +273,6 @@ console.log(annotationNotesRef);
     }
     // }
   };
-  console.log(annotationNotesRef);
   const handleAnnotationClick = async (
     value,
     id,
