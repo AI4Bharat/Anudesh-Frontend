@@ -56,9 +56,9 @@ const Layout= (props) => {
            < BackButton startIcon={<  ArrowBackIcon />} sx={{ color:"white" ,   mb:2 ,mt:2 }} backPressNavigationPath={backPressNavigationPath ? backPressNavigationPath : ""} label={translate("label.backToPreviousPage")}/>
            }
           <Suspense fallback={<div>Loading....</div>}>
-          {/* <ErrorBoundary> */}
+          <ErrorBoundary>
             {component}
-            {/* </ErrorBoundary> */}
+            </ErrorBoundary>
           </Suspense>
         </div>
       </div>

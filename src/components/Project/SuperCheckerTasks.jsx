@@ -132,11 +132,11 @@ const SuperCheckerTasks = (props) => {
   localStorage.setItem("projectData", JSON.stringify(ProjectDetails));
   }
   const getTaskListData = () => {
-    dispatch(fetchTasksByProjectId(id,
-        currentPageNumber,
-        currentRowPerPage,
-        selectedFilters,
-        props.type));
+    dispatch(fetchTasksByProjectId({id:id,
+      currentPageNumber:currentPageNumber,
+      currentRowPerPage:currentRowPerPage,
+      selectedFilters:selectedFilters,
+      taskType:props.type}));
   };
 
   useEffect(() => {
