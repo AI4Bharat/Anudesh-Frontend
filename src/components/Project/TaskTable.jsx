@@ -187,7 +187,6 @@ const TaskTable = (props) => {
       rejected: rejected,
       pull: pull
     };
-    console.log("yes");
     dispatch(fetchTasksByProjectId(taskobj));
   };
  
@@ -400,7 +399,6 @@ const TaskTable = (props) => {
         : selectedFilters.review_status
     );
     }
-    console.log("yeeess");
   }, [selectedFilters]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
