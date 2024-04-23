@@ -641,7 +641,7 @@ const SuperCheckerPage = () => {
                   reviewtext.trim().length === 0 ? "primary" : "success"
                 }
                 onClick={handleCollapseClick}
-              style={{ backgroundColor:"#bf360c"}}
+                style={{ backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green" }}
               >
                 Notes {reviewtext.trim().length === 0 ? "" : "*"}
               </Button>
@@ -656,7 +656,7 @@ const SuperCheckerPage = () => {
               }}
             >
               <ReactQuill
-                ref={reviewNotesRef}
+                forwardedRef={reviewNotesRef}
                 modules={modules}
                 formats={formats}
                 bounds={"#note"}
@@ -665,7 +665,7 @@ const SuperCheckerPage = () => {
                 readOnly={true}
               ></ReactQuill>
               <ReactQuill
-                ref={superCheckerNotesRef}
+                forwardedRef={superCheckerNotesRef}
                 modules={modules}
                 formats={formats}
                 bounds={"#note"}

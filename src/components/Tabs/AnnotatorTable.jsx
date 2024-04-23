@@ -46,7 +46,6 @@ const AnnotatorsTable = (props) => {
             user_id: Projectid,
         }
         const projectObj = new RemoveWorkspaceMemberAPI(id, workspacedata);
-        dispatch(APITransport(projectObj));
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "POST",
             body: JSON.stringify(projectObj.getBody()),
@@ -175,7 +174,17 @@ const AnnotatorsTable = (props) => {
             }
         }];
 
-          
+        const projectlist = (el) => {
+          let temp = false;
+          workspaceDtails?.frozen_users?.forEach((em) => {
+            if (el == em.id) {
+              temp = true;
+            }
+          });
+          return temp;
+        };
+
+        
 
     const data = workspaceAnnotators && workspaceAnnotators.length > 0 ? pageSearch().map((el, i) => {
         const userRole = el.role && UserMappedByRole(el.role)?.element;
@@ -198,14 +207,14 @@ const AnnotatorsTable = (props) => {
                     sx={{ borderRadius: 2, backgroundColor: "#cf5959",mr:2 }}
                     label="Remove"
                     onClick={() => {setElId(el.id); setElEmail(el.email); setConfirmationDialog(true);}}
-                    // disabled={projectlist(el.id)}
+                    disabled={projectlist(el.id)}
                 />
-                 {/* {projectlist(el.id) &&(
+                 {projectlist(el.id) &&(
                  <CustomButton
                     sx={{ borderRadius: 2}}
                     label="Add"
                     onClick={() => handleRemoveFrozenUsers(el.id)}
-                  />)} */}
+                  />)}
             </>
         ]
     }) : [];
@@ -242,6 +251,7 @@ const AnnotatorsTable = (props) => {
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [elEmail, setElEmail] = useState("");
   const [elId, setElId] = useState("");
+  const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
@@ -257,6 +267,20 @@ const AnnotatorsTable = (props) => {
     }else{
       window.alert("Invalid credentials, please try again");
     }
+  };
+
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
   };
     return (
         <div>

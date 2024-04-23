@@ -39,10 +39,10 @@ const ProjectFilterList = (props) => {
   
 
   const [projectTypes, setProjectTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedUserType, setSelectedUserType] = useState("");
-  const [selectedArchivedProject, setSelectedArchivedProject] = useState("");
-
+  const [selectedType, setSelectedType] = useState(currentFilters.project_type || "");
+  const [selectedUserType, setSelectedUserType] = useState(currentFilters.project_user_type || "");
+  const [selectedArchivedProject, setSelectedArchivedProject] = useState(currentFilters.archived_projects || "");
+  
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const loggedInUserData = useSelector(
     (state) => state.getLoggedInData.data

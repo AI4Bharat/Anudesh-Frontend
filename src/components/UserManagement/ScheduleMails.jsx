@@ -12,13 +12,7 @@ import {
 import themeDefault from "../../themes/theme";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
-// import GetWorkspaceAPI from "../../../../redux/actions/api/Organization/GetWorkspace";
-// import CreateScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/CreateScheduledMails";
-// import GetScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/GetScheduledMails";
-// import UpdateScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/UpdateScheduledMails";
-// import DeleteScheduledMailsAPI from "../../../../redux/actions/api/UserManagement/DeleteScheduledMails";
+import { useParams } from 'react-router-dom';
 import Snackbar from "../common/Snackbar";
 import { MenuProps } from "../../utils/utils";
 import CustomButton from "../common/Button";
@@ -251,7 +245,7 @@ const ScheduleMails = () => {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              gap: 2,
+              gap: 1,
             }}
           >
             <CustomButton
