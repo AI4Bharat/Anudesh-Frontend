@@ -140,14 +140,15 @@ const ReportsTable = (props) => {
         setSubmitted(true);
 
         if (radiobutton === "AnnotatationReports") {
-            projectObj = (id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'));
+            projectObj = ({projectId:id, startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'), endDate:format(selectRange[0].endDate, 'yyyy-MM-dd')});
         }
         else if (radiobutton === "ReviewerReports") {
-            projectObj = (id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type);
+            projectObj = ({projectId:id, startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'), endDate:format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type:reports_type});
         }
         else if (radiobutton === "SuperCheckerReports") {
-            projectObj = (id, format(selectRange[0].startDate, 'yyyy-MM-dd'), format(selectRange[0].endDate, 'yyyy-MM-dd'), reports_type);
+            projectObj = ({projectId:id, startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'), endDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),reports_type: reports_type});
         }
+        // projectId, startDate, endDate,reports_type
         dispatch(fetchProjectReport(projectObj));
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "POST",
