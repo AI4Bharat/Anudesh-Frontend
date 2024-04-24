@@ -29,6 +29,7 @@ import html2canvas from 'html2canvas';
 import locale, { modifiedStaticRanges } from "@/utils/Date_Range/getDateRangeFormat";
 import { MenuProps } from "@/utils/utils";
 import { jsPDF } from "jspdf";
+import { fetchDomains } from "@/Lib/Features/actions/domains";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -162,7 +163,9 @@ function ProgressList() {
     }
   ]);
   const [options, setOptions] = useState(defaultOptions);
-  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+  const ProjectTypes = useSelector((state) => state.domains.domains);
+  const ProjectTypes1 = useSelector((state) => console.log(state));
+
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   
   const [CumulativeTasksData, setCumulativeTasksData] = useState([]);
@@ -196,8 +199,7 @@ function ProgressList() {
   }, [ProjectTypes]);
 
   useEffect(() => {
-    const typesObj = new GetProjectDomainsAPI();
-    dispatch(APITransport(typesObj));
+    dispatch(fetchDomains());
   }, []);
 
   const getCumulativeTasksData = async (payload, OrgId) => {
