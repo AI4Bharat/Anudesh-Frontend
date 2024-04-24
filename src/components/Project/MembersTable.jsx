@@ -31,6 +31,8 @@ import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 import LoginAPI from "@/app/actions/api/user/Login";
 import RemoveFrozenUserAPI from "@/app/actions/api/Projects/RemoveFrozenUserAPI";
+import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSuggestions";
+import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
 
 const columns = [
@@ -104,6 +106,10 @@ const MembersTable = (props) => {
     hideButton,
     onRemoveSuccessGetUpdatedMembers,
     reSendButton,
+    showInvitedBy,
+    approveButton,
+    rejectButton,
+    hideViewButton,
   } = props;
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -125,6 +131,57 @@ const MembersTable = (props) => {
     (state) => state.getLoggedInData.data
   );
 
+  const columns = [
+    {
+      name: "Name",
+      label: "Name",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellHeaderProps: (sort) => ({
+          style: { height: "70px", padding: "16px" },
+        }),
+      },
+    },
+    {
+      name: "Email",
+      label: "Email",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
+    {
+      name: "Role",
+      label: "Role",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
+    {
+      name: "Actions",
+      label: "Actions",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
+
+  ];
+
+  if(showInvitedBy){
+      columns.splice(3, 0, {
+        name: "Invited By",
+        label: "Invited By",
+        options: {
+          filter: false,
+          sort: false,
+        },
+      });
+
+  }
   const pageSearch = () => {
     return dataSource.filter((el) => {
       if (SearchWorkspaceMembers == "") {
@@ -142,6 +199,16 @@ const MembersTable = (props) => {
       }
     });
   };
+  const handleApproveUser=(userId)=>{
+    const projectObj = new ApproveManagerSuggestionsAPI(userId);
+    dispatch(APITransport(projectObj));
+  }
+
+  const handleRejectUser=(userId)=>{
+    const projectObj = new RejectManagerSuggestionsAPI(userId);
+    dispatch(APITransport(projectObj));
+
+  }
 
   useEffect(() => {
     userDetails && setUserRole(userDetails.role);
@@ -325,14 +392,18 @@ const MembersTable = (props) => {
             el.username,
             el.email,
             userRole ? userRole : el.role,
-            <>
-              <CustomButton
-                sx={{ p: 1, borderRadius: 2 }}
-                onClick={() => {
-                  navigate(`/profile/${el.id}`);
-                }}
-                label={"View"}
-              />
+            el.invited_by,
+            <>  
+
+              {!hideViewButton && (
+                <CustomButton
+                  sx={{ p: 1, borderRadius: 2 }}
+                  onClick={() => {
+                    navigate(`/profile/${el.id}`);
+                  }}
+                  label={"View"}
+                />
+              )}
 
               {(userRoles.WorkspaceManager === loggedInUserData?.role || userRoles.OrganizationOwner === loggedInUserData?.role || userRoles.Admin === loggedInUserData?.role && props.type === addUserTypes.PROJECT_ANNOTATORS) && (
                 <CustomButton
@@ -390,6 +461,26 @@ const MembersTable = (props) => {
                   label={"Resend"}
                 />
               )}
+
+              {
+                approveButton && (
+                  <CustomButton
+                    sx={{ p: 1, m: 1, borderRadius: 2 }}
+                    onClick={() => handleApproveUser(el.id)}
+                    label={"Approve"}
+                  />
+                )
+              }
+              {
+                rejectButton && (
+                  <CustomButton
+                    sx={{ p: 1, m: 1, borderRadius: 2, backgroundColor: "#cf5959"}}
+                    color="error"
+                    onClick={() => handleRejectUser(el.id)}
+                    label={"Reject"}
+                  />
+                )
+              }
 
               
             </>,

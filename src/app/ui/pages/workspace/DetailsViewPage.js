@@ -43,10 +43,105 @@ import TaskAnalytics from "../progress/TaskAnalytics/TaskAnalytics";
 import MetaAnalytics from "../progress/MetaAnalytics/MetaAnalytics";
 import ProgressAnalytics from "../progress/ProgressAnalytics";
 import userRole from "@/utils/Role";
+import InviteUsersDialog from "@/components/Project/InviteUsersDialog";
+import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
+import getOrganizationUsers from "@/Lib/Features/getOrganizationUsers";
+import InviteManagerSuggestions from "@/app/actions/api/user/InviteManagerSuggestions";
+import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
   
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
+    const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+    const [csvFile, setCsvFile] = useState(null);
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [userType, setUserType] = useState(Object.keys(UserRolesList)[0]);
+    const [selectedEmails, setSelectedEmails] = useState([]);
+    const [btn,setbtn] = useState(null);
+    const [snackbar, setSnackbarInfo] = useState({
+      open: false,
+      message: "",
+      variant: "success",
+    });
+
+    const organisation_id = useSelector(state => state.getWorkspacesProjectData?.data?.[0]?.organization_id);
+    
+    const handleUserDialogOpen = () => {
+      setAddUserDialogOpen(true);
+    };
+    const handleUserDialogClose = () => {
+      setAddUserDialogOpen(false);
+    };
   
+    const addBtnClickHandler = async () => {
+      setLoading(true);
+      if(userDetails?.role === userRole.WorkspaceManager)
+      {
+        const addUsesrsObj = new InviteManagerSuggestions(
+          organisation_id,
+          selectedUsers,
+          userType
+        );
+        const res = await fetch(addUsesrsObj.apiEndPoint(), {
+          method: "POST",
+          body: JSON.stringify(addUsesrsObj.getBody()),
+          headers: addUsesrsObj.getHeaders().headers,
+        });
+        const resp = await res.json();
+        if (res.ok) {
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "success",
+          });
+          const orgObj = new GetOragnizationUsersAPI(id);
+          dispatch(APITransport(orgObj));
+  
+        }else {
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+          });
+        }
+      }
+      else 
+      {
+  
+      const addMembersObj = new InviteUsersToOrgAPI(
+          organisation_id,
+          selectedUsers,
+          userType
+        );
+        const res = await fetch(addMembersObj.apiEndPoint(), {
+          method: "POST",
+          body: JSON.stringify(addMembersObj.getBody()),
+          headers: addMembersObj.getHeaders().headers,
+        });
+        const resp = await res.json();
+        if (res.ok) {
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "success",
+          });
+          const orgObj = new GetOragnizationUsersAPI(id);
+          dispatch(APITransport(orgObj));
+        }else {
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+          });
+        }
+      }
+      handleUserDialogClose();
+      setLoading(false);
+      setSelectedUsers([ ]);
+      setSelectedEmails([]);
+      setCsvFile(null);
+      setbtn(null)
+      setUserType(Object.keys(UserRolesList)[0])
+    };
     return (
       <div
         role="tabpanel"
@@ -329,12 +424,52 @@ import userRole from "@/utils/Role";
           <TabPanel value={value} index={1}>
             {pageType === componentType.Type_Workspace && (
               <>
-                <CustomButton
-                  className={classes.annotatorsButton}
-                  label={"Add Members to Workspace"}
-                  sx={{ width: "100%", mb: 2 }}
-                  onClick={handleAnnotatorDialogOpen}
-                />
+              <Grid
+                  container
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="center"
+                  columnSpacing={4}
+                  rowSpacing={2}
+                >
+                  <Grid item xs={12} sm={6}>
+                  <Button
+                    className={classes.annotatorsButton}
+                    label={"Add Members to Workspace"}
+                    sx={{ width: "100%", mb: 2 }}
+                    onClick={handleUserDialogOpen}
+                  />
+                    <InviteUsersDialog
+                      handleDialogClose={handleUserDialogClose}
+                      isOpen={addUserDialogOpen}
+                      selectedUsers={selectedUsers}
+                      setSelectedUsers={setSelectedUsers}
+                      userType={userType}
+                      setUserType={setUserType}
+                      addBtnClickHandler={()=>addBtnClickHandler()}
+                      loading={loading}
+                      selectedEmails={selectedEmails}
+                      setSelectedEmails={setSelectedEmails}
+                      csvFile={csvFile}
+                      setCsvFile={setCsvFile}
+                      btn={btn}
+                      setbtn={setbtn}
+                      value={value}
+                      setvalue={setValue}
+                    />
+
+
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                  <Button
+                    className={classes.annotatorsButton}
+                    label={"Invite Users to Organisation"}
+                    sx={{ width: "100%", mb: 2 }}
+                    onClick={handleUserDialogOpen}
+                  />
+                  </Grid>
+                </Grid>
+
                 <AnnotatorsTable
                   onRemoveSuccessGetUpdatedMembers={() => getWorkspaceDetails()}
                 />
