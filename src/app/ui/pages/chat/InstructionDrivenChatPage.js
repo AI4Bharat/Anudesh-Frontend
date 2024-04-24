@@ -26,6 +26,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { makeStyles } from "@mui/styles";
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import { fetchTasksByProjectId } from "@/Lib/Features/projects/GetTasksByProjectId";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -52,7 +53,7 @@ const style = {
   pb: 3,
 };
 
-const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
+const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   let inputValue = "";
@@ -70,9 +71,21 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
     variant: "success",
   });
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
-  const taskList = useSelector(
-    (state) => state.GetTasksByProjectId?.data?.result,
-  );
+
+  useEffect(() => {
+    let taskData = localStorage.getItem("TaskData");
+    if (taskData) {
+      taskData = JSON.parse(taskData);
+      setInfo({
+        hint: taskData?.data?.hint,
+        examples: taskData?.data?.examples,
+        meta_info_intent: taskData?.data?.meta_info_intent,
+        instruction_data: taskData?.data?.instruction_data,
+        meta_info_domain: taskData?.data?.meta_info_domain,
+        meta_info_language: taskData?.data?.meta_info_language,
+      });
+    }
+  }, []);
 
   const handleOpen = () => {
     setOpen(true);
@@ -158,16 +171,6 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const item = taskList?.filter((task) => task.id == taskId);
-      if (item && item[0])
-        setInfo({
-          hint: item[0]?.data?.hint,
-          examples: item[0]?.data?.examples,
-          meta_info_intent: item[0]?.data?.meta_info_intent,
-          instruction_data: item[0]?.data?.instruction_data,
-          meta_info_domain: item[0]?.data?.meta_info_domain,
-          meta_info_language: item[0]?.data?.meta_info_language,
-        });
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
         method: "GET",
@@ -175,22 +178,22 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
       });
       const data = await response.json();
       let modifiedChatHistory;
-     if (data && [...data[0].result].length) {
-      modifiedChatHistory = data[0].result.map((interaction) => {
-        return {
-          ...interaction,
-          output: formatResponse(interaction.output),
-        };
-      });
-      setChatHistory([...modifiedChatHistory]);
-    } else {
-      setChatHistory([]);
-    }
+      if (data && [...data[0].result].length) {
+        modifiedChatHistory = data[0].result.map((interaction) => {
+          return {
+            ...interaction,
+            output: formatResponse(interaction.output),
+          };
+        });
+        setChatHistory([...modifiedChatHistory]);
+      } else {
+        setChatHistory([]);
+      }
       setAnnotationId(data[0].id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
     };
     fetchData();
-  }, [taskId, taskList]);
+  }, [taskId]);
 
   const handleButtonClick = async () => {
     if (inputValue) {
@@ -201,7 +204,7 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
         result: inputValue,
         lead_time: 0.0,
         auto_save: "True",
-        task_id:taskId,
+        task_id: taskId,
       };
       const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
@@ -220,13 +223,12 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
               output: formatResponse(interaction.output),
             };
           });
-        }
-        else{
+        } else {
           setSnackbarInfo({
             open: true,
             message: data?.message,
             variant: "error",
-          })
+          });
         }
         return data && data.result
           ? [...modifiedChatHistory]
@@ -237,7 +239,7 @@ const InstructionDrivenChatPage = ({chatHistory,setChatHistory}) => {
         open: true,
         message: "please provide a prompt",
         variant: "error",
-      })
+      });
     }
     setShowChatContainer(true);
   };

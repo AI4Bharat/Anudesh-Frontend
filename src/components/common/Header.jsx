@@ -123,9 +123,7 @@ const Header = () => {
         if (response.ok) {
           const data = await response?.json();
           setnotification(data);
-          console.log(Notification?.length, data);
         } else {
-          console.error("Error fetching notifications:", response.status, response.statusText);
           setnotification([]);
         }
       })
@@ -147,7 +145,6 @@ const Header = () => {
     setSelectedNotificationId(notificationIds)
      dispatch(APITransport(tasks));
      fetchNotifications()
-
   };
 
   const handleMarkAllAsReadClick =  () => {
@@ -330,7 +327,6 @@ const handleopenproject=(id,type)=>{
     );
   };
   const unseenNotifications = Notification?.length > 0 && Notification?.filter(notification => notification?.seen_json == true || (notification?.seen_json && !notification?.seen_json[loggedInUserData.id]));
-  console.log(unseenNotifications,'unseen notification');
 
   const renderTabs = () => {
     if (

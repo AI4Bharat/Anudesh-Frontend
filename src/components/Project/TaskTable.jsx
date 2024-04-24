@@ -81,7 +81,6 @@ const TaskTable = (props) => {
   // let location = useLocation();
   const taskList = useSelector(
     (state) =>  state.GetTasksByProjectId?.data?.result
-
   );
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
