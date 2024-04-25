@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import Image from "next/image";
+import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
@@ -18,15 +19,14 @@ import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
 import { useState, useEffect, useRef } from "react";
-import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
-import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
+import CustomizedSnackbars from "@/components/common/Snackbar";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { makeStyles } from "@mui/styles";
-import CustomizedSnackbars from "@/components/common/Snackbar";
-import { fetchTasksByProjectId } from "@/Lib/Features/projects/GetTasksByProjectId";
+import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -53,7 +53,7 @@ const style = {
   pb: 3,
 };
 
-const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
+const InstructionDrivenChatPage = ({ chatHistory, setChatHistory, handleAnnotationClick, formatResponse }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   let inputValue = "";
@@ -90,6 +90,7 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
   const handleOpen = () => {
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -97,46 +98,6 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory]);
-
-  const formatResponse = (response) => {
-    response = String(response);
-    const output = [];
-    let count = 0;
-
-    while (response) {
-      response = response.trim();
-      let index = response.indexOf("```");
-      if (index == -1) {
-        output.push({
-          type: "text",
-          value: response,
-        });
-        break;
-      } else {
-        count++;
-        if (count % 2 !== 0) {
-          output.push({
-            type: "text",
-            value: response.substring(0, index),
-          });
-          response = response.slice(index + 3);
-        } else if (count % 2 === 0) {
-          let next_space = response.indexOf("\n");
-          let language = response.substring(0, next_space);
-          response = response.slice(next_space + 1);
-          let new_index = response.indexOf("```");
-          let value = response.substring(0, new_index);
-          output.push({
-            type: "code",
-            value: value,
-            language: language,
-          });
-          response = response.slice(new_index + 3);
-        }
-      }
-    }
-    return output;
-  };
 
   const renderSnackBar = () => {
     return (
@@ -237,7 +198,7 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
     } else {
       setSnackbarInfo({
         open: true,
-        message: "please provide a prompt",
+        message: "Please provide a prompt",
         variant: "error",
       });
     }
@@ -263,28 +224,59 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
             sx={{
               width: "50vw",
               display: "flex",
-              justifyContent: "start",
-              alignItems: "center",
+              flexDirection: "column",
               padding: "1.5rem",
               borderRadius: "0.5rem",
               backgroundColor: "rgba(247, 184, 171, 0.2)",
+              position: "relative",
             }}
           >
-            <Avatar
-              alt="user_profile_pic"
-              variant="contained"
-              src={
-                loggedInUserData?.profile_photo
-                  ? loggedInUserData.profile_photo
-                  : ""
-              }
-              className={classes.avatar}
+            <Box
               sx={{
-                marginRight: "1rem",
+                display: "flex",
+                justifyContent: "start",
+                alignItems: "center",
               }}
-            />
-            <Box>{message.prompt}</Box>
+            >
+              <Avatar
+                alt="user_profile_pic"
+                variant="contained"
+                src={
+                  loggedInUserData?.profile_photo
+                    ? loggedInUserData.profile_photo
+                    : ""
+                }
+                className={classes.avatar}
+                sx={{
+                  marginRight: "1rem",
+                }}
+              />
+              <Box>{message.prompt}</Box>
+              {index === chatHistory.length - 1 && (
+                <IconButton
+                  size="large"
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    margin: "0.5rem",
+                    borderRadius: "50%",
+                  }}
+                  onClick={() => {
+                    handleAnnotationClick("delete-pair", annotationId, 0.0)
+                  }}
+                >
+                  <DeleteOutlinedIcon
+                    style={{
+                      color: "#EE6633",
+                      fontSize: "1.2rem",
+                    }}
+                  />
+                </IconButton>
+              )}
+            </Box>
           </Box>
+
           <Box
             sx={{
               width: "50vw",
@@ -551,6 +543,7 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory }) => {
             grid_size={"80.6rem"}
             class_name={""}
             loading={loading}
+            inputValue={inputValue}
           />
         </Grid>
       </Grid>
