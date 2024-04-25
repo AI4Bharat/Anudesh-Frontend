@@ -149,6 +149,7 @@ export default function Textarea({
           border: `1px solid ${grey[200]}`,
           boxShadow: `0px 2px 2px ${grey[50]}`,
         }}
+        horizontalView={true}
       />
       :
       <Textarea
