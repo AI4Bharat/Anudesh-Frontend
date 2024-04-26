@@ -53,7 +53,13 @@ const style = {
   pb: 3,
 };
 
-const InstructionDrivenChatPage = ({ chatHistory, setChatHistory, handleAnnotationClick, formatResponse }) => {
+const InstructionDrivenChatPage = ({
+  chatHistory,
+  setChatHistory,
+  handleAnnotationClick,
+  formatResponse,
+  formatPrompt,
+}) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   let inputValue = "";
@@ -251,7 +257,9 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory, handleAnnotati
                   marginRight: "1rem",
                 }}
               />
-              <Box>{message.prompt}</Box>
+              <ReactMarkdown className="flex-col">
+                {formatPrompt(message.prompt)}
+              </ReactMarkdown>
               {index === chatHistory.length - 1 && (
                 <IconButton
                   size="large"
@@ -263,7 +271,7 @@ const InstructionDrivenChatPage = ({ chatHistory, setChatHistory, handleAnnotati
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleAnnotationClick("delete-pair", annotationId, 0.0)
+                    handleAnnotationClick("delete-pair", annotationId, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon

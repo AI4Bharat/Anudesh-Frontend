@@ -124,6 +124,9 @@ export default function Textarea({
           renderComponent={(props) => (
             <textarea
               xs={size}
+              sx={{
+                whiteSpace: 'pre-wrap',
+              }}
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
@@ -173,6 +176,9 @@ export default function Textarea({
             } else if (event.key === "Enter" && event.shiftKey) {
               handleOnchange(prompt + "\n");
             }
+          }}
+          sx={{
+            whiteSpace: 'pre-wrap',
           }}
         />
       )}

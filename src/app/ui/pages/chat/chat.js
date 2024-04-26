@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 const codeStyle = {
   borderRadius: "0xp 0px 5px 5px",
   width: "45vw",
@@ -101,6 +100,12 @@ const Chat = () => {
     }
     return output;
   };
+
+  const formatPrompt = (prompt) => {
+    const lines = prompt.split('\n');
+    const markdownString = lines.join('  \n');
+    return markdownString;
+  }
 
   const handleButtonClick = async () => {
     if (inputValue) {
@@ -211,7 +216,7 @@ const Chat = () => {
                 marginRight: "1rem",
               }}
             />
-            <Box>{message.prompt}</Box>
+            <ReactMarkdown className="flex-col">{formatPrompt(message.prompt)}</ReactMarkdown>
           </Box>
           
           <Box

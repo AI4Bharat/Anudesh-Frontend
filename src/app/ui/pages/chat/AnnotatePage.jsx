@@ -201,6 +201,12 @@ const AnnotatePage = () => {
     return response;
   };
 
+  const formatPrompt = (prompt) => {
+    const lines = prompt.split('\n');
+    const markdownString = lines.join('  \n');
+    return markdownString;
+  }
+
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
@@ -595,6 +601,7 @@ const AnnotatePage = () => {
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
         />
       );
       break;
