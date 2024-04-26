@@ -187,6 +187,20 @@ const AnnotatePage = () => {
     return output;
   };
 
+  const reverseFormatResponse = (formattedOutput) => {
+    let response = "";
+
+    formattedOutput.forEach((item) => {
+      if (item.type === "text") {
+        response += item.value;
+      } else if (item.type === "code") {
+        response += "```" + item.language + "\n" + item.value + "\n```";
+      }
+    });
+
+    return response;
+  };
+
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
@@ -321,10 +335,14 @@ const AnnotatePage = () => {
     // if (typeof window !== "undefined") {
     let resultValue;
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
-      resultValue = chatHistory;
+      resultValue = chatHistory.map(chat => ({
+        prompt: chat.prompt,
+        output: reverseFormatResponse(chat.output)
+      }));
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
       resultValue = currentInteraction;
     }
+
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -358,8 +376,11 @@ const AnnotatePage = () => {
         headers: TaskObj.getHeaders().headers,
       });
       const resp = await res.json();
-      if ((value === "delete" || value === "delete-pair") === true && res.ok && resp.result) {
-        console.log("in");
+      if (
+        (value === "delete" || value === "delete-pair") === true &&
+        res.ok &&
+        resp.result
+      ) {
         let modifiedChatHistory = resp?.result.map((interaction) => {
           return {
             ...interaction,
