@@ -59,13 +59,13 @@ const InstructionDrivenChatPage = ({
   handleAnnotationClick,
   formatResponse,
   formatPrompt,
+  info
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
-  const [info, setInfo] = useState({});
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(false);
@@ -77,22 +77,6 @@ const InstructionDrivenChatPage = ({
     variant: "success",
   });
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
-
-  useEffect(() => {
-    let taskData = localStorage.getItem("TaskData");
-    if (taskData) {
-      taskData = JSON.parse(taskData);
-      setInfo({
-        hint: taskData?.data?.hint,
-        examples: taskData?.data?.examples,
-        meta_info_intent: taskData?.data?.meta_info_intent,
-        instruction_data: taskData?.data?.instruction_data,
-        meta_info_domain: taskData?.data?.meta_info_domain,
-        meta_info_language: taskData?.data?.meta_info_language,
-      });
-    }
-  }, []);
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -388,9 +372,11 @@ const InstructionDrivenChatPage = ({
 
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
+
     const handleOpen = () => {
       setOpen(true);
     };
+
     const handleClose = () => {
       setOpen(false);
     };

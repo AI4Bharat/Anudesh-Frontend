@@ -70,6 +70,7 @@ const AnnotatePage = () => {
   const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // let taskData = localStorage.getItem("TaskData");
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
@@ -77,6 +78,7 @@ const AnnotatePage = () => {
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
+  const [info, setInfo] = useState({});
 
   let loaded = useRef();
 
@@ -206,6 +208,21 @@ const AnnotatePage = () => {
     const markdownString = lines.join('  \n');
     return markdownString;
   }
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
 
   useEffect(() => {
     if (
@@ -602,6 +619,7 @@ const AnnotatePage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          info={info}
         />
       );
       break;
