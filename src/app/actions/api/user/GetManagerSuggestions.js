@@ -10,7 +10,7 @@ export default class GetManagerSuggestionsAPI extends API {
      super("GET", timeout, false);
      this.type = constants.GET_MANAGER_SUGGESTIONS;
      this.orgId = orgId;
-     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getPendingUsers}pending_users/?organisation_id=${this.orgId}`;
+     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.inviteUsers}pending_users/?organisation_id=${this.orgId}`;
    }
 
    processResponse(res) {

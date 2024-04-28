@@ -10,7 +10,7 @@ export default class ApproveManagerSuggestions extends API {
      super("PATCH", timeout, false);
      this.type = constants.APPROVE_MANAGER_SUGGESTIONS;
      this.userId = userId;
-     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getPendingUsers}approve_user/?userId=${this.userId}`;
+     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.inviteUsers}approve_user/?userId=${this.userId}`;
    }
 
    processResponse(res) {

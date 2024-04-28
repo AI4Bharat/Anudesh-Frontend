@@ -10,7 +10,7 @@ export default class RejectManagerSuggestionsAPI extends API {
      super("DELETE", timeout, false);
      this.type = constants.DELETE_MANAGER_SUGGESTIONS;
      this.userId = userId;
-     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getPendingUsers}reject_user/?userId=${this.userId}`;
+     this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.inviteUsers}reject_user/?userId=${this.userId}`;
    }
 
    processResponse(res) {

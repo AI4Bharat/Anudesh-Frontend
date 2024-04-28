@@ -34,6 +34,7 @@ import RemoveFrozenUserAPI from "@/app/actions/api/Projects/RemoveFrozenUserAPI"
 import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSuggestions";
 import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
+import APITransport from "@/Lib/apiTransport/apitransport"
 
 const columns = [
   {
@@ -199,15 +200,56 @@ const MembersTable = (props) => {
       }
     });
   };
-  const handleApproveUser=(userId)=>{
-    const projectObj = new ApproveManagerSuggestionsAPI(userId);
-    dispatch(APITransport(projectObj));
+  const handleApproveUser=async(userId)=>{
+    const projectObj = new ApproveManagerSuggestions(userId);
+
+    const res = await fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+      payload: projectObj.getPayload(),
+    });
+    const resp = await res.json();
+    
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+    } else {
+
+      setSnackbarInfo({
+        open: true,
+        message: resp?.detail,
+        variant: "error",
+      });
+    }
   }
 
   const handleRejectUser=(userId)=>{
     const projectObj = new RejectManagerSuggestionsAPI(userId);
-    dispatch(APITransport(projectObj));
-
+    const res = fetch(projectObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(projectObj.getBody()),
+      headers: projectObj.getHeaders().headers,
+      payload: projectObj.getPayload(),
+    });
+    res.then((res) => res.json()).then((resp) => {
+      if (res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "success",
+        });
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.detail,
+          variant: "error",
+        });
+      }
+    });
   }
 
   useEffect(() => {
@@ -392,7 +434,7 @@ const MembersTable = (props) => {
             el.username,
             el.email,
             userRole ? userRole : el.role,
-            el.invited_by,
+            ...(showInvitedBy ? [el.invited_by] : []),
             <>  
 
               {!hideViewButton && (
