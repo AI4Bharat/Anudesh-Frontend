@@ -493,7 +493,7 @@ const DetailsViewPage = (props) => {
             )}
             {pageType === componentType.Type_Organization && (
               <>
-                {/* <Members /> */}
+                <Members />
               </>
             )}
           </TabPanel>
