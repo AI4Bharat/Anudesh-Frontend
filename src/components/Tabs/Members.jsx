@@ -29,10 +29,10 @@ const Members = () => {
     return(
       <React.Fragment>
         {apiLoading ? <Spinner/> : 
-        {/* <MembersTable 
+        <MembersTable 
         dataSource = {OrganizationUserData}
         type="organization"
-        /> */}
+        />
         }
       </React.Fragment>
     )
