@@ -13,7 +13,7 @@ const Members = () => {
    /* eslint-disable react-hooks/exhaustive-deps */
 
     const dispatch = useDispatch();
-    const orgId=1;
+    const orgId=useParams();
     const OrganizationUserData = useSelector(state=>state.getOrganizationUsers.data);
     const apiLoading = useSelector(state=> state.getOrganizationUsers.status !=="succeeded");
     const getOrganizationMembersData = ()=>{
@@ -29,10 +29,10 @@ const Members = () => {
     return(
       <React.Fragment>
         {apiLoading ? <Spinner/> : 
-        <MembersTable 
+        {/* <MembersTable 
         dataSource = {OrganizationUserData}
         type="organization"
-        />
+        /> */}
         }
       </React.Fragment>
     )
