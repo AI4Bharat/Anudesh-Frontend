@@ -43,7 +43,7 @@ import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
-  /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line react/display-name
 
 const ReactQuill = dynamic(
@@ -143,7 +143,6 @@ const ReviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
-
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
@@ -159,7 +158,7 @@ const ReviewPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState('')
   const [reviewtext, setreviewtext] = useState('')
-  const [supercheckertext,setsupercheckertext] = useState('')
+  const [supercheckertext, setsupercheckertext] = useState('')
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -187,208 +186,220 @@ const ReviewPage = () => {
 
 
 
-const setNotes = (taskData, annotations) => {
-  if (typeof window !== "undefined"&& annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
+  const setNotes = (taskData, annotations) => {
+    if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
 
-  if (annotations && Array.isArray(annotations) && annotations.length > 0) {
-    let userAnnotation = annotations.find(
-      (annotation) =>
-        annotation.completed_by === userData.id &&
-        annotation.annotation_type === 2
-    );
-    if (userAnnotation) {
-      let normalAnnotation = annotations.find(
-        (annotation) => annotation.id === userAnnotation.parent_annotation
-      );
-      let superCheckerAnnotation = annotations.find(
-        (annotation) => annotation.parent_annotation === userAnnotation.id
-      );
-      annotationNotesRef.current.value = normalAnnotation?.annotation_notes ?? "";
-      superCheckerNotesRef.current.value = superCheckerAnnotation?.supercheck_notes ?? "";
-      reviewNotesRef.current.value =  userAnnotation?.review_notes ?? "";
-      try {
-        const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-        annotationNotesRef.current.getEditor().setContents(newDelta2);
-      } catch (err) {
-        if(err){
-          const newDelta2 = annotationNotesRef.current.value;
-          annotationNotesRef.current.getEditor().setText(newDelta2);  
-        }
-      }
-      
-      try {
-        const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
-        reviewNotesRef.current.getEditor().setContents(newDelta1);
-      } catch (err) {
-        if(err){
-          const newDelta1 = reviewNotesRef.current.value;
-          reviewNotesRef.current.getEditor().setText(newDelta1); 
-        }
-      }
-      try {
-        const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
-        superCheckerNotesRef.current.getEditor().setContents(newDelta3);
-      } catch (err) {
-        if(err){
-          const newDelta3 = superCheckerNotesRef.current.value;
-          superCheckerNotesRef.current.getEditor().setText(newDelta3); 
-        }
-      }
-      setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-
-    } else {
-      let reviewerAnnotations = annotations.filter(
-        (annotation) => annotation.annotation_type === 2
-      );
-      if (reviewerAnnotations.length > 0) {
-        let correctAnnotation = reviewerAnnotations.find(
-          (annotation) => annotation.id === taskData.correct_annotation
+      if (annotations && annotations.length > 0) {
+        let userAnnotation = annotations.find(
+          (annotation) =>
+            annotation.completed_by === userData.id &&
+            annotation.annotation_type === 2
         );
-        if (correctAnnotation) {
-          reviewNotesRef.current.value = correctAnnotation.review_notes ?? "";
-          annotationNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.id === correctAnnotation.parent_annotation
-            )?.annotation_notes ?? "";
-          superCheckerNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.parent_annotation === correctAnnotation.id
-            )?.supercheck_notes ?? "";
+        if (userAnnotation) {
+          let normalAnnotation = annotations.find(
+            (annotation) => annotation.id === userAnnotation.parent_annotation
+          );
+          let superCheckerAnnotation = annotations.find(
+            (annotation) => annotation.parent_annotation === userAnnotation.id
+          );
+          annotationNotesRef.current.value = normalAnnotation?.annotation_notes ?? "";
+          reviewNotesRef.current.value = userAnnotation?.review_notes ?? "";
+          superCheckerNotesRef.current.value = superCheckerAnnotation?.supercheck_notes ?? "";
+          try {
+            const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+            annotationNotesRef.current.getEditor().setContents(newDelta2);
+          } catch (err) {
+            if (err) {
+              const newDelta2 = annotationNotesRef.current.value;
+              annotationNotesRef.current.getEditor().setText(newDelta2);
+            }
+          }
+
+          try {
+            const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+            reviewNotesRef.current.getEditor().setContents(newDelta1);
+          } catch (err) {
+            if (err) {
+              const newDelta1 = reviewNotesRef.current.value;
+              reviewNotesRef.current.getEditor().setText(newDelta1);
+            }
+          }
+          try {
+            const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+            superCheckerNotesRef.current.getEditor().setContents(newDelta3);
+          } catch (err) {
+            if (err) {
+              const newDelta3 = superCheckerNotesRef.current.value;
+              superCheckerNotesRef.current.getEditor().setText(newDelta3);
+            }
+          }
+          setannotationtext(annotationNotesRef.current.getEditor().getText())
+          setreviewtext(reviewNotesRef.current.getEditor().getText())
+          setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+
+        } else {
+          let reviewerAnnotations = annotations.filter(
+            (annotation) => annotation.annotation_type === 2
+          );
+          if (reviewerAnnotations.length > 0) {
+            let correctAnnotation = reviewerAnnotations.find(
+              (annotation) => annotation.id === taskData.correct_annotation
+            );
+            if (correctAnnotation) {
+              reviewNotesRef.current.value = correctAnnotation.review_notes ?? "";
+              annotationNotesRef.current.value =
+                annotations.find(
+                  (annotation) =>
+                    annotation.id === correctAnnotation.parent_annotation
+                )?.annotation_notes ?? "";
+              superCheckerNotesRef.current.value =
+                annotations.find(
+                  (annotation) =>
+                    annotation.parent_annotation === correctAnnotation.id
+                )?.supercheck_notes ?? "";
+              try {
+                const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+                annotationNotesRef.current.getEditor().setContents(newDelta2);
+              } catch (err) {
+                if (err) {
+                  const newDelta2 = annotationNotesRef.current.value;
+                  annotationNotesRef.current.getEditor().setText(newDelta2);
+                }
+              }
+
+              try {
+                const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+                reviewNotesRef.current.getEditor().setContents(newDelta1);
+              } catch (err) {
+                if (err) {
+                  const newDelta1 = reviewNotesRef.current.value;
+                  reviewNotesRef.current.getEditor().setText(newDelta1);
+                }
+              }
+              try {
+                const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+                superCheckerNotesRef.current.getEditor().setContents(newDelta3);
+              } catch (err) {
+                if (err) {
+                  const newDelta3 = superCheckerNotesRef.current.value;
+                  superCheckerNotesRef.current.getEditor().setText(newDelta3);
+                }
+              }
+              setannotationtext(annotationNotesRef.current.getEditor().getText())
+              setreviewtext(reviewNotesRef.current.getEditor().getText())
+              setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+
+            } else {
+              reviewNotesRef.current.value =
+                reviewerAnnotations[0].review_notes ?? "";
+              annotationNotesRef.current.value =
+                annotations.find(
+                  (annotation) =>
+                    annotation.id === reviewerAnnotations[0]?.parent_annotation
+                )?.annotation_notes ?? "";
+              superCheckerNotesRef.current.value =
+                annotations.find(
+                  (annotation) =>
+                    annotation.parent_annotation === reviewerAnnotations[0]?.id
+                )?.supercheck_notes ?? "";
+              try {
+                const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+                annotationNotesRef.current.getEditor().setContents(newDelta2);
+              } catch (err) {
+                if (err) {
+                  const newDelta2 = annotationNotesRef.current.value;
+                  annotationNotesRef.current.getEditor().setText(newDelta2);
+                }
+              }
+
+              try {
+                const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+                reviewNotesRef.current.getEditor().setContents(newDelta1);
+              } catch (err) {
+                if (err) {
+                  const newDelta1 = reviewNotesRef.current.value;
+                  reviewNotesRef.current.getEditor().setText(newDelta1);
+                }
+              }
+              try {
+                const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+                superCheckerNotesRef.current.getEditor().setContents(newDelta3);
+              } catch (err) {
+                if (err) {
+                  const newDelta3 = superCheckerNotesRef.current.value;
+                  superCheckerNotesRef.current.getEditor().setText(newDelta3);
+                }
+              }
+
+              setannotationtext(annotationNotesRef.current.getEditor().getText())
+              setreviewtext(reviewNotesRef.current.getEditor().getText())
+              setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+
+            }
+          } else {
+            let normalAnnotation = annotations.find(
+              (annotation) => annotation.annotation_type === 1
+            );
+            annotationNotesRef.current.value =
+              normalAnnotation.annotation_notes ?? "";
+            reviewNotesRef.current.value = normalAnnotation.review_notes ?? "";
+            superCheckerNotesRef.current.value =
+              normalAnnotation.supercheck_notes ?? "";
             try {
               const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
               annotationNotesRef.current.getEditor().setContents(newDelta2);
             } catch (err) {
-              if(err){
+              if (err) {
                 const newDelta2 = annotationNotesRef.current.value;
-                annotationNotesRef.current.getEditor().setText(newDelta2);                 }
+                annotationNotesRef.current.getEditor().setText(newDelta2);
+              }
             }
-            
+
             try {
-              const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
+              const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
               reviewNotesRef.current.getEditor().setContents(newDelta1);
             } catch (err) {
-              if(err){
+              if (err) {
                 const newDelta1 = reviewNotesRef.current.value;
-              reviewNotesRef.current.getEditor().setText(newDelta1);  
+                reviewNotesRef.current.getEditor().setText(newDelta1);
               }
             }
             try {
-              const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
+              const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
               superCheckerNotesRef.current.getEditor().setContents(newDelta3);
             } catch (err) {
-              if(err){
+              if (err) {
                 const newDelta3 = superCheckerNotesRef.current.value;
                 superCheckerNotesRef.current.getEditor().setText(newDelta3);
               }
-            }      
-      setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-        } else {
-          reviewNotesRef.current.value =
-            reviewerAnnotations[0].review_notes ?? "";
-          annotationNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.id === reviewerAnnotations[0].parent_annotation
-            )?.annotation_notes ?? "";
-          superCheckerNotesRef.current.value =
-            annotations.find(
-              (annotation) =>
-                annotation.parent_annotation === reviewerAnnotations[0].id
-            )?.supercheck_notes ?? "";
-            try {
-              const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-              annotationNotesRef.current.getEditor().setContents(newDelta2);
-            } catch (err) {
-              if(err){
-                const newDelta2 = annotationNotesRef.current.value;
-                annotationNotesRef.current.getEditor().setText(newDelta2);   
-              }
-            }
-            
-            try {
-              const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
-              reviewNotesRef.current.getEditor().setContents(newDelta1);
-            } catch (err) {
-              if(err){
-                const newDelta1 = reviewNotesRef.current.value;
-              reviewNotesRef.current.getEditor().setText(newDelta1); 
-              }
-            }
-            try {
-              const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
-              superCheckerNotesRef.current.getEditor().setContents(newDelta3);
-            } catch (err) {
-              if(err){
-                const newDelta3 = superCheckerNotesRef.current.value;
-                superCheckerNotesRef.current.getEditor().setText(newDelta3); 
-              }
             }
             setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+            setreviewtext(reviewNotesRef.current.getEditor().getText())
+            setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
+
+          }
         }
-      } else {
-        let normalAnnotation = annotations.find(
-          (annotation) => annotation.annotation_type === 1
-        );
-        annotationNotesRef.current.value = normalAnnotation.annotation_notes ?? "";
-      superCheckerNotesRef.current.value = normalAnnotation.supercheck_notes ?? "";
-      reviewNotesRef.current.value =  normalAnnotation.review_notes ?? "";
-      try {
-        const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
-        annotationNotesRef.current.getEditor().setContents(newDelta2);
-      } catch (err) {
-        if(err){
-          const newDelta2 = annotationNotesRef.current.value;
-          annotationNotesRef.current.getEditor().setText(newDelta2); 
-        }
-      }
-      
-      try {
-        const newDelta1 = reviewNotesRef.current.value!=""?JSON.parse(reviewNotesRef.current.value):"";
-        reviewNotesRef.current.getEditor().setContents(newDelta1);
-      } catch (err) {
-        if(err){
-          const newDelta1 = reviewNotesRef.current.value;
-          reviewNotesRef.current.getEditor().setText(newDelta1);   
-        }
-      }
-      try {
-        const newDelta3 = superCheckerNotesRef.current.value!=""?JSON.parse(superCheckerNotesRef.current.value):"";
-        superCheckerNotesRef.current.getEditor().setContents(newDelta3);
-      } catch (err) {
-        if(err){
-          const newDelta3 = superCheckerNotesRef.current.value;
-          superCheckerNotesRef.current.getEditor().setText(newDelta3); 
-        }
-      }
-      setannotationtext(annotationNotesRef.current.getEditor().getText())
-      setreviewtext(reviewNotesRef.current.getEditor().getText())
-      setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
       }
     }
-  }
-}
-};
+  };
 
+  useEffect(() => {
+    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
+
+  }, [taskDataArr, AnnotationsTaskDetails]);
 
   const resetNotes = () => {
     if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
-    setShowNotes(false);
-    annotationNotesRef.current.getEditor().setContents([]);
-    reviewNotesRef.current.getEditor().setContents([]);
+
+      setShowNotes(false);
+      reviewNotesRef.current.getEditor().setContents([]);
     }
   };
 
   useEffect(() => {
     resetNotes();
   }, [taskId]);
+
 
   useEffect(() => {
     const showAssignedUsers = async () => {
@@ -421,7 +432,7 @@ const setNotes = (taskData, annotations) => {
         tasksComplete(rsp_data?.id || null);
         getAnnotationsTaskData(rsp_data.id);
         getTaskData(rsp_data.id);
-      } 
+      }
     }).catch((error) => {
       setSnackbarInfo({
         open: true,
@@ -437,27 +448,27 @@ const setNotes = (taskData, annotations) => {
   }
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
-    if (id) {
+      if (id) {
         resetNotes();
-      // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-      navigate(`/projects/${projectId}/review/${id}`);
-    } else {
-      // navigate(-1);
+        // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
+        navigate(`/projects/${projectId}/review/${id}`);
+      } else {
+        // navigate(-1);
         resetNotes();
-      setSnackbarInfo({
-        open: true,
-        message: "No more tasks to label",
-        variant: "info",
-      });
-      setTimeout(() => {
-        localStorage.removeItem("labelAll");
-        window.location.replace(`/#/projects/${projectId}`);
-        window.location.reload();
-      }, 1000);
+        setSnackbarInfo({
+          open: true,
+          message: "No more tasks to label",
+          variant: "info",
+        });
+        setTimeout(() => {
+          localStorage.removeItem("labelAll");
+          window.location.replace(`/#/projects/${projectId}`);
+          window.location.reload();
+        }, 1000);
+      }
     }
-  }
   };
-  
+
   const handleReviewClick = async (
     value,
     id,
@@ -471,64 +482,64 @@ const setNotes = (taskData, annotations) => {
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = currentInteraction;
       }
-    setLoading(true);
-    setAutoSave(false);
-    const PatchAPIdata = {
-      annotation_status: value,
-      review_notes: JSON.stringify(reviewNotesRef?.current?.getEditor().getContents()),
-      lead_time:
-        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      ...((value === "to_be_revised" || value === "accepted" ||
-        value === "accepted_with_minor_changes" ||
-        value === "accepted_with_major_changes") && {
-        parent_annotation: parentannotation,
-      }),
-      result:resultValue,
-      interaction_llm:"False",
-      task_id:taskId,
-      auto_save:autoSave
-    };
-    if (
-      ["draft", "skipped", "to_be_revised"].includes(value) ||
-      (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value) )
-    ) {
-      delete PatchAPIdata.auto_save;
-      const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      const res = await fetch(TaskObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(TaskObj.getBody()),
-        headers: TaskObj.getHeaders().headers,
-      });
-      const resp = await res.json();
-      if (res.ok) {
-        if (localStorage.getItem("labelAll") || value === "skipped") {
-          onNextAnnotation(resp.task);
-        }
+      setLoading(true);
+      setAutoSave(false);
+      const PatchAPIdata = {
+        annotation_status: value,
+        review_notes: JSON.stringify(reviewNotesRef?.current?.getEditor().getContents()),
+        lead_time:
+          (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+        ...((value === "to_be_revised" || value === "accepted" ||
+          value === "accepted_with_minor_changes" ||
+          value === "accepted_with_major_changes") && {
+          parent_annotation: parentannotation,
+        }),
+        result: resultValue,
+        interaction_llm: "False",
+        task_id: taskId,
+        auto_save: autoSave
+      };
+      if (
+        ["draft", "skipped", "to_be_revised"].includes(value) ||
+        (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value))
+      ) {
+        delete PatchAPIdata.auto_save;
+        const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
+        const res = await fetch(TaskObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(TaskObj.getBody()),
+          headers: TaskObj.getHeaders().headers,
+        });
+        const resp = await res.json();
+        if (res.ok) {
+          if (localStorage.getItem("labelAll") || value === "skipped") {
+            onNextAnnotation(resp.task);
+          }
           setSnackbarInfo({
             open: true,
             message: resp?.message,
             variant: "success",
           });
+        } else {
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+          });
+        }
       } else {
         setAutoSave(true);
-        setSnackbarInfo({
-          open: true,
-          message: resp?.message,
-          variant: "error",
-        });
-      }
-    } else {
-      setAutoSave(true);
         setSnackbarInfo({
           open: true,
           message: "Error in saving",
           variant: "error",
         });
+      }
+      setLoading(false);
+      setShowNotes(false);
+      setAnchorEl(null);
     }
-    setLoading(false);
-    setShowNotes(false);
-    setAnchorEl(null);
-  }
   };
 
 
@@ -659,7 +670,7 @@ const setNotes = (taskData, annotations) => {
       disablebtn = true;
       disableSkip = true;
     }
-    console.log(disable,disablebtn,disableSkip);
+    console.log(disable, disablebtn, disableSkip);
     setAutoSave(!disablebtn);
     setdisableSkip(disableSkip);
     setDisableBtns(disablebtn);
@@ -679,14 +690,11 @@ const setNotes = (taskData, annotations) => {
   useEffect(() => {
     filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
-  
+
 
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 
-  useEffect(()=>{
-    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
 
-  },[taskDataArr,AnnotationsTaskDetails]);
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -698,7 +706,7 @@ const setNotes = (taskData, annotations) => {
     });
     const resp = await res.json();
     if (
-      !res.ok 
+      !res.ok
     ) {
       setLoading(true);
       setSnackbarInfo({
@@ -730,10 +738,10 @@ const setNotes = (taskData, annotations) => {
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case 'InstructionDrivenChat':
-      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory}/>;
+      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory} />;
       break;
     case 'ModelInteractionEvaluation':
-      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction}/>;
+      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction} />;
       break;
     default:
       componentToRender = null;
@@ -754,9 +762,9 @@ const setNotes = (taskData, annotations) => {
   };
   return (
     <>
-    {loading && <Spinner />}
+      {loading && <Spinner />}
       <Grid container spacing={2}>
-      {renderSnackBar()}
+        {renderSnackBar()}
         <Grid item >
           <Box
             sx={{
@@ -765,7 +773,7 @@ const setNotes = (taskData, annotations) => {
               marginLeft: "5px"
             }}
           >
-             <Button
+            <Button
               value="Back to Project"
               startIcon={<  ArrowBackIcon />}
               variant="contained"
@@ -792,19 +800,24 @@ const setNotes = (taskData, annotations) => {
               marginLeft: "5px"
             }}
           >
-             
-              <Button
-                endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
-                variant="contained"
-                color={
-                  reviewtext.trim().length === 0 ? "primary" : "success"
-                }
-                onClick={handleCollapseClick}
-              style={{ backgroundColor:"#bf360c"}}
-              >
-                Notes {reviewtext.trim().length === 0 ? "" : "*"}
-              </Button>
-            
+
+            <Button
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              variant="contained"
+              color={
+                reviewtext.trim().length === 0 ? "primary" : "success"
+              }
+              onClick={handleCollapseClick}
+              style={{
+                backgroundColor: annotationtext.trim().length === 0 &&
+                  supercheckertext.trim().length === 0 ? "#bf360c" : "green"
+              }}
+            >
+              Notes{" "}
+              {annotationtext.trim().length === 0 &&
+                supercheckertext.trim().length === 0 ? "" : "*"}
+            </Button>
+
 
             <div
               // className={styles.collapse}
@@ -814,33 +827,34 @@ const setNotes = (taskData, annotations) => {
 
               }}
             >
-               <ReactQuill
-              ref={annotationNotesRef}
-              modules={modules}
-              bounds={"#note"}
-              formats={formats}
-              placeholder="Annotation Notes"
-              readOnly={true}
-            ></ReactQuill>
-            <ReactQuill
-              ref={reviewNotesRef}
-              modules={modules}
-              bounds={"#note"}
-              formats={formats}
-              placeholder="Review Notes"
-            ></ReactQuill>
-            <ReactQuill
-              ref={superCheckerNotesRef}
-              modules={modules}
-              bounds={"#note"}
-              formats={formats}
-              placeholder="SuperChecker Notes"
-              readOnly={true}
-            ></ReactQuill>
+              <ReactQuill
+                forwardedRef={annotationNotesRef}
+                modules={modules}
+                bounds={"#note"}
+                formats={formats}
+                placeholder="Annotation Notes"
+                readOnly={true}
+              ></ReactQuill>
+              <ReactQuill
+                forwardedRef={reviewNotesRef}
+                modules={modules}
+                bounds={"#note"}
+                formats={formats}
+                placeholder="Review Notes"
+              ></ReactQuill>
+              <ReactQuill
+                forwardedRef={superCheckerNotesRef}
+                modules={modules}
+                bounds={"#note"}
+                formats={formats}
+                placeholder="SuperChecker Notes"
+                readOnly={true}
+              ></ReactQuill>
             </div>
             <Button
               variant="contained"
-              style={{ marginLeft: "10px", backgroundColor: "lightgrey" ,color:"black"}}
+
+              style={{ marginLeft: "10px", backgroundColor: "lightgrey", color: "black" }}
               endIcon={
                 showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
               }
@@ -850,140 +864,78 @@ const setNotes = (taskData, annotations) => {
               Glossary
             </Button>
             <div
-            style={{
-              display: showGlossary ? "block" : "none",
-              paddingBottom: "16px",
-            }}
-          >
-            {/* <Glossary taskData={taskData} /> */}
-          </div>
-            </Box>
-            <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%" ,marginTop:"3px",marginBottom:"25px"}}>
-              <Grid item >
+              style={{
+                display: showGlossary ? "block" : "none",
+                paddingBottom: "16px",
+              }}
+            >
+              {/* <Glossary taskData={taskData} /> */}
+            </div>
+          </Box>
+          <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%", marginTop: "3px", marginBottom: "25px" }}>
+            <Grid item >
               {/* title={assignedUsers ? assignedUsers : ""} */}
-                  <LightTooltip  title={assignedUsers ? assignedUsers : ""} >
-                    <Button
-                      type="default"
-                      className="lsf-button"
-                      style={{
-                        minWidth: "40px",
-                        border: "1px solid #e6e6e6",
-                        color: "grey",
-                        pt: 1, pl: 1, pr: 1,
-                        borderBottom: "None",
-                        backgroundColor:"white"
-                      }}
-                    >
-                      <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
-                    </Button>
-                  </LightTooltip>
-              </Grid>
-              {/* <Grid item>
+              <LightTooltip title={assignedUsers ? assignedUsers : ""} >
+                <Button
+                  type="default"
+                  className="lsf-button"
+                  style={{
+                    minWidth: "40px",
+                    border: "1px solid #e6e6e6",
+                    color: "grey",
+                    pt: 1, pl: 1, pr: 1,
+                    borderBottom: "None",
+                    backgroundColor: "white"
+                  }}
+                >
+                  <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
+                </Button>
+              </LightTooltip>
+            </Grid>
+            {/* <Grid item>
               <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
                *{ProjectDetails.project_type} # {taskId} 
        
             </Typography>
             </Grid> */}
-   {!disableBtns && taskData?.review_user === userData?.id && (
-          <Grid item>
-            <Tooltip title="Save task for later">
-              <Button
-                value="Draft"
-                type="default"
-                variant="outlined"
-                onClick={() =>
-                  handleReviewClick(
-                    "draft",
-                    review.id,
-                    review.lead_time,
-                  )
-                }
-                style={{
-                  minWidth: "150px",
-                  color: "black",
-                  borderRadius: "5px",
-                  border: "0px",
-                  pt: 2,
-                  pb: 2,
-                  backgroundColor: "#ffe0b2",
-                }}
-                // className="lsf-button"
-              >
-                Draft
-              </Button>
-            </Tooltip>
-            {/* )} */}
-          </Grid>
-        )}
+            {!disableBtns && taskData?.review_user === userData?.id && (
+              <Grid item>
+                <Tooltip title="Save task for later">
+                  <Button
+                    value="Draft"
+                    type="default"
+                    variant="outlined"
+                    onClick={() =>
+                      handleReviewClick(
+                        "draft",
+                        review.id,
+                        review.lead_time,
+                      )
+                    }
+                    style={{
+                      minWidth: "150px",
+                      color: "black",
+                      borderRadius: "5px",
+                      border: "0px",
+                      pt: 2,
+                      pb: 2,
+                      backgroundColor: "#ffe0b2",
+                    }}
+                  // className="lsf-button"
+                  >
+                    Draft
+                  </Button>
+                </Tooltip>
+                {/* )} */}
+              </Grid>
+            )}
 
-        <Grid item>
-          <Tooltip title="Go to next task">
-            <Button
-              value="Next"
-              type="default"
-              onClick={() => onNextAnnotation("next", getNextTask?.id)}
-              style={{
-                minWidth: "150px",
-                color: "black",
-                borderRadius: "5px",
-                border: "0px",
-                pt: 2,
-                pb: 2,
-                backgroundColor: "#ffe0b2",
-              }}
-            >
-              Next
-            </Button>
-          </Tooltip>
-        </Grid>
-
-        <Grid item>
-          {!disableSkip && taskData?.review_user === userData?.id && (
-            <Tooltip title="skip to next task">
-              <Button
-                value="Skip"
-                type="default"
-                variant="outlined"
-                onClick={() =>
-                  handleReviewClick(
-                    "skipped",
-                    review.id,
-                    review.lead_time,
-                  )
-                }
-                style={{
-                  minWidth: "150px",
-                  color: "black",
-                  borderRadius: "5px",
-                  border: "0px",
-                  pt: 2,
-                  pb: 2,
-                  backgroundColor: "#ffe0b2",
-                }}
-                // className="lsf-button"
-              >
-                Skip
-              </Button>
-            </Tooltip>
-          )}
-        </Grid>
-        {!disableBtns &&
-          !disableButton &&
-          taskData?.review_user === userData?.id && (
             <Grid item>
-              <Tooltip title="Revise Annotation">
+              <Tooltip title="Go to next task">
                 <Button
-                  value="to_be_revised"
+                  value="Next"
                   type="default"
-                  variant="outlined"
-                  onClick={() =>
-                    handleReviewClick(
-                      "to_be_revised",
-                      review?.id,
-                      review?.lead_time,
-                      review?.parent_annotation,
-                    )
-                  }
+                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   style={{
                     minWidth: "150px",
                     color: "black",
@@ -994,92 +946,154 @@ const setNotes = (taskData, annotations) => {
                     backgroundColor: "#ffe0b2",
                   }}
                 >
-                  Revise
+                  Next
                 </Button>
               </Tooltip>
             </Grid>
-          )}
-        <Grid item>
-          {!disableBtns && taskData?.review_user === userData?.id && (
-            <Tooltip title="Accept Annotation">
-              <Button
-                id="accept-button"
-                value="Accept"
-                type="default"
-                aria-controls={open ? "accept-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
-                style={{
-                  minWidth: "150px",
-                  color: "black",
-                  borderRadius: "5px",
-                  border: "0px",
-                  pt: 2,
-                  pb: 2,
-                  backgroundColor: "#ffe0b2",
+
+            <Grid item>
+              {!disableSkip && taskData?.review_user === userData?.id && (
+                <Tooltip title="skip to next task">
+                  <Button
+                    value="Skip"
+                    type="default"
+                    variant="outlined"
+                    onClick={() =>
+                      handleReviewClick(
+                        "skipped",
+                        review.id,
+                        review.lead_time,
+                      )
+                    }
+                    style={{
+                      minWidth: "150px",
+                      color: "black",
+                      borderRadius: "5px",
+                      border: "0px",
+                      pt: 2,
+                      pb: 2,
+                      backgroundColor: "#ffe0b2",
+                    }}
+                  // className="lsf-button"
+                  >
+                    Skip
+                  </Button>
+                </Tooltip>
+              )}
+            </Grid>
+            {!disableBtns &&
+              !disableButton &&
+              taskData?.review_user === userData?.id && (
+                <Grid item>
+                  <Tooltip title="Revise Annotation">
+                    <Button
+                      value="to_be_revised"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick(
+                          "to_be_revised",
+                          review?.id,
+                          review?.lead_time,
+                          review?.parent_annotation,
+                        )
+                      }
+                      style={{
+                        minWidth: "150px",
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        pt: 2,
+                        pb: 2,
+                        backgroundColor: "#ee6633",
+                      }}
+                    >
+                      Revise
+                    </Button>
+                  </Tooltip>
+                </Grid>
+              )}
+            <Grid item>
+              {!disableBtns && taskData?.review_user === userData?.id && (
+                <Tooltip title="Accept Annotation">
+                  <Button
+                    id="accept-button"
+                    value="Accept"
+                    type="default"
+                    aria-controls={open ? "accept-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? "true" : undefined}
+                    style={{
+                      minWidth: "150px",
+                      color: "black",
+                      borderRadius: "5px",
+                      border: "0px",
+                      pt: 2,
+                      pb: 2,
+                      backgroundColor: "#ee6633",
+                    }}
+                    onClick={handleClick}
+                    endIcon={<KeyboardArrowDownIcon />}
+                  >
+                    Accept
+                  </Button>
+                </Tooltip>
+              )}
+              <StyledMenu
+                id="accept-menu"
+                MenuListProps={{
+                  "aria-labelledby": "accept-button",
                 }}
-                onClick={handleClick}
-                endIcon={<KeyboardArrowDownIcon />}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
               >
-                Accept
-              </Button>
-            </Tooltip>
+                <MenuItem
+                  onClick={() =>
+                    handleReviewClick(
+                      "accepted",
+                      review.id,
+                      AnnotationsTaskDetails[1]?.lead_time,
+                      review?.parent_annotation,
+                    )
+                  }
+                  disableRipple
+                >
+                  with No Changes
+                </MenuItem>
+                <MenuItem
+                  onClick={() =>
+                    handleReviewClick(
+                      "accepted_with_minor_changes",
+                      review.id,
+                      review.lead_time,
+                      review?.parent_annotation
+                    )
+                  }
+                  disableRipple
+                >
+                  with Minor Changes
+                </MenuItem>
+                <MenuItem
+                  onClick={() =>
+                    handleReviewClick(
+                      "accepted_with_major_changes",
+                      review.id,
+                      review.lead_time,
+                      review?.parent_annotation,
+                    )
+                  }
+                  disableRipple
+                >
+                  with Major Changes
+                </MenuItem>
+              </StyledMenu>
+            </Grid>
+          </Grid>            {filterMessage && (
+            <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
+              {filterMessage}
+            </Alert>
           )}
-          <StyledMenu
-            id="accept-menu"
-            MenuListProps={{
-              "aria-labelledby": "accept-button",
-            }}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-          >
-            <MenuItem
-              onClick={() =>
-                handleReviewClick(
-                  "accepted",
-                  review.id,
-                  AnnotationsTaskDetails[1]?.lead_time,
-                  review?.parent_annotation,
-                )
-              }
-              disableRipple
-            >
-              with No Changes
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleReviewClick(
-                  "accepted_with_minor_changes",
-                  review.id,
-                  review.lead_time,
-                  review?.parent_annotation
-                )
-              }
-              disableRipple
-            >
-              with Minor Changes
-            </MenuItem>
-            <MenuItem
-              onClick={() =>
-                handleReviewClick(
-                  "accepted_with_major_changes",
-                  review.id,
-                  review.lead_time,
-                  review?.parent_annotation,
-                )
-              }
-              disableRipple
-            >
-              with Major Changes
-            </MenuItem>
-          </StyledMenu>
-        </Grid>
-      </Grid>            {filterMessage && (
-              <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
-                {filterMessage}
-              </Alert>
-            )}
         </Grid>
         <Grid item container >  {componentToRender}</Grid>
 

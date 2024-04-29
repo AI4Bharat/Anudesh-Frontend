@@ -12,6 +12,7 @@ import TaskCountAnalyticsChart from "./TaskCountAnalyticsChart";
 import { MenuProps } from "@/utils/utils";
 import CustomButton from "@/components/common/Button";
 import APITransport from "@/Lib/apiTransport/apitransport";
+import { fetchTaskAnalyticsData } from "@/Lib/Features/Analytics/getTaskAnalyticsData";
 
 
 const TaskAnalytics = (props) => {
@@ -19,20 +20,19 @@ const TaskAnalytics = (props) => {
 
   const dispatch = useDispatch();
   const [projectTypes, setProjectTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState("ContextualTranslationEditing");
+  const [selectedType, setSelectedType] = useState("AllTypes");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const taskAnalyticsData = useSelector(
     (state) => state.getTaskAnalyticsData.data
   );
   
   const [loading, setLoading] = useState(false);
-
+console.log(selectedType);
   const getTaskAnalyticsdata = () => {
     setLoading(true)
     const userObj = new TaskAnalyticsDataAPI(selectedType);
-    dispatch(APITransport(userObj));
+    dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType}))
   };
-
   const audioProjectTypes=[
     'AudioTranscription',
     'AudioSegmentation',
@@ -58,9 +58,10 @@ const TaskAnalytics = (props) => {
   ]
 
   useEffect(() => {
-    let types=[...audioProjectTypes,...translationProjectTypes,...conversationProjectTypes,...ocrProjectTypes,'AllTypes']
+    let types=["ModelOutputEvaluation","ModelInteractionEvaluation","InstructionDrivenChat",'AllTypes']
     setProjectTypes(types);
   }, []);
+
 
   useEffect(() => {
     getTaskAnalyticsdata();

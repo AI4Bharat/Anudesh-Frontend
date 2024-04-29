@@ -212,7 +212,7 @@ return (
               disabled
               fullWidth
               label="Role"
-              value={UserMappedByRole(newDetails?.role)?.name}
+              value={UserMappedByRole(userDetails?.role)?.name}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>
@@ -232,7 +232,7 @@ return (
               disabled
               fullWidth
               label="Organization"
-              value={newDetails?.organization?.title}
+              value={userDetails?.organization?.title}
               InputLabelProps={{ shrink: true }}
             ></OutlinedTextField>
           </Grid>

@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchProjectReport = createAsyncThunk(
   'getProjectReport/fetchProjectReport',
-  async (projectId, startDate, endDate,reports_type, { dispatch }) => {
+  async ({projectId, startDate, endDate,reports_type}) => {
     const body ={
         from_date: startDate,
         to_date: endDate,

@@ -47,7 +47,7 @@ const ProjectCardList = (props) => {
         return el;
       } else if (
         el.workspace_id
-          .toString()
+          ?.toString()
           ?.toLowerCase()
           .includes(SearchProject?.toLowerCase())
       ) {
