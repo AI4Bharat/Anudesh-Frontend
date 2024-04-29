@@ -13,6 +13,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { MenuProps } from "@/utils/utils";
 import WordCountMetaAnalyticsChart from './WordCountMetaAnalyticsChart';
 import SentanceCountMetaAnalyticsChart from './SentanceCountMetaAnalyticsChart';
+import { fetchMetaAnalyticsData } from '@/Lib/Features/Analytics/getMetaAnalyticsData';
 
 export default function MetaAnalytics(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
@@ -22,7 +23,7 @@ export default function MetaAnalytics(props) {
     const [loading, setLoading] = useState(false);
     const apiLoading = useSelector((state) => state.apiStatus.loading);
     const [projectTypes, setProjectTypes] = useState([]);
-    const [selectedType, setSelectedType] = useState("ContextualTranslationEditing");
+    const [selectedType, setSelectedType] = useState("AllTypes");
     const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
     const metaAnalyticsData = useSelector(
         (state) => state.getMetaAnalyticsData.data
@@ -30,8 +31,7 @@ export default function MetaAnalytics(props) {
 
       const getMetaAnalyticsdata = () => {
         setLoading(true);
-        const userObj = new MetaAnalyticsDataAPI(loggedInUserData?.organization?.id,selectedType);
-        dispatch(APITransport(userObj));
+        dispatch(fetchMetaAnalyticsData(loggedInUserData?.organization?.id,selectedType));
       };
 
       const audioProjectTypes=[
@@ -61,9 +61,10 @@ export default function MetaAnalytics(props) {
       ]
 
       useEffect(() => {
-        let types=[...audioProjectTypes,...translationProjectTypes,...conversationProjectTypes,...ocrProjectTypes,'AllTypes']
+        let types=["ModelOutputEvaluation","ModelInteractionEvaluation","InstructionDrivenChat",'AllTypes']
         setProjectTypes(types);
       }, []);
+    
 
       useEffect(() => {
         getMetaAnalyticsdata();

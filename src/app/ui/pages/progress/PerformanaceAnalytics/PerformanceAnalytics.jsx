@@ -43,6 +43,8 @@ import FetchLanguagesAPI from "@/app/actions/api/UserManagement/FetchLanguages";
 import APITransport from "@/Lib/apiTransport/apitransport";
 import axios from "axios";
 import PerformanceAnalyticsAPI from "@/app/actions/api/Progress/PerformanceAnalytics";
+import { fetchDomains } from "@/Lib/Features/actions/domains";
+import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 
 ChartJS.register(
   CategoryScale,
@@ -160,15 +162,13 @@ export default function PerformanceAnalytics() {
 
   const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.getLoggedInData.data);
-  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+  const ProjectTypes = useSelector((state) => state.domains.domains);
   const workspaceDetails = useSelector((state) => state.getWorkspaceDetails.data);
   const LanguageChoices = useSelector((state) => state.getLanguages.data);
 
   useEffect(() => {
-    const typesObj = new GetProjectDomainsAPI();
-    const langObj = new FetchLanguagesAPI();
-    dispatch(APITransport(typesObj));
-    dispatch(APITransport(langObj));
+    dispatch(fetchDomains());
+    dispatch(fetchLanguages());
   }, []);
 
   const handleChangeReports = (e) => {
