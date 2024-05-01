@@ -139,7 +139,7 @@ export default function Login() {
     };
 
     const renderCardContent = () => (
-        <CustomCard title={"Sign in to Anudesh"} cardContent={TextFields()}>
+        <CustomCard  className="items-center" title={"Sign in to Anudesh"} cardContent={TextFields()}>
             <Grid container spacing={2} style={{ width: "100%", cursor: "pointer" }}>
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12} textAlign={"right"}>
                     <Link onClick={() => navigate("/forgot-password")}>
@@ -230,10 +230,12 @@ export default function Login() {
                     lg={3}
                     color={"primary"}
                     className="appInfo"
+                    justifyContent="center"
+                    alignItems="center"
                 >
                     <AppInfo />
                 </Grid>
-                <Grid item xs={12} sm={9} md={9} lg={9} style={{flex:"auto", margin:"auto"}}>
+                <Grid item xs={12} sm={9} md={9} lg={9}  style={{flex:"auto", margin:"auto"}}>
                     <form autoComplete="off">{renderCardContent()}
                     </form>
                     <div className="w-1/3 flex items-center justify-between my-4 m-auto">

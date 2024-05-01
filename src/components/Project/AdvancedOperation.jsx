@@ -107,7 +107,7 @@ import LoginAPI from "@/app/actions/api/user/Login";
     const apiLoading = useSelector((state) => state.apiStatus.loading);
     const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
     const ProjectTypes = useSelector(
-      (state) => state.getProjectTypeDetails?.data
+      (state) => state.GetProjectTypeDetails?.data
     );
     const loggedInUserData = useSelector(
       (state) => state.getLoggedInData.data
@@ -153,6 +153,7 @@ import LoginAPI from "@/app/actions/api/user/Login";
   
     const getExportProjectButton = async () => {
       setOpenExportProjectDialog(false);
+      console.log(id,ProjectTypes);
       const projectObj =
         ProjectTypes?.output_dataset?.save_type === "new_record"
           ? new GetExportProjectButtonAPI(

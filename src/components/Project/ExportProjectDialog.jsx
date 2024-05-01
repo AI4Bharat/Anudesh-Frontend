@@ -40,12 +40,11 @@ const ExportProjectDialog = ({
   const [instanceIds, setInstanceIds] = useState([]);
 
   const DatasetInstances = useSelector(
-    (state) => state.getDatasetsByType?.data,
+    (state) => state.getDatasetByType?.data,
   );
-  s;
 
   useEffect(() => {
-    dispatch(fetchDatasetByType(projectType));
+    dispatch(fetchDatasetByType("Interaction"));
   }, []);
 
   useEffect(() => {
