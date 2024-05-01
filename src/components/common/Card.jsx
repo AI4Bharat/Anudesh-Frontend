@@ -16,7 +16,7 @@ const CustomCard = ({ title, children, cardContent }) => {
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <Typography
               style={{ marginBottom: "15px" }}
-              textAlign={"Left"}
+              textAlign={"center"}
               variant="h3"
             >
               {title}

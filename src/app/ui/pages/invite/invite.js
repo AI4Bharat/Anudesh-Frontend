@@ -1,23 +1,26 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import { Grid, Link, Typography, FormHelperText, InputAdornment, IconButton } from "@mui/material";
+import { Grid, Typography, FormHelperText, InputAdornment, IconButton } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-
+import { Link, useNavigate, useParams } from "react-router-dom";
 import AppInfo from "../../../../components/user/AppInfo";
 import OutlinedTextField from "../../../../components/common/OutlinedTextField";
-import CustomizedSnackbars from "../../../../components/common/OutlinedTextField";
+import CustomizedSnackbars from "@/components/common/Snackbar";
 import Button from "../../../../components/common/Button";
 import "@/styles/Dataset.css";
+import SignUpAPI from "@/app/actions/api/Admin/SignUp";
 
 export default function SignUp() {
-     /* eslint-disable react-hooks/exhaustive-deps */
+    /* eslint-disable react-hooks/exhaustive-deps */
+    const { inviteCode } = useParams();
 
-    const router = useRouter()
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -28,16 +31,98 @@ export default function SignUp() {
         password: "",
     });
     const [values, setValues] = useState({
+        UserName: "",
+        email: "",
         password: "",
-        showPassword: false,
-    });
-    const handleFieldChange = (event) => {
+        confirmPassword: "",
+
+    });    const handleFieldChange = (event) => {
         event.preventDefault();
         setCredentials((prev) => ({
             ...prev,
             [event.target.name]: event.target.value,
         }));
     };
+
+    
+    const ValidateEmail = (mail) => {
+        if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(mail)) {
+            return (true)
+        }
+        else {
+            return false;
+        }
+    }
+    const comformdata = {
+        username: values.UserName,
+        email: values.email.toLowerCase(),
+        password: values.password,
+
+    }
+
+    const handleSubmit = () => {
+        let apiObj = new SignUpAPI(comformdata,inviteCode)
+        var rsp_data = []
+        fetch(apiObj.apiEndPoint(), {
+            method: 'PATCH',
+            body: JSON.stringify(apiObj.getBody()),
+            headers: apiObj.getHeaders().headers
+        }).then(async response => {
+            rsp_data = await response.json();
+            setLoading(false)
+            if (!response.ok) {
+
+                return Promise.reject('');
+            } else {
+                setSnackbarInfo({
+                    ...snackbar,
+                    open: true,
+                    message: rsp_data.message ? rsp_data.message : "Invalid email / password",
+                    variant: 'success'
+                })
+
+                setValues({
+                    UserName: "",
+                    email: "",
+                    password: "",
+                    confirmPassword: "",
+                })
+
+            }
+        }).catch((error) => {
+            setLoading(false)
+            setSnackbarInfo({
+                ...snackbar,
+                open: true,
+                message: rsp_data.message ? rsp_data.message : "Invalid email / password",
+                variant: 'error'
+            })
+        });
+
+    }
+
+    const HandleSubmitValidate = () => {
+        if (!ValidateEmail(values.email)) {
+            setError({ ...error, email: true })
+        }
+        else if (!(/^[A-Za-z ]+$/.test(values.UserName))) {
+            setError({ ...error, UserName: true })
+        }
+        else if (!(values.password.length > 7)) {
+            setError({ ...error, password: true })
+        }
+        else if (values.password !== values.confirmPassword) {
+            setError({ ...error, confirmPassword: true })
+        }
+        else {
+            handleSubmit()
+            setLoading(true);
+        }
+
+
+    }
+
+
 
     const handleClickShowPassword = () => {
         setValues({ ...values, showPassword: !values.showPassword });
@@ -61,10 +146,11 @@ export default function SignUp() {
 
     const TextFields = () => {
         return (
-            <Grid container spacing={2} style={{ width: "40%", }}>
-                <Grid>
+            <Grid container spacing={3} style={{ width: "40%", }}>
+                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                     {renderSnackBar()}
                 </Grid>
+
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                     <Typography variant="h3" align="center" >Create new account</Typography>
                 </Grid>
@@ -189,7 +275,7 @@ export default function SignUp() {
                     <div className="createLogin">
                         <Typography variant={"body2"} className="Typo">Already have an account ?</Typography>
                         <Typography variant={"body2"}>
-                            <Link className="link" href="/login" style={{ fontSize: "14px" }} >
+                            <Link className="link" to="/login" style={{ fontSize: "14px" }} >
                                 {" "}
                                 Sign in
                             </Link>

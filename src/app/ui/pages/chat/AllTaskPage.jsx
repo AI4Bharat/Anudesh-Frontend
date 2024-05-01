@@ -440,14 +440,12 @@ const AllTaskPage = () => {
     });
     const resp = await res.json();
     if (
-      !res.ok ||
-      resp?.data?.audio_url === "" ||
-      resp?.data?.audio_url === null
+      !res.ok 
     ) {
       setLoading(true);
       setSnackbarInfo({
         open: true,
-        message: "Audio Server is down, please try after sometime",
+        message: resp?.message,
         variant: "error",
       });
     } else {

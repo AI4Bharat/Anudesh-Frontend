@@ -41,6 +41,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const annotationForms = await response.json();
+      console.log(annotationForms);
       setForms(annotationForms[0]?.result.length ? [...annotationForms[0]?.result] : [])
     };
     fetchData();

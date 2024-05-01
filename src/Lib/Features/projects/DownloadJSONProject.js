@@ -4,7 +4,7 @@ import ENDPOINTS from "../../../config/apiendpoint"
 
 
 const initialState = {
-    data: [],
+    data: 0,
     status: 'idle',
     error: null,
   };
@@ -21,6 +21,18 @@ const initialState = {
           .then(response => response.json())
     }
   );
+  const jsonDownload =(data) => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(data)
+      )}`;
+      const link = document.createElement("a");
+      link.href = jsonString;
+      link.download = "data.json";
+      link.click();	
+  
+  }
+  
+  
   
   const DownloadJSONProject = createSlice({
     name: 'DownloadJSONProject',
@@ -33,7 +45,8 @@ const initialState = {
         })
         .addCase(fetchDownloadJSONProject.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          state.data = action.payload;
+          jsonDownload(action.payload); 
+          state.data += 1; 
         })
         .addCase(fetchDownloadJSONProject.rejected, (state, action) => {
           state.status = 'failed';
