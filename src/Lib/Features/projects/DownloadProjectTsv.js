@@ -4,7 +4,7 @@ import ENDPOINTS from "../../../config/apiendpoint"
 
 
 const initialState = {
-    data: [],
+    data: 0,
     status: 'idle',
     error: null,
   };
@@ -18,10 +18,19 @@ const initialState = {
         }
       const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/download/?export_type=CSV&task_status=${taskStatus}&include_input_data_metadata_json=${downloadMetadataToggle}`,"POST",JSON.stringify(body));
       return fetch(params.url, params.options)
-          .then(response => response.json())
+          .then(response => response.text())
     }
   );
-  
+  const TsvDownload=(content)=> {
+    const downloadLink = document.createElement("a");
+    const blob = new Blob(["\ufeff", content]);
+    const url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    downloadLink.download = "data.tsv";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
   const DownloadTSVProject = createSlice({
     name: 'DownloadTSVProject',
     initialState,
@@ -33,7 +42,8 @@ const initialState = {
         })
         .addCase(fetchDownloadTSVProject.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          state.data = action.payload;
+          TsvDownload(action.payload); 
+          state.data += 1; 
         })
         .addCase(fetchDownloadTSVProject.rejected, (state, action) => {
           state.status = 'failed';

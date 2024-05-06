@@ -4,7 +4,7 @@ import ENDPOINTS from "../../../config/apiendpoint"
 
 
 const initialState = {
-    data: [],
+    data: 0,
     status: 'idle',
     error: null,
   };
@@ -12,16 +12,25 @@ const initialState = {
   export const fetchDownloadCSVProject = createAsyncThunk(
     'DownloadCSVProject/fetchDownloadCSVProject',
     async ({projectId, taskStatus ,downloadMetadataToggle}) => {
+      console.log(projectId, taskStatus ,downloadMetadataToggle);
         const projectBody={}
-        const body = {
-            projectBody
-        }
+        const body = {}
       const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/download/?export_type=CSV&task_status=${taskStatus}&include_input_data_metadata_json=${downloadMetadataToggle}`,"POST",JSON.stringify(body));
       return fetch(params.url, params.options)
-          .then(response => response.json())
+          .then(response => response.text())
     }
   );
-  
+  const CsvDownload = (content) => {
+    const downloadLink = document.createElement("a");
+    const blob = new Blob(["\ufeff", content]);
+    const url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    downloadLink.download = "data.csv";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+};
+
   const DownloadCSVProject = createSlice({
     name: 'DownloadCSVProject',
     initialState,
@@ -33,7 +42,8 @@ const initialState = {
         })
         .addCase(fetchDownloadCSVProject.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          state.data = action.payload;
+          CsvDownload(action.payload); 
+          state.data += 1; 
         })
         .addCase(fetchDownloadCSVProject.rejected, (state, action) => {
           state.status = 'failed';

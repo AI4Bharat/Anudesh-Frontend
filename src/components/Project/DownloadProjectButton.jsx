@@ -56,6 +56,9 @@ function DownloadProjectButton(props) {
   const loggedInUserData = useSelector(
     (state) => state.getLoggedInData?.data
   );
+  const loggedInUserData1 = useSelector(
+    (state) =>console.log(state)
+  );
 
 
   useEffect(() => {

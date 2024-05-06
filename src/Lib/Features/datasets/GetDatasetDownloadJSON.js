@@ -16,6 +16,18 @@ export const fetchDatasetDownloadJSON = createAsyncThunk(
         .then(response => response.json())
   }
 );
+function DownloadJSON(data) {
+	const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+		JSON.stringify(data)
+	  )}`;
+	  const link = document.createElement("a");
+	  link.href = jsonString;
+	  link.download = "data.json";
+	  link.click();	
+
+}
+
+
 
 const GetDatasetDownloadJSON = createSlice({
   name: 'GetDatasetDownloadJSON',
@@ -28,7 +40,8 @@ const GetDatasetDownloadJSON = createSlice({
       })
       .addCase(fetchDatasetDownloadJSON.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.data = action.payload;
+        DownloadJSON(action.payload); 
+          state.data += 1; 
       })
       .addCase(fetchDatasetDownloadJSON.rejected, (state, action) => {
         state.status = 'failed';
