@@ -1,7 +1,15 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import { Grid, Box, Avatar, Typography, Tooltip, Button, Alert } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Avatar,
+  Typography,
+  Tooltip,
+  Button,
+  Alert,
+} from "@mui/material";
 import Image from "next/image";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
@@ -14,8 +22,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import "./editor.css"
-import 'quill/dist/quill.snow.css';
+import "./editor.css";
+import "quill/dist/quill.snow.css";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import {
@@ -27,7 +35,7 @@ import {
   fetchAnnotation,
 } from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
-import Spinner from "@/components/common/Spinner"
+import Spinner from "@/components/common/Spinner";
 import { ContactlessOutlined } from "@mui/icons-material";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
@@ -53,10 +61,9 @@ const ReactQuill = dynamic(
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
   {
-    ssr: false
-  }
+    ssr: false,
+  },
 );
-
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -94,7 +101,7 @@ const StyledMenu = styled((props) => (
       "&:active": {
         backgroundColor: alpha(
           theme.palette.primary.main,
-          theme.palette.action.selectedOpacity
+          theme.palette.action.selectedOpacity,
         ),
       },
     },
@@ -117,14 +124,10 @@ const ReviewPage = () => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
   const [currentInteraction, setCurrentInteraction] = useState({});
-
   let loaded = useRef();
-
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
-
   const load_time = useRef();
-
   let labellingMode = localStorage.getItem("labellingMode");
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -136,29 +139,26 @@ const ReviewPage = () => {
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
-
   const [annotations, setAnnotations] = useState([]);
-
   const annotationNotesRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
-
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
-  const [taskDataArr, setTaskDataArr] = useState()
+  const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
-    (state) => state.getAnnotationsTask?.data
+    (state) => state.getAnnotationsTask?.data,
   );
   const superCheckerNotesRef = useRef(null);
-
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
-  const [annotationtext, setannotationtext] = useState('')
-  const [reviewtext, setreviewtext] = useState('')
-  const [supercheckertext, setsupercheckertext] = useState('')
+  const [annotationtext, setannotationtext] = useState("");
+  const [reviewtext, setreviewtext] = useState("");
+  const [supercheckertext, setsupercheckertext] = useState("");
+  const [info, setInfo] = useState({});
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -167,46 +167,131 @@ const ReviewPage = () => {
     setShowGlossary(!showGlossary);
   };
 
+  const formatResponse = (response) => {
+    response = String(response);
+    const output = [];
+    let count = 0;
+
+    while (response) {
+      response = response.trim();
+      let index = response.indexOf("```");
+      if (index == -1) {
+        output.push({
+          type: "text",
+          value: response,
+        });
+        break;
+      } else {
+        count++;
+        if (count % 2 !== 0) {
+          output.push({
+            type: "text",
+            value: response.substring(0, index),
+          });
+          response = response.slice(index + 3);
+        } else if (count % 2 === 0) {
+          let next_space = response.indexOf("\n");
+          let language = response.substring(0, next_space);
+          response = response.slice(next_space + 1);
+          let new_index = response.indexOf("```");
+          let value = response.substring(0, new_index);
+          output.push({
+            type: "code",
+            value: value,
+            language: language,
+          });
+          response = response.slice(new_index + 3);
+        }
+      }
+    }
+    return output;
+  };
+
+  const reverseFormatResponse = (formattedOutput) => {
+    let response = "";
+
+    formattedOutput.forEach((item) => {
+      if (item.type === "text") {
+        response += item.value;
+      } else if (item.type === "code") {
+        response += "```" + item.language + "\n" + item.value + "\n```";
+      }
+    });
+
+    return response;
+  };
+
+  const formatPrompt = (prompt) => {
+    const lines = prompt.split("\n");
+    const markdownString = lines.join("  \n");
+    return markdownString;
+  };
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
   const modules = {
     toolbar: [
-
       [{ size: [] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],
-    ]
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }],
+      [{ script: "sub" }, { script: "super" }],
+    ],
   };
 
   const formats = [
-    'size',
-    'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'script']
-
-
-
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "script",
+  ];
 
   const setNotes = (taskData, annotations) => {
-    if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
-
+    if (
+      typeof window !== "undefined" &&
+      annotationNotesRef.current &&
+      reviewNotesRef.current &&
+      superCheckerNotesRef.current
+    ) {
       if (annotations && annotations.length > 0) {
         let userAnnotation = annotations.find(
           (annotation) =>
             annotation.completed_by === userData.id &&
-            annotation.annotation_type === 2
+            annotation.annotation_type === 2,
         );
         if (userAnnotation) {
           let normalAnnotation = annotations.find(
-            (annotation) => annotation.id === userAnnotation.parent_annotation
+            (annotation) => annotation.id === userAnnotation.parent_annotation,
           );
           let superCheckerAnnotation = annotations.find(
-            (annotation) => annotation.parent_annotation === userAnnotation.id
+            (annotation) => annotation.parent_annotation === userAnnotation.id,
           );
-          annotationNotesRef.current.value = normalAnnotation?.annotation_notes ?? "";
+          annotationNotesRef.current.value =
+            normalAnnotation?.annotation_notes ?? "";
           reviewNotesRef.current.value = userAnnotation?.review_notes ?? "";
-          superCheckerNotesRef.current.value = superCheckerAnnotation?.supercheck_notes ?? "";
+          superCheckerNotesRef.current.value =
+            superCheckerAnnotation?.supercheck_notes ?? "";
           try {
-            const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+            const newDelta2 =
+              annotationNotesRef.current.value !== ""
+                ? JSON.parse(annotationNotesRef.current.value)
+                : "";
             annotationNotesRef.current.getEditor().setContents(newDelta2);
           } catch (err) {
             if (err) {
@@ -216,7 +301,10 @@ const ReviewPage = () => {
           }
 
           try {
-            const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+            const newDelta1 =
+              reviewNotesRef.current.value != ""
+                ? JSON.parse(reviewNotesRef.current.value)
+                : "";
             reviewNotesRef.current.getEditor().setContents(newDelta1);
           } catch (err) {
             if (err) {
@@ -225,7 +313,10 @@ const ReviewPage = () => {
             }
           }
           try {
-            const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+            const newDelta3 =
+              superCheckerNotesRef.current.value != ""
+                ? JSON.parse(superCheckerNotesRef.current.value)
+                : "";
             superCheckerNotesRef.current.getEditor().setContents(newDelta3);
           } catch (err) {
             if (err) {
@@ -233,32 +324,37 @@ const ReviewPage = () => {
               superCheckerNotesRef.current.getEditor().setText(newDelta3);
             }
           }
-          setannotationtext(annotationNotesRef.current.getEditor().getText())
-          setreviewtext(reviewNotesRef.current.getEditor().getText())
-          setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-
+          setannotationtext(annotationNotesRef.current.getEditor().getText());
+          setreviewtext(reviewNotesRef.current.getEditor().getText());
+          setsupercheckertext(
+            superCheckerNotesRef.current.getEditor().getText(),
+          );
         } else {
           let reviewerAnnotations = annotations.filter(
-            (annotation) => annotation.annotation_type === 2
+            (annotation) => annotation.annotation_type === 2,
           );
           if (reviewerAnnotations.length > 0) {
             let correctAnnotation = reviewerAnnotations.find(
-              (annotation) => annotation.id === taskData.correct_annotation
+              (annotation) => annotation.id === taskData.correct_annotation,
             );
             if (correctAnnotation) {
-              reviewNotesRef.current.value = correctAnnotation.review_notes ?? "";
+              reviewNotesRef.current.value =
+                correctAnnotation.review_notes ?? "";
               annotationNotesRef.current.value =
                 annotations.find(
                   (annotation) =>
-                    annotation.id === correctAnnotation.parent_annotation
+                    annotation.id === correctAnnotation.parent_annotation,
                 )?.annotation_notes ?? "";
               superCheckerNotesRef.current.value =
                 annotations.find(
                   (annotation) =>
-                    annotation.parent_annotation === correctAnnotation.id
+                    annotation.parent_annotation === correctAnnotation.id,
                 )?.supercheck_notes ?? "";
               try {
-                const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+                const newDelta2 =
+                  annotationNotesRef.current.value !== ""
+                    ? JSON.parse(annotationNotesRef.current.value)
+                    : "";
                 annotationNotesRef.current.getEditor().setContents(newDelta2);
               } catch (err) {
                 if (err) {
@@ -268,7 +364,10 @@ const ReviewPage = () => {
               }
 
               try {
-                const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+                const newDelta1 =
+                  reviewNotesRef.current.value != ""
+                    ? JSON.parse(reviewNotesRef.current.value)
+                    : "";
                 reviewNotesRef.current.getEditor().setContents(newDelta1);
               } catch (err) {
                 if (err) {
@@ -277,7 +376,10 @@ const ReviewPage = () => {
                 }
               }
               try {
-                const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+                const newDelta3 =
+                  superCheckerNotesRef.current.value != ""
+                    ? JSON.parse(superCheckerNotesRef.current.value)
+                    : "";
                 superCheckerNotesRef.current.getEditor().setContents(newDelta3);
               } catch (err) {
                 if (err) {
@@ -285,25 +387,31 @@ const ReviewPage = () => {
                   superCheckerNotesRef.current.getEditor().setText(newDelta3);
                 }
               }
-              setannotationtext(annotationNotesRef.current.getEditor().getText())
-              setreviewtext(reviewNotesRef.current.getEditor().getText())
-              setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-
+              setannotationtext(
+                annotationNotesRef.current.getEditor().getText(),
+              );
+              setreviewtext(reviewNotesRef.current.getEditor().getText());
+              setsupercheckertext(
+                superCheckerNotesRef.current.getEditor().getText(),
+              );
             } else {
               reviewNotesRef.current.value =
                 reviewerAnnotations[0].review_notes ?? "";
               annotationNotesRef.current.value =
                 annotations.find(
                   (annotation) =>
-                    annotation.id === reviewerAnnotations[0]?.parent_annotation
+                    annotation.id === reviewerAnnotations[0]?.parent_annotation,
                 )?.annotation_notes ?? "";
               superCheckerNotesRef.current.value =
                 annotations.find(
                   (annotation) =>
-                    annotation.parent_annotation === reviewerAnnotations[0]?.id
+                    annotation.parent_annotation === reviewerAnnotations[0]?.id,
                 )?.supercheck_notes ?? "";
               try {
-                const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+                const newDelta2 =
+                  annotationNotesRef.current.value !== ""
+                    ? JSON.parse(annotationNotesRef.current.value)
+                    : "";
                 annotationNotesRef.current.getEditor().setContents(newDelta2);
               } catch (err) {
                 if (err) {
@@ -313,7 +421,10 @@ const ReviewPage = () => {
               }
 
               try {
-                const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+                const newDelta1 =
+                  reviewNotesRef.current.value != ""
+                    ? JSON.parse(reviewNotesRef.current.value)
+                    : "";
                 reviewNotesRef.current.getEditor().setContents(newDelta1);
               } catch (err) {
                 if (err) {
@@ -322,7 +433,10 @@ const ReviewPage = () => {
                 }
               }
               try {
-                const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+                const newDelta3 =
+                  superCheckerNotesRef.current.value != ""
+                    ? JSON.parse(superCheckerNotesRef.current.value)
+                    : "";
                 superCheckerNotesRef.current.getEditor().setContents(newDelta3);
               } catch (err) {
                 if (err) {
@@ -331,14 +445,17 @@ const ReviewPage = () => {
                 }
               }
 
-              setannotationtext(annotationNotesRef.current.getEditor().getText())
-              setreviewtext(reviewNotesRef.current.getEditor().getText())
-              setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-
+              setannotationtext(
+                annotationNotesRef.current.getEditor().getText(),
+              );
+              setreviewtext(reviewNotesRef.current.getEditor().getText());
+              setsupercheckertext(
+                superCheckerNotesRef.current.getEditor().getText(),
+              );
             }
           } else {
             let normalAnnotation = annotations.find(
-              (annotation) => annotation.annotation_type === 1
+              (annotation) => annotation.annotation_type === 1,
             );
             annotationNotesRef.current.value =
               normalAnnotation.annotation_notes ?? "";
@@ -346,7 +463,10 @@ const ReviewPage = () => {
             superCheckerNotesRef.current.value =
               normalAnnotation.supercheck_notes ?? "";
             try {
-              const newDelta2 = annotationNotesRef.current.value !== "" ? JSON.parse(annotationNotesRef.current.value) : "";
+              const newDelta2 =
+                annotationNotesRef.current.value !== ""
+                  ? JSON.parse(annotationNotesRef.current.value)
+                  : "";
               annotationNotesRef.current.getEditor().setContents(newDelta2);
             } catch (err) {
               if (err) {
@@ -356,7 +476,10 @@ const ReviewPage = () => {
             }
 
             try {
-              const newDelta1 = reviewNotesRef.current.value != "" ? JSON.parse(reviewNotesRef.current.value) : "";
+              const newDelta1 =
+                reviewNotesRef.current.value != ""
+                  ? JSON.parse(reviewNotesRef.current.value)
+                  : "";
               reviewNotesRef.current.getEditor().setContents(newDelta1);
             } catch (err) {
               if (err) {
@@ -365,7 +488,10 @@ const ReviewPage = () => {
               }
             }
             try {
-              const newDelta3 = superCheckerNotesRef.current.value != "" ? JSON.parse(superCheckerNotesRef.current.value) : "";
+              const newDelta3 =
+                superCheckerNotesRef.current.value != ""
+                  ? JSON.parse(superCheckerNotesRef.current.value)
+                  : "";
               superCheckerNotesRef.current.getEditor().setContents(newDelta3);
             } catch (err) {
               if (err) {
@@ -373,10 +499,11 @@ const ReviewPage = () => {
                 superCheckerNotesRef.current.getEditor().setText(newDelta3);
               }
             }
-            setannotationtext(annotationNotesRef.current.getEditor().getText())
-            setreviewtext(reviewNotesRef.current.getEditor().getText())
-            setsupercheckertext(superCheckerNotesRef.current.getEditor().getText())
-
+            setannotationtext(annotationNotesRef.current.getEditor().getText());
+            setreviewtext(reviewNotesRef.current.getEditor().getText());
+            setsupercheckertext(
+              superCheckerNotesRef.current.getEditor().getText(),
+            );
           }
         }
       }
@@ -385,12 +512,15 @@ const ReviewPage = () => {
 
   useEffect(() => {
     taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
-
   }, [taskDataArr, AnnotationsTaskDetails]);
 
   const resetNotes = () => {
-    if (typeof window !== "undefined" && annotationNotesRef.current && reviewNotesRef.current && superCheckerNotesRef.current) {
-
+    if (
+      typeof window !== "undefined" &&
+      annotationNotesRef.current &&
+      reviewNotesRef.current &&
+      superCheckerNotesRef.current
+    ) {
       setShowNotes(false);
       reviewNotesRef.current.getEditor().setContents([]);
     }
@@ -400,14 +530,12 @@ const ReviewPage = () => {
     resetNotes();
   }, [taskId]);
 
-
   useEffect(() => {
     const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then(res => setAssignedUsers(res));
-    }
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
     taskData?.id && showAssignedUsers();
   }, [taskData]);
-
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -418,34 +546,35 @@ const ReviewPage = () => {
       annotation_status: labellingMode,
     };
 
-    let apiObj = new GetNextProjectAPI(projectId, nextAPIData)
-    var rsp_data = []
+    let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    var rsp_data = [];
     fetch(apiObj.apiEndPoint(), {
-      method: 'post',
+      method: "post",
       body: JSON.stringify(apiObj.getBody()),
-      headers: apiObj.getHeaders().headers
-    }).then(async response => {
-      rsp_data = await response.json();
-      setLoading(false)
-      if (response.ok) {
-        setNextData(rsp_data);
-        tasksComplete(rsp_data?.id || null);
-        getAnnotationsTaskData(rsp_data.id);
-        getTaskData(rsp_data.id);
-      }
-    }).catch((error) => {
-      setSnackbarInfo({
-        open: true,
-        message: "No more tasks to label",
-        variant: "info",
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        rsp_data = await response.json();
+        setLoading(false);
+        if (response.ok) {
+          setNextData(rsp_data);
+          tasksComplete(rsp_data?.id || null);
+          getAnnotationsTaskData(rsp_data.id);
+          getTaskData(rsp_data.id);
+        }
+      })
+      .catch((error) => {
+        setSnackbarInfo({
+          open: true,
+          message: "No more tasks to label",
+          variant: "info",
+        });
+        setTimeout(() => {
+          localStorage.removeItem("labelAll");
+          window.location.replace(`/#/projects/${projectId}`);
+        }, 1000);
       });
-      setTimeout(() => {
-        localStorage.removeItem("labelAll");
-        window.location.replace(`/#/projects/${projectId}`);
-      }, 1000);
-    });
-
-  }
+  };
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
       if (id) {
@@ -469,41 +598,55 @@ const ReviewPage = () => {
     }
   };
 
-  const handleReviewClick = async (
-    value,
-    id,
-    lead_time,
-    parentannotation,
-  ) => {
+  const handleReviewClick = async (value, id, lead_time, parentannotation) => {
     if (typeof window !== "undefined") {
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
-        resultValue = chatHistory;
+        resultValue = chatHistory.map((chat) => ({
+          prompt: chat.prompt,
+          output: reverseFormatResponse(chat.output),
+        }));
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = currentInteraction;
       }
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status: value,
-        review_notes: JSON.stringify(reviewNotesRef?.current?.getEditor().getContents()),
+        annotation_status: localStorage.getItem("labellingMode"),
+        review_notes: JSON.stringify(
+          reviewNotesRef?.current?.getEditor().getContents(),
+        ),
         lead_time:
           (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-        ...((value === "to_be_revised" || value === "accepted" ||
+        ...((value === "to_be_revised" ||
+          value === "accepted" ||
           value === "accepted_with_minor_changes" ||
           value === "accepted_with_major_changes") && {
           parent_annotation: parentannotation,
         }),
-        result: resultValue,
+        result:
+          value === "delete"
+            ? []
+            : value === "delete-pair"
+              ? resultValue.slice(0, resultValue.length - 1)
+              : resultValue,
         interaction_llm: "False",
         task_id: taskId,
-        auto_save: autoSave
+        auto_save:
+          value === "delete" || value === "delete-pair" ? true : autoSave,
+        clear_conversation:
+          value === "delete" || value === "delete-pair" ? true : false,
       };
       if (
-        ["draft", "skipped", "to_be_revised"].includes(value) ||
-        (["accepted", "accepted_with_minor_changes", "accepted_with_major_changes"].includes(value))
+        ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(
+          value,
+        ) ||
+        [
+          "accepted",
+          "accepted_with_minor_changes",
+          "accepted_with_major_changes",
+        ].includes(value)
       ) {
-        delete PatchAPIdata.auto_save;
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
@@ -511,15 +654,42 @@ const ReviewPage = () => {
           headers: TaskObj.getHeaders().headers,
         });
         const resp = await res.json();
-        if (res.ok) {
-          if (localStorage.getItem("labelAll") || value === "skipped") {
-            onNextAnnotation(resp.task);
-          }
-          setSnackbarInfo({
-            open: true,
-            message: resp?.message,
-            variant: "success",
+        if (
+          (value === "delete" || value === "delete-pair") === true &&
+          res.ok &&
+          resp.result
+        ) {
+          let modifiedChatHistory = resp?.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
           });
+          setChatHistory([...modifiedChatHistory]);
+        }
+        if (res.ok) {
+          if ((value === "delete" || value === "delete-pair") === false) {
+            if (localStorage.getItem("labelAll") || value === "skipped") {
+              onNextAnnotation(resp.task);
+            }
+          }
+          value === "delete"
+            ? setSnackbarInfo({
+                open: true,
+                message: "Chat history has been cleared successfully!",
+                variant: "success",
+              })
+            : value === "delete-pair"
+              ? setSnackbarInfo({
+                  open: true,
+                  message: "Selected conversation is deleted",
+                  variant: "success",
+                })
+              : setSnackbarInfo({
+                  open: true,
+                  message: resp?.message,
+                  variant: "success",
+                });
         } else {
           setAutoSave(true);
           setSnackbarInfo({
@@ -528,6 +698,7 @@ const ReviewPage = () => {
             variant: "error",
           });
         }
+        setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -541,8 +712,6 @@ const ReviewPage = () => {
       setAnchorEl(null);
     }
   };
-
-
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -564,7 +733,6 @@ const ReviewPage = () => {
     setAnchorEl(null);
   };
 
-
   const filterAnnotations = (annotations, user, taskData) => {
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
@@ -578,19 +746,19 @@ const ReviewPage = () => {
     let disableButton = false;
     let filterMessage = "";
     let userAnnotationData = annotations.find(
-      (annotation) => annotation.annotation_type === 3
+      (annotation) => annotation.annotation_type === 3,
     );
     if (userAnnotation) {
       if (userAnnotation.annotation_status === "unreviewed") {
         filteredAnnotations =
           userAnnotation.result.length > 0 &&
-            !taskData?.revision_loop_count?.review_count
+          !taskData?.revision_loop_count?.review_count
             ? [userAnnotation]
             : annotations.filter(
-              (annotation) =>
-                annotation.id === userAnnotation.parent_annotation &&
-                annotation.annotation_type === 1
-            );
+                (annotation) =>
+                  annotation.id === userAnnotation.parent_annotation &&
+                  annotation.annotation_type === 1,
+              );
       } else if (
         userAnnotation &&
         ["rejected"].includes(userAnnotation.annotation_status)
@@ -619,12 +787,12 @@ const ReviewPage = () => {
         ].includes(userAnnotation.annotation_status)
       ) {
         const superCheckedAnnotation = annotations.find(
-          (annotation) => annotation.annotation_type === 3
+          (annotation) => annotation.annotation_type === 3,
         );
         if (
           superCheckedAnnotation &&
           ["validated", "validated_with_changes"].includes(
-            superCheckedAnnotation.annotation_status
+            superCheckedAnnotation.annotation_status,
           )
         ) {
           filteredAnnotations = [superCheckedAnnotation];
@@ -637,7 +805,7 @@ const ReviewPage = () => {
         } else if (
           superCheckedAnnotation &&
           ["draft", "skipped", "unvalidated"].includes(
-            superCheckedAnnotation.annotation_status
+            superCheckedAnnotation.annotation_status,
           )
         ) {
           filteredAnnotations = [userAnnotation];
@@ -651,17 +819,17 @@ const ReviewPage = () => {
         }
       } else if (userAnnotation.annotation_status === "skipped") {
         filteredAnnotations = annotations.filter(
-          (value) => value.annotation_type === 1
+          (value) => value.annotation_type === 1,
         );
       } else if (userAnnotation.annotation_status === "to_be_revised") {
         filteredAnnotations = annotations.filter(
           (annotation) =>
             annotation.id === userAnnotation.parent_annotation &&
-            annotation.annotation_type === 1
+            annotation.annotation_type === 1,
         );
       } else if (userAnnotation.annotation_status === "rejected") {
         filteredAnnotations = annotations.filter(
-          (annotation) => annotation.annotation_type === 2
+          (annotation) => annotation.annotation_type === 2,
         );
       }
     } else if ([4, 5, 6].includes(user.role)) {
@@ -691,10 +859,7 @@ const ReviewPage = () => {
     filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
 
-
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-
-
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -705,9 +870,7 @@ const ReviewPage = () => {
       headers: ProjectObj.getHeaders().headers,
     });
     const resp = await res.json();
-    if (
-      !res.ok
-    ) {
+    if (!res.ok) {
       setLoading(true);
       setSnackbarInfo({
         open: true,
@@ -715,9 +878,8 @@ const ReviewPage = () => {
         variant: "error",
       });
     } else {
-      dispatch(setTaskDetails(resp))
-      setTaskDataArr(resp)
-
+      dispatch(setTaskDetails(resp));
+      setTaskDataArr(resp);
     }
     setLoading(false);
   };
@@ -726,7 +888,7 @@ const ReviewPage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
   let review = AnnotationsTaskDetails.filter(
-    (annotation) => annotation.annotation_type === 2
+    (annotation) => annotation.annotation_type === 2,
   )[0];
 
   useEffect(() => {
@@ -737,11 +899,25 @@ const ReviewPage = () => {
 
   let componentToRender;
   switch (ProjectDetails.project_type) {
-    case 'InstructionDrivenChat':
-      componentToRender = <InstructionDrivenChatPage chatHistory={chatHistory} setChatHistory={setChatHistory} />;
+    case "InstructionDrivenChat":
+      componentToRender = (
+        <InstructionDrivenChatPage
+          handleClick={handleReviewClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          info={info}
+        />
+      );
       break;
-    case 'ModelInteractionEvaluation':
-      componentToRender = <ModelInteractionEvaluation setCurrentInteraction={setCurrentInteraction} currentInteraction={currentInteraction} />;
+    case "ModelInteractionEvaluation":
+      componentToRender = (
+        <ModelInteractionEvaluation
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+        />
+      );
       break;
     default:
       componentToRender = null;
@@ -765,17 +941,17 @@ const ReviewPage = () => {
       {loading && <Spinner />}
       <Grid container spacing={2}>
         {renderSnackBar()}
-        <Grid item >
+        <Grid item>
           <Box
             sx={{
               // borderRadius: "20px",
               padding: "10px",
-              marginLeft: "5px"
+              marginLeft: "5px",
             }}
           >
             <Button
               value="Back to Project"
-              startIcon={<  ArrowBackIcon />}
+              startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
               sx={{ mt: 2 }}
@@ -797,34 +973,34 @@ const ReviewPage = () => {
               padding: "10px",
               marginTop: "5px",
               marginBottom: "5px",
-              marginLeft: "5px"
+              marginLeft: "5px",
             }}
           >
-
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
               variant="contained"
-              color={
-                reviewtext.trim().length === 0 ? "primary" : "success"
-              }
+              color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
               style={{
-                backgroundColor: annotationtext.trim().length === 0 &&
-                  supercheckertext.trim().length === 0 ? "#bf360c" : "green"
+                backgroundColor:
+                  annotationtext.trim().length === 0 &&
+                  supercheckertext.trim().length === 0
+                    ? "#bf360c"
+                    : "green",
               }}
             >
               Notes{" "}
               {annotationtext.trim().length === 0 &&
-                supercheckertext.trim().length === 0 ? "" : "*"}
+              supercheckertext.trim().length === 0
+                ? ""
+                : "*"}
             </Button>
-
 
             <div
               // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
-
               }}
             >
               <ReactQuill
@@ -853,8 +1029,11 @@ const ReviewPage = () => {
             </div>
             <Button
               variant="contained"
-
-              style={{ marginLeft: "10px", backgroundColor: "lightgrey", color: "black" }}
+              style={{
+                marginLeft: "10px",
+                backgroundColor: "lightgrey",
+                color: "black",
+              }}
               endIcon={
                 showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
               }
@@ -872,10 +1051,20 @@ const ReviewPage = () => {
               {/* <Glossary taskData={taskData} /> */}
             </div>
           </Box>
-          <Grid container justifyContent="center" spacing={3} style={{ display: "flex", width: "100%", marginTop: "3px", marginBottom: "25px" }}>
-            <Grid item >
+          <Grid
+            container
+            justifyContent="center"
+            spacing={3}
+            style={{
+              display: "flex",
+              width: "100%",
+              marginTop: "3px",
+              marginBottom: "25px",
+            }}
+          >
+            <Grid item>
               {/* title={assignedUsers ? assignedUsers : ""} */}
-              <LightTooltip title={assignedUsers ? assignedUsers : ""} >
+              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
                 <Button
                   type="default"
                   className="lsf-button"
@@ -883,9 +1072,11 @@ const ReviewPage = () => {
                     minWidth: "40px",
                     border: "1px solid #e6e6e6",
                     color: "grey",
-                    pt: 1, pl: 1, pr: 1,
+                    pt: 1,
+                    pl: 1,
+                    pr: 1,
                     borderBottom: "None",
-                    backgroundColor: "white"
+                    backgroundColor: "white",
                   }}
                 >
                   <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
@@ -906,11 +1097,7 @@ const ReviewPage = () => {
                     type="default"
                     variant="outlined"
                     onClick={() =>
-                      handleReviewClick(
-                        "draft",
-                        review.id,
-                        review.lead_time,
-                      )
+                      handleReviewClick("draft", review.id, review.lead_time)
                     }
                     style={{
                       minWidth: "150px",
@@ -921,7 +1108,7 @@ const ReviewPage = () => {
                       pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                  // className="lsf-button"
+                    // className="lsf-button"
                   >
                     Draft
                   </Button>
@@ -959,8 +1146,34 @@ const ReviewPage = () => {
                     type="default"
                     variant="outlined"
                     onClick={() =>
+                      handleReviewClick("skipped", review.id, review.lead_time)
+                    }
+                    style={{
+                      minWidth: "150px",
+                      color: "black",
+                      borderRadius: "5px",
+                      border: "0px",
+                      pt: 2,
+                      pb: 2,
+                      backgroundColor: "#ffe0b2",
+                    }}
+                    // className="lsf-button"
+                  >
+                    Skip
+                  </Button>
+                </Tooltip>
+              )}
+            </Grid>
+            <Grid item>
+              {!disableSkip && taskData?.review_user === userData?.id && (
+                <Tooltip title="clear the entire chat history">
+                  <Button
+                    value="Clear Chats"
+                    type="default"
+                    variant="outlined"
+                    onClick={() =>
                       handleReviewClick(
-                        "skipped",
+                        "delete",
                         review.id,
                         review.lead_time,
                       )
@@ -974,9 +1187,9 @@ const ReviewPage = () => {
                       pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                  // className="lsf-button"
+                    // className="lsf-button"
                   >
-                    Skip
+                    Clear Chats
                   </Button>
                 </Tooltip>
               )}
@@ -1067,7 +1280,7 @@ const ReviewPage = () => {
                       "accepted_with_minor_changes",
                       review.id,
                       review.lead_time,
-                      review?.parent_annotation
+                      review?.parent_annotation,
                     )
                   }
                   disableRipple
@@ -1089,22 +1302,20 @@ const ReviewPage = () => {
                 </MenuItem>
               </StyledMenu>
             </Grid>
-          </Grid>            {filterMessage && (
+          </Grid>{" "}
+          {filterMessage && (
             <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
               {filterMessage}
             </Alert>
           )}
         </Grid>
-        <Grid item container >  {componentToRender}</Grid>
-
-
+        <Grid item container>
+          {" "}
+          {componentToRender}
+        </Grid>
       </Grid>
-
     </>
-
-
   );
 };
-
 
 export default ReviewPage;

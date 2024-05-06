@@ -614,7 +614,7 @@ const AnnotatePage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          handleAnnotationClick={handleAnnotationClick}
+          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}

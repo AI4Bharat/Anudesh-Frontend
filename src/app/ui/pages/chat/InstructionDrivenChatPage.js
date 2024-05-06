@@ -56,7 +56,7 @@ const style = {
 const InstructionDrivenChatPage = ({
   chatHistory,
   setChatHistory,
-  handleAnnotationClick,
+  handleClick,
   formatResponse,
   formatPrompt,
   info
@@ -255,7 +255,7 @@ const InstructionDrivenChatPage = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleAnnotationClick("delete-pair", annotationId, 0.0);
+                    handleClick("delete-pair", annotationId, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon
