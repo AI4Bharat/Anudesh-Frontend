@@ -27,7 +27,12 @@ const AllTasksFilterList = (props) => {
     onchange();
     props.handleClose();
   };
-
+  useEffect(() => {
+    updateFilters({
+        ...currentFilters,
+        task_status: selectedStatus,
+      })
+}, [selectedStatus])
   return (
     <div>
       <Popover

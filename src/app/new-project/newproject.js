@@ -123,6 +123,7 @@ const CreateProject = () => {
     "key",
     "instance_id",
     "labse_score",
+    "interactions_json",
     "parent_data",
     "id",
     "rating",

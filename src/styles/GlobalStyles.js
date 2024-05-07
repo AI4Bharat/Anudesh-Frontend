@@ -68,7 +68,7 @@ const GlobalStyles = makeStyles(theme=>({
     fontSize: "1.25rem",
     letterSpacing: "-.025em",
     fontWeight: "600",
-    fontFamily: "Rowdies, cursive",
+    // fontFamily: "Rowdies, cursive",
   },
 
   ai4bharatLogoImg: {

@@ -417,7 +417,7 @@ const SuperCheckerPage = () => {
         parent_annotation: parentannotation,
       }),
       result: resultValue,
-      interaction_llm: "False",
+      interaction_llm: false,
       task_id: taskId,
       auto_save: autoSave
     };
