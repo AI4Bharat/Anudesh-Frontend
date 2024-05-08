@@ -747,6 +747,8 @@ const ReviewPage = () => {
       componentToRender = null;
       break;
   }
+
+  
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
