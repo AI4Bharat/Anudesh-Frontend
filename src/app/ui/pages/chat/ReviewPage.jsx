@@ -1172,11 +1172,7 @@ const ReviewPage = () => {
                     type="default"
                     variant="outlined"
                     onClick={() =>
-                      handleReviewClick(
-                        "delete",
-                        review.id,
-                        review.lead_time,
-                      )
+                      handleReviewClick("delete", review.id, review.lead_time)
                     }
                     style={{
                       minWidth: "150px",
