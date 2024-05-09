@@ -105,7 +105,7 @@ export default function SignUp() {
         if (!ValidateEmail(values.email)) {
             setError({ ...error, email: true })
         }
-        else if (!(/^[A-Za-z ]+$/.test(values.UserName))) {
+        else if (!/^[A-Za-z0-9_ ]+$/.test(values.UserName)) {
             setError({ ...error, UserName: true })
         }
         else if (!(values.password.length > 7)) {
