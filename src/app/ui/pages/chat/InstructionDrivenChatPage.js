@@ -59,6 +59,7 @@ const InstructionDrivenChatPage = ({
   handleClick,
   formatResponse,
   formatPrompt,
+  id,
   info
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -151,13 +152,13 @@ const InstructionDrivenChatPage = ({
       setLoading(true);
       const body = {
         annotation_notes: "",
-        annotation_status: "labeled",
+        annotation_status: "accepted",
         result: inputValue,
         lead_time: 0.0,
         auto_save: "True",
         task_id: taskId,
       };
-      const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
+      const AnnotationObj = new PatchAnnotationAPI(id.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(AnnotationObj.getBody()),

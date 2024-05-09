@@ -620,6 +620,7 @@ const AnnotatePage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          id ={Annotation}
           info={info}
         />
       );

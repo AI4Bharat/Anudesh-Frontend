@@ -636,6 +636,7 @@ const ReviewPage = () => {
           value === "delete" || value === "delete-pair" ? true : autoSave,
         clear_conversation:
           value === "delete" || value === "delete-pair" ? true : false,
+          parent_annotation: parentannotation,
       };
       if (
         ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(
@@ -907,6 +908,7 @@ const ReviewPage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          id={review}
           info={info}
         />
       );
