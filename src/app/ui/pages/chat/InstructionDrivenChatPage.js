@@ -129,9 +129,10 @@ const InstructionDrivenChatPage = ({
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const data = await response.json();
-      let modifiedChatHistory;
-      if (data && [...data[0].result].length) {
-        modifiedChatHistory = data[0].result.map((interaction) => {
+      console.log("data", data);
+      let modifiedChatHistory = [];
+      if (data && [...data[0]?.result]?.length) {
+        modifiedChatHistory = data[0]?.result?.map((interaction) => {
           return {
             ...interaction,
             output: formatResponse(interaction.output),
@@ -141,7 +142,7 @@ const InstructionDrivenChatPage = ({
       } else {
         setChatHistory([]);
       }
-      setAnnotationId(data[0].id);
+      setAnnotationId(data[0]?.id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
     };
     fetchData();
@@ -202,7 +203,7 @@ const InstructionDrivenChatPage = ({
 
   const renderChatHistory = () => {
     const chatElements = [];
-    for (let index = 0; index < chatHistory.length; index++) {
+    for (let index = 0; index < chatHistory?.length; index++) {
       const message = chatHistory[index];
       chatElements.push(
         <Box

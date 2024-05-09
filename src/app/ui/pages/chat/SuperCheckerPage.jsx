@@ -525,7 +525,7 @@ const SuperCheckerPage = () => {
     setAutoSave(false);
 
     const PatchAPIdata = {
-      annotation_status: localStorage.getItem("labellingMode"),
+      annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
       supercheck_notes: JSON.stringify(
         superCheckerNotesRef?.current?.getEditor().getContents(),
       ),

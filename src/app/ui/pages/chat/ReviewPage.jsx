@@ -612,7 +612,7 @@ const ReviewPage = () => {
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status: localStorage.getItem("labellingMode"),
+        annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
         review_notes: JSON.stringify(
           reviewNotesRef?.current?.getEditor().getContents(),
         ),
