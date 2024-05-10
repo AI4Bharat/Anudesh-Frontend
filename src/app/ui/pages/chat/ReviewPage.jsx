@@ -839,7 +839,6 @@ const ReviewPage = () => {
       disablebtn = true;
       disableSkip = true;
     }
-    console.log(disable, disablebtn, disableSkip);
     setAutoSave(!disablebtn);
     setdisableSkip(disableSkip);
     setDisableBtns(disablebtn);
