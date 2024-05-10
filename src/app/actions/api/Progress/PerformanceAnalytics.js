@@ -7,7 +7,7 @@ export default class PerformanceAnalyticsAPI extends API {
     super("POST", timeout, false);
     this.progressObj = progressObj;
     this.type = constants.PERFORMANCE_ANALYTICS_DATA;
-    this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getOrganizations}${OrgId}/performance_analytics_data/${metaInfo ? "?metainfo=true" : ""}`;
+    this.endpoint = `${super.apiEndPointAuto()}/${ENDPOINTS.getOrganizations}${OrgId}/performance_analytics_data/${metaInfo ? "?metainfo=true" : ""}`;
   }
 
   processResponse(res) {
