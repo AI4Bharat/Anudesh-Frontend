@@ -116,7 +116,6 @@ const AnnotatePage = () => {
 
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
-  const taskData1 = useSelector((state) => console.log(state));
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
@@ -370,7 +369,7 @@ const AnnotatePage = () => {
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
-      annotation_status: localStorage.getItem("labellingMode"),
+      annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
       annotation_notes: JSON.stringify(
         annotationNotesRef?.current?.getEditor().getContents(),
       ),
@@ -385,7 +384,7 @@ const AnnotatePage = () => {
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" ? true : autoSave,
-      interaction_llm: "False",
+      interaction_llm: true,
       clear_conversation:
         value === "delete" || value === "delete-pair" ? true : false,
     };
@@ -615,11 +614,14 @@ const AnnotatePage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          handleAnnotationClick={handleAnnotationClick}
+          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          id ={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
           info={info}
         />
       );
