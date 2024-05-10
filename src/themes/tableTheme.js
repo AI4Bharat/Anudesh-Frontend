@@ -11,10 +11,12 @@ const tableTheme = createTheme({
           minWidth: "25",
           borderRadius: "none",
           textTransform: "none",
+          fontFamily: 'Roboto ,sans-serif',
+          
         },
         label: {
           textTransform: "none",
-          fontFamily: '"Roboto", "Segoe UI"',
+          fontFamily: '"Roboto" ,sans-serif',
           fontSize: "16px",
           letterSpacing: "0.16px",
           textAlign: "center",

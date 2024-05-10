@@ -29,7 +29,7 @@ const headerStyle = makeStyles({
         padding:"0px !important",
         boxSizing: "border-box",
         minHeight: "54px",
-        fontFamily: '"Roboto" ,sans-serif',
+        fontFamily: 'sans-serif',
       
     },
     menu:{
@@ -61,7 +61,7 @@ const headerStyle = makeStyles({
         color: "black",
         boxShadow: "none",
         fontSize: "19px",
-        fontFamily: "Roboto", 
+        fontFamily: 'Roboto, sans-serif', 
         fontWeight: 600,
         letterSpacing: "0.5px",
         borderRadius:12,
@@ -79,7 +79,7 @@ const headerStyle = makeStyles({
         color: "black",
         boxShadow: "none",
         fontSize: "19px",
-        fontFamily: "Roboto", 
+        fontFamily: "sans-serif", 
         fontWeight: 600,
         borderRadius:12,
         letterSpacing: "0.5px",
