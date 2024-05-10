@@ -636,6 +636,7 @@ const ReviewPage = () => {
           value === "delete" || value === "delete-pair" ? true : autoSave,
         clear_conversation:
           value === "delete" || value === "delete-pair" ? true : false,
+          parent_annotation: parentannotation,
       };
       if (
         ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(
@@ -895,7 +896,6 @@ const ReviewPage = () => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
-
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -906,6 +906,9 @@ const ReviewPage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          id={review}
+          stage={"Review"}
+          notes={reviewNotesRef}
           info={info}
         />
       );
@@ -922,6 +925,8 @@ const ReviewPage = () => {
       componentToRender = null;
       break;
   }
+
+  
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars

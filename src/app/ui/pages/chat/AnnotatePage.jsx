@@ -384,7 +384,7 @@ const AnnotatePage = () => {
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" ? true : autoSave,
-      interaction_llm: "False",
+      interaction_llm: true,
       clear_conversation:
         value === "delete" || value === "delete-pair" ? true : false,
     };
@@ -619,6 +619,9 @@ const AnnotatePage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          id ={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
           info={info}
         />
       );

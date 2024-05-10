@@ -318,7 +318,7 @@ const themeDefault = createTheme({
         },
         label: {
           textTransform: "none",
-          fontFamily: '"Roboto", "Segoe UI"',
+          fontFamily: '"Roboto" ,sans-serif',
           fontSize: "16px",
           letterSpacing: "0.16px",
           textAlign: "center",

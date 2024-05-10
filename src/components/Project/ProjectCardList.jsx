@@ -1,9 +1,10 @@
 import  {React, useState, useEffect } from "react";
 // import Link from 'next/link';
+import { ThemeProvider } from '@mui/material/styles';
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
 import { Link } from "react-router-dom";
-import { Grid, ThemeProvider, Tooltip, Button } from "@mui/material";
+import { Grid, Tooltip, Button } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
 import { useDispatch, useSelector } from "react-redux";
@@ -230,11 +231,6 @@ const ProjectCardList = (props) => {
     jumpToPage: true,
     customToolbar: renderToolBar,
   };
-  // const renderSearch = () => {
-  //     return (
-  //         <Search />
-  //     );
-  // };
 
   return (
     <>
