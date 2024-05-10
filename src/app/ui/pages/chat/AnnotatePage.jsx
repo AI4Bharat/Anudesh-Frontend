@@ -620,6 +620,8 @@ const AnnotatePage = () => {
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
           id ={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
           info={info}
         />
       );

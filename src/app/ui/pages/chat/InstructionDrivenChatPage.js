@@ -60,6 +60,8 @@ const InstructionDrivenChatPage = ({
   formatResponse,
   formatPrompt,
   id,
+  stage,
+  notes,
   info
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -72,6 +74,8 @@ const InstructionDrivenChatPage = ({
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadtime, setloadtime] = useState(new Date());
+  const load_time = useRef();
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -152,13 +156,22 @@ const InstructionDrivenChatPage = ({
     if (inputValue) {
       setLoading(true);
       const body = {
-        annotation_notes: "",
-        annotation_status: "accepted",
+        annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
-        lead_time: 0.0,
+        lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
         auto_save: "True",
         task_id: taskId,
       };
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+      } else {
+        body.annotation_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id.parent_annotation;
+      }
       const AnnotationObj = new PatchAnnotationAPI(id.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
@@ -257,7 +270,7 @@ const InstructionDrivenChatPage = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleClick("delete-pair", annotationId, 0.0);
+                    handleClick("delete-pair", id.id, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon

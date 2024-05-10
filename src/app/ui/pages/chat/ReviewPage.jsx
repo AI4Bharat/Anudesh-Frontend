@@ -897,7 +897,6 @@ const ReviewPage = () => {
       setLoading(false);
     }
   }, [AnnotationsTaskDetails]);
-
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -909,6 +908,8 @@ const ReviewPage = () => {
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
           id={review}
+          stage={"Review"}
+          notes={reviewNotesRef}
           info={info}
         />
       );
