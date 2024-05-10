@@ -128,9 +128,8 @@ const InstructionDrivenChatPage = ({
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const data = await response.json();
-      console.log("data", data);
       let modifiedChatHistory = [];
-      if (data && [...data[0]?.result]?.length) {
+      if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
         modifiedChatHistory = data[0]?.result?.map((interaction) => {
           return {
             ...interaction,
