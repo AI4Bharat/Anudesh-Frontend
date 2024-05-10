@@ -382,8 +382,7 @@ const AnnotatePage = () => {
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
       task_id: taskId,
-      auto_save:
-        value === "delete" || value === "delete-pair" ? true : autoSave,
+      auto_save:false,
       interaction_llm: true,
       clear_conversation:
         value === "delete" || value === "delete-pair" ? true : false,

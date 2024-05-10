@@ -159,7 +159,7 @@ const InstructionDrivenChatPage = ({
         annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
         lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
-        auto_save: "True",
+        auto_save: true,
         task_id: taskId,
       };
       if (stage === "Review") {

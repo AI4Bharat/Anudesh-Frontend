@@ -222,8 +222,8 @@ const ReviewPage = () => {
   };
 
   const formatPrompt = (prompt) => {
-    const lines = prompt.split("\n");
-    const markdownString = lines.join("  \n");
+    const lines = prompt?.split("\n");
+    const markdownString = lines?.join("  \n");
     return markdownString;
   };
 
