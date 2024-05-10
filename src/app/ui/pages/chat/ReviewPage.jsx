@@ -612,7 +612,10 @@ const ReviewPage = () => {
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
+        annotation_status:
+          value === "delete" || value === "delete-pair"
+            ? localStorage.getItem("labellingMode")
+            : value,
         review_notes: JSON.stringify(
           reviewNotesRef?.current?.getEditor().getContents(),
         ),
@@ -630,13 +633,10 @@ const ReviewPage = () => {
             : value === "delete-pair"
               ? resultValue.slice(0, resultValue.length - 1)
               : resultValue,
-        interaction_llm: "False",
         task_id: taskId,
-        auto_save:
-          value === "delete" || value === "delete-pair" ? true : autoSave,
-        clear_conversation:
-          value === "delete" || value === "delete-pair" ? true : false,
-          parent_annotation: parentannotation,
+        auto_save: value === "delete" || value === "delete-pair" ? true : false,
+        interaction_llm: value === "delete" || value === "delete-pair",
+        clear_conversation: value === "delete",
       };
       if (
         ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(
@@ -926,7 +926,6 @@ const ReviewPage = () => {
       break;
   }
 
-  
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars

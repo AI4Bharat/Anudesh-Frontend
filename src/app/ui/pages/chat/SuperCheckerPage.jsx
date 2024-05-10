@@ -525,7 +525,10 @@ const SuperCheckerPage = () => {
     setAutoSave(false);
 
     const PatchAPIdata = {
-      annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
+      annotation_status:
+        value === "delete" || value === "delete-pair"
+          ? localStorage.getItem("labellingMode")
+          : value,
       supercheck_notes: JSON.stringify(
         superCheckerNotesRef?.current?.getEditor().getContents(),
       ),
@@ -542,15 +545,15 @@ const SuperCheckerPage = () => {
           : value === "delete-pair"
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
-      interaction_llm: "False",
       task_id: taskId,
-      auto_save:
-        value === "delete" || value === "delete-pair" ? true : autoSave,
-      clear_conversation:
-        value === "delete" || value === "delete-pair" ? true : false,
+      auto_save: value === "delete" || value === "delete-pair" ? true : false,
+      interaction_llm: value === "delete" || value === "delete-pair",
+      clear_conversation: value === "delete",
     };
     if (
-      ["draft", "skipped", "rejected", "delete",  "delete-pair"].includes(value) ||
+      ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
+        value,
+      ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
       if (value === "rejected") PatchAPIdata["result"] = [];
