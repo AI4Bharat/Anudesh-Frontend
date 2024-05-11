@@ -16,8 +16,8 @@ const tableTheme = createTheme({
         },
         label: {
           textTransform: "none",
-          fontFamily: '"Roboto" ,sans-serif',
-          fontSize: "16px",
+          fontFamily: '"Roboto", "Segoe UI"',
+          fontSize: "100px",
           letterSpacing: "0.16px",
           textAlign: "center",
           display: "flex",

@@ -44,7 +44,15 @@ const ExportProjectDialog = ({
   );
 
   useEffect(() => {
-    dispatch(fetchDatasetByType("Interaction"));
+    let data ;
+    if(projectType=="Instruction"){
+       data = "Interaction"
+    }
+    else{
+      data = "PromptAnswer"
+    }
+
+    dispatch(fetchDatasetByType(data));
   }, []);
 
   useEffect(() => {

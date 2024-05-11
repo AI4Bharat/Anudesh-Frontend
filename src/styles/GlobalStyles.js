@@ -35,9 +35,9 @@ const GlobalStyles = makeStyles(theme=>({
     fontSize: "1.25rem",
     lineHeight: "2rem",
     margin: "0 35px 25px 0",
-    // [theme.breakpoints.down('md')]: {
-    //   margin: "0 10px 25px 0",
-    // },
+    [theme.breakpoints.down('md')]: {
+      margin: "0 10px 25px 0",
+    },
     textAlign: "justify",
   },
 

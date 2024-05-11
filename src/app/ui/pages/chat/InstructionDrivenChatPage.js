@@ -56,9 +56,12 @@ const style = {
 const InstructionDrivenChatPage = ({
   chatHistory,
   setChatHistory,
-  handleAnnotationClick,
+  handleClick,
   formatResponse,
   formatPrompt,
+  id,
+  stage,
+  notes,
   info
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -71,6 +74,8 @@ const InstructionDrivenChatPage = ({
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadtime, setloadtime] = useState(new Date());
+  const load_time = useRef();
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -128,9 +133,9 @@ const InstructionDrivenChatPage = ({
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const data = await response.json();
-      let modifiedChatHistory;
-      if (data && [...data[0].result].length) {
-        modifiedChatHistory = data[0].result.map((interaction) => {
+      let modifiedChatHistory = [];
+      if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
+        modifiedChatHistory = data[0]?.result?.map((interaction) => {
           return {
             ...interaction,
             output: formatResponse(interaction.output),
@@ -140,7 +145,7 @@ const InstructionDrivenChatPage = ({
       } else {
         setChatHistory([]);
       }
-      setAnnotationId(data[0].id);
+      setAnnotationId(data[0]?.id);
       if (data && [...data[0].result].length) setShowChatContainer(true);
     };
     fetchData();
@@ -150,14 +155,23 @@ const InstructionDrivenChatPage = ({
     if (inputValue) {
       setLoading(true);
       const body = {
-        annotation_notes: "",
-        annotation_status: "labeled",
+        annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
-        lead_time: 0.0,
-        auto_save: "True",
+        lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
+        auto_save: true,
         task_id: taskId,
       };
-      const AnnotationObj = new PatchAnnotationAPI(annotationId, body);
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+      } else {
+        body.annotation_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id.parent_annotation;
+      }
+      const AnnotationObj = new PatchAnnotationAPI(id.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(AnnotationObj.getBody()),
@@ -201,7 +215,7 @@ const InstructionDrivenChatPage = ({
 
   const renderChatHistory = () => {
     const chatElements = [];
-    for (let index = 0; index < chatHistory.length; index++) {
+    for (let index = 0; index < chatHistory?.length; index++) {
       const message = chatHistory[index];
       chatElements.push(
         <Box
@@ -255,7 +269,7 @@ const InstructionDrivenChatPage = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleAnnotationClick("delete-pair", annotationId, 0.0);
+                    handleClick("delete-pair", id.id, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon
