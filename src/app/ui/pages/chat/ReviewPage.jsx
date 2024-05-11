@@ -222,8 +222,8 @@ const ReviewPage = () => {
   };
 
   const formatPrompt = (prompt) => {
-    const lines = prompt.split("\n");
-    const markdownString = lines.join("  \n");
+    const lines = prompt?.split("\n");
+    const markdownString = lines?.join("  \n");
     return markdownString;
   };
 
@@ -600,19 +600,25 @@ const ReviewPage = () => {
 
   const handleReviewClick = async (value, id, lead_time, parentannotation) => {
     if (typeof window !== "undefined") {
+
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
         resultValue = chatHistory.map((chat) => ({
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
+
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = currentInteraction;
       }
+
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
+        annotation_status:
+          value === "delete" || value === "delete-pair"
+            ? localStorage.getItem("labellingMode")
+            : value,
         review_notes: JSON.stringify(
           reviewNotesRef?.current?.getEditor().getContents(),
         ),
@@ -630,16 +636,14 @@ const ReviewPage = () => {
             : value === "delete-pair"
               ? resultValue.slice(0, resultValue.length - 1)
               : resultValue,
-        interaction_llm: "False",
         task_id: taskId,
-        auto_save:
-          value === "delete" || value === "delete-pair" ? true : autoSave,
-        clear_conversation:
-          value === "delete" || value === "delete-pair" ? true : false,
-          parent_annotation: parentannotation,
+        auto_save: value === "delete" || value === "delete-pair" ? true : false,
+        interaction_llm: value === "delete" || value === "delete-pair",
+        clear_conversation: value === "delete",
       };
+
       if (
-        ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(
+        ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
           value,
         ) ||
         [
@@ -649,11 +653,14 @@ const ReviewPage = () => {
         ].includes(value)
       ) {
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
+        console.log("resp",TaskObj);
+
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
           body: JSON.stringify(TaskObj.getBody()),
           headers: TaskObj.getHeaders().headers,
-        });
+        });        
+
         const resp = await res.json();
         if (
           (value === "delete" || value === "delete-pair") === true &&
@@ -839,7 +846,6 @@ const ReviewPage = () => {
       disablebtn = true;
       disableSkip = true;
     }
-    console.log(disable, disablebtn, disableSkip);
     setAutoSave(!disablebtn);
     setdisableSkip(disableSkip);
     setDisableBtns(disablebtn);
@@ -927,7 +933,6 @@ const ReviewPage = () => {
       break;
   }
 
-  
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
