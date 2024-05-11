@@ -873,7 +873,7 @@ const handleopenproject=(id,type)=>{
                     className={classes.headerTitle}
                     sx={{
                       fontSize: "28px",
-                      fontWeight: "lighter",
+                      fontWeight: "bold",
                     }}
                   >
                     Anudesh

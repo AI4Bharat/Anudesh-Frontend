@@ -153,7 +153,7 @@ export default function ProfilePage () {
                 <Typography variant="h3" sx={{ mb: 1, alignSelf: 'center', textAlign: 'center' }}>
                   {userDetails?.first_name} {userDetails?.last_name}
                 </Typography>
-                <Typography variant="subtitle1" sx={{ mb: 1, alignSelf: 'center', textAlign: 'center' }}>
+                <Typography variant="subtitle1" sx={{ mb: 1, alignSelf: 'center', textAlign: 'center', fontWeight: "bold", fontFamily: "'Rowdies', cursive, Roboto, 'sans-serif'" }}>
                   {userDetails?.username}
                 </Typography>
                 <Card style={{ alignSelf: 'center', border: "none", boxShadow: "none", alignItems: "center", textAlign: 'center' }}>
