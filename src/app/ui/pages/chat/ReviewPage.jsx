@@ -600,15 +600,18 @@ const ReviewPage = () => {
 
   const handleReviewClick = async (value, id, lead_time, parentannotation) => {
     if (typeof window !== "undefined") {
+
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
         resultValue = chatHistory.map((chat) => ({
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
+
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = currentInteraction;
       }
+
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
@@ -638,8 +641,9 @@ const ReviewPage = () => {
         interaction_llm: value === "delete" || value === "delete-pair",
         clear_conversation: value === "delete",
       };
+
       if (
-        ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(
+        ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
           value,
         ) ||
         [
@@ -649,11 +653,14 @@ const ReviewPage = () => {
         ].includes(value)
       ) {
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
+        console.log("resp",TaskObj);
+
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
           body: JSON.stringify(TaskObj.getBody()),
           headers: TaskObj.getHeaders().headers,
-        });
+        });        
+
         const resp = await res.json();
         if (
           (value === "delete" || value === "delete-pair") === true &&

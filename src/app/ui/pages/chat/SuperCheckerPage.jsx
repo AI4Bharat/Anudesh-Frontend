@@ -296,10 +296,11 @@ const SuperCheckerPage = () => {
                 (annotation) =>
                   annotation.parent_annotation === reviewerAnnotations[0]?.id,
               );
+              console.log(reviewerAnnotations,superCheckerAnnotation);
               reviewNotesRef.current.value =
                 reviewerAnnotations[0]?.review_notes ?? "";
-              superCheckerNotesRef.current.value =
-                superCheckerAnnotation[0]?.supercheck_notes ?? "";
+              if(superCheckerAnnotation){superCheckerNotesRef.current.value =
+                superCheckerAnnotation[0]?.supercheck_notes ?? ""};
 
               try {
                 const newDelta1 =
