@@ -146,7 +146,7 @@ export default function ProfilePage () {
                       </IconButton>
                   </label>
                   <Typography variant="h3" sx={{ alignSelf: 'center', mb: 2 }}>
-                    {userDetails?.role}
+                    {UserMappedByRole(userDetails?.role)?.element}
                   </Typography>
 
                 </Card>
