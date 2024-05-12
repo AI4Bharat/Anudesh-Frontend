@@ -616,8 +616,11 @@ const ReviewPage = () => {
       setAutoSave(false);
       const PatchAPIdata = {
         annotation_status:
+         
           value === "delete" || value === "delete-pair"
+           
             ? localStorage.getItem("labellingMode")
+           
             : value,
         review_notes: JSON.stringify(
           reviewNotesRef?.current?.getEditor().getContents(),
@@ -653,8 +656,6 @@ const ReviewPage = () => {
         ].includes(value)
       ) {
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-        console.log("resp",TaskObj);
-
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
           body: JSON.stringify(TaskObj.getBody()),

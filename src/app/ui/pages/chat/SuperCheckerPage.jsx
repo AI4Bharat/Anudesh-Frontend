@@ -530,6 +530,10 @@ const SuperCheckerPage = () => {
         value === "delete" || value === "delete-pair"
           ? localStorage.getItem("labellingMode")
           : value,
+      annotation_status:
+        value === "delete" || value === "delete-pair"
+          ? localStorage.getItem("labellingMode")
+          : value,
       supercheck_notes: JSON.stringify(
         superCheckerNotesRef?.current?.getEditor().getContents(),
       ),
