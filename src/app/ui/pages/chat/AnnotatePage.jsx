@@ -204,10 +204,10 @@ const AnnotatePage = () => {
   };
 
   const formatPrompt = (prompt) => {
-    const lines = prompt.split('\n');
-    const markdownString = lines.join('  \n');
+    const lines = prompt.split("\n");
+    const markdownString = lines.join("  \n");
     return markdownString;
-  }
+  };
 
   useEffect(() => {
     if (taskData) {
@@ -358,9 +358,9 @@ const AnnotatePage = () => {
     // if (typeof window !== "undefined") {
     let resultValue;
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
-      resultValue = chatHistory.map(chat => ({
+      resultValue = chatHistory.map((chat) => ({
         prompt: chat.prompt,
-        output: reverseFormatResponse(chat.output)
+        output: reverseFormatResponse(chat.output),
       }));
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
       resultValue = currentInteraction;
@@ -369,7 +369,10 @@ const AnnotatePage = () => {
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
-      annotation_status: value === "delete" || value === "delete-pair" ? localStorage.getItem("labellingMode") : value,
+      annotation_status:
+        value === "delete" || value === "delete-pair"
+          ? localStorage.getItem("labellingMode")
+          : value,
       annotation_notes: JSON.stringify(
         annotationNotesRef?.current?.getEditor().getContents(),
       ),
@@ -382,11 +385,9 @@ const AnnotatePage = () => {
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
       task_id: taskId,
-      auto_save:
-        value === "delete" || value === "delete-pair" ? true : autoSave,
-      interaction_llm: true,
-      clear_conversation:
-        value === "delete" || value === "delete-pair" ? true : false,
+      auto_save: value === "delete" || value === "delete-pair" ? true : false,
+      interaction_llm: value === "delete" || value === "delete-pair",
+      clear_conversation: value === "delete",
     };
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
@@ -619,7 +620,7 @@ const AnnotatePage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
-          id ={Annotation}
+          id={Annotation}
           stage={"Annotation"}
           notes={annotationNotesRef}
           info={info}

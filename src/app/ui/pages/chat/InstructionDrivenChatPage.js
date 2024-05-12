@@ -133,9 +133,8 @@ const InstructionDrivenChatPage = ({
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const data = await response.json();
-      console.log("data", data);
       let modifiedChatHistory = [];
-      if (data && [...data[0]?.result]?.length) {
+      if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
         modifiedChatHistory = data[0]?.result?.map((interaction) => {
           return {
             ...interaction,
@@ -159,7 +158,7 @@ const InstructionDrivenChatPage = ({
         annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
         lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
-        auto_save: "True",
+        auto_save: true,
         task_id: taskId,
       };
       if (stage === "Review") {
