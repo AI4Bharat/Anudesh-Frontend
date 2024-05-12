@@ -36,7 +36,7 @@ const DatasetDescription = (props) => {
                 </Grid>
                 <Grid item xs={9} sm={9} md={9} lg={9} xl={9} style={{ display: 'flex', marginTop: "5px" }} >
                     <CardContent>
-                        <Typography component="div" variant="subtitle2" style={{ marginBottom: '0px' ,paddingLeft:"0px" }} >
+                        <Typography component="div" variant="subtitle2" style={{ marginBottom: '0px' ,paddingLeft:"0px", fontFamily: "Roboto, sans-serif", fontWeight: "bold" }} >
                             {name}
                         </Typography  >
                             <Typography variant="body2" color="black" className={classes.modelValue} >

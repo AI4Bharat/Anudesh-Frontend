@@ -33,7 +33,7 @@ const themeDefault = createTheme({
     },
     h2: {
       fontSize: "2.5rem",
-      fontFamily: 'Rowdies, cursive,"Roboto" ,"sans-serif"',
+      fontFamily: 'Roboto, sans-serif',
       fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "1.5rem",
@@ -41,7 +41,7 @@ const themeDefault = createTheme({
     },
     h3: {
       fontSize: "1.6875rem",
-      fontFamily: 'Rowdies, cursive, "Roboto", "sans-serif"',
+      fontFamily: 'Roboto, sans-serif',
       fontWeight: "600",
       letterSpacing: "0px",
       "@media (max-width:550px)": {
@@ -50,7 +50,7 @@ const themeDefault = createTheme({
     },
     h4: {
       fontSize: "1.5rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
+      fontFamily: 'Roboto, sans-serif',
       fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "0.9rem",
@@ -66,8 +66,7 @@ const themeDefault = createTheme({
     },
     h6: {
       fontSize: "1.125rem",
-      fontFamily: 'Roboto ,sans-serif',
-       
+      fontFamily: 'Roboto ,sans-serif',       
       fontWeight: "600",
       paddingTop: "4px",
       "@media (max-width:550px)": {
