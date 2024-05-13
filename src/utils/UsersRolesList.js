@@ -1,9 +1,9 @@
-const rolesList={
-    1: "Annotator",
-    2: "Reviewer",
-    3: "SuperChecker",
-    4: "WorkspaceManager",
-    5: "OrganizationOwner",
-    6: "Admin"
+const UserRole={
+    "Annotator" : 1,
+     "Reviewer":2,
+    "SuperChecker":3,
+    "WorkspaceManager":4,
+    "OrganizationOwner":5,
+    "Admin":6
 }
-export default rolesList;
+export default UserRole;

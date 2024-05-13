@@ -1,6 +1,7 @@
 import { createTheme } from "@mui/material/styles";
 import Card from "../assets/Card.svg";
 
+
 const themeDefault = createTheme({
   palette: {
     primary: {
@@ -20,7 +21,7 @@ const themeDefault = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Roboto"',
+    fontFamily: 'Roboto',
     fontWeight: "400",
     h1: {
       fontSize: "3.125rem",
@@ -32,16 +33,16 @@ const themeDefault = createTheme({
     },
     h2: {
       fontSize: "2.5rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
-      fontWeight: "300",
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "1.5rem",
       },
     },
     h3: {
       fontSize: "1.6875rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
-      fontWeight: "300",
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: "600",
       letterSpacing: "0px",
       "@media (max-width:550px)": {
         fontSize: "1.3rem",
@@ -49,8 +50,8 @@ const themeDefault = createTheme({
     },
     h4: {
       fontSize: "1.5rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
-      fontWeight: "300",
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "0.9rem",
       },
@@ -65,8 +66,8 @@ const themeDefault = createTheme({
     },
     h6: {
       fontSize: "1.125rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
-      fontWeight: "300",
+      fontFamily: 'Roboto ,sans-serif',       
+      fontWeight: "600",
       paddingTop: "4px",
       "@media (max-width:550px)": {
         fontSize: "1rem",
@@ -74,19 +75,19 @@ const themeDefault = createTheme({
     },
     body1: {
       fontSize: "1.25rem",
-      fontFamily: '"Roboto", sans-serif ,"sans-serif"',
+      fontFamily: 'Roboto, sans-serif',
       fontWeight: "400",
     },
     body2: {
       fontSize: "0.875rem",
-      fontFamily: '"Roboto", "sans-serif"',
+      fontFamily: 'Roboto, sans-serif',
       fontWeight: "400",
       color: "#0C0F0F",
       lineHeight: "22px",
     },
     caption: {
       fontSize: "0.75rem",
-      fontFamily: "'Roboto', sans-serif",
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "400",
       color: "#3A3A3A"
     },
@@ -117,20 +118,24 @@ const themeDefault = createTheme({
     //     },
     //   }
     // },
+
+   
+
     MuiTableRow: {
       styleOverrides: {
         root: {
-          "&:nth-child(odd)": {
-            backgroundColor: "#D6EAF8",
+          "&:nth-of-type(odd)": {
+            backgroundColor: "#ffe0b2",
+            
           },
-          "&:nth-child(even)": {
-            backgroundColor: "#E9F7EF",
+          "&:nth-of-type(even)": {
+            backgroundColor: "#fffde7",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(odd)": {
-            backgroundColor: "#D6EAF8",
+            backgroundColor: "#ffe0b2",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(even)": {
-            backgroundColor: "#E9F7EF",
+            backgroundColor: "#fff3e0",
           },
           "&.MuiTableRow-footer": {
             backgroundColor: "#fff",
@@ -198,12 +203,15 @@ const themeDefault = createTheme({
           minHeight: "674px",
           boxShadow: "0px 0px 2px #00000029",
           border: "0",
+          maxHeight: "100vh"
         },
         responsiveBase: {
           minHeight: "560px",
         },
       },
     },
+   
+
     MUIDataTableToolbar: {
       styleOverrides: {
         filterPaper: {
@@ -212,6 +220,8 @@ const themeDefault = createTheme({
         MuiButton: {
           root: {
             display: "none",
+            fontFamily: 'Roboto ,sans-serif',
+            
           },
         },
       },
@@ -221,6 +231,9 @@ const themeDefault = createTheme({
         root: {
           padding: ".5rem .5rem .5rem .8rem",
           textTransform: "capitalize",
+          fontFamily: '"Roboto" ,"sans-serif"',
+          
+         
         },
 
         stackedParent: {
@@ -241,7 +254,7 @@ const themeDefault = createTheme({
       styleOverrides: {
         head: {
           padding: ".6rem .5rem .6rem 1.5rem",
-          backgroundColor: "#F8F8FA !important",
+          backgroundColor: "#fafafa !important",
           marginLeft: "25px",
           letterSpacing: "0.74",
           fontWeight: "bold",
@@ -301,7 +314,7 @@ const themeDefault = createTheme({
           height: "36px",
         },
         label: {
-          fontFamily: '"Roboto" ,"sans-serif"',
+          fontFamily: 'Roboto ,sans-serif',
           fontSize: "0.875rem",
           "@media (max-width:640px)": {
             fontSize: "10px",
@@ -315,10 +328,11 @@ const themeDefault = createTheme({
           minWidth: "25",
           borderRadius: "none",
           textTransform: "none",
+          fontFamily: 'Roboto ,sans-serif',
         },
         label: {
           textTransform: "none",
-          fontFamily: '"Roboto", "Segoe UI"',
+          fontFamily: '"Roboto" ,sans-serif',
           fontSize: "16px",
           letterSpacing: "0.16px",
           textAlign: "center",
@@ -357,7 +371,7 @@ const themeDefault = createTheme({
           fontSize: "18px",
           fontWeight: "600",
           letterSpacing: "0px",
-          fontFamily: "Roboto",
+          fontFamily: "Roboto, sans-serif",
           padding: "0",
           textTransform: "none",
           marginRight: "28px",
@@ -399,6 +413,7 @@ const themeDefault = createTheme({
       root: {
         "&:nth-of-type(odd)": {
           backgroundColor: "#D6EAF8",
+          
         },
         "&:nth-of-type(even)": {
           backgroundColor: "#E9F7EF",
@@ -427,6 +442,7 @@ const themeDefault = createTheme({
       MuiButton: {
         root: {
           display: "none",
+          fontFamily: 'Roboto ,sans-serif',
         },
       },
     },
@@ -434,7 +450,7 @@ const themeDefault = createTheme({
       root: {
         backgroundColor: "white",
         width: "80%",
-        fontFamily: '"Roboto" ,"sans-serif"',
+
       },
       checkboxFormControl: {
         minWidth: "200px",
@@ -480,6 +496,8 @@ const themeDefault = createTheme({
         }
       }
     }
+
+    
   },
 });
 
@@ -489,7 +507,7 @@ themeDefault.container = {
 
 themeDefault.typography.lightText = {
   fontSize: "0.75rem",
-  fontFamily: "'Roboto', sans-serif",
+  fontFamily: "Roboto, sans-serif",
   fontWeight: "400",
   color: "rgb(255 255 255 / 82%)",
 };

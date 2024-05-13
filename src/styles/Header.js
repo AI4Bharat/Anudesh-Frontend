@@ -29,7 +29,7 @@ const headerStyle = makeStyles({
         padding:"0px !important",
         boxSizing: "border-box",
         minHeight: "54px",
-        fontFamily: '"Roboto" ,sans-serif',
+        fontFamily: 'sans-serif',
       
     },
     menu:{
@@ -43,7 +43,7 @@ const headerStyle = makeStyles({
 
     },
     headerLogo: {
-        height: "35px", 
+        height: "40px", 
         width: "40px", 
         borderRadius:"50%"
     },
@@ -61,8 +61,8 @@ const headerStyle = makeStyles({
         color: "black",
         boxShadow: "none",
         fontSize: "19px",
-        fontFamily: "Roboto", 
-        fontWeight: 500,
+        fontFamily: 'Roboto, sans-serif', 
+        fontWeight: 600,
         letterSpacing: "0.5px",
         borderRadius:12,
         '&:hover': {
@@ -79,8 +79,8 @@ const headerStyle = makeStyles({
         color: "black",
         boxShadow: "none",
         fontSize: "19px",
-        fontFamily: "Roboto", 
-        fontWeight: 500,
+        fontFamily: "sans-serif", 
+        fontWeight: 600,
         borderRadius:12,
         letterSpacing: "0.5px",
         '&:hover': {
@@ -91,7 +91,7 @@ const headerStyle = makeStyles({
     avatar: {
         width: "36px",
         height: "36px",
-        backgroundColor: "#2A61AD !important",
+        backgroundColor: "#e65100 !important",
         fontSize: "14px",
         color: "#FFFFFF !important",
         "@media (max-width:640px)": {

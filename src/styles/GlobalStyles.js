@@ -1,4 +1,5 @@
 import { makeStyles } from "@mui/styles";
+import { fontFamily } from "html2canvas/dist/types/css/property-descriptors/font-family";
 
 const GlobalStyles = makeStyles(theme=>({
   section: {
@@ -11,6 +12,8 @@ const GlobalStyles = makeStyles(theme=>({
     alignItems: "center",
   },
 
+
+
   textBox: {
     width: "100%",
   },
@@ -18,6 +21,7 @@ const GlobalStyles = makeStyles(theme=>({
   heading: {
     color: "#3a3a3a",
     margin: "24px 0",
+    
   },
 
   description: {
@@ -31,9 +35,9 @@ const GlobalStyles = makeStyles(theme=>({
     fontSize: "1.25rem",
     lineHeight: "2rem",
     margin: "0 35px 25px 0",
-    // [theme.breakpoints.down('md')]: {
-    //   margin: "0 10px 25px 0",
-    // },
+    [theme.breakpoints.down('md')]: {
+      margin: "0 10px 25px 0",
+    },
     textAlign: "justify",
   },
 
@@ -50,6 +54,7 @@ const GlobalStyles = makeStyles(theme=>({
     textDecoration: "none",
     display: "inline-block",
     fontSize: "16px",
+    fontFamily: "Roboto, sans-serif",
     margin: "20px 2px",
     transitionDuration: "0.4s",
     cursor: "pointer",
@@ -104,6 +109,8 @@ const GlobalStyles = makeStyles(theme=>({
       textDecoration: "underline"
     }
   }
+
+  
 }));
 
 export default GlobalStyles;
