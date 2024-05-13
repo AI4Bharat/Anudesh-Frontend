@@ -92,7 +92,7 @@ return (
       >
         <Grid container spacing={4}>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <Typography variant="h3" align="center">
+            <Typography variant="h3" align="center" fontFamily="Rowdies">
               Profile Details
             </Typography>
           </Grid>

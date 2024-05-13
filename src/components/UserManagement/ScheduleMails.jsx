@@ -314,7 +314,7 @@ const ScheduleMails = () => {
         >
           <Grid container spacing={4}>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <Typography variant="h3" align="center">
+              <Typography variant="h3" align="center" fontFamily="Roboto, snas-serif">
                 Schedule Emails (Payment Reports)
               </Typography>
             </Grid>
