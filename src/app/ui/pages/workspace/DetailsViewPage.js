@@ -275,7 +275,7 @@ const DetailsViewPage = (props) => {
                   userRole.Reviewer !== userDetails?.role ||
                   userRole.SuperChecker !== userDetails?.role) && (
                   <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
-                    <Tooltip title={translate("label.showProjectSettings")}>
+                    {/* <Tooltip title={translate("label.showProjectSettings")}>
                       <IconButton
                         onClick={handleOpenSettings}
                         sx={{ marginLeft: "140px" }}
@@ -285,7 +285,18 @@ const DetailsViewPage = (props) => {
                           fontSize="large"
                         />
                       </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
+                    <Tooltip
+      title={
+        <Typography variant="body1" sx={{ fontFamily: 'Roboto, sans-serif', fontSize: "0.7rem" }}>
+          {translate("label.showProjectSettings")}
+        </Typography>
+      }
+    >
+      <IconButton onClick={handleOpenSettings} sx={{ marginLeft: "140px" }}>
+        <SettingsOutlinedIcon color="primary.dark" fontSize="large" />
+      </IconButton>
+    </Tooltip>
                   </Grid>
                 )} 
               </Grid>

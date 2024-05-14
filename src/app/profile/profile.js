@@ -167,7 +167,7 @@ export default function ProfilePage () {
                 {userDetails?.languages.length > 0 && (
                   <Typography variant="body1" sx={{ display: "flex", gap: "5px", alignItems: "center", alignSelf: 'center', textAlign: 'center' }}>Languages:
                     {userDetails?.languages.map((lang, index) => (
-      <Chip label={lang} key={index} variant="outlined" sx={{ ml: 1 }} />))}
+      <Chip label={lang} key={index} variant="outlined" sx={{ ml: 1, fontFamily: "Roboto, sans-serif" }} />))}
                   </Typography>
                 )}
                 {/* {LoggedInUserId === userDetails?.id && */}

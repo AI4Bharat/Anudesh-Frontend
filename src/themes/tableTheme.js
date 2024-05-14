@@ -12,6 +12,7 @@ const tableTheme = createTheme({
           borderRadius: "none",
           textTransform: "none",
           fontFamily: 'Roboto ,sans-serif',
+          fontWeight: 550
           
         },
         label: {

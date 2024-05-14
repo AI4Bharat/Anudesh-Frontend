@@ -82,7 +82,7 @@ const [radiobutton, setRadiobutton] = useState(true);
 
         <Grid xs={3} item className="fixedWidthContainer">
           <Search />
-        </Grid>
+        </Grid> 
       </Grid>
 
       <Box>

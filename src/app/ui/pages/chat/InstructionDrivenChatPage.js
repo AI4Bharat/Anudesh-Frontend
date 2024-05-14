@@ -492,11 +492,23 @@ const InstructionDrivenChatPage = ({
                 {translate("typography.instructions")}
               </Typography>
 
-              <Tooltip title="Hint and Metadata">
+              {/* <Tooltip title="Hint and Metadata">
                 <IconButton onClick={handleOpen}>
                   <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
                 </IconButton>
-              </Tooltip>
+              </Tooltip> */}
+
+<Tooltip
+      title={
+        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+          Hint and Metadata
+        </span>
+      }
+    >
+      <IconButton onClick={handleOpen}>
+        <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
+      </IconButton>
+    </Tooltip>
             </Box>
 
             <Typography
