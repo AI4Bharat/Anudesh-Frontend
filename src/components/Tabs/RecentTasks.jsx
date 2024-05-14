@@ -48,7 +48,9 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
     const [selectedFilters, setsSelectedFilters] = useState({});
   
     const GetAllTasksdata = () => {
-      dispatch(fetchRecentTasks(id, taskType, currentPageNumber, selectedFilters, currentRowPerPage));
+      // id,task_type, pageNo, filter,countPerPage
+      dispatch(fetchRecentTasks({id:id, task_type:taskType, pageNo:currentPageNumber, filter:selectedFilters, countPerPage:currentRowPerPage}));
+      console.log("step 1");
     };
   /* eslint-disable react-hooks/exhaustive-deps */
 

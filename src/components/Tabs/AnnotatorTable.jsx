@@ -38,7 +38,7 @@ const AnnotatorsTable = (props) => {
 
 
     useEffect(() => {
-      dispatch(fetchWorkspacesAnnotatorsData(id));
+      dispatch(fetchWorkspacesAnnotatorsData({workspaceId:id}));
     }, []);
  
     const handleRemoveWorkspaceMember = async (Projectid) => {
