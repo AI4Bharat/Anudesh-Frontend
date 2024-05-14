@@ -13,11 +13,11 @@ const Members = () => {
    /* eslint-disable react-hooks/exhaustive-deps */
 
     const dispatch = useDispatch();
-    const orgId=useParams();
+    const {orgId}=useParams();
     const OrganizationUserData = useSelector(state=>state.getOrganizationUsers.data);
     const apiLoading = useSelector(state=> state.getOrganizationUsers.status !=="succeeded");
     const getOrganizationMembersData = ()=>{
-        dispatch(fetchOrganizationUsers(orgId));
+      dispatch(fetchOrganizationUsers({id:orgId}))
       }
    /* eslint-disable react-hooks/exhaustive-deps */
    

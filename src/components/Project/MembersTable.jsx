@@ -368,7 +368,7 @@ const MembersTable = (props) => {
           message: resp?.message,
           variant: "success",
         });
-        dispatch(fetchOrganizationUsers(id));
+        dispatch(fetchOrganizationUsers({id:id}));
       }else {
         setSnackbarInfo({
           open: true,

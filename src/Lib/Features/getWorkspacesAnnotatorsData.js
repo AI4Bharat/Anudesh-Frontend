@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchWorkspacesAnnotatorsData = createAsyncThunk(
   'getWorkspacesAnnotatorsData/fetchWorkspacesAnnotatorsData',
-  async (workspaceId) => {
+  async ({workspaceId}) => {
     const params = fetchParams(`${ENDPOINTS.getWorkspaces}${workspaceId}/members/`);
     return fetch(params.url, params.options)
         .then(response => response.json())
