@@ -135,7 +135,6 @@ const InstructionDrivenChatPage = ({
       const data = await response.json();
       let modifiedChatHistory = [];
       if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
-        console.log(data,id);
         if(stage==="Review"){
           let obj = data.filter((data)=>data.annotation_type==2)
           modifiedChatHistory = obj[0]?.result?.map((interaction) => {
@@ -167,7 +166,7 @@ const InstructionDrivenChatPage = ({
         setChatHistory([]);
       }
       setAnnotationId(data[0]?.id);
-      if (data && [...data[0].result].length) setShowChatContainer(true);
+      if (data[0]?.result) setShowChatContainer(true);
     };
     fetchData();
   }, [taskId]);
@@ -178,7 +177,7 @@ const InstructionDrivenChatPage = ({
       const body = {
         annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
-        lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
+        lead_time: (new Date() - loadtime) / 1000 + Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
       };
@@ -190,9 +189,9 @@ const InstructionDrivenChatPage = ({
         body.annotation_notes = JSON.stringify(notes?.current?.getEditor().getContents());
       }
       if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id.parent_annotation;
+        body.parentannotation = id?.parent_annotation;
       }
-      const AnnotationObj = new PatchAnnotationAPI(id.id, body);
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(AnnotationObj.getBody()),
@@ -290,7 +289,7 @@ const InstructionDrivenChatPage = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleClick("delete-pair", id.id, 0.0);
+                    handleClick("delete-pair", id?.id, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon
