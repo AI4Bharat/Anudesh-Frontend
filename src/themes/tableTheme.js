@@ -11,6 +11,8 @@ const tableTheme = createTheme({
           minWidth: "25",
           borderRadius: "none",
           textTransform: "none",
+          fontFamily: 'Roboto ,sans-serif',
+          
         },
         label: {
           textTransform: "none",

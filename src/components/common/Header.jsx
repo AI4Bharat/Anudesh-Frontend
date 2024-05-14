@@ -873,7 +873,7 @@ const handleopenproject=(id,type)=>{
                     className={classes.headerTitle}
                     sx={{
                       fontSize: "28px",
-                      fontWeight: "lighter",
+                      fontWeight: "bold",
                     }}
                   >
                     Anudesh
@@ -1178,8 +1178,8 @@ const handleopenproject=(id,type)=>{
                           </div>
                           <Link style={{ color: "rgba(0, 0, 0, 0.87)", display: 'flex', flexDirection: 'column', width: '100%' ,cursor:"pointer",textDecoration:"none" }} to={notification.on_click}>
                             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-                              <Typography variant="subtitle2">{`ID: ${notification?.title?.split('-')[0]}`}</Typography>
-                              <Typography style={{ paddingLeft: "10px" }} variant="subtitle2">{`TITLE: ${notification?.notification_type}`}</Typography>
+                              <Typography variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`ID: ${notification?.title?.split('-')[0]}`}</Typography>
+                              <Typography style={{ paddingLeft: "10px" }} variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`TITLE: ${notification?.notification_type}`}</Typography>
                               <Typography style={{ padding: "5px 5px 0px 5px" }} variant="caption" color="action">{`${formatDistanceToNow(new Date(notification?.created_at), { addSuffix: true })}`}</Typography>
                             </div>
                            
