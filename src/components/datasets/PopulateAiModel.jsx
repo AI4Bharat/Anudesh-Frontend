@@ -144,9 +144,9 @@ const PopulateAiModel = () => {
   const handleField =(value)=>{
     setSrcInstance(value);
     setLoading(true);
-    dispatch(fetchDataitemsById(value,srcDatasetType));
+    dispatch(fetchDataitemsById({instanceIds:value,datasetType:srcDatasetType}));
   }
-  console.log(srcDatasetType,srcInstances,DatasetInstances,loading);
+  // console.log(srcDatasetType,srcInstances,DatasetInstances,loading);
 
 
   const handleConfirm = async () => {
@@ -157,8 +157,8 @@ const PopulateAiModel = () => {
 
     let apiObj;
     
-    srcDatasetType === "OCRDocument" && ( apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
-    srcDatasetType === "SpeechConversation" && (apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
+    srcDatasetType === "Interaction" && ( apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
+    srcDatasetType === "Instruction" && (apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
     fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
@@ -258,12 +258,12 @@ const PopulateAiModel = () => {
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
                 <MenuItems
-                  menuOptions={[srcDatasetType === "OCRDocument" && {
+                  menuOptions={[srcDatasetType === "Interaction" && {
                     name: "Google vision",
                     value: "google"
-                  }, srcDatasetType === "SpeechConversation" && {
-                    name: "AI4Bharat-Dhruva ASR",
-                    value: "dhruva_asr"
+                  }, srcDatasetType === "Instruction" && {
+                    name: "Google vision",
+                    value: "google"
                   }
                  
                 ]}

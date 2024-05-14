@@ -530,6 +530,10 @@ const SuperCheckerPage = () => {
         value === "delete" || value === "delete-pair"
           ? localStorage.getItem("labellingMode")
           : value,
+      annotation_status:
+        value === "delete" || value === "delete-pair"
+          ? localStorage.getItem("labellingMode")
+          : value,
       supercheck_notes: JSON.stringify(
         superCheckerNotesRef?.current?.getEditor().getContents(),
       ),
@@ -547,9 +551,9 @@ const SuperCheckerPage = () => {
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
       task_id: taskId,
-      auto_save: value === "delete" || value === "delete-pair" ? true : false,
+      auto_save: value === "delete" || value === "delete-pair" || value==="rejected"? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
-      clear_conversation: value === "delete",
+      clear_conversation: value === "delete" || value === "rejected",
     };
     if (
       ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(

@@ -135,12 +135,33 @@ const InstructionDrivenChatPage = ({
       const data = await response.json();
       let modifiedChatHistory = [];
       if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
-        modifiedChatHistory = data[0]?.result?.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
+        console.log(data,id);
+        if(stage==="Review"){
+          let obj = data.filter((data)=>data.annotation_type==2)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+
+        }else if(stage=="SuperChecker"){
+          let obj = data.filter((data)=>data.annotation_type==3)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }else{
+          let obj = data.filter((data)=>data.annotation_type==3)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }
         setChatHistory([...modifiedChatHistory]);
       } else {
         setChatHistory([]);

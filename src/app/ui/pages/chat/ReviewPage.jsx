@@ -616,8 +616,11 @@ const ReviewPage = () => {
       setAutoSave(false);
       const PatchAPIdata = {
         annotation_status:
+         
           value === "delete" || value === "delete-pair"
+           
             ? localStorage.getItem("labellingMode")
+           
             : value,
         review_notes: JSON.stringify(
           reviewNotesRef?.current?.getEditor().getContents(),
@@ -637,9 +640,9 @@ const ReviewPage = () => {
               ? resultValue.slice(0, resultValue.length - 1)
               : resultValue,
         task_id: taskId,
-        auto_save: value === "delete" || value === "delete-pair" ? true : false,
+        auto_save: value === "delete" || value === "delete-pair" || value==="rejected"? true : false,
         interaction_llm: value === "delete" || value === "delete-pair",
-        clear_conversation: value === "delete",
+        clear_conversation: value === "delete" || value === "rejected",
       };
 
       if (
@@ -653,8 +656,6 @@ const ReviewPage = () => {
         ].includes(value)
       ) {
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-        console.log("resp",TaskObj);
-
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
           body: JSON.stringify(TaskObj.getBody()),
