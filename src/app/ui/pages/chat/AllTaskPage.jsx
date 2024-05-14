@@ -527,6 +527,9 @@ const AllTaskPage = () => {
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
           formatPrompt={formatPrompt}
+          id={AnnotationsTaskDetails[0]}
+          stage={"Alltask"}
+          notes={annotationNotesRef}
           info={info}
         />
       );

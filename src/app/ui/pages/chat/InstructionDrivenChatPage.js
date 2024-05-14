@@ -152,9 +152,17 @@ const InstructionDrivenChatPage = ({
               output: formatResponse(interaction.output),
             };
           });
-        }else{
-          let obj = data.filter((data)=>data.annotation_type==3)
+        }else if(stage=="Annotation"){
+          let obj = data.filter((data)=>data.annotation_type==1)
           modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }
+        else{
+          modifiedChatHistory = data[0]?.result?.map((interaction) => {
             return {
               ...interaction,
               output: formatResponse(interaction.output),
@@ -175,12 +183,17 @@ const InstructionDrivenChatPage = ({
     if (inputValue) {
       setLoading(true);
       const body = {
-        annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
         lead_time: (new Date() - loadtime) / 1000 + Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
       };
+      console.log(id,stage);
+      if(stage==="Alltask"){
+        body.annotation_status = id?.annotation_status
+      }else{
+        body.annotation_status = localStorage.getItem("labellingMode")
+      }
       if (stage === "Review") {
         body.review_notes = JSON.stringify(notes?.current?.getEditor().getContents());
       } else if (stage === "SuperChecker") {
@@ -278,7 +291,7 @@ const InstructionDrivenChatPage = ({
               <ReactMarkdown className="flex-col">
                 {formatPrompt(message.prompt)}
               </ReactMarkdown>
-              {index === chatHistory.length - 1 && (
+              {index === chatHistory.length - 1 && stage !== "Alltask" && (
                 <IconButton
                   size="large"
                   sx={{
