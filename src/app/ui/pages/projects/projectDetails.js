@@ -413,7 +413,7 @@ import {
               padding: 5,
             }}
           >
-            <Gridt
+            <Grid
               container
               direction="row"
               justifyContent="center"
@@ -452,7 +452,7 @@ import {
     </Tooltip>
                   </Grid>
                 {/* )} */}
-            </Gridt>
+            </Grid>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (
