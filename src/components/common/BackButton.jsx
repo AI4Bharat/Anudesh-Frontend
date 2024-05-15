@@ -5,9 +5,15 @@ const BackButton = ({ label, backPressNavigationPath, ...rest }) =>{
   const navigate = useNavigate();
   return (
     <>
-     <Button {...rest} variant="contained" color="primary" onClick={() => backPressNavigationPath ? navigate(backPressNavigationPath) : navigate(-1)}>
+     <Button {...rest} variant="contained" color="primary" onClick={() => {
+           navigate(-1)
+      }}>
       {label}
     </Button>
+    {/* <Button {...rest} variant="contained" color="primary" onClick={() => {
+        window.history.back(); 
+      }}
+    >{label}</Button> */}
      </>
   );
 }
