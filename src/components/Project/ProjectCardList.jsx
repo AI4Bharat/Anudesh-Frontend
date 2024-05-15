@@ -195,9 +195,15 @@ const ProjectCardList = (props) => {
     return (
       <>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-          <Tooltip title={"Filter Table"}>
-            <FilterListIcon sx={{ color: "#515A5A" }} />
-          </Tooltip>
+        <Tooltip
+      title={
+        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+          Filter Table
+        </span>
+      }
+    >
+      <FilterListIcon sx={{ color: '#515A5A' }} />
+    </Tooltip>
         </Button>
       </>
     );

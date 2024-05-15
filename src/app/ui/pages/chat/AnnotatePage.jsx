@@ -797,7 +797,7 @@ const AnnotatePage = () => {
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  <Tooltip title="Save task for later">
+                  {/* <Tooltip title="Save task for later">
                     <Button
                       value="Draft"
                       type="default"
@@ -822,12 +822,36 @@ const AnnotatePage = () => {
                     >
                       Draft
                     </Button>
-                  </Tooltip>
+                  </Tooltip> */}
+
+<Tooltip
+      title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Save task for later</span>}
+    >
+      <Button
+        value="Draft"
+        type="default"
+        variant="outlined"
+        onClick={() =>
+          handleAnnotationClick("draft", Annotation.id, Annotation.lead_time)
+        }
+        style={{
+          minWidth: '150px',
+          color: 'black',
+          borderRadius: '5px',
+          border: '0px',
+          paddingTop: 2,
+          paddingBottom: 2,
+          backgroundColor: '#ffe0b2',
+        }}
+      >
+        Draft
+      </Button>
+    </Tooltip>
                   {/* )} */}
                 </Grid>
               )}
             <Grid item>
-              <Tooltip title="Go to next task">
+              {/* <Tooltip title="Go to next task">
                 <Button
                   value="Next"
                   type="default"
@@ -844,14 +868,35 @@ const AnnotatePage = () => {
                 >
                   Next
                 </Button>
-              </Tooltip>
+              </Tooltip> */}
+
+<Tooltip
+      title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Go to next task</span>}
+    >
+      <Button
+        value="Next"
+        type="default"
+        onClick={() => onNextAnnotation('next', getNextTask?.id)}
+        style={{
+          minWidth: '150px',
+          color: 'black',
+          borderRadius: '5px',
+          border: '0px',
+          paddingTop: 2,
+          paddingBottom: 2,
+          backgroundColor: '#ffe0b2',
+        }}
+      >
+        Next
+      </Button>
+    </Tooltip>
             </Grid>
             {!disableSkipButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  <Tooltip title="skip to next task">
+                  {/* <Tooltip title="skip to next task">
                     <Button
                       value="Skip"
                       type="default"
@@ -876,7 +921,34 @@ const AnnotatePage = () => {
                     >
                       Skip
                     </Button>
-                  </Tooltip>
+                  </Tooltip> */}
+                  <Tooltip
+      title={
+        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+          skip to next task
+        </span>
+      }
+    >
+      <Button
+        value="Skip"
+        type="default"
+        variant="outlined"
+        onClick={() =>
+          handleAnnotationClick("skipped", Annotation.id, Annotation.lead_time)
+        }
+        style={{
+          minWidth: '150px',
+          color: 'black',
+          borderRadius: '5px',
+          border: '0px',
+          paddingTop: 2,
+          paddingBottom: 2,
+          backgroundColor: '#ffe0b2',
+        }}
+      >
+        Skip
+      </Button>
+    </Tooltip>
                 </Grid>
               )}
             {!disableSkipButton &&
@@ -884,7 +956,7 @@ const AnnotatePage = () => {
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  <Tooltip title="clear the entire chat history">
+                  {/* <Tooltip title="clear the entire chat history">
                     <Button
                       value="Clear Chats"
                       type="default"
@@ -909,7 +981,35 @@ const AnnotatePage = () => {
                     >
                       Clear Chats
                     </Button>
-                  </Tooltip>
+                  </Tooltip> */}
+
+<Tooltip
+      title={
+        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+          clear the entire chat history
+        </span>
+      }
+    >
+      <Button
+        value="Clear Chats"
+        type="default"
+        variant="outlined"
+        onClick={() =>
+          handleAnnotationClick("delete", Annotation.id, Annotation.lead_time)
+        }
+        style={{
+          minWidth: '150px',
+          color: 'black',
+          borderRadius: '5px',
+          border: '0px',
+          paddingTop: 2,
+          paddingBottom: 2,
+          backgroundColor: '#ffe0b2',
+        }}
+      >
+        Clear Chats
+      </Button>
+    </Tooltip>
                 </Grid>
               )}
             {!disableUpdateButton &&

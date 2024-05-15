@@ -619,13 +619,14 @@ const handleopenproject=(id,type)=>{
               Analytics
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" >
             <NavLink
               to="/admin"
               className={({ isActive }) =>
                 isActive ? classes.highlightedMenu : classes.headerMenu
               }
               activeClassName={classes.highlightedMenu}
+              
             >
               Admin
             </NavLink>
@@ -874,6 +875,7 @@ const handleopenproject=(id,type)=>{
                     sx={{
                       fontSize: "28px",
                       fontWeight: "bold",
+                      fontFamily: 'Rowdies,"cursive", Roboto, sans-serif',
                     }}
                   >
                     Anudesh
@@ -907,7 +909,11 @@ const handleopenproject=(id,type)=>{
                   sx={{ textAlign: "center", alignItems: "center", }}
                 >
                 <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Notifications">
+                    <Tooltip title={
+                         <span style={{ fontFamily: 'Rowdies' }}>
+                            Notifications
+                          </span>
+                    }>
                       <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={unseenNotifications?.length>0 ?unseenNotifications?.length: null} color="primary">
                           <NotificationsIcon color="primary.dark" fontSize="large" />
@@ -943,7 +949,11 @@ const handleopenproject=(id,type)=>{
                   </Grid> } */}
 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Help">
+                    <Tooltip  title={
+                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                            Help
+                        </span>
+                     }>
                       <IconButton onClick={handleInfo}>
                         <InfoOutlinedIcon
                           color="primary.dark"
@@ -954,7 +964,11 @@ const handleopenproject=(id,type)=>{
                   </Grid>
 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Settings">
+                    <Tooltip  title={
+                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                              Settings
+                        </span>
+                    }>
                       <IconButton onClick={handleOpenSettingsMenu}>
                         <SettingsOutlinedIcon
                           color="primary.dark"
@@ -965,7 +979,11 @@ const handleopenproject=(id,type)=>{
                   </Grid>
 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="User Options">
+                    <Tooltip  title={
+                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                            User Options
+                        </span>
+                   }>
                       <IconButton onClick={handleOpenUserMenu}>
                         <Avatar
                           alt="user_profile_pic"

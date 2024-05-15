@@ -782,11 +782,13 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <Tooltip title="Filter Table">
-          <Button onClick={handleShowFilter}>
-            <FilterListIcon />
-          </Button>
-        </Tooltip>
+        <Tooltip
+      title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>}
+    >
+      <Button onClick={handleShowFilter}>
+        <FilterListIcon />
+      </Button>
+    </Tooltip>
       </Box>
     );
   };
