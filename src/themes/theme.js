@@ -2,6 +2,8 @@ import { createTheme } from "@mui/material/styles";
 import Card from "../assets/Card.svg";
 
 
+
+
 const themeDefault = createTheme({
   palette: {
     primary: {
@@ -58,8 +60,8 @@ const themeDefault = createTheme({
     },
     h5: {
       fontSize: "1.3125rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
-      fontWeight: "300",
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "1rem",
       },
@@ -101,7 +103,7 @@ const themeDefault = createTheme({
     },
     subtitle2: {
       fontSize: "1rem",
-      fontFamily: '"Rowdies", "cursive","Roboto" ,"sans-serif"',
+      fontFamily: 'Roboto,sans-serif',
       fontWeight: "300",
       "@media (max-width:550px)": {
         fontSize: ".7rem",
@@ -221,7 +223,7 @@ const themeDefault = createTheme({
           root: {
             display: "none",
             fontFamily: 'Roboto ,sans-serif',
-            
+            fontWeight: 550,
           },
         },
       },
@@ -287,7 +289,8 @@ const themeDefault = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: {
-          borderRadius: "5%"
+          borderRadius: "5%",
+          fontWeight: 550
         }
       }
     },
@@ -329,6 +332,7 @@ const themeDefault = createTheme({
           borderRadius: "none",
           textTransform: "none",
           fontFamily: 'Roboto ,sans-serif',
+          fontWeight: 550,
         },
         label: {
           textTransform: "none",
@@ -443,6 +447,7 @@ const themeDefault = createTheme({
         root: {
           display: "none",
           fontFamily: 'Roboto ,sans-serif',
+          fontWeight: 550,
         },
       },
     },

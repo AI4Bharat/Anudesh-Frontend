@@ -116,11 +116,19 @@ const DatasetCardList = (props) => {
   const renderToolBar = () => {
     return (
       <>
-        <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
+        {/* <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
           <Tooltip title={"Filter Table"}>
             <FilterListIcon sx={{ color: "#515A5A" }} />
           </Tooltip>
-        </Button>
+        </Button> */}
+
+    <Button style={{ minWidth: '25px' }} onClick={handleShowFilter}>
+      <Tooltip 
+        title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>}
+      >
+        <FilterListIcon sx={{ color: '#515A5A' }} />
+      </Tooltip>
+    </Button>
       </>
     );
   };

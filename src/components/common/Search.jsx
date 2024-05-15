@@ -42,11 +42,20 @@ const Search = (props) => {
                     {globalTransliteration ? 
                     <IndicTransliterate 
                     renderComponent={(props) => (
-                      <textarea
-                      sx={{ ml: 4 }}
-                      placeholder="Search..."
-                      {...props}
-                      />
+                      // <textarea
+                      // sx={{ ml: 4 }}
+                      // placeholder="Search..."
+                      // {...props}
+                      // />
+
+                      <InputBase
+                        sx={{ ml: 4 }}
+                        // inputRef={ref}
+                        placeholder="Search..."
+                        value={searchValue}
+                        onChange={(e) => handleChangeName(e.target.value)}
+                        inputProps={{ "aria-label": "search" }}
+                    />
                     )}
                     value={searchValue}
                     onChangeText={(text) => {
