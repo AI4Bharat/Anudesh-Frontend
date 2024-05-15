@@ -18,13 +18,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => <p>Loading ...</p>,
-});
-
-// import ReactQuill, { Quill } from 'react-quill';
-
 import "./editor.css";
 import "quill/dist/quill.snow.css";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -53,6 +46,18 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+
+    return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
+  },
+  {
+    ssr: false,
+  },
+);
+
 
 const AllTaskPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -155,44 +160,42 @@ const AllTaskPage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      fetchAnnotation(taskId).then((data) => {
-        if (data && Array.isArray(data) && data.length > 0) {
-          annotationNotesRef.current.value = data[0]?.annotation_notes
-            ? data[0].annotation_notes
-            : "";
-          reviewNotesRef.current.value = data[0].review_notes
-            ? data[0].review_notes
-            : "";
-          try {
-            const newDelta2 =
-              annotationNotesRef.current.value !== ""
-                ? JSON.parse(annotationNotesRef.current.value)
-                : "";
-            annotationNotesRef.current.getEditor().setContents(newDelta2);
-          } catch (err) {
-            if (err instanceof SyntaxError) {
-              const newDelta2 = annotationNotesRef.current.value;
-              annotationNotesRef.current.getEditor().setText(newDelta2);
-            }
+      console.log(AnnotationsTaskDetails);
+      if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
           }
-          try {
-            const newDelta1 =
-              reviewNotesRef.current.value != ""
-                ? JSON.parse(reviewNotesRef.current.value)
-                : "";
-            reviewNotesRef.current.getEditor().setContents(newDelta1);
-          } catch (err) {
-            if (err instanceof SyntaxError) {
-              const newDelta1 = reviewNotesRef.current.value;
-              reviewNotesRef.current.getEditor().setText(newDelta1);
-            }
-          }
-          setannotationtext(annotationNotesRef.current.getEditor().getText());
-          setreviewtext(reviewNotesRef.current.getEditor().getText());
         }
-      });
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
+      }
     }
-  }, [taskId]);
+  }, [AnnotationsTaskDetails]);
 
   const resetNotes = () => {
     if (
@@ -210,6 +213,7 @@ const AllTaskPage = () => {
     resetNotes();
   }, [taskId]);
 
+  
   useEffect(() => {
     const showAssignedUsers = async () => {
       getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
@@ -217,53 +221,50 @@ const AllTaskPage = () => {
     taskData?.id && showAssignedUsers();
   }, [taskData]);
 
-  const onNextAnnotation = async () => {
-    // showLoader();
+  const onNextAnnotation = async (value) => {
     setLoading(true);
-    getNextProject(projectId, taskId, "Alltask").then((res) => {
-      //   hideLoader();
-      setLoading(false);
-      // window.location.href = `/projects/${projectId}/task/${res.id}`;
-      tasksComplete(res?.id || null);
-    });
-  };
-  let Annotation = AnnotationsTaskDetails.filter(
-    (annotation) => annotation.annotation_type === 1,
-  )[0];
-  const onSkipTask = () => {
-    // if (typeof window !== "undefined") {
-    //   message.warning('Notes will not be saved for skipped tasks!');
-    let annotation = annotations.find(
-      (annotation) => !annotation.parentAnnotation,
-    );
-    if (annotation) {
-      // showLoader();
-      patchAnnotation(
-        null,
-        annotation.id,
-        load_time.current,
-        annotation.lead_time,
-        "skipped",
-        JSON.stringify(annotationNotesRef.current.getEditor().getContents()),
-      ).then(() => {
-        getNextProject(projectId, taskData.id).then((res) => {
-          // hideLoader();
-          tasksComplete(res?.id || null);
+    const nextAPIData = {
+      id: projectId,
+      current_task_id: taskId,
+      mode: "annotation",
+    };
+
+    let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    var rsp_data = [];
+    fetch(apiObj.apiEndPoint(), {
+      method: "post",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        rsp_data = await response.json();
+        setLoading(false);
+        if (response.ok) {
+          tasksComplete(rsp_data?.id || null);
+          getAnnotationsTaskData(rsp_data?.id);
+          getTaskData(rsp_data?.id)
+        }
+      })
+      .catch((error) => {
+        setSnackbarInfo({
+          open: true,
+          message: "No more tasks",
+          variant: "info",
         });
+        setTimeout(() => {
+          localStorage.removeItem("labelAll");
+          window.location.replace(`/#/projects/${projectId}`);
+        }, 1000);
       });
-      // }
-    }
   };
 
+
+ 
   const tasksComplete = (id) => {
-    // if (typeof window !== "undefined") {
     if (id) {
-      resetNotes();
-      // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-      navigate(`/projects/${projectId}/task/${id}`);
+      navigate(`/projects/${projectId}/Alltask/${id}`);
+      window.location.reload(true);
     } else {
-      // navigate(-1);
-      resetNotes();
       setSnackbarInfo({
         open: true,
         message: "No more tasks to label",
@@ -275,63 +276,10 @@ const AllTaskPage = () => {
         window.location.reload();
       }, 1000);
     }
-    // }
-  };
-  const handleAnnotationClick = async (value, id, lead_time) => {
-    // if (typeof window !== "undefined") {
-    setLoading(true);
-    setAutoSave(false);
-    const PatchAPIdata = {
-      annotation_status: value,
-      annotation_notes: JSON.stringify(
-        annotationNotesRef.current.getEditor().getContents(),
-      ),
-      lead_time:
-        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-    };
-    if (["draft", "skipped"].includes(value)) {
-      const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      // dispatch(APITransport(GlossaryObj));
-      const res = await fetch(TaskObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(TaskObj.getBody()),
-        headers: TaskObj.getHeaders().headers,
-      });
-      const resp = await res.json();
-      if (res.ok) {
-        if (localStorage.getItem("labelAll") || value === "skipped") {
-          onNextAnnotation(resp.task);
-        }
-        setSnackbarInfo({
-          open: true,
-          message: resp?.message,
-          variant: "success",
-        });
-      } else {
-        setAutoSave(true);
-        setSnackbarInfo({
-          open: true,
-          message: resp?.message,
-          variant: "error",
-        });
-      }
-    } else {
-      setAutoSave(true);
-      setSnackbarInfo({
-        open: true,
-        message: "Error in saving annotation",
-        variant: "error",
-      });
-    }
-    setLoading(false);
-    setShowNotes(false);
-    // }
   };
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
 
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
-  }, [AnnotationsTaskDetails, userData]);
+
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -389,108 +337,6 @@ const AllTaskPage = () => {
     getProjectDetails();
     getTaskData(taskId);
   }, []);
-
-  const filterAnnotations = (annotations, user) => {
-    let disableSkip = false;
-    let disableUpdate = false;
-    let disableDraft = false;
-    let filteredAnnotations = annotations;
-    let userAnnotation = annotations.find((annotation) => {
-      return (
-        annotation.completed_by === user.id && !annotation.parent_annotation
-      );
-    });
-    let userAnnotationData = annotations.find(
-      (annotation) => annotation.annotation_type === 2,
-    );
-
-    if (userAnnotation) {
-      if (userAnnotation.annotation_status === "labeled") {
-        const superCheckedAnnotation = annotations.find(
-          (annotation) => annotation.annotation_type === 3,
-        );
-        let review = annotations.find(
-          (annotation) =>
-            annotation.parent_annotation === userAnnotation.id &&
-            annotation.annotation_type === 2,
-        );
-        if (
-          superCheckedAnnotation &&
-          ["draft", "skipped", "validated", "validated_with_changes"].includes(
-            superCheckedAnnotation.annotation_status,
-          )
-        ) {
-          filteredAnnotations = [superCheckedAnnotation];
-          setFilterMessage(
-            "This is the Super Checker's Annotation in read only mode",
-          );
-          disableDraft = true;
-          disableSkip = true;
-          disableUpdate = true;
-        } else if (
-          review &&
-          ["skipped", "draft", "rejected", "unreviewed"].includes(
-            review.annotation_status,
-          )
-        ) {
-          filteredAnnotations = [userAnnotation];
-          disableDraft = true;
-          disableSkip = true;
-          disableUpdate = true;
-          setFilterMessage("This task is being reviewed by the reviewer");
-        } else if (
-          review &&
-          [
-            "accepted",
-            "accepted_with_minor_changes",
-            "accepted_with_major_changes",
-          ].includes(review.annotation_status)
-        ) {
-          filteredAnnotations = [review];
-          disableDraft = true;
-          disableSkip = true;
-          disableUpdate = true;
-          setFilterMessage(
-            "This is the Reviewer's Annotation in read only mode",
-          );
-        } else {
-          filteredAnnotations = [userAnnotation];
-        }
-      } else if (
-        userAnnotationData &&
-        ["draft"].includes(userAnnotation.annotation_status)
-      ) {
-        filteredAnnotations = [userAnnotation];
-        disableSkip = true;
-        setFilterMessage(
-          "Skip button is disabled, since the task is being reviewed",
-        );
-      } else if (
-        userAnnotation &&
-        ["to_be_revised"].includes(userAnnotation.annotation_status)
-      ) {
-        filteredAnnotations = [userAnnotation];
-        disableSkip = true;
-        setDisableButton(true);
-        setFilterMessage(
-          "Skip button is disabled, since the task is being reviewed",
-        );
-      } else {
-        filteredAnnotations = [userAnnotation];
-      }
-    } else if ([4, 5, 6].includes(user.role)) {
-      // filteredAnnotations = annotations.filter((a) => a.annotation_type === 1);
-      filteredAnnotations = AnnotationsTaskDetails;
-      disableDraft = true;
-      disableSkip = true;
-      disableUpdate = true;
-    }
-    setAnnotations(filteredAnnotations);
-    setDisableBtns(disableDraft);
-    setDisableUpdateButton(disableUpdate);
-    setdisableSkipButton(disableSkip);
-    return [filteredAnnotations, disableDraft, disableSkip, disableUpdate];
-  };
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -659,14 +505,14 @@ const AllTaskPage = () => {
               }}
             >
               <ReactQuill
-                ref={annotationNotesRef}
+                forwardedRef={annotationNotesRef}
                 modules={modules}
                 formats={formats}
                 bounds={"#note"}
                 placeholder="Annotation Notes"
               ></ReactQuill>
               <ReactQuill
-                ref={reviewNotesRef}
+                forwardedRef={reviewNotesRef}
                 modules={modules}
                 formats={formats}
                 bounds={"#note"}

@@ -576,7 +576,7 @@ const InstructionDrivenChatPage = ({
           </Box>
           <div ref={bottomRef} />
         </Grid>
-        <Grid item xs={12} sx={{ boxSizing: "border-box" }}>
+        {stage!=="Alltask" ?<Grid item xs={12} sx={{ boxSizing: "border-box" }}>
           <Textarea
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
@@ -586,7 +586,7 @@ const InstructionDrivenChatPage = ({
             loading={loading}
             inputValue={inputValue}
           />
-        </Grid>
+        </Grid>:null}
       </Grid>
 
       <Modal
