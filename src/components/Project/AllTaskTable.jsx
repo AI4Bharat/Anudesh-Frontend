@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
-import Spinner from "@/components/common/Spinner"
+import Spinner from "@/components/common/Spinner";
 import {
   ThemeProvider,
   Grid,
@@ -18,8 +18,8 @@ import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AllTasksFilterList from "./AllTasksFilterList";
-import CustomButton from '../common/Button';
-import SearchIcon from '@mui/icons-material/Search';
+import CustomButton from "../common/Button";
+import SearchIcon from "@mui/icons-material/Search";
 import AllTaskSearchPopup from "./AllTasksSearchpopup";
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 
@@ -62,17 +62,27 @@ const AllTaskTable = (props) => {
   const [searchedCol, setSearchedCol] = useState();
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
-     /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const AllTaskData = useSelector((state) => state.getAllTaskData.data.result);
-  const apiLoading = useSelector((state) => state.getAllTaskData.status !== "succeeded")
-  const totalTaskCount = useSelector((state) => state.getAllTaskData.data.total_count);
+  const apiLoading = useSelector(
+    (state) => state.getAllTaskData.status !== "succeeded",
+  );
+  const totalTaskCount = useSelector(
+    (state) => state.getAllTaskData.data.total_count,
+  );
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const filterData = {
-    Status: ["incomplete", "annotated", "reviewed","super_checked","exported"],
+    Status: [
+      "incomplete",
+      "annotated",
+      "reviewed",
+      "super_checked",
+      "exported",
+    ],
   };
   const [selectedFilters, setsSelectedFilters] = useState({
     task_status: [filterData.Status[0]],
@@ -92,7 +102,6 @@ const AllTaskTable = (props) => {
     GetAllTasksdata();
   }, [currentPageNumber, currentRowPerPage]);
 
-
   useEffect(() => {
     if (AllTaskData?.length > 0 && AllTaskData[0]?.data) {
       const data = AllTaskData.map((el) => {
@@ -100,29 +109,40 @@ const AllTaskTable = (props) => {
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key])
+            .map((key) => el.data[key]),
         );
         AllTaskData[0].task_status && row.push(el.task_status);
-        row.push( <>
-          <Link to={ProjectDetails?.project_type?.includes("Acoustic") ?
-          `AllAudioTranscriptionLandingPage/${el.id}` : `Alltask/${el.id}`} className={classes.link}>
-          <CustomButton
-              onClick={() => { localStorage.removeItem("labelAll") }}
-              sx={{ p: 1, borderRadius: 2 }}
-              label={<Typography sx={{ color: "#FFFFFF" }} variant="body2">
-                   View
-              </Typography>} />
-      </Link>
-
-        </>)
+        row.push(
+          <>
+            <Link
+              to={
+                ProjectDetails?.project_type?.includes("Acoustic")
+                  ? `AllAudioTranscriptionLandingPage/${el.id}`
+                  : `Alltask/${el.id}`
+              }
+              className={classes.link}
+            >
+              <CustomButton
+                onClick={() => {
+                  localStorage.removeItem("labelAll");
+                }}
+                sx={{ p: 1, borderRadius: 2 }}
+                label={
+                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                    View
+                  </Typography>
+                }
+              />
+            </Link>
+          </>,
+        );
         return row;
-        
       });
       let colList = ["id"];
       colList.push(
         ...Object.keys(AllTaskData[0].data).filter(
-          (el) => !excludeCols.includes(el) 
-        )
+          (el) => !excludeCols.includes(el),
+        ),
       );
       AllTaskData[0].task_status && colList.push("status");
       colList.push("actions");
@@ -156,7 +176,6 @@ const AllTaskTable = (props) => {
     setColumns(newCols);
   }, [selectedColumns]);
 
-
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -166,32 +185,35 @@ const AllTaskTable = (props) => {
   const handleShowSearch = (col, event) => {
     setSearchAnchor(event.currentTarget);
     setSearchedCol(col);
-  
-}
-const handleSearchClose = () => {
-  setSearchAnchor(null);
-}
+  };
+  const handleSearchClose = () => {
+    setSearchAnchor(null);
+  };
 
   const customColumnHead = (col) => {
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                columnGap: "5px",
-                flexGrow: "1",
-                alignItems: "center",
-            }}
-        >
-               {col.label}
-                {!excludeSearch.includes(col.name) && <IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
-                    <SearchIcon id={col.name + "_btn"} />
-                </IconButton>}
-        </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          columnGap: "5px",
+          flexGrow: "1",
+          alignItems: "center",
+        }}
+      >
+        {col.label}
+        {!excludeSearch.includes(col.name) && (
+          <IconButton
+            sx={{ borderRadius: "100%" }}
+            onClick={(e) => handleShowSearch(col.name, e)}
+          >
+            <SearchIcon id={col.name + "_btn"} />
+          </IconButton>
+        )}
+      </Box>
     );
-}
-
+  };
 
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
@@ -216,21 +238,21 @@ const handleSearchClose = () => {
     page: currentPageNumber - 1,
     rowsPerPageOptions: [10, 25, 50, 100],
     textLabels: {
-        pagination: {
-            next: "Next >",
-            previous: "< Previous",
-            rowsPerPage: "currentRowPerPage",
-            displayRows: "OF"
-        }
+      pagination: {
+        next: "Next >",
+        previous: "< Previous",
+        rowsPerPage: "currentRowPerPage",
+        displayRows: "OF",
+      },
     },
     onChangePage: (currentPage) => {
-        setCurrentPageNumber(currentPage + 1);
+      setCurrentPageNumber(currentPage + 1);
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
-        setCurrentPageNumber(1);
-        setCurrentRowPerPage(rowPerPageCount);
+      setCurrentPageNumber(1);
+      setCurrentRowPerPage(rowPerPageCount);
     },
-    filterType: 'checkbox',
+    filterType: "checkbox",
     selectableRows: "none",
     download: false,
     filter: false,
@@ -238,59 +260,63 @@ const handleSearchClose = () => {
     search: false,
     viewColumns: false,
     textLabels: {
-        body: {
-            noMatch: "No records ",
-        },
-        toolbar: {
-            search: "Search",
-            viewColumns: "View Column",
-        },
-        pagination: {
-            rowsPerPage: "Rows per page",
-        },
-        options: { sortDirection: "desc" },
+      body: {
+        noMatch: "No records ",
+      },
+      toolbar: {
+        search: "Search",
+        viewColumns: "View Column",
+      },
+      pagination: {
+        rowsPerPage: "Rows per page",
+      },
+      options: { sortDirection: "desc" },
     },
     jumpToPage: true,
     serverSide: true,
     customToolbar: renderToolBar,
-};
+  };
 
   return (
     <React.Fragment>
-    {apiLoading ? <Spinner /> :  
-    <div>
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          // title={""}
-          data={tasks}
-          columns={columns}
-          options={options}
-        />
-      </ThemeProvider>
-      {popoverOpen && (
-        <AllTasksFilterList
-          id={filterId}
-          open={popoverOpen}
-          anchorEl={anchorEl}
-          handleClose={handleClose}
-          filterStatusData={filterData}
-          updateFilters={setsSelectedFilters}
-          currentFilters={selectedFilters}
-          onchange={GetAllTasksdata}
-        />
+      {apiLoading ? (
+        <Spinner />
+      ) : (
+        <div>
+          <ThemeProvider theme={tableTheme}>
+            <MUIDataTable
+              // title={""}
+              data={tasks}
+              columns={columns}
+              options={options}
+            />
+          </ThemeProvider>
+          {popoverOpen && (
+            <AllTasksFilterList
+              id={filterId}
+              open={popoverOpen}
+              anchorEl={anchorEl}
+              handleClose={handleClose}
+              filterStatusData={filterData}
+              updateFilters={setsSelectedFilters}
+              currentFilters={selectedFilters}
+              onchange={GetAllTasksdata}
+            />
+          )}
+          {searchOpen && (
+            <AllTaskSearchPopup
+              open={searchOpen}
+              anchorEl={searchAnchor}
+              handleClose={handleSearchClose}
+              updateFilters={setsSelectedFilters}
+              //filterStatusData={filterData}
+              currentFilters={selectedFilters}
+              searchedCol={searchedCol}
+              onchange={GetAllTasksdata}
+            />
+          )}
+        </div>
       )}
-       {searchOpen && <AllTaskSearchPopup
-                    open={searchOpen}
-                    anchorEl={searchAnchor}
-                     handleClose={handleSearchClose}
-                    updateFilters={setsSelectedFilters}
-                    //filterStatusData={filterData}
-                    currentFilters={selectedFilters}
-                    searchedCol={searchedCol}
-                    onchange={GetAllTasksdata}
-                />}
-    </div>
-    }
     </React.Fragment>
   );
 };

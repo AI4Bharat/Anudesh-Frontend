@@ -135,7 +135,6 @@ const InstructionDrivenChatPage = ({
       const data = await response.json();
       let modifiedChatHistory = [];
       if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
-        console.log(data,id);
         if(stage==="Review"){
           let obj = data.filter((data)=>data.annotation_type==2)
           modifiedChatHistory = obj[0]?.result?.map((interaction) => {
@@ -153,9 +152,17 @@ const InstructionDrivenChatPage = ({
               output: formatResponse(interaction.output),
             };
           });
-        }else{
-          let obj = data.filter((data)=>data.annotation_type==3)
+        }else if(stage=="Annotation"){
+          let obj = data.filter((data)=>data.annotation_type==1)
           modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }
+        else{
+          modifiedChatHistory = data[0]?.result?.map((interaction) => {
             return {
               ...interaction,
               output: formatResponse(interaction.output),
@@ -167,7 +174,7 @@ const InstructionDrivenChatPage = ({
         setChatHistory([]);
       }
       setAnnotationId(data[0]?.id);
-      if (data && [...data[0].result].length) setShowChatContainer(true);
+      if (data[0]?.result) setShowChatContainer(true);
     };
     fetchData();
   }, [taskId]);
@@ -176,12 +183,17 @@ const InstructionDrivenChatPage = ({
     if (inputValue) {
       setLoading(true);
       const body = {
-        annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
-        lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
+        lead_time: (new Date() - loadtime) / 1000 + Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
       };
+      console.log(id,stage);
+      if(stage==="Alltask"){
+        body.annotation_status = id?.annotation_status
+      }else{
+        body.annotation_status = localStorage.getItem("labellingMode")
+      }
       if (stage === "Review") {
         body.review_notes = JSON.stringify(notes?.current?.getEditor().getContents());
       } else if (stage === "SuperChecker") {
@@ -190,9 +202,9 @@ const InstructionDrivenChatPage = ({
         body.annotation_notes = JSON.stringify(notes?.current?.getEditor().getContents());
       }
       if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id.parent_annotation;
+        body.parentannotation = id?.parent_annotation;
       }
-      const AnnotationObj = new PatchAnnotationAPI(id.id, body);
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(AnnotationObj.getBody()),
@@ -279,7 +291,7 @@ const InstructionDrivenChatPage = ({
               <ReactMarkdown className="flex-col">
                 {formatPrompt(message.prompt)}
               </ReactMarkdown>
-              {index === chatHistory.length - 1 && (
+              {index === chatHistory.length - 1 && stage !== "Alltask" && (
                 <IconButton
                   size="large"
                   sx={{
@@ -290,7 +302,7 @@ const InstructionDrivenChatPage = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleClick("delete-pair", id.id, 0.0);
+                    handleClick("delete-pair", id?.id, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon
@@ -576,7 +588,7 @@ const InstructionDrivenChatPage = ({
           </Box>
           <div ref={bottomRef} />
         </Grid>
-        <Grid item xs={12} sx={{ boxSizing: "border-box" }}>
+        {stage!=="Alltask" ?<Grid item xs={12} sx={{ boxSizing: "border-box" }}>
           <Textarea
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
@@ -586,7 +598,7 @@ const InstructionDrivenChatPage = ({
             loading={loading}
             inputValue={inputValue}
           />
-        </Grid>
+        </Grid>:null}
       </Grid>
 
       <Modal
