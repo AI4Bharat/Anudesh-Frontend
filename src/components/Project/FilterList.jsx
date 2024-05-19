@@ -25,8 +25,7 @@ import { Stack } from "@mui/material";
 
 const FilterList = (props) => {
   
-  const { filterStatusData, currentFilters, updateFilters, pull, setpull, rejected, setRejected, pullvalue } = props;
-  const [selectedStatus, setSelectedStatus] = useState(!!currentFilters?.annotation_status ? currentFilters?.annotation_status : currentFilters.review_status);
+  const { filterStatusData, currentFilters, updateFilters, pull, setpull, rejected, setRejected,selectedStatus,setSelectedStatus, pullvalue } = props;
   const [selectAnnotator, setSelectAnnotator] = useState("All");
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);

@@ -102,8 +102,8 @@ const TaskTable = (props) => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
   const userDetails1 = useSelector((state) => console.log(state));
+  const savedFilters = JSON.parse(localStorage.getItem('filters'));
 
-  const [rejected,setRejected] = useState(TaskFilter?.rejected||false)
 
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
@@ -141,24 +141,27 @@ const TaskTable = (props) => {
         })
         : [],
   };
-  const [pull, setpull] = useState(TaskFilter.pull || "All");
+  const [pull, setpull] = useState(savedFilters?.pull || "All");
   const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
     (pull == 'Not Pulled By reviewer' || pull == 'Not Pulled By SuperChecker') ? true :
       ''
+      const [rejected,setRejected] = useState(savedFilters?.rejected||false)
+
   const [selectedFilters, setsSelectedFilters] = useState(
     props.type === "annotation"
       ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
         ? TaskFilter.selectedFilters
-        : { annotation_status: filterData.Status[0] , req_user: -1 }
+        : { annotation_status: savedFilters.selectedStatus , req_user: -1 }
       : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
         ? TaskFilter.selectedFilters
-        : { review_status: filterData.Status[0], req_user: -1 }
+        : { review_status: savedFilters.selectedStatus, req_user: -1 }
   );
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5
   );
+  const [selectedStatus, setSelectedStatus] = useState(!!selectedFilters?.annotation_status ? selectedFilters?.annotation_status : selectedFilters.review_status);
   const [pullDisabled, setPullDisabled] = useState("");
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const apiLoading = useSelector((state) => state.GetTasksByProjectId.status !=="succeeded");
@@ -1140,6 +1143,8 @@ const TaskTable = (props) => {
           setpull={setpull}
           rejected={rejected}
           setRejected={setRejected}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
           // rejValue = {rejValue}
           pullvalue={pullvalue}
         />
