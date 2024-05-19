@@ -19,7 +19,5 @@ const getTaskFilter = createSlice({
 });
 
 export const { setTaskFilter } = getTaskFilter.actions;
-
-
 export default getTaskFilter.reducer;
 

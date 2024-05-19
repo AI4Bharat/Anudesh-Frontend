@@ -27,6 +27,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
+import { Block } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -71,6 +72,7 @@ const InstructionDrivenChatPage = ({
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
+  const [hasMounted,setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -90,9 +92,6 @@ const InstructionDrivenChatPage = ({
     setOpen(false);
   };
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory]);
 
   const renderSnackBar = () => {
     return (
@@ -124,7 +123,7 @@ const InstructionDrivenChatPage = ({
       });
     }
   };
-
+  
   useEffect(() => {
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
@@ -239,6 +238,9 @@ const InstructionDrivenChatPage = ({
         variant: "error",
       });
     }
+    setTimeout(() => {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }, 1000);
     setShowChatContainer(true);
   };
 
@@ -495,7 +497,7 @@ const InstructionDrivenChatPage = ({
   return (
     <>
       {renderSnackBar()}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} id="top">
         <Grid item xs={12}>
           <Box
             sx={{

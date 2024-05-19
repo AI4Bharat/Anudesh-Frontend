@@ -9,6 +9,9 @@ import {
   RadioGroup,
   TextareaAutosize,
   Box,
+  Typography,
+  Icon,
+  IconButton,
 } from "@mui/material";
 import "./model_response_evaluation.css";
 import { Paper } from "@mui/material";
@@ -16,6 +19,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Divider,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Resizable } from "re-resizable";
@@ -32,6 +36,11 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
+  const [leftPanelVisible, setLeftPanelVisible] = useState(false);
+
+  const toggleLeftPanel = () => {
+    setLeftPanelVisible(!leftPanelVisible);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -150,11 +159,11 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
 
   const EvaluationForm = () => {
     return (
-      <div className={classes.rightPanel}>
-        <div className={classes.promptContainer}>
+      <div className={classes.rightPanel} >
+        <div className={classes.promptContainer}  style={{  overflowY: "auto" }}>
           {currentInteraction.prompt}
         </div>
-        <div className={classes.outputContainer}>
+        <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
           {currentInteraction.output}
         </div>
         <div className={classes.ratingText}>
@@ -187,7 +196,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         </Box>
         <hr className={classes.hr} />
         <div style={{
-          overflowY: 'scroll'
+          overflowY: 'scroll',
         }}>
         {questions.map((question, index) => (
           <div key={index} className={classes.questionContainer}>
@@ -231,6 +240,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
               ? currentInteraction.additional_note
               : null
           }
+          style={{minHeight:"50px"}}
           onChange={handleNoteChange}
           className={classes.notesTextarea}
         />
@@ -259,10 +269,10 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
               onChange={handleAccordionChange(index)}
               className={classes.accordion}
               style={{
-                borderRadius: expanded[index] ? "1rem" : "0",
+                borderRadius: expanded[index] ? "1rem" : "1rem",
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
-                  : "none",
+                  : "0px 4px 6px rgba(0, 0, 0, 0.1)",
               }}
             >
               <AccordionSummary
@@ -274,12 +284,14 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                   expanded: "Mui-expanded",
                 }}
               >
+               
                 <Box
                   sx={{
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
+                    maxWidth: "100px"
                   }}
                   className={classes.promptTile}
                 >
@@ -293,6 +305,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
+                    maxWidth: "100px"
                   }}
                   className={classes.answerTile}
                 >
@@ -326,7 +339,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
-        <Paper className={classes.interactionWindow}>
+        <Paper className={classes.interactionWindow}  style={{ border: "none" ,backgroundColor: '#f0f0f0'}}>
           {interactions && (
             <PairAccordion pairs={interactions} classes={classes} />
           )}
@@ -338,7 +351,11 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   return (
     <>
       <div className={classes.container}>
-        {InteractionDisplay()}
+          <IconButton onClick={toggleLeftPanel}>
+            <ExpandMoreIcon />
+          </IconButton>
+        {leftPanelVisible && <InteractionDisplay />}
+        <Divider orientation="vertical" flexItem />
         {EvaluationForm()}
       </div>
     </>

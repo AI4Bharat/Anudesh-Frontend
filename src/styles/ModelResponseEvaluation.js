@@ -18,27 +18,33 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
   container: {
     display: 'flex',
+    backgroundColor: "#f0f0f0",
+    marginBottom:"30px"
   },
+
+  
 
   leftPanel: {
     flex: '0 0 30%',
-    height: '100%',
+    // height: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     overflowY: 'auto',
-    backgroundColor: '#f0f4f9',
+    backgroundColor: '#f0f0f0',
+    marginBottom: "30px"
   },
   rightPanel: {
-    backgroundColor: 'white',
+    backgroundColor: '#f0f0f0',
     flex: '1',
-    maxHeight: '100vh',
+    // maxHeight: '1000vh',
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    padding: '1rem',
+    padding: '2rem',
     scrollBehavior: 'smooth',
+    marginBottom: "30px",
   },
 
   orangeRadio: {
@@ -57,7 +63,6 @@ const ModelResponseEvaluationStyle = makeStyles ({
     fontWeight: 'bold',
     marginBottom: '1rem',
     color: '#6C5F5B',
-    borderRadius: '1rem',
   },
   outputContainer: {
     marginBottom: '1rem',
@@ -73,6 +78,7 @@ const ModelResponseEvaluationStyle = makeStyles ({
     marginLeft: '1rem',
     marginBottom: '2rem',
   },
+
   hr: {
     border: '1px solid #d8d8d8',
     marginBottom: '1rem',
@@ -105,8 +111,8 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
 
   interactionWindow: {
-    maxHeight: '100%',
-    height: '100vh',
+    // maxHeight: '100%',
+    // height: '100vh',
     width: '100%',
     padding: '2rem',
     overflowY: 'auto',

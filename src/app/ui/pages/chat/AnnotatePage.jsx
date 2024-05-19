@@ -138,6 +138,8 @@ const AnnotatePage = () => {
     ],
   };
 
+
+
   const formats = [
     "size",
     "bold",
@@ -652,11 +654,30 @@ const AnnotatePage = () => {
       />
     );
   };
+  const topref = useRef(null)
+  useEffect(() => {
+    const observer = new MutationObserver((mutations, obs) => {
+      const element = topref.current;
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        obs.disconnect(); // Stop observing after scroll
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
 
   return (
     <>
       {loading && <Spinner />}
-      <Grid container spacing={2}>
+      <div id="top" ref={topref}></div>
+      <Grid container spacing={2} >
         {renderSnackBar()}
         <Grid item>
           <Box
