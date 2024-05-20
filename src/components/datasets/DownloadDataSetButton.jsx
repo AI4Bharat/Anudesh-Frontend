@@ -11,6 +11,8 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import GetDatasetDownloadJSON, { fetchDatasetDownloadJSON } from "@/Lib/Features/datasets/GetDatasetDownloadJSON";
 import { fetchDatasetDownloadCSV } from "@/Lib/Features/datasets/GetDatasetDownloadCSV";
 import { fetchDatasetDownloadTSV } from "@/Lib/Features/datasets/GetDatasetDownloadTSV";
+
+
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -49,16 +51,20 @@ function DownloadDatasetButton(props) {
   const { datasetId } = useParams();
   const dispatch = useDispatch();
   let csvLink = React.createRef()
-  const [snackbar, setSnackbarInfo] = useState({
-    open: false,
-    message: "",
-    variant: "success",
-  });
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
     setLoading(false);
   }, [downloadCSV,downloadJSON,downloadTSV])
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
 
+  const closeSnackbar = () => {
+    setSnackbarOpen(false);
+  };
 
  
   const handleClick = (event) => {
@@ -67,6 +73,7 @@ function DownloadDatasetButton(props) {
   };
   const handleDownloadJSONDataset = async () => {
     setLoading(true);
+    showSnackbar("Something went wrong")
     const projectObj = (datasetId);
     dispatch(fetchDatasetDownloadJSON(projectObj));
     setAnchorEl(null);
@@ -97,22 +104,22 @@ function DownloadDatasetButton(props) {
     }, 1000);
   }
  
-  const renderSnackBar = () => {
-    return (
-      <CustomizedSnackbars
-        open={snackbar.open}
-        handleClose={() =>
-          setSnackbarInfo({ open: false, message: "", variant: "" })
-        }
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        variant={snackbar.variant}
-        message={snackbar.message}
-      />
-    );
-  };
+  // const renderSnackBar = () => {
+  //   return (
+  //     <CustomizedSnackbars
+  //       open={snackbar.open}
+  //       handleClose={() =>
+  //         setSnackbarInfo({ open: false, message: "", variant: "" })
+  //       }
+  //       anchorOrigin={{ vertical: "top", horizontal: "right" }}
+  //       variant={snackbar.variant}
+  //       message={snackbar.message}
+  //     />
+  //   );
+  // };
   return (
     <div>
-      {renderSnackBar()}
+      {/* {renderSnackBar()} */}
 
       {loading ? (
 						<CircularProgress />
@@ -150,6 +157,18 @@ function DownloadDatasetButton(props) {
           JSON
         </MenuItem>
       </StyledMenu>
+
+      <CustomizedSnackbars
+        message={snackbarMessage}
+        open={snackbarOpen}
+        hide={2000}
+        handleClose={closeSnackbar}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        variant="error"
+      />
       </>
       	)}
     </div>

@@ -30,6 +30,7 @@ import { fetchOrganizationUserReports } from "@/Lib/Features/projects/GetOrganiz
 import { fetchOrganizationProjectReports } from "@/Lib/Features/projects/GetOrganizationProjectReports";
 import { fetchOrganizationDetailedProjectReports } from "@/Lib/Features/projects/GetOrganizationDetailedProjectReports";
 import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
+import {CircularProgress} from "@mui/material";
 
 const ProgressType = ["Annotation Stage", "Review Stage", "Super Check Stage", "All Stage"]
 const ITEM_HEIGHT = 38;
@@ -666,7 +667,8 @@ const OrganizationReports = () => {
           />
         </Card>
       </Box>}
-      {showSpinner ? <div></div> : reportRequested && (
+      {loading ? <CircularProgress style={{marginLeft: "50%"}} /> : reportRequested && (
+        
         <ThemeProvider theme={tableTheme}>
           <MUIDataTable
             title={ProjectReports?.length > 0 ? "Reports" : ""}

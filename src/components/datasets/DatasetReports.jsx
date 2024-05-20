@@ -23,6 +23,7 @@ import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import { fetchDatasetProjectReports } from "@/Lib/Features/datasets/getDatasetProjectReports";
 import { fetchDatasetDetailedReports } from "@/Lib/Features/datasets/GetDatasetDetailedReports";
+import {CircularProgress} from "@mui/material";
 
 const DatasetReports = () => {
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -36,7 +37,7 @@ const DatasetReports = () => {
   const [reportData, setReportData] = useState([]);
   const [reportRequested, setReportRequested] = useState(false);
   const classes = DatasetStyle();
-
+  const [loading, setLoading] = useState(false);
   const { datasetId } = useParams();
   const dispatch = useDispatch();
   const DatasetDetails = useSelector((state) => state.getDatasetDetails?.data);
@@ -130,6 +131,10 @@ const DatasetReports = () => {
   const userId = useSelector((state) => state.getLoggedInData?.data.id);
 
   const handleSubmit = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false)
+    }, 1000);
     if(projectReportType === 1){
       setReportRequested(true);
       const projectReportObj = ({
@@ -278,12 +283,14 @@ const DatasetReports = () => {
       </Grid>
       {showSpinner ? <div></div> : reportRequested && (
         <ThemeProvider theme={tableTheme}>
+        {loading? <CircularProgress style={{marginLeft: "50%"}}/>: 
           <MUIDataTable
             title={DatasetReports.length > 0 ? "Reports" : ""}
             data={reportData}
             columns={columns.filter((col) => selectedColumns.includes(col.name))}
             options={options}
           />
+        }
         </ThemeProvider>)
       }
     </React.Fragment>
