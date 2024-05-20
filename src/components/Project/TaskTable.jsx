@@ -980,7 +980,7 @@ const TaskTable = (props) => {
                 }
               >
                 <FormControl size="small" sx={{ width: "100%" }}>
-                  <InputLabel id="pull-select-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="pull-select-label" sx={{ fontSize: "16px", zIndex: 0}}>
                     Pull Size
                   </InputLabel>
                   <Select

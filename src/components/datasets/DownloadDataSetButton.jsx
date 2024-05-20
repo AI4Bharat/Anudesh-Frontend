@@ -70,6 +70,9 @@ function DownloadDatasetButton(props) {
     const projectObj = (datasetId);
     dispatch(fetchDatasetDownloadJSON(projectObj));
     setAnchorEl(null);
+    setTimeout(() => {
+      setLoading(false); 
+    }, 1000);
   };
 
   const handleClose = () => {
@@ -80,12 +83,18 @@ function DownloadDatasetButton(props) {
     setLoading(true);
     dispatch(fetchDatasetDownloadCSV((datasetId)));
     setAnchorEl(null);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   }
 
   const handleDownloadTSVDataset = async () => {
     setLoading(true);
     dispatch(fetchDatasetDownloadTSV((datasetId)));
     setAnchorEl(null);
+    setTimeout(() => {
+      setLoading(false); 
+    }, 1000);
   }
  
   const renderSnackBar = () => {

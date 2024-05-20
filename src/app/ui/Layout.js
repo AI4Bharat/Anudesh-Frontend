@@ -46,6 +46,7 @@ const Layout= (props) => {
             type={type}
             index={index}
             className={classes.headerContainer}
+           
           />
         </Suspense>
         <div

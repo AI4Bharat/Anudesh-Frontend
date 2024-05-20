@@ -156,7 +156,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                Instance_Name *:
+                Instance_Name<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -220,7 +220,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                Dataset_Type *:
+                Dataset_Type<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -252,7 +252,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                Organisation_Id *:
+                Organisation_Id<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -273,7 +273,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                User *:
+                User<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>

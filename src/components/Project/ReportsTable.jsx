@@ -238,7 +238,7 @@ const ReportsTable = (props) => {
                         endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
                         variant="contained"
                         color="primary"
-                        sx={{ width: "130px" }}
+                        sx={{ width: "130px", marginTop: "8.5px" }}
                         onClick={() => setShowPicker(!showPicker)}
                     >
                         Pick Dates
@@ -249,7 +249,7 @@ const ReportsTable = (props) => {
                         fullWidth
                         variant="contained"
                         onClick={handleSubmit}
-                        sx={{ width: "130px" }}
+                        sx={{ width: "130px", marginTop: "8.5px" }}
                     >
                         Submit
                     </Button>

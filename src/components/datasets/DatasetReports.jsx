@@ -182,7 +182,7 @@ const DatasetReports = () => {
       >
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="project-report-type-label" sx={{ fontSize: "16px" }}>Type</InputLabel>
+            <InputLabel id="project-report-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>Type</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -207,7 +207,7 @@ const DatasetReports = () => {
           xl={3}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="project-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>
               Project Type
             </InputLabel>
             <Select
@@ -228,7 +228,7 @@ const DatasetReports = () => {
         </Grid>
         {projectReportType === 1 && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="language-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="language-label" sx={{ fontSize: "16px", zIndex: 0 }}>
               Target Language
             </InputLabel>
             <Select
@@ -250,7 +250,7 @@ const DatasetReports = () => {
         </Grid>}
         {projectReportType===2 && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="statistics-label" sx={{ fontSize: "16px" }}>Statistics</InputLabel>
+            <InputLabel id="statistics-label" sx={{ fontSize: "16px", zIndex: 0 }}>Statistics</InputLabel>
             <Select
               labelId="statistics-label"
               id="statistics-select"
