@@ -178,7 +178,45 @@ const InstructionDrivenChatPage = ({
     fetchData();
   }, [taskId]);
 
-  const handleButtonClick = async () => {
+  const cleanMetaInfo = (value) => value.replace(/\(for example:.*?\)/gi, '').trim();
+
+  const escapeRegExp = (string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+  };
+  
+  const formatTextWithTooltips = (text, info) => {
+    // Ensure text is a string
+    text = String(text);
+  
+    // Clean the meta info values
+    const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
+    const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
+    const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
+  
+    let formattedText = text;
+  
+    const placeholders = [
+      { key: 'meta_info_intent', value: metaInfoIntent, tooltip: 'Intent of the instruction' },
+      { key: 'meta_info_language', value: metaInfoLanguage, tooltip: 'Language used' },
+      { key: 'meta_info_domain', value: metaInfoDomain, tooltip: 'Domain of the content' }
+    ];
+  
+    placeholders.forEach(({ value, tooltip }) => {
+      if (value !== 'None') {
+        const escapedValue = escapeRegExp(value);
+        const regex = new RegExp(`(${escapedValue})`, 'gi');
+        text = text.replace(regex, (match) => {
+          return `<Tooltip title="${tooltip}"><strong>${match}</strong></Tooltip>`;
+        });
+  
+      }
+    });
+  
+    return text;
+  };
+    const formattedText = formatTextWithTooltips(info.instruction_data, info);
+  
+    const handleButtonClick = async () => {
     if (inputValue) {
       setLoading(true);
       const body = {
@@ -553,13 +591,14 @@ const InstructionDrivenChatPage = ({
                 padding: "0.5rem 1rem 0",
                 minHeight: "6rem",
                 maxHeight: "6rem",
-                overflowY: "scroll",
+                overflowY: "auto",
                 display: "flex",
-                alignItems: "center",
+                // alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "center",
               }}
             >
-              {info.instruction_data}
+              {(formattedText)}
             </Typography>
           </Box>
         </Grid>
