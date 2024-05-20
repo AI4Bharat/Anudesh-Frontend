@@ -7,14 +7,13 @@ import {
   Box,
   TextField
 } from "@mui/material";
-import { translate } from "../../config/localisation";
-// import { snakeToTitleCase } from "../../../utils/utils";
+import { translate } from "@/config/localisation";
 import  "../../styles/Dataset.css";
 // import DatasetSearchPopupAPI from "../../../../redux/actions/api/Dataset/DatasetSearchPopup";
-// import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
-// import { translate } from "../../../../assets/localisation";
+import { snakeToTitleCase } from "@/utils/utils";
 
 const AllTaskSearchPopup = (props) => {
         /* eslint-disable react-hooks/exhaustive-deps */
