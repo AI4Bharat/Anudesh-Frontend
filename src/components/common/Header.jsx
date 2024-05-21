@@ -1197,21 +1197,25 @@ const handleopenproject=(id,type)=>{
                           </div>
                           <Link style={{ color: "rgba(0, 0, 0, 0.87)", display: 'flex', flexDirection: 'column', width: '100%' ,cursor:"pointer",textDecoration:"none" }} to={notification.on_click}>
                             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-                              <Typography variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`ID: ${notification?.title?.split('-')[0]}`}</Typography>
+                              <Typography variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`ID: ${notification?.title?.split('\n')[0]}`}</Typography>
                               <Typography style={{ paddingLeft: "10px" }} variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`TITLE: ${notification?.notification_type}`}</Typography>
                               <Typography style={{ padding: "5px 5px 0px 5px" }} variant="caption" color="action">{`${formatDistanceToNow(new Date(notification?.created_at), { addSuffix: true })}`}</Typography>
                             </div>
                            
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: "space-between" }}>
-                              <Typography style={{ justifyContent: "flex-start", width: '100%' }} variant="body2">{notification?.title?.split('-')[1]}</Typography>
-                              {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
+                              <Typography style={{ justifyContent: "flex-start", width: '100%' }} variant="body2">{notification?.title?.split('\n')[1]}</Typography>
+                              {/* {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
                               <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
                                 <CheckCircleOutlineRoundedIcon color="primary"/>
-                              </IconButton></Tooltip>:null}
+                              </IconButton></Tooltip>:null} */}
                             </div>
                             <Typography variant="caption" color="action">{`Sent on: ${format(new Date(notification?.created_at), 'MMM d, yyyy')}`}</Typography>
                             {index !== Notification?.length - 1 && <Divider />} 
                           </Link>  
+                          {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
+                          <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
+                            <CheckCircleOutlineRoundedIcon color="primary"/>
+                          </IconButton></Tooltip>:null}
                         </div>
                       ))}
                     </>

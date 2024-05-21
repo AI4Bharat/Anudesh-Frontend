@@ -433,7 +433,7 @@ const TaskTable = (props) => {
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
                          "Annotate"
-                        : "Edit"                    }
+                        : "View"                    }
                   </Typography>
                 }
               />

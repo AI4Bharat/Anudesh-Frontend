@@ -47,7 +47,7 @@ const Search = (props) => {
                       
                       placeholder="Search..."
                       {...props}
-                      style={{background:"#F0F0F0", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%", border: "none", outline: "none", overflow: "hidden"}}
+                      style={{background: "transparent", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%", border: "none", outline: "none", overflow: "hidden"}}
                       />
 
                     //   <InputBase
