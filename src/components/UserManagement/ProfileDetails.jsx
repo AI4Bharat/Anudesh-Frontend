@@ -103,7 +103,8 @@ return (
               label="First Name"
               name="first_name"
               value={newDetails?.first_name}
-              InputLabelProps={{ shrink: true }}
+              InputLabelProps={{ shrink: true,}}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -114,6 +115,7 @@ return (
               name="last_name"
               value={newDetails?.last_name}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -123,6 +125,7 @@ return (
               label="Email"
               value={email}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -133,6 +136,7 @@ return (
               name="phone"
               value={newDetails?.phone}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -145,6 +149,7 @@ return (
               userDetails?.gender === 'F' ? 'Female' :
               userDetails?.gender === 'O' ? 'Other' : ''}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -155,6 +160,7 @@ return (
               name="city"
               value={newDetails?.city}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -165,6 +171,7 @@ return (
               name="address"
               value={newDetails?.address}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -175,6 +182,7 @@ return (
               name="state"
               value={newDetails?.state}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -185,6 +193,7 @@ return (
               name="pincode"
               value={newDetails?.pin_code}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -195,6 +204,7 @@ return (
               name="age"
               value={newDetails?.age}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -205,6 +215,7 @@ return (
               name="qualification"
               value={newDetails?.qualification}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -214,6 +225,7 @@ return (
               label="Role"
               value={UserMappedByRole(userDetails?.role)?.name}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -225,6 +237,7 @@ return (
               name="username"
               value={newDetails?.username}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -234,6 +247,7 @@ return (
               label="Organization"
               value={userDetails?.organization?.title}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
           </Grid>
           
@@ -245,13 +259,14 @@ return (
               name="availability_status"
               value={userDetails?.availability_status}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             >
               <MenuItem value="1">Available</MenuItem>
               <MenuItem value="2">Unavailable</MenuItem>
             </Select>
           </Grid> */}
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Languages</InputLabel>
+            <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px", zIndex: 0, }}>Languages</InputLabel>
             <Select
               disabled
               multiple
@@ -288,10 +303,11 @@ return (
               name="availability_status"
               value={newDetails?.availability_status}
               InputLabelProps={{ shrink: true }}
+              style={{zIndex: 0}}
             ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Participation Type</InputLabel>
+            <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px",}}>Participation Type</InputLabel>
             <Select
               disabled
               fullWidth

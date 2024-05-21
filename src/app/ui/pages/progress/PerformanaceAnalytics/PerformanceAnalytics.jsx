@@ -45,6 +45,7 @@ import axios from "axios";
 import PerformanceAnalyticsAPI from "@/app/actions/api/Progress/PerformanceAnalytics";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import CustomizedSnackbars from "@/components/common/Snackbar";
 
 ChartJS.register(
   CategoryScale,
@@ -147,6 +148,8 @@ export default function PerformanceAnalytics() {
   const [showPicker, setShowPicker] = useState(false);
   const [baseperiod, setBaseperiod] = useState("daily")
   const [performanceAnalyticsTasksData, setPerformanceAnalyticsTasksData] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   
 
   const ref = useRef();
@@ -171,6 +174,42 @@ export default function PerformanceAnalytics() {
     dispatch(fetchLanguages());
   }, []);
 
+  useEffect(() => {
+    if (radiobutton === "annotation") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radiobutton]);
+
+  useEffect(() => {
+    if (radiobutton === "Review") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radiobutton]);
+
+  useEffect(() => {
+    if (radiobutton === "Supercheck") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radiobutton]);
+
   const handleChangeReports = (e) => {
     setRadiobutton(e.target.value);
   };
@@ -180,6 +219,7 @@ export default function PerformanceAnalytics() {
   };
 
   const handleSubmit = async () => {
+    showSnackbar("No Analytics to display")
     setShowPicker(false)
     setLoading(true);
     metaInfo?
@@ -202,18 +242,36 @@ export default function PerformanceAnalytics() {
     .then(response => {
         if (response.statusText === "OK") {
         setPerformanceAnalyticsTasksData(response.data);
-        setLoading(false);
+        setTimeout(() => {
+          setLoading(false); 
+        },1000)
+        // setLoading(false);
         } else {
-        setLoading(false);
+          setTimeout(() => {
+            setLoading(false); 
+          },1000)
+        //setLoading(false);
         setPerformanceAnalyticsTasksData([])
         }
     })
+
+    
     .catch(err => {
-        setLoading(false);
+      setTimeout(() => {
+        setLoading(false); 
+      },1000)
+        //setLoading(false);
         setPerformanceAnalyticsTasksData([])
     })
   };
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
 
+  const closeSnackbar = () => {
+    setSnackbarOpen(false);
+  };
   const handleProgressType = (e) => {
     setBaseperiod(e.target.value)
   }
@@ -269,7 +327,8 @@ export default function PerformanceAnalytics() {
     }
   }, [ProjectTypes]);
 
-  
+  const defaultType = "InstructionDrivenChat";
+  const selectedTypeWithDefault = selectedType || defaultType;
 
   return (
     <>
@@ -336,7 +395,7 @@ export default function PerformanceAnalytics() {
           </Grid>
           {/* <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                     Base period {""}
                   </InputLabel>
                   <Select
@@ -357,7 +416,7 @@ export default function PerformanceAnalytics() {
         <Grid container columnSpacing={3} rowSpacing={2} mb={1}>
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
             <FormControl fullWidth size="small">
-              <InputLabel id="language-label" sx={{ fontSize: "16px" }}>
+              <InputLabel id="language-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                 Target Language
               </InputLabel>
               <Select
@@ -380,7 +439,7 @@ export default function PerformanceAnalytics() {
 
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Plot Range {""}
                   </InputLabel>
                   <Select
@@ -402,7 +461,7 @@ export default function PerformanceAnalytics() {
             <FormControl fullWidth size="small">
               <InputLabel
                 id="demo-simple-select-label"
-                sx={{ fontSize: "16px" }}
+                sx={{ fontSize: "16px", zIndex: 0 }}
               >
                 Project Type {""}
                 {/* {
@@ -420,7 +479,7 @@ export default function PerformanceAnalytics() {
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={selectedType}
+                value={selectedTypeWithDefault}
                 label="Project Type"
                 sx={{ padding: "1px" }}
                 onChange={(e) => setSelectedType(e.target.value)}
@@ -434,8 +493,9 @@ export default function PerformanceAnalytics() {
               </Select>
             </FormControl>
           </Grid>
-
+        <div style={{display: "flex"}}>
           <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
+            <div>
             <Button
               endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
@@ -445,11 +505,16 @@ export default function PerformanceAnalytics() {
                 backgroundColor: "rgba(243, 156, 18)",
                 "&:hover": { backgroundColor: "rgba(243, 156, 18 )" },
                 marginLeft: "20px",
+                marginTop: "18px",
+                width: "150px",
+                flexShrink: 0,
               }}
             >
               Pick Dates
             </Button>
+            </div>
           </Grid>
+          </div>
           {/* <Grid item xs={12} sm={12} md={1} lg={1} xl={1}>
             <Button
               fullWidth
@@ -537,11 +602,22 @@ export default function PerformanceAnalytics() {
             </Card>
           </Box>
         )}
-
         {/* </Grid> */}
       </Grid>
       {loading && <Box sx={{ display: 'flex',justifyContent: "center",width: "100%" }}><CircularProgress /></Box>}
       {performanceAnalyticsTasksData?.length && !loading?<Line data={chartData} options={options} />:<div></div> }
+
+      <CustomizedSnackbars
+        message={snackbarMessage}
+        open={snackbarOpen}
+        hide={2000}
+        handleClose={closeSnackbar}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        variant="error"
+      />
     </>
   );
 }

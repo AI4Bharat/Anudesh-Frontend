@@ -13,7 +13,10 @@ import {
   Radio,
   Autocomplete,
   Box,
-
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { translate } from "@/config/localisation";
 import { useDispatch, useSelector } from "react-redux";
@@ -103,7 +106,7 @@ const DatasetFilterList = (props) => {
         }}
       >
         <Grid container className={classes.filterContainer}>
-        <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
+        {/* <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
         <Typography
               variant="body2"
               sx={{  mb: 1, fontWeight: "900" }}
@@ -117,7 +120,25 @@ const DatasetFilterList = (props) => {
                 label="menuitems"
                
               />
-            </Grid>
+            </Grid> */}
+
+  <FormControl fullWidth size="small" >
+            <InputLabel id="dataset-type-label" sx={{ fontSize: "16px"}}>Dataset Type: </InputLabel>
+            <Select
+              labelId="dataset-type-label"
+              id="dataset-type-select"
+              value={selectedDatasetType}
+              label="Dataset Type"
+              onChange={(e) => setSelectedDatasetType(e.target.value)}
+             
+            >
+              {datasetType.map((type, index) => (
+                <MenuItem key={index} value={type} >
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
        
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{mt:2}}>
             <Typography

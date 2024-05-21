@@ -46,6 +46,7 @@ import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
 
 
+
   const   MyProgress = () => {
      /* eslint-disable react-hooks/exhaustive-deps */
      const { id } = useParams();
@@ -89,6 +90,20 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
     useEffect(() => {
       setLoading(apiLoading);
     }, [apiLoading])
+
+    // useEffect(() => {
+    //   if (radiobutton === "AnnotatationReports") {
+    //     setProjectTypes([
+    //      "ModelOutputEvaluvation",
+    //      "ModelInteractionEvaluvation",
+    //      "InstructionDrivenChat",
+    //     ]);
+    //     setSelectedType("InstructionDrivenChat");
+        
+    //   } 
+    // }, [projectTypes, radiobutton]);
+
+    
   
   
     // useEffect(() => {
@@ -225,7 +240,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
       jumpToPage: true,
       customToolbar: renderToolBar,
     };
-   
+    const selectedTypeWithDefault = selectedType || "InstructionDrivenChat";
     return (
       <ThemeProvider theme={themeDefault}>
         {/* <Header /> */}
@@ -277,7 +292,8 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
                 <Select
                   labelId="project-type-label"
                   id="project-type-select"
-                  value={selectedType}
+                  defaultValue="InstructionDrivenChat"
+                  value={selectedTypeWithDefault}
                   label="Project Type"
                   onChange={(e) => setSelectedType(e.target.value)}
                   MenuProps={MenuProps}

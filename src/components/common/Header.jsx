@@ -345,6 +345,7 @@ const handleopenproject=(id,type)=>{
           xs={12}
           sm={12}
           md={7}
+          zIndex={2000}
         >
           {/* <Typography variant="body1">
             <NavLink
@@ -850,7 +851,7 @@ const handleopenproject=(id,type)=>{
           />
         ) : (
           <AppBar>
-            <Toolbar className={classes.toolbar}>
+            <Toolbar className={classes.toolbar} style={{zIndex: 200}}>
             <Grid
               sx={{ display: "flex", alignItems: "center" }}
               xs={12}
