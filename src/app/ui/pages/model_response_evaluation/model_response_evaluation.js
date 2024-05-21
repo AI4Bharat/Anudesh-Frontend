@@ -70,6 +70,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
     };
     fetchData();
   }, [forms, taskId]);
+
   useEffect(() => {
     setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
   }, []);
@@ -173,12 +174,12 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
     return (
       <div className={classes.rightPanel} >
         <div className={classes.promptContainer}  style={{  overflowY: "auto" }}>
-        <div className={classes.heading}>
+        <div className={classes.heading} style={{fontSize:"20px"}}>
           {translate("modal.prompt")}
         </div>
           {currentInteraction.prompt}
         </div>
-        <div className={classes.heading}>
+        <div className={classes.heading}  style={{fontSize:"20px"}}>
           {translate("modal.output")}
         </div>
         <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
@@ -299,6 +300,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
                   : "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  borderBottom: "none",
               }}
             >
               <AccordionSummary
@@ -388,12 +390,15 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         // maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
+        <div className={classes.heading}  style={{margin:"1.5rem 0 1.5rem 1.5rem",fontSize:"20px"}}>
+          {translate("modal.interact")}
+        </div>
         <Paper className={classes.interactionWindow}  style={{ border: "none" ,backgroundColor: '#f0f0f0'}}>
           {interactions && (
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
-        <div className={classes.heading} style={{marginLeft:"1.5rem"}}>
+        <div className={classes.heading} style={{margin:"1.5rem 0 0.5rem 1.5rem" , fontSize:"20px"}}>
           {translate("modal.quelist")}
         </div>
         <QuestionList questions={questions}/>

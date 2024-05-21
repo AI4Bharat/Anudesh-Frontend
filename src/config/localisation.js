@@ -62,6 +62,7 @@ const localisation = {
   "modal.intent": "Intent",
   "modal.prompt" : "Prompt",
   "modal.output" : "Output",
+  "modal.interact" : "Interactions List",
   "modal.quelist" : "Questions List",
   "modal.select_que" : "Selected Questions :",
   "modal.pls_select_que" : "Please Select The Questions To Be Added :",

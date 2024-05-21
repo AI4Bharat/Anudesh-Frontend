@@ -125,6 +125,7 @@ const ModelResponseEvaluationStyle = makeStyles ({
     overflowY: 'auto',
     color: '#6C5F5B',
     borderRadius: '2rem 0px 0px 1rem',
+    // marginTop:"1.5rem"
   },
  
   promptTile: {
