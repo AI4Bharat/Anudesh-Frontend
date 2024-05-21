@@ -13,6 +13,7 @@ import UpdateEmailAPI from "@/app/actions/api/user/UpdateEmailAPI";
 import UpdateProfileAPI from "@/app/actions/api/user/UpdateProfileAPI";
 
 
+
 const MyProfile = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -172,6 +173,7 @@ const MyProfile = () => {
                 fullWidth
                 label="First Name"
                 name="first_name"
+                sx = {{zIndex: 0}}
                 value={newDetails?.first_name}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -182,6 +184,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Last Name"
                 name="last_name"
+                sx = {{zIndex: 0}}
                 value={newDetails?.last_name}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -192,6 +195,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Email"
                 value={email}
+                sx = {{zIndex: 0}}
                 onChange={handleEmailChange}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
@@ -215,6 +219,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Phone"
                 name="phone"
+                sx = {{zIndex: 0}}
                 value={newDetails?.phone}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -225,6 +230,7 @@ const MyProfile = () => {
                 disabled
                 fullWidth
                 label="Role"
+                sx = {{zIndex: 0}}
                 value={UserMappedByRole(userDetails?.role)?.name}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -235,6 +241,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Username"
                 name="username"
+                sx = {{zIndex: 0}}
                 value={newDetails?.username}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -246,6 +253,7 @@ const MyProfile = () => {
                 fullWidth
                 labelId="gender-label"
                 name="gender"  
+                sx = {{zIndex: 0}}
                 value={newDetails?.gender || ''}
                 onChange={handleFieldChange}
                 style={{ zIndex: "0" }}
@@ -263,6 +271,7 @@ const MyProfile = () => {
                 fullWidth
                 label="City"
                 name="city"
+                sx = {{zIndex: 0}}
                 value={newDetails?.city}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -273,6 +282,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Address"
                 name="address"
+                sx = {{zIndex: 0}}
                 value={newDetails?.address}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -283,6 +293,7 @@ const MyProfile = () => {
                 fullWidth
                 label="State"
                 name="state"
+                sx = {{zIndex: 0}}
                 value={newDetails?.state}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -293,6 +304,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Pincode"
                 name="pincode"
+                sx = {{zIndex: 0}}
                 value={newDetails?.pin_code}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -303,6 +315,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Age"
                 name="age"
+                sx = {{zIndex: 0}}
                 value={newDetails?.age}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -313,6 +326,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Qualification"
                 name="qualification"
+                sx = {{zIndex: 0}}
                 value={newDetails?.qualification}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -323,6 +337,7 @@ const MyProfile = () => {
                 disabled
                 fullWidth
                 label="Organization"
+                sx = {{zIndex: 0}}
                 value={userDetails.organization?.title}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -349,6 +364,7 @@ const MyProfile = () => {
                 fullWidth
                 labelId="lang-label"
                 name="languages"
+                sx = {{zIndex: 0}}
                 value={newDetails?.languages ? newDetails.languages : []}
                 onChange={handleFieldChange}
                 style={{ zIndex: "0" }}
@@ -377,6 +393,7 @@ const MyProfile = () => {
                 fullWidth
                 label="Availability Status"
                 name="availability_status"
+                sx = {{zIndex: 0}}
                 value={newDetails?.availability_status}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -388,6 +405,7 @@ const MyProfile = () => {
                 fullWidth
                 labelId="lang-label"
                 name="participation_type"
+                sx = {{zIndex: 0}}
                 value={newDetails?.participation_type ? newDetails.participation_type : []}
                 onChange={handleFieldChange}
                 style={{ zIndex: "0" }}

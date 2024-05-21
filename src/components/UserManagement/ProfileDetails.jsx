@@ -266,7 +266,7 @@ return (
             </Select>
           </Grid> */}
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px", zIndex: 0, }}>Languages</InputLabel>
+            {/* <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px", zIndex: 0, }}>Languages</InputLabel>
             <Select
               disabled
               multiple
@@ -293,7 +293,25 @@ return (
                   {lang}
                 </MenuItem>
               ))}
-            </Select>
+            </Select> */}
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label = "Languages"
+              labelId="lang-label"
+              name="languages"
+              value={newDetails?.languages? newDetails.languages : []}
+              style={{zIndex: "0"}}
+              InputLabelProps={{ shrink: true }}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+              
+            ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <OutlinedTextField
@@ -307,7 +325,7 @@ return (
             ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px",}}>Participation Type</InputLabel>
+            {/* <InputLabel id="lang-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px",}}>Participation Type</InputLabel>
             <Select
               disabled
               fullWidth
@@ -325,7 +343,20 @@ return (
                   {type}
                 </MenuItem>
               ))}
-            </Select>
+            </Select> */}
+            <OutlinedTextField
+              disabled
+              fullWidth
+              label = "Participation Type"
+              labelId="lang-label"
+              name="participation_type"
+              value={"Full_Time"}
+              style={{zIndex: "0"}}
+              input={<OutlinedInput id="select-multiple-chip" label="Chip"/>}
+              
+              
+            ></OutlinedTextField>
+            
           </Grid>
           <Grid 
               container 

@@ -86,9 +86,6 @@ const ProjectFilterList = (props) => {
     setSelectedArchivedProject("")
     props.handleClose();
   };
-
-  const selectedTypeWithDefault = selectedType  || "InstructionDrivenChat";
-
   return (
     <div>
       <Popover
@@ -112,7 +109,7 @@ const ProjectFilterList = (props) => {
             <Select
               labelId="project-type-label"
               id="project-type-select"
-              value={selectedTypeWithDefault}
+              value={selectedType}
               label="Project Type"
               onChange={(e) => setSelectedType(e.target.value)}
              

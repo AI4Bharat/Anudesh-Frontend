@@ -593,6 +593,7 @@ import LoginAPI from "@/app/actions/api/user/Login";
                     borderRadius: 3,
                     ml: 2,
                     width: "300px",
+                    height: "50px"
                   }}
                   onClick={handlePullNewData}
                   label="Pull New Data Items from Source Dataset"
