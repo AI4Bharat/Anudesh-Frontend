@@ -37,6 +37,8 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
   const [leftPanelVisible, setLeftPanelVisible] = useState(false);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
+
 
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
@@ -68,7 +70,9 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
     };
     fetchData();
   }, [forms, taskId]);
-
+  useEffect(() => {
+    setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
+  }, []);
   useEffect(() => {
     if (forms && interactions) {
       let defaultFormIndex = interactions[0]?.prompt_output_pair_id;
@@ -156,12 +160,26 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         }),
     }));
   };
-
+  const handleQuestionClick = (question) => {
+    setSelectedQuestions((prevQuestions) => {
+      if (prevQuestions.includes(question)) {
+        return prevQuestions.filter((q) => q !== question);
+      } else {
+        return [...prevQuestions, question];
+      }
+    });
+  };
   const EvaluationForm = () => {
     return (
       <div className={classes.rightPanel} >
         <div className={classes.promptContainer}  style={{  overflowY: "auto" }}>
+        <div className={classes.heading}>
+          {translate("modal.prompt")}
+        </div>
           {currentInteraction.prompt}
+        </div>
+        <div className={classes.heading}>
+          {translate("modal.output")}
         </div>
         <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
           {currentInteraction.output}
@@ -195,52 +213,60 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
           ))}
         </Box>
         <hr className={classes.hr} />
+        {selectedQuestions.length>0?<div className={classes.heading}>
+          {translate("modal.select_que")}
+        </div>:<div className={classes.heading}>
+          {translate("modal.pls_select_que")}
+        </div>}
         <div style={{
-          overflowY: 'scroll',
+          overflowY: 'auto',
+          maxHeight: "10rem"
         }}>
-        {questions.map((question, index) => (
-          <div key={index} className={classes.questionContainer}>
-            <div className={classes.questionText}>{question}</div>
-            <div className={classes.radioGroupContainer}>
-              <RadioGroup
-                row
-                value={
-                  currentInteraction?.questions_response
-                    ? currentInteraction.questions_response[index]
-                    : null
-                }
-                onChange={(event) =>
-                  handleOptionChange(index, event.target.value)
-                }
-              >
-                <FormControlLabel
-                  value="Yes"
-                  control={<Radio className={classes.orangeRadio} />}
-                  label={<span className={classes.yesText}>Yes</span>}
-                />
-                <FormControlLabel
-                  value="No"
-                  control={<Radio className={classes.orangeRadio} />}
-                  label={<span className={classes.yesText}>No</span>}
-                />
-              </RadioGroup>
+          {selectedQuestions.map((question, index) => (
+            <div key={index} className={classes.questionContainer}>
+              <div className={classes.questionText}>{question}</div>
+              <div className={classes.radioGroupContainer}>
+                <RadioGroup
+                  row
+                  value={
+                    currentInteraction?.questions_response
+                      ? currentInteraction.questions_response[index]
+                      : null
+                  }
+                  onChange={(event) =>
+                    handleOptionChange(index, event.target.value)
+                  }
+                >
+                  <FormControlLabel
+                    value="Yes"
+                    control={<Radio className={classes.orangeRadio} />}
+                    label={<span className={classes.yesText}>Yes</span>}
+                  />
+                  <FormControlLabel
+                    value="No"
+                    control={<Radio className={classes.orangeRadio} />}
+                    label={<span className={classes.yesText}>No</span>}
+                  />
+                </RadioGroup>
             </div>
           </div>
         ))}
         </div>
+        <hr className={classes.hr} />
         <div className={classes.notesContainer}>
           {translate("model_evaluation_note")}
         </div>
         <TextareaAutosize
           aria-label="minimum height"
           minRows={3}
+          defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
             currentInteraction.additional_note
               ? currentInteraction.additional_note
               : null
           }
-          style={{minHeight:"50px"}}
+          style={{minHeight:"50px",maxHeight:"10rem",height:"50px"}}
           onChange={handleNoteChange}
           className={classes.notesTextarea}
         />
@@ -258,7 +284,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         return newExpanded;
       });
     };
-
+ 
     return (
       <div>
         {pairs.map((pair, index) => {
@@ -327,6 +353,29 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
       </div>
     );
   };
+  
+  const QuestionList = ({ questions }) => {
+    return (
+      <div style={{height:"25rem", overflowY:"scroll", margin: "1.5rem 1.5rem 2rem 1.5rem"}}>
+      <div className={classes.questionList}>
+        {questions.map((question, index) => (
+          <Box
+            key={index}
+            sx={{
+              padding: "10px",
+              margin: "5px 0",
+              backgroundColor: selectedQuestions.includes(question) ? "#d3d3d3" : "#fff",
+              cursor: "pointer",
+            }}
+            onClick={() => handleQuestionClick(question)}
+          >
+            {question}
+          </Box>
+        ))}
+      </div>
+      </div>
+    );
+  };
 
   const InteractionDisplay = () => {
     return (
@@ -336,7 +385,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
           height: "100%",
         }}
         minWidth={"20%"}
-        maxWidth={"70%"}
+        // maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
         <Paper className={classes.interactionWindow}  style={{ border: "none" ,backgroundColor: '#f0f0f0'}}>
@@ -344,6 +393,10 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
+        <div className={classes.heading} style={{marginLeft:"1.5rem"}}>
+          {translate("modal.quelist")}
+        </div>
+        <QuestionList questions={questions}/>
       </Resizable>
     );
   };

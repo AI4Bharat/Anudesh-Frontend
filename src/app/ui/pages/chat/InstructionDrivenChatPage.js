@@ -598,7 +598,7 @@ const InstructionDrivenChatPage = ({
                 justifyContent: "center",
               }}
             >
-              {(formattedText)}
+             {info.instruction_data}
             </Typography>
           </Box>
         </Grid>

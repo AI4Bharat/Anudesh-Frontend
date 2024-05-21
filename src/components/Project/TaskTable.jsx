@@ -141,20 +141,29 @@ const TaskTable = (props) => {
         })
         : [],
   };
-  const [pull, setpull] = useState(savedFilters?.pull || "All");
-  const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
+  const [pull, setpull] = useState(
+    TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.pull 
+      : "All"
+  );  const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
     (pull == 'Not Pulled By reviewer' || pull == 'Not Pulled By SuperChecker') ? true :
       ''
-      const [rejected,setRejected] = useState(savedFilters?.rejected||false)
-
+    
+    
+      const [rejected, setRejected] = useState(
+        TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+          ? TaskFilter.rejected || false
+          : false
+      );
+    
   const [selectedFilters, setsSelectedFilters] = useState(
     props.type === "annotation"
       ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
         ? TaskFilter.selectedFilters
-        : { annotation_status: savedFilters.selectedStatus , req_user: -1 }
+        : { annotation_status: filterData.Status[0] , req_user: -1 }
       : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
         ? TaskFilter.selectedFilters
-        : { review_status: savedFilters.selectedStatus, req_user: -1 }
+        : { review_status: filterData.Status[0], req_user: -1 }
   );
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
@@ -386,7 +395,6 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
 
-
   useEffect(() => {
     const payload = {
       id,
@@ -410,7 +418,7 @@ const TaskTable = (props) => {
         : selectedFilters.review_status
     );
     }
-  }, [selectedFilters]);
+  }, [selectedFilters,pull,rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
