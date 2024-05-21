@@ -695,7 +695,8 @@ const AnnotatePage = () => {
               sx={{ mt: 2 }}
               onClick={() => {
                 localStorage.removeItem("labelAll");
-                navigate(`/projects/${projectId}`);
+                // navigate(`/projects/${projectId}`);
+                navigate(-1);
               }}
             >
               Back to Project

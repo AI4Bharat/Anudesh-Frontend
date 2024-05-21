@@ -11,7 +11,7 @@ export const fetchDatasetDownloadCSV = createAsyncThunk(
   'GetDatasetDownloadCSV/fetchDatasetDownloadCSV',
   async (datasetId, { dispatch }) => {
    
-    const params = fetchParams(`}${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=CSV`);
+    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=CSV`);
     return fetch(params.url, params.options)
         .then(response => response.text())
   }

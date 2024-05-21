@@ -27,6 +27,7 @@ import GetProjectReportAPI from '@/app/actions/api/Projects/GetProjectReportAPI'
 import { fetchProjectReport } from '@/Lib/Features/getProjectReport';
 
 
+
 const ReportsTable = (props) => {
          /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -49,7 +50,7 @@ const ReportsTable = (props) => {
         variant: "success",
     });
 
-
+    const [loading, setLoading] = useState(false);
     const { id } = useParams();
     const dispatch = useDispatch();
     const ProjectReport = useSelector(state => state.getProjectReport.data);
@@ -138,7 +139,10 @@ const ReportsTable = (props) => {
         let reports_type = radiobutton === "SuperCheckerReports" ? "superchecker_reports" : "review_reports"
         setReportRequested(true);
         setSubmitted(true);
-
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false)
+        }, 1000);
         if (radiobutton === "AnnotatationReports") {
             projectObj = ({projectId:id, startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'), endDate:format(selectRange[0].endDate, 'yyyy-MM-dd')});
         }
@@ -238,7 +242,7 @@ const ReportsTable = (props) => {
                         endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
                         variant="contained"
                         color="primary"
-                        sx={{ width: "130px" }}
+                        sx={{ width: "130px", marginTop: "8.5px" }}
                         onClick={() => setShowPicker(!showPicker)}
                     >
                         Pick Dates
@@ -249,7 +253,7 @@ const ReportsTable = (props) => {
                         fullWidth
                         variant="contained"
                         onClick={handleSubmit}
-                        sx={{ width: "130px" }}
+                        sx={{ width: "130px", marginTop: "8.5px" }}
                     >
                         Submit
                     </Button>
@@ -293,7 +297,7 @@ const ReportsTable = (props) => {
                         <Typography variant="body2" color="#F8644F">* User Inactive</Typography>)}
                     <ThemeProvider theme={tableTheme}>
                         {
-                            showSpinner ? <CircularProgress sx={{ mx: "auto", display: "block" }} /> : reportRequested && (
+                            loading ? <CircularProgress style={{marginLeft: "50%"}}/> : reportRequested && (
                                 <MUIDataTable
                                     title={radiobutton === "AnnotatationReports" ? "Annotation Report" : (radiobutton === "ReviewerReports" ? "Reviewer Report" : "Super Checker Report")}
                                     data={ProjectReport}

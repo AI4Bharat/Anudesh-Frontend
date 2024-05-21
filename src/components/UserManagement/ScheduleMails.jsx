@@ -321,7 +321,7 @@ const ScheduleMails = () => {
 
             <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
               <FormControl fullWidth size="small">
-                <InputLabel id="report-level-label" sx={{ fontSize: "16px" }}>
+                <InputLabel id="report-level-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Report Level
                 </InputLabel>
                 <Select
@@ -345,7 +345,7 @@ const ScheduleMails = () => {
 
             <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
               <FormControl fullWidth size="small">
-                <InputLabel id="workspace-label" sx={{ fontSize: "16px" }}>
+                <InputLabel id="workspace-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Workspace
                 </InputLabel>
                 <Select
@@ -373,7 +373,7 @@ const ScheduleMails = () => {
 
             <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
               <FormControl fullWidth size="small">
-                <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>
+                <InputLabel id="project-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Project Type
                 </InputLabel>
                 <Select
@@ -397,7 +397,7 @@ const ScheduleMails = () => {
 
             <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
               <FormControl fullWidth size="small">
-                <InputLabel id="schedule-label" sx={{ fontSize: "16px" }}>
+                <InputLabel id="schedule-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Schedule
                 </InputLabel>
                 <Select
@@ -419,7 +419,7 @@ const ScheduleMails = () => {
             {schedule === "Weekly" && (
               <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="weekday-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="weekday-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                     Day of Week
                   </InputLabel>
                   <Select
@@ -446,7 +446,7 @@ const ScheduleMails = () => {
             {schedule === "Monthly" && (
               <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="month-day-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="month-day-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                     Day of Month
                   </InputLabel>
                   <Select

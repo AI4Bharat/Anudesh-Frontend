@@ -104,7 +104,7 @@ const DatasetLogs = (props) => {
         
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="task-type-filter-label" sx={{fontSize: "16px"}}>Filter by Task Type</InputLabel>
+            <InputLabel id="task-type-filter-label" sx={{fontSize: "16px", zIndex: 0}}>Filter by Task Type</InputLabel>
                 <Select
                   labelId="task-type-filter-label"
                   id="task-type-filter"

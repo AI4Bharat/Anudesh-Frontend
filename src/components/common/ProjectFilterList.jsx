@@ -87,6 +87,7 @@ const ProjectFilterList = (props) => {
     props.handleClose();
   };
 
+  const selectedTypeWithDefault = selectedType  || "InstructionDrivenChat";
 
   return (
     <div>
@@ -111,7 +112,7 @@ const ProjectFilterList = (props) => {
             <Select
               labelId="project-type-label"
               id="project-type-select"
-              value={selectedType}
+              value={selectedTypeWithDefault}
               label="Project Type"
               onChange={(e) => setSelectedType(e.target.value)}
              

@@ -14,6 +14,7 @@ import { MenuProps } from "@/utils/utils";
 import WordCountMetaAnalyticsChart from './WordCountMetaAnalyticsChart';
 import SentanceCountMetaAnalyticsChart from './SentanceCountMetaAnalyticsChart';
 import { fetchMetaAnalyticsData } from '@/Lib/Features/Analytics/getMetaAnalyticsData';
+import CustomizedSnackbars from "@/components/common/Snackbar";
 
 export default function MetaAnalytics(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
@@ -24,6 +25,8 @@ export default function MetaAnalytics(props) {
     const apiLoading = useSelector((state) => state.apiStatus.loading);
     const [projectTypes, setProjectTypes] = useState([]);
     const [selectedType, setSelectedType] = useState("AllTypes");
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
     const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
     const metaAnalyticsData = useSelector(
         (state) => state.getMetaAnalyticsData.data
@@ -32,7 +35,20 @@ export default function MetaAnalytics(props) {
       const getMetaAnalyticsdata = () => {
         setLoading(true);
         dispatch(fetchMetaAnalyticsData(loggedInUserData?.organization?.id,selectedType));
+        setTimeout(() => {
+          setLoading(false); 
+        },1000) 
       };
+
+      const showSnackbar = (message) => {
+        setSnackbarMessage(message);
+        setSnackbarOpen(true);
+      };
+    
+      const closeSnackbar = () => {
+        setSnackbarOpen(false);
+      };
+
 
       const audioProjectTypes=[
         'AudioTranscription',
@@ -70,7 +86,12 @@ export default function MetaAnalytics(props) {
         getMetaAnalyticsdata();
       }, []);
       const handleSubmit = async () => {
-        getMetaAnalyticsdata();
+        if(getMetaAnalyticsdata()==null){
+          showSnackbar("No Analytics to display")
+        }
+        else{
+          getMetaAnalyticsdata()
+        }
       }
 
       useEffect(() => {
@@ -84,7 +105,7 @@ export default function MetaAnalytics(props) {
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
         <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
               Project Type {" "}
               {
                 <LightTooltip
@@ -139,11 +160,25 @@ export default function MetaAnalytics(props) {
             {analyticsData[0].projectType.includes("Conversation") && <SentanceCountMetaAnalyticsChart analyticsData={analyticsData}/>}
           </Grid>}
           if (analyticsData.length && ocrProjectTypes.includes(analyticsData[0].projectType)){
-            return (<Grid key={_index} style={{marginTop:"15px"}}>
+            return (
+            <Grid key={_index} style={{marginTop:"15px"}}>
             <WordCountMetaAnalyticsChart analyticsData={analyticsData} graphCategory='ocrWordCount'/>
-          </Grid>)}
+          </Grid>
+          )
+        }
         })
       :''}
+      <CustomizedSnackbars
+        message={snackbarMessage}
+        open={snackbarOpen}
+        hide={2000}
+        handleClose={closeSnackbar}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        variant="error"
+      />
     </div>
   )
 }

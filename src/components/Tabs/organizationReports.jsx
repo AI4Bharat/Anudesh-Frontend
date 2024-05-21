@@ -30,6 +30,7 @@ import { fetchOrganizationUserReports } from "@/Lib/Features/projects/GetOrganiz
 import { fetchOrganizationProjectReports } from "@/Lib/Features/projects/GetOrganizationProjectReports";
 import { fetchOrganizationDetailedProjectReports } from "@/Lib/Features/projects/GetOrganizationDetailedProjectReports";
 import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
+import {CircularProgress} from "@mui/material";
 
 const ProgressType = ["Annotation Stage", "Review Stage", "Super Check Stage", "All Stage"]
 const ITEM_HEIGHT = 38;
@@ -80,6 +81,7 @@ const OrganizationReports = () => {
   const [reportfilter, setReportfilter] = useState(["All Stage"]);
   const [projectReportType, setProjectReportType] = useState(1);
   const [statisticsType, setStatisticsType] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -120,6 +122,7 @@ const OrganizationReports = () => {
         "OCRTranscriptionEditing",
       ]);
       setSelectedType("AllAudioProjects");
+      
     } else if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
@@ -130,6 +133,31 @@ const OrganizationReports = () => {
       setSelectedType(types[3]);
     }
   }, [ProjectTypes, radiobutton]);
+
+  useEffect(() => {
+    if (radiobutton === "ProjectReports") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radiobutton]);
+
+  useEffect(() => {
+    if (radiobutton === "UsersReports") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radiobutton]);
+ 
 
   useEffect(() => {
     if (reportRequested && UserReports?.length) {
@@ -227,7 +255,7 @@ const OrganizationReports = () => {
   //   }
   //   setShowSpinner(false);
   // }, [SuperCheck]);
-
+  
   const renderToolBar = () => {
     return (
       <Box
@@ -266,6 +294,10 @@ const OrganizationReports = () => {
   const userId = useSelector((state) => state.getLoggedInData.data.id);
 
   const handleSubmit = (sendMail) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false); 
+    },1000)
     if (radiobutton === "PaymentReports") {
     
       dispatch(fetchSendOrganizationUserReports({orgId:orgId,
@@ -584,7 +616,7 @@ const OrganizationReports = () => {
         }
 
         {(radiobutton==="UsersReports"|| (radiobutton==="ProjectReports" && projectReportType === 1)) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <Button
+        <Button
             fullWidth
             variant="contained"
             onClick={() => handleSubmit(false)}
@@ -635,7 +667,8 @@ const OrganizationReports = () => {
           />
         </Card>
       </Box>}
-      {showSpinner ? <div></div> : reportRequested && (
+      {loading ? <CircularProgress style={{marginLeft: "50%"}} /> : reportRequested && (
+        
         <ThemeProvider theme={tableTheme}>
           <MUIDataTable
             title={ProjectReports?.length > 0 ? "Reports" : ""}
