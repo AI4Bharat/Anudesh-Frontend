@@ -10,14 +10,13 @@ const initialState = {
 export const fetchRecentTasks = createAsyncThunk(
   'getRecentTasks/fetchRecentTasks',
   async ({id,task_type, pageNo, filter,countPerPage}) => {
-    console.log("step 2");
     let queryString = `${pageNo ? "page="+pageNo : ""}${countPerPage ?"&records="+countPerPage : ""}${id ? "&user_id="+id:""}${task_type ? "&task_type="+task_type:""}`;
      for (let key in filter) {
       if (filter[key] && filter[key] !== -1) {
           queryString +=  `&${key}=${filter[key]}`
       }
     }
-    const params = fetchParams(`${ENDPOINTS.getTasks}annotated_and_reviewed_tasks/get_users_recent_tasks/?${queryString}`,"POST");
+    const params = fetchParams(`${ENDPOINTS.getTasks}annotated_and_reviewed_tasks/get_users_recent_tasks/?${queryString}`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }

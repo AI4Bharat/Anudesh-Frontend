@@ -17,6 +17,7 @@ import {
   import MUIDataTable from "mui-datatables";
   import { translate } from "../../config/localisation";
 import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
+import AllTaskSearchPopup from "../Project/AllTasksSearchpopup";
   
   const TASK_TYPES = ["annotation", "review","supercheck"]
   
@@ -207,7 +208,7 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
         />
       </ThemeProvider>
 
-      {/* {searchOpen && <AllTaskSearchPopup
+      {searchOpen && <AllTaskSearchPopup
         open={searchOpen}
         anchorEl={searchAnchor}
         handleClose={handleSearchClose}
@@ -216,7 +217,7 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
         currentFilters={selectedFilters}
         searchedCol={searchedCol}
         onchange={GetAllTasksdata}
-      />} */}
+      />}
     </ThemeProvider>
   )
 }

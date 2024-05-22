@@ -85,7 +85,6 @@ const TaskTable = (props) => {
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [rejected,setRejected] = useState(false)
   const [find, setFind] = useState("");
   const [replace, setReplace] = useState("");
   const [OpenFindAndReplaceDialog, setOpenFindAndReplaceDialog] = useState(false);
@@ -102,6 +101,9 @@ const TaskTable = (props) => {
   const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
+  const userDetails1 = useSelector((state) => console.log(state));
+  const savedFilters = JSON.parse(localStorage.getItem('filters'));
+
 
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
@@ -139,17 +141,28 @@ const TaskTable = (props) => {
         })
         : [],
   };
-  const [pull, setpull] = useState("All");
-  const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
+  const [pull, setpull] = useState(
+    TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.pull 
+      : "All"
+  );  const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
     (pull == 'Not Pulled By reviewer' || pull == 'Not Pulled By SuperChecker') ? true :
       ''
+    
+    
+      const [rejected, setRejected] = useState(
+        TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+          ? TaskFilter.rejected || false
+          : false
+      );
+    
   const [selectedFilters, setsSelectedFilters] = useState(
     props.type === "annotation"
       ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.filters
+        ? TaskFilter.selectedFilters
         : { annotation_status: filterData.Status[0] , req_user: -1 }
       : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.filters
+        ? TaskFilter.selectedFilters
         : { review_status: filterData.Status[0], req_user: -1 }
   );
   const NextTask = useSelector((state) => state?.getNextTask?.data);
@@ -157,6 +170,7 @@ const TaskTable = (props) => {
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5
   );
+  const [selectedStatus, setSelectedStatus] = useState(!!selectedFilters?.annotation_status ? selectedFilters?.annotation_status : selectedFilters.review_status);
   const [pullDisabled, setPullDisabled] = useState("");
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const apiLoading = useSelector((state) => state.GetTasksByProjectId.status !=="succeeded");
@@ -381,9 +395,15 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
 
-
   useEffect(() => {
-    dispatch(setTaskFilter(id, selectedFilters, props.type));
+    const payload = {
+      id,
+      selectedFilters,
+      type: props.type,
+      pull,
+      rejected
+    };
+    dispatch(setTaskFilter(payload));
     if (currentPageNumber !== 1) {
       setCurrentPageNumber(1);
     } else {
@@ -398,7 +418,7 @@ const TaskTable = (props) => {
         : selectedFilters.review_status
     );
     }
-  }, [selectedFilters]);
+  }, [selectedFilters,pull,rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -1131,6 +1151,8 @@ const TaskTable = (props) => {
           setpull={setpull}
           rejected={rejected}
           setRejected={setRejected}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
           // rejValue = {rejValue}
           pullvalue={pullvalue}
         />
