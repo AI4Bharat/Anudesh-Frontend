@@ -7,6 +7,7 @@ import themeDefault from '../../themes/theme'
 import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
 
+
 const Search = (props) => {
   const ref = useRef(null);
          /* eslint-disable react-hooks/exhaustive-deps */
@@ -42,20 +43,18 @@ const Search = (props) => {
                     {globalTransliteration ? 
                     <IndicTransliterate 
                     renderComponent={(props) => (
-                      // <textarea
-                      // sx={{ ml: 4 }}
-                      // placeholder="Search..."
-                      // {...props}
-                      // />
+                      <textarea
+                      
+                      placeholder="Search..."
+                      {...props}
+                      style={{background: "transparent", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%", border: "none", outline: "none", overflow: "hidden"}}
+                      />
 
-                      <InputBase
-                        sx={{ ml: 4 }}
-                        // inputRef={ref}
-                        placeholder="Search..."
-                        value={searchValue}
-                        onChange={(e) => handleChangeName(e.target.value)}
-                        inputProps={{ "aria-label": "search" }}
-                    />
+                    //   <InputBase
+                    //   sx={{ ml: 4 }}
+                    //   placeholder="Search..."
+                    //   {...props}
+                    // />
                     )}
                     value={searchValue}
                     onChangeText={(text) => {
