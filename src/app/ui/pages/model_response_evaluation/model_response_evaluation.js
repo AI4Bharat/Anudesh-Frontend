@@ -9,6 +9,9 @@ import {
   RadioGroup,
   TextareaAutosize,
   Box,
+  Typography,
+  Icon,
+  IconButton,
 } from "@mui/material";
 import "./model_response_evaluation.css";
 import { Paper } from "@mui/material";
@@ -16,6 +19,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Divider,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Resizable } from "re-resizable";
@@ -32,6 +36,13 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
+  const [leftPanelVisible, setLeftPanelVisible] = useState(false);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
+
+
+  const toggleLeftPanel = () => {
+    setLeftPanelVisible(!leftPanelVisible);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +71,9 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
     fetchData();
   }, [forms, taskId]);
 
+  useEffect(() => {
+    setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
+  }, []);
   useEffect(() => {
     if (forms && interactions) {
       let defaultFormIndex = interactions[0]?.prompt_output_pair_id;
@@ -147,14 +161,28 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         }),
     }));
   };
-
+  const handleQuestionClick = (question) => {
+    setSelectedQuestions((prevQuestions) => {
+      if (prevQuestions.includes(question)) {
+        return prevQuestions.filter((q) => q !== question);
+      } else {
+        return [...prevQuestions, question];
+      }
+    });
+  };
   const EvaluationForm = () => {
     return (
-      <div className={classes.rightPanel}>
-        <div className={classes.promptContainer}>
+      <div className={classes.rightPanel} >
+        <div className={classes.promptContainer}  style={{  overflowY: "auto" }}>
+        <div className={classes.heading} style={{fontSize:"20px"}}>
+          {translate("modal.prompt")}
+        </div>
           {currentInteraction.prompt}
         </div>
-        <div className={classes.outputContainer}>
+        <div className={classes.heading}  style={{fontSize:"20px"}}>
+          {translate("modal.output")}
+        </div>
+        <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
           {currentInteraction.output}
         </div>
         <div className={classes.ratingText}>
@@ -186,51 +214,60 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
           ))}
         </Box>
         <hr className={classes.hr} />
+        {selectedQuestions.length>0?<div className={classes.heading}>
+          {translate("modal.select_que")}
+        </div>:<div className={classes.heading}>
+          {translate("modal.pls_select_que")}
+        </div>}
         <div style={{
-          overflowY: 'scroll'
+          overflowY: 'auto',
+          maxHeight: "10rem"
         }}>
-        {questions.map((question, index) => (
-          <div key={index} className={classes.questionContainer}>
-            <div className={classes.questionText}>{question}</div>
-            <div className={classes.radioGroupContainer}>
-              <RadioGroup
-                row
-                value={
-                  currentInteraction?.questions_response
-                    ? currentInteraction.questions_response[index]
-                    : null
-                }
-                onChange={(event) =>
-                  handleOptionChange(index, event.target.value)
-                }
-              >
-                <FormControlLabel
-                  value="Yes"
-                  control={<Radio className={classes.orangeRadio} />}
-                  label={<span className={classes.yesText}>Yes</span>}
-                />
-                <FormControlLabel
-                  value="No"
-                  control={<Radio className={classes.orangeRadio} />}
-                  label={<span className={classes.yesText}>No</span>}
-                />
-              </RadioGroup>
+          {selectedQuestions.map((question, index) => (
+            <div key={index} className={classes.questionContainer}>
+              <div className={classes.questionText}>{question}</div>
+              <div className={classes.radioGroupContainer}>
+                <RadioGroup
+                  row
+                  value={
+                    currentInteraction?.questions_response
+                      ? currentInteraction.questions_response[index]
+                      : null
+                  }
+                  onChange={(event) =>
+                    handleOptionChange(index, event.target.value)
+                  }
+                >
+                  <FormControlLabel
+                    value="Yes"
+                    control={<Radio className={classes.orangeRadio} />}
+                    label={<span className={classes.yesText}>Yes</span>}
+                  />
+                  <FormControlLabel
+                    value="No"
+                    control={<Radio className={classes.orangeRadio} />}
+                    label={<span className={classes.yesText}>No</span>}
+                  />
+                </RadioGroup>
             </div>
           </div>
         ))}
         </div>
+        <hr className={classes.hr} />
         <div className={classes.notesContainer}>
           {translate("model_evaluation_note")}
         </div>
         <TextareaAutosize
           aria-label="minimum height"
           minRows={3}
+          defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
             currentInteraction.additional_note
               ? currentInteraction.additional_note
               : null
           }
+          style={{minHeight:"50px",maxHeight:"10rem",height:"50px"}}
           onChange={handleNoteChange}
           className={classes.notesTextarea}
         />
@@ -248,7 +285,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         return newExpanded;
       });
     };
-
+ 
     return (
       <div>
         {pairs.map((pair, index) => {
@@ -259,10 +296,11 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
               onChange={handleAccordionChange(index)}
               className={classes.accordion}
               style={{
-                borderRadius: expanded[index] ? "1rem" : "0",
+                borderRadius: expanded[index] ? "1rem" : "1rem",
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
-                  : "none",
+                  : "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  borderBottom: "none",
               }}
             >
               <AccordionSummary
@@ -274,12 +312,14 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                   expanded: "Mui-expanded",
                 }}
               >
+               
                 <Box
                   sx={{
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
+                    maxWidth: "100px"
                   }}
                   className={classes.promptTile}
                 >
@@ -293,6 +333,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
+                    maxWidth: "100px"
                   }}
                   className={classes.answerTile}
                 >
@@ -314,6 +355,29 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
       </div>
     );
   };
+  
+  const QuestionList = ({ questions }) => {
+    return (
+      <div style={{height:"25rem", overflowY:"scroll", margin: "1.5rem 1.5rem 2rem 1.5rem"}}>
+      <div className={classes.questionList}>
+        {questions.map((question, index) => (
+          <Box
+            key={index}
+            sx={{
+              padding: "10px",
+              margin: "5px 0",
+              backgroundColor: selectedQuestions.includes(question) ? "#d3d3d3" : "#fff",
+              cursor: "pointer",
+            }}
+            onClick={() => handleQuestionClick(question)}
+          >
+            {question}
+          </Box>
+        ))}
+      </div>
+      </div>
+    );
+  };
 
   const InteractionDisplay = () => {
     return (
@@ -323,14 +387,21 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
           height: "100%",
         }}
         minWidth={"20%"}
-        maxWidth={"70%"}
+        // maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
-        <Paper className={classes.interactionWindow}>
+        <div className={classes.heading}  style={{margin:"1.5rem 0 1.5rem 1.5rem",fontSize:"20px"}}>
+          {translate("modal.interact")}
+        </div>
+        <Paper className={classes.interactionWindow}  style={{ border: "none" ,backgroundColor: '#f0f0f0'}}>
           {interactions && (
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
+        <div className={classes.heading} style={{margin:"1.5rem 0 0.5rem 1.5rem" , fontSize:"20px"}}>
+          {translate("modal.quelist")}
+        </div>
+        <QuestionList questions={questions}/>
       </Resizable>
     );
   };
@@ -338,7 +409,11 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   return (
     <>
       <div className={classes.container}>
-        {InteractionDisplay()}
+          <IconButton onClick={toggleLeftPanel}>
+            <ExpandMoreIcon />
+          </IconButton>
+        {leftPanelVisible && <InteractionDisplay />}
+        <Divider orientation="vertical" flexItem />
         {EvaluationForm()}
       </div>
     </>

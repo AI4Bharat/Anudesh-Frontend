@@ -27,6 +27,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
+import { Block } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -71,6 +72,7 @@ const InstructionDrivenChatPage = ({
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
+  const [hasMounted,setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -90,9 +92,6 @@ const InstructionDrivenChatPage = ({
     setOpen(false);
   };
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory]);
 
   const renderSnackBar = () => {
     return (
@@ -124,7 +123,7 @@ const InstructionDrivenChatPage = ({
       });
     }
   };
-
+  
   useEffect(() => {
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
@@ -179,7 +178,45 @@ const InstructionDrivenChatPage = ({
     fetchData();
   }, [taskId]);
 
-  const handleButtonClick = async () => {
+  const cleanMetaInfo = (value) => value.replace(/\(for example:.*?\)/gi, '').trim();
+
+  const escapeRegExp = (string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+  };
+  
+  const formatTextWithTooltips = (text, info) => {
+    // Ensure text is a string
+    text = String(text);
+  
+    // Clean the meta info values
+    const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
+    const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
+    const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
+  
+    let formattedText = text;
+  
+    const placeholders = [
+      { key: 'meta_info_intent', value: metaInfoIntent, tooltip: 'Intent of the instruction' },
+      { key: 'meta_info_language', value: metaInfoLanguage, tooltip: 'Language used' },
+      { key: 'meta_info_domain', value: metaInfoDomain, tooltip: 'Domain of the content' }
+    ];
+  
+    placeholders.forEach(({ value, tooltip }) => {
+      if (value !== 'None') {
+        const escapedValue = escapeRegExp(value);
+        const regex = new RegExp(`(${escapedValue})`, 'gi');
+        text = text.replace(regex, (match) => {
+          return `<Tooltip title="${tooltip}"><strong>${match}</strong></Tooltip>`;
+        });
+  
+      }
+    });
+  
+    return text;
+  };
+    const formattedText = formatTextWithTooltips(info.instruction_data, info);
+  
+    const handleButtonClick = async () => {
     if (inputValue) {
       setLoading(true);
       const body = {
@@ -239,6 +276,9 @@ const InstructionDrivenChatPage = ({
         variant: "error",
       });
     }
+    setTimeout(() => {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }, 1000);
     setShowChatContainer(true);
   };
 
@@ -495,7 +535,7 @@ const InstructionDrivenChatPage = ({
   return (
     <>
       {renderSnackBar()}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} id="top">
         <Grid item xs={12}>
           <Box
             sx={{
@@ -553,13 +593,14 @@ const InstructionDrivenChatPage = ({
                 padding: "0.5rem 1rem 0",
                 minHeight: "6rem",
                 maxHeight: "6rem",
-                overflowY: "scroll",
+                overflowY: "auto",
                 display: "flex",
-                alignItems: "center",
+                // alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "center",
               }}
             >
-              {info.instruction_data}
+             {info.instruction_data}
             </Typography>
           </Box>
         </Grid>
