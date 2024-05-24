@@ -503,6 +503,7 @@ const InstructionDrivenChatPage = ({
               padding: "10px",
               marginTop: "1.5rem",
               backgroundColor: "rgba(247, 184, 171, 0.2)",
+              marginLeft: "1rem",
             }}
           >
             <Box
@@ -510,6 +511,7 @@ const InstructionDrivenChatPage = ({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                
               }}
             >
               <Typography
