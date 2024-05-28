@@ -134,15 +134,17 @@ const InstructionDrivenChatPage = ({
       const data = await response.json();
       let modifiedChatHistory = [];
       if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
-        if(stage==="Review"){
-          let obj = data.filter((data)=>data.annotation_type==2)
-          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+        if (stage === "Review") {
+          let reviewData = data.find((item) => item.annotation_type === 2);
+          if (reviewData.annotation_status === "unreviewed") {
+            reviewData = data.find((item) => item.annotation_type === 1);
+          }
+          modifiedChatHistory = reviewData?.result?.map((interaction) => {
             return {
               ...interaction,
               output: formatResponse(interaction.output),
             };
           });
-
         }else if(stage=="SuperChecker"){
           let obj = data.filter((data)=>data.annotation_type==3)
           modifiedChatHistory = obj[0]?.result?.map((interaction) => {
