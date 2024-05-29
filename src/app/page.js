@@ -6,6 +6,7 @@ import { authenticateUser } from "@/utils/utils";
 import Login from "./ui/pages/login/login";
 import Layout from "./ui/Layout";
 import Chat from "./ui/pages/chat/chat";
+import PublicAnalytics from "./ui/pages/public-analytics/PublicAnalytics";
 import MyOrganization from "./ui/pages/organizations/organizations";
 import ProjectList from "./ui/pages/projects/project";
 import Projects from "./ui/pages/projects/projectDetails"
@@ -53,6 +54,7 @@ export default function Root() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/public-analytics" element={<PublicAnalytics />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/invite/:inviteCode" element={<SignUp />} />
             <Route

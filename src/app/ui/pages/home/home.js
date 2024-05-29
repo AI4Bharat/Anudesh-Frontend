@@ -2,6 +2,7 @@
 import "./home.css";
 import { useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useNavigate } from "react-router-dom";
 import ChatIcon from "@mui/icons-material/Chat";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
@@ -9,21 +10,21 @@ import RateReviewIcon from "@mui/icons-material/RateReview";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import CompareIcon from "@mui/icons-material/Compare";
 import PsychologyAltIcon from "@mui/icons-material/PsychologyAlt";
-import {
-  Box,
-  Grid,
-  Stack,
-  Card,
-  CardContent,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, Stack, Card, CardContent, Typography } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import Carousel from "react-material-ui-carousel";
 import IntroStyle from "@/styles/IntroStyle";
-import { dynamicCard, footer, operationalModes, info, banner, operationalDynamics } from "./config";
+import {
+  dynamicCard,
+  footer,
+  operationalModes,
+  info,
+  banner,
+  operationalDynamics,
+} from "./config";
 import Svg from "@/assets/home_page1.svg";
 
 const DynamicCards = ({ card }) => {
@@ -130,11 +131,10 @@ const DynamicCards = ({ card }) => {
 const Home = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.setItem('interaction_json', JSON.stringify([]));
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("interaction_json", JSON.stringify([]));
     }
   }, []);
-  
 
   return (
     <>
@@ -150,7 +150,10 @@ const Home = () => {
             <button className="text-xl font-medium hover:underline">
               Codebase
             </button>
-            <button className="text-xl font-medium hover:underline">
+            <button
+              onClick={() => navigate("/public-analytics")}
+              className="text-xl font-medium hover:underline"
+            >
               Analytics
             </button>
           </div>
@@ -159,7 +162,7 @@ const Home = () => {
         <div className="flex items-center align-middle h-full">
           <div className="px-40">
             <div className="text-orange-600 text-6xl mb-16 font-medium">
-              { banner.heading }
+              {banner.heading}
             </div>
             <div className="text-orange-600 text-3xl mb-16">
               {banner.subheading}
@@ -196,21 +199,27 @@ const Home = () => {
       </div>
 
       <div className="flex flex-row items-center justify-center text-center py-32 px-60">
-        <Image className="hideOnMobile" alt="Anudesh" src={Svg} width={400} height={400}></Image>
+        <Image
+          className="hideOnMobile"
+          alt="Anudesh"
+          src={Svg}
+          width={400}
+          height={400}
+        ></Image>
         <div className="pl-20">
           <div className="text-orange-600 text-6xl font-medium">
-            { info.question }
+            {info.question}
           </div>
           <div className="pt-10">
             <div className="text-4xl font-semibold text-gray-700 pb-10">
-              { info.subquestion }
+              {info.subquestion}
             </div>
             <Typography
               variant="body1"
               color="rgb(107 114 128)"
               fontWeight={300}
             >
-              { info.content }
+              {info.content}
             </Typography>
           </div>
         </div>
@@ -218,7 +227,7 @@ const Home = () => {
 
       <div className="text-center pb-32 px-64">
         <div className="text-gray-700 text-6xl font-medium">
-          { operationalModes.heading }
+          {operationalModes.heading}
         </div>
         <Box sx={{ flexGrow: 1 }}>
           <Grid
@@ -285,7 +294,7 @@ const Home = () => {
 
       <div clasNsame="text-center pb-32">
         <div className="text-center text-gray-700 text-6xl font-medium py-20">
-          { operationalDynamics.heading }
+          {operationalDynamics.heading}
         </div>
         <Carousel
           stopAutoPlayOnHover
@@ -315,7 +324,7 @@ const Home = () => {
       </div>
 
       <div className="text-center bg-stone-800 py-6">
-        <Typography className="text-white" sx={{fontWeight: 'bold'}}>
+        <Typography className="text-white" sx={{ fontWeight: "bold" }}>
           {footer.content}
         </Typography>
       </div>
