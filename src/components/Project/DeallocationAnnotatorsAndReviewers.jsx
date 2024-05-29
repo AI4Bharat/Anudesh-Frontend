@@ -152,7 +152,7 @@ const handleok = async() => {
     const projectObj = new DeallocationAnnotatorsAndReviewersAPI(id,radiobutton,annotatorsUser,reviewerssUser,annotationStatus,reviewStatus,superCheckersUser,superCheckStatus);
     // dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
-        method: "GET",
+        method: "POST",
         body: JSON.stringify(projectObj.getBody()),
         headers: projectObj.getHeaders().headers,
     });
