@@ -433,7 +433,7 @@ const BasicSettings = (props) => {
                     }}
                 >
                     <CustomButton sx={{ inlineSize: "max-content", marginRight: "10px", width: "80px" }}
-                        onClick={() => navigate(`/projects/:id/`)}
+                        onClick={() => navigate(-1)}
                         // onClick={handleCancel}
                         label="Cancel" />
                     <CustomButton sx={{ inlineSize: "max-content", width: "80px" }}

@@ -66,7 +66,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
         <Dialog open={isOpen} onClose={handleUserDialogClose} close>
             <DialogTitle>Enter workspace details</DialogTitle>
             <DialogContent style={{ paddingTop: 4 }}>
-                <TextField placeholder='Enter Workspace Name' label="Workspace Name" fullWidth size='small' value={workspaceName} onChange={handleTextField} />
+                <TextField placeholder='Enter Workspace Name' label="Workspace Name" fullWidth size='normal' value={workspaceName} onChange={handleTextField} />
                 <FormControlLabel
                             control={<Switch color="primary" />}
                             labelPlacement="start"
