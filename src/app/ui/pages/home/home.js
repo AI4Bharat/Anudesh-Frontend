@@ -145,6 +145,8 @@ const Home = () => {
             src="https://i.imgur.com/56Ut9oz.png"
             width={90}
             height={90}
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/")}
           ></Image>
           <div className="flex gap-6">
             <button className="text-xl font-medium hover:underline">

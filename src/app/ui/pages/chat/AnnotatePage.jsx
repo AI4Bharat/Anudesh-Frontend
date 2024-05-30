@@ -44,7 +44,7 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
-import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+// import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 // import PreferenceRanking from "../dual-screen-preference-ranking/PreferenceRanking";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
