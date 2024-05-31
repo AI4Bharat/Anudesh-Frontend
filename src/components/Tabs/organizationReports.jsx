@@ -54,6 +54,12 @@ const MenuProps = {
   variant: "menu"
 };
 
+const participationTypesOptions = [
+  { value: 1, label: "Full-time" },
+  { value: 2, label: "Part-time" },
+  { value: 4, label: "Contract-Basis" }
+];
+
 
 const OrganizationReports = () => {
   const OrganizationDetails = useSelector(state => state.getLoggedInData?.data.organization);
@@ -403,6 +409,15 @@ const OrganizationReports = () => {
       />
     );
   };
+  const handleChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setParticipationTypes(
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
 
   return (
     <React.Fragment>
@@ -446,26 +461,30 @@ const OrganizationReports = () => {
         </Grid>
 
         {radiobutton === "ProjectReports" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="project-report-type-label" sx={{ fontSize: "16px" }}>Type</InputLabel>
-            <Select
-              style={{ zIndex: "0" }}
-              inputProps={{ "aria-label": "Without label" }}
-              MenuProps={MenuProps}
-              labelId="project-report-type-type-label"
-              id="project-report-type-select"
-              value={projectReportType}
-              label="Project Report Type"
-              onChange={(e) => setProjectReportType(e.target.value)}
-            >
-              <MenuItem value={1}>High-Level Reports</MenuItem>
-              <MenuItem value={2}>Detailed Reports</MenuItem>
-            </Select>
-          </FormControl>
+        <FormControl fullWidth size="small" variant="outlined">
+      <InputLabel
+        id="project-report-type-label"
+        sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+      >Type</InputLabel>
+      <Select
+      style={{ zIndex: "0", minWidth: "auto" }}
+      inputProps={{ "aria-label": "Without label" }}
+      MenuProps={MenuProps}
+        labelId="project-report-type-label"
+        id="project-report-type-select"
+        value={projectReportType}
+        label="Type"
+        onChange={(e) => setProjectReportType(e.target.value)}
+        fullWidth
+      >
+        <MenuItem value={1}>High-Level Reports</MenuItem>
+        <MenuItem value={2}>Detailed Reports</MenuItem>
+      </Select>
+    </FormControl>
         </Grid>}
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small" >
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>Project Type</InputLabel>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px" }}>Project Type</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -486,7 +505,7 @@ const OrganizationReports = () => {
         </Grid>
         {(radiobutton === "ProjectReports" && projectReportType === 1) &&  <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
         <FormControl fullWidth size="small">
-          <InputLabel id="language-label" sx={{ fontSize: "16px" }}>Target Language</InputLabel>
+          <InputLabel id="language-label" sx={{ fontSize: "19px" }}>Target Language</InputLabel>
           <Select
             labelId="language-label"
             id="language-select"
@@ -521,28 +540,34 @@ const OrganizationReports = () => {
         </FormControl>
       </Grid>}
         {radiobutton === "PaymentReports" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="participation-type-label" sx={{ fontSize: "16px" }}>Participation Types</InputLabel>
-            <Select
-              style={{ zIndex: "0" }}
-              inputProps={{ "aria-label": "Without label" }}
-              MenuProps={MenuProps}
-              labelId="participation-type-label"
-              id="participation-select"
-              value={participationTypes}
-              label="Participation Type"
-              onChange={(e) => setParticipationTypes(e.target.value)}
-              multiple
-            >
-              <MenuItem value={1}>Full-time</MenuItem>
-              <MenuItem value={2}>Part-time</MenuItem>
-              <MenuItem value={4}>Contract-Basis</MenuItem>
-            </Select>
-          </FormControl>
+        <FormControl fullWidth size="small">
+      <InputLabel id="participation-type-label" sx={{ fontSize: "19px" }}>Participation Types</InputLabel>
+      <Select
+        style={{ zIndex: "0" }}
+        inputProps={{ "aria-label": "Without label" }}
+        MenuProps={MenuProps}
+        labelId="participation-type-label"
+        id="participation-select"
+        value={participationTypes}
+        label="Participation Type"
+        onChange={handleChange}
+        multiple
+        renderValue={(selected) => selected.map(value => participationTypesOptions.find(option => option.value === value).label).join(', ')}
+      >
+        {participationTypesOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            <ListItemIcon>
+              <Checkbox checked={participationTypes.indexOf(option.value) > -1} />
+            </ListItemIcon>
+            <ListItemText primary={option.label} />
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
         </Grid>}
         {radiobutton === "UsersReports" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="report-type-label" sx={{ fontSize: "16px" }}> Report Type</InputLabel>
+            <InputLabel id="report-type-label" sx={{ fontSize: "19px" }}> Report Type</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -561,7 +586,7 @@ const OrganizationReports = () => {
         </Grid>}
         {radiobutton === "UsersReports" && <><Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small" disabled={reportTypes === "SuperCheck" || radiobutton === "ProjectReports"} >
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>Projects Filter</InputLabel>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px" }}>Projects Filter</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -582,7 +607,7 @@ const OrganizationReports = () => {
         </Grid>
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
         <FormControl fullWidth size="small">
-          <InputLabel id="language-label" sx={{ fontSize: "16px" }}>Target Language</InputLabel>
+          <InputLabel id="language-label" sx={{ fontSize: "19px" }}>Target Language</InputLabel>
           <Select
             labelId="language-label"
             id="language-select"

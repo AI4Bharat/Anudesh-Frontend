@@ -118,7 +118,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
            <div>
       {guestWorkspace && (
         <>
-          <FormControl sx={{ width: "95%", marginTop: "3%", marginLeft: "2.5%" }} variant="outlined">
+          <FormControl sx={{ width: "100%", marginTop: "3%", marginLeft: "0" }} variant="outlined">
             <InputLabel htmlFor="my-input1">Enter Password</InputLabel>
             <OutlinedInput
               id="my-input1"
@@ -139,7 +139,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler}) => {
               label="Enter Password"
             />
           </FormControl>
-          <FormControl sx={{ width: "95%", marginTop: "3%", marginLeft: "2.5%" }} variant="outlined">
+          <FormControl sx={{ width: "100%", marginTop: "3%", marginLeft: "0" }} variant="outlined">
             <InputLabel htmlFor="my-input2">Confirm Password</InputLabel>
             <OutlinedInput
               id="my-input2"
