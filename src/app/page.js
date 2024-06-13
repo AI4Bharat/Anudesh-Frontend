@@ -1,4 +1,5 @@
 "use client";
+// import 'regenerator-runtime/runtime'
 import RootLayout from "./layout";
 import Home from "./ui/pages/home/home"
 import { HashRouter, Route, Routes, Navigate } from "react-router-dom"

@@ -2,7 +2,7 @@
 import "./home.css";
 import { useEffect } from "react";
 import Image from "next/image";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ChatIcon from "@mui/icons-material/Chat";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
 import RateReviewIcon from "@mui/icons-material/RateReview";
@@ -165,9 +165,11 @@ const Home = () => {
               {banner.subheading}
             </div>
             <div className="flex gap-8">
-              <button className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">
+              <Link to={"https://www.youtube.com/playlist?list=PL9n2cBQBp3vyZ3JOcGzYbRKMgaW2PtTJ4"}>
+              <button  className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">
                 {banner.demo}
               </button>
+              </Link>
 
               <button
                 onClick={() => navigate("/login")}

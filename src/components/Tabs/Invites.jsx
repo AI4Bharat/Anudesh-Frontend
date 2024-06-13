@@ -21,6 +21,7 @@ const Invites = (props) => {
     const dispatch = useDispatch();
     const {orgId} = useParams()
     const OrganizationUserData = useSelector(state => state.getOrganizationUsers.data);
+    const OrganizationUserDatas = useSelector(state => console.log(state));
     const apiLoading = useSelector((state) => state.getOrganizationUsers.status !== "succeeded");
     const ManagerSuggestions = useSelector(state => state.getManagerSuggestions?.data);
     const [tabValue, setTabValue] = useState(0);
@@ -59,7 +60,7 @@ const Invites = (props) => {
             key={1}
             reSendButton ={reSendButton}
             hideButton = {hideButton ? hideButton : false}
-            dataSource={OrganizationUserData && OrganizationUserData.length > 0 && OrganizationUserData.filter((el, i) => { return !el.has_accepted_invite })}
+            dataSource={OrganizationUserData?.length > 0 && OrganizationUserData.filter((el, i) => { return el.has_accepted_invite==false})}
             />
             : <>
             <MembersTable
