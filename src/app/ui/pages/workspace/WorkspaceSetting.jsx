@@ -19,6 +19,7 @@ import OutlinedTextField from "@/components/common/OutlinedTextField";
 import { translate } from "@/config/localisation";
 import { VisibilityOff } from "@mui/icons-material";
 import { Visibility } from "@material-ui/icons";
+import EditWorkspace from "@/app/actions/api/Projects/EditWorkspace";
 
 function WorkspaceSetting(props) {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -43,10 +44,34 @@ function WorkspaceSetting(props) {
   });
 
   const workspaceDtails = useSelector(state => state.getWorkspaceDetails.data);
-  const [guestWorkspace, setGuestWorkspace] = useState(workspaceDtails?.guest_workspace_display || false);
+  const [guestWorkspace, setGuestWorkspace] = useState(workspaceDtails?.guest_workspace_display == "No" ? false :true);
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
 
-  const handleToggleChange = () => {
+  const handleToggleChange = async() => {
+    if(workspaceDtails?.guest_workspace_display=="No"){
+      const editworkspace = new EditWorkspace(id); 
+      const res = await fetch(editworkspace.apiEndPoint(), {
+        method: "PATCH",
+        body: JSON.stringify(editworkspace.getBody()),
+        headers: editworkspace.getHeaders().headers,
+      });
+      const resp = await res.json();
+      setLoading(false);
+      if (res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: "Successfully Changed to Guest Workspace",
+          variant: "success",
+        })
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        })
+      }
+   
+    }
     setGuestWorkspace(!guestWorkspace);
   };
   const handlePasswordDialogOpen = () => {
@@ -56,8 +81,6 @@ function WorkspaceSetting(props) {
   const handlePasswordDialogClose = () => {
     setOpenPasswordDialog(false);
   };
-
-
 
 
   const handleArchiveWorkspace = async () => {

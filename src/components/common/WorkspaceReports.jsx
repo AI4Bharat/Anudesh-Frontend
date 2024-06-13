@@ -396,22 +396,24 @@ const WorkspaceReports = () => {
           </Grid >
         </Grid >
         {radioButton === "project" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="project-report-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>Type</InputLabel>
-            <Select
-              style={{ zIndex: "0" }}
-              inputProps={{ "aria-label": "Without label" }}
-              MenuProps={MenuProps}
-              labelId="project-report-type-type-label"
-              id="project-report-type-select"
-              value={projectReportType}
-              label="Project Report Type"
-              onChange={(e) => setProjectReportType(e.target.value)}
-            >
-              <MenuItem value={1}>High-Level Reports</MenuItem>
-              <MenuItem value={2}>Detailed Reports</MenuItem>
-            </Select>
-          </FormControl>
+        <FormControl fullWidth size="small" variant="outlined">
+      <InputLabel id="project-report-type-label" sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+      >Type</InputLabel>
+      <Select
+      style={{ zIndex: "0", minWidth: "auto" }}
+      inputProps={{ "aria-label": "Without label" }}
+      MenuProps={MenuProps}
+        labelId="project-report-type-type-label"
+        id="project-report-type-select"
+        value={projectReportType}
+        label="Type"
+        onChange={(e) => setProjectReportType(e.target.value)}
+        fullWidth
+      >
+        <MenuItem value={1}>High-Level Reports</MenuItem>
+        <MenuItem value={2}>Detailed Reports</MenuItem>
+      </Select>
+    </FormControl>
         </Grid>}
 
         {(radioButton !== "project") && <Grid
@@ -423,7 +425,7 @@ const WorkspaceReports = () => {
           xl={3}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="report-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>
+            <InputLabel id="report-type-label" sx={{ fontSize: "19px", zIndex: 0 }}>
               Report Type
             </InputLabel>
             <Select
@@ -449,7 +451,7 @@ const WorkspaceReports = () => {
           xl={3}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px",zIndex: 0 }}>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px",zIndex: 0 }}>
               Project Type
             </InputLabel>
             <Select
@@ -470,7 +472,7 @@ const WorkspaceReports = () => {
         </Grid>
         {radioButton === "user" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small" disabled={projectType === "SuperCheckerReports"} >
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px",zIndex: 0 }}>Projects Filter</InputLabel>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px",zIndex: 0 }}>Projects Filter</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -491,7 +493,7 @@ const WorkspaceReports = () => {
         </Grid>}
         {(radioButton !== "payment") && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="language-label" sx={{ fontSize: "16px", zIndex: 0 }}>
+            <InputLabel id="language-label" sx={{ fontSize: "19px", zIndex: 0 }}>
               Target Language
             </InputLabel>
             <Select
@@ -530,7 +532,7 @@ const WorkspaceReports = () => {
         </Grid>}
         {radioButton === "payment" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="participation-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>Participation Types</InputLabel>
+            <InputLabel id="participation-type-label" sx={{ fontSize: "19px", zIndex: 0 }}>Participation Types</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
