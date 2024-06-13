@@ -416,7 +416,7 @@ export default function PerformanceAnalytics() {
         <Grid container columnSpacing={3} rowSpacing={2} mb={1}>
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
             <FormControl fullWidth size="small">
-              <InputLabel id="language-label" sx={{ fontSize: "16px", zIndex: 0 }}>
+              <InputLabel id="language-label" sx={{ fontSize: "19px", zIndex: 0 }}>
                 Target Language
               </InputLabel>
               <Select
@@ -439,7 +439,7 @@ export default function PerformanceAnalytics() {
 
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
+                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "19px", zIndex: 0 }}>
                   Plot Range {""}
                   </InputLabel>
                   <Select
@@ -461,7 +461,7 @@ export default function PerformanceAnalytics() {
             <FormControl fullWidth size="small">
               <InputLabel
                 id="demo-simple-select-label"
-                sx={{ fontSize: "16px", zIndex: 0 }}
+                sx={{ fontSize: "19px", zIndex: 0 }}
               >
                 Project Type {""}
                 {/* {
