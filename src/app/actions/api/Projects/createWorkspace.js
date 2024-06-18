@@ -5,7 +5,7 @@ import API from "../../api";
 import ENDPOINTS from "../../../../config/apiendpoint"
 import constants from "../../constants";
 
-export default class EditGuestWorkspace extends API {
+export default class CreateGuestWorkspace extends API {
   constructor(workspaceId,workspacePassword ,timeout = 2000) {
     super("PATCH", timeout, false);
     this.workspace_password = workspacePassword
@@ -25,9 +25,10 @@ export default class EditGuestWorkspace extends API {
   }
 
   getBody() {
-    return  {
-      workspace_password:this.workspace_password,
-     }
+   return  {
+    workspace_password:this.workspace_password,
+    guest_workspace: true
+   }
  }
 
 
