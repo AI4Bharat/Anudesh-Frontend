@@ -1012,7 +1012,7 @@ const AnnotatePage = () => {
         </span>
       }
     >
-      <Button
+      {ProjectDetails.project_type=="InstructionDrivenChat"?<Button
         value="Clear Chats"
         type="default"
         variant="outlined"
@@ -1030,7 +1030,23 @@ const AnnotatePage = () => {
         }}
       >
         Clear Chats
-      </Button>
+      </Button>:<Button
+        value="Reset All Forms"
+        type="default"
+        variant="outlined"
+        onClick={() =>
+          handleAnnotationClick("delete", Annotation.id, Annotation.lead_time)
+        }
+        style={{
+          minWidth: '150px',
+          color: 'black',
+          borderRadius: '5px',
+          border: '0px',
+          paddingTop: 2,
+          paddingBottom: 2,
+          backgroundColor: '#ffe0b2',
+        }}
+      > Reset All</Button>}
     </Tooltip>
                 </Grid>
               )}

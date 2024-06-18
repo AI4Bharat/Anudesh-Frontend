@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Button from "../../../../components/common/Button";
+import RefreshIcon from '@mui/icons-material/Refresh';
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
   FormControlLabel,
@@ -12,6 +13,7 @@ import {
   Typography,
   Icon,
   IconButton,
+  Grid,
 } from "@mui/material";
 import "./model_response_evaluation.css";
 import { Paper } from "@mui/material";
@@ -29,10 +31,10 @@ import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
 import { questions } from "./config";
 
-const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) => {
-    /* eslint-disable react-hooks/exhaustive-deps */
+const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction }) => {
+  /* eslint-disable react-hooks/exhaustive-deps */
 
-  const {taskId} = useParams();
+  const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
@@ -57,6 +59,29 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
     };
     fetchData();
   }, [taskId]);
+
+  const handleReset = () => {
+    setCurrentInteraction({
+      prompt: '',
+      output: '',
+      prompt_output_pair_id: '',
+      rating: null,
+      additional_note: '',
+      questions_response: Array(questions.length).fill(null),
+    });
+  };
+  
+  const resetAllForms = () => {
+    setForms([]);
+    setCurrentInteraction({
+      prompt: "",
+      output: "",
+      prompt_output_pair_id: "",
+      rating: null,
+      additional_note: "",
+      questions_response: [],
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,13 +198,13 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   const EvaluationForm = () => {
     return (
       <div className={classes.rightPanel} >
-        <div className={classes.promptContainer}  style={{  overflowY: "auto" }}>
-        <div className={classes.heading} style={{fontSize:"20px"}}>
-          {translate("modal.prompt")}
-        </div>
+        <div className={classes.promptContainer} style={{ overflowY: "auto" }}>
+          <div className={classes.heading} style={{ fontSize: "20px" }}>
+            {translate("modal.prompt")}
+          </div>
           {currentInteraction.prompt}
         </div>
-        <div className={classes.heading}  style={{fontSize:"20px"}}>
+        <div className={classes.heading} style={{ fontSize: "20px" }}>
           {translate("modal.output")}
         </div>
         <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
@@ -197,9 +222,8 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
           {Array.from({ length: 7 }, (_, index) => (
             <Button
               key={index + 1}
-              className={`${classes.numBtn} ${
-                currentInteraction.rating === index + 1 ? classes.selected : ""
-              }`}
+              className={`${classes.numBtn} ${currentInteraction.rating === index + 1 ? classes.selected : ""
+                }`}
               label={index + 1}
               onClick={() => handleRating(index + 1)}
               style={{
@@ -214,9 +238,9 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
           ))}
         </Box>
         <hr className={classes.hr} />
-        {selectedQuestions.length>0?<div className={classes.heading}>
+        {selectedQuestions.length > 0 ? <div className={classes.heading}>
           {translate("modal.select_que")}
-        </div>:<div className={classes.heading}>
+        </div> : <div className={classes.heading}>
           {translate("modal.pls_select_que")}
         </div>}
         <div style={{
@@ -249,9 +273,9 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                     label={<span className={classes.yesText}>No</span>}
                   />
                 </RadioGroup>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
         <hr className={classes.hr} />
         <div className={classes.notesContainer}>
@@ -267,7 +291,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
               ? currentInteraction.additional_note
               : null
           }
-          style={{minHeight:"50px",maxHeight:"10rem",height:"50px"}}
+          style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
           onChange={handleNoteChange}
           className={classes.notesTextarea}
         />
@@ -285,7 +309,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         return newExpanded;
       });
     };
- 
+
     return (
       <div>
         {pairs.map((pair, index) => {
@@ -300,7 +324,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
                   : "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                  borderBottom: "none",
+                borderBottom: "none",
               }}
             >
               <AccordionSummary
@@ -312,7 +336,7 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                   expanded: "Mui-expanded",
                 }}
               >
-               
+
                 <Box
                   sx={{
                     width: "100%",
@@ -339,15 +363,26 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
                 >
                   {pair.output}
                 </Box>
-                <Button
-                  label={translate("model_evaluation_btn")}
-                  buttonVariant={"outlined"}
-                  style={{
-                    marginTop: "1rem",
-                  }}
-                  onClick={handleFormBtnClick}
-                  id={pair.prompt_output_pair_id}
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }}>
+                    <Button
+                      label={translate("model_evaluation_btn")}
+                      buttonVariant={"outlined"}
+                      style={{
+                        marginTop: "1rem",
+                      }}
+                      onClick={handleFormBtnClick}
+                      id={pair.prompt_output_pair_id}
+                    />
+                    <Button
+                      label="reset"
+                      buttonVariant={"outlined"}
+                      style={{
+                        marginTop: "1rem",
+                        marginLeft: "1.5rem",
+                      }}
+                      onClick={handleReset}
+                    />
+                    </Box>
               </AccordionDetails>
             </Accordion>
           );
@@ -355,26 +390,26 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
       </div>
     );
   };
-  
+
   const QuestionList = ({ questions }) => {
     return (
-      <div style={{height:"25rem", overflowY:"scroll", margin: "1.5rem 1.5rem 2rem 1.5rem"}}>
-      <div className={classes.questionList}>
-        {questions.map((question, index) => (
-          <Box
-            key={index}
-            sx={{
-              padding: "10px",
-              margin: "5px 0",
-              backgroundColor: selectedQuestions.includes(question) ? "#d3d3d3" : "#fff",
-              cursor: "pointer",
-            }}
-            onClick={() => handleQuestionClick(question)}
-          >
-            {question}
-          </Box>
-        ))}
-      </div>
+      <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
+        <div className={classes.questionList}>
+          {questions.map((question, index) => (
+            <Box
+              key={index}
+              sx={{
+                padding: "10px",
+                margin: "5px 0",
+                backgroundColor: selectedQuestions.includes(question) ? "#d3d3d3" : "#fff",
+                cursor: "pointer",
+              }}
+              onClick={() => handleQuestionClick(question)}
+            >
+              {question}
+            </Box>
+          ))}
+        </div>
       </div>
     );
   };
@@ -390,18 +425,18 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
         // maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
-        <div className={classes.heading}  style={{margin:"1.5rem 0 1.5rem 1.5rem",fontSize:"20px"}}>
+        <div className={classes.heading} style={{ margin: "2rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
           {translate("modal.interact")}
         </div>
-        <Paper className={classes.interactionWindow}  style={{ border: "none" ,backgroundColor: '#f0f0f0'}}>
+        <Paper className={classes.interactionWindow} style={{ border: "none", backgroundColor: '#f0f0f0' }}>
           {interactions && (
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
-        <div className={classes.heading} style={{margin:"1.5rem 0 0.5rem 1.5rem" , fontSize:"20px"}}>
+        <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
           {translate("modal.quelist")}
         </div>
-        <QuestionList questions={questions}/>
+        <QuestionList questions={questions} />
       </Resizable>
     );
   };
@@ -409,9 +444,9 @@ const ModelInteractionEvaluation = ({currentInteraction,setCurrentInteraction}) 
   return (
     <>
       <div className={classes.container}>
-          <IconButton onClick={toggleLeftPanel}>
-            <ExpandMoreIcon />
-          </IconButton>
+        <IconButton onClick={toggleLeftPanel}>
+          <ExpandMoreIcon />
+        </IconButton>
         {leftPanelVisible && <InteractionDisplay />}
         <Divider orientation="vertical" flexItem />
         {EvaluationForm()}

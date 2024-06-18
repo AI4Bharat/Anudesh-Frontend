@@ -50,7 +50,6 @@ const Transliteration = (props) => {
       />
     );
   };
-
   useEffect(() => {
     getTransliterationLanguages()
       .then(langs => {

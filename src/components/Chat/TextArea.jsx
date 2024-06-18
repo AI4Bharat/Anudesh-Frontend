@@ -8,6 +8,7 @@ import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
+// import AudioRecorder from "./AudioRecorder";
 
 const orange = {
   200: "pink",
@@ -48,6 +49,11 @@ export default function Textarea({
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
+
+  // const handleTranscription = (transcript) => {
+  //   setText(transcript);
+  // };
+
 
   const handleMouseLeave = (event) => {
     event.target.style.borderColor = grey[200];
@@ -183,6 +189,8 @@ export default function Textarea({
           }}
         />
       )}
+            {/* <AudioRecorder onTranscription={handleTranscription} prompt={prompt} /> */}
+
       <IconButton
         size="large"
         onClick={() => {
