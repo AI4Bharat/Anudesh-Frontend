@@ -61,6 +61,7 @@ const excludeCols = [
   "language",
   "audio_url",
   "speaker_0_details",
+  "interactions_json",
   "speaker_1_details",
   "machine_transcribed_json",
   "unverified_conversation_json",
