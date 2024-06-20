@@ -5,14 +5,17 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import themeDefault from "../../../../themes/theme";
 import OutlinedTextField from "../../../../components/common/OutlinedTextField";
 import "../../../../styles/Dataset.css";
 import CustomButton from "../../../../components/common/Button";
 import CustomizedSnackbars from "../../../../components/common/Snackbar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from 'react-router-dom';
 import Spinner from "../../../../components/common/Spinner";
+import GetWorkspaceSaveButtonAPI from "@/app/actions/api/Projects/GetWorkspaceSaveButton";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 const BasicWorkspaceSettings = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -22,17 +25,34 @@ const BasicWorkspaceSettings = (props) => {
     message: "",
     variant: "success",
   });
+  const dispatch = useDispatch();
+  const { id } = useParams();
+
   const [value, setValue] = useState();
   const [loading, setLoading] = useState(false);
   const [newDetails, setNewDetails] = useState();
 
-  const [publicanalytics, setpublicanalytics] = useState(true);
+  const [publicanalytics, setpublicanalytics] = useState();
 
   const handlepublicanalytics = async () => {
     // setLoading(true);
     setpublicanalytics((publicanalytics) => !publicanalytics);
   };
+  const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
+  console.log(workspaceDetails)
+  const getWorkspaceDetails = () => {
+      dispatch(fetchWorkspaceDetails(id));
+  }
 
+  useEffect(() => {
+      getWorkspaceDetails();
+  }, []);
+
+  useEffect(() => {
+      setNewDetails({
+          workspace_name: workspaceDetails?.workspace_name
+      });
+  }, [workspaceDetails]);
   function snakeToTitleCase(str) {
     return str
       .split("_")
@@ -41,6 +61,41 @@ const BasicWorkspaceSettings = (props) => {
       })
       .join(" ");
   }
+
+  const handleSave = async () => {
+
+    const sendData = {
+        workspace_name: newDetails.workspace_name,
+        organization: workspaceDetails.organization,
+        is_archived: workspaceDetails.is_archived,
+        public_analytics: publicanalytics
+    }
+    const workspaceObj = new GetWorkspaceSaveButtonAPI(id, sendData);
+    dispatch(APITransport(workspaceObj));
+    const res = await fetch(workspaceObj.apiEndPoint(), {
+        method: "PUT",
+        body: JSON.stringify(workspaceObj.getBody()),
+        headers: workspaceObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    setLoading(false);
+    if (res.ok) {
+        setSnackbarInfo({
+            open: true,
+            message: "success",
+            variant: "success",
+        })
+
+    } else {
+        setSnackbarInfo({
+            open: true,
+            message: resp?.message,
+            variant: "error",
+        })
+    }
+
+}
+
 
   const handleWorkspaceName = (event) => {
     event.preventDefault();
@@ -108,7 +163,7 @@ const BasicWorkspaceSettings = (props) => {
             <FormControlLabel
               control={<Switch color="primary" />}
               labelPlacement="start"
-              checked={publicanalytics}
+              checked={newDetails?.public_analytics}
               onChange={handlepublicanalytics}
             />
           </Grid>
@@ -131,13 +186,13 @@ const BasicWorkspaceSettings = (props) => {
               marginRight: "10px",
               width: "80px",
             }}
-            onClick={() => navigate(`/workspace/:id/`)}
+            onClick={() => navigate(`/workspace/${id}/`)}
             // onClick={handleCancel}
             label="Cancel"
           />
           <CustomButton
             sx={{ inlineSize: "max-content", width: "80px" }}
-            // onClick={handleSave}
+            onClick={handleSave}
             label="Save"
           />
         </Grid>

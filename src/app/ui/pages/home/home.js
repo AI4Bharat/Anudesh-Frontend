@@ -147,6 +147,12 @@ const Home = () => {
             height={90}
           ></Image>
           <div className="flex gap-6">
+               <button
+                onClick={() => navigate("/login")}
+                className="text-xl font-medium hover:underline"
+              >
+                {banner.logIn}
+              </button>
             <button className="text-xl font-medium hover:underline">
               Codebase
             </button>
@@ -171,12 +177,12 @@ const Home = () => {
               </button>
               </Link>
 
-              <button
+              {/* <button
                 onClick={() => navigate("/login")}
                 className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white"
               >
                 {banner.logIn}
-              </button>
+              </button> */}
               <button
                 onClick={() => navigate("/chat")}
                 className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white"
