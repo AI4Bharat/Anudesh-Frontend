@@ -3,7 +3,7 @@ import CustomButton from "../../../../components/common/Button";
 import "@/styles/Dataset.css";
 import CustomizedSnackbars from "../../../../components/common/Snackbar";
 import Dialog from "@mui/material/Dialog";
-import { Button, FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Switch, Typography } from "@mui/material";
+import { Button, CircularProgress, FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Switch, Typography } from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
@@ -14,6 +14,7 @@ import LoginAPI from "../../../actions/api/user/Login"
 import { useNavigate, useParams } from "react-router-dom";
 import DownloadAllProjects from "../../../actions/api/Projects/DownloadAllProjects";
 import { fetchArchiveProject } from "../../../../Lib/Features/projects/GetArchiveProject";
+import Spinner from "@/components/common/Spinner";
 import ArchiveWorkspaceAPI from "@/app/actions/api/Projects/GetArchiveProjectAPI";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
 import { translate } from "@/config/localisation";
@@ -22,6 +23,7 @@ import { Visibility } from "@material-ui/icons";
 import CreateGuestWorkspace from "@/app/actions/api/Projects/createWorkspace";
 import EditWorkspace from "@/app/actions/api/Projects/EditWorkspace";
 import EditGuestWorkspace from "@/app/actions/api/Projects/EditGuestWorkspace";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 function WorkspaceSetting(props) {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -32,6 +34,7 @@ function WorkspaceSetting(props) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [newpassword, setnewpassword] = useState('');
   const [confirmpassword, setconfirmpassword] = useState('');
   const [shownewpassword, setShownewpassword] = useState(false);
@@ -42,6 +45,7 @@ function WorkspaceSetting(props) {
     message: "",
     variant: "success",
   });
+  
   const validatePassword = () => {
     const errors = [];
     if(newpassword.length>0){
@@ -55,12 +59,19 @@ function WorkspaceSetting(props) {
     setPasswordErrors(errors);
     return errors.length === 0;
   }
-  
   };
   useEffect(()=>{
    validatePassword()
    equal()
   },[newpassword,confirmpassword])
+
+  const getWorkspaceDetails = ()=>{
+    dispatch(fetchWorkspaceDetails(id));
+  }
+
+  useEffect(()=>{
+    getWorkspaceDetails()
+  },[])
 
   const equal =()=>{
     if(confirmpassword.length>0){
@@ -68,10 +79,16 @@ function WorkspaceSetting(props) {
     }
   }
   const workspaceDtails = useSelector(state => state.getWorkspaceDetails.data);
-  const [guestWorkspace, setGuestWorkspace] = useState(workspaceDtails?.guest_workspace_display =="No"?false:true);
+  const [guestWorkspace, setGuestWorkspace] = useState(false);
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
   const [openToggleDialog, setOpenToggleDialog] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
+  useEffect(() => {
+    if (workspaceDtails) {
+      setGuestWorkspace(workspaceDtails?.guest_workspace_display === "Yes" ? true : false);
+      setInitialLoading(false)
+    }
+  }, [workspaceDtails]);
 
   const handleToggleChange = async() => {
     if (!guestWorkspace) {
@@ -94,8 +111,8 @@ function WorkspaceSetting(props) {
       } else {
         setSnackbarInfo({
           open: true,
-          message: "Successfully switched off guest workspace mode",
-          variant: "success",
+          message: resp?.message,
+          variant: "error",
         })
       }  
       setGuestWorkspace(false);
@@ -103,7 +120,6 @@ function WorkspaceSetting(props) {
       setconfirmpassword("")
     }
   };
-
   const handleToggleDialogOpen = () => {
     setOpenToggleDialog(true);
   };
@@ -289,6 +305,7 @@ function WorkspaceSetting(props) {
   return (
     <div>
       {renderSnackBar()}
+      {initialLoading && <CircularProgress />}
       <Dialog
         open={open}
         onClose={handleClose}
