@@ -369,6 +369,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
                       buttonVariant={"outlined"}
                       style={{
                         marginTop: "1rem",
+                        padding:"0.5rem"
                       }}
                       onClick={handleFormBtnClick}
                       id={pair.prompt_output_pair_id}
