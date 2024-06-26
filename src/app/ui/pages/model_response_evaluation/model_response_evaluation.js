@@ -38,7 +38,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
   const classes = ModelResponseEvaluationStyle();
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
-  const [leftPanelVisible, setLeftPanelVisible] = useState(false);
+  const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
 
@@ -109,7 +109,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
         setCurrentInteraction((prev) => {
           return {
             prompt: interactions[0]?.prompt,
-            output: interactions[0]?.output,
+            output: typeof(interactions[0]?.output)==="string"?interactions[0]?.output:interactions[0]?.value,
             prompt_output_pair_id: interactions[0]?.prompt_output_pair_id,
             rating: currentForm[0]?.form_output_json?.rating,
             additional_note: currentForm[0]?.form_output_json?.additional_note,
@@ -361,7 +361,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
                   }}
                   className={classes.answerTile}
                 >
-                  {pair.output}
+                  {typeof(pair.output)==="string"?pair?.output:pair?.output?.value}
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }}>
                     <Button
