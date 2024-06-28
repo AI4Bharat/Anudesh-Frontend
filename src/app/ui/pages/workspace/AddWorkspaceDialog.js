@@ -39,17 +39,38 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
     });
     const validatePassword = () => {
       const errors = [];
-      if(password1.length>0){
-      if (password1.length < 8) {
-        errors.push("This password is too short. It must contain at least 8 characters.");
+    
+      if (password1.length > 0) {
+        if (password1.length < 8) {
+          errors.push("This password is too short. It must contain at least 8 characters.");
+        }
+        
+        if (!/[a-z]/.test(password1)) {
+          errors.push("This password must contain at least one lowercase letter.");
+        }
+        
+        if (!/[A-Z]/.test(password1)) {
+          errors.push("This password must contain at least one uppercase letter.");
+        }
+        
+        if (!/[0-9]/.test(password1)) {
+          errors.push("This password must contain at least one number.");
+        }
+        
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password1)) {
+          errors.push("This password must contain at least one special character.");
+        }
+    
+        const commonPasswords = ["password", "12345678", "qwerty", "123456789", "abc123", "password1"];
+        if (commonPasswords.includes(password1)) {
+          errors.push("This password is too common.");
+        }
+      } else {
+        errors.push("Password cannot be empty.");
       }
-      const commonPasswords = ["password", "12345678", "qwerty"]; 
-      if (commonPasswords.includes(password1)) {
-        errors.push("This password is too common.");
-      }
+      
       setPasswordErrors(errors);
       return errors.length === 0;
-    }
     };
     useEffect(() => {
       validatePassword()
@@ -97,7 +118,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
         const createWorkspaceRespData = await createWorkspaceRes.json();
 
         if (createWorkspaceRes.ok) {
-          const getWorkspaceApiObj = new GetWorkspaceAPI(); // Correctly instantiate the class
+          const getWorkspaceApiObj = new GetWorkspaceAPI(); 
           const workspaceDataRes = await fetch(getWorkspaceApiObj.apiEndPoint(), {
               method: "GET",
               headers: {
@@ -122,7 +143,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
                 // dispatch(fetchWorkspaceDetails(orgId));
                 setSnackbarInfo({
                   open: true,
-                  message: resp?.message,
+                  message: "Successfully created Guest Workspace",
                   variant: "success",
                 })
               } else {
@@ -132,8 +153,8 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
                   variant: "error",
                 })
               }
-        }
-  
+              setLoading(false);
+        }  
       }
         dialogCloseHandler();
         setLoading(false);
@@ -233,7 +254,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
               label="Enter Password"
             />
             {passwordErrors.map((error, index) => (
-                  <span key={index} style={{ color: "#d93025" }}>{error}</span>
+                  <span key={index} style={{ color: "#d93025" ,fontSize:"13px"}}>*{error}</span>
                 ))}
           </FormControl>
           <FormControl sx={{ width: "100%", marginTop: "3%", marginLeft: "0" }} variant="outlined">

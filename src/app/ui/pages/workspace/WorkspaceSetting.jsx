@@ -48,17 +48,38 @@ function WorkspaceSetting(props) {
   
   const validatePassword = () => {
     const errors = [];
-    if(newpassword.length>0){
-    if (newpassword.length < 8) {
-      errors.push("This password is too short. It must contain at least 8 characters.");
+  
+    if (newpassword.length > 0) {
+      if (newpassword.length < 8) {
+        errors.push("This password is too short. It must contain at least 8 characters.");
+      }
+      
+      if (!/[a-z]/.test(newpassword)) {
+        errors.push("This password must contain at least one lowercase letter.");
+      }
+      
+      if (!/[A-Z]/.test(newpassword)) {
+        errors.push("This password must contain at least one uppercase letter.");
+      }
+      
+      if (!/[0-9]/.test(newpassword)) {
+        errors.push("This password must contain at least one number.");
+      }
+      
+      if (!/[!@#$%^&*(),.?":{}|<>]/.test(newpassword)) {
+        errors.push("This password must contain at least one special character.");
+      }
+  
+      const commonPasswords = ["password", "12345678", "qwerty", "123456789", "abc123", "newpassword"];
+      if (commonPasswords.includes(newpassword)) {
+        errors.push("This password is too common.");
+      }
+    } else {
+      errors.push("Password cannot be empty.");
     }
-    const commonPasswords = ["password", "12345678", "qwerty"]; // Simplified common password list
-    if (commonPasswords.includes(newpassword)) {
-      errors.push("This password is too common.");
-    }
+    
     setPasswordErrors(errors);
     return errors.length === 0;
-  }
   };
   useEffect(()=>{
    validatePassword()
@@ -367,7 +388,7 @@ function WorkspaceSetting(props) {
                   label="Enter Password"
                 />
                  {passwordErrors.map((error, index) => (
-                  <span key={index} style={{ color: "#d93025" }}>{error}</span>
+                  <span key={index} style={{ color: "#d93025",fontSize:"13px" }}>*{error}</span>
                 ))}
               </FormControl>
             </Grid>
@@ -392,7 +413,7 @@ function WorkspaceSetting(props) {
                   }
                   label="Confirm Password"
                 />
-            {passwordEqual==true ? "" : <span style={{ color: "#d93025" }}>The passwords don't match</span>}
+            {passwordEqual==true ? "" : <span style={{ color: "#d93025",fontSize:"13px" }}>*The passwords don't match</span>}
             </FormControl>
             </Grid>
           </Grid>
@@ -436,7 +457,7 @@ function WorkspaceSetting(props) {
                   label="Enter Password"
                 />
                  {passwordErrors.map((error, index) => (
-                  <span key={index} style={{ color: "#d93025" }}>{error}</span>
+                  <span key={index} style={{ color: "#d93025",fontSize:"13px" }}>*{error}</span>
                 ))}
               </FormControl>
             </Grid>
@@ -461,7 +482,7 @@ function WorkspaceSetting(props) {
                   }
                   label="Confirm Password"
                 />
-            {passwordEqual==true ? "" : <span style={{ color: "#d93025" }}>The passwords don't match</span>}
+            {passwordEqual==true ? "" : <span style={{ color: "#d93025",fontSize:"13px" }}>*The passwords don't match</span>}
            
               </FormControl>
             </Grid>

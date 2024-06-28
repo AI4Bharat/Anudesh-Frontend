@@ -14,6 +14,7 @@ import {
   Select,
   FormControl,
   MenuItem,
+  Switch,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -36,6 +37,7 @@ import { fetchDatasetSearchPopup } from "@/Lib/Features/datasets/DatasetSearchPo
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -73,6 +75,7 @@ const CreateProject = () => {
   const NewProject = useSelector(state => state.projects.newProject?.res);
   const UserData = useSelector(state => state.getLoggedInData.data);
   const navigate = useNavigate();
+  
 
   const [domains, setDomains] = useState([]);
   const [projectTypes, setProjectTypes] = useState(null);
@@ -100,6 +103,7 @@ const CreateProject = () => {
   const [selectedVariableParameters, setSelectedVariableParameters] = useState(
     []
   );
+  const workspaceDtails = useSelector(state => state.getWorkspaceDetails.data);
   const [taskReviews, setTaskReviews] = useState(1);
   const [variable_Parameters_lang, setVariable_Parameters_lang] = useState("");
   //Table related state variables
@@ -110,6 +114,7 @@ const CreateProject = () => {
   const [totalDataitems, setTotalDataitems] = useState(10);
   const [tableData, setTableData] = useState([]);
   const [searchAnchor, setSearchAnchor] = useState(null);
+  const [is_published, setIsPublished] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
  /* eslint-disable react-hooks/exhaustive-deps */
@@ -129,6 +134,15 @@ const CreateProject = () => {
     "rating",
   ];
 
+  const getWorkspaceDetails = ()=>{
+    dispatch(fetchWorkspaceDetails(id));
+  }
+ 
+  
+  useEffect(()=>{
+    getWorkspaceDetails();
+  },[]);
+
   //Fetch and display Project Domains
   useEffect(() => {
     // if(ProjectDomains.status !== "succeeded")
@@ -136,6 +150,10 @@ const CreateProject = () => {
   }, []);
   const onSelectDomain = (value) => {
     setSelectedDomain(value);
+  };
+
+  const handleChangeIsPublished = (event) => {
+    setIsPublished(event.target.checked);
   };
 
   useEffect(() => {
@@ -301,6 +319,7 @@ const CreateProject = () => {
       project_stage: taskReviews,
       required_annotators_per_task: selectedAnnotatorsNum,
       automatic_annotation_creation_mode: createannotationsAutomatically,
+      is_published:is_published,
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
@@ -1040,10 +1059,20 @@ const CreateProject = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+                {workspaceDtails?.guest_workspace_display === "Yes"?<Grid container direction="row" alignItems="center">
+                <Typography gutterBottom components="div">
+                  Publish Project :
+                </Typography>
+                <Switch
+                  checked={is_published} 
+                  onChange={handleChangeIsPublished}
+                  inputProps={{ "aria-label": "controlled" }}
+                  sx={{ mt: 2, ml: 2 ,mb:2}}
+                />
+            </Grid>:null}
       
               </>
             )}
-
             <Grid
               item
               className="projectsettingGrid"
