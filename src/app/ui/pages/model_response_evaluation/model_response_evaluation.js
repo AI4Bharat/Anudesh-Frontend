@@ -86,6 +86,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
   useEffect(() => {
     setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
   }, []);
+  console.log(interactions[0]);
   useEffect(() => {
     if (forms && interactions) {
       let defaultFormIndex = interactions[0]?.prompt_output_pair_id;
@@ -95,8 +96,8 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
       currentForm &&
         setCurrentInteraction((prev) => {
           return {
-            prompt: interactions?.prompt,
-            output: typeof(interactions[0]?.output)==="string"?interactions[0]?.output:interactions[0]?.value,
+            prompt: interactions[0]?.prompt,
+            output: typeof(interactions[0]?.output)==="string"?interactions[0]?.output:interactions[0]?.output[0]?.value,
             prompt_output_pair_id: interactions[0]?.prompt_output_pair_id,
             rating: currentForm[0]?.form_output_json?.rating,
             additional_note: currentForm[0]?.form_output_json?.additional_note,
@@ -116,7 +117,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
         });
     }
   }, [forms, interactions]);
-
+console.log(currentInteraction);
   const handleOptionChange = (index, answer) => {
     const newAnswers = currentInteraction.questions_response
       ? [...currentInteraction.questions_response]
@@ -154,10 +155,12 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
     )[0];
     const currFormResponse = forms.filter(
       (form) => form.prompt_output_pair_id == e.target.id,
-    );
+    )[0];
+    const outputValues = currInteractionPair?.output.map(item => item.value) || [];
     setCurrentInteraction((prev) => ({
-      prompt: currInteractionPair.prompt,
-      output: currInteractionPair.output,
+      ...prev,
+      prompt: currInteractionPair?.prompt,
+      output: outputValues,
       prompt_output_pair_id: currInteractionPair.prompt_output_pair_id,
       rating: currFormResponse?.form_output_json?.rating,
       additional_note: currFormResponse?.form_output_json?.additional_note,
@@ -329,9 +332,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: "100px"
+                    whiteSpace: expanded[index] ? "wrap": "nowrap",
+                    maxWidth: "200px",
+                    maxHeight: "3rem",
                   }}
+
                   className={classes.promptTile}
                 >
                   {pair.prompt}
@@ -343,12 +348,13 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: "100px"
+                    whiteSpace: expanded[index] ? "wrap": "nowrap",
+                    maxWidth: "200px",
+                    maxHeight: "3rem",
                   }}
                   className={classes.answerTile}
                 >
-                  {typeof(pair.output)==="string"?pair?.output:pair?.output?.value}
+                  {typeof(pair.output)==="string"?pair?.output:pair?.output[0]?.value}
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }}>
                     <Button
