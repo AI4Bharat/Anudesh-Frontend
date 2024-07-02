@@ -65,8 +65,6 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
         if (commonPasswords.includes(password1)) {
           errors.push("This password is too common.");
         }
-      } else {
-        errors.push("Password cannot be empty.");
       }
       
       setPasswordErrors(errors);
@@ -81,8 +79,10 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
     dispatch(fetchWorkspaceData());
 }, []);   
   const equal =()=>{
-    if(password2.length>0){
-      setPasswordEqual(password1===password2)
+    if (password2.length > 0) {
+      setPasswordEqual(password1 === password2);
+    } else {
+      setPasswordEqual(true);
     }
   }
   const handlepublicanalytics = async () => {
@@ -131,7 +131,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
 
           const workspaceDetails = workspaceData.find(ws => ws.workspace_name === workspaceName);
           console.log(workspaceDetails,workspaceName);
-          if(guestWorkspace){ const apiObj = new CreateGuestWorkspace(workspaceDetails.id,password1);
+          if(guestWorkspace){ const apiObj = new CreateGuestWorkspace(workspaceDetails.id,password1||"");
               const res = await fetch(apiObj.apiEndPoint(), {
                 method: "PATCH",
                 body: JSON.stringify(apiObj.getBody()),
@@ -299,7 +299,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
                     onClick={addBtnClickHandler}
                     size="small"
                     label="OK"
-                    disabled={loading || !workspaceName || (guestWorkspace && !password1 && !password2)|| passwordErrors.length>0|| passwordEqual==false}
+                    disabled={loading || !workspaceName || (guestWorkspace && passwordErrors.length > 0) || (guestWorkspace && !passwordEqual)}
                 />  
             </DialogActions>
         </Dialog>
