@@ -61,27 +61,14 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
   }, [taskId]);
 
   const handleReset = () => {
-    setCurrentInteraction({
-      prompt: '',
-      output: '',
-      prompt_output_pair_id: '',
+    setCurrentInteraction((prev) => ({
+      ...prev,
       rating: null,
-      additional_note: '',
       questions_response: Array(questions.length).fill(null),
-    });
+    }));
   };
   
-  const resetAllForms = () => {
-    setForms([]);
-    setCurrentInteraction({
-      prompt: "",
-      output: "",
-      prompt_output_pair_id: "",
-      rating: null,
-      additional_note: "",
-      questions_response: [],
-    });
-  };
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,7 +95,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
       currentForm &&
         setCurrentInteraction((prev) => {
           return {
-            prompt: interactions[0]?.prompt,
+            prompt: interactions?.prompt,
             output: typeof(interactions[0]?.output)==="string"?interactions[0]?.output:interactions[0]?.value,
             prompt_output_pair_id: interactions[0]?.prompt_output_pair_id,
             rating: currentForm[0]?.form_output_json?.rating,

@@ -13,6 +13,7 @@ import themeDefault from "@/themes/theme";
 import { useDispatch, useSelector } from "react-redux";
 import tableTheme from "@/themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
+import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function ProjectList() {
 const dispatch = useDispatch();
@@ -24,20 +25,26 @@ const [radiobutton, setRadiobutton] = useState(true);
     project_user_type: "",
     archived_projects: "",
   });
+  const [guestworkspace, setguestworkspace] = useState(false);
+  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
   const apiLoading = useSelector((state) => state.getProjects.status === "loading");
   const projectData = useSelector((state) => state.getProjects.data);
-  
-  // const getDashboardprojectData = () => {
-  //   dispatch(fetchProjects(selectedFilters))
-  // };
-
-  // useEffect(() => {
-  //   // setLoading(false);
-  // }, [projectData]);
-
+  console.log(projectData);
   useEffect(() => {
-    dispatch(fetchProjects(selectedFilters))
-  }, [selectedFilters,dispatch]);
+       dispatch(FetchLoggedInUserData("me"));
+  },[]);
+
+   useEffect(() => {
+      if (loggedInUserData && loggedInUserData.guest_user) {
+      if (loggedInUserData?.guest_user==true) {
+        console.log(loggedInUserData.guest_user);
+        setguestworkspace(true);
+      }
+      dispatch(fetchProjects({ selectedFilters: selectedFilters, guestworkspace: guestworkspace }));
+    }
+  }, [selectedFilters,loggedInUserData]);
+
+
 
   const handleProjectlist = () => {
     setRadiobutton(true);
