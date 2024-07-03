@@ -225,7 +225,7 @@ const Projectcard = (props) => {
           <FormHelperText id="enter-password">
             To enter{" "}
             <Typography component="span" fontWeight="bold" fontSize={"12px"}>
-              {selectedProject}
+              {selectedProject?.title}
             </Typography>{" "}
             project you must type in the password.
           </FormHelperText>
