@@ -63,7 +63,6 @@ const ProjectCardList = (props) => {
       headers: apiObj.getHeaders().headers,
     });
     const resp = await res.json();
-    setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,
