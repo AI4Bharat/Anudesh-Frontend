@@ -35,7 +35,7 @@ const [radiobutton, setRadiobutton] = useState(true);
   },[]);
 
    useEffect(() => {
-      if (loggedInUserData && loggedInUserData.guest_user) {
+      if (loggedInUserData ) {
       if (loggedInUserData?.guest_user==true) {
         console.log(loggedInUserData.guest_user);
         setguestworkspace(true);
