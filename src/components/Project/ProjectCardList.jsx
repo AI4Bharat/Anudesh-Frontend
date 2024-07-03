@@ -76,7 +76,7 @@ const ProjectCardList = (props) => {
         variant: "error",
       })
     }  
-    navigate(`/projects/${el.id}`)
+    navigate(`/projects/${selectedProject?.id}`)
     handleAuthClose();
   };
   const pageSearch = () => {
