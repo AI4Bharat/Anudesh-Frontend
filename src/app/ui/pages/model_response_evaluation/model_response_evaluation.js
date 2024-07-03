@@ -61,27 +61,14 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
   }, [taskId]);
 
   const handleReset = () => {
-    setCurrentInteraction({
-      prompt: '',
-      output: '',
-      prompt_output_pair_id: '',
+    setCurrentInteraction((prev) => ({
+      ...prev,
       rating: null,
-      additional_note: '',
       questions_response: Array(questions.length).fill(null),
-    });
+    }));
   };
   
-  const resetAllForms = () => {
-    setForms([]);
-    setCurrentInteraction({
-      prompt: "",
-      output: "",
-      prompt_output_pair_id: "",
-      rating: null,
-      additional_note: "",
-      questions_response: [],
-    });
-  };
+ 
 
   useEffect(() => {
     const fetchData = async () => {
