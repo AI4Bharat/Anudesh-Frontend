@@ -16,6 +16,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 import { DialogContent } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 
 
 const Projectcard = (props) => {
@@ -36,7 +37,7 @@ const Projectcard = (props) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -63,7 +64,7 @@ const Projectcard = (props) => {
 
 
   const handlePasswordSubmit = async () => {
-    const apiObj = new VerifyProject(selectedProject.id, password);
+    const apiObj = new VerifyProject(selectedProject?.id, password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
@@ -83,7 +84,7 @@ const Projectcard = (props) => {
         variant: "error",
       });
     }
-    navigate(`/projects/${el.id}`)
+    navigate(`/projects/${selectedProject?.id}`)
     handleAuthClose();
   };
 
