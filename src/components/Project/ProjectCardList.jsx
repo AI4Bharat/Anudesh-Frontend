@@ -3,35 +3,87 @@ import  {React, useState, useEffect } from "react";
 import { ThemeProvider } from '@mui/material/styles';
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
-import { Link } from "react-router-dom";
-import { Grid, Tooltip, Button } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { Grid, Tooltip, Button, Dialog, DialogTitle, DialogContent, TextField, FormHelperText, Typography, IconButton, InputAdornment } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
 import { useDispatch, useSelector } from "react-redux";
 import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { DialogActions } from "@mui/material";
+import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const ProjectCardList = (props) => {
-       /* eslint-disable react-hooks/exhaustive-deps */
-
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-
+  const dispatch = useDispatch();
+  const [password, setPassword] = useState("");
+  const [openAuthDialog, setOpenAuthDialog] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+  const [showPassword, setShowPassword] = useState(false);
+  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects).sort((a, b) => a.id - b.id) : projectData
+  const navigate = useNavigate();
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  
+
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  const handleAuthOpen = (project,title) => {
+    setSelectedProject(project);
+    setOpenAuthDialog(true);
+  };
+
+  const handleAuthClose = () => {
+    setOpenAuthDialog(false);
+    setSelectedProject(null);
+    setPassword("");
+  };
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handlePasswordSubmit = async() => {
+    console.log(selectedProject?.id);
+    const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
+    const res = await fetch(apiObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    // setLoading(false);
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      })
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      })
+    }  
+    navigate(`/projects/${selectedProject?.id}`)
+    handleAuthClose();
+  };
   const pageSearch = () => {
-    return projectData.filter((el) => {
+    return combinedData.filter((el) => {
       if (SearchProject == "") {
         return el;
       } else if (
@@ -128,19 +180,6 @@ const ProjectCardList = (props) => {
         }),
       },
     },
-    // {
-    //   name: "project_mode",
-    //   label: "Project Mode",
-    //   options: {
-    //     filter: false,
-    //     sort: false,
-    //     align: "center",
-    //     display: 'false', 
-    //     setCellHeaderProps: (sort) => ({
-    //       style: { height: "70px", fontSize: "16px", padding: "16px" },
-    //     }),
-    //   },
-    // },
     {
       name: "workspace_id",
       label: "Workspace Id",
@@ -166,12 +205,18 @@ const ProjectCardList = (props) => {
       },
     },
   ];
+  console.log(combinedData);
   const data =
-    projectData && projectData.length > 0
+    combinedData && combinedData.length > 0
       ? pageSearch().map((el, i) => {
           const userRole =
             el.project_stage &&
             UserMappedByProjectStage(el.project_stage).element;
+
+            const isExcluded = projectData && projectData.excluded_projects && projectData.excluded_projects?.some(
+              (excludedProject) => excludedProject.id === el.id
+            );
+    
           return [
             el.id,
             el.title,
@@ -180,13 +225,22 @@ const ProjectCardList = (props) => {
             el.tgt_language == null ? "-" : el.tgt_language,
             // el.project_mode,
             el.workspace_id,
-            <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }} key={i}>
+            loggedInUserData.guest_user && isExcluded ? (
               <CustomButton
-                 key={i}
+                key={i}
                 sx={{ borderRadius: 2, marginRight: 2 }}
-                label="View"
+                label="Authenticate"
+                onClick={() => handleAuthOpen(el,el.title)}
               />
-            </Link>,
+            ) : (
+              <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }} key={i}>
+                <CustomButton
+                  key={i}
+                  sx={{ borderRadius: 2, marginRight: 2 }}
+                  label="View"
+                />
+              </Link>
+            ),
           ];
         })
       : [];
@@ -208,6 +262,10 @@ const ProjectCardList = (props) => {
       </>
     );
   };
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
 
   const options = {
     textLabels: {
@@ -256,6 +314,53 @@ const ProjectCardList = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
+      <Dialog open={openAuthDialog} onClose={handleAuthClose}>
+        <DialogTitle>Enter Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            fullWidth
+            value={password}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            onChange={(e) => setPassword(e.target.value)}
+
+          />
+          <FormHelperText id="enter-password">
+            To enter {" "}
+            <Typography
+              component="span"
+              fontWeight="bold"
+              fontSize={"12px"}
+            >
+              {selectedProject?.title}
+            </Typography>{" "}
+            project you must type in the password.
+          </FormHelperText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAuthClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handlePasswordSubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </>
   );
 };

@@ -61,27 +61,14 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
   }, [taskId]);
 
   const handleReset = () => {
-    setCurrentInteraction({
-      prompt: '',
-      output: '',
-      prompt_output_pair_id: '',
+    setCurrentInteraction((prev) => ({
+      ...prev,
       rating: null,
-      additional_note: '',
       questions_response: Array(questions.length).fill(null),
-    });
+    }));
   };
   
-  const resetAllForms = () => {
-    setForms([]);
-    setCurrentInteraction({
-      prompt: "",
-      output: "",
-      prompt_output_pair_id: "",
-      rating: null,
-      additional_note: "",
-      questions_response: [],
-    });
-  };
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -369,7 +356,7 @@ console.log(currentInteraction);
                 >
                   {typeof(pair.output)==="string"?pair?.output:pair?.output[0]?.value}
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }}>
+                <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'wrap',justifyContent: 'flex-start', marginTop: '1rem'}}>
                     <Button
                       label={translate("model_evaluation_btn")}
                       buttonVariant={"outlined"}
