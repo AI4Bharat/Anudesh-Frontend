@@ -369,7 +369,7 @@ console.log(currentInteraction);
                 >
                   {typeof(pair.output)==="string"?pair?.output:pair?.output[0]?.value}
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '1rem' }}>
+                <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'wrap',justifyContent: 'flex-start', marginTop: '1rem'}}>
                     <Button
                       label={translate("model_evaluation_btn")}
                       buttonVariant={"outlined"}

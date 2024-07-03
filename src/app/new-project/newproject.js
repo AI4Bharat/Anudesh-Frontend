@@ -21,7 +21,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { MenuProps } from "@/utils/utils";
 import { useParams } from "react-router-dom";
-import { createProject } from "@/Lib/Features/actions/projects";
+import { createProject, setPasswordForProject } from "@/Lib/Features/actions/projects";
 import { useNavigate } from "react-router-dom";
 import ColumnList from "@/components/common/ColumnList";
 import { snakeToTitleCase } from "@/utils/utils";
@@ -117,6 +117,7 @@ const CreateProject = () => {
   const [is_published, setIsPublished] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
+  const [passwordForProjects, setPasswordForProjects] = useState("");
  /* eslint-disable react-hooks/exhaustive-deps */
 
   const searchOpen = Boolean(searchAnchor);
@@ -297,7 +298,7 @@ const CreateProject = () => {
     }
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
-  const handleCreateProject = () => {
+  const handleCreateProject = async() => {
     const newProject = {
       title: title,
       description: description,
@@ -320,16 +321,37 @@ const CreateProject = () => {
       required_annotators_per_task: selectedAnnotatorsNum,
       automatic_annotation_creation_mode: createannotationsAutomatically,
       is_published:is_published,
+      password: passwordForProjects,
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
-    dispatch(createProject(newProject));
+    
+     dispatch(createProject(newProject));
+    
+  };
+
+
+
+  const setPasswordForNewProject = async (projectId) => {
+    try {
+      console.log("Project id: "+projectId)
+      console.log("password: " + passwordForProjects)
+      dispatch(setPasswordForProject({ projectId, password: passwordForProjects }));
+    } catch (error) {
+      console.error('Error setting password for project:', error);
+    }
   };
 
   useEffect(() => {
     if (NewProject?.id) {
       navigate(`/projects/${NewProject.id}`, { replace: true });
       window.location.reload();
+
+      if (NewProject?.id) {
+        const projectId = NewProject?.id;
+        console.log('Project ID:', projectId);
+        setPasswordForNewProject(projectId);
+      }
     }
   }, [NewProject]);
   useEffect(() => {
@@ -393,6 +415,7 @@ const CreateProject = () => {
       getDataItems();
     }
   }, [currentPageNumber, currentRowPerPage]);
+  const sample = useSelector(state=>console.log(state));
   const renderToolBar = () => {
     return (
       <Grid container spacing={0} md={12}>
@@ -1059,6 +1082,35 @@ const CreateProject = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+
+                {workspaceDtails?.guest_workspace_display === "Yes" ? (
+  <>
+    <Grid
+      item
+      className="projectsettingGrid"
+      xs={12}
+      sm={12}
+      md={12}
+      lg={12}
+      xl={12}
+    >
+      <Typography gutterBottom component="div">
+        Set a password:
+      </Typography>
+    </Grid>
+
+    <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+      <OutlinedTextField
+        fullWidth
+        value={passwordForProjects}
+        onChange={(e) => {
+          setPasswordForProjects(e.target.value);
+        }}
+      />
+    </Grid>
+  </>
+) : null}
+
                 {workspaceDtails?.guest_workspace_display === "Yes"?<Grid container direction="row" alignItems="center">
                 <Typography gutterBottom components="div">
                   Publish Project :
