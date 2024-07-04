@@ -101,7 +101,6 @@ const TaskTable = (props) => {
   const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
-  const userDetails1 = useSelector((state) => console.log(state));
   const savedFilters = JSON.parse(localStorage.getItem('filters'));
 
 
@@ -222,6 +221,14 @@ const TaskTable = (props) => {
     });
     const resp = await res.json();
     if (res.ok) {
+      if(resp?.message){
+         setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+      }
+      else{
       setSnackbarInfo({
         open: true,
         message: resp?.message,
@@ -243,6 +250,7 @@ const TaskTable = (props) => {
         setCurrentPageNumber(1);
       }
       dispatch(fetchProjectDetails(id));
+    }
     } else {
       setSnackbarInfo({
         open: true,
@@ -823,7 +831,7 @@ const TaskTable = (props) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
-        autoHideDuration={2000}
+        autoHideDuration={20000}
       />
     );
   };
