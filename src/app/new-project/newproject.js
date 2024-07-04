@@ -324,6 +324,8 @@ const CreateProject = () => {
       label_config: "string",
       sampling_mode: samplingMode,
       sampling_parameters_json: samplingParameters,
+      batch_size:batchSize,
+      batch_number:batchNumber,
       // variable_parameters: selectedVariableParameters,
       filter_string: filterString,
       project_stage: taskReviews,
