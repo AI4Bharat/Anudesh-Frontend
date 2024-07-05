@@ -28,6 +28,7 @@ import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import { Block } from "@mui/icons-material";
+import ChatLang from "@/utils/Chatlang";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -91,6 +92,7 @@ const InstructionDrivenChatPage = ({
   const handleClose = () => {
     setOpen(false);
   };
+  
 
 
   const renderSnackBar = () => {
@@ -522,7 +524,7 @@ const InstructionDrivenChatPage = ({
               {translate("modal.language")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
-              {info.meta_info_language}
+              {ChatLang[info.meta_info_language]}
             </Typography>
 
             <Button variant="outlined" onClick={handleClose}>
@@ -569,11 +571,6 @@ const InstructionDrivenChatPage = ({
                 {translate("typography.instructions")}
               </Typography>
 
-              {/* <Tooltip title="Hint and Metadata">
-                <IconButton onClick={handleOpen}>
-                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
-                </IconButton>
-              </Tooltip> */}
 
 <Tooltip
       title={

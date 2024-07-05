@@ -830,9 +830,12 @@ const handleopenproject=(id,type)=>{
   const [language, setLanguage] = useState(localStorage.getItem("language") || "");
 
   useEffect(() => {
-    localStorage.setItem("globalTransliteration", globalTransliteration);
     localStorage.setItem("language", language);
-  }, [language, globalTransliteration]);
+  }, [language]);
+  useEffect(() => {
+    localStorage.setItem("globalTransliteration", globalTransliteration);
+  }, [ globalTransliteration]);
+
 
   return (
     <Grid container direction="row" style={{ zIndex: 1 }}>
