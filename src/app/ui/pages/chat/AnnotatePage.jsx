@@ -99,7 +99,7 @@ const AnnotatePage = () => {
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
   const [currentInteraction, setCurrentInteraction] = useState({});
-
+  const [interactions, setInteractions] = useState([]);
   const [annotations, setAnnotations] = useState([]);
 
   const annotationNotesRef = useRef(false);
@@ -355,7 +355,7 @@ const AnnotatePage = () => {
     }
     // }
   };
-
+console.log(interactions[0]);
   const handleAnnotationClick = async (value, id, lead_time) => {
     // if (typeof window !== "undefined") {
     let resultValue;
@@ -365,9 +365,20 @@ const AnnotatePage = () => {
         output: reverseFormatResponse(chat.output),
       }));
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
-      resultValue = currentInteraction;
+      resultValue = interactions.map((interaction) =>({
+        prompt: interaction.prompt,
+        output: interaction.output,
+        additional_note: interaction.additional_note,
+        rating: interaction.rating,
+        questions_response: interaction.questions_response,
+        prompt_output_pair_id: interaction.prompt_output_pair_id
+      })
+      
+      );
+      console.log("resval: " + resultValue);
+     
     }
-
+    
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -634,6 +645,8 @@ const AnnotatePage = () => {
         <ModelInteractionEvaluation
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
         />
       );
       break;
