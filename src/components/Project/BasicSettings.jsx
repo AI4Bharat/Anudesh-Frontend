@@ -11,7 +11,7 @@ import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
-import getWorkspaceDetails from "@/Lib/Features/getWorkspaceDetails";
+import getWorkspaceDetails, { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 
@@ -42,7 +42,14 @@ const BasicSettings = (props) => {
 
     const isManager = workspaceManagers?.some(manager => manager.id === loggedInUserData.id);
 
-
+    const getWorkspaceDetails = ()=>{
+        dispatch(fetchWorkspaceDetails(ProjectDetails?.workspace_id));
+      }
+     
+      
+      useEffect(()=>{
+        getWorkspaceDetails();
+      },[]);
     console.log(loggedInUserData.id);
     const getLoggedInUserData = () => {
         dispatch(FetchLoggedInUserData("me"));

@@ -48,6 +48,7 @@ import { fetchFindAndReplaceWordsInAnnotation } from "@/Lib/Features/projects/ge
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
+import ChatLang from "@/utils/Chatlang";
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
 
 
@@ -102,7 +103,15 @@ const TaskTable = (props) => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
   const savedFilters = JSON.parse(localStorage.getItem('filters'));
-
+  const columnsCheck = [
+    { name: 'id', label: 'ID', defaultChecked: true },
+    { name: 'instructionData', label: 'Instruction Data', defaultChecked: true },
+    { name: 'language', label: 'Language', defaultChecked: true },
+    { name: 'status', label: 'Status', defaultChecked: true },
+    { name: 'otherColumn1', label: 'Other Column 1', defaultChecked: false },
+    { name: 'otherColumn2', label: 'Other Column 2', defaultChecked: false },
+    // Add other columns as needed
+  ];
 
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
@@ -435,7 +444,12 @@ const TaskTable = (props) => {
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key])
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            })
         );
         props.type === "annotation" &&
           taskList[0].annotation_status &&
@@ -497,6 +511,7 @@ const TaskTable = (props) => {
       const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail")
       const email = props.type === "review" && annotatorEmail ? "Annotator Email" : "";
       let colList = ["id", ...(!!email ? [email] : [])];
+      console.log(colList,taskList[0]);
       colList.push(
         ...Object.keys(taskList[0].data).filter(
           (el) => !excludeCols.includes(el)
@@ -504,10 +519,17 @@ const TaskTable = (props) => {
       );
       taskList[0].task_status && colList.push("status");
       colList.push("actions");
+     var defaultCheckedCols = ["id", "instruction_data", "meta_info_language", "status","actions"]
+     const metaInfoMapping = {
+      meta_info_language: "language",
+      meta_info_domain: "domain",
+      meta_info_intent: "intent"
+    };
       const cols = colList.map((col) => {
         return {
           name: col,
-          label: snakeToTitleCase(col),
+          label: metaInfoMapping[col] ? snakeToTitleCase(metaInfoMapping[col]) : snakeToTitleCase(col),
+          defaultChecked: defaultCheckedCols.includes(col),
           options: {
             filter: false,
             sort: false,
@@ -517,7 +539,7 @@ const TaskTable = (props) => {
         };
       });
       setColumns(cols);
-      setSelectedColumns(colList);
+      setSelectedColumns(ProjectDetails?.project_type=="InstructionDrivenChat"?colList.filter(col => defaultCheckedCols.includes(col)):colList);
       setTasks(data);
     } else {
       setTasks([]);

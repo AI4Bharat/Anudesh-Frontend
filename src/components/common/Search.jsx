@@ -31,8 +31,17 @@ const Search = (props) => {
     dispatch(setSearchProjectCard(value));
   };
 
-  const targetLang = localStorage.getItem("language") || "en";
-  const globalTransliteration = localStorage.getItem("globalTransliteration") === "true" ? true : false;
+  const [targetLang, setTargetLang] = useState( localStorage.getItem("language"));
+
+  const [globalTransliteration, setGlobalTransliteration] = useState(localStorage.getItem("globalTransliteration"));
+  useEffect(() => {
+    const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
+    const storedLanguage = localStorage.getItem("language") ;
+    setGlobalTransliteration(storedGlobalTransliteration);
+    setTargetLang(storedLanguage);
+    console.log(globalTransliteration,localStorage.getItem("globalTransliteration"));
+  }, [searchValue]);
+
 
   return (
    <Grid container justifyContent="end" sx={{marginTop:"20px"}}>
@@ -40,7 +49,7 @@ const Search = (props) => {
                     <Grid className="searchIcon">
                         <SearchIcon fontSize="small" />
                     </Grid>
-                    {globalTransliteration ? 
+                    {globalTransliteration=="true" ? 
                     <IndicTransliterate 
                     renderComponent={(props) => (
                       <textarea

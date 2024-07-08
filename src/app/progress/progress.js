@@ -92,7 +92,7 @@ export default function ProgressPage () {
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
                 <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px" ,backgroundColor:'ButtonHighlight', textAlign:'center'}}>
                   <CardContent>
-                    <Typography variant="h4">{userDetails?.organization.title}</Typography>
+                    <Typography variant="h4">{userDetails?.organization?.title}</Typography>
                   </CardContent>
                 </Paper>
               </Grid>
