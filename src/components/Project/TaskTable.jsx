@@ -267,6 +267,7 @@ const TaskTable = (props) => {
         variant: "error",
       });
     }
+    getTaskListData()
   };
 
   const unassignTasks = async () => {
