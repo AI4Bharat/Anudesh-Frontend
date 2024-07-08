@@ -1077,7 +1077,7 @@ const AnnotatePage = () => {
                         backgroundColor: "#ee6633",
                       }}
                     >
-                      Update
+                      Submit
                     </Button>
                   </Tooltip>
                 </Grid>
