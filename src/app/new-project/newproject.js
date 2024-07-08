@@ -14,6 +14,7 @@ import {
   Select,
   FormControl,
   MenuItem,
+  InputAdornment,
   Switch,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -21,7 +22,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { MenuProps } from "@/utils/utils";
 import { useParams } from "react-router-dom";
-import { createProject } from "@/Lib/Features/actions/projects";
+import { createProject, setPasswordForProject } from "@/Lib/Features/actions/projects";
 import { useNavigate } from "react-router-dom";
 import ColumnList from "@/components/common/ColumnList";
 import { snakeToTitleCase } from "@/utils/utils";
@@ -38,6 +39,7 @@ import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -117,6 +119,9 @@ const CreateProject = () => {
   const [is_published, setIsPublished] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
+  const [passwordForProjects, setPasswordForProjects] = useState("");
+  const [shownewpassword, setShowNewPassword] = useState(false);
+
  /* eslint-disable react-hooks/exhaustive-deps */
 
   const searchOpen = Boolean(searchAnchor);
@@ -269,6 +274,11 @@ const CreateProject = () => {
     );
   };
 
+  const handleTogglenewpasswordVisibility = () => {
+    setShowNewPassword(!shownewpassword);
+  };
+
+
   const onSelectProjectType = (value) => {
     setSelectedType(value);
     dispatch(fetchDatasetByType(datasetTypes[value]));
@@ -297,7 +307,7 @@ const CreateProject = () => {
     }
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
-  const handleCreateProject = () => {
+  const handleCreateProject = async() => {
     const newProject = {
       title: title,
       description: description,
@@ -314,22 +324,45 @@ const CreateProject = () => {
       label_config: "string",
       sampling_mode: samplingMode,
       sampling_parameters_json: samplingParameters,
+      batch_size:batchSize,
+      batch_number:batchNumber,
       // variable_parameters: selectedVariableParameters,
       filter_string: filterString,
       project_stage: taskReviews,
       required_annotators_per_task: selectedAnnotatorsNum,
       automatic_annotation_creation_mode: createannotationsAutomatically,
       is_published:is_published,
+      password: passwordForProjects,
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
-    dispatch(createProject(newProject));
+    
+     dispatch(createProject(newProject));
+    
+  };
+
+
+
+  const setPasswordForNewProject = async (projectId) => {
+    try {
+      console.log("Project id: "+projectId)
+      console.log("password: " + passwordForProjects)
+      dispatch(setPasswordForProject({ projectId, password: passwordForProjects }));
+    } catch (error) {
+      console.error('Error setting password for project:', error);
+    }
   };
 
   useEffect(() => {
     if (NewProject?.id) {
       navigate(`/projects/${NewProject.id}`, { replace: true });
       window.location.reload();
+
+      if (NewProject?.id) {
+        const projectId = NewProject?.id;
+        console.log('Project ID:', projectId);
+        setPasswordForNewProject(projectId);
+      }
     }
   }, [NewProject]);
   useEffect(() => {
@@ -393,6 +426,7 @@ const CreateProject = () => {
       getDataItems();
     }
   }, [currentPageNumber, currentRowPerPage]);
+  const sample = useSelector(state=>console.log(state));
   const renderToolBar = () => {
     return (
       <Grid container spacing={0} md={12}>
@@ -1059,6 +1093,49 @@ const CreateProject = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+
+                {workspaceDtails?.guest_workspace_display === "Yes" ? (
+  <>
+    <Grid
+      item
+      className="projectsettingGrid"
+      xs={12}
+      sm={12}
+      md={12}
+      lg={12}
+      xl={12}
+    >
+      <Typography gutterBottom component="div">
+        Set a password:
+      </Typography>
+    </Grid>
+
+    <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+      <OutlinedTextField
+        fullWidth
+        value={passwordForProjects}
+        type={shownewpassword ? "text" : "password"}
+        onChange={(e) => {
+          setPasswordForProjects(e.target.value);
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={handleTogglenewpasswordVisibility}
+                edge="end"
+                aria-label="toggle password visibility"
+              >
+                {shownewpassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Grid>
+  </>
+) : null}
+
                 {workspaceDtails?.guest_workspace_display === "Yes"?<Grid container direction="row" alignItems="center">
                 <Typography gutterBottom components="div">
                   Publish Project :

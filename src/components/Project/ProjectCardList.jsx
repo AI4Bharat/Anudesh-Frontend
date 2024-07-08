@@ -3,7 +3,7 @@ import  {React, useState, useEffect } from "react";
 import { ThemeProvider } from '@mui/material/styles';
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Grid, Tooltip, Button, Dialog, DialogTitle, DialogContent, TextField, FormHelperText, Typography, IconButton, InputAdornment } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
@@ -27,8 +27,9 @@ const ProjectCardList = (props) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
   const [showPassword, setShowPassword] = useState(false);
-  const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects) : projectData
-
+  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects).sort((a, b) => a.id - b.id) : projectData
+  const navigate = useNavigate();
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
 
   const handleShowFilter = (event) => {
@@ -56,13 +57,15 @@ const ProjectCardList = (props) => {
   };
 
   const handlePasswordSubmit = async() => {
-    const apiObj = new VerifyProject(selectedProject?.id,password);
+    console.log(selectedProject?.id);
+    const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
     });
     const resp = await res.json();
+    // setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,

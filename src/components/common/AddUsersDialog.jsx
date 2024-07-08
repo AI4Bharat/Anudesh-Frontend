@@ -187,7 +187,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
       const addAnnotatorsRespData = await addAnnotatorsRes.json();
 
       if (addAnnotatorsRes.ok) {
-        dispatch(fetchWorkspacesAnnotatorsData(id));
+        dispatch(fetchWorkspacesAnnotatorsData({workspaceId:id}));
         return addAnnotatorsRespData;
       }
       break;
