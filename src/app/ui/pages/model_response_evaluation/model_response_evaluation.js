@@ -32,12 +32,11 @@ import { useParams } from "react-router-dom";
 import { questions } from "./config";
 import Tooltip from '@mui/material/Tooltip';
 
-const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions }) => {
+const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
-  const [forms, setForms] = useState([]);
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
@@ -88,7 +87,8 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, []);
   // console.log(interactions[0]);
   useEffect(() => {
-    if (forms.length > 0 && interactions.length > 0) {
+    // Only set currentInteraction if it's not already set and forms and interactions are available
+    if (forms.length > 0 && interactions.length > 0 && !currentInteraction?.prompt) {
       console.log("Forms:", forms);
       console.log("Interactions:", interactions);
   
@@ -97,23 +97,21 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   
       const currentForm = forms.find((form) => form.prompt_output_pair_id === defaultFormIndex);
       console.log("Current Form:", currentForm);
-    
+  
       if (currentForm) {
-        setCurrentInteraction((prev) => {
-          const newState = {
-            ...prev,
-            prompt: interactions[0]?.prompt || "",
-            output: typeof interactions[0]?.output === "string" ? interactions[0]?.output : interactions[0]?.output[0]?.value || "",
-            rating: currentForm?.form_output_json?.rating || null,
-            additional_note: currentForm?.form_output_json?.additional_note || "",
-            questions_response: currentForm?.form_output_json?.questions_response?.map((obj) => obj.answer) || Array(questions.length).fill(null),
-          };
-          console.log("New State:", newState);
-          return newState;
-        });
+        const newState = {
+          prompt: currentForm?.prompt || "",
+          output: typeof currentForm?.output === "string" ? currentForm?.output : currentForm?.output?.value || "",
+          rating: currentForm?.rating || null,
+          additional_note: currentForm?.additional_note || "",
+          questions_response: currentForm.questions_response || Array(questions.length).fill(null),
+        };
+        console.log("New State:", newState);
+        setCurrentInteraction(newState);
       }
     }
-  }, [forms, interactions]);
+  }, [forms, interactions, questions.length]);
+  
   
   
        
@@ -122,21 +120,15 @@ console.log(interactions);
 const handleOptionChange = (index, answer) => {
   setCurrentInteraction((prev) => {
     const newAnswers = Array.isArray(prev.questions_response) ? [...prev.questions_response] : Array(questions.length).fill(null);
-
-    // Update the answer for the selected question
     newAnswers[index] = { question: selectedQuestions[index], answer: answer || null };
-
-    // Update answers for all questions
     questions.forEach((question, i) => {
       const selectedQuestionIndex = selectedQuestions.indexOf(question);
       if (selectedQuestionIndex !== -1) {
-        // If question is selected, set the answer if provided, otherwise set to null
         newAnswers[selectedQuestionIndex] = {
           question,
           answer: newAnswers[selectedQuestionIndex]?.answer !== undefined ? newAnswers[selectedQuestionIndex].answer : null
         };
       } else {
-        // If question is not selected, ensure it's in newAnswers with answer as null
         if (newAnswers[i] === null || newAnswers[i] === undefined) {
           newAnswers[i] = { question, answer: null };
         }
@@ -155,15 +147,21 @@ const handleOptionChange = (index, answer) => {
           : interaction
       )
     );
+    setForms((prevInteractions) =>
+      prevInteractions.map((interaction) =>
+        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : interaction
+      ));
 
     return updatedInteraction;
   });
 };
 
 
-// console.log(currentInteraction);
-// console.log(interactions);
-// console.log(forms);
+console.log(currentInteraction);
+console.log(interactions);
+console.log(forms);
 
 const handleRating = (rating) => {
   setCurrentInteraction((prev) => {
@@ -180,6 +178,15 @@ const handleRating = (rating) => {
       )
     );
 
+    setForms((prevInteractions) =>
+      prevInteractions.map((interaction) =>
+        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : interaction
+      )
+    );
+
+
     return updatedInteraction;
   });
 };
@@ -191,34 +198,45 @@ const handleNoteChange = (event) => {
       ...prev,
       additional_note: newNote,
     };
-    const updatedInteractions = interactions.map((interaction) =>
-      interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-        ? updatedInteraction
-        : interaction
+
+    setInteractions((prevInteractions) =>
+      prevInteractions.map((interaction) =>
+        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : interaction
+      )
     );
-    setInteractions(updatedInteractions);
+
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : form
+      )
+    );
+
     return updatedInteraction;
   });
 };
 
-
-
-
+console.log(forms);
 const handleFormBtnClick = (e) => {
   const clickedPromptOutputPairId = parseInt(e.target.id);
-  const currInteraction = interactions.find(
-    (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
+  const currInteraction = forms.find(
+    (form) => form.prompt_output_pair_id === clickedPromptOutputPairId
   );
-  setCurrentInteraction({
-    prompt: currInteraction.prompt,
-    output: Array.isArray(currInteraction.output)
-      ? currInteraction.output.map((item) => item.value).join(', ')
-      : currInteraction.output,
-    prompt_output_pair_id: currInteraction.prompt_output_pair_id,
-    rating: currInteraction.rating || null,
-    additional_note: currInteraction.additional_note || '',
-    questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
-  });
+  if (currInteraction) {
+    setCurrentInteraction({
+      prompt: currInteraction.prompt,
+      output: Array.isArray(currInteraction.output)
+        ? currInteraction.output.map((item) => item.value).join(', ')
+        : currInteraction.output,
+      prompt_output_pair_id: currInteraction.prompt_output_pair_id,
+      rating: currInteraction.rating || null,
+      additional_note: currInteraction.additional_note || '',
+      questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
+    });
+  }
 };
 
 
