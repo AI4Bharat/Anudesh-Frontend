@@ -47,6 +47,7 @@ import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
 import getOrganizationUsers from "@/Lib/Features/getOrganizationUsers";
 import InviteManagerSuggestions from "@/app/actions/api/user/InviteManagerSuggestions";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
+import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
   
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -144,6 +145,8 @@ const DetailsViewPage = (props) => {
 
   const handleWorkspaceDialogClose = () => {
     setAddWorkspacesDialogOpen(false);
+    dispatch(fetchWorkspaceData());
+  
   };
 
   const handleWorkspaceDialogOpen = () => {

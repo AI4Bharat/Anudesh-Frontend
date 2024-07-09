@@ -85,6 +85,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
       setPasswordEqual(true);
     }
   }
+
   const handlepublicanalytics = async () => {
         // setLoading(true);
         setpublicanalytics((publicanalytics)=>!publicanalytics)
