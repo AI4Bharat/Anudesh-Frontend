@@ -87,34 +87,29 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, []);
   // console.log(interactions[0]);
   useEffect(() => {
-    // Only set currentInteraction if it's not already set and forms and interactions are available
     if (forms.length > 0 && interactions.length > 0 && !currentInteraction?.prompt) {
-      console.log("Forms:", forms);
-      console.log("Interactions:", interactions);
+      const defaultFormId = 1;
   
-      const defaultFormIndex = interactions[0]?.prompt_output_pair_id;
-      console.log("Default Form Index:", defaultFormIndex);
-  
-      const currentForm = forms[0]
-      console.log("Current Form:", currentForm);
-      const selectedQuestionsFromResponse = currentForm.questions_response
-      ? currentForm.questions_response.map((response) => response.question)
-      : [];
-  
+      const currentForm = forms.find(form => form.prompt_output_pair_id === defaultFormId);
+      console.log("currentform: " + currentForm.rating);
       if (currentForm) {
+        const selectedQuestionsFromResponse = currentForm.questions_response
+          ? currentForm.questions_response.map((response) => response.question)
+          : [];
+  
         const newState = {
           prompt: currentForm?.prompt || "",
           output: typeof currentForm?.output === "string" ? currentForm?.output : currentForm?.output.map((item) => item.value).join(', ') || "",
-          rating: currentForm?.rating || null,
-          additional_note: currentForm?.additional_note || "",
+          prompt_output_pair_id: currentForm.prompt_output_pair_id,
+          rating: currentForm.rating || null,
+          additional_note: currentForm.additional_note || "",
           questions_response: currentForm.questions_response || Array(questions.length).fill(null),
         };
-        console.log("New State:", newState);
         setCurrentInteraction(newState);
         setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
-  }, [forms, interactions, questions.length]);
+  }, [forms, interactions, currentInteraction, setCurrentInteraction]);
   
   useEffect(() => {
     if (forms.length === 0 && interactions.length > 0) {
@@ -129,10 +124,10 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
           answer: null
         }))
       }));
-      console.log("initialforms"+initialForms)
       setForms(initialForms);
     }
-  }, [forms, interactions, questions]);       
+  }, [forms, interactions]);
+       
   
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
@@ -230,9 +225,6 @@ const handleFormBtnClick = (e) => {
     (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
   );
   if (currInteraction) {
-    const selectedQuestionsFromResponse = currInteraction.questions_response
-      ? currInteraction.questions_response.map((response) => response.question)
-      : [];
     setCurrentInteraction({
       prompt: currInteraction.prompt,
       output: Array.isArray(currInteraction.output)
@@ -243,7 +235,7 @@ const handleFormBtnClick = (e) => {
       additional_note: currInteraction.additional_note || '',
       questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
     });
-    setSelectedQuestions(selectedQuestionsFromResponse);
+    setSelectedQuestions(currInteraction.questions_response.map((response) => response.question));
   }
 };
 
