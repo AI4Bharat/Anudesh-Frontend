@@ -95,8 +95,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       const defaultFormIndex = interactions[0]?.prompt_output_pair_id;
       console.log("Default Form Index:", defaultFormIndex);
   
-      const currentForm = forms.find((form) => form.prompt_output_pair_id === defaultFormIndex);
+      const currentForm = forms[0]
       console.log("Current Form:", currentForm);
+      const selectedQuestionsFromResponse = currentForm.questions_response
+      ? currentForm.questions_response.map((response) => response.question)
+      : [];
   
       if (currentForm) {
         const newState = {
@@ -108,6 +111,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         };
         console.log("New State:", newState);
         setCurrentInteraction(newState);
+        setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
   }, [forms, interactions, questions.length]);
@@ -133,53 +137,31 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
-    const newAnswers = questions.map((question) => {
- 
-      const selectedIndexInSelectedQuestions = selectedQuestions.indexOf(question);
-      if (
-        selectedIndexInSelectedQuestions !== -1 &&
-        prev.questions_response &&
-        prev.questions_response[selectedIndexInSelectedQuestions] !== undefined
-      ) {
-        return prev.questions_response[selectedIndexInSelectedQuestions];
+    const newAnswers = selectedQuestions.map((question, i) => {
+      if (selectedQuestions[selectedIndex] === question) {
+        return { question, answer: answer || null };
+      } else {
+        return prev.questions_response?.find(response => response.question === question) || { question, answer: null };
       }
-      return { question, answer: null };
     });
-    if (selectedIndex < selectedQuestions.length) {
-      const questionIndex = questions.indexOf(selectedQuestions[selectedIndex]);
-      newAnswers[questionIndex] = { question: selectedQuestions[questionIndex], answer: answer || null };
-    }
 
     const updatedInteraction = {
       ...prev,
       questions_response: newAnswers,
     };
 
-    
-    updateInteractionsAndForms(updatedInteraction);
+    // Update the forms array with the updatedInteraction
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : form
+      )
+    );
 
     return updatedInteraction;
   });
 };
-
-const updateInteractionsAndForms = (updatedInteraction) => {
-  setInteractions((prevInteractions) =>
-    prevInteractions.map((interaction) =>
-      interaction.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-        ? updatedInteraction
-        : interaction
-    )
-  );
-
-  setForms((prevForms) =>
-    prevForms.map((form) =>
-      form.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-        ? updatedInteraction
-        : form
-    )
-  );
-};
-
 
 console.log(currentInteraction);
 console.log(interactions);
@@ -192,13 +174,13 @@ const handleRating = (rating) => {
       rating: rating,
     };
     console.log("updatedinteraction: "+ updatedInteraction);
-    setInteractions((prevInteractions) =>
-      prevInteractions.map((interaction) =>
-        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : interaction
-      )
-    );
+    // setInteractions((prevInteractions) =>
+    //   prevInteractions.map((interaction) =>
+    //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+    //       ? updatedInteraction
+    //       : interaction
+    //   )
+    // );
 
     setForms((prevInteractions) =>
       prevInteractions.map((interaction) =>
@@ -221,13 +203,13 @@ const handleNoteChange = (event) => {
       additional_note: newNote,
     };
 
-    setInteractions((prevInteractions) =>
-      prevInteractions.map((interaction) =>
-        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : interaction
-      )
-    );
+    // setInteractions((prevInteractions) =>
+    //   prevInteractions.map((interaction) =>
+    //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+    //       ? updatedInteraction
+    //       : interaction
+    //   )
+    // );
 
     setForms((prevForms) =>
       prevForms.map((form) =>
@@ -248,6 +230,9 @@ const handleFormBtnClick = (e) => {
     (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
   );
   if (currInteraction) {
+    const selectedQuestionsFromResponse = currInteraction.questions_response
+      ? currInteraction.questions_response.map((response) => response.question)
+      : [];
     setCurrentInteraction({
       prompt: currInteraction.prompt,
       output: Array.isArray(currInteraction.output)
@@ -258,6 +243,7 @@ const handleFormBtnClick = (e) => {
       additional_note: currInteraction.additional_note || '',
       questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
     });
+    setSelectedQuestions(selectedQuestionsFromResponse);
   }
 };
 
