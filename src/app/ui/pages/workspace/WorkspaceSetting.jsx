@@ -74,10 +74,7 @@ function WorkspaceSetting(props) {
       if (commonPasswords.includes(newpassword)) {
         errors.push("This password is too common.");
       }
-    } else {
-      errors.push("Password cannot be empty.");
-    }
-    
+    } 
     setPasswordErrors(errors);
     return errors.length === 0;
   };
@@ -490,7 +487,7 @@ function WorkspaceSetting(props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleToggleDialogClose} variant="outlined" color="error">Cancel</Button>
-          <Button onClick={handlePasswordCreate} variant="contained" color="error" autoFocus disabled={passwordEqual==false||passwordErrors.length>0||!newpassword}>Confirm</Button>
+          <Button onClick={handlePasswordCreate} variant="contained" color="error" autoFocus disabled={passwordEqual==false||passwordErrors.length>0}>Confirm</Button>
         </DialogActions>
       </Dialog>
 

@@ -961,7 +961,7 @@ const ReviewPage = () => {
             }}
           >
             <Button
-              value="Back to Project"
+              value="Back to Previous Page"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -973,7 +973,7 @@ const ReviewPage = () => {
                 //window.location.reload();
               }}
             >
-              Back to Project
+             Back to Previous Page
             </Button>
           </Box>
         </Grid>

@@ -14,6 +14,7 @@ import {
   Select,
   FormControl,
   MenuItem,
+  InputAdornment,
   Switch,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -38,6 +39,7 @@ import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -118,6 +120,8 @@ const CreateProject = () => {
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
   const [passwordForProjects, setPasswordForProjects] = useState("");
+  const [shownewpassword, setShowNewPassword] = useState(false);
+
  /* eslint-disable react-hooks/exhaustive-deps */
 
   const searchOpen = Boolean(searchAnchor);
@@ -270,6 +274,11 @@ const CreateProject = () => {
     );
   };
 
+  const handleTogglenewpasswordVisibility = () => {
+    setShowNewPassword(!shownewpassword);
+  };
+
+
   const onSelectProjectType = (value) => {
     setSelectedType(value);
     dispatch(fetchDatasetByType(datasetTypes[value]));
@@ -315,6 +324,8 @@ const CreateProject = () => {
       label_config: "string",
       sampling_mode: samplingMode,
       sampling_parameters_json: samplingParameters,
+      batch_size:batchSize,
+      batch_number:batchNumber,
       // variable_parameters: selectedVariableParameters,
       filter_string: filterString,
       project_stage: taskReviews,
@@ -1103,8 +1114,22 @@ const CreateProject = () => {
       <OutlinedTextField
         fullWidth
         value={passwordForProjects}
+        type={shownewpassword ? "text" : "password"}
         onChange={(e) => {
           setPasswordForProjects(e.target.value);
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={handleTogglenewpasswordVisibility}
+                edge="end"
+                aria-label="toggle password visibility"
+              >
+                {shownewpassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
+          ),
         }}
       />
     </Grid>

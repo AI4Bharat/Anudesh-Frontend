@@ -704,7 +704,7 @@ console.log(interactions[0]);
             }}
           >
             <Button
-              value="Back to Project"
+              value="Back to Previous Page"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -715,7 +715,7 @@ console.log(interactions[0]);
                 navigate(-1);
               }}
             >
-              Back to Project
+              Back to Previous Page
             </Button>
           </Box>
         </Grid>
@@ -1093,7 +1093,7 @@ console.log(interactions[0]);
                         backgroundColor: "#ee6633",
                       }}
                     >
-                      Update
+                      Submit
                     </Button>
                   </Tooltip>
                 </Grid>

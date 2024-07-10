@@ -36,10 +36,18 @@ export default function Textarea({
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [text, setText] = useState("");
-  const targetLang = localStorage.getItem("language") || "en";
-  const globalTransliteration =
-    localStorage.getItem("globalTransliteration") === "true" ? true : false;
+  const [targetLang, setTargetLang] = useState( localStorage.getItem("language"));
 
+  const [globalTransliteration, setGlobalTransliteration] = useState(localStorage.getItem("globalTransliteration"));
+  useEffect(() => {
+    const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
+    const storedLanguage = localStorage.getItem("language") ;
+    setGlobalTransliteration(storedGlobalTransliteration);
+    setTargetLang(storedLanguage);
+    console.log(typeof(globalTransliteration),typeof(localStorage.getItem("globalTransliteration")));
+  }, [text]);
+
+ 
   useEffect(() => {
     if (text != "") {
       handleOnchange(text);
@@ -125,7 +133,7 @@ export default function Textarea({
       width={grid_size}
       className={class_name}
     >
-      {globalTransliteration ? (
+      {globalTransliteration==="true"? (
         <IndicTransliterate
           renderComponent={(props) => (
             <textarea

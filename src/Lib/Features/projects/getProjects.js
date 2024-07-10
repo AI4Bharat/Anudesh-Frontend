@@ -32,7 +32,7 @@ export const fetchProjects = createAsyncThunk(
     }
     console.log(guestworkspace);
     if(guestworkspace==true){
-      queryString += `${queryString ? '&' : ''}guest_view=true/?guest_workspace_filter=true`;
+      queryString += `${queryString ? '&' : ''}guest_view=true`;
     }
     const params = fetchParams(`${ENDPOINTS.getProjects}projects_list/optimized/?${queryString}`);
     return fetch(params.url, params.options)
