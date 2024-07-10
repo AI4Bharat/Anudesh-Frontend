@@ -133,22 +133,19 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
-    // Ensure that questions_response is an array of the same length as questions
+ 
     const newAnswers = questions.map((question) => {
-      // Find the corresponding index in selectedQuestions
+     
       const selectedIndexInQuestions = selectedQuestions.indexOf(question);
-      // If there's an existing response for this question, keep it
+     
       if (prev.questions_response && prev.questions_response[selectedIndexInQuestions] !== undefined) {
         return prev.questions_response[selectedIndexInQuestions];
       }
-      // Otherwise, create a new response object with the question and null answer
+  
       return { question, answer: null };
     });
-
-    // Find the actual index of the selected question in the questions array
     const questionIndex = questions.indexOf(selectedQuestions[selectedIndex]);
-
-    // Update the specific answer for the question at the given index
+    
     newAnswers[questionIndex] = { question: questions[questionIndex], answer: answer || null };
 
     const updatedInteraction = {
