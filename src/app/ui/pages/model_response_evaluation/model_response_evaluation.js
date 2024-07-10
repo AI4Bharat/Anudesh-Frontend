@@ -133,43 +133,51 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
- 
     const newAnswers = questions.map((question) => {
-     
-      const selectedIndexInQuestions = selectedQuestions.indexOf(question);
-     
-      if (prev.questions_response && prev.questions_response[selectedIndexInQuestions] !== undefined) {
-        return prev.questions_response[selectedIndexInQuestions];
+ 
+      const selectedIndexInSelectedQuestions = selectedQuestions.indexOf(question);
+      if (
+        selectedIndexInSelectedQuestions !== -1 &&
+        prev.questions_response &&
+        prev.questions_response[selectedIndexInSelectedQuestions] !== undefined
+      ) {
+        return prev.questions_response[selectedIndexInSelectedQuestions];
       }
-  
       return { question, answer: null };
     });
-    const questionIndex = questions.indexOf(selectedQuestions[selectedIndex]);
-    
-    newAnswers[questionIndex] = { question: questions[questionIndex], answer: answer || null };
+    if (selectedIndex < selectedQuestions.length) {
+      const questionIndex = questions.indexOf(selectedQuestions[selectedIndex]);
+      newAnswers[questionIndex] = { question: selectedQuestions[questionIndex], answer: answer || null };
+    }
 
     const updatedInteraction = {
       ...prev,
       questions_response: newAnswers,
     };
 
-    setInteractions((prevInteractions) =>
-      prevInteractions.map((interaction) =>
-        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : interaction
-      )
-    );
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : form
-      )
-    );
+    
+    updateInteractionsAndForms(updatedInteraction);
 
     return updatedInteraction;
   });
+};
+
+const updateInteractionsAndForms = (updatedInteraction) => {
+  setInteractions((prevInteractions) =>
+    prevInteractions.map((interaction) =>
+      interaction.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+        ? updatedInteraction
+        : interaction
+    )
+  );
+
+  setForms((prevForms) =>
+    prevForms.map((form) =>
+      form.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+        ? updatedInteraction
+        : form
+    )
+  );
 };
 
 
