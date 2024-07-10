@@ -101,7 +101,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       if (currentForm) {
         const newState = {
           prompt: currentForm?.prompt || "",
-          output: typeof currentForm?.output === "string" ? currentForm?.output : currentForm?.output?.value || "",
+          output: typeof currentForm?.output === "string" ? currentForm?.output : currentForm?.output.map((item) => item.value).join(', ') || "",
           rating: currentForm?.rating || null,
           additional_note: currentForm?.additional_note || "",
           questions_response: currentForm.questions_response || Array(questions.length).fill(null),
@@ -112,28 +112,44 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
     }
   }, [forms, interactions, questions.length]);
   
-  
-  
-       
+  useEffect(() => {
+    if (forms.length === 0 && interactions.length > 0) {
+      const initialForms = interactions.map((interaction) => ({
+        prompt: interaction.prompt,
+        output: interaction.output,
+        prompt_output_pair_id: interaction.prompt_output_pair_id,
+        rating: null,
+        additional_note: null,
+        questions_response: questions.map((question) => ({
+          question,
+          answer: null
+        }))
+      }));
+      console.log("initialforms"+initialForms)
+      setForms(initialForms);
+    }
+  }, [forms, interactions, questions]);       
   
 console.log(interactions);
-const handleOptionChange = (index, answer) => {
+const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
-    const newAnswers = Array.isArray(prev.questions_response) ? [...prev.questions_response] : Array(questions.length).fill(null);
-    newAnswers[index] = { question: selectedQuestions[index], answer: answer || null };
-    questions.forEach((question, i) => {
-      const selectedQuestionIndex = selectedQuestions.indexOf(question);
-      if (selectedQuestionIndex !== -1) {
-        newAnswers[selectedQuestionIndex] = {
-          question,
-          answer: newAnswers[selectedQuestionIndex]?.answer !== undefined ? newAnswers[selectedQuestionIndex].answer : null
-        };
-      } else {
-        if (newAnswers[i] === null || newAnswers[i] === undefined) {
-          newAnswers[i] = { question, answer: null };
-        }
+    // Ensure that questions_response is an array of the same length as questions
+    const newAnswers = questions.map((question) => {
+      // Find the corresponding index in selectedQuestions
+      const selectedIndexInQuestions = selectedQuestions.indexOf(question);
+      // If there's an existing response for this question, keep it
+      if (prev.questions_response && prev.questions_response[selectedIndexInQuestions] !== undefined) {
+        return prev.questions_response[selectedIndexInQuestions];
       }
+      // Otherwise, create a new response object with the question and null answer
+      return { question, answer: null };
     });
+
+    // Find the actual index of the selected question in the questions array
+    const questionIndex = questions.indexOf(selectedQuestions[selectedIndex]);
+
+    // Update the specific answer for the question at the given index
+    newAnswers[questionIndex] = { question: questions[questionIndex], answer: answer || null };
 
     const updatedInteraction = {
       ...prev,
@@ -147,12 +163,13 @@ const handleOptionChange = (index, answer) => {
           : interaction
       )
     );
-    setForms((prevInteractions) =>
-      prevInteractions.map((interaction) =>
-        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form.prompt_output_pair_id === prev.prompt_output_pair_id
           ? updatedInteraction
-          : interaction
-      ));
+          : form
+      )
+    );
 
     return updatedInteraction;
   });
@@ -223,7 +240,7 @@ console.log(forms);
 const handleFormBtnClick = (e) => {
   const clickedPromptOutputPairId = parseInt(e.target.id);
   const currInteraction = forms.find(
-    (form) => form.prompt_output_pair_id === clickedPromptOutputPairId
+    (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
   );
   if (currInteraction) {
     setCurrentInteraction({
