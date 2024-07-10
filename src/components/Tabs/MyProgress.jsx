@@ -128,7 +128,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
         });
         setProjectTypes(types);
         // if (!selectedType && types.length) {
-        //   setSelectedType(types[3]); // Setting the fourth element as default if available
+        //   setSelectedType(types[3]); 
         // }
         types?.length && setSelectedType(types[2]);
       }
