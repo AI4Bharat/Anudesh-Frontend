@@ -20,7 +20,8 @@ import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 
 
 const Projectcard = (props) => {
-   /* eslint-disable react-hooks/exhaustive-deps */
+       /* eslint-disable react-hooks/exhaustive-deps */
+           /* eslint-disable-next-line react/jsx-key */
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();

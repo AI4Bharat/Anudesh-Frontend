@@ -122,8 +122,8 @@ function MobileNavbar(props) {
                 </Typography>
                 <Divider />
                 <List>
-                    {appSettings.map((setting) => (
-                        <ListItem key={setting}  style={{cursor:"pointer"}} onClick={setting.onclick}>
+                    {appSettings.map((setting,index) => (
+                        <ListItem key={index}  style={{cursor:"pointer"}} onClick={setting.onclick}>
                             {setting.control ? 
                                 <FormControlLabel
                                     control={setting.control}
