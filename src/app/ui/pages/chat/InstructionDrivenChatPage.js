@@ -285,7 +285,6 @@ const InstructionDrivenChatPage = ({
     }, 1000);
     setShowChatContainer(true);
   };
-
   const handleOnchange = (prompt) => {
     inputValue = prompt;
   };

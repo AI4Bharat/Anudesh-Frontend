@@ -8,11 +8,11 @@ import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
-// import AudioRecorder from "./AudioRecorder";
+import { TextareaAutosize } from "@material-ui/core";
 
 const orange = {
   200: "pink",
-  400: "#EE6633", //hover-border
+  400: "#EE6633",
   600: "#EE663366",
 };
 
@@ -36,20 +36,30 @@ export default function Textarea({
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [text, setText] = useState("");
-  const [targetLang, setTargetLang] = useState( localStorage.getItem("language"));
+  const [targetLang, setTargetLang] = useState("");
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const [globalTransliteration, setGlobalTransliteration] = useState(localStorage.getItem("globalTransliteration"));
   useEffect(() => {
-    const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
-    const storedLanguage = localStorage.getItem("language") ;
-    setGlobalTransliteration(storedGlobalTransliteration);
-    setTargetLang(storedLanguage);
-    console.log(typeof(globalTransliteration),typeof(localStorage.getItem("globalTransliteration")));
+    setIsMounted(true);
+
+    if (typeof window !== "undefined") {
+      const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
+      const storedLanguage = localStorage.getItem("language");
+
+      if (storedGlobalTransliteration !== null) {
+        setGlobalTransliteration(storedGlobalTransliteration === "true");
+      }
+      if (storedLanguage !== null) {
+        setTargetLang(storedLanguage);
+      }
+
+      console.log(globalTransliteration, "lll", localStorage.getItem("globalTransliteration"));
+    }
   }, [text]);
 
- 
   useEffect(() => {
-    if (text != "") {
+    if (text !== "") {
       handleOnchange(text);
     }
   }, [text]);
@@ -57,11 +67,6 @@ export default function Textarea({
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
-
-  // const handleTranscription = (transcript) => {
-  //   setText(transcript);
-  // };
-
 
   const handleMouseLeave = (event) => {
     event.target.style.borderColor = grey[200];
@@ -83,11 +88,27 @@ export default function Textarea({
       handleButtonClick();
       setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
-      handleOnchange(text + "\n");
+      setText((prevText) => prevText + "\n");
     }
   };
+  const textareaStyle = {
+    resize: "none",
+    fontSize: "1rem",
+    width: "60%",
+    fontWeight: "400",
+    lineHeight: "1.5",
+    padding: "12px",
+    borderRadius: "12px 12px 0 12px",
+    color: grey[900],
+    background: "#ffffff",
+    border: `1px solid ${grey[200]}`,
+    boxShadow: `0px 2px 2px ${grey[50]}`,
+    outline: 0,
+    transition: "border-color 0.2s, box-shadow 0.2s",
+  };
+  
 
-  const Textarea = styled(BaseTextareaAutosize)(
+  const StyledTextarea  = styled(BaseTextareaAutosize)(
     ({ theme }) => `
     resize: none;
     margin-right: 5px;
@@ -120,6 +141,10 @@ export default function Textarea({
   `,
   );
 
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <Grid
       item
@@ -133,7 +158,7 @@ export default function Textarea({
       width={grid_size}
       className={class_name}
     >
-      {globalTransliteration==="true"? (
+      {globalTransliteration ? (
         <IndicTransliterate
           renderComponent={(props) => (
             <textarea
@@ -175,30 +200,26 @@ export default function Textarea({
           horizontalView={true}
         />
       ) : (
-        <Textarea
+        <TextareaAutosize
           xs={size}
           maxRows={10}
           aria-label="empty textarea"
           placeholder={translate("chat_placeholder")}
-          value={prompt}
+          value={text}
+          style={textareaStyle}
           onChange={(e) => {
-            handleOnchange(e.target.value);
+            setText(e.target.value);
           }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              handleButtonClick();
-            } else if (event.key === "Enter" && event.shiftKey) {
-              handleOnchange(prompt + "\n");
-            }
-          }}
+          onKeyDown={handleKeyDown}
           sx={{
             whiteSpace: 'pre-wrap',
           }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         />
       )}
-            {/* <AudioRecorder onTranscription={handleTranscription} prompt={prompt} /> */}
-
       <IconButton
         size="large"
         onClick={() => {

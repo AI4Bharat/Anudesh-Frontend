@@ -142,7 +142,7 @@ export default function PerformanceAnalytics() {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const [radiobutton, setRadiobutton] = useState("Annotation");
   const [metaInfo, setMetaInfo] = useState(false);
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState("InstructionDrivenChat");
   const [projectTypes, setProjectTypes] = useState([]);
   const [language, setLanguage] = useState("Hindi");
   const [showPicker, setShowPicker] = useState(false);
@@ -174,41 +174,41 @@ export default function PerformanceAnalytics() {
     dispatch(fetchLanguages());
   }, []);
 
-  useEffect(() => {
-    if (radiobutton === "annotation") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "annotation") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluvation",
+  //      "InstructionDrivenChat",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
 
-  useEffect(() => {
-    if (radiobutton === "Review") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "Review") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluvation",
+  //      "InstructionDrivenChat",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
 
-  useEffect(() => {
-    if (radiobutton === "Supercheck") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "Supercheck") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluvation",
+  //      "InstructionDrivenChat",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
 
   const handleChangeReports = (e) => {
     setRadiobutton(e.target.value);
@@ -219,7 +219,7 @@ export default function PerformanceAnalytics() {
   };
 
   const handleSubmit = async () => {
-    showSnackbar("No Analytics to display")
+    console.log(selectedType);
     setShowPicker(false)
     setLoading(true);
     metaInfo?
@@ -227,7 +227,7 @@ export default function PerformanceAnalytics() {
     options["scales"]["y"]["title"]["text"]="Compleated Audio Duration(Hrs)":
     options["scales"]["y"]["title"]["text"]="Compleated Word Count":
     options["scales"]["y"]["title"]["text"]="Compleated Tasks Count"
-    const OrgId = userDetails.organization.id
+    const OrgId = typeof(userDetails?.organization?.id) === Number?userDetails?.organization?.id : 1
     const payload = {
       project_type: selectedType,
       periodical_type: baseperiod,
@@ -327,8 +327,7 @@ export default function PerformanceAnalytics() {
     }
   }, [ProjectTypes]);
 
-  const defaultType = "InstructionDrivenChat";
-  const selectedTypeWithDefault = selectedType || defaultType;
+
 
   return (
     <>
@@ -479,7 +478,7 @@ export default function PerformanceAnalytics() {
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={selectedTypeWithDefault}
+                value={selectedType}
                 label="Project Type"
                 sx={{ padding: "1px" }}
                 onChange={(e) => setSelectedType(e.target.value)}

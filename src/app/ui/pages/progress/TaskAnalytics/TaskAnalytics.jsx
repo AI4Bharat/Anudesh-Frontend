@@ -25,6 +25,10 @@ const TaskAnalytics = (props) => {
   const taskAnalyticsData = useSelector(
     (state) => state.getTaskAnalyticsData.data
   );
+  const taskAnalyticsData1 = useSelector(
+    (state) => console.log(state)
+  );
+ console.log(taskAnalyticsData);
 
   const [loading, setLoading] = useState(false);
 console.log(selectedType);
@@ -35,9 +39,6 @@ console.log(selectedType);
     setLoading(true)
     const userObj = new TaskAnalyticsDataAPI(selectedType);
     dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType}))
-    setTimeout(() => {
-      setLoading(false); 
-    }, 1000);
   };
 
   const showSnackbar = (message) => {
@@ -81,14 +82,9 @@ console.log(selectedType);
     getTaskAnalyticsdata();
   }, []);
 
-  const handleSubmit = async () => {
-    if(getTaskAnalyticsdata() == null){
-    showSnackbar("No Analytics to display")
-    }
 
-    else{
+  const handleSubmit = async () => {
       getTaskAnalyticsdata();
-    }
   };
 
   useEffect(() => {
@@ -139,23 +135,13 @@ console.log(selectedType);
       {loading && <Spinner />}
       {taskAnalyticsData.length ?
         taskAnalyticsData.map((analyticsData,_index)=>{
-          if (analyticsData.length && audioProjectTypes.includes(analyticsData[0].projectType)){
-            return (<Grid key={_index} style={{marginTop:"15px"}}>
-            <AudioTaskAnalyticsChart analyticsData={analyticsData}/>
-          </Grid>)}
-          if(analyticsData.length && 
-            (translationProjectTypes.includes(analyticsData[0].projectType) ||
-              conversationProjectTypes.includes(analyticsData[0].projectType) ||
-              (ocrProjectTypes.includes(analyticsData[0].projectType))
-              )
-            ){
-          return (
-            <Grid key={_index} style={{marginTop:"15px"}}>
-              <TaskCountAnalyticsChart analyticsData={analyticsData} />
-            </Grid>
-          );
-        }
-      }) : ''}
+          
+          if(analyticsData.length){ 
+            return <Grid key={_index} style={{marginTop:"15px"}}>
+            <TaskCountAnalyticsChart analyticsData={analyticsData}/>
+          </Grid>}
+        })
+      :''}
       <CustomizedSnackbars
         message={snackbarMessage}
         open={snackbarOpen}
