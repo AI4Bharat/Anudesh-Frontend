@@ -34,6 +34,7 @@ const UserDetail = (props) => {
   const [userName,setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [active, setActive] = useState();
+  const [guest_user, setguest_user] = useState();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [language, setLanguage] = useState([]);
@@ -71,6 +72,7 @@ const UserDetail = (props) => {
     participation_type,
     role,
     is_active,
+    guest_user,
   ) => {
     setOpenDialog(true);
     setId(id);
@@ -82,6 +84,7 @@ const UserDetail = (props) => {
     setParticipationType(participation_type);
     setRole(role);
     setActive(is_active);
+    setguest_user(guest_user)
   };
 
   const handleCloseDialog = () => {
@@ -284,6 +287,7 @@ const UserDetail = (props) => {
             el.participation_type,
             userRoleFromList ? userRoleFromList : el.role,
             el.is_active==true?"Active":"Not Active",
+            el.guest_user,
             <>
               <div style={{display:"flex", flexDirection:"row"}}>
               <IconButton size="small" color="primary">
@@ -302,6 +306,7 @@ const UserDetail = (props) => {
                       el.participation_type,
                       el.role,
                       el.is_active,
+                      el.guest_user,
                     )
                   }
                 />

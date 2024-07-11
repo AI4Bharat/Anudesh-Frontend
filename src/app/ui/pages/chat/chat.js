@@ -548,6 +548,7 @@ const Chat = () => {
             grid_size={"100vw"}
             class_name="textarea_grid"
             loading={loading}
+            inputValue={inputValue}
           />
         </Grid>
       </Grid>

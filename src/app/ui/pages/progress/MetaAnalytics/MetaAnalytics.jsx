@@ -31,13 +31,13 @@ export default function MetaAnalytics(props) {
     const metaAnalyticsData = useSelector(
         (state) => state.getMetaAnalyticsData.data
       );
+      const metaAnalyticsData1 = useSelector(
+        (state) => console.log(state)
+      );
 
       const getMetaAnalyticsdata = () => {
         setLoading(true);
-        dispatch(fetchMetaAnalyticsData(loggedInUserData?.organization?.id,selectedType));
-        setTimeout(() => {
-          setLoading(false); 
-        },1000) 
+        dispatch(fetchMetaAnalyticsData({OrgId:loggedInUserData?.organization?.id||1,project_type_filter:selectedType}));
       };
 
       const showSnackbar = (message) => {
@@ -86,12 +86,7 @@ export default function MetaAnalytics(props) {
         getMetaAnalyticsdata();
       }, []);
       const handleSubmit = async () => {
-        if(getMetaAnalyticsdata()==null){
-          showSnackbar("No Analytics to display")
-        }
-        else{
           getMetaAnalyticsdata()
-        }
       }
 
       useEffect(() => {

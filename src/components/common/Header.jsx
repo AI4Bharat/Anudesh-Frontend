@@ -826,7 +826,7 @@ const handleopenproject=(id,type)=>{
     }
   };
 
-  const [globalTransliteration, setGlobalTransliteration] = useState(localStorage.getItem("globalTransliteration")=== "true" ? true : false);
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "");
 
   useEffect(() => {

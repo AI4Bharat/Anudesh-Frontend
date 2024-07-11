@@ -335,7 +335,7 @@ function ProgressList() {
       setOptions({...defaultOptions});
     }
 
-    const OrgId = userDetails.organization.id
+    const OrgId = typeof(userDetails?.organization?.id) === Number?userDetails?.organization?.id : 1
     setShowPicker(false);
     setShowPickers(false);
     // setLoading(true);

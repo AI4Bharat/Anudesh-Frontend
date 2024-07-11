@@ -19,6 +19,7 @@ import ResponsiveChartContainer from "@/components/common/ResponsiveChartContain
 
 
 function TaskCountAnalyticsChart(props) {
+  console.log(props);
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const { analyticsData } = props;
@@ -27,30 +28,32 @@ function TaskCountAnalyticsChart(props) {
   const [totalAnnotationTasksCount, setTotalAnnotationTasksCount] = useState();
   const [totalReviewTasksCount, setTotalReviewTasksCount] = useState();
   const [data, setData] = useState([]);
-
   useEffect(() => {
-    analyticsData?.sort(
-      (a, b) =>
-        b.annotation_cumulative_tasks_count -
-        a.annotation_cumulative_tasks_count
-    );
-    setData(analyticsData);
-
-    let allAnnotatorCumulativeTasksCount = 0;
-    let allReviewCumulativeTasksCount = 0;
-    var languages;
-    analyticsData?.map((element, index) => {
-      allAnnotatorCumulativeTasksCount +=
-        element.annotation_cumulative_tasks_count;
-      allReviewCumulativeTasksCount += element.review_cumulative_tasks_count;
-      languages = element.languages;
-    });
-
-    setTotalAnnotationTasksCount(allAnnotatorCumulativeTasksCount);
-    setTotalReviewTasksCount(allReviewCumulativeTasksCount);
-    setTotalTaskCount(
-      allAnnotatorCumulativeTasksCount + allReviewCumulativeTasksCount
-    );
+    if (analyticsData.length > 0) {
+      // Create a copy of analyticsData before sorting
+      const sortedData = [...analyticsData];
+  
+      // Sort the copied array
+      sortedData.sort((a, b) => b.annotation_cumulative_tasks_count - a.annotation_cumulative_tasks_count);
+  
+      // Update state with sorted data
+      setData(sortedData);
+  
+      // Calculate totals
+      let allAnnotatorCumulativeTasksCount = 0;
+      let allReviewCumulativeTasksCount = 0;
+      let languages = '';
+  
+      sortedData.forEach((element, index) => {
+        allAnnotatorCumulativeTasksCount += element.annotation_cumulative_tasks_count;
+        allReviewCumulativeTasksCount += element.review_cumulative_tasks_count;
+        languages = element.languages; // This will be the last language in sortedData
+      });
+  
+      setTotalAnnotationTasksCount(allAnnotatorCumulativeTasksCount);
+      setTotalReviewTasksCount(allReviewCumulativeTasksCount);
+      setTotalTaskCount(allAnnotatorCumulativeTasksCount + allReviewCumulativeTasksCount);
+    }
   }, [analyticsData]);
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -96,7 +99,7 @@ function TaskCountAnalyticsChart(props) {
     <>
       <Box className={classes.modelChartSection}>
         <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
-          {`Tasks Dashboard - ${analyticsData[0].projectType}`}
+          {`Tasks Dashboard - ${analyticsData[0]?.projectType}`}
           <Typography variant="body1">
             Count of Annotated and Reviewed Data
           </Typography>
