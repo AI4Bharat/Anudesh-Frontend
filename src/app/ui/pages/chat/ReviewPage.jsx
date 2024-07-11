@@ -124,6 +124,8 @@ const ReviewPage = () => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
   const [currentInteraction, setCurrentInteraction] = useState({});
+  const [interactions, setInteractions] = useState([]);
+  const [forms, setForms] = useState([])
   let loaded = useRef();
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
@@ -609,7 +611,14 @@ const ReviewPage = () => {
         }));
 
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
-        resultValue = currentInteraction;
+        resultValue = forms.map((form) =>({
+          prompt: form.prompt,
+          output: form.output,
+          additional_note: form.additional_note,
+          rating: form.rating,
+          questions_response: form.questions_response,
+          prompt_output_pair_id: form.prompt_output_pair_id
+        }))
       }
 
       setLoading(true);
@@ -926,6 +935,11 @@ const ReviewPage = () => {
         <ModelInteractionEvaluation
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Review"}
         />
       );
       break;

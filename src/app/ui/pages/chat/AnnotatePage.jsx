@@ -650,6 +650,7 @@ console.log(interactions[0]);
           setInteractions={setInteractions}
           forms={forms}
           setForms={setForms}
+          stage={"Annotation"}
         />
       );
       break;
