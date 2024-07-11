@@ -30,14 +30,13 @@ import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotation
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
 import { questions } from "./config";
+import Tooltip from '@mui/material/Tooltip';
 
-const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction }) => {
+const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
-  const [interactions, setInteractions] = useState([]);
-  const [forms, setForms] = useState([]);
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
@@ -86,96 +85,161 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction 
   useEffect(() => {
     setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
   }, []);
-  console.log(interactions[0]);
+  // console.log(interactions[0]);
   useEffect(() => {
-    if (forms && interactions) {
-      let defaultFormIndex = interactions[0]?.prompt_output_pair_id;
-      let currentForm = forms.filter(
-        (form) => form.prompt_output_pair_id == defaultFormIndex,
-      );
-      currentForm &&
-        setCurrentInteraction((prev) => {
-          return {
-            prompt: interactions[0]?.prompt,
-            output: typeof(interactions[0]?.output)==="string"?interactions[0]?.output:interactions[0]?.output[0]?.value,
-            prompt_output_pair_id: interactions[0]?.prompt_output_pair_id,
-            rating: currentForm[0]?.form_output_json?.rating,
-            additional_note: currentForm[0]?.form_output_json?.additional_note,
-            questions_response:
-              currentForm[0]?.form_output_json?.questions_response?.map(
-                (obj) => {
-                  let response = "";
-                  if (obj) {
-                    Object.entries(obj).forEach(([key, value]) => {
-                      response = value;
-                    });
-                  }
-                  return response;
-                },
-              ),
-          };
-        });
+    if (forms.length > 0 && interactions.length > 0 && !currentInteraction?.prompt) {
+      const defaultFormId = 1;
+  
+      const currentForm = forms.find(form => form.prompt_output_pair_id === defaultFormId);
+      console.log("currentform: " + currentForm.rating);
+      if (currentForm) {
+        const selectedQuestionsFromResponse = currentForm.questions_response
+          ? currentForm.questions_response.map((response) => response.question)
+          : [];
+  
+        const newState = {
+          prompt: currentForm?.prompt || "",
+          output: typeof currentForm?.output === "string" ? currentForm?.output : currentForm?.output.map((item) => item.value).join(', ') || "",
+          prompt_output_pair_id: currentForm.prompt_output_pair_id,
+          rating: currentForm.rating || null,
+          additional_note: currentForm.additional_note || "",
+          questions_response: currentForm.questions_response || Array(questions.length).fill(null),
+        };
+        setCurrentInteraction(newState);
+        setSelectedQuestions(selectedQuestionsFromResponse);
+      }
+    }
+  }, [forms, interactions, currentInteraction, setCurrentInteraction]);
+  
+  useEffect(() => {
+    if (forms.length === 0 && interactions.length > 0) {
+      const initialForms = interactions.map((interaction) => ({
+        prompt: interaction.prompt,
+        output: interaction.output,
+        prompt_output_pair_id: interaction.prompt_output_pair_id,
+        rating: null,
+        additional_note: null,
+        questions_response: questions.map((question) => ({
+          question,
+          answer: null
+        }))
+      }));
+      setForms(initialForms);
     }
   }, [forms, interactions]);
-console.log(currentInteraction);
-  const handleOptionChange = (index, answer) => {
-    const newAnswers = currentInteraction.questions_response
-      ? [...currentInteraction.questions_response]
-      : [...Array(questions.length)].fill(null);
-    newAnswers[index] = answer;
-    setCurrentInteraction((prev) => {
-      return {
-        ...prev,
-        questions_response: newAnswers,
-      };
+       
+  
+console.log(interactions);
+const handleOptionChange = (selectedIndex, answer) => {
+  setCurrentInteraction((prev) => {
+    const newAnswers = selectedQuestions.map((question, i) => {
+      if (selectedQuestions[selectedIndex] === question) {
+        return { question, answer: answer || null };
+      } else {
+        return prev.questions_response?.find(response => response.question === question) || { question, answer: null };
+      }
     });
-  };
 
-  const handleRating = (rating) => {
-    setCurrentInteraction((prev) => {
-      return {
-        ...prev,
-        rating: rating,
-      };
-    });
-  };
-
-  const handleNoteChange = (event) => {
-    setCurrentInteraction((prev) => {
-      return {
-        ...prev,
-        additional_note: event.target.value,
-      };
-    });
-  };
-
-  const handleFormBtnClick = (e) => {
-    const currInteractionPair = interactions.filter(
-      (interaction) => interaction.prompt_output_pair_id == e.target.id,
-    )[0];
-    const currFormResponse = forms.filter(
-      (form) => form.prompt_output_pair_id == e.target.id,
-    )[0];
-    const outputValues = currInteractionPair?.output.map(item => item.value) || [];
-    setCurrentInteraction((prev) => ({
+    const updatedInteraction = {
       ...prev,
-      prompt: currInteractionPair?.prompt,
-      output: outputValues,
-      prompt_output_pair_id: currInteractionPair.prompt_output_pair_id,
-      rating: currFormResponse?.form_output_json?.rating,
-      additional_note: currFormResponse?.form_output_json?.additional_note,
-      questions_response:
-        currFormResponse?.form_output_json?.questions_response?.map((obj) => {
-          let response = "";
-          if (obj) {
-            Object.entries(obj).forEach(([key, value]) => {
-              response = value;
-            });
-          }
-          return response;
-        }),
-    }));
-  };
+      questions_response: newAnswers,
+    };
+
+    // Update the forms array with the updatedInteraction
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : form
+      )
+    );
+
+    return updatedInteraction;
+  });
+};
+
+console.log(currentInteraction);
+console.log(interactions);
+console.log(forms);
+
+const handleRating = (rating) => {
+  setCurrentInteraction((prev) => {
+    const updatedInteraction = {
+      ...prev,
+      rating: rating,
+    };
+    console.log("updatedinteraction: "+ updatedInteraction);
+    // setInteractions((prevInteractions) =>
+    //   prevInteractions.map((interaction) =>
+    //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+    //       ? updatedInteraction
+    //       : interaction
+    //   )
+    // );
+
+    setForms((prevInteractions) =>
+      prevInteractions.map((interaction) =>
+        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : interaction
+      )
+    );
+
+
+    return updatedInteraction;
+  });
+};
+
+const handleNoteChange = (event) => {
+  const newNote = event.target.value;
+  setCurrentInteraction((prev) => {
+    const updatedInteraction = {
+      ...prev,
+      additional_note: newNote,
+    };
+
+    // setInteractions((prevInteractions) =>
+    //   prevInteractions.map((interaction) =>
+    //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+    //       ? updatedInteraction
+    //       : interaction
+    //   )
+    // );
+
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? updatedInteraction
+          : form
+      )
+    );
+
+    return updatedInteraction;
+  });
+};
+
+console.log(forms);
+const handleFormBtnClick = (e) => {
+  const clickedPromptOutputPairId = parseInt(e.target.id);
+  const currInteraction = forms.find(
+    (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
+  );
+  if (currInteraction) {
+    setCurrentInteraction({
+      prompt: currInteraction.prompt,
+      output: Array.isArray(currInteraction.output)
+        ? currInteraction.output.map((item) => item.value).join(', ')
+        : currInteraction.output,
+      prompt_output_pair_id: currInteraction.prompt_output_pair_id,
+      rating: currInteraction.rating || null,
+      additional_note: currInteraction.additional_note || '',
+      questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
+    });
+    setSelectedQuestions(currInteraction.questions_response.map((response) => response.question));
+  }
+};
+
+
   const handleQuestionClick = (question) => {
     setSelectedQuestions((prevQuestions) => {
       if (prevQuestions.includes(question)) {
@@ -241,30 +305,27 @@ console.log(currentInteraction);
             <div key={index} className={classes.questionContainer}>
               <div className={classes.questionText}>{question}</div>
               <div className={classes.radioGroupContainer}>
-                <RadioGroup
-                  row
-                  value={
-                    currentInteraction?.questions_response
-                      ? currentInteraction.questions_response[index]
-                      : null
-                  }
-                  onChange={(event) =>
-                    handleOptionChange(index, event.target.value)
-                  }
-                >
-                  <FormControlLabel
-                    value="Yes"
-                    control={<Radio className={classes.orangeRadio} />}
-                    label={<span className={classes.yesText}>Yes</span>}
-                  />
-                  <FormControlLabel
-                    value="No"
-                    control={<Radio className={classes.orangeRadio} />}
-                    label={<span className={classes.yesText}>No</span>}
-                  />
-                </RadioGroup>
+              <RadioGroup
+      value={
+        currentInteraction?.questions_response
+          ? currentInteraction.questions_response[index]?.answer
+          : null
+      }
+      onChange={(event) => handleOptionChange(index, event.target.value)}
+    >
+      <FormControlLabel
+        value="Yes"
+        control={<Radio className={classes.orangeRadio} />}
+        label={<span className={classes.yesText}>Yes</span>}
+      />
+      <FormControlLabel
+        value="No"
+        control={<Radio className={classes.orangeRadio} />}
+        label={<span className={classes.yesText}>No</span>}
+      />         
+    </RadioGroup>   
               </div>
-            </div>
+            </div>            
           ))}
         </div>
         <hr className={classes.hr} />
@@ -327,23 +388,30 @@ console.log(currentInteraction);
                 }}
               >
 
-                <Box
-                  sx={{
-                    width: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "wrap": "nowrap",
-                    maxWidth: "200px",
-                    maxHeight: "3rem",
-                  }}
-
-                  className={classes.promptTile}
-                >
-                  {pair.prompt}
-                </Box>
+<Box
+  sx={{
+    width: "100%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: expanded[index] ? "normal" : "nowrap",
+    maxWidth: "200px",
+    maxHeight: "3rem",
+    position: "relative",
+  }}
+  className={classes.promptTile}
+>
+  {pair.prompt}
+  {expanded[index] && (
+    <Tooltip title={pair.prompt} placement="bottom">
+    <span style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", cursor: "pointer" }}>
+      {pair.text}
+    </span>
+  </Tooltip>
+  )}
+</Box>
               </AccordionSummary>
               <AccordionDetails style={{ display: "block", cursor: "pointer" }}>
-                <Box
+                {/* <Box
                   sx={{
                     width: "100%",
                     overflow: "hidden",
@@ -355,7 +423,7 @@ console.log(currentInteraction);
                   className={classes.answerTile}
                 >
                   {typeof(pair.output)==="string"?pair?.output:pair?.output[0]?.value}
-                </Box>
+                </Box> */}
                 <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'wrap',justifyContent: 'flex-start', marginTop: '1rem'}}>
                     <Button
                       label={translate("model_evaluation_btn")}
@@ -437,7 +505,7 @@ console.log(currentInteraction);
 
   return (
     <>
-      <div className={classes.container}>
+      <div className={classes.container} style={{width: "2300px"}}>
         <IconButton onClick={toggleLeftPanel}>
           <ExpandMoreIcon />
         </IconButton>
