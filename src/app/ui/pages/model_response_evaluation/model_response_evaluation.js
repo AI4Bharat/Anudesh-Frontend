@@ -166,7 +166,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         prompt_output_pair_id: interaction.prompt_output_pair_id,
         rating: null,
         additional_note: null,
-        questions_response: questions.map((question) => ({
+        questions_response: questions.slice(0, 3).map((question) => ({
           question,
           answer: null
         }))
