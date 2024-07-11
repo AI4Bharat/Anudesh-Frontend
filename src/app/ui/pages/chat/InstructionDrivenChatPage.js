@@ -29,7 +29,6 @@ import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import { Block } from "@mui/icons-material";
 import ChatLang from "@/utils/Chatlang";
-import CircularIndeterminate from "@/components/common/Spinner";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -539,7 +538,6 @@ const InstructionDrivenChatPage = ({
   return (
     <>
       {renderSnackBar()}
-      {loading && <CircularIndeterminate />} 
       <Grid container spacing={2} id="top">
         <Grid item xs={12}>
           <Box
@@ -639,7 +637,6 @@ const InstructionDrivenChatPage = ({
             grid_size={"80.6rem"}
             class_name={""}
             loading={loading}
-            setLoading={setLoading}
             inputValue={inputValue}
           />
         </Grid>:null}
