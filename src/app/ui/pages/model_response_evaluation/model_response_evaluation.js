@@ -503,7 +503,7 @@ const removeElement = (questionToRemove) => {
                 {part}
                 {index < splitQuestion.length - 1 && (
                   <textarea
-                    value={currentInteraction.questions_response ? currentInteraction?.questions_response[i]?.blank_answer[index] : ""}
+                    value={currentInteraction.questions_response && currentInteraction?.questions_response[i]?.blank_answer ? currentInteraction?.questions_response[i]?.blank_answer[index] : ""}
                     onChange={(e) => handleInputChange(e, i, index)}
                     rows={1}
                     cols={25}
