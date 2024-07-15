@@ -58,7 +58,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       });
       const annotationForms = await response.json();
       console.log(annotationForms);
-      setForms(annotationForms[0]?.result.length ? [...annotationForms[0]?.result] : [])
+      setForms(annotationForms[0]?.result?.length ? [...annotationForms[0]?.result] : [])
     };
     fetchData();
   }, [taskId]);
@@ -67,7 +67,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
     setCurrentInteraction((prev) => ({
       ...prev,
       rating: null,
-      questions_response: Array(questions.length).fill(null),
+      questions_response: Array(questions?.length).fill(null),
     }));
   };
   
@@ -87,95 +87,91 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, [forms, taskId]);
 
   useEffect(() => {
-    setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
+    setSelectedQuestions(questions?.slice(0, 3)); // Change this to your default questions
   }, []);
   // console.log(interactions[0]);
   useEffect(() => {
-    if (forms.length > 0 && interactions.length > 0 && !currentInteraction?.prompt) {
+    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
       const defaultFormId = 1; // Assuming the first form's ID is 1
   
-      const currentForm = forms.find(form => form.prompt_output_pair_id === defaultFormId);
+      const currentForm = forms?.find(form => form?.prompt_output_pair_id === defaultFormId);
       if (currentForm) {
        console.log("current form: " + JSON.stringify(currentForm));
-        const questionsResponse = currentForm.questions_response || Array(questions.length).fill(null);
+        const questionsResponse = currentForm?.questions_response || Array(questions?.length).fill(null);
         console.log(JSON.stringify(questionsResponse));
-  
+        const selectedQuestionsFromResponse = currentForm?.questions_response
+        ? currentForm?.questions_response?.map((response) => response?.question)
+        : [];
         // Create a new state object
         const newState = {
-          prompt: currentForm.prompt || "",
-          output: typeof currentForm.output === "string" ? currentForm.output : currentForm.output.map((item) => item.value).join(', ') || "",
-          prompt_output_pair_id: currentForm.prompt_output_pair_id,
-          rating: currentForm.rating || null,
-          additional_note: currentForm.additional_note || "",
+          prompt: currentForm?.prompt || "",
+          output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
+          prompt_output_pair_id: currentForm?.prompt_output_pair_id,
+          rating: currentForm?.rating || null,
+          additional_note: currentForm?.additional_note || "",
           questions_response: questionsResponse,
         };
   
         // Update state
         setCurrentInteraction(newState);
+        setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
-  }, [forms, interactions, currentInteraction, questions.length, currentInteraction.questions_response]);
+  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response]);
   
 // selectedQuestions.map((selectedQuestion)=>{
-  console.log("question: " + selectedQuestions.length)
+  console.log("question: " + selectedQuestions?.length)
 // })
   useEffect(() => {
-    if (forms.length === 0 && interactions.length > 0) {
-      const initialForms = interactions.map((interaction) => ({
-        prompt: interaction.prompt,
-        output: interaction.output,
-        prompt_output_pair_id: interaction.prompt_output_pair_id,
+    if (forms?.length === 0 && interactions?.length > 0) {
+      const initialForms = interactions?.map((interaction) => ({
+        prompt: interaction?.prompt,
+        output: interaction?.output,
+        prompt_output_pair_id: interaction?.prompt_output_pair_id,
         rating: null,
         additional_note: null,
-        questions_response: questions.slice(0,3).map((question) => ({
+        questions_response: questions?.slice(0,3)?.map((question) => ({
           question,
-          answer: null,
-          chosen_options: [],
-          input_question: question.input_question,
-          question_type: question.question_type,
-          rating: null,
-          blank_answer: null
+          // answer: null,
+          // chosen_options: [],
+          input_question: question?.input_question,
+          question_type: question?.question_type,
+          // rating: null,
+          // blank_answer: null
+          response: [],
         }))
       }));
       console.log("init forms: "+ initialForms)
       setForms(initialForms);
     }
-  }, [forms, interactions. selectedQuestions]);
+  }, [forms, interactions, selectedQuestions]);
 
   const handleRating = (rating, interactionIndex) => {
     setCurrentInteraction((prev) => {
-      // Find the selected question in selectedQuestions array
-      const selectedQuestion = selectedQuestions[interactionIndex];
-  
-      // Find index of selected question in questions array
-      const indexInQuestions = questions.findIndex(q => q.id === selectedQuestion.id);
-  
-      // Get the rating scale list from the selected question
-      const ratingScaleList = selectedQuestion.rating_scale_list;
-  
-      // Update questions_response in currentInteraction
+      const selectedQuestion = selectedQuestions[interactionIndex];      
+      const ratingArray = [String(rating)];
+      const ratingScaleList = selectedQuestion?.rating_scale_list;
       const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
         if (index === interactionIndex) {
           return {
             ...q,
-            rating: rating,
+            response: ratingArray,
           };
         }
         return q;
       });
-  
-      // Update currentInteraction with updated questions_response
       const updatedInteraction = {
         ...prev,
         questions_response: updatedQuestionsResponse,
       };
-  
-      // Update forms array
-      setForms((prevForms) =>
-        prevForms.map((form, index) =>
-          index === indexInQuestions ? updatedInteraction : form
+      setForms((prevInteractions) =>
+        prevInteractions.map((interaction) =>
+          interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : interaction
         )
       );
+  
   
       return updatedInteraction;
     });
@@ -183,15 +179,15 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   
 
   const handleMCQ = (selectedOption, interactionIndex) => {
-    const selectedQuestion = selectedQuestions[interactionIndex]; // Get the selected question object from selectedQuestions array
-    const indexInQuestions = questions.findIndex(q => q.id === selectedQuestion.id); // Find its index in the questions array
+    const selectedQuestion = selectedQuestions[interactionIndex];
+    const answerArray = [String(selectedOption)]
 
     setCurrentInteraction((prev) => {
       const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
         if (index === interactionIndex) {
           return {
             ...q,
-            answer: selectedOption,
+            response: answerArray,
           };
         }
         return q;
@@ -202,9 +198,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         questions_response: updatedQuestionsResponse,
       };
   
-      setForms((prevForms) =>
-        prevForms.map((form, index) =>
-          index === indexInQuestions ? updatedInteraction : form
+      setForms((prevInteractions) =>
+        prevInteractions.map((interaction) =>
+          interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : interaction
         )
       );
   
@@ -213,19 +211,19 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   };
   const handleMultiSelect = (isChecked, selectedOption, interactionIndex) => {
     console.log("checked: " + isChecked)
-    const selectedQuestion = selectedQuestions[interactionIndex]; // Get the selected question object from selectedQuestions array
-    const indexInQuestions = questions.findIndex(q => q.id === selectedQuestion.id); // Find its index in the questions array
+    const selectedQuestion = selectedQuestions[interactionIndex];
+    const indexInQuestions = questions?.findIndex(q => q.id === selectedQuestion?.id);
   
     setCurrentInteraction((prev) => {
       const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
         if (index === interactionIndex) {
           const updatedAnswers = isChecked
-            ? [...q.chosen_options, selectedOption] // Add selected option
-            : q.chosen_options.filter(answer => answer !== selectedOption); // Remove unselected option
+            ? [...q?.response || [], selectedOption] 
+            : q?.response.filter(answer => answer !== selectedOption);
   
           return {
             ...q,
-            chosen_options: updatedAnswers,
+            response: updatedAnswers,
           };
         }
         return q;
@@ -236,9 +234,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         questions_response: updatedQuestionsResponse,
       };
   
-      setForms((prevForms) =>
-        prevForms.map((form, index) =>
-          index === indexInQuestions ? updatedInteraction : form
+      setForms((prevInteractions) =>
+        prevInteractions.map((interaction) =>
+          interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : interaction
         )
       );
   
@@ -250,11 +250,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
-    const newAnswers = selectedQuestions.map((question, i) => {
+    const newAnswers = selectedQuestions?.map((question, i) => {
       if (selectedQuestions[selectedIndex] === question) {
         return { question, answer: answer || null };
       } else {
-        return prev.questions_response?.find(response => response.question === question) || { question, answer: null };
+        return prev.questions_response?.find(response => response?.question === question) || { question, answer: null };
       }
     });
 
@@ -262,11 +262,9 @@ const handleOptionChange = (selectedIndex, answer) => {
       ...prev,
       questions_response: newAnswers,
     };
-
-    // Update the forms array with the updatedInteraction
     setForms((prevForms) =>
       prevForms.map((form) =>
-        form.prompt_output_pair_id === prev.prompt_output_pair_id
+        form?.prompt_output_pair_id === prev.prompt_output_pair_id
           ? updatedInteraction
           : form
       )
@@ -327,7 +325,7 @@ const handleNoteChange = (event) => {
 
     setForms((prevForms) =>
       prevForms.map((form) =>
-        form.prompt_output_pair_id === prev.prompt_output_pair_id
+        form?.prompt_output_pair_id === prev.prompt_output_pair_id
           ? updatedInteraction
           : form
       )
@@ -340,32 +338,69 @@ const handleNoteChange = (event) => {
 console.log(forms);
 const handleFormBtnClick = (e) => {
   const clickedPromptOutputPairId = parseInt(e.target.id);
-  const currInteraction = forms.find(
-    (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
+  console.log("clicked id" + clickedPromptOutputPairId);
+  const currInteraction = forms?.find(
+    (interaction) => interaction?.prompt_output_pair_id === clickedPromptOutputPairId
   );
+  console.log(currInteraction);
   if (currInteraction) {
     setCurrentInteraction({
-      prompt: currInteraction.prompt,
+      prompt: currInteraction?.prompt,
       output: Array.isArray(currInteraction.output)
-        ? currInteraction.output.map((item) => item.value).join(', ')
+        ? currInteraction?.output?.map((item) => item.value).join(', ')
         : currInteraction.output,
-      prompt_output_pair_id: currInteraction.prompt_output_pair_id,
-      rating: currInteraction.rating || null,
-      additional_note: currInteraction.additional_note || '',
-      questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
-    });
-    setSelectedQuestions(currInteraction.questions_response.map((response) => response.question));
+      prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
+      rating: currInteraction?.rating || null,
+      additional_note: currInteraction?.additional_note || '',
+      questions_response: currInteraction?.questions_response || Array(questions.length).fill(null),
+    })
+    setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
   }
 };
-
 const handleQuestionClick = (question) => {
-  const isQuestionSelected = selectedQuestions.some((selectedQ) =>
-    selectedQ.input_question === question.input_question &&
-    selectedQ.question_type === question.question_type
-  );
+  const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
+    return (
+      selectedQ?.input_question === question?.input_question &&
+      selectedQ?.question_type === question?.question_type
+    );
+  });
 
   if (!isQuestionSelected) {
     setSelectedQuestions([...selectedQuestions, question]);
+    setCurrentInteraction((prev) => {
+      const newResponse = {
+        question: question,
+        input_question: question?.input_question,
+        question_type: question?.question_type,
+        response: [],
+      };
+
+      const updatedQuestionsResponse = prev?.questions_response.some(
+        (response) =>
+          response?.input_question === question?.input_question &&
+          response?.question_type === question?.question_type
+      )
+        ? prev?.questions_response
+        : [...prev?.questions_response, newResponse];
+
+      const updatedInteraction = {
+        ...prev,
+        questions_response: updatedQuestionsResponse,
+      };
+
+      setForms((prevForms) =>
+        prevForms.map((form) =>
+          form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+            ? {
+                ...form,
+                questions_response: updatedQuestionsResponse,
+              }
+            : form
+        )
+      );
+
+      return updatedInteraction;
+    });
   } else {
     removeElement(question);
   }
@@ -373,24 +408,50 @@ const handleQuestionClick = (question) => {
 
 const removeElement = (questionToRemove) => {
   setSelectedQuestions((prevQuestions) =>
-    prevQuestions.filter((q) =>
-      !(q.input_question === questionToRemove.input_question &&
-        q.question_type === questionToRemove.question_type)
+    prevQuestions?.filter(
+      (q) =>
+        !(q?.input_question === questionToRemove?.input_question &&
+          q?.question_type === questionToRemove?.question_type)
     )
   );
-};
 
-  const handleInputChange = (e, interactionIndex, blankIndex) => {
+  setCurrentInteraction((prev) => {
+    const updatedQuestionsResponse = prev?.questions_response.filter(
+      (response) =>
+        !(response?.input_question === questionToRemove?.input_question &&
+          response?.question_type === questionToRemove?.question_type)
+    );
+
+    const updatedInteraction = {
+      ...prev,
+      questions_response: updatedQuestionsResponse,
+    };
+
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+          ? {
+              ...form,
+              questions_response: updatedQuestionsResponse,
+            }
+          : form
+      )
+    );
+
+    return updatedInteraction;
+  });
+};
+ const handleInputChange = (e, interactionIndex, blankIndex) => {
     const { value } = e.target;
   
     setCurrentInteraction((prev) => {
       const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
         if (index === interactionIndex) {
-          const updatedBlankAnswers = q.blank_answer ? [...q.blank_answer] : [];
+          const updatedBlankAnswers = q?.response ? [...q?.response] : [];
           updatedBlankAnswers[blankIndex] = value;
           return {
             ...q,
-            blank_answer: updatedBlankAnswers,
+            response: updatedBlankAnswers,
           };
         }
         return q;
@@ -403,7 +464,7 @@ const removeElement = (questionToRemove) => {
   
       setForms((prevForms) =>
         prevForms.map((form) =>
-          form.prompt_output_pair_id === prev.prompt_output_pair_id
+          form?.prompt_output_pair_id === prev.prompt_output_pair_id
             ? updatedInteraction
             : form
         )
@@ -419,13 +480,13 @@ const removeElement = (questionToRemove) => {
           <div className={classes.heading} style={{ fontSize: "20px" }}>
             {translate("modal.prompt")}
           </div>
-          {currentInteraction.prompt}
+          {currentInteraction?.prompt}
         </div>
         <div className={classes.heading} style={{ fontSize: "20px" }}>
           {translate("modal.output")}
         </div>
         <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
-          {currentInteraction.output}
+          {currentInteraction?.output}
         </div>
         {/* <div className={classes.ratingText}>
           {translate("model_evaluation_rating")}
@@ -455,7 +516,7 @@ const removeElement = (questionToRemove) => {
           ))}
         </Box> */}
         <hr className={classes.hr} />
-        {selectedQuestions.length > 0 ? <div className={classes.heading}>
+        {selectedQuestions?.length > 0 ? <div className={classes.heading}>
           {translate("modal.select_que")}
         </div> : <div className={classes.heading}>
           {translate("modal.pls_select_que")}
@@ -491,19 +552,19 @@ const removeElement = (questionToRemove) => {
             </div>            
           ))} */}
           {selectedQuestions?.map((question, i) => {
-  switch (question.question_type) {
+  switch (question?.question_type) {
     case "fill_in_blanks":
-      const splitQuestion = question.input_question.split("<blank>");
+      const splitQuestion = question?.input_question.split("<blank>");
       
       return (
         <div key={i}>
           <p>
-            {splitQuestion.map((part, index) => (
+            {splitQuestion?.map((part, index) => (
               <span key={index}>
                 {part}
                 {index < splitQuestion.length - 1 && (
                   <textarea
-                    value={currentInteraction.questions_response && currentInteraction?.questions_response[i]?.blank_answer ? currentInteraction?.questions_response[i]?.blank_answer[index] : ""}
+                    value={currentInteraction?.questions_response && currentInteraction?.questions_response[i]?.response ? currentInteraction?.questions_response[i]?.response[index] : ""}
                     onChange={(e) => handleInputChange(e, i, index)}
                     rows={1}
                     cols={25}
@@ -544,7 +605,7 @@ const removeElement = (questionToRemove) => {
           {Array.from({ length: question.rating_scale_list.length }, (_, index) => (
             <Button
               key={index + 1}
-              className={`${classes.numBtn} ${currentInteraction.questions_response ? currentInteraction.questions_response[i]?.rating === index+1 ? classes.selected : "": ""
+              className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response[0] == index+1 ? classes.selected : "": ""
                 }`}
               label={index + 1}
               onClick={() => handleRating(index + 1, i)}
@@ -574,9 +635,9 @@ const removeElement = (questionToRemove) => {
                     <Checkbox
                     onChange={(e) => {
                       console.log(option)
-                      console.log("change:"+currentInteraction?.questions_response[i]?.chosen_options)
+                      // console.log("change:"+currentInteraction?.questions_response[i]?.chosen_options)
                       handleMultiSelect(e.target.checked, option, i)}}
-                      checked={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.chosen_options?.includes(option) ?? false : ""}
+                      checked={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response?.includes(option) ?? false : ""}
                       
                     />
                   }
@@ -595,10 +656,10 @@ const removeElement = (questionToRemove) => {
           <FormControl component="fieldset">
             
             <RadioGroup
-              value={currentInteraction?.questions_response[i]?.answer}
+              value={currentInteraction?.questions_response[i]?.response}
               onChange={(e) => handleMCQ(e.target.value, i)}
             >
-              {question.input_selections_list.map((option, idx) => (
+              {question?.input_selections_list?.map((option, idx) => (
                 <FormControlLabel
                   key={idx}
                   value={option}
@@ -626,8 +687,8 @@ const removeElement = (questionToRemove) => {
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
-            currentInteraction.additional_note
-              ? currentInteraction.additional_note
+            currentInteraction?.additional_note
+              ? currentInteraction?.additional_note
               : null
           }
           style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
@@ -688,7 +749,7 @@ const removeElement = (questionToRemove) => {
   }}
   className={classes.promptTile}
 >
-  {pair.prompt}
+  {pair?.prompt}
   {expanded[index] && (
     <Tooltip title={pair.prompt} placement="bottom">
     <span style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", cursor: "pointer" }}>
@@ -721,7 +782,7 @@ const removeElement = (questionToRemove) => {
                         padding:"0.5rem"
                       }}
                       onClick={handleFormBtnClick}
-                      id={pair.prompt_output_pair_id}
+                      id={pair?.prompt_output_pair_id}
                     />
                     <Button
                       label="reset"
@@ -752,8 +813,8 @@ const removeElement = (questionToRemove) => {
                 padding: "10px",
                 margin: "5px 0",
                 backgroundColor: selectedQuestions.some((selectedQ) =>
-                  selectedQ.input_question === question.input_question &&
-                  selectedQ.question_type === question.question_type
+                  selectedQ?.input_question === question?.input_question &&
+                  selectedQ?.question_type === question?.question_type
                 ) ? "#d3d3d3" : "#fff",
                 cursor: "pointer",
               }}
