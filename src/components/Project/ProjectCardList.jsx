@@ -17,6 +17,9 @@ import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const ProjectCardList = (props) => {
+         /* eslint-disable react-hooks/exhaustive-deps */
+           /* eslint-disable-next-line react/jsx-key */
+
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);

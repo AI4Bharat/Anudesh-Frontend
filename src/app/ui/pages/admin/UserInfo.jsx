@@ -60,6 +60,8 @@ import {
       setLastName,
       setLanguage,
       setParticipationType,
+      guest_user,
+      setguest_user
     } = props;
     const [tabValue, setTabValue] = useState(0);
   
@@ -115,6 +117,8 @@ import {
                       ParticipationType={ParticipationType}
                       Role={Role}
                       setParticipationType={setParticipationType}
+                      guest_user={guest_user}
+                      setguest_user={setguest_user}
                     />
                   </TabPanel>
                 </Box>

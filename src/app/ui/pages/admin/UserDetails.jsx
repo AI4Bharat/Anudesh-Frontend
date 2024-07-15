@@ -287,7 +287,6 @@ const UserDetail = (props) => {
             el.participation_type,
             userRoleFromList ? userRoleFromList : el.role,
             el.is_active==true?"Active":"Not Active",
-            el.guest_user,
             <>
               <div style={{display:"flex", flexDirection:"row"}}>
               <IconButton size="small" color="primary">
@@ -306,7 +305,6 @@ const UserDetail = (props) => {
                       el.participation_type,
                       el.role,
                       el.is_active,
-                      el.guest_user,
                     )
                   }
                 />
@@ -319,7 +317,7 @@ const UserDetail = (props) => {
 
     
  
-
+console.log(data);
   const options = {
     textLabels: {
       body: {
@@ -397,6 +395,8 @@ const UserDetail = (props) => {
           setParticipationType={setParticipationType}
           Role={Role}
           setRole={setRole}
+          guest_user={guest_user}
+          setguest_user={setguest_user}
         />
       )}
     </div>
