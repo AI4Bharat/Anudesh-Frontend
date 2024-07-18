@@ -101,6 +101,7 @@ const AnnotatePage = () => {
   const [currentInteraction, setCurrentInteraction] = useState({});
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
+  const [answered, setAnswered] = useState(false);
   const [annotations, setAnnotations] = useState([]);
 
   const annotationNotesRef = useRef(false);
@@ -406,6 +407,18 @@ console.log(interactions[0]);
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
+      console.log("answered variable: ")
+      if (!answered) {
+        setAutoSave(true);
+        setSnackbarInfo({
+          open: true,
+          message: "Please answer all mandatory questions before submitting.",
+          variant: "error",
+        });
+        setLoading(false);
+        setShowNotes(false);
+        return; 
+      }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
@@ -650,6 +663,9 @@ console.log(interactions[0]);
           setInteractions={setInteractions}
           forms={forms}
           setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
         />
       );
       break;

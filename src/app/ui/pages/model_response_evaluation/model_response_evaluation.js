@@ -36,7 +36,7 @@ import { useParams } from "react-router-dom";
 import { questions } from "./config";
 import Tooltip from '@mui/material/Tooltip';
 
-const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms }) => {
+const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
@@ -50,6 +50,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   };
 
   useEffect(() => {
+    
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
@@ -57,8 +58,54 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const annotationForms = await response.json();
-      console.log(annotationForms);
-      setForms(annotationForms[0]?.result?.length ? [...annotationForms[0]?.result] : [])
+      let formsData = []
+      console.log(annotationForms[0].result?.length);
+      
+      if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length){
+        console.log(stage)
+        if(stage ==="Review"){
+          console.log("here in review if")
+          let reviewData = annotationForms.find((item) => item.annotation_type === 2);
+          if(reviewData.annotation_status === "unreviewed"){
+            reviewData = annotationForms.find((item) => item.annotation_type === 1);
+          }
+          formsData = reviewData?.result;
+          console.log("reviewdata: " + JSON.stringify(reviewData));
+          console.log(formsData)
+        }
+      else if(stage === "SuperChecker"){
+        console.log("here in sc if")
+        let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
+        console.log(superCheckerData[0].annotation_status)
+        // if(superCheckerData[0].annotation_status === "unvalidated"){
+        //   superCheckerData = annotationForms.find((item) => item.annotation_type == 2);
+        // }
+        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
+        formsData = superCheckerData[0]?.result
+        console.log(formsData)
+      }else if(stage === "Annotation"){
+        console.log("here in annotation if")
+        let annotationData = annotationForms.filter((data)=>data.annotation_type==1)
+        console.log("annotationdata: "+ JSON.stringify(annotationData));
+        formsData = annotationData[0]?.result;
+        console.log(formsData)
+      }
+      else{
+        console.log("here in else")
+      }
+    }
+    else if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length===0 && stage==="SuperChecker"){
+      console.log("here in sc if")
+        let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
+        console.log(superCheckerData[0].annotation_status)
+        if(superCheckerData[0].annotation_status === "unvalidated"){
+          superCheckerData = annotationForms.find((item) => item.annotation_type == 1);
+        }
+        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
+        formsData = superCheckerData?.result
+        console.log(formsData)  
+    }
+      setForms(formsData?.length ? [...formsData] : [])
     };
     fetchData();
   }, [taskId]);
@@ -87,12 +134,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, [forms, taskId]);
 
   useEffect(() => {
-    setSelectedQuestions(questions?.slice(0, 3)); // Change this to your default questions
+    setSelectedQuestions(questions?.slice(0, 3));
   }, []);
-  // console.log(interactions[0]);
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
-      const defaultFormId = 1; // Assuming the first form's ID is 1
+      const defaultFormId = 1;
   
       const currentForm = forms?.find(form => form?.prompt_output_pair_id === defaultFormId);
       if (currentForm) {
@@ -102,7 +148,6 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         const selectedQuestionsFromResponse = currentForm?.questions_response
         ? currentForm?.questions_response?.map((response) => response?.question)
         : [];
-        // Create a new state object
         const newState = {
           prompt: currentForm?.prompt || "",
           output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
@@ -111,8 +156,6 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
           additional_note: currentForm?.additional_note || "",
           questions_response: questionsResponse,
         };
-  
-        // Update state
         setCurrentInteraction(newState);
         setSelectedQuestions(selectedQuestionsFromResponse);
       }
@@ -139,12 +182,34 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
           // rating: null,
           // blank_answer: null
           response: [],
+          mandatory: question?.mandatory
         }))
       }));
       console.log("init forms: "+ initialForms)
       setForms(initialForms);
     }
   }, [forms, interactions, selectedQuestions]);
+
+  useEffect(() => {
+    if (!currentInteraction) {
+        setAnswered(false);
+        return;
+    }
+
+    const mandatoryQuestions = selectedQuestions.filter(question => {
+        return question.mandatory && question.mandatory === true;
+    });
+    console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
+    const allMandatoryAnswered = mandatoryQuestions.every(question => {
+        const mandatoryQuestion = currentInteraction?.questions_response?.find(
+            qr => qr.question.input_question === question.input_question && qr.question.question_type === question.question_type
+        );
+        return mandatoryQuestion?.response && mandatoryQuestion?.response?.length > 0;
+    });
+    console.log("all answered?: "+allMandatoryAnswered)
+    setAnswered(allMandatoryAnswered);
+}, [currentInteraction, selectedQuestions]);
+
 
   const handleRating = (rating, interactionIndex) => {
     setCurrentInteraction((prev) => {
@@ -561,7 +626,7 @@ const removeElement = (questionToRemove) => {
           <p>
             {splitQuestion?.map((part, index) => (
               <span key={index}>
-                {part}
+                {part} 
                 {index < splitQuestion.length - 1 && (
                   <textarea
                     value={currentInteraction?.questions_response && currentInteraction?.questions_response[i]?.response ? currentInteraction?.questions_response[i]?.response[index] : ""}
@@ -582,9 +647,10 @@ const removeElement = (questionToRemove) => {
                       resize: "none",
                       backgroundColor: "white",
                     }}
+                  required={question.mandatory}
                   />
                 )}
-              </span>
+              </span> 
             ))}
           </p>
         </div>
@@ -594,7 +660,9 @@ const removeElement = (questionToRemove) => {
       return (
         <div>
         <div className={classes.ratingText}>
-          {question.input_question}
+          <span>{question.input_question}</span>{question.mandatory && (
+                <span style={{ color: '#d93025', fontSize: "25px" }}> * </span>
+            )}
         </div>
         <Box
           sx={{
@@ -605,7 +673,7 @@ const removeElement = (questionToRemove) => {
           {Array.from({ length: question.rating_scale_list.length }, (_, index) => (
             <Button
               key={index + 1}
-              className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response[0] == index+1 ? classes.selected : "": ""
+              className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response == index+1 ? classes.selected : "": ""
                 }`}
               label={index + 1}
               onClick={() => handleRating(index + 1, i)}
@@ -617,6 +685,7 @@ const removeElement = (questionToRemove) => {
                 width: "47px",
                 padding: "13px",
               }}
+              required={question.mandatory}
             />
           ))}
         </Box>
@@ -625,12 +694,15 @@ const removeElement = (questionToRemove) => {
     case "multi_select_options":
       return (
         <div key={i}>
-          <h1>{question.input_question}</h1>
+          <div>{question.input_question}{question.mandatory && (
+                <span style={{ color: '#d93025', fontSize: "25px" }}> * </span>
+            )}</div>
           <FormControl component="fieldset">
             <FormGroup>
               {question.input_selections_list.map((option, idx) => (
                 <FormControlLabel
                   key={idx}
+                  // required={question.mandatory}
                   control={
                     <Checkbox
                     onChange={(e) => {
@@ -652,10 +724,13 @@ const removeElement = (questionToRemove) => {
     case "mcq":
       return (
         <div key={i}>
-          <h1>{question.input_question}</h1>
-          <FormControl component="fieldset">
-            
+          <div>{question.input_question} {question.mandatory && (
+                <span style={{ color: '#d93025' , fontSize: "25px"}}>*</span>
+            )}</div>
+          <FormControl component="fieldset"  required={question.mandatory}>
+         
             <RadioGroup
+            
               value={currentInteraction?.questions_response[i]?.response}
               onChange={(e) => handleMCQ(e.target.value, i)}
             >
@@ -667,6 +742,7 @@ const removeElement = (questionToRemove) => {
                   label={option}
                 />
               ))}
+              
             </RadioGroup>
           </FormControl>
         </div>
