@@ -200,15 +200,31 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         return question.mandatory && question.mandatory === true;
     });
     console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
+
     const allMandatoryAnswered = mandatoryQuestions.every(question => {
+        let parts = 0;
+        if (question.question_type === "fill_in_blanks") {
+            parts = question?.input_question?.split("<blank>")?.length;
+        }
         const mandatoryQuestion = currentInteraction?.questions_response?.find(
             qr => qr.question.input_question === question.input_question && qr.question.question_type === question.question_type
         );
-        return mandatoryQuestion?.response && mandatoryQuestion?.response?.length > 0;
+        if (!mandatoryQuestion?.response) {
+            return false;
+        }
+        if (question.question_type === "fill_in_blanks") {
+            if (mandatoryQuestion?.response?.length !== parts - 1) {
+                return false;
+            }
+            return !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+        }
+        return mandatoryQuestion.response.length > 0 && !mandatoryQuestion.response.some(response => response === "" || response === undefined);
     });
-    console.log("all answered?: "+allMandatoryAnswered)
+
+    console.log("all answered?: " + allMandatoryAnswered);
     setAnswered(allMandatoryAnswered);
 }, [currentInteraction, selectedQuestions]);
+
 
 
   const handleRating = (rating, interactionIndex) => {
