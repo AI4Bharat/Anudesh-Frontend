@@ -16,6 +16,9 @@ import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function ProjectList() {
+         /* eslint-disable react-hooks/exhaustive-deps */
+           /* eslint-disable-next-line react/jsx-key */
+
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
 

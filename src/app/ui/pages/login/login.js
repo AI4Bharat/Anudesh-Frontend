@@ -26,6 +26,7 @@ import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function Login() {
      /* eslint-disable react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react/jsx-key */
 
     const navigate = useNavigate();
     const dispatch=useDispatch()

@@ -56,6 +56,8 @@ import APITransport from "@/app/actions/apitransport/apitransport"
 
 const Header = () => {
        /* eslint-disable react-hooks/exhaustive-deps */
+           /* eslint-disable-next-line react/jsx-key */
+
   const currentUrl = window.location.href;
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElSettings, setAnchorElSettings] = useState(null);
