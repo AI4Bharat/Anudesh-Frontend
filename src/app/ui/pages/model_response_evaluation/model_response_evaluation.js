@@ -652,6 +652,9 @@ const removeElement = (questionToRemove) => {
                 )}
               </span> 
             ))}
+            {question.mandatory && (
+                <span style={{ color: '#d93025', fontSize: "25px" }}> * </span>
+            )}
           </p>
         </div>
       );
