@@ -16,6 +16,8 @@ import {
   MenuItem,
   InputAdornment,
   Switch,
+  InputLabel,
+  TextField
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -40,7 +42,7 @@ import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-
+import UploadIcon from '@mui/icons-material/Upload';
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
   return reg.test(String(str));
@@ -121,9 +123,152 @@ const CreateProject = () => {
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
   const [passwordForProjects, setPasswordForProjects] = useState("");
   const [shownewpassword, setShowNewPassword] = useState(false);
+  const [csvFile, setCsvFile] = useState(null);
+  const [questionsJSON, setQuestionsJSON] = useState([]);
 
+  const handleJsonInputChange = (event) => {
+    const input = event.target.value;
+  
+    try {
+      const parsedInput = JSON.parse(input);
+      console.log("parsed input: ", parsedInput);
+      if (Array.isArray(parsedInput) && parsedInput.every(item => typeof item === 'object' && item !== null)) {
+        setQuestionsJSON(parsedInput);
+      } else {
+        console.error("Input is not a valid array of objects");
+      }
+    } catch (error) {
+      console.error("Invalid JSON input");
+    }
+  };
+  useEffect(() => {
+    console.log('questionsJSON:', questionsJSON);
+    console.log('typeof questionsJSON:', typeof questionsJSON);
+    console.log('Array.isArray(questionsJSON):', Array.isArray(questionsJSON));
+  }, [questionsJSON]);
+    
+  
+  console.log("questions json: "  + typeof questionsJSON);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setCsvFile(file);
+      parseCSV(file);
+    }
+  };
+  
+  const parseCSV = (file) => {
+    const reader = new FileReader();
+  
+    reader.onload = (event) => {
+      const content = event.target.result;
+      const lines = content.split('\n').filter(line => line.trim() !== '');
+      const headers = lines[0].split(',').map(header => header.trim());
+  
+      const jsonData = lines.slice(1).map(line => {
+        const values = [];
+        let insideArray = false;
+        let insideQuotes = false;
+        let currentVal = '';
+        let escape = false;
+  
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+  
+          if (char === '\\' && !escape) {
+            escape = true;
+            continue;
+          }
+  
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          }
+  
+          if (char === '[') {
+            insideArray = true;
+          } else if (char === ']') {
+            insideArray = false;
+          }
+  
+          if (char === ',' && !insideArray && !insideQuotes && !escape) {
+            let value = currentVal.trim();
+            if (value.startsWith('"') && value.endsWith('"') && !value.startsWith('""')) {
+              value = value.slice(1, -1); // Remove surrounding quotes for strings
+            }
+            if (value.startsWith('[') && value.endsWith(']')) {
+              value = value.replace(/""/g, '"');
+              try {
+                values.push(JSON.parse(value)); // Parse as array
+              } catch {
+                values.push(value); // If parsing fails, push as string
+              }
+            } else {
+              value = value.replace(/\\"/g, '"'); // Handle escaped quotes
+              if (value === 'true' || value === 'false') {
+                values.push(value === 'true'); // Convert to boolean
+              } else {
+                values.push(value);
+              }
+            }
+            currentVal = '';
+          } else {
+            currentVal += char;
+            escape = false;
+          }
+        }
+  
+        let lastValue = currentVal.trim();
+        if (lastValue.startsWith('"') && lastValue.endsWith('"') && !lastValue.startsWith('""')) {
+          lastValue = lastValue.slice(1, -1); // Remove surrounding quotes for strings
+        }
+        if (lastValue.startsWith('[') && lastValue.endsWith(']')) {
+          lastValue = lastValue.replace(/""/g, '"');
+          try {
+            values.push(JSON.parse(lastValue)); // Parse as array
+          } catch {
+            values.push(lastValue); // If parsing fails, push as string
+          }
+        } else {
+          lastValue = lastValue.replace(/\\"/g, '"'); // Handle escaped quotes
+          if (lastValue === 'true' || lastValue === 'false') {
+            values.push(lastValue === 'true'); // Convert to boolean
+          } else {
+            values.push(lastValue);
+          }
+        }
+  
+        return headers.reduce((obj, header, index) => {
+          obj[header] = values[index];
+          return obj;
+        }, {});
+      });
+  
+      if (Array.isArray(jsonData) && jsonData.every(item => typeof item === 'object' && item !== null)) {
+        console.log("Parsed JSON Data is an array of objects:", jsonData);
+        setQuestionsJSON(jsonData);
+      } else {
+        console.error("Parsed JSON Data is not an array of objects");
+      }
+      if (Array.isArray(questionsJSON)) {
+        console.log("questionsJSON is an array");
+        if (questionsJSON.every(item => typeof item === 'object' && item !== null)) {
+          console.log("questionsJSON is an array of objects");
+        } else {
+          console.log("questionsJSON is not an array of objects");
+        }
+      } else {
+        console.log("questionsJSON is not an array");
+      }
+    };
+  
+    reader.readAsText(file);
+  };
+  
+
+  if(questionsJSON[0]?.mandatory) console.log("this is true")
+  else console.log("this is false");
  /* eslint-disable react-hooks/exhaustive-deps */
-
+// console.log("now the questions is: " + typeof(questionsJSON))
   const searchOpen = Boolean(searchAnchor);
   const excludeKeys = [
     "parent_data_id",
@@ -333,6 +478,7 @@ const CreateProject = () => {
       automatic_annotation_creation_mode: createannotationsAutomatically,
       is_published:is_published,
       password: passwordForProjects,
+      metadata_json: questionsJSON
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
@@ -1093,7 +1239,41 @@ const CreateProject = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-
+                {selectedType==="ModelInteractionEvaluation" ? 
+                (<Grid item xs={12} style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
+                  
+      <TextField
+        label="Paste JSON here"
+        variant="outlined"
+        multiline
+        rows={4}
+        value={JSON.stringify(questionsJSON)}
+        onChange={handleJsonInputChange}
+        style={{ flex: 1, marginRight: '10px' }}
+      />
+      
+      <InputLabel htmlFor="csv-file-input" style={{ display: 'none' }}>
+        Upload CSV File
+      </InputLabel>
+      <input
+        id="csv-file-input"
+        type="file"
+        accept=".csv"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      <label htmlFor="csv-file-input">
+        <Button
+          variant="contained"
+          color="primary"
+          component="span"
+          startIcon={<UploadIcon />}
+        >
+          Upload CSV
+        </Button>
+      </label>
+     
+    </Grid>): null}
                 {workspaceDtails?.guest_workspace_display === "Yes" ? (
   <>
     <Grid
@@ -1133,6 +1313,9 @@ const CreateProject = () => {
         }}
       />
     </Grid>
+
+    
+   
   </>
 ) : null}
 

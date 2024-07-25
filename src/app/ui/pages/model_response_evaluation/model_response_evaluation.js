@@ -33,9 +33,10 @@ import { translate } from "@/config/localisation";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
-import { questions } from "./config";
+// import { questions } from "./config";
 import Tooltip from '@mui/material/Tooltip';
-
+import { useSelector } from "react-redux";
+// import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -44,7 +45,8 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
-
+    const questions = useSelector(state=>state.getProjectDetails.data.metadata_json) ?? []
+    console.log("questions that were fetched: "+typeof questions)
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
@@ -113,7 +115,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
-      rating: null,
+      // rating: null,
       questions_response: Array(questions?.length).fill(null),
     }));
   };
@@ -152,7 +154,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
           prompt: currentForm?.prompt || "",
           output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
           prompt_output_pair_id: currentForm?.prompt_output_pair_id,
-          rating: currentForm?.rating || null,
+          // rating: currentForm?.rating || null,
           additional_note: currentForm?.additional_note || "",
           questions_response: questionsResponse,
         };
@@ -171,18 +173,18 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         prompt: interaction?.prompt,
         output: interaction?.output,
         prompt_output_pair_id: interaction?.prompt_output_pair_id,
-        rating: null,
+        // rating: null,
         additional_note: null,
         questions_response: questions?.slice(0,3)?.map((question) => ({
           question,
           // answer: null,
           // chosen_options: [],
-          input_question: question?.input_question,
-          question_type: question?.question_type,
+          // input_question: question?.input_question,
+          // question_type: question?.question_type,
           // rating: null,
           // blank_answer: null
           response: [],
-          mandatory: question?.mandatory
+          // mandatory: question?.mandatory
         }))
       }));
       console.log("init forms: "+ initialForms)
@@ -431,7 +433,7 @@ const handleFormBtnClick = (e) => {
         ? currInteraction?.output?.map((item) => item.value).join(', ')
         : currInteraction.output,
       prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
-      rating: currInteraction?.rating || null,
+      // rating: currInteraction?.rating || null,
       additional_note: currInteraction?.additional_note || '',
       questions_response: currInteraction?.questions_response || Array(questions.length).fill(null),
     })
@@ -451,15 +453,13 @@ const handleQuestionClick = (question) => {
     setCurrentInteraction((prev) => {
       const newResponse = {
         question: question,
-        input_question: question?.input_question,
-        question_type: question?.question_type,
         response: [],
       };
 
       const updatedQuestionsResponse = prev?.questions_response.some(
         (response) =>
-          response?.input_question === question?.input_question &&
-          response?.question_type === question?.question_type
+          response.question?.input_question === question?.input_question &&
+          response.question?.question_type === question?.question_type
       )
         ? prev?.questions_response
         : [...prev?.questions_response, newResponse];
@@ -488,20 +488,22 @@ const handleQuestionClick = (question) => {
 };
 
 const removeElement = (questionToRemove) => {
-  setSelectedQuestions((prevQuestions) =>
-    prevQuestions?.filter(
+  setSelectedQuestions((prevQuestions) => {
+    const filteredQuestions = prevQuestions?.filter(
       (q) =>
-        !(q?.input_question === questionToRemove?.input_question &&
-          q?.question_type === questionToRemove?.question_type)
-    )
-  );
+        q?.input_question !== questionToRemove?.input_question ||
+        q?.question_type !== questionToRemove?.question_type
+    );
+    return filteredQuestions;
+  });
 
   setCurrentInteraction((prev) => {
-    const updatedQuestionsResponse = prev?.questions_response.filter(
-      (response) =>
-        !(response?.input_question === questionToRemove?.input_question &&
-          response?.question_type === questionToRemove?.question_type)
-    );
+    const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
+      return (
+        response.question?.input_question !== questionToRemove?.input_question ||
+        response.question?.question_type !== questionToRemove?.question_type
+      );
+    });
 
     const updatedInteraction = {
       ...prev,
@@ -522,6 +524,8 @@ const removeElement = (questionToRemove) => {
     return updatedInteraction;
   });
 };
+
+console.log("Selected : q" + JSON.stringify(selectedQuestions));
  const handleInputChange = (e, interactionIndex, blankIndex) => {
     const { value } = e.target;
   
@@ -901,7 +905,7 @@ const removeElement = (questionToRemove) => {
     return (
       <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
         <div className={classes.questionList}>
-          {questions.map((question, index) => (
+          {questions?.map((question, index) => (
             <Box
               key={index}
               sx={{

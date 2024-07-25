@@ -11,7 +11,7 @@
 
 export const questions = [
   { "question_type": "fill_in_blanks", "input_question": "Fish is an <blank> animal. Fishes live under <blank>.", "mandatory": true },
-  { "question_type": "rating", "input_question": "Rate this sentence on a scale of 1 to 10 based on grammatical errors and description of a fish", "rating_scale_list": [1, 2, 3, 4, 5], "mandatory": false },
+  { "question_type": "rating", "input_question": "Rate this sentence on a scale of 1 to 5 based on grammatical errors and description of a fish", "rating_scale_list": [1, 2, 3, 4, 5], "mandatory": false },
   { "question_type": "multi_select_options", "input_question": "Select the characteristics of fish", "input_selections_list": ["fish is cute", "fishes are found under water", "fishes are dangerous"], "mandatory": false },
   { "question_type": "mcq", "input_question": "Select the characteristics of fish", "input_selections_list": ["fish is cute", "fishes are found under water", "fishes are dangerous"], "mandatory": true },
   { "question_type": "fill_in_blanks", "input_question": "Birds can <blank>. They have <blank>.", "mandatory": false },
@@ -20,7 +20,7 @@ export const questions = [
   { "question_type": "mcq", "input_question": "What is the capital of France?", "input_selections_list": ["Paris", "London", "Rome", "Berlin"], "mandatory": true },
   { "question_type": "fill_in_blanks", "input_question": "The sun rises in the <blank> and sets in the <blank>.", "mandatory": false },
   { "question_type": "rating", "input_question": "Rate the quality of our product on a scale of 1 to 10", "rating_scale_list": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "mandatory": true },
-  { "question_type": "multi_select_options", "input_question": "Select the modes of transportation you use", "input_selections_list": ["Car", "Bicycle", "Bus", "Train"], "mandatory": false },
+  { "question_type": "multi_select_options", "input_question": "Select the modes of transportation you use", "input_selections_list":["Car", "Bicycle", "Bus", "Train"], "mandatory": false },
   { "question_type": "mcq", "input_question": "Which planet is known as the Red Planet?", "input_selections_list": ["Earth", "Mars", "Jupiter", "Saturn"], "mandatory": true },
   { "question_type": "fill_in_blanks", "input_question": "Water freezes at <blank> degrees Celsius.", "mandatory": false },
   { "question_type": "rating", "input_question": "Rate the ease of use of our website on a scale of 1 to 10", "rating_scale_list": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "mandatory": true },
