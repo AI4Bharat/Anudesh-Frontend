@@ -43,7 +43,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
+  // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
     const questions = useSelector(state=>state.getProjectDetails.data.metadata_json) ?? []
     console.log("questions that were fetched: "+typeof questions)
@@ -110,7 +110,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       setForms(formsData?.length ? [...formsData] : [])
     };
     fetchData();
-  }, [taskId]);
+  }, [taskId, stage]);
 
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
@@ -135,9 +135,9 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
     fetchData();
   }, [forms, taskId]);
 
-  useEffect(() => {
-    setSelectedQuestions(questions?.slice(0, 3));
-  }, []);
+  // useEffect(() => {
+  //   setSelectedQuestions(questions?.slice(0, 3));
+  // }, []);
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
       const defaultFormId = 1;
@@ -147,9 +147,9 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
        console.log("current form: " + JSON.stringify(currentForm));
         const questionsResponse = currentForm?.questions_response || Array(questions?.length).fill(null);
         console.log(JSON.stringify(questionsResponse));
-        const selectedQuestionsFromResponse = currentForm?.questions_response
-        ? currentForm?.questions_response?.map((response) => response?.question)
-        : [];
+        // const selectedQuestionsFromResponse = currentForm?.questions_response
+        // ? currentForm?.questions_response?.map((response) => response?.question)
+        // : [];
         const newState = {
           prompt: currentForm?.prompt || "",
           output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
@@ -159,13 +159,13 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
           questions_response: questionsResponse,
         };
         setCurrentInteraction(newState);
-        setSelectedQuestions(selectedQuestionsFromResponse);
+        // setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
-  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response]);
+  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response, taskId]);
   
 // selectedQuestions.map((selectedQuestion)=>{
-  console.log("question: " + selectedQuestions?.length)
+  // console.log("question: " + selectedQuestions?.length)
 // })
   useEffect(() => {
     if (forms?.length === 0 && interactions?.length > 0) {
@@ -175,7 +175,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         prompt_output_pair_id: interaction?.prompt_output_pair_id,
         // rating: null,
         additional_note: null,
-        questions_response: questions?.slice(0,3)?.map((question) => ({
+        questions_response: questions?.map((question) => ({
           question,
           // answer: null,
           // chosen_options: [],
@@ -190,7 +190,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       console.log("init forms: "+ initialForms)
       setForms(initialForms);
     }
-  }, [forms, interactions, selectedQuestions]);
+  }, [forms, interactions]);
 
   useEffect(() => {
     if (!currentInteraction) {
@@ -198,7 +198,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         return;
     }
 
-    const mandatoryQuestions = selectedQuestions.filter(question => {
+    const mandatoryQuestions = questions.filter(question => {
         return question.mandatory && question.mandatory === true;
     });
     console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
@@ -225,15 +225,15 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
 
     console.log("all answered?: " + allMandatoryAnswered);
     setAnswered(allMandatoryAnswered);
-}, [currentInteraction, selectedQuestions]);
+}, [currentInteraction]);
 
 
 
   const handleRating = (rating, interactionIndex) => {
     setCurrentInteraction((prev) => {
-      const selectedQuestion = selectedQuestions[interactionIndex];      
+      const selectedQuestion = questions[interactionIndex];      
       const ratingArray = [String(rating)];
-      const ratingScaleList = selectedQuestion?.rating_scale_list;
+      // const ratingScaleList = selectedQuestion?.rating_scale_list;
       const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
         if (index === interactionIndex) {
           return {
@@ -262,7 +262,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   
 
   const handleMCQ = (selectedOption, interactionIndex) => {
-    const selectedQuestion = selectedQuestions[interactionIndex];
+    // const selectedQuestion = selectedQuestions[interactionIndex];
     const answerArray = [String(selectedOption)]
 
     setCurrentInteraction((prev) => {
@@ -294,7 +294,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   };
   const handleMultiSelect = (isChecked, selectedOption, interactionIndex) => {
     console.log("checked: " + isChecked)
-    const selectedQuestion = selectedQuestions[interactionIndex];
+    const selectedQuestion = questions[interactionIndex];
     const indexInQuestions = questions?.findIndex(q => q.id === selectedQuestion?.id);
   
     setCurrentInteraction((prev) => {
@@ -333,8 +333,8 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
-    const newAnswers = selectedQuestions?.map((question, i) => {
-      if (selectedQuestions[selectedIndex] === question) {
+    const newAnswers = questions?.map((question, i) => {
+      if (questions[selectedIndex] === question) {
         return { question, answer: answer || null };
       } else {
         return prev.questions_response?.find(response => response?.question === question) || { question, answer: null };
@@ -437,72 +437,109 @@ const handleFormBtnClick = (e) => {
       additional_note: currInteraction?.additional_note || '',
       questions_response: currInteraction?.questions_response || Array(questions.length).fill(null),
     })
-    setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
+    // setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
   }
 };
-const handleQuestionClick = (question) => {
-  const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
-    return (
-      selectedQ?.input_question === question?.input_question &&
-      selectedQ?.question_type === question?.question_type
-    );
-  });
+// const handleQuestionClick = (question) => {
+//   const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
+//     return (
+//       selectedQ?.input_question === question?.input_question &&
+//       selectedQ?.question_type === question?.question_type
+//     );
+//   });
 
-  if (!isQuestionSelected) {
-    setSelectedQuestions([...selectedQuestions, question]);
-    setCurrentInteraction((prev) => {
-      const newResponse = {
-        question: question,
-        response: [],
-      };
+//   if (!isQuestionSelected) {
+//     setSelectedQuestions([...selectedQuestions, question]);
+//     setCurrentInteraction((prev) => {
+//       const newResponse = {
+//         question: question,
+//         response: [],
+//       };
 
-      const updatedQuestionsResponse = prev?.questions_response.some(
-        (response) =>
-          response.question?.input_question === question?.input_question &&
-          response.question?.question_type === question?.question_type
-      )
-        ? prev?.questions_response
-        : [...prev?.questions_response, newResponse];
+//       const updatedQuestionsResponse = prev?.questions_response.some(
+//         (response) =>
+//           response.question?.input_question === question?.input_question &&
+//           response.question?.question_type === question?.question_type
+//       )
+//         ? prev?.questions_response
+//         : [...prev?.questions_response, newResponse];
 
-      const updatedInteraction = {
-        ...prev,
-        questions_response: updatedQuestionsResponse,
-      };
+//       const updatedInteraction = {
+//         ...prev,
+//         questions_response: updatedQuestionsResponse,
+//       };
 
-      setForms((prevForms) =>
-        prevForms.map((form) =>
-          form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-            ? {
-                ...form,
-                questions_response: updatedQuestionsResponse,
-              }
-            : form
-        )
-      );
+//       setForms((prevForms) =>
+//         prevForms.map((form) =>
+//           form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+//             ? {
+//                 ...form,
+//                 questions_response: updatedQuestionsResponse,
+//               }
+//             : form
+//         )
+//       );
 
-      return updatedInteraction;
-    });
-  } else {
-    removeElement(question);
-  }
-};
+//       return updatedInteraction;
+//     });
+//   } else {
+//     removeElement(question);
+//   }
+// };
 
-const removeElement = (questionToRemove) => {
-  setSelectedQuestions((prevQuestions) => {
-    const filteredQuestions = prevQuestions?.filter(
-      (q) =>
-        q?.input_question !== questionToRemove?.input_question ||
-        q?.question_type !== questionToRemove?.question_type
-    );
-    return filteredQuestions;
-  });
+// const removeElement = (questionToRemove) => {
+//   setSelectedQuestions((prevQuestions) => {
+//     const filteredQuestions = prevQuestions?.filter(
+//       (q) =>
+//         q?.input_question !== questionToRemove?.input_question ||
+//         q?.question_type !== questionToRemove?.question_type
+//     );
+//     return filteredQuestions;
+//   });
+
+//   setCurrentInteraction((prev) => {
+//     const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
+//       return (
+//         response.question?.input_question !== questionToRemove?.input_question ||
+//         response.question?.question_type !== questionToRemove?.question_type
+//       );
+//     });
+
+//     const updatedInteraction = {
+//       ...prev,
+//       questions_response: updatedQuestionsResponse,
+//     };
+
+//     setForms((prevForms) =>
+//       prevForms.map((form) =>
+//         form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+//           ? {
+//               ...form,
+//               questions_response: updatedQuestionsResponse,
+//             }
+//           : form
+//       )
+//     );
+
+//     return updatedInteraction;
+//   });
+// };
+
+// console.log("Selected : q" + JSON.stringify(selectedQuestions));
+const handleInputChange = (e, interactionIndex, blankIndex) => {
+  const { value } = e.target;
 
   setCurrentInteraction((prev) => {
-    const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
-      return (
-        response.question?.input_question !== questionToRemove?.input_question ||
-        response.question?.question_type !== questionToRemove?.question_type
-      );
+    const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
+      if (index === interactionIndex) {
+        const updatedBlankAnswers = q?.response ? [...q?.response] : [];
+        updatedBlankAnswers[blankIndex] = value;
+        return {
+          ...q,
+          response: updatedBlankAnswers,
+        };
+      }
+      return q;
     });
 
     const updatedInteraction = {
@@ -512,11 +549,8 @@ const removeElement = (questionToRemove) => {
 
     setForms((prevForms) =>
       prevForms.map((form) =>
-        form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-          ? {
-              ...form,
-              questions_response: updatedQuestionsResponse,
-            }
+        form?.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? { ...form, questions_response: updatedQuestionsResponse }
           : form
       )
     );
@@ -524,39 +558,6 @@ const removeElement = (questionToRemove) => {
     return updatedInteraction;
   });
 };
-
-console.log("Selected : q" + JSON.stringify(selectedQuestions));
- const handleInputChange = (e, interactionIndex, blankIndex) => {
-    const { value } = e.target;
-  
-    setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
-        if (index === interactionIndex) {
-          const updatedBlankAnswers = q?.response ? [...q?.response] : [];
-          updatedBlankAnswers[blankIndex] = value;
-          return {
-            ...q,
-            response: updatedBlankAnswers,
-          };
-        }
-        return q;
-      });
-  
-      const updatedInteraction = {
-        ...prev,
-        questions_response: updatedQuestionsResponse,
-      };
-  
-      setForms((prevForms) =>
-        prevForms.map((form) =>
-          form?.prompt_output_pair_id === prev.prompt_output_pair_id
-            ? updatedInteraction
-            : form
-        )
-      );
-      return updatedInteraction;
-    });
-  };
   
   const EvaluationForm = () => {
     return (
@@ -601,14 +602,14 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
           ))}
         </Box> */}
         <hr className={classes.hr} />
-        {selectedQuestions?.length > 0 ? <div className={classes.heading}>
+        {questions?.length > 0 ? <div className={classes.heading}>
           {translate("modal.select_que")}
         </div> : <div className={classes.heading}>
           {translate("modal.pls_select_que")}
         </div>}
         <div style={{
           overflowY: 'auto',
-          maxHeight: "10rem"
+          maxHeight: "90vh"
         }}>
           {/* {selectedQuestions.map((question, index) => (
             <div key={index} className={classes.questionContainer}>
@@ -636,44 +637,49 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
               </div>
             </div>            
           ))} */}
-          {selectedQuestions?.map((question, i) => {
+          {questions?.map((question, i) => {
   switch (question?.question_type) {
     case "fill_in_blanks":
       const splitQuestion = question?.input_question.split("<blank>");
-      
       return (
-        <div key={i}>
+        <div key={i}> 
           <p>
+            {i + 1}.{" "}
             {splitQuestion?.map((part, index) => (
-              <span key={index}>
-                {part} 
+              <span key={`${i}-${index}`}>
+                {part}
                 {index < splitQuestion.length - 1 && (
-                  <textarea
-                    value={currentInteraction?.questions_response && currentInteraction?.questions_response[i]?.response ? currentInteraction?.questions_response[i]?.response[index] : ""}
-                    onChange={(e) => handleInputChange(e, i, index)}
-                    rows={1}
-                    cols={25}
-                    style={{
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      padding: "4px",
-                      fontSize: "14px",
-                      lineHeight: "1.5",
-                      verticalAlign: "middle",
-                      width: "100%",
-                      maxWidth: "200px",
-                      margin: "4px 0",
-                      boxSizing: "border-box",
-                      resize: "none",
-                      backgroundColor: "white",
-                    }}
+                  <input
+                  type="text"
+                  value={
+                    currentInteraction?.questions_response &&
+                    currentInteraction?.questions_response[i]?.response.length > 0
+                      ? currentInteraction?.questions_response[i]?.response[index]
+                      : ""
+                  }
+                  onChange={(e) => handleInputChange(e, i, index)}
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    padding: "4px",
+                    fontSize: "14px",
+                    lineHeight: "1.5",
+                    verticalAlign: "middle",
+                    width: "100%",
+                    maxWidth: "200px",
+                    margin: "4px 0",
+                    boxSizing: "border-box",
+                    backgroundColor: "white",
+                  }}
                   required={question.mandatory}
-                  />
+                />
+                
+                
                 )}
-              </span> 
+              </span>
             ))}
             {question.mandatory && (
-                <span style={{ color: '#d93025', fontSize: "25px" }}> * </span>
+              <span style={{ color: "#d93025", fontSize: "25px" }}> *</span>
             )}
           </p>
         </div>
@@ -681,59 +687,57 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
 
     case "rating":
       return (
-        <div>
-        <div className={classes.ratingText}>
-          <span>{question.input_question}</span>{question.mandatory && (
-                <span style={{ color: '#d93025', fontSize: "25px" }}> * </span>
+        <div key={i}>
+          <div className={classes.ratingText}>
+            <span>{i + 1}. {question.input_question}</span>
+            {question.mandatory && (
+              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
             )}
-        </div>
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-          }}
-        >
-          {Array.from({ length: question.rating_scale_list.length }, (_, index) => (
-            <Button
-              key={index + 1}
-              className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response == index+1 ? classes.selected : "": ""
-                }`}
-              label={index + 1}
-              onClick={() => handleRating(index + 1, i)}
-              style={{
-                marginRight: "1rem",
-                marginLeft: "0.9px",
-                marginBottom: "2rem",
-                borderRadius: "1rem",
-                width: "47px",
-                padding: "13px",
-              }}
-              required={question.mandatory}
-            />
-          ))}
-        </Box>
+          </div>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+            }}
+          >
+            {Array.from({ length: question.rating_scale_list.length }, (_, index) => (
+              <Button
+                key={index + 1}
+                className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response == index + 1 ? classes.selected : "" : ""}`}
+                label={index + 1}
+                onClick={() => handleRating(index + 1, i)}
+                style={{
+                  marginRight: "1rem",
+                  marginLeft: "0.9px",
+                  marginBottom: "2rem",
+                  borderRadius: "1rem",
+                  width: "47px",
+                  padding: "13px",
+                }}
+                required={question.mandatory}
+              />
+            ))}
+          </Box>
         </div>
       );
+
     case "multi_select_options":
       return (
         <div key={i}>
-          <div>{question.input_question}{question.mandatory && (
-                <span style={{ color: '#d93025', fontSize: "25px" }}> * </span>
-            )}</div>
+          <div>{i + 1}. {question.input_question}
+            {question.mandatory && (
+              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
+            )}
+          </div>
           <FormControl component="fieldset">
             <FormGroup>
               {question.input_selections_list.map((option, idx) => (
                 <FormControlLabel
                   key={idx}
-                  // required={question.mandatory}
                   control={
                     <Checkbox
-                    onChange={(e) => {
-                      console.log(option)
-                      // console.log("change:"+currentInteraction?.questions_response[i]?.chosen_options)
-                      handleMultiSelect(e.target.checked, option, i)}}
+                      onChange={(e) => handleMultiSelect(e.target.checked, option, i)}
                       checked={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response?.includes(option) ?? false : ""}
-                      
                     />
                   }
                   label={option}
@@ -743,19 +747,19 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
           </FormControl>
         </div>
       );
-      
+
     case "mcq":
       return (
         <div key={i}>
-          <div>{question.input_question} {question.mandatory && (
-                <span style={{ color: '#d93025' , fontSize: "25px"}}>*</span>
-            )}</div>
-          <FormControl component="fieldset"  required={question.mandatory}>
-         
+          <div>{i + 1}. {question.input_question}
+            {question.mandatory && (
+              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
+            )}
+          </div>
+          <FormControl component="fieldset" required={question.mandatory}>
             <RadioGroup
-            
-              value={currentInteraction?.questions_response[i]?.response}
-              onChange={(e) => handleMCQ(e.target.value, i)}
+             value={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response : ""}
+             onChange={(e) => handleMCQ(e.target.value, i)}
             >
               {question?.input_selections_list?.map((option, idx) => (
                 <FormControlLabel
@@ -765,16 +769,15 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
                   label={option}
                 />
               ))}
-              
             </RadioGroup>
           </FormControl>
         </div>
       );
+
     default:
-      return;
+      return null;
   }
 })}
-
         </div>
         <hr className={classes.hr} />
         <div className={classes.notesContainer}>
@@ -901,31 +904,31 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
     );
   };
 
-  const QuestionList = ({ questions }) => {
-    return (
-      <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
-        <div className={classes.questionList}>
-          {questions?.map((question, index) => (
-            <Box
-              key={index}
-              sx={{
-                padding: "10px",
-                margin: "5px 0",
-                backgroundColor: selectedQuestions.some((selectedQ) =>
-                  selectedQ?.input_question === question?.input_question &&
-                  selectedQ?.question_type === question?.question_type
-                ) ? "#d3d3d3" : "#fff",
-                cursor: "pointer",
-              }}
-              onClick={() => handleQuestionClick(question)}
-            >
-              {question.input_question}
-            </Box>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  // const QuestionList = ({ questions }) => {
+  //   return (
+  //     <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
+  //       <div className={classes.questionList}>
+  //         {questions?.map((question, index) => (
+  //           <Box
+  //             key={index}
+  //             sx={{
+  //               padding: "10px",
+  //               margin: "5px 0",
+  //               backgroundColor: selectedQuestions.some((selectedQ) =>
+  //                 selectedQ?.input_question === question?.input_question &&
+  //                 selectedQ?.question_type === question?.question_type
+  //               ) ? "#d3d3d3" : "#fff",
+  //               cursor: "pointer",
+  //             }}
+  //             onClick={() => handleQuestionClick(question)}
+  //           >
+  //             {question.input_question}
+  //           </Box>
+  //         ))}
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const InteractionDisplay = () => {
     return (
@@ -946,10 +949,10 @@ console.log("Selected : q" + JSON.stringify(selectedQuestions));
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
-        <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
+        {/* <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
           {translate("modal.quelist")}
         </div>
-        <QuestionList questions={questions} />
+        <QuestionList questions={questions} /> */}
       </Resizable>
     );
   };
