@@ -135,9 +135,6 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
     fetchData();
   }, [forms, taskId]);
 
-  // useEffect(() => {
-  //   setSelectedQuestions(questions?.slice(0, 3));
-  // }, []);
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
       const defaultFormId = 1;
@@ -162,7 +159,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         // setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
-  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response, taskId]);
+  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response]);
   
 // selectedQuestions.map((selectedQuestion)=>{
   // console.log("question: " + selectedQuestions?.length)
@@ -209,7 +206,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
             parts = question?.input_question?.split("<blank>")?.length;
         }
         const mandatoryQuestion = currentInteraction?.questions_response?.find(
-            qr => qr.question.input_question === question.input_question && qr.question.question_type === question.question_type
+            qr => qr?.question?.input_question === question?.input_question && qr?.question?.question_type === question?.question_type
         );
         if (!mandatoryQuestion?.response) {
             return false;
@@ -643,7 +640,7 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
       const splitQuestion = question?.input_question.split("<blank>");
       return (
         <div key={i}> 
-          <p>
+          <p className={classes.inputQuestion}>
             {i + 1}.{" "}
             {splitQuestion?.map((part, index) => (
               <span key={`${i}-${index}`}>
@@ -688,7 +685,7 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
     case "rating":
       return (
         <div key={i}>
-          <div className={classes.ratingText}>
+          <div className={classes.inputQuestion}>
             <span>{i + 1}. {question.input_question}</span>
             {question.mandatory && (
               <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
@@ -724,7 +721,7 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
     case "multi_select_options":
       return (
         <div key={i}>
-          <div>{i + 1}. {question.input_question}
+          <div className={classes.inputQuestion}>{i + 1}. {question.input_question}
             {question.mandatory && (
               <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
             )}
@@ -751,7 +748,7 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
     case "mcq":
       return (
         <div key={i}>
-          <div>{i + 1}. {question.input_question}
+          <div className={classes.inputQuestion}>{i + 1}. {question.input_question}
             {question.mandatory && (
               <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
             )}

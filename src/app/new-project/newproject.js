@@ -193,19 +193,19 @@ const CreateProject = () => {
           if (char === ',' && !insideArray && !insideQuotes && !escape) {
             let value = currentVal.trim();
             if (value.startsWith('"') && value.endsWith('"') && !value.startsWith('""')) {
-              value = value.slice(1, -1); // Remove surrounding quotes for strings
+              value = value.slice(1, -1); 
             }
             if (value.startsWith('[') && value.endsWith(']')) {
               value = value.replace(/""/g, '"');
               try {
-                values.push(JSON.parse(value)); // Parse as array
+                values.push(JSON.parse(value)); 
               } catch {
-                values.push(value); // If parsing fails, push as string
+                values.push(value); 
               }
             } else {
-              value = value.replace(/\\"/g, '"'); // Handle escaped quotes
+              value = value.replace(/\\"/g, '"');
               if (value === 'true' || value === 'false') {
-                values.push(value === 'true'); // Convert to boolean
+                values.push(value === 'true');
               } else {
                 values.push(value);
               }
@@ -219,19 +219,19 @@ const CreateProject = () => {
   
         let lastValue = currentVal.trim();
         if (lastValue.startsWith('"') && lastValue.endsWith('"') && !lastValue.startsWith('""')) {
-          lastValue = lastValue.slice(1, -1); // Remove surrounding quotes for strings
+          lastValue = lastValue.slice(1, -1);
         }
         if (lastValue.startsWith('[') && lastValue.endsWith(']')) {
           lastValue = lastValue.replace(/""/g, '"');
           try {
-            values.push(JSON.parse(lastValue)); // Parse as array
+            values.push(JSON.parse(lastValue));
           } catch {
-            values.push(lastValue); // If parsing fails, push as string
+            values.push(lastValue); 
           }
         } else {
-          lastValue = lastValue.replace(/\\"/g, '"'); // Handle escaped quotes
+          lastValue = lastValue.replace(/\\"/g, '"'); 
           if (lastValue === 'true' || lastValue === 'false') {
-            values.push(lastValue === 'true'); // Convert to boolean
+            values.push(lastValue === 'true'); 
           } else {
             values.push(lastValue);
           }
