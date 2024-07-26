@@ -126,6 +126,7 @@ const CreateProject = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [questionsJSON, setQuestionsJSON] = useState([]);
 
+   /* eslint-disable react-hooks/exhaustive-deps */
   const handleJsonInputChange = (event) => {
     const input = event.target.value;
   
