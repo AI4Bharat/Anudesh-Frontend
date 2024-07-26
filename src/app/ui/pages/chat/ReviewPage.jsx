@@ -131,7 +131,10 @@ const ReviewPage = () => {
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
-  let labellingMode = localStorage.getItem("labellingMode");
+  if(typeof window !== "undefined"){
+      let labellingMode = localStorage.getItem("labellingMode");
+  }
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -573,7 +576,10 @@ const ReviewPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
@@ -593,7 +599,10 @@ const ReviewPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
           window.location.reload();
         }, 1000);
@@ -627,35 +636,28 @@ const ReviewPage = () => {
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status:
-         
-          value === "delete" || value === "delete-pair"
-           
-            ? localStorage.getItem("labellingMode")
-           
-            : value,
-        review_notes: JSON.stringify(
-          reviewNotesRef?.current?.getEditor().getContents(),
-        ),
-        lead_time:
-          (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-        ...((value === "to_be_revised" ||
-          value === "accepted" ||
-          value === "accepted_with_minor_changes" ||
-          value === "accepted_with_major_changes") && {
+        annotation_status: typeof window !== "undefined" && (value === "delete" || value === "delete-pair")
+          ? localStorage.getItem("labellingMode")
+          : value,
+        review_notes: typeof window !== "undefined" ? JSON.stringify(
+          reviewNotesRef?.current?.getEditor().getContents()
+        ) : null,
+        lead_time: (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+        ...((value === "to_be_revised" || value === "accepted" || value === "accepted_with_minor_changes" || value === "accepted_with_major_changes") && {
           parent_annotation: parentannotation,
         }),
-        result:
-          value === "delete"
-            ? []
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+        result: value === "delete"
+          ? []
+          : value === "delete-pair"
+            ? resultValue.slice(0, resultValue.length - 1)
+            : resultValue,
         task_id: taskId,
-        auto_save: value === "delete" || value === "delete-pair" || value==="rejected"? true : false,
+        auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
         interaction_llm: value === "delete" || value === "delete-pair",
         clear_conversation: value === "delete" || value === "rejected",
       };
+      
+      
 
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
@@ -702,9 +704,12 @@ const ReviewPage = () => {
         }
         if (res.ok) {
           if ((value === "delete" || value === "delete-pair") === false) {
-            if (localStorage.getItem("labelAll") || value === "skipped") {
+            if(typeof window !== "undefined"){
+              if (localStorage.getItem("labelAll") || value === "skipped") {
               onNextAnnotation(resp.task);
             }
+            }
+            
           }
           value === "delete"
             ? setSnackbarInfo({
@@ -890,8 +895,10 @@ const ReviewPage = () => {
   useEffect(() => {
     filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
-
-  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if(typeof window !== "undefined"){
+     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+ 
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -998,7 +1005,10 @@ const ReviewPage = () => {
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                localStorage.removeItem("labelAll");
+                if(typeof window !== "undefined"){
+                  localStorage.removeItem("labelAll");
+                }
+                
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();

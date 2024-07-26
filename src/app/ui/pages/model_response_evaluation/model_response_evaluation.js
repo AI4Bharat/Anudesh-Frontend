@@ -667,6 +667,7 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
                     margin: "4px 0",
                     boxSizing: "border-box",
                     backgroundColor: "white",
+                    fontWeight: "normal"
                   }}
                   required={question.mandatory}
                 />

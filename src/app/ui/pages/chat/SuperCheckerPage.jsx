@@ -133,8 +133,10 @@ const SuperCheckerPage = () => {
   const [loadtime, setloadtime] = useState(new Date());
 
   const load_time = useRef();
-
-  let labellingMode = localStorage.getItem("labellingMode");
+  if(typeof window !== "undefined"){
+     let labellingMode = localStorage.getItem("labellingMode");
+  }
+ 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -476,7 +478,10 @@ const SuperCheckerPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
@@ -501,7 +506,10 @@ const SuperCheckerPage = () => {
         variant: "info",
       });
       setTimeout(() => {
-        localStorage.removeItem("labelAll");
+        if(typeof window !== "undefined"){
+          localStorage.removeItem("labelAll");
+        }
+        
         window.location.replace(`/#/projects/${projectId}`);
         window.location.reload();
       }, 1000);
@@ -536,37 +544,28 @@ const SuperCheckerPage = () => {
 
     setLoading(true);
     setAutoSave(false);
-
     const PatchAPIdata = {
-      annotation_status:
-        value === "delete" || value === "delete-pair"
-          ? localStorage.getItem("labellingMode")
-          : value,
-      annotation_status:
-        value === "delete" || value === "delete-pair"
-          ? localStorage.getItem("labellingMode")
-          : value,
-      supercheck_notes: JSON.stringify(
-        superCheckerNotesRef?.current?.getEditor().getContents(),
-      ),
-      lead_time:
-        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      ...((value === "rejected" ||
-        value === "validated" ||
-        value === "validated_with_changes") && {
+      annotation_status: typeof window !== "undefined" && (value === "delete" || value === "delete-pair")
+        ? localStorage.getItem("labellingMode")
+        : value,
+      supercheck_notes: typeof window !== "undefined" ? JSON.stringify(
+        superCheckerNotesRef?.current?.getEditor().getContents()
+      ) : null,
+      lead_time: (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+      ...((value === "rejected" || value === "validated" || value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+      result: value === "delete"
+        ? []
+        : value === "delete-pair"
+          ? resultValue.slice(0, resultValue.length - 1)
+          : resultValue,
       task_id: taskId,
-      auto_save: value === "delete" || value === "delete-pair" || value==="rejected"? true : false,
+      auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
       clear_conversation: value === "delete" || value === "rejected",
     };
+        
     if (
       ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
         value,
@@ -608,9 +607,12 @@ const SuperCheckerPage = () => {
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
-          if (localStorage.getItem("labelAll") || value === "skipped") {
+          if(typeof window !== "undefined"){
+if (localStorage.getItem("labelAll") || value === "skipped") {
             onNextAnnotation(resp.task);
           }
+          }
+          
         }
         value === "delete"
           ? setSnackbarInfo({
@@ -651,8 +653,10 @@ const SuperCheckerPage = () => {
     setShowNotes(false);
     setAnchorEl(null);
   };
-
-  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if(typeof window !== "undefined"){
+     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+ 
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -788,7 +792,10 @@ const SuperCheckerPage = () => {
       componentToRender = null;
       break;
   }
-  const ProjectsData = localStorage.getItem("projectData");
+  if(typeof window !== "undefined"){
+    const ProjectsData = localStorage.getItem("projectData");
+  }
+  
   const ProjectData = JSON.parse(ProjectsData);
 
   const renderSnackBar = () => {
@@ -824,7 +831,8 @@ const SuperCheckerPage = () => {
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                localStorage.removeItem("labelAll");
+                if(typeof window !== "undefined"){
+                localStorage.removeItem("labelAll");}
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
