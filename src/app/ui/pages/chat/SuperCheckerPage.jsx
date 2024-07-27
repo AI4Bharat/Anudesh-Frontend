@@ -121,6 +121,9 @@ const SuperCheckerPage = () => {
   const { projectId, taskId } = useParams();
   const [supercheckertext, setsupercheckertext] = useState("");
   const [currentInteraction, setCurrentInteraction] = useState({});
+  const [interactions, setInteractions] = useState([]);
+  const [forms, setForms] = useState([]);
+  const [answered, setAnswered] = useState(false);
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
@@ -519,7 +522,16 @@ const SuperCheckerPage = () => {
         output: reverseFormatResponse(chat.output),
       }));
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
-      resultValue = currentInteraction;
+      resultValue = forms.map((form) =>({
+        prompt: form.prompt,
+        output: form.output,
+        additional_note: form.additional_note,
+        rating: form.rating,
+        questions_response: form.questions_response,
+        prompt_output_pair_id: form.prompt_output_pair_id
+      })
+      
+      );
     }
 
     setLoading(true);
@@ -562,6 +574,20 @@ const SuperCheckerPage = () => {
       ["validated", "validated_with_changes"].includes(value)
     ) {
       if (value === "rejected") PatchAPIdata["result"] = [];
+      if(!(["draft", "skipped", "rejected", "delete", "delete-pair"].includes(value))){
+        console.log("answered variable: ")
+      if (!answered) {
+        setAutoSave(true);
+        setSnackbarInfo({
+          open: true,
+          message: "Please answer all mandatory questions before submitting.",
+          variant: "error",
+        });
+        setLoading(false);
+        setShowNotes(false);
+        return; 
+      }
+      }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
@@ -748,8 +774,15 @@ const SuperCheckerPage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
+        setCurrentInteraction={setCurrentInteraction}
+        currentInteraction={currentInteraction}
+        interactions={interactions}
+        setInteractions={setInteractions}
+        forms={forms}
+        setForms={setForms}
+        stage={"SuperChecker"}
+        answered={answered}
+        setAnswered={setAnswered}
         />
       );
       break;

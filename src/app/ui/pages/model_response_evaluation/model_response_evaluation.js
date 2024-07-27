@@ -14,6 +14,10 @@ import {
   Icon,
   IconButton,
   Grid,
+  Checkbox,
+  FormControl,
+  FormLabel,
+  FormGroup,
 } from "@mui/material";
 import "./model_response_evaluation.css";
 import { Paper } from "@mui/material";
@@ -29,23 +33,26 @@ import { translate } from "@/config/localisation";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
-import { questions } from "./config";
+// import { questions } from "./config";
 import Tooltip from '@mui/material/Tooltip';
-
-const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms }) => {
+import { useSelector } from "react-redux";
+// import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
-
-
+  // const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [blank, setBlank] = useState("");
+    const questions = useSelector(state=>state.getProjectDetails.data.metadata_json) ?? []
+    console.log("questions that were fetched: "+typeof questions)
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
 
   useEffect(() => {
+    
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
@@ -53,17 +60,63 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const annotationForms = await response.json();
-      console.log(annotationForms);
-      setForms(annotationForms[0]?.result.length ? [...annotationForms[0]?.result] : [])
+      let formsData = []
+      console.log(annotationForms[0].result?.length);
+      
+      if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length){
+        console.log(stage)
+        if(stage ==="Review"){
+          console.log("here in review if")
+          let reviewData = annotationForms.find((item) => item.annotation_type === 2);
+          if(reviewData.annotation_status === "unreviewed"){
+            reviewData = annotationForms.find((item) => item.annotation_type === 1);
+          }
+          formsData = reviewData?.result;
+          console.log("reviewdata: " + JSON.stringify(reviewData));
+          console.log(formsData)
+        }
+      else if(stage === "SuperChecker"){
+        console.log("here in sc if")
+        let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
+        console.log(superCheckerData[0].annotation_status)
+        // if(superCheckerData[0].annotation_status === "unvalidated"){
+        //   superCheckerData = annotationForms.find((item) => item.annotation_type == 2);
+        // }
+        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
+        formsData = superCheckerData[0]?.result
+        console.log(formsData)
+      }else if(stage === "Annotation"){
+        console.log("here in annotation if")
+        let annotationData = annotationForms.filter((data)=>data.annotation_type==1)
+        console.log("annotationdata: "+ JSON.stringify(annotationData));
+        formsData = annotationData[0]?.result;
+        console.log(formsData)
+      }
+      else{
+        console.log("here in else")
+      }
+    }
+    else if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length===0 && stage==="SuperChecker"){
+      console.log("here in sc if")
+        let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
+        console.log(superCheckerData[0].annotation_status)
+        if(superCheckerData[0].annotation_status === "unvalidated"){
+          superCheckerData = annotationForms.find((item) => item.annotation_type == 1);
+        }
+        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
+        formsData = superCheckerData?.result
+        console.log(formsData)  
+    }
+      setForms(formsData?.length ? [...formsData] : [])
     };
     fetchData();
-  }, [taskId]);
+  }, [taskId, stage]);
 
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
-      rating: null,
-      questions_response: Array(questions.length).fill(null),
+      // rating: null,
+      questions_response: Array(questions?.length).fill(null),
     }));
   };
   
@@ -83,60 +136,205 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, [forms, taskId]);
 
   useEffect(() => {
-    setSelectedQuestions(questions.slice(0, 3)); // Change this to your default questions
-  }, []);
-  // console.log(interactions[0]);
-  useEffect(() => {
-    if (forms.length > 0 && interactions.length > 0 && !currentInteraction?.prompt) {
+    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
       const defaultFormId = 1;
   
-      const currentForm = forms.find(form => form.prompt_output_pair_id === defaultFormId);
-      console.log("currentform: " + currentForm.rating);
+      const currentForm = forms?.find(form => form?.prompt_output_pair_id === defaultFormId);
       if (currentForm) {
-        const selectedQuestionsFromResponse = currentForm.questions_response
-          ? currentForm.questions_response.map((response) => response.question)
-          : [];
-  
+       console.log("current form: " + JSON.stringify(currentForm));
+        const questionsResponse = currentForm?.questions_response || Array(questions?.length).fill(null);
+        console.log(JSON.stringify(questionsResponse));
+        // const selectedQuestionsFromResponse = currentForm?.questions_response
+        // ? currentForm?.questions_response?.map((response) => response?.question)
+        // : [];
         const newState = {
           prompt: currentForm?.prompt || "",
-          output: typeof currentForm?.output === "string" ? currentForm?.output : currentForm?.output.map((item) => item.value).join(', ') || "",
-          prompt_output_pair_id: currentForm.prompt_output_pair_id,
-          rating: currentForm.rating || null,
-          additional_note: currentForm.additional_note || "",
-          questions_response: currentForm.questions_response || Array(questions.length).fill(null),
+          output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
+          prompt_output_pair_id: currentForm?.prompt_output_pair_id,
+          // rating: currentForm?.rating || null,
+          additional_note: currentForm?.additional_note || "",
+          questions_response: questionsResponse,
         };
         setCurrentInteraction(newState);
-        setSelectedQuestions(selectedQuestionsFromResponse);
+        // setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
-  }, [forms, interactions, currentInteraction, setCurrentInteraction]);
+  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response]);
   
+// selectedQuestions.map((selectedQuestion)=>{
+  // console.log("question: " + selectedQuestions?.length)
+// })
   useEffect(() => {
-    if (forms.length === 0 && interactions.length > 0) {
-      const initialForms = interactions.map((interaction) => ({
-        prompt: interaction.prompt,
-        output: interaction.output,
-        prompt_output_pair_id: interaction.prompt_output_pair_id,
-        rating: null,
+    if (forms?.length === 0 && interactions?.length > 0) {
+      const initialForms = interactions?.map((interaction) => ({
+        prompt: interaction?.prompt,
+        output: interaction?.output,
+        prompt_output_pair_id: interaction?.prompt_output_pair_id,
+        // rating: null,
         additional_note: null,
-        questions_response: questions.map((question) => ({
+        questions_response: questions?.map((question) => ({
           question,
-          answer: null
+          // answer: null,
+          // chosen_options: [],
+          // input_question: question?.input_question,
+          // question_type: question?.question_type,
+          // rating: null,
+          // blank_answer: null
+          response: [],
+          // mandatory: question?.mandatory
         }))
       }));
+      console.log("init forms: "+ initialForms)
       setForms(initialForms);
     }
   }, [forms, interactions]);
-       
+
+  useEffect(() => {
+    if (!currentInteraction) {
+        setAnswered(false);
+        return;
+    }
+
+    const mandatoryQuestions = questions.filter(question => {
+        return question.mandatory && question.mandatory === true;
+    });
+    console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
+
+    const allMandatoryAnswered = mandatoryQuestions.every(question => {
+        let parts = 0;
+        if (question.question_type === "fill_in_blanks") {
+            parts = question?.input_question?.split("<blank>")?.length;
+        }
+        const mandatoryQuestion = currentInteraction?.questions_response?.find(
+            qr => qr?.question?.input_question === question?.input_question && qr?.question?.question_type === question?.question_type
+        );
+        if (!mandatoryQuestion?.response) {
+            return false;
+        }
+        if (question.question_type === "fill_in_blanks") {
+            if (mandatoryQuestion?.response?.length !== parts - 1) {
+                return false;
+            }
+            return !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+        }
+        return mandatoryQuestion.response.length > 0 && !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+    });
+
+    console.log("all answered?: " + allMandatoryAnswered);
+    setAnswered(allMandatoryAnswered);
+}, [currentInteraction]);
+
+
+
+  const handleRating = (rating, interactionIndex) => {
+    setCurrentInteraction((prev) => {
+      const selectedQuestion = questions[interactionIndex];      
+      const ratingArray = [String(rating)];
+      // const ratingScaleList = selectedQuestion?.rating_scale_list;
+      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
+        if (index === interactionIndex) {
+          return {
+            ...q,
+            response: ratingArray,
+          };
+        }
+        return q;
+      });
+      const updatedInteraction = {
+        ...prev,
+        questions_response: updatedQuestionsResponse,
+      };
+      setForms((prevInteractions) =>
+        prevInteractions.map((interaction) =>
+          interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : interaction
+        )
+      );
+  
+  
+      return updatedInteraction;
+    });
+  };
+  
+
+  const handleMCQ = (selectedOption, interactionIndex) => {
+    // const selectedQuestion = selectedQuestions[interactionIndex];
+    const answerArray = [String(selectedOption)]
+
+    setCurrentInteraction((prev) => {
+      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
+        if (index === interactionIndex) {
+          return {
+            ...q,
+            response: answerArray,
+          };
+        }
+        return q;
+      });
+  
+      const updatedInteraction = {
+        ...prev,
+        questions_response: updatedQuestionsResponse,
+      };
+  
+      setForms((prevInteractions) =>
+        prevInteractions.map((interaction) =>
+          interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : interaction
+        )
+      );
+  
+      return updatedInteraction;
+    });
+  };
+  const handleMultiSelect = (isChecked, selectedOption, interactionIndex) => {
+    console.log("checked: " + isChecked)
+    const selectedQuestion = questions[interactionIndex];
+    const indexInQuestions = questions?.findIndex(q => q.id === selectedQuestion?.id);
+  
+    setCurrentInteraction((prev) => {
+      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
+        if (index === interactionIndex) {
+          const updatedAnswers = isChecked
+            ? [...q?.response || [], selectedOption] 
+            : q?.response.filter(answer => answer !== selectedOption);
+  
+          return {
+            ...q,
+            response: updatedAnswers,
+          };
+        }
+        return q;
+      });
+  
+      const updatedInteraction = {
+        ...prev,
+        questions_response: updatedQuestionsResponse,
+      };
+  
+      setForms((prevInteractions) =>
+        prevInteractions.map((interaction) =>
+          interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : interaction
+        )
+      );
+  
+      return updatedInteraction;
+    });
+  };
+  
   
 console.log(interactions);
 const handleOptionChange = (selectedIndex, answer) => {
   setCurrentInteraction((prev) => {
-    const newAnswers = selectedQuestions.map((question, i) => {
-      if (selectedQuestions[selectedIndex] === question) {
+    const newAnswers = questions?.map((question, i) => {
+      if (questions[selectedIndex] === question) {
         return { question, answer: answer || null };
       } else {
-        return prev.questions_response?.find(response => response.question === question) || { question, answer: null };
+        return prev.questions_response?.find(response => response?.question === question) || { question, answer: null };
       }
     });
 
@@ -144,11 +342,9 @@ const handleOptionChange = (selectedIndex, answer) => {
       ...prev,
       questions_response: newAnswers,
     };
-
-    // Update the forms array with the updatedInteraction
     setForms((prevForms) =>
       prevForms.map((form) =>
-        form.prompt_output_pair_id === prev.prompt_output_pair_id
+        form?.prompt_output_pair_id === prev.prompt_output_pair_id
           ? updatedInteraction
           : form
       )
@@ -162,33 +358,34 @@ console.log(currentInteraction);
 console.log(interactions);
 console.log(forms);
 
-const handleRating = (rating) => {
-  setCurrentInteraction((prev) => {
-    const updatedInteraction = {
-      ...prev,
-      rating: rating,
-    };
-    console.log("updatedinteraction: "+ updatedInteraction);
-    // setInteractions((prevInteractions) =>
-    //   prevInteractions.map((interaction) =>
-    //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-    //       ? updatedInteraction
-    //       : interaction
-    //   )
-    // );
+// const handleRating = (rating, index) => {
+  // setCurrentInteraction((prev) => {
 
-    setForms((prevInteractions) =>
-      prevInteractions.map((interaction) =>
-        interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : interaction
-      )
-    );
+  //   const updatedInteraction = {
+  //     ...prev,
+  //     rating: rating,
+  //   };
+  //   console.log("updatedinteraction: "+ updatedInteraction);
+  //   // setInteractions((prevInteractions) =>
+  //   //   prevInteractions.map((interaction) =>
+  //   //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+  //   //       ? updatedInteraction
+  //   //       : interaction
+  //   //   )
+  //   // );
+
+  //   setForms((prevInteractions) =>
+  //     prevInteractions.map((interaction) =>
+  //       interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+  //         ? updatedInteraction
+  //         : interaction
+  //     )
+  //   );
 
 
-    return updatedInteraction;
-  });
-};
+  //   return updatedInteraction;
+  // });
+// };
 
 const handleNoteChange = (event) => {
   const newNote = event.target.value;
@@ -208,7 +405,7 @@ const handleNoteChange = (event) => {
 
     setForms((prevForms) =>
       prevForms.map((form) =>
-        form.prompt_output_pair_id === prev.prompt_output_pair_id
+        form?.prompt_output_pair_id === prev.prompt_output_pair_id
           ? updatedInteraction
           : form
       )
@@ -221,34 +418,144 @@ const handleNoteChange = (event) => {
 console.log(forms);
 const handleFormBtnClick = (e) => {
   const clickedPromptOutputPairId = parseInt(e.target.id);
-  const currInteraction = forms.find(
-    (interaction) => interaction.prompt_output_pair_id === clickedPromptOutputPairId
+  console.log("clicked id" + clickedPromptOutputPairId);
+  const currInteraction = forms?.find(
+    (interaction) => interaction?.prompt_output_pair_id === clickedPromptOutputPairId
   );
+  console.log(currInteraction);
   if (currInteraction) {
     setCurrentInteraction({
-      prompt: currInteraction.prompt,
+      prompt: currInteraction?.prompt,
       output: Array.isArray(currInteraction.output)
-        ? currInteraction.output.map((item) => item.value).join(', ')
+        ? currInteraction?.output?.map((item) => item.value).join(', ')
         : currInteraction.output,
-      prompt_output_pair_id: currInteraction.prompt_output_pair_id,
-      rating: currInteraction.rating || null,
-      additional_note: currInteraction.additional_note || '',
-      questions_response: currInteraction.questions_response || Array(questions.length).fill(null),
-    });
-    setSelectedQuestions(currInteraction.questions_response.map((response) => response.question));
+      prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
+      // rating: currInteraction?.rating || null,
+      additional_note: currInteraction?.additional_note || '',
+      questions_response: currInteraction?.questions_response || Array(questions.length).fill(null),
+    })
+    // setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
   }
 };
+// const handleQuestionClick = (question) => {
+//   const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
+//     return (
+//       selectedQ?.input_question === question?.input_question &&
+//       selectedQ?.question_type === question?.question_type
+//     );
+//   });
 
+//   if (!isQuestionSelected) {
+//     setSelectedQuestions([...selectedQuestions, question]);
+//     setCurrentInteraction((prev) => {
+//       const newResponse = {
+//         question: question,
+//         response: [],
+//       };
 
-  const handleQuestionClick = (question) => {
-    setSelectedQuestions((prevQuestions) => {
-      if (prevQuestions.includes(question)) {
-        return prevQuestions.filter((q) => q !== question);
-      } else {
-        return [...prevQuestions, question];
+//       const updatedQuestionsResponse = prev?.questions_response.some(
+//         (response) =>
+//           response.question?.input_question === question?.input_question &&
+//           response.question?.question_type === question?.question_type
+//       )
+//         ? prev?.questions_response
+//         : [...prev?.questions_response, newResponse];
+
+//       const updatedInteraction = {
+//         ...prev,
+//         questions_response: updatedQuestionsResponse,
+//       };
+
+//       setForms((prevForms) =>
+//         prevForms.map((form) =>
+//           form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+//             ? {
+//                 ...form,
+//                 questions_response: updatedQuestionsResponse,
+//               }
+//             : form
+//         )
+//       );
+
+//       return updatedInteraction;
+//     });
+//   } else {
+//     removeElement(question);
+//   }
+// };
+
+// const removeElement = (questionToRemove) => {
+//   setSelectedQuestions((prevQuestions) => {
+//     const filteredQuestions = prevQuestions?.filter(
+//       (q) =>
+//         q?.input_question !== questionToRemove?.input_question ||
+//         q?.question_type !== questionToRemove?.question_type
+//     );
+//     return filteredQuestions;
+//   });
+
+//   setCurrentInteraction((prev) => {
+//     const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
+//       return (
+//         response.question?.input_question !== questionToRemove?.input_question ||
+//         response.question?.question_type !== questionToRemove?.question_type
+//       );
+//     });
+
+//     const updatedInteraction = {
+//       ...prev,
+//       questions_response: updatedQuestionsResponse,
+//     };
+
+//     setForms((prevForms) =>
+//       prevForms.map((form) =>
+//         form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+//           ? {
+//               ...form,
+//               questions_response: updatedQuestionsResponse,
+//             }
+//           : form
+//       )
+//     );
+
+//     return updatedInteraction;
+//   });
+// };
+
+// console.log("Selected : q" + JSON.stringify(selectedQuestions));
+const handleInputChange = (e, interactionIndex, blankIndex) => {
+  const { value } = e.target;
+
+  setCurrentInteraction((prev) => {
+    const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
+      if (index === interactionIndex) {
+        const updatedBlankAnswers = q?.response ? [...q?.response] : [];
+        updatedBlankAnswers[blankIndex] = value;
+        return {
+          ...q,
+          response: updatedBlankAnswers,
+        };
       }
+      return q;
     });
-  };
+
+    const updatedInteraction = {
+      ...prev,
+      questions_response: updatedQuestionsResponse,
+    };
+
+    setForms((prevForms) =>
+      prevForms.map((form) =>
+        form?.prompt_output_pair_id === prev.prompt_output_pair_id
+          ? { ...form, questions_response: updatedQuestionsResponse }
+          : form
+      )
+    );
+
+    return updatedInteraction;
+  });
+};
+  
   const EvaluationForm = () => {
     return (
       <div className={classes.rightPanel} >
@@ -256,15 +563,15 @@ const handleFormBtnClick = (e) => {
           <div className={classes.heading} style={{ fontSize: "20px" }}>
             {translate("modal.prompt")}
           </div>
-          {currentInteraction.prompt}
+          {currentInteraction?.prompt}
         </div>
         <div className={classes.heading} style={{ fontSize: "20px" }}>
           {translate("modal.output")}
         </div>
         <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
-          {currentInteraction.output}
+          {currentInteraction?.output}
         </div>
-        <div className={classes.ratingText}>
+        {/* <div className={classes.ratingText}>
           {translate("model_evaluation_rating")}
         </div>
         <Box
@@ -290,18 +597,18 @@ const handleFormBtnClick = (e) => {
               }}
             />
           ))}
-        </Box>
+        </Box> */}
         <hr className={classes.hr} />
-        {selectedQuestions.length > 0 ? <div className={classes.heading}>
+        {questions?.length > 0 ? <div className={classes.heading}>
           {translate("modal.select_que")}
         </div> : <div className={classes.heading}>
           {translate("modal.pls_select_que")}
         </div>}
         <div style={{
           overflowY: 'auto',
-          maxHeight: "10rem"
+          maxHeight: "90vh"
         }}>
-          {selectedQuestions.map((question, index) => (
+          {/* {selectedQuestions.map((question, index) => (
             <div key={index} className={classes.questionContainer}>
               <div className={classes.questionText}>{question}</div>
               <div className={classes.radioGroupContainer}>
@@ -326,7 +633,149 @@ const handleFormBtnClick = (e) => {
     </RadioGroup>   
               </div>
             </div>            
-          ))}
+          ))} */}
+          {questions?.map((question, i) => {
+  switch (question?.question_type) {
+    case "fill_in_blanks":
+      const splitQuestion = question?.input_question.split("<blank>");
+      return (
+        <div key={i}> 
+          <p className={classes.inputQuestion}>
+            {i + 1}.{" "}
+            {splitQuestion?.map((part, index) => (
+              <span key={`${i}-${index}`}>
+                {part}
+                {index < splitQuestion.length - 1 && (
+                  <input
+                  type="text"
+                  value={
+                    currentInteraction?.questions_response &&
+                    currentInteraction?.questions_response[i]?.response.length > 0
+                      ? currentInteraction?.questions_response[i]?.response[index]
+                      : ""
+                  }
+                  onChange={(e) => handleInputChange(e, i, index)}
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    padding: "4px",
+                    fontSize: "14px",
+                    lineHeight: "1.5",
+                    verticalAlign: "middle",
+                    width: "100%",
+                    maxWidth: "200px",
+                    margin: "4px 0",
+                    boxSizing: "border-box",
+                    backgroundColor: "white",
+                    fontWeight: "normal"
+                  }}
+                  required={question.mandatory}
+                />
+                
+                
+                )}
+              </span>
+            ))}
+            {question.mandatory && (
+              <span style={{ color: "#d93025", fontSize: "25px" }}> *</span>
+            )}
+          </p>
+        </div>
+      );
+
+    case "rating":
+      return (
+        <div key={i}>
+          <div className={classes.inputQuestion}>
+            <span>{i + 1}. {question.input_question}</span>
+            {question.mandatory && (
+              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
+            )}
+          </div>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+            }}
+          >
+            {Array.from({ length: question.rating_scale_list.length }, (_, index) => (
+              <Button
+                key={index + 1}
+                className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response == index + 1 ? classes.selected : "" : ""}`}
+                label={index + 1}
+                onClick={() => handleRating(index + 1, i)}
+                style={{
+                  marginRight: "1rem",
+                  marginLeft: "0.9px",
+                  marginBottom: "2rem",
+                  borderRadius: "1rem",
+                  width: "47px",
+                  padding: "13px",
+                }}
+                required={question.mandatory}
+              />
+            ))}
+          </Box>
+        </div>
+      );
+
+    case "multi_select_options":
+      return (
+        <div key={i}>
+          <div className={classes.inputQuestion}>{i + 1}. {question.input_question}
+            {question.mandatory && (
+              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
+            )}
+          </div>
+          <FormControl component="fieldset">
+            <FormGroup>
+              {question.input_selections_list.map((option, idx) => (
+                <FormControlLabel
+                  key={idx}
+                  control={
+                    <Checkbox
+                      onChange={(e) => handleMultiSelect(e.target.checked, option, i)}
+                      checked={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response?.includes(option) ?? false : ""}
+                    />
+                  }
+                  label={option}
+                />
+              ))}
+            </FormGroup>
+          </FormControl>
+        </div>
+      );
+
+    case "mcq":
+      return (
+        <div key={i}>
+          <div className={classes.inputQuestion}>{i + 1}. {question.input_question}
+            {question.mandatory && (
+              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
+            )}
+          </div>
+          <FormControl component="fieldset" required={question.mandatory}>
+            <RadioGroup
+             value={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response : ""}
+             onChange={(e) => handleMCQ(e.target.value, i)}
+            >
+              {question?.input_selections_list?.map((option, idx) => (
+                <FormControlLabel
+                  key={idx}
+                  value={option}
+                  control={<Radio />}
+                  label={option}
+                />
+              ))}
+            </RadioGroup>
+          </FormControl>
+        </div>
+      );
+
+    default:
+      return null;
+  }
+})}
         </div>
         <hr className={classes.hr} />
         <div className={classes.notesContainer}>
@@ -338,8 +787,8 @@ const handleFormBtnClick = (e) => {
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
-            currentInteraction.additional_note
-              ? currentInteraction.additional_note
+            currentInteraction?.additional_note
+              ? currentInteraction?.additional_note
               : null
           }
           style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
@@ -400,7 +849,7 @@ const handleFormBtnClick = (e) => {
   }}
   className={classes.promptTile}
 >
-  {pair.prompt}
+  {pair?.prompt}
   {expanded[index] && (
     <Tooltip title={pair.prompt} placement="bottom">
     <span style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", cursor: "pointer" }}>
@@ -433,7 +882,7 @@ const handleFormBtnClick = (e) => {
                         padding:"0.5rem"
                       }}
                       onClick={handleFormBtnClick}
-                      id={pair.prompt_output_pair_id}
+                      id={pair?.prompt_output_pair_id}
                     />
                     <Button
                       label="reset"
@@ -453,28 +902,31 @@ const handleFormBtnClick = (e) => {
     );
   };
 
-  const QuestionList = ({ questions }) => {
-    return (
-      <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
-        <div className={classes.questionList}>
-          {questions.map((question, index) => (
-            <Box
-              key={index}
-              sx={{
-                padding: "10px",
-                margin: "5px 0",
-                backgroundColor: selectedQuestions.includes(question) ? "#d3d3d3" : "#fff",
-                cursor: "pointer",
-              }}
-              onClick={() => handleQuestionClick(question)}
-            >
-              {question}
-            </Box>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  // const QuestionList = ({ questions }) => {
+  //   return (
+  //     <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
+  //       <div className={classes.questionList}>
+  //         {questions?.map((question, index) => (
+  //           <Box
+  //             key={index}
+  //             sx={{
+  //               padding: "10px",
+  //               margin: "5px 0",
+  //               backgroundColor: selectedQuestions.some((selectedQ) =>
+  //                 selectedQ?.input_question === question?.input_question &&
+  //                 selectedQ?.question_type === question?.question_type
+  //               ) ? "#d3d3d3" : "#fff",
+  //               cursor: "pointer",
+  //             }}
+  //             onClick={() => handleQuestionClick(question)}
+  //           >
+  //             {question.input_question}
+  //           </Box>
+  //         ))}
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const InteractionDisplay = () => {
     return (
@@ -495,10 +947,10 @@ const handleFormBtnClick = (e) => {
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
-        <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
+        {/* <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
           {translate("modal.quelist")}
         </div>
-        <QuestionList questions={questions} />
+        <QuestionList questions={questions} /> */}
       </Resizable>
     );
   };
