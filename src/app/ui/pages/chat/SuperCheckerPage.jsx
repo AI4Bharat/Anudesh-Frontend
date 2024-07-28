@@ -127,15 +127,19 @@ const SuperCheckerPage = () => {
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
+  const [labellingMode, setLabellingMode] = useState(null);
   let loaded = useRef();
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
 
   const load_time = useRef();
-  if(typeof window !== "undefined"){
-     let labellingMode = localStorage.getItem("labellingMode");
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('labellingMode');
+      setLabellingMode(mode);
+    }
+  }, []);
  
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -572,7 +576,8 @@ const SuperCheckerPage = () => {
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      console.log("answered variable: ")
+      if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
+        console.log("answered variable: ")
       if (!answered) {
         setAutoSave(true);
         setSnackbarInfo({
@@ -583,6 +588,7 @@ const SuperCheckerPage = () => {
         setLoading(false);
         setShowNotes(false);
         return; 
+      }
       }
       if (value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);

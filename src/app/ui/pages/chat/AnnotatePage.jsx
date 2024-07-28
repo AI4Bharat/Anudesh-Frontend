@@ -79,6 +79,7 @@ const AnnotatePage = () => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
   const [info, setInfo] = useState({});
+  const [labellingMode, setLabellingMode] = useState(null);
 
   let loaded = useRef();
 
@@ -86,9 +87,12 @@ const AnnotatePage = () => {
   const [loadtime, setloadtime] = useState(new Date());
 
   const load_time = useRef();
-  if(typeof window !== "undefined"){
-    let labellingMode = localStorage.getItem("labellingMode");
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('labellingMode');
+      setLabellingMode(mode);
+    }
+  }, []);
  
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -417,7 +421,8 @@ console.log(interactions[0]);
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
-      console.log("answered variable: ")
+      if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
+        console.log("answered variable: ")
       if (!answered) {
         setAutoSave(true);
         setSnackbarInfo({
@@ -428,6 +433,7 @@ console.log(interactions[0]);
         setLoading(false);
         setShowNotes(false);
         return; 
+      }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));

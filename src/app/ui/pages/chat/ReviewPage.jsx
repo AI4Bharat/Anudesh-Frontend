@@ -130,10 +130,14 @@ const ReviewPage = () => {
   let loaded = useRef();
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
+  const [labellingMode, setLabellingMode] = useState(null);
   const load_time = useRef();
-  if(typeof window !== "undefined"){
-      let labellingMode = localStorage.getItem("labellingMode");
-  }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('labellingMode');
+      setLabellingMode(mode);
+    }
+  }, []);
 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -669,18 +673,20 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        console.log("answered variable: ")
-      if (!answered) {
-        setAutoSave(true);
-        setSnackbarInfo({
-          open: true,
-          message: "Please answer all mandatory questions before submitting.",
-          variant: "error",
-        });
-        setLoading(false);
-        setShowNotes(false);
-        return; 
-      }
+        if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
+          console.log("answered variable: ")
+        if (!answered) {
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: "Please answer all mandatory questions before submitting.",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return; 
+        }
+        }
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
