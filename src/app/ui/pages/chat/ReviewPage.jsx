@@ -675,7 +675,7 @@ const ReviewPage = () => {
       ) {
         if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
           console.log("answered variable: ")
-        if (!answered) {
+        if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
           setAutoSave(true);
           setSnackbarInfo({
             open: true,
