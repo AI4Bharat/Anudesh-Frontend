@@ -798,11 +798,13 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
       componentToRender = null;
       break;
   }
-  if(typeof window !== "undefined"){
-    const ProjectsData = localStorage.getItem("projectData");
+  let ProjectsData = null;
+
+  if (typeof window !== "undefined") {
+    ProjectsData = localStorage.getItem("projectData");
   }
   
-  const ProjectData = JSON.parse(ProjectsData);
+  const ProjectData = ProjectsData ? JSON.parse(ProjectsData) : null;
 
   const renderSnackBar = () => {
     return (

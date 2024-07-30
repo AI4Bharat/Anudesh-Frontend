@@ -205,11 +205,12 @@ const CreateProject = () => {
               }
             } else {
               value = value.replace(/\\"/g, '"');
-              if (value === 'true' || value === 'false') {
-                values.push(value === 'true');
+              if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+                values.push(value.toLowerCase() === 'true');
               } else {
                 values.push(value);
               }
+              
             }
             currentVal = '';
           } else {
@@ -231,11 +232,12 @@ const CreateProject = () => {
           }
         } else {
           lastValue = lastValue.replace(/\\"/g, '"'); 
-          if (lastValue === 'true' || lastValue === 'false') {
-            values.push(lastValue === 'true'); 
+          if (lastValue.toLowerCase() === 'true' || lastValue.toLowerCase() === 'false') {
+            values.push(lastValue.toLowerCase() === 'true');
           } else {
             values.push(lastValue);
           }
+          
         }
   
         return headers.reduce((obj, header, index) => {
