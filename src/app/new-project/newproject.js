@@ -1243,40 +1243,47 @@ const CreateProject = () => {
                   </FormControl>
                 </Grid>
                 {selectedType==="ModelInteractionEvaluation" ? 
-                (<Grid item xs={12} style={{ marginTop: '20px', display: 'flex', alignItems: 'center' }}>
+                (
                   
-      <TextField
-        label="Paste JSON here"
-        variant="outlined"
-        multiline
-        rows={4}
-        value={JSON.stringify(questionsJSON)}
-        onChange={handleJsonInputChange}
-        style={{ flex: 1, marginRight: '10px' }}
-      />
-      
-      <InputLabel htmlFor="csv-file-input" style={{ display: 'none' }}>
-        Upload CSV File
-      </InputLabel>
-      <input
-        id="csv-file-input"
-        type="file"
-        accept=".csv"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
-      <label htmlFor="csv-file-input">
-        <Button
-          variant="contained"
-          color="primary"
-          component="span"
-          startIcon={<UploadIcon />}
-        >
-          Upload CSV
-        </Button>
-      </label>
-     
-    </Grid>): null}
+                  <Grid item xs={12} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <Typography gutterBottom component="div" label="Required">
+                    Upload CSV or Paste JSON<span style={{ color: '#d93025' }}>*</span> : 
+                  </Typography>
+                  
+                  <Grid container item xs={12} style={{ marginTop: '20px', alignItems: 'center' }}>
+  <TextField
+    variant="outlined"
+    multiline
+    rows={4}
+    value={JSON.stringify(questionsJSON)}
+    onChange={handleJsonInputChange}
+    style={{ flex: 1, marginRight: '10px' }}
+  />
+  
+  <InputLabel htmlFor="csv-file-input" style={{ display: 'none' }}>
+    Upload CSV File
+  </InputLabel>
+  <input
+    id="csv-file-input"
+    type="file"
+    accept=".csv"
+    onChange={handleFileChange}
+    style={{ display: 'none' }}
+  />
+  <label htmlFor="csv-file-input">
+    <Button
+      variant="contained"
+      color="primary"
+      component="span"
+      startIcon={<UploadIcon />}
+    >
+      Upload CSV
+    </Button>
+  </label>
+</Grid>
+                </Grid>
+                
+    ): null}
                 {workspaceDtails?.guest_workspace_display === "Yes" ? (
   <>
     <Grid
@@ -1371,7 +1378,7 @@ const CreateProject = () => {
                     selectedType &&
                     selectedInstances &&
                     domains &&
-                    samplingMode 
+                    samplingMode && (selectedType==="ModelInteractionEvaluation"? questionsJSON?.length>0 : true)
                     ? false:true
                 }
               />

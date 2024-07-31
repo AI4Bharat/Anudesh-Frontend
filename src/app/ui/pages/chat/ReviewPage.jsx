@@ -679,7 +679,7 @@ const ReviewPage = () => {
           setAutoSave(true);
           setSnackbarInfo({
             open: true,
-            message: "Please answer all mandatory questions before submitting.",
+            message: "Answer all the mandatory questions in all forms",
             variant: "error",
           });
           setLoading(false);

@@ -136,30 +136,28 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, [forms, taskId]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt ) {
+    if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
-  
-      const currentForm = forms?.find(form => form?.prompt_output_pair_id === defaultFormId);
-      if (currentForm) {
-       console.log("current form: " + JSON.stringify(currentForm));
+      const currentForm = forms.find(form => form?.prompt_output_pair_id === defaultFormId);
+      
+      if (currentForm && (!currentInteraction || currentInteraction?.prompt !== currentForm?.prompt)) {
+        console.log("current form: " + JSON.stringify(currentForm));
         const questionsResponse = currentForm?.questions_response || Array(questions?.length).fill(null);
         console.log(JSON.stringify(questionsResponse));
-        // const selectedQuestionsFromResponse = currentForm?.questions_response
-        // ? currentForm?.questions_response?.map((response) => response?.question)
-        // : [];
+        
         const newState = {
           prompt: currentForm?.prompt || "",
           output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
           prompt_output_pair_id: currentForm?.prompt_output_pair_id,
-          // rating: currentForm?.rating || null,
           additional_note: currentForm?.additional_note || "",
           questions_response: questionsResponse,
         };
+        
         setCurrentInteraction(newState);
-        // setSelectedQuestions(selectedQuestionsFromResponse);
       }
     }
-  }, [forms, interactions, currentInteraction, questions?.length, currentInteraction?.questions_response]);
+  }, [forms, interactions, questions?.length]);
+  
   
 // selectedQuestions.map((selectedQuestion)=>{
   // console.log("question: " + selectedQuestions?.length)
@@ -190,41 +188,49 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, [forms, interactions]);
 
   useEffect(() => {
-    if (!currentInteraction) {
-        setAnswered(false);
-        return;
+    if (!forms || forms.length === 0) {
+      setAnswered(false);
+      return;
     }
-
-    const mandatoryQuestions = questions.filter(question => {
+  
+    const allFormsAnswered = forms.every(form => {
+      if (!form) {
+        return false;
+      }
+  
+      const mandatoryQuestions = questions.filter(question => {
         return question.mandatory && question.mandatory === true;
-    });
-    console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
-
-    const allMandatoryAnswered = mandatoryQuestions.every(question => {
+      });
+      console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
+  
+      const allMandatoryAnswered = mandatoryQuestions.every(question => {
         let parts = 0;
         if (question.question_type === "fill_in_blanks") {
-            parts = question?.input_question?.split("<blank>")?.length;
+          parts = question?.input_question?.split("<blank>")?.length;
         }
-        const mandatoryQuestion = currentInteraction?.questions_response?.find(
-            qr => qr?.question?.input_question === question?.input_question && qr?.question?.question_type === question?.question_type
+        const mandatoryQuestion = form?.questions_response?.find(
+          qr => qr?.question?.input_question === question?.input_question && qr?.question?.question_type === question?.question_type
         );
         if (!mandatoryQuestion?.response) {
-            return false;
+          return false;
         }
         if (question.question_type === "fill_in_blanks") {
-            if (mandatoryQuestion?.response?.length !== parts - 1) {
-                return false;
-            }
-            return !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+          if (mandatoryQuestion?.response?.length !== parts - 1) {
+            return false;
+          }
+          return !mandatoryQuestion.response.some(response => response === "" || response === undefined);
         }
         return mandatoryQuestion.response.length > 0 && !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+      });
+  
+      console.log("all answered for form: " + allMandatoryAnswered);
+      return allMandatoryAnswered;
     });
-
-    console.log("all answered?: " + allMandatoryAnswered);
-    setAnswered(allMandatoryAnswered);
-}, [currentInteraction]);
-
-
+  
+    console.log("all forms answered?: " + allFormsAnswered);
+    setAnswered(allFormsAnswered);
+  }, [forms]);
+  
 
   const handleRating = (rating, interactionIndex) => {
     setCurrentInteraction((prev) => {
