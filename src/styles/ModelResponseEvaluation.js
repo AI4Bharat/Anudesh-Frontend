@@ -70,7 +70,7 @@ const ModelResponseEvaluationStyle = makeStyles ({
     marginBottom: '1rem',
     color: '#6C5F5B',
   },
-  ratingText: {
+  inputQuestion: {
     fontWeight: 'bold',
     marginBottom: '1.5rem',
     color: '#6C5F5B',
