@@ -1,6 +1,6 @@
 import MUIDataTable from "mui-datatables";
 import { Fragment, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { json, Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Grid, Typography, ThemeProvider,Box, IconButton, } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
@@ -105,7 +105,10 @@ useEffect(() => {
                  const data = JSON.stringify(value)
                  const metadata = data.replace(/\\/g, "");
                   return metadata;
-                } else {
+                } else if(key=="eval_form_output_json"){
+                  return JSON.stringify(value);
+                }
+                else{
                   return value;
                 }
               },
