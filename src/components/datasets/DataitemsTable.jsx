@@ -105,7 +105,10 @@ useEffect(() => {
                  const data = JSON.stringify(value)
                  const metadata = data.replace(/\\/g, "");
                   return metadata;
-                } else {
+                } else if(key=="eval_form_output_json"){
+                  return JSON.stringify(value);
+                }
+                else{
                   return value;
                 }
               },
