@@ -79,6 +79,7 @@ const AnnotatePage = () => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
   const [info, setInfo] = useState({});
+  const [labellingMode, setLabellingMode] = useState(null);
 
   let loaded = useRef();
 
@@ -86,8 +87,13 @@ const AnnotatePage = () => {
   const [loadtime, setloadtime] = useState(new Date());
 
   const load_time = useRef();
-
-  let labellingMode = localStorage.getItem("labellingMode");
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('labellingMode');
+      setLabellingMode(mode);
+    }
+  }, []);
+ 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -101,6 +107,7 @@ const AnnotatePage = () => {
   const [currentInteraction, setCurrentInteraction] = useState({});
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
+  const [answered, setAnswered] = useState(false);
   const [annotations, setAnnotations] = useState([]);
 
   const annotationNotesRef = useRef(false);
@@ -323,7 +330,10 @@ const AnnotatePage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
@@ -347,7 +357,10 @@ const AnnotatePage = () => {
         variant: "info",
       });
       setTimeout(() => {
-        localStorage.removeItem("labelAll");
+        if(typeof window !== "undefined"){
+           localStorage.removeItem("labelAll");
+        }
+       
         window.location.replace(`/#/projects/${projectId}`);
         window.location.reload();
       }, 1000);
@@ -383,11 +396,11 @@ console.log(interactions[0]);
     const PatchAPIdata = {
       annotation_status:
         value === "delete" || value === "delete-pair"
-          ? localStorage.getItem("labellingMode")
+          ? (typeof window !== "undefined" ? localStorage.getItem("labellingMode") : null)
           : value,
-      annotation_notes: JSON.stringify(
-        annotationNotesRef?.current?.getEditor().getContents(),
-      ),
+      annotation_notes: typeof window !== "undefined" ? JSON.stringify(
+        annotationNotesRef?.current?.getEditor().getContents()
+      ) : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
       result:
@@ -397,13 +410,29 @@ console.log(interactions[0]);
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
       task_id: taskId,
-      auto_save: value === "delete" || value === "delete-pair"? true : false,
+      auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
       clear_conversation: value === "delete",
     };
+    
+   
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
+      if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
+        console.log("answered variable: ")
+      if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
+        setAutoSave(true);
+        setSnackbarInfo({
+          open: true,
+          message: "Answer all the mandatory questions in all forms",
+          variant: "error",
+        });
+        setLoading(false);
+        setShowNotes(false);
+        return; 
+      }
+      }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
@@ -427,9 +456,12 @@ console.log(interactions[0]);
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
-          if (localStorage.getItem("labelAll") || value === "skipped") {
+          if(typeof window !== "undefined"){
+if (localStorage.getItem("labelAll") || value === "skipped") {
             onNextAnnotation(resp.task);
           }
+          }
+          
         }
         value === "delete"
           ? setSnackbarInfo({
@@ -469,7 +501,10 @@ console.log(interactions[0]);
     setShowNotes(false);
     // }
   };
-  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if(typeof window !== "undefined"){
+     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+ 
 
   useEffect(() => {
     filterAnnotations(AnnotationsTaskDetails, userData);
@@ -649,6 +684,9 @@ console.log(interactions[0]);
           setInteractions={setInteractions}
           forms={forms}
           setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
         />
       );
       break;
@@ -709,7 +747,10 @@ console.log(interactions[0]);
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                localStorage.removeItem("labelAll");
+                if(typeof window !== "undefined"){
+                  localStorage.removeItem("labelAll");
+                }
+                
                 // navigate(`/projects/${projectId}`);
                 navigate(-1);
               }}

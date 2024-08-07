@@ -121,17 +121,26 @@ const SuperCheckerPage = () => {
   const { projectId, taskId } = useParams();
   const [supercheckertext, setsupercheckertext] = useState("");
   const [currentInteraction, setCurrentInteraction] = useState({});
+  const [interactions, setInteractions] = useState([]);
+  const [forms, setForms] = useState([]);
+  const [answered, setAnswered] = useState(false);
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
+  const [labellingMode, setLabellingMode] = useState(null);
   let loaded = useRef();
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
 
   const load_time = useRef();
-
-  let labellingMode = localStorage.getItem("labellingMode");
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('labellingMode');
+      setLabellingMode(mode);
+    }
+  }, []);
+ 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -473,7 +482,10 @@ const SuperCheckerPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
@@ -498,7 +510,10 @@ const SuperCheckerPage = () => {
         variant: "info",
       });
       setTimeout(() => {
-        localStorage.removeItem("labelAll");
+        if(typeof window !== "undefined"){
+          localStorage.removeItem("labelAll");
+        }
+        
         window.location.replace(`/#/projects/${projectId}`);
         window.location.reload();
       }, 1000);
@@ -519,48 +534,63 @@ const SuperCheckerPage = () => {
         output: reverseFormatResponse(chat.output),
       }));
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
-      resultValue = currentInteraction;
+      resultValue = forms.map((form) =>({
+        prompt: form.prompt,
+        output: form.output,
+        additional_note: form.additional_note,
+        rating: form.rating,
+        questions_response: form.questions_response,
+        prompt_output_pair_id: form.prompt_output_pair_id
+      })
+      
+      );
     }
 
     setLoading(true);
     setAutoSave(false);
-
     const PatchAPIdata = {
-      annotation_status:
-        value === "delete" || value === "delete-pair"
-          ? localStorage.getItem("labellingMode")
-          : value,
-      annotation_status:
-        value === "delete" || value === "delete-pair"
-          ? localStorage.getItem("labellingMode")
-          : value,
-      supercheck_notes: JSON.stringify(
-        superCheckerNotesRef?.current?.getEditor().getContents(),
-      ),
-      lead_time:
-        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      ...((value === "rejected" ||
-        value === "validated" ||
-        value === "validated_with_changes") && {
+      annotation_status: typeof window !== "undefined" && (value === "delete" || value === "delete-pair")
+        ? localStorage.getItem("labellingMode")
+        : value,
+      supercheck_notes: typeof window !== "undefined" ? JSON.stringify(
+        superCheckerNotesRef?.current?.getEditor().getContents()
+      ) : null,
+      lead_time: (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+      ...((value === "rejected" || value === "validated" || value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+      result: value === "delete"
+        ? []
+        : value === "delete-pair"
+          ? resultValue.slice(0, resultValue.length - 1)
+          : resultValue,
       task_id: taskId,
-      auto_save: value === "delete" || value === "delete-pair"? true : false,
+      auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
       clear_conversation: value === "delete",
     };
+        
     if (
       ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
         value,
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
+      if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
+        console.log("answered variable: ")
+      if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
+        setAutoSave(true);
+        setSnackbarInfo({
+          open: true,
+          message: "Answer all the mandatory questions in all forms",
+          variant: "error",
+        });
+        setLoading(false);
+        setShowNotes(false);
+        return; 
+      }
+      }
+      if (value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
@@ -583,9 +613,12 @@ const SuperCheckerPage = () => {
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
-          if (localStorage.getItem("labelAll") || value === "skipped") {
+          if(typeof window !== "undefined"){
+if (localStorage.getItem("labelAll") || value === "skipped") {
             onNextAnnotation(resp.task);
           }
+          }
+          
         }
         value === "delete"
           ? setSnackbarInfo({
@@ -626,8 +659,10 @@ const SuperCheckerPage = () => {
     setShowNotes(false);
     setAnchorEl(null);
   };
-
-  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if(typeof window !== "undefined"){
+     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+ 
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -749,6 +784,13 @@ const SuperCheckerPage = () => {
         <ModelInteractionEvaluation
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"SuperChecker"}
+          answered={answered}
+          setAnswered={setAnswered}
         />
       );
       break;
@@ -756,8 +798,13 @@ const SuperCheckerPage = () => {
       componentToRender = null;
       break;
   }
-  const ProjectsData = localStorage.getItem("projectData");
-  const ProjectData = JSON.parse(ProjectsData);
+  let ProjectsData = null;
+
+  if (typeof window !== "undefined") {
+    ProjectsData = localStorage.getItem("projectData");
+  }
+  
+  const ProjectData = ProjectsData ? JSON.parse(ProjectsData) : null;
 
   const renderSnackBar = () => {
     return (
@@ -792,7 +839,8 @@ const SuperCheckerPage = () => {
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                localStorage.removeItem("labelAll");
+                if(typeof window !== "undefined"){
+                localStorage.removeItem("labelAll");}
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
