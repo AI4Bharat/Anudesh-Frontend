@@ -268,7 +268,6 @@ const AnnotatePage = () => {
       }
     }
   }, [AnnotationsTaskDetails]);
-
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -280,7 +279,6 @@ const AnnotatePage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-
   useEffect(() => {
     resetNotes();
   }, [taskId]);
@@ -638,6 +636,7 @@ console.log(interactions[0]);
           stage={"Annotation"}
           notes={annotationNotesRef}
           info={info}
+          disableUpdateButton={disableUpdateButton}
         />
       );
       break;

@@ -551,9 +551,9 @@ const SuperCheckerPage = () => {
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
       task_id: taskId,
-      auto_save: value === "delete" || value === "delete-pair" || value==="rejected"? true : false,
+      auto_save: value === "delete" || value === "delete-pair"? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
-      clear_conversation: value === "delete" || value === "rejected",
+      clear_conversation: value === "delete",
     };
     if (
       ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
@@ -561,7 +561,6 @@ const SuperCheckerPage = () => {
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      if (value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
