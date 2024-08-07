@@ -91,10 +91,10 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         console.log(formsData)
       }
       else{
-        console.log("Annot forms: "+JSON.stringify(annotationForms))
-        formsData = annotationForms[0].result;
-      console.log("for all tasks" + JSON.stringify(formsData))
-        console.log("here I am ");
+        
+        let allformsData = annotationForms.find((item) => item.annotation_type === 1);
+        formsData = allformsData.result
+      
       }
       
     }
@@ -110,8 +110,9 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         console.log(formsData)  
     }
     else{
-      formsData = annotationForms?.result[0]
-      console.log("for all tasks" + JSON.stringify(formsData))
+      let allformsData = annotationForms.find((item) => item.annotation_type === 1);
+        formsData = allformsData.result
+      
     }
     
       setForms(formsData?.length ? [...formsData] : [])

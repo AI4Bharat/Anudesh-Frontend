@@ -165,7 +165,8 @@ const InstructionDrivenChatPage = ({
           });
         }
         else{
-          modifiedChatHistory = data[0]?.result?.map((interaction) => {
+          let obj = data.filter((data)=>data.annotation_type==1)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
             return {
               ...interaction,
               output: formatResponse(interaction.output),
