@@ -61,10 +61,8 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       });
       const annotationForms = await response.json();
       let formsData = []
-      console.log(annotationForms[0].result?.length);
-      
       if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length){
-        console.log(stage)
+        
         if(stage ==="Review"){
           console.log("here in review if")
           let reviewData = annotationForms.find((item) => item.annotation_type === 2);
@@ -93,11 +91,15 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         console.log(formsData)
       }
       else{
-        console.log("here in else")
+        console.log("Annot forms: "+JSON.stringify(annotationForms))
+        formsData = annotationForms[0].result;
+      console.log("for all tasks" + JSON.stringify(formsData))
+        console.log("here I am ");
       }
+      
     }
     else if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length===0 && stage==="SuperChecker"){
-      console.log("here in sc if")
+      console.log("here in sc if but len 0")
         let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
         console.log(superCheckerData[0].annotation_status)
         if(superCheckerData[0].annotation_status === "unvalidated"){
@@ -107,6 +109,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         formsData = superCheckerData?.result
         console.log(formsData)  
     }
+    else{
+      formsData = annotationForms?.result[0]
+      console.log("for all tasks" + JSON.stringify(formsData))
+    }
+    
       setForms(formsData?.length ? [...formsData] : [])
     };
     fetchData();
