@@ -50,6 +50,9 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
+  useEffect(()=>{
+    setCurrentInteraction({})
+  },[taskId])
 
   useEffect(() => {
     
