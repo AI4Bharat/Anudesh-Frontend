@@ -420,8 +420,8 @@ import {
               alignItems="center"
               sx={{ mb: 3 }}
             >
-              <Grid item xs={12} sm={12} md={10} lg={10} xl={10}>
-                <Typography variant="h3">{ProjectDetails.title}</Typography>
+  <Grid item xs={12} sm={12} md={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} lg={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} xl={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12}>
+  <Typography variant="h3">{ProjectDetails.title}</Typography>
               </Grid>
 
               {(userRole.WorkspaceManager === loggedInUserData?.role ||

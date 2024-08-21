@@ -567,7 +567,7 @@ const SuperCheckerPage = () => {
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
-      clear_conversation: value === "delete" || value === "rejected",
+      clear_conversation: value === "delete",
     };
         
     if (

@@ -253,9 +253,13 @@ const EditProfile = (props) => {
             </Select>
           </FormControl>
         </Grid>
-        
-        {/* <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ mb: 2, textAlignLast: "start"  }}>
+      </Grid>
+      <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{display:"flex",ml:1}}>
+            <Typography gutterBottom component="div" label="Required">
+                    Guest User :
+                  </Typography>
           <FormControlLabel
+          sx={{ml:1}}
             control={
               <Switch
                 checked={guest_user}
@@ -264,13 +268,8 @@ const EditProfile = (props) => {
                 color="primary"
               />
             }
-            labelPlacement="start"
-            label="Guest User"
-            sx={{ m: 1 }}
           />
         </Grid>
-        <Grid></Grid> */}
-      </Grid>
 
       <Grid sx={{ textAlignLast: "end" }}>
         <CustomButton
