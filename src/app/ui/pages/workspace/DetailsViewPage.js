@@ -38,9 +38,6 @@ import AddUsersDialog from "../../../../components/common/AddUsersDialog";
 import addUserTypes from "../../../../Constants/addUserTypes";
 import GetWorkspacesDetailsAPI from "../../../actions/api/workspace/getWorkspaceDetails";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
-import TaskAnalytics from "../progress/TaskAnalytics/TaskAnalytics";
-import MetaAnalytics from "../progress/MetaAnalytics/MetaAnalytics";
-import ProgressAnalytics from "../progress/ProgressAnalytics";
 import userRole from "@/utils/Role";
 import InviteUsersDialog from "@/components/Project/InviteUsersDialog";
 import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
@@ -48,6 +45,10 @@ import getOrganizationUsers from "@/Lib/Features/getOrganizationUsers";
 import InviteManagerSuggestions from "@/app/actions/api/user/InviteManagerSuggestions";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
+import TaskAnalytics from "../progress/Workspace/TaskAnalytics";
+import MetaAnalytics from "../progress/Workspace/MetaAnalytics";
+import ProgressList from "../progress/Workspace/ProgressAnalytics";
+import PerformanceAnalytics from "../progress/Workspace/PerformanceAnalytics";
   
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -396,6 +397,7 @@ const DetailsViewPage = (props) => {
             <MenuItem selected={selectmenu=== "TaskAnalytics"} onClick={() => handleClickMenu("TaskAnalytics")}> Task Analytics </MenuItem>
             <MenuItem selected={ selectmenu=== "MetaAnalytics"} onClick={() => handleClickMenu("MetaAnalytics")}>Meta Analytics</MenuItem>
             <MenuItem selected={selectmenu=== "AdvanceAnalytics"} onClick={() => handleClickMenu("AdvanceAnalytics")}>Advance Analytics</MenuItem>
+            <MenuItem selected={selectmenu=== "PerformanceAnalytics"} onClick={() => handleClickMenu("PerformanceAnalytics")}>Performance Analytics</MenuItem>
           </Menu>
           <TabPanel
             value={value}
@@ -540,8 +542,9 @@ const DetailsViewPage = (props) => {
           </TabPanel>
           <TabPanel value={value} index={4}>
             {pageType === componentType.Type_Workspace && selectmenu=== "TaskAnalytics" && <TaskAnalytics />}
-            {pageType === componentType.Type_Workspace && selectmenu=== "MetaAnalytics" && <MetaAnalytics />}
-            {pageType === componentType.Type_Workspace && selectmenu=== "AdvanceAnalytics" && <ProgressAnalytics />}
+            {pageType === componentType.Type_Workspace && selectmenu=== "MetaAnalytics" && <MetaAnalytics/>}
+            {pageType === componentType.Type_Workspace && selectmenu=== "AdvanceAnalytics" && <ProgressList />}
+            {pageType === componentType.Type_Workspace && selectmenu=== "PerformanceAnalytics" && <PerformanceAnalytics /> }
             {pageType === componentType.Type_Organization && (
               <OrganizationSettings />
             )}
