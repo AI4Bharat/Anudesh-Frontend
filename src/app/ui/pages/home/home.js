@@ -2,7 +2,7 @@
 import "./home.css";
 import { useEffect } from "react";
 import Image from "next/image";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ChatIcon from "@mui/icons-material/Chat";
 import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
 import RateReviewIcon from "@mui/icons-material/RateReview";
@@ -147,6 +147,12 @@ const Home = () => {
             height={90}
           ></Image>
           <div className="flex gap-6">
+               <button
+                onClick={() => navigate("/login")}
+                className="text-xl font-medium hover:underline"
+              >
+                {banner.logIn}
+              </button>
             <button className="text-xl font-medium hover:underline">
               Codebase
             </button>
@@ -165,16 +171,18 @@ const Home = () => {
               {banner.subheading}
             </div>
             <div className="flex gap-8">
-              <button className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">
+              <Link to={"https://www.youtube.com/playlist?list=PL9n2cBQBp3vyZ3JOcGzYbRKMgaW2PtTJ4"}>
+              <button  className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">
                 {banner.demo}
               </button>
+              </Link>
 
-              <button
+              {/* <button
                 onClick={() => navigate("/login")}
                 className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white"
               >
                 {banner.logIn}
-              </button>
+              </button> */}
               <button
                 onClick={() => navigate("/chat")}
                 className="text-orange-600 bg-white text-xl p-4 rounded-md border border-orange-600 hover:bg-orange-600 hover:text-white"

@@ -1,7 +1,7 @@
-import { Box, Grid,Button,Tooltip,Typography } from "@mui/material";
+import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import  "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,21 +14,31 @@ import Search from "../common/Search";
 import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
+import { DialogContent } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 
 
 const Projectcard = (props) => {
-   /* eslint-disable react-hooks/exhaustive-deps */
+       /* eslint-disable react-hooks/exhaustive-deps */
+           /* eslint-disable-next-line react/jsx-key */
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
   const [page, setPage] = useState(0);
-  
+  const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(9);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-
+  const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects) : projectData
+  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+  const [openAuthDialog, setOpenAuthDialog] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -41,13 +51,48 @@ const Projectcard = (props) => {
     setPage(newPage);
   };
 
+  const handleAuthOpen = (project, title) => {
+    console.log(title);
+    setSelectedProject(project);
+    setOpenAuthDialog(true);
+  };
+
+
   const rowChange = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
+
+
+  const handlePasswordSubmit = async () => {
+    const apiObj = new VerifyProject(selectedProject?.id, password);
+    const res = await fetch(apiObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+    navigate(`/projects/${selectedProject?.id}`)
+    handleAuthClose();
+  };
+
+
  
   const pageSearch = () => {
-    return projectData.filter((el) => {
+    return combinedData.filter((el) => {
       if (SearchProject == "") {
         return el;
       } else if (
@@ -80,6 +125,17 @@ const Projectcard = (props) => {
     });
   };
 
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleAuthClose = () => {
+    setOpenAuthDialog(false);
+    setSelectedProject(null);
+    setPassword("");
+  };
+
+
   return (
     <React.Fragment>
       {/* <Header /> */}
@@ -106,15 +162,19 @@ const Projectcard = (props) => {
               .map((el, i) => {
                 return (
                   <Grid key={el.id} item xs={12} sm={6} md={4} lg={4} xl={4}>
-                    <ProjectCard
-                      classAssigned={
-                        i % 2 === 0
-                          ? classes.projectCardContainer2
-                          : classes.projectCardContainer1
-                      }
-                      projectObj={el}
-                      index={i}
-                    />
+                    {/* <div onClick={() => handleCardClick(el)}> */}
+                      <ProjectCard
+                        classAssigned={
+                          i % 2 === 0
+                            ? classes.projectCardContainer2
+                            : classes.projectCardContainer1
+                        }
+                        projectObj={el}
+                        projectData={projectData}
+                        handleAuthOpen={handleAuthOpen}
+                        index={i}
+                      />
+                    {/* </div> */}
                   </Grid>
                 );
               })
@@ -140,6 +200,48 @@ const Projectcard = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
+            <Dialog open={openAuthDialog} onClose={handleAuthClose}>
+        <DialogTitle>Enter Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            fullWidth
+            value={password}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <FormHelperText id="enter-password">
+            To enter{" "}
+            <Typography component="span" fontWeight="bold" fontSize={"12px"}>
+              {selectedProject?.title}
+            </Typography>{" "}
+            project you must type in the password.
+          </FormHelperText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAuthClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handlePasswordSubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </React.Fragment>
   );
 };

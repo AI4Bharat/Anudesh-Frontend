@@ -10,16 +10,38 @@ import themeDefault from "../../themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import  "../../styles/Dataset.css";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
+import { useSelector } from "react-redux";
 
 
 const ProjectCard = (props) => {
+  
+  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+
   let navigate = useNavigate();
   let { id } = useParams();
+  const { projectObj ,projectData,handleAuthOpen} = props;
 
-  const { projectObj } = props;
+  const handleCardClick = (el) => {
+    console.log(projectObj);
+    const isExcluded = projectData && projectData.excluded_projects && projectData.excluded_projects?.some(
+      (excludedProject) => excludedProject.id === el.id
+    )
+    console.log(loggedInUserData?.guest_user,isExcluded,projectObj);
+
+    if (loggedInUserData?.guest_user==true && isExcluded==true) {
+      handleAuthOpen(el, el.title);
+    } else {
+      navigate(`/projects/${el.id}`);
+    }
+  };
+
+
   const userRole =projectObj.project_stage && UserMappedByProjectStage(projectObj.project_stage).name;
   return (
-    <Link to={`/projects/${projectObj.id}`} style={{ textDecoration: "none" }}>
+    // <Link to={`/projects/${projectObj.id}`} style={{ textDecoration: "none" }}>
+    <>
+    <div onClick={() => handleCardClick(projectObj)}>
+
       <Grid
         elevation={2}
         className={props.classAssigned}
@@ -112,7 +134,9 @@ const ProjectCard = (props) => {
           </Grid>
         </Grid>
       </Grid>
-    </Link>
+    {/* </Link> */}
+    </div>
+    </>
   );
 };
 

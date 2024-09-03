@@ -11,7 +11,7 @@ export const fetchDatasetDownloadJSON = createAsyncThunk(
   'GetDatasetDownloadJSON/fetchDatasetDownloadJSON',
   async (datasetId, { dispatch }) => {
    
-    const params = fetchParams(`}${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=JSON`);
+    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=JSON`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }
@@ -23,7 +23,7 @@ function DownloadJSON(data) {
 	  const link = document.createElement("a");
 	  link.href = jsonString;
 	  link.download = "data.json";
-	  link.click();	
+	  link.click();	  
 
 }
 

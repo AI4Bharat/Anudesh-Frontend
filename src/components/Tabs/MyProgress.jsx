@@ -46,6 +46,7 @@ import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
 
 
+
   const   MyProgress = () => {
      /* eslint-disable react-hooks/exhaustive-deps */
      const { id } = useParams();
@@ -75,6 +76,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
     const Workspaces = useSelector((state) => state.GetWorkspace.data);
     const UserAnalytics = useSelector((state) => state.getUserAnalytics.data.project_summary);
     const UserAnalyticstotalsummary = useSelector((state) => state.getUserAnalytics.data.total_summary);
+    const UserAnalyticstotalsummary1 = useSelector((state) => console.log(state));
     const apiLoading = useSelector(state => state.apiStatus.loading);
     const dispatch = useDispatch();
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -89,6 +91,20 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
     useEffect(() => {
       setLoading(apiLoading);
     }, [apiLoading])
+
+    // useEffect(() => {
+    //   if (radiobutton === "AnnotatationReports") {
+    //     setProjectTypes([
+    //      "ModelOutputEvaluvation",
+    //      "ModelInteractionEvaluvation",
+    //      "InstructionDrivenChat",
+    //     ]);
+    //     setSelectedType("InstructionDrivenChat");
+        
+    //   } 
+    // }, [projectTypes, radiobutton]);
+
+    
   
   
     // useEffect(() => {
@@ -156,11 +172,6 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
     const handleProgressSubmit = () => {
       setShowPicker(false);
       setSubmitted(true);
-      // if (!selectedWorkspaces.length) {
-      //   setSnackbarText("Please select atleast one workspace!");
-      //   showSnackbar();
-      //   return;
-      // }
       const reviewdata = {
         user_id: id,
         project_type: selectedType,
@@ -169,7 +180,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
         end_date: format(selectRange[0].endDate, 'yyyy-MM-dd'),
   
       }
-      dispatch(fetchUserAnalytics(reviewdata));
+      dispatch(fetchUserAnalytics({progressObj:reviewdata}));
       // setShowSpinner(true);
       setTotalsummary(true)
   
@@ -225,7 +236,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
       jumpToPage: true,
       customToolbar: renderToolBar,
     };
-   
+    const selectedTypeWithDefault = selectedType || "InstructionDrivenChat";
     return (
       <ThemeProvider theme={themeDefault}>
         {/* <Header /> */}
@@ -277,7 +288,8 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
                 <Select
                   labelId="project-type-label"
                   id="project-type-select"
-                  value={selectedType}
+                  defaultValue="InstructionDrivenChat"
+                  value={selectedTypeWithDefault}
                   label="Project Type"
                   onChange={(e) => setSelectedType(e.target.value)}
                   MenuProps={MenuProps}

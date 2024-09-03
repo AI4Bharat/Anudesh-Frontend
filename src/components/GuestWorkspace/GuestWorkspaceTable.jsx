@@ -105,19 +105,19 @@ const GuestWorkspaceTable = (props) => {
     }
     );
     const resData = await res.json();
-    if(resData?.message.includes('failed')) {
-      setSnackbarInfo({
-        open: true,
-        message: resData?.message,
-        variant: "error",
-      });
-    } else if(resData?.message.includes('successful')) {
-      setSnackbarInfo({
-        open: true,
-        message: resData?.message,
-        variant: "success",
-      });
+    if(!res.ok) {
       handleClose();
+      setSnackbarInfo({
+        open: true,
+        message: "something went wrong",
+        variant: "error",
+      });    } else {
+        handleClose();
+      setSnackbarInfo({
+        open: true,
+        message: "Successfully Authenticated",
+        variant: "Success",
+      });
       navigate("/projects");
     }
   };
@@ -311,7 +311,7 @@ const GuestWorkspaceTable = (props) => {
                         edge="end"
                         aria-label="toggle password visibility"
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showPassword ? <Visibility /> : <VisibilityOff />}
                       </IconButton>
                     </InputAdornment>
                 }

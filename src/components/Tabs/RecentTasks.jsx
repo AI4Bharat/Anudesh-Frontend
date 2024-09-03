@@ -17,6 +17,7 @@ import {
   import MUIDataTable from "mui-datatables";
   import { translate } from "../../config/localisation";
 import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
+import AllTaskSearchPopup from "../Project/AllTasksSearchpopup";
   
   const TASK_TYPES = ["annotation", "review","supercheck"]
   
@@ -48,7 +49,9 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
     const [selectedFilters, setsSelectedFilters] = useState({});
   
     const GetAllTasksdata = () => {
-      dispatch(fetchRecentTasks(id, taskType, currentPageNumber, selectedFilters, currentRowPerPage));
+      // id,task_type, pageNo, filter,countPerPage
+      dispatch(fetchRecentTasks({id:id, task_type:taskType, pageNo:currentPageNumber, filter:selectedFilters, countPerPage:currentRowPerPage}));
+      console.log("step 1");
     };
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -205,7 +208,7 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
         />
       </ThemeProvider>
 
-      {/* {searchOpen && <AllTaskSearchPopup
+      {searchOpen && <AllTaskSearchPopup
         open={searchOpen}
         anchorEl={searchAnchor}
         handleClose={handleSearchClose}
@@ -214,7 +217,7 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
         currentFilters={selectedFilters}
         searchedCol={searchedCol}
         onchange={GetAllTasksdata}
-      />} */}
+      />}
     </ThemeProvider>
   )
 }

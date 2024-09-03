@@ -48,6 +48,7 @@ import { fetchFindAndReplaceWordsInAnnotation } from "@/Lib/Features/projects/ge
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
+import ChatLang from "@/utils/Chatlang";
 // import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
 
 
@@ -85,7 +86,6 @@ const TaskTable = (props) => {
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [rejected,setRejected] = useState(false)
   const [find, setFind] = useState("");
   const [replace, setReplace] = useState("");
   const [OpenFindAndReplaceDialog, setOpenFindAndReplaceDialog] = useState(false);
@@ -102,6 +102,16 @@ const TaskTable = (props) => {
   const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
+  const savedFilters = JSON.parse(localStorage.getItem('filters'));
+  const columnsCheck = [
+    { name: 'id', label: 'ID', defaultChecked: true },
+    { name: 'instructionData', label: 'Instruction Data', defaultChecked: true },
+    { name: 'language', label: 'Language', defaultChecked: true },
+    { name: 'status', label: 'Status', defaultChecked: true },
+    { name: 'otherColumn1', label: 'Other Column 1', defaultChecked: false },
+    { name: 'otherColumn2', label: 'Other Column 2', defaultChecked: false },
+    // Add other columns as needed
+  ];
 
   const filterData = {
     Status: ((ProjectDetails.project_stage == 2||ProjectDetails.project_stage == 3) || ProjectDetails?.annotation_reviewers?.some((reviewer) => reviewer.id === userDetails?.id))
@@ -139,17 +149,28 @@ const TaskTable = (props) => {
         })
         : [],
   };
-  const [pull, setpull] = useState("All");
-  const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
+  const [pull, setpull] = useState(
+    TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.pull 
+      : "All"
+  );  const pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
     (pull == 'Not Pulled By reviewer' || pull == 'Not Pulled By SuperChecker') ? true :
       ''
+    
+    
+      const [rejected, setRejected] = useState(
+        TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+          ? TaskFilter.rejected || false
+          : false
+      );
+    
   const [selectedFilters, setsSelectedFilters] = useState(
     props.type === "annotation"
       ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.filters
+        ? TaskFilter.selectedFilters
         : { annotation_status: filterData.Status[0] , req_user: -1 }
       : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.filters
+        ? TaskFilter.selectedFilters
         : { review_status: filterData.Status[0], req_user: -1 }
   );
   const NextTask = useSelector((state) => state?.getNextTask?.data);
@@ -157,6 +178,7 @@ const TaskTable = (props) => {
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5
   );
+  const [selectedStatus, setSelectedStatus] = useState(!!selectedFilters?.annotation_status ? selectedFilters?.annotation_status : selectedFilters.review_status);
   const [pullDisabled, setPullDisabled] = useState("");
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const apiLoading = useSelector((state) => state.GetTasksByProjectId.status !=="succeeded");
@@ -208,6 +230,14 @@ const TaskTable = (props) => {
     });
     const resp = await res.json();
     if (res.ok) {
+      if(resp?.message){
+         setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+      }
+      else{
       setSnackbarInfo({
         open: true,
         message: resp?.message,
@@ -229,6 +259,7 @@ const TaskTable = (props) => {
         setCurrentPageNumber(1);
       }
       dispatch(fetchProjectDetails(id));
+    }
     } else {
       setSnackbarInfo({
         open: true,
@@ -236,6 +267,7 @@ const TaskTable = (props) => {
         variant: "error",
       });
     }
+    getTaskListData()
   };
 
   const unassignTasks = async () => {
@@ -381,9 +413,15 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
 
-
   useEffect(() => {
-    dispatch(setTaskFilter(id, selectedFilters, props.type));
+    const payload = {
+      id,
+      selectedFilters,
+      type: props.type,
+      pull,
+      rejected
+    };
+    dispatch(setTaskFilter(payload));
     if (currentPageNumber !== 1) {
       setCurrentPageNumber(1);
     } else {
@@ -398,7 +436,7 @@ const TaskTable = (props) => {
         : selectedFilters.review_status
     );
     }
-  }, [selectedFilters]);
+  }, [selectedFilters,pull,rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -407,7 +445,12 @@ const TaskTable = (props) => {
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key])
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            })
         );
         props.type === "annotation" &&
           taskList[0].annotation_status &&
@@ -433,7 +476,7 @@ const TaskTable = (props) => {
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     {(props.type === "annotation" && ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)) ?
                          "Annotate"
-                        : "Edit"                    }
+                        : "View"                    }
                   </Typography>
                 }
               />
@@ -469,6 +512,7 @@ const TaskTable = (props) => {
       const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail")
       const email = props.type === "review" && annotatorEmail ? "Annotator Email" : "";
       let colList = ["id", ...(!!email ? [email] : [])];
+      console.log(colList,taskList[0]);
       colList.push(
         ...Object.keys(taskList[0].data).filter(
           (el) => !excludeCols.includes(el)
@@ -476,10 +520,17 @@ const TaskTable = (props) => {
       );
       taskList[0].task_status && colList.push("status");
       colList.push("actions");
+     var defaultCheckedCols = ["id", "instruction_data", "meta_info_language", "status","actions"]
+     const metaInfoMapping = {
+      meta_info_language: "language",
+      meta_info_domain: "domain",
+      meta_info_intent: "intent"
+    };
       const cols = colList.map((col) => {
         return {
           name: col,
-          label: snakeToTitleCase(col),
+          label: metaInfoMapping[col] ? snakeToTitleCase(metaInfoMapping[col]) : snakeToTitleCase(col),
+          defaultChecked: defaultCheckedCols.includes(col),
           options: {
             filter: false,
             sort: false,
@@ -489,7 +540,7 @@ const TaskTable = (props) => {
         };
       });
       setColumns(cols);
-      setSelectedColumns(colList);
+      setSelectedColumns(ProjectDetails?.project_type=="InstructionDrivenChat"?colList.filter(col => defaultCheckedCols.includes(col)):colList);
       setTasks(data);
     } else {
       setTasks([]);
@@ -782,11 +833,13 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <Tooltip title="Filter Table">
-          <Button onClick={handleShowFilter}>
-            <FilterListIcon />
-          </Button>
-        </Tooltip>
+        <Tooltip
+      title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>}
+    >
+      <Button onClick={handleShowFilter}>
+        <FilterListIcon />
+      </Button>
+    </Tooltip>
       </Box>
     );
   };
@@ -801,7 +854,7 @@ const TaskTable = (props) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
-        autoHideDuration={2000}
+        autoHideDuration={20000}
       />
     );
   };
@@ -978,7 +1031,7 @@ const TaskTable = (props) => {
                 }
               >
                 <FormControl size="small" sx={{ width: "100%" }}>
-                  <InputLabel id="pull-select-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="pull-select-label" sx={{ fontSize: "16px", zIndex: 0}}>
                     Pull Size
                   </InputLabel>
                   <Select
@@ -1129,6 +1182,8 @@ const TaskTable = (props) => {
           setpull={setpull}
           rejected={rejected}
           setRejected={setRejected}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
           // rejValue = {rejValue}
           pullvalue={pullvalue}
         />

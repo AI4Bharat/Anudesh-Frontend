@@ -56,6 +56,8 @@ import APITransport from "@/app/actions/apitransport/apitransport"
 
 const Header = () => {
        /* eslint-disable react-hooks/exhaustive-deps */
+           /* eslint-disable-next-line react/jsx-key */
+
   const currentUrl = window.location.href;
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElSettings, setAnchorElSettings] = useState(null);
@@ -345,6 +347,7 @@ const handleopenproject=(id,type)=>{
           xs={12}
           sm={12}
           md={7}
+          zIndex={2000}
         >
           {/* <Typography variant="body1">
             <NavLink
@@ -619,13 +622,14 @@ const handleopenproject=(id,type)=>{
               Analytics
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          <Typography variant="body1" >
             <NavLink
               to="/admin"
               className={({ isActive }) =>
                 isActive ? classes.highlightedMenu : classes.headerMenu
               }
               activeClassName={classes.highlightedMenu}
+              
             >
               Admin
             </NavLink>
@@ -824,13 +828,16 @@ const handleopenproject=(id,type)=>{
     }
   };
 
-  const [globalTransliteration, setGlobalTransliteration] = useState(localStorage.getItem("globalTransliteration")=== "true" ? true : false);
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "");
 
   useEffect(() => {
-    localStorage.setItem("globalTransliteration", globalTransliteration);
     localStorage.setItem("language", language);
-  }, [language, globalTransliteration]);
+  }, [language]);
+  useEffect(() => {
+    localStorage.setItem("globalTransliteration", globalTransliteration);
+  }, [ globalTransliteration]);
+
 
   return (
     <Grid container direction="row" style={{ zIndex: 1 }}>
@@ -849,7 +856,7 @@ const handleopenproject=(id,type)=>{
           />
         ) : (
           <AppBar>
-            <Toolbar className={classes.toolbar}>
+            <Toolbar className={classes.toolbar} style={{zIndex: 200}}>
             <Grid
               sx={{ display: "flex", alignItems: "center" }}
               xs={12}
@@ -874,6 +881,7 @@ const handleopenproject=(id,type)=>{
                     sx={{
                       fontSize: "28px",
                       fontWeight: "bold",
+                      fontFamily: 'Rowdies,"cursive", Roboto, sans-serif',
                     }}
                   >
                     Anudesh
@@ -907,7 +915,11 @@ const handleopenproject=(id,type)=>{
                   sx={{ textAlign: "center", alignItems: "center", }}
                 >
                 <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Notifications">
+                    <Tooltip title={
+                         <span style={{ fontFamily: 'Rowdies' }}>
+                            Notifications
+                          </span>
+                    }>
                       <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={unseenNotifications?.length>0 ?unseenNotifications?.length: null} color="primary">
                           <NotificationsIcon color="primary.dark" fontSize="large" />
@@ -943,7 +955,11 @@ const handleopenproject=(id,type)=>{
                   </Grid> } */}
 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Help">
+                    <Tooltip  title={
+                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                            Help
+                        </span>
+                     }>
                       <IconButton onClick={handleInfo}>
                         <InfoOutlinedIcon
                           color="primary.dark"
@@ -954,7 +970,11 @@ const handleopenproject=(id,type)=>{
                   </Grid>
 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Settings">
+                    <Tooltip  title={
+                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                              Settings
+                        </span>
+                    }>
                       <IconButton onClick={handleOpenSettingsMenu}>
                         <SettingsOutlinedIcon
                           color="primary.dark"
@@ -965,7 +985,11 @@ const handleopenproject=(id,type)=>{
                   </Grid>
 
                   <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="User Options">
+                    <Tooltip  title={
+                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                            User Options
+                        </span>
+                   }>
                       <IconButton onClick={handleOpenUserMenu}>
                         <Avatar
                           alt="user_profile_pic"
@@ -1178,21 +1202,25 @@ const handleopenproject=(id,type)=>{
                           </div>
                           <Link style={{ color: "rgba(0, 0, 0, 0.87)", display: 'flex', flexDirection: 'column', width: '100%' ,cursor:"pointer",textDecoration:"none" }} to={notification.on_click}>
                             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-                              <Typography variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`ID: ${notification?.title?.split('-')[0]}`}</Typography>
+                              <Typography variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`ID: ${notification?.title?.split('\n')[0]}`}</Typography>
                               <Typography style={{ paddingLeft: "10px" }} variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`TITLE: ${notification?.notification_type}`}</Typography>
                               <Typography style={{ padding: "5px 5px 0px 5px" }} variant="caption" color="action">{`${formatDistanceToNow(new Date(notification?.created_at), { addSuffix: true })}`}</Typography>
                             </div>
                            
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: "space-between" }}>
-                              <Typography style={{ justifyContent: "flex-start", width: '100%' }} variant="body2">{notification?.title?.split('-')[1]}</Typography>
-                              {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
+                              <Typography style={{ justifyContent: "flex-start", width: '100%' }} variant="body2">{notification?.title?.split('\n')[1]}</Typography>
+                              {/* {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
                               <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
                                 <CheckCircleOutlineRoundedIcon color="primary"/>
-                              </IconButton></Tooltip>:null}
+                              </IconButton></Tooltip>:null} */}
                             </div>
                             <Typography variant="caption" color="action">{`Sent on: ${format(new Date(notification?.created_at), 'MMM d, yyyy')}`}</Typography>
                             {index !== Notification?.length - 1 && <Divider />} 
                           </Link>  
+                          {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
+                          <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
+                            <CheckCircleOutlineRoundedIcon color="primary"/>
+                          </IconButton></Tooltip>:null}
                         </div>
                       ))}
                     </>

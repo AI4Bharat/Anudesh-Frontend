@@ -124,11 +124,21 @@ const ReviewPage = () => {
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const [labelConfig, setLabelConfig] = useState();
   const [currentInteraction, setCurrentInteraction] = useState({});
+  const [interactions, setInteractions] = useState([]);
+  const [forms, setForms] = useState([]);
+  const [answered, setAnswered] = useState(false);
   let loaded = useRef();
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
+  const [labellingMode, setLabellingMode] = useState(null);
   const load_time = useRef();
-  let labellingMode = localStorage.getItem("labellingMode");
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mode = localStorage.getItem('labellingMode');
+      setLabellingMode(mode);
+    }
+  }, []);
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -570,7 +580,10 @@ const ReviewPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
@@ -590,7 +603,10 @@ const ReviewPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          localStorage.removeItem("labelAll");
+          if(typeof window !== "undefined"){
+            localStorage.removeItem("labelAll");
+          }
+          
           window.location.replace(`/#/projects/${projectId}`);
           window.location.reload();
         }, 1000);
@@ -609,41 +625,43 @@ const ReviewPage = () => {
         }));
 
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
-        resultValue = currentInteraction;
+        resultValue = forms.map((form) =>({
+          prompt: form.prompt,
+          output: form.output,
+          additional_note: form.additional_note,
+          rating: form.rating,
+          questions_response: form.questions_response,
+          prompt_output_pair_id: form.prompt_output_pair_id
+        })
+        
+        );
       }
 
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status:
-         
-          value === "delete" || value === "delete-pair"
-           
-            ? localStorage.getItem("labellingMode")
-           
-            : value,
-        review_notes: JSON.stringify(
-          reviewNotesRef?.current?.getEditor().getContents(),
-        ),
-        lead_time:
-          (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-        ...((value === "to_be_revised" ||
-          value === "accepted" ||
-          value === "accepted_with_minor_changes" ||
-          value === "accepted_with_major_changes") && {
+        annotation_status: typeof window !== "undefined" && (value === "delete" || value === "delete-pair")
+          ? localStorage.getItem("labellingMode")
+          : value,
+        review_notes: typeof window !== "undefined" ? JSON.stringify(
+          reviewNotesRef?.current?.getEditor().getContents()
+        ) : null,
+        lead_time: (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+        ...((value === "to_be_revised" || value === "accepted" || value === "accepted_with_minor_changes" || value === "accepted_with_major_changes") && {
           parent_annotation: parentannotation,
         }),
-        result:
-          value === "delete"
-            ? []
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+        result: value === "delete"
+          ? []
+          : value === "delete-pair"
+            ? resultValue.slice(0, resultValue.length - 1)
+            : resultValue,
         task_id: taskId,
-        auto_save: value === "delete" || value === "delete-pair" || value==="rejected"? true : false,
+        auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
         interaction_llm: value === "delete" || value === "delete-pair",
         clear_conversation: value === "delete" || value === "rejected",
       };
+      
+      
 
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
@@ -655,6 +673,20 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
+        if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
+          console.log("answered variable: ")
+        if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: "Answer all the mandatory questions in all forms",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return; 
+        }
+        }
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
@@ -678,9 +710,12 @@ const ReviewPage = () => {
         }
         if (res.ok) {
           if ((value === "delete" || value === "delete-pair") === false) {
-            if (localStorage.getItem("labelAll") || value === "skipped") {
+            if(typeof window !== "undefined"){
+              if (localStorage.getItem("labelAll") || value === "skipped") {
               onNextAnnotation(resp.task);
             }
+            }
+            
           }
           value === "delete"
             ? setSnackbarInfo({
@@ -866,8 +901,10 @@ const ReviewPage = () => {
   useEffect(() => {
     filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
-
-  window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if(typeof window !== "undefined"){
+     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+ 
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -926,6 +963,13 @@ const ReviewPage = () => {
         <ModelInteractionEvaluation
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Review"}
+          answered={answered}
+          setAnswered={setAnswered}
         />
       );
       break;
@@ -961,19 +1005,22 @@ const ReviewPage = () => {
             }}
           >
             <Button
-              value="Back to Project"
+              value="Back to Previous Page"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                localStorage.removeItem("labelAll");
+                if(typeof window !== "undefined"){
+                  localStorage.removeItem("labelAll");
+                }
+                
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
               }}
             >
-              Back to Project
+             Back to Previous Page
             </Button>
           </Box>
         </Grid>

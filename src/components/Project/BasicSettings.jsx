@@ -11,7 +11,8 @@ import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
-
+import getWorkspaceDetails, { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 
 const BasicSettings = (props) => {
@@ -36,7 +37,28 @@ const BasicSettings = (props) => {
     const classes = DatasetStyle();
     const dispatch = useDispatch();
     const apiLoading = useSelector(state => state.apiStatus.loading);
-  
+    const loggedInUserData = useSelector(state => state.getLoggedInData?.data); //retrieved the id of the current signedin user
+    const workspaceManagers = useSelector(state=>(state.getWorkspaceDetails.data.managers));
+
+    const isManager = workspaceManagers?.some(manager => manager.id === loggedInUserData.id);
+
+    const getWorkspaceDetails = ()=>{
+        dispatch(fetchWorkspaceDetails(ProjectDetails?.workspace_id));
+      }
+     
+      
+      useEffect(()=>{
+        getWorkspaceDetails();
+      },[]);
+    console.log(loggedInUserData.id);
+    const getLoggedInUserData = () => {
+        dispatch(FetchLoggedInUserData("me"));
+      };
+
+      useEffect(() => {
+        getLoggedInUserData();
+      }, []);
+    
 
     useEffect(() => {
         // if (ProjectDetails.project_type === "MonolingualTranslation" ||ProjectDetails.project_type === "SemanticTextualSimilarity" || ProjectDetails.project_type === "TranslationEditing" || ProjectDetails.project_type === "ContextualTranslationEditing"|| ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing") {
@@ -54,13 +76,13 @@ const BasicSettings = (props) => {
             description: ProjectDetails.description,
             max_pending_tasks_per_user: ProjectDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: ProjectDetails.tasks_pull_count_per_batch,
+            max_tasks_per_user: ProjectDetails.max_tasks_per_user,
         });
         setTargetLanguage(ProjectDetails?.tgt_language)
         setSourceLanguage(ProjectDetails?.src_language)
     }, [ProjectDetails]);
-
     const LanguageChoices = useSelector((state) => state.getLanguages.data.language);
-
+   
     const getLanguageChoices = () => {
         dispatch(fetchLanguages());
     };
@@ -95,7 +117,9 @@ const BasicSettings = (props) => {
             annotation_reviewers: ProjectDetails.annotation_reviewers,
             max_pending_tasks_per_user: newDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: newDetails.tasks_pull_count_per_batch,
+            max_tasks_per_user: newDetails.max_tasks_per_user,
         }
+        console.log(sendData);
         const projectObj = new GetSaveButtonAPI(id, sendData);
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "PUT",
@@ -157,7 +181,6 @@ const BasicSettings = (props) => {
             />
         );
     };
-
     return (
         <ThemeProvider theme={themeDefault}>
 
@@ -418,6 +441,44 @@ const BasicSettings = (props) => {
                                     onChange={handleProjectName} />
                             </Grid>
                         </Grid>
+
+                        <Grid
+                            container
+                            direction='row'
+                            sx={{
+                                alignItems: "center",
+                                mt: 2
+                            }}
+                        >
+                            <Grid
+                                items
+                                xs={12}
+                                sm={12}
+                                md={12}
+                                lg={2}
+                                xl={2}
+                            >
+                                <Typography variant="body2" fontWeight='700' label="Required">
+                                Max Tasks Per User
+                                </Typography>
+                            </Grid>
+                            <Grid
+                                item
+                                xs={12}
+                                md={12}
+                                lg={9}
+                                xl={9}
+                                sm={12}
+                            >
+                                <OutlinedTextField
+                                    fullWidth
+                                    name="max_tasks_per_user"
+                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: "500px" }, readOnly: !isManager }}
+                                    
+                                    value={newDetails?.max_tasks_per_user}
+                                    onChange={handleProjectName} />
+                            </Grid>
+                        </Grid>
                     </>
                 <Grid
                     container
@@ -433,7 +494,7 @@ const BasicSettings = (props) => {
                     }}
                 >
                     <CustomButton sx={{ inlineSize: "max-content", marginRight: "10px", width: "80px" }}
-                        onClick={() => navigate(`/projects/:id/`)}
+                        onClick={() => navigate(-1)}
                         // onClick={handleCancel}
                         label="Cancel" />
                     <CustomButton sx={{ inlineSize: "max-content", width: "80px" }}

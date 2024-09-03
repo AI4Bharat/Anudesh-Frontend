@@ -14,13 +14,17 @@ import {
   Select,
   FormControl,
   MenuItem,
+  InputAdornment,
+  Switch,
+  InputLabel,
+  TextField
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { MenuProps } from "@/utils/utils";
 import { useParams } from "react-router-dom";
-import { createProject } from "@/Lib/Features/actions/projects";
+import { createProject, setPasswordForProject } from "@/Lib/Features/actions/projects";
 import { useNavigate } from "react-router-dom";
 import ColumnList from "@/components/common/ColumnList";
 import { snakeToTitleCase } from "@/utils/utils";
@@ -36,7 +40,9 @@ import { fetchDatasetSearchPopup } from "@/Lib/Features/datasets/DatasetSearchPo
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
-
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import UploadIcon from '@mui/icons-material/Upload';
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
   return reg.test(String(str));
@@ -73,6 +79,7 @@ const CreateProject = () => {
   const NewProject = useSelector(state => state.projects.newProject?.res);
   const UserData = useSelector(state => state.getLoggedInData.data);
   const navigate = useNavigate();
+  
 
   const [domains, setDomains] = useState([]);
   const [projectTypes, setProjectTypes] = useState(null);
@@ -100,6 +107,7 @@ const CreateProject = () => {
   const [selectedVariableParameters, setSelectedVariableParameters] = useState(
     []
   );
+  const workspaceDtails = useSelector(state => state.getWorkspaceDetails.data);
   const [taskReviews, setTaskReviews] = useState(1);
   const [variable_Parameters_lang, setVariable_Parameters_lang] = useState("");
   //Table related state variables
@@ -110,10 +118,160 @@ const CreateProject = () => {
   const [totalDataitems, setTotalDataitems] = useState(10);
   const [tableData, setTableData] = useState([]);
   const [searchAnchor, setSearchAnchor] = useState(null);
+  const [is_published, setIsPublished] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] = useState("none");
- /* eslint-disable react-hooks/exhaustive-deps */
+  const [passwordForProjects, setPasswordForProjects] = useState("");
+  const [shownewpassword, setShowNewPassword] = useState(false);
+  const [csvFile, setCsvFile] = useState(null);
+  const [questionsJSON, setQuestionsJSON] = useState([]);
 
+   /* eslint-disable react-hooks/exhaustive-deps */
+  const handleJsonInputChange = (event) => {
+    const input = event.target.value;
+  
+    try {
+      const parsedInput = JSON.parse(input);
+      console.log("parsed input: ", parsedInput);
+      if (Array.isArray(parsedInput) && parsedInput.every(item => typeof item === 'object' && item !== null)) {
+        setQuestionsJSON(parsedInput);
+      } else {
+        console.error("Input is not a valid array of objects");
+      }
+    } catch (error) {
+      console.error("Invalid JSON input");
+    }
+  };
+  useEffect(() => {
+    console.log('questionsJSON:', questionsJSON);
+    console.log('typeof questionsJSON:', typeof questionsJSON);
+    console.log('Array.isArray(questionsJSON):', Array.isArray(questionsJSON));
+  }, [questionsJSON]);
+    
+  
+  console.log("questions json: "  + typeof questionsJSON);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setCsvFile(file);
+      parseCSV(file);
+    }
+  };
+  
+  const parseCSV = (file) => {
+    const reader = new FileReader();
+  
+    reader.onload = (event) => {
+      const content = event.target.result;
+      const lines = content.split('\n').filter(line => line.trim() !== '');
+      const headers = lines[0].split(',').map(header => header.trim());
+  
+      const jsonData = lines.slice(1).map(line => {
+        const values = [];
+        let insideArray = false;
+        let insideQuotes = false;
+        let currentVal = '';
+        let escape = false;
+  
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+  
+          if (char === '\\' && !escape) {
+            escape = true;
+            continue;
+          }
+  
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          }
+  
+          if (char === '[') {
+            insideArray = true;
+          } else if (char === ']') {
+            insideArray = false;
+          }
+  
+          if (char === ',' && !insideArray && !insideQuotes && !escape) {
+            let value = currentVal.trim();
+            if (value.startsWith('"') && value.endsWith('"') && !value.startsWith('""')) {
+              value = value.slice(1, -1); 
+            }
+            if (value.startsWith('[') && value.endsWith(']')) {
+              value = value.replace(/""/g, '"');
+              try {
+                values.push(JSON.parse(value)); 
+              } catch {
+                values.push(value); 
+              }
+            } else {
+              value = value.replace(/\\"/g, '"');
+              if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+                values.push(value.toLowerCase() === 'true');
+              } else {
+                values.push(value);
+              }
+              
+            }
+            currentVal = '';
+          } else {
+            currentVal += char;
+            escape = false;
+          }
+        }
+  
+        let lastValue = currentVal.trim();
+        if (lastValue.startsWith('"') && lastValue.endsWith('"') && !lastValue.startsWith('""')) {
+          lastValue = lastValue.slice(1, -1);
+        }
+        if (lastValue.startsWith('[') && lastValue.endsWith(']')) {
+          lastValue = lastValue.replace(/""/g, '"');
+          try {
+            values.push(JSON.parse(lastValue));
+          } catch {
+            values.push(lastValue); 
+          }
+        } else {
+          lastValue = lastValue.replace(/\\"/g, '"'); 
+          if (lastValue.toLowerCase() === 'true' || lastValue.toLowerCase() === 'false') {
+            values.push(lastValue.toLowerCase() === 'true');
+          } else {
+            values.push(lastValue);
+          }
+          
+        }
+  
+        return headers.reduce((obj, header, index) => {
+          obj[header] = values[index];
+          return obj;
+        }, {});
+      });
+  
+      if (Array.isArray(jsonData) && jsonData.every(item => typeof item === 'object' && item !== null)) {
+        console.log("Parsed JSON Data is an array of objects:", jsonData);
+        setQuestionsJSON(jsonData);
+      } else {
+        console.error("Parsed JSON Data is not an array of objects");
+      }
+      if (Array.isArray(questionsJSON)) {
+        console.log("questionsJSON is an array");
+        if (questionsJSON.every(item => typeof item === 'object' && item !== null)) {
+          console.log("questionsJSON is an array of objects");
+        } else {
+          console.log("questionsJSON is not an array of objects");
+        }
+      } else {
+        console.log("questionsJSON is not an array");
+      }
+    };
+  
+    reader.readAsText(file);
+  };
+  
+
+  if(questionsJSON[0]?.mandatory) console.log("this is true")
+  else console.log("this is false");
+ /* eslint-disable react-hooks/exhaustive-deps */
+// console.log("now the questions is: " + typeof(questionsJSON))
   const searchOpen = Boolean(searchAnchor);
   const excludeKeys = [
     "parent_data_id",
@@ -129,6 +287,15 @@ const CreateProject = () => {
     "rating",
   ];
 
+  const getWorkspaceDetails = ()=>{
+    dispatch(fetchWorkspaceDetails(id));
+  }
+ 
+  
+  useEffect(()=>{
+    getWorkspaceDetails();
+  },[]);
+
   //Fetch and display Project Domains
   useEffect(() => {
     // if(ProjectDomains.status !== "succeeded")
@@ -136,6 +303,10 @@ const CreateProject = () => {
   }, []);
   const onSelectDomain = (value) => {
     setSelectedDomain(value);
+  };
+
+  const handleChangeIsPublished = (event) => {
+    setIsPublished(event.target.checked);
   };
 
   useEffect(() => {
@@ -251,6 +422,11 @@ const CreateProject = () => {
     );
   };
 
+  const handleTogglenewpasswordVisibility = () => {
+    setShowNewPassword(!shownewpassword);
+  };
+
+
   const onSelectProjectType = (value) => {
     setSelectedType(value);
     dispatch(fetchDatasetByType(datasetTypes[value]));
@@ -279,7 +455,7 @@ const CreateProject = () => {
     }
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
-  const handleCreateProject = () => {
+  const handleCreateProject = async() => {
     const newProject = {
       title: title,
       description: description,
@@ -296,21 +472,46 @@ const CreateProject = () => {
       label_config: "string",
       sampling_mode: samplingMode,
       sampling_parameters_json: samplingParameters,
+      batch_size:batchSize,
+      batch_number:batchNumber,
       // variable_parameters: selectedVariableParameters,
       filter_string: filterString,
       project_stage: taskReviews,
       required_annotators_per_task: selectedAnnotatorsNum,
       automatic_annotation_creation_mode: createannotationsAutomatically,
+      is_published:is_published,
+      password: passwordForProjects,
+      metadata_json: questionsJSON
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
-    dispatch(createProject(newProject));
+    
+     dispatch(createProject(newProject));
+    
+  };
+
+
+
+  const setPasswordForNewProject = async (projectId) => {
+    try {
+      console.log("Project id: "+projectId)
+      console.log("password: " + passwordForProjects)
+      dispatch(setPasswordForProject({ projectId, password: passwordForProjects }));
+    } catch (error) {
+      console.error('Error setting password for project:', error);
+    }
   };
 
   useEffect(() => {
     if (NewProject?.id) {
       navigate(`/projects/${NewProject.id}`, { replace: true });
       window.location.reload();
+
+      if (NewProject?.id) {
+        const projectId = NewProject?.id;
+        console.log('Project ID:', projectId);
+        setPasswordForNewProject(projectId);
+      }
     }
   }, [NewProject]);
   useEffect(() => {
@@ -374,6 +575,7 @@ const CreateProject = () => {
       getDataItems();
     }
   }, [currentPageNumber, currentRowPerPage]);
+  const sample = useSelector(state=>console.log(state));
   const renderToolBar = () => {
     return (
       <Grid container spacing={0} md={12}>
@@ -496,7 +698,7 @@ const CreateProject = () => {
                 className="projectsettingGrid"
               >
                 <Typography gutterBottom component="div" label="Required">
-                  Title:
+                  Title<span style={{ color: '#d93025' }}>*</span> : 
                 </Typography>
               </Grid>
               <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
@@ -504,6 +706,7 @@ const CreateProject = () => {
                   fullWidth
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                 
                 />
               </Grid>
             </Grid>
@@ -518,7 +721,7 @@ const CreateProject = () => {
               xl={12}
             >
               <Typography gutterBottom component="div">
-                Description:
+                Description<span style={{ color: '#d93025' }}>*</span> : 
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -526,6 +729,7 @@ const CreateProject = () => {
                 fullWidth
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                
               />
             </Grid>
 
@@ -541,7 +745,7 @@ const CreateProject = () => {
                   xl={12}
                 >
                   <Typography gutterBottom component="div">
-                    Select a Category to Work in:
+                    Select a Category to Work in<span style={{ color: '#d93025' }}>*</span> :
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -566,7 +770,7 @@ const CreateProject = () => {
                   xl={12}
                 >
                   <Typography gutterBottom component="div">
-                    Select a Project Type:
+                    Select a Project Type <span style={{ color: '#d93025' }}>*</span> :
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -696,7 +900,7 @@ const CreateProject = () => {
                       xl={12}
                     >
                       <Typography gutterBottom component="div">
-                        Select sources to fetch data from:
+                        Select sources to fetch data from <span style={{ color: '#d93025' }}>*</span> :
                       </Typography>
                     </Grid>
 
@@ -834,7 +1038,7 @@ const CreateProject = () => {
                   xl={12}
                 >
                   <Typography gutterBottom component="div">
-                    Select Sampling Type:
+                    Select Sampling Type<span style={{ color: '#d93025' }}>*</span> :
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -1038,10 +1242,107 @@ const CreateProject = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+                {selectedType==="ModelInteractionEvaluation" ? 
+                (
+                  
+                  <Grid item xs={12} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <Typography gutterBottom component="div" label="Required">
+                    Upload CSV or Paste JSON<span style={{ color: '#d93025' }}>*</span> : 
+                  </Typography>
+                  
+                  <Grid container item xs={12} style={{ marginTop: '20px', alignItems: 'center' }}>
+  <TextField
+    variant="outlined"
+    multiline
+    rows={4}
+    value={JSON.stringify(questionsJSON)}
+    onChange={handleJsonInputChange}
+    style={{ flex: 1, marginRight: '10px' }}
+  />
+  
+  <InputLabel htmlFor="csv-file-input" style={{ display: 'none' }}>
+    Upload CSV File
+  </InputLabel>
+  <input
+    id="csv-file-input"
+    type="file"
+    accept=".csv"
+    onChange={handleFileChange}
+    style={{ display: 'none' }}
+  />
+  <label htmlFor="csv-file-input">
+    <Button
+      variant="contained"
+      color="primary"
+      component="span"
+      startIcon={<UploadIcon />}
+    >
+      Upload CSV
+    </Button>
+  </label>
+</Grid>
+                </Grid>
+                
+    ): null}
+                {workspaceDtails?.guest_workspace_display === "Yes" ? (
+  <>
+    <Grid
+      item
+      className="projectsettingGrid"
+      xs={12}
+      sm={12}
+      md={12}
+      lg={12}
+      xl={12}
+    >
+      <Typography gutterBottom component="div">
+        Set a password:
+      </Typography>
+    </Grid>
+
+    <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+      <OutlinedTextField
+        fullWidth
+        value={passwordForProjects}
+        type={shownewpassword ? "text" : "password"}
+        onChange={(e) => {
+          setPasswordForProjects(e.target.value);
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={handleTogglenewpasswordVisibility}
+                edge="end"
+                aria-label="toggle password visibility"
+              >
+                {shownewpassword ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Grid>
+
+    
+   
+  </>
+) : null}
+
+                {workspaceDtails?.guest_workspace_display === "Yes"?<Grid container direction="row" alignItems="center">
+                <Typography gutterBottom components="div">
+                  Publish Project :
+                </Typography>
+                <Switch
+                  checked={is_published} 
+                  onChange={handleChangeIsPublished}
+                  inputProps={{ "aria-label": "controlled" }}
+                  sx={{ mt: 2, ml: 2 ,mb:2}}
+                />
+            </Grid>:null}
       
               </>
             )}
-
             <Grid
               item
               className="projectsettingGrid"
@@ -1077,7 +1378,7 @@ const CreateProject = () => {
                     selectedType &&
                     selectedInstances &&
                     domains &&
-                    samplingMode 
+                    samplingMode && (selectedType==="ModelInteractionEvaluation"? questionsJSON?.length>0 : true)
                     ? false:true
                 }
               />

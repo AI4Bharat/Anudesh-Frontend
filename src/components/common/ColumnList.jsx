@@ -27,11 +27,23 @@ const ColumnList = (props) => {
 
   return (
     <div>
-      <Tooltip title="View Columns">
+      {/* <Tooltip title="View Columns">
         <Button onClick={() => setIsOpen(!isOpen)} ref={buttonRef}>
           <ViewColumnIcon />
         </Button>
-      </Tooltip>
+      </Tooltip> */}
+
+      <Tooltip
+      title={
+        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+          View Columns
+        </span>
+      }
+    >
+      <Button onClick={() => setIsOpen(!isOpen)} ref={buttonRef}>
+        <ViewColumnIcon />
+      </Button>
+    </Tooltip>
       <Popover
         id={props.id}
         open={isOpen}

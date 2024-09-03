@@ -106,9 +106,9 @@ export default function DatasetProjectsTable({ datasetId }) {
 
 	const getExportProjectButton = async (project) => {
 		setLoading(true);
-		const projectObj1 = project.project_type === "ConversationTranslation" ?
+		const projectObj1 = project.project_type === "InstructionDrivenChat" ?
 			({projectId:project.id, datasetId:project.dataset_id[0]}) : ({projectId:project.id});
-		const projectObj = project.project_type === "ConversationTranslation" ?
+		const projectObj = project.project_type === "InstructionDrivenChat" ?
 			new GetExportProjectButtonAPI(project.id, project.dataset_id[0]) : new GetExportProjectButtonAPI(project.id);
 		dispatch(fetchExportProjectButton(projectObj1));
 		const res = await fetch(projectObj.apiEndPoint(), {
@@ -138,7 +138,8 @@ export default function DatasetProjectsTable({ datasetId }) {
 	  );
   const pageSearch = () => {
     return datasetProjects.filter((el) => {
-      if (SearchWorkspaceMembers == "") {
+		console.log(SearchWorkspaceMembers);
+      if (SearchWorkspaceMembers == ""||SearchWorkspaceMembers==undefined) {
         return el;
       } else if (
         el.title
@@ -212,7 +213,7 @@ export default function DatasetProjectsTable({ datasetId }) {
 			),
 		})):[]
     // )
-
+console.log(data);
 	return (
 		<>
 			<ThemeProvider theme={tableTheme}>

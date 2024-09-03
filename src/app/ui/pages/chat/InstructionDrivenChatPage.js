@@ -27,6 +27,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
+import { Block } from "@mui/icons-material";
+import ChatLang from "@/utils/Chatlang";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -62,7 +64,8 @@ const InstructionDrivenChatPage = ({
   id,
   stage,
   notes,
-  info
+  info,
+  disableUpdateButton
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
@@ -71,6 +74,7 @@ const InstructionDrivenChatPage = ({
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
+  const [hasMounted,setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -85,14 +89,12 @@ const InstructionDrivenChatPage = ({
   const handleOpen = () => {
     setOpen(true);
   };
-
+console.log(disableUpdateButton);
   const handleClose = () => {
     setOpen(false);
   };
+  
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory]);
 
   const renderSnackBar = () => {
     return (
@@ -124,7 +126,7 @@ const InstructionDrivenChatPage = ({
       });
     }
   };
-
+  
   useEffect(() => {
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
@@ -135,32 +137,105 @@ const InstructionDrivenChatPage = ({
       const data = await response.json();
       let modifiedChatHistory = [];
       if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
-        modifiedChatHistory = data[0]?.result?.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
+        if (stage === "Review") {
+          let reviewData = data.find((item) => item.annotation_type === 2);
+          if (reviewData.annotation_status === "unreviewed") {
+            reviewData = data.find((item) => item.annotation_type === 1);
+          }
+          modifiedChatHistory = reviewData?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }else if(stage=="SuperChecker"){
+          let obj = data.filter((data)=>data.annotation_type==3)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }else if(stage=="Annotation"){
+          let obj = data.filter((data)=>data.annotation_type==1)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }
+        else{
+          modifiedChatHistory = data[0]?.result?.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+        }
         setChatHistory([...modifiedChatHistory]);
       } else {
         setChatHistory([]);
       }
       setAnnotationId(data[0]?.id);
-      if (data && [...data[0].result].length) setShowChatContainer(true);
+      if (data[0]?.result) setShowChatContainer(true);
     };
     fetchData();
   }, [taskId]);
 
-  const handleButtonClick = async () => {
+  const cleanMetaInfo = (value) => value.replace(/\(for example:.*?\)/gi, '').trim();
+
+  const escapeRegExp = (string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+  };
+  
+  const formatTextWithTooltips = (text, info) => {
+    // Ensure text is a string
+    text = String(text);
+  
+    // Clean the meta info values
+    const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
+    const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
+    const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
+  
+    let formattedText = text;
+  
+    const placeholders = [
+      { key: 'meta_info_intent', value: metaInfoIntent, tooltip: 'Intent of the instruction' },
+      { key: 'meta_info_language', value: metaInfoLanguage, tooltip: 'Language used' },
+      { key: 'meta_info_domain', value: metaInfoDomain, tooltip: 'Domain of the content' }
+    ];
+  
+    placeholders.forEach(({ value, tooltip }) => {
+      if (value !== 'None') {
+        const escapedValue = escapeRegExp(value);
+        const regex = new RegExp(`(${escapedValue})`, 'gi');
+        text = text.replace(regex, (match) => {
+          return `<Tooltip title="${tooltip}"><strong>${match}</strong></Tooltip>`;
+        });
+  
+      }
+    });
+  
+    return text;
+  };
+    const formattedText = formatTextWithTooltips(info.instruction_data, info);
+  
+    const handleButtonClick = async () => {
     if (inputValue) {
       setLoading(true);
       const body = {
-        annotation_status: localStorage.getItem("labellingMode"),
         result: inputValue,
-        lead_time: (new Date() - loadtime) / 1000 + Number(id.lead_time?.lead_time ?? 0),
+        lead_time: (new Date() - loadtime) / 1000 + Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
       };
+      console.log(id,stage);
+      if(stage==="Alltask"){
+        body.annotation_status = id?.annotation_status
+      }else{
+        body.annotation_status = localStorage.getItem("labellingMode")
+      }
       if (stage === "Review") {
         body.review_notes = JSON.stringify(notes?.current?.getEditor().getContents());
       } else if (stage === "SuperChecker") {
@@ -169,9 +244,9 @@ const InstructionDrivenChatPage = ({
         body.annotation_notes = JSON.stringify(notes?.current?.getEditor().getContents());
       }
       if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id.parent_annotation;
+        body.parentannotation = id?.parent_annotation;
       }
-      const AnnotationObj = new PatchAnnotationAPI(id.id, body);
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(AnnotationObj.getBody()),
@@ -206,9 +281,11 @@ const InstructionDrivenChatPage = ({
         variant: "error",
       });
     }
+    setTimeout(() => {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }, 1000);
     setShowChatContainer(true);
   };
-
   const handleOnchange = (prompt) => {
     inputValue = prompt;
   };
@@ -258,7 +335,7 @@ const InstructionDrivenChatPage = ({
               <ReactMarkdown className="flex-col">
                 {formatPrompt(message.prompt)}
               </ReactMarkdown>
-              {index === chatHistory.length - 1 && (
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
                 <IconButton
                   size="large"
                   sx={{
@@ -269,7 +346,7 @@ const InstructionDrivenChatPage = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    handleClick("delete-pair", id.id, 0.0);
+                    handleClick("delete-pair", id?.id, 0.0);
                   }}
                 >
                   <DeleteOutlinedIcon
@@ -447,7 +524,7 @@ const InstructionDrivenChatPage = ({
               {translate("modal.language")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
-              {info.meta_info_language}
+              {ChatLang[info.meta_info_language]}
             </Typography>
 
             <Button variant="outlined" onClick={handleClose}>
@@ -462,7 +539,7 @@ const InstructionDrivenChatPage = ({
   return (
     <>
       {renderSnackBar()}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} id="top">
         <Grid item xs={12}>
           <Box
             sx={{
@@ -470,6 +547,7 @@ const InstructionDrivenChatPage = ({
               padding: "10px",
               marginTop: "1.5rem",
               backgroundColor: "rgba(247, 184, 171, 0.2)",
+              marginLeft: "1rem",
             }}
           >
             <Box
@@ -477,6 +555,7 @@ const InstructionDrivenChatPage = ({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                
               }}
             >
               <Typography
@@ -492,11 +571,18 @@ const InstructionDrivenChatPage = ({
                 {translate("typography.instructions")}
               </Typography>
 
-              <Tooltip title="Hint and Metadata">
-                <IconButton onClick={handleOpen}>
-                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
-                </IconButton>
-              </Tooltip>
+
+<Tooltip
+      title={
+        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+          Hint and Metadata
+        </span>
+      }
+    >
+      <IconButton onClick={handleOpen}>
+        <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
+      </IconButton>
+    </Tooltip>
             </Box>
 
             <Typography
@@ -506,13 +592,14 @@ const InstructionDrivenChatPage = ({
                 padding: "0.5rem 1rem 0",
                 minHeight: "6rem",
                 maxHeight: "6rem",
-                overflowY: "scroll",
+                overflowY: "auto",
                 display: "flex",
-                alignItems: "center",
+                // alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "center",
               }}
             >
-              {info.instruction_data}
+             {info.instruction_data}
             </Typography>
           </Box>
         </Grid>
@@ -543,7 +630,7 @@ const InstructionDrivenChatPage = ({
           </Box>
           <div ref={bottomRef} />
         </Grid>
-        <Grid item xs={12} sx={{ boxSizing: "border-box" }}>
+        {stage!=="Alltask" && !disableUpdateButton ?<Grid item xs={12} sx={{ boxSizing: "border-box" }}>
           <Textarea
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
@@ -553,7 +640,7 @@ const InstructionDrivenChatPage = ({
             loading={loading}
             inputValue={inputValue}
           />
-        </Grid>
+        </Grid>:null}
       </Grid>
 
       <Modal

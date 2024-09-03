@@ -129,6 +129,30 @@ const WorkspaceReports = () => {
   }, [ProjectTypes, radioButton]);
 
   useEffect(() => {
+    if (radioButton === "project") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radioButton]);
+
+  useEffect(() => {
+    if (radioButton === "user") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radioButton]);
+
+  useEffect(() => {
     if (reportRequested && UserReports?.length) {
       let tempColumns = [];
       let tempSelected = [];
@@ -348,7 +372,7 @@ const WorkspaceReports = () => {
         >
 
           <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
-            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", }}>
+            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", zIndex: 0}}>
               Select Report Type :
             </Typography>
           </Grid >
@@ -372,22 +396,24 @@ const WorkspaceReports = () => {
           </Grid >
         </Grid >
         {radioButton === "project" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="project-report-type-label" sx={{ fontSize: "16px" }}>Type</InputLabel>
-            <Select
-              style={{ zIndex: "0" }}
-              inputProps={{ "aria-label": "Without label" }}
-              MenuProps={MenuProps}
-              labelId="project-report-type-type-label"
-              id="project-report-type-select"
-              value={projectReportType}
-              label="Project Report Type"
-              onChange={(e) => setProjectReportType(e.target.value)}
-            >
-              <MenuItem value={1}>High-Level Reports</MenuItem>
-              <MenuItem value={2}>Detailed Reports</MenuItem>
-            </Select>
-          </FormControl>
+        <FormControl fullWidth size="small" variant="outlined">
+      <InputLabel id="project-report-type-label" sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+      >Type</InputLabel>
+      <Select
+      style={{ zIndex: "0", minWidth: "auto" }}
+      inputProps={{ "aria-label": "Without label" }}
+      MenuProps={MenuProps}
+        labelId="project-report-type-type-label"
+        id="project-report-type-select"
+        value={projectReportType}
+        label="Type"
+        onChange={(e) => setProjectReportType(e.target.value)}
+        fullWidth
+      >
+        <MenuItem value={1}>High-Level Reports</MenuItem>
+        <MenuItem value={2}>Detailed Reports</MenuItem>
+      </Select>
+    </FormControl>
         </Grid>}
 
         {(radioButton !== "project") && <Grid
@@ -399,7 +425,7 @@ const WorkspaceReports = () => {
           xl={3}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="report-type-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="report-type-label" sx={{ fontSize: "19px", zIndex: 0 }}>
               Report Type
             </InputLabel>
             <Select
@@ -425,7 +451,7 @@ const WorkspaceReports = () => {
           xl={3}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px",zIndex: 0 }}>
               Project Type
             </InputLabel>
             <Select
@@ -446,7 +472,7 @@ const WorkspaceReports = () => {
         </Grid>
         {radioButton === "user" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small" disabled={projectType === "SuperCheckerReports"} >
-            <InputLabel id="project-type-label" sx={{ fontSize: "16px" }}>Projects Filter</InputLabel>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px",zIndex: 0 }}>Projects Filter</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -467,7 +493,7 @@ const WorkspaceReports = () => {
         </Grid>}
         {(radioButton !== "payment") && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="language-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="language-label" sx={{ fontSize: "19px", zIndex: 0 }}>
               Target Language
             </InputLabel>
             <Select
@@ -489,7 +515,7 @@ const WorkspaceReports = () => {
         </Grid>}
         {(radioButton === "project" && projectReportType === 2) &&  <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="statistics-label" sx={{ fontSize: "16px" }}>Statistics</InputLabel>
+            <InputLabel id="statistics-label" sx={{ fontSize: "16px", zIndex: 0 }}>Statistics</InputLabel>
             <Select
               labelId="statistics-label"
               id="statistics-select"
@@ -506,7 +532,7 @@ const WorkspaceReports = () => {
         </Grid>}
         {radioButton === "payment" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
-            <InputLabel id="participation-type-label" sx={{ fontSize: "16px" }}>Participation Types</InputLabel>
+            <InputLabel id="participation-type-label" sx={{ fontSize: "19px", zIndex: 0 }}>Participation Types</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}

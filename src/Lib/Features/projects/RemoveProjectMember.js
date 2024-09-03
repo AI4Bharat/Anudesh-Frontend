@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchRemoveProjectMember = createAsyncThunk(
   'RemoveProjectMember/fetchRemoveProjectMember',
-  async (projectId,projectObj) => {
+  async ({projectId,projectObj}) => {
     const body = {
       ids:projectObj
     }

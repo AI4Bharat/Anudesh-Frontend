@@ -11,8 +11,8 @@ let initialState = {
 
 export const fetchManagerSuggestions = createAsyncThunk(
     'getManagerSuggestions/fetchManagerSuggestions',
-    async (props) => {
-        const params = fetchParams(`${apiendpoint.inviteUsers}pending_users/?organisation_id=${props.orgId}`);
+    async ({id}) => {
+        const params = fetchParams(`${apiendpoint.inviteUsers}pending_users/?organisation_id=${id}`);
         return fetch(params.url, params.options)
             .then(response => response.json())
     }

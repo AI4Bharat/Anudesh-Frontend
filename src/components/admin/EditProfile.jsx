@@ -10,6 +10,8 @@ import {
   Box,
   Chip,
   Typography,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import CustomButton from "../common/Button";
 import OutlinedTextField from "../common/OutlinedTextField";
@@ -48,6 +50,8 @@ const EditProfile = (props) => {
     setLastName,
     setLanguage,
     setParticipationType,
+    guest_user,
+    setguest_user
   } = props;
   const classes = DatasetStyle();
   const dispatch = useDispatch();
@@ -250,6 +254,22 @@ const EditProfile = (props) => {
           </FormControl>
         </Grid>
       </Grid>
+      <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{display:"flex",ml:1}}>
+            <Typography gutterBottom component="div" label="Required">
+                    Guest User :
+                  </Typography>
+          <FormControlLabel
+          sx={{ml:1}}
+            control={
+              <Switch
+                checked={guest_user}
+                onChange={(e) => setguest_user(e.target.checked)}
+                name="guestUserToggle"
+                color="primary"
+              />
+            }
+          />
+        </Grid>
 
       <Grid sx={{ textAlignLast: "end" }}>
         <CustomButton

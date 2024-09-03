@@ -42,12 +42,11 @@ const fetchAllUsers = (userType, id, dispatch) => {
     case addUserTypes.PROJECT_ANNOTATORS:
       case addUserTypes.PROJECT_SUPERCHECKER:
     case addUserTypes.PROJECT_REVIEWER:
-      console.log(id);
-      dispatch(fetchWorkspacesAnnotatorsData(id))
+      dispatch(fetchWorkspacesAnnotatorsData({workspaceId:id}))
       break;
     case addUserTypes.ANNOTATOR:
     case addUserTypes.MANAGER:
-      dispatch(fetchOrganizationUsers(id))
+      dispatch(fetchOrganizationUsers({id:id}))
       break;
     default:
       break;
@@ -188,7 +187,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
       const addAnnotatorsRespData = await addAnnotatorsRes.json();
 
       if (addAnnotatorsRes.ok) {
-        dispatch(fetchWorkspacesAnnotatorsData(id));
+        dispatch(fetchWorkspacesAnnotatorsData({workspaceId:id}));
         return addAnnotatorsRespData;
       }
       break;
@@ -246,11 +245,12 @@ const AddUsersDialog = ({
       case addUserTypes.ANNOTATOR:
       case addUserTypes.MANAGER:
         id = workspaceDetails?.organization;
+        console.log("id",id);
         break;
       default:
         break;
     }
-    console.log(id);
+    console.log("id1",id);
     if (id) fetchAllUsers(userType, id, dispatch);
   }, [userType, id, projectDetails])
 console.log(workspaceAnnotators);

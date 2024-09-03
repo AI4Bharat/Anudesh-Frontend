@@ -143,7 +143,7 @@ function ProgressList() {
   const [comparisonperiod, setComparisonperiod] = useState("monthly");
   const [monthvalue, setmonthvalue] = useState([])
   const [weekvalue, setweekvalue] = useState([])
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);  
   const [yearvalue, setyearvalue] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [SVGChartData, setSVGChartData] = useState([]);
@@ -197,6 +197,21 @@ function ProgressList() {
       types?.length && setSelectedType(types[3]);
     }
   }, [ProjectTypes]);
+
+  useEffect(() => {
+    if (radiobutton === "Annotation") {
+      setProjectTypes([
+       "ModelOutputEvaluvation",
+       "ModelInteractionEvaluvation",
+       "InstructionDrivenChat",
+      ]);
+      setSelectedType("InstructionDrivenChat");
+      
+    } 
+  }, [ProjectTypes, radiobutton]);
+
+
+
 
   useEffect(() => {
     dispatch(fetchDomains());
@@ -320,7 +335,7 @@ function ProgressList() {
       setOptions({...defaultOptions});
     }
 
-    const OrgId = userDetails.organization.id
+    const OrgId = typeof(userDetails?.organization?.id) === Number?userDetails?.organization?.id : 1
     setShowPicker(false);
     setShowPickers(false);
     // setLoading(true);

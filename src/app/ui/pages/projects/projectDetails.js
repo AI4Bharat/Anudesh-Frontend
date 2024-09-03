@@ -420,28 +420,28 @@ import {
               alignItems="center"
               sx={{ mb: 3 }}
             >
-              <Grid item xs={12} sm={12} md={10} lg={10} xl={10}>
-                <Typography variant="h3">{ProjectDetails.title}</Typography>
+  <Grid item xs={12} sm={12} md={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} lg={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} xl={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12}>
+  <Typography variant="h3">{ProjectDetails.title}</Typography>
               </Grid>
-  
-              {/* {(userRole.WorkspaceManager === loggedInUserData?.role ||
-                userRole.OrganizationOwner === loggedInUserData?.role ||
-                userRole.Admin === loggedInUserData?.role) && ( */}
-                  <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
-                    <Tooltip title={translate("label.showProjectSettings")}>
-                      <IconButton
+
+              {(userRole.WorkspaceManager === loggedInUserData?.role ||
+              userRole.OrganizationOwner === loggedInUserData?.role ||
+              userRole.Admin === loggedInUserData?.role) && (
+                <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+                  <Tooltip title={translate("label.showProjectSettings")}>
+                    <IconButton
                       onClick={handleOpenSettings}
-                        sx={{ marginLeft: "140px" }}
-                      >
-                        <SettingsOutlinedIcon
-                          color="primary.dark"
-                          fontSize="large"
-                        />
-                      </IconButton>
-                    </Tooltip>
-                  </Grid>
-                {/* )} */}
-            </Grid>
+                      sx={{ marginLeft: "140px" }}
+                    >
+                      <SettingsOutlinedIcon
+                        color="primary.dark"
+                        fontSize="large"
+                      />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+              )}
+          </Grid>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (

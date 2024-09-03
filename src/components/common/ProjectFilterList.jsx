@@ -86,8 +86,6 @@ const ProjectFilterList = (props) => {
     setSelectedArchivedProject("")
     props.handleClose();
   };
-
-
   return (
     <div>
       <Popover

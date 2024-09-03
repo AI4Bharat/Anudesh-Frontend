@@ -18,26 +18,34 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
   container: {
     display: 'flex',
+    backgroundColor: "#f0f0f0",
+    marginBottom:"30px"
   },
+
+  
 
   leftPanel: {
     flex: '0 0 30%',
-    height: '100%',
+    height: 'auto',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     overflowY: 'auto',
-    backgroundColor: '#f0f4f9',
+    backgroundColor: '#f0f0f0',
+    marginBottom: "30px",
+    // maxHeight: '1000vh',
   },
+
   rightPanel: {
-    backgroundColor: 'white',
+    backgroundColor: '#f0f0f0',
     flex: '1',
-    maxHeight: '100vh',
+    // maxHeight: '1000vh',
+    height: "auto",
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    padding: '1rem',
+    padding: '2rem',
     scrollBehavior: 'smooth',
   },
 
@@ -57,15 +65,19 @@ const ModelResponseEvaluationStyle = makeStyles ({
     fontWeight: 'bold',
     marginBottom: '1rem',
     color: '#6C5F5B',
-    borderRadius: '1rem',
   },
   outputContainer: {
     marginBottom: '1rem',
     color: '#6C5F5B',
   },
-  ratingText: {
+  inputQuestion: {
     fontWeight: 'bold',
     marginBottom: '1.5rem',
+    color: '#6C5F5B',
+  },
+  heading: {
+    fontWeight: 'bold',
+    marginBottom: '1rem',
     color: '#6C5F5B',
   },
   ratingButton: {
@@ -73,6 +85,7 @@ const ModelResponseEvaluationStyle = makeStyles ({
     marginLeft: '1rem',
     marginBottom: '2rem',
   },
+
   hr: {
     border: '1px solid #d8d8d8',
     marginBottom: '1rem',
@@ -95,6 +108,7 @@ const ModelResponseEvaluationStyle = makeStyles ({
     fontWeight: 'bold',
     marginTop: '1rem',
     color: '#6C5F5B',
+    maxHeight:"5rem"
   },
   notesTextarea: {
     width: '100%',
@@ -105,14 +119,15 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
 
   interactionWindow: {
-    maxHeight: '100%',
-    height: '100vh',
+    height: '20rem',
     width: '100%',
     padding: '2rem',
     overflowY: 'auto',
     color: '#6C5F5B',
     borderRadius: '2rem 0px 0px 1rem',
+    // marginTop:"1.5rem"
   },
+ 
   promptTile: {
     marginBottom: '1rem',
   },

@@ -46,6 +46,7 @@ const Layout= (props) => {
             type={type}
             index={index}
             className={classes.headerContainer}
+           
           />
         </Suspense>
         <div
@@ -53,7 +54,8 @@ const Layout= (props) => {
         style={{marginTop:"88px"}}
         >
           { Backbutton  && 
-           < BackButton startIcon={<  ArrowBackIcon />} sx={{ color:"white" ,   mb:4 ,mt:2}} backPressNavigationPath={backPressNavigationPath ? backPressNavigationPath : ""} label={translate("label.backToPreviousPage")}/>
+           < BackButton startIcon={<  ArrowBackIcon />} sx={{ color:"white" ,   mb:4
+            ,mt:2}} backPressNavigationPath={backPressNavigationPath ? backPressNavigationPath : ""} label={translate("label.backToPreviousPage")}/>
            }
           <Suspense fallback={<div>Loading....</div>}>
           <ErrorBoundary>
