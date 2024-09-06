@@ -1,3 +1,18 @@
+# Anudesh
+
+<p align="center">
+    <em>An open source platform to annotate and label data at scale</em>
+</p>
+
+
+<p align="center">
+    <a href="https://opensource.org/licenses/MIT" target="_blank">
+        <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
+    </a>
+</p>
+
+***
+
 ### Clone the Anudesh-Frontend repository from GitHub to your local machine.
     git clone https://github.com/AI4Bharat/Anudesh-Frontend.git
 
