@@ -19,7 +19,7 @@ export const dynamicCard = [
   },
   {
     id: "4",
-    name: "Model Response Evaluation",
+    name: "Model Interaction Evaluation",
     src: "QuestionAnswer",
     content: `It acts as a platform for evaluating model responses to prompts. Users review both prompts and corresponding outputs, offering scores using a likert scale or completing a questionnaire. To aid evaluation, a track bar enables users to score outputs, while a form facilitates detailed feedback submission for each prompt-output pair. This streamlined design enhances efficiency and effectiveness, fostering user engagement and comprehensive feedback generation.`,
   },
@@ -38,7 +38,7 @@ export const dynamicCard = [
 ];
 
 export const footer ={
-  content: 'ANUDESH - Developed at AI4Bharat Lab'
+  content: 'ANUDESH - Developed at AI4Bharat, IIT Madras'
 };
 
 export const operationalDynamics = {
