@@ -153,7 +153,8 @@ const Home = () => {
               >
                 {banner.logIn}
               </button>
-            <button className="text-xl font-medium hover:underline">
+            <button   onClick={() => window.open("https://github.com/AI4Bharat/Anudesh", "_blank")}
+             className="text-xl font-medium hover:underline">
               Codebase
             </button>
             <button className="text-xl font-medium hover:underline">
