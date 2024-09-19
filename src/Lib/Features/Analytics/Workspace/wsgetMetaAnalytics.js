@@ -4,6 +4,7 @@ import ENDPOINTS from "../../../../config/apiendpoint"
 
 const initialState = {
   data: [],
+  originalData: [],
   status: 'idle',
   error: null,
 };
@@ -75,6 +76,7 @@ const getwsMetaAnalyticsData = createSlice({
         const data = diffAnnotationReview(action.payload);
         state.status = 'succeeded';
         state.data = data;
+        state.originalData = action.payload
       })
       .addCase(fetchwsMetaAnalyticsData.rejected, (state, action) => {
         state.status = 'failed';

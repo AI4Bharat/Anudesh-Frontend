@@ -1,4 +1,4 @@
-import { Grid, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu } from "@mui/material";
 import React from "react";
 // import TaskAnalyticsDataAPI from "@/app/actions/api/Progress/TaskAnalytics";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +15,33 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
 import TaskCountAnalyticsChart from "../TaskAnalytics/TaskCountAnalyticsChart";
 import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
+import exportFromJSON from 'export-from-json';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { KeyboardArrowDown } from "@material-ui/icons";
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={3}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  '& .MuiPaper-root': {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 100,
+
+
+  },
+}));
+
 
 const TaskAnalytics = () => {
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -28,11 +55,15 @@ const TaskAnalytics = () => {
     (state) => state.wsgetTaskAnalytics.data
   );
 
+  const taskAnalyticsDataJson = useSelector((state) => state.wsgetTaskAnalytics.originalData);
 
   const [loading, setLoading] = useState(false);
 console.log(selectedType);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
 
   const getTaskAnalyticsdata = () => {
     setLoading(true)
@@ -92,11 +123,87 @@ console.log(selectedType);
     }
   }, [taskAnalyticsData]);
 
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const downloadCSV = () => {
+    if (taskAnalyticsDataJson) {
+      const transformedData = Object.keys(taskAnalyticsDataJson).flatMap(projectType => {
+        return taskAnalyticsDataJson[projectType].map(data => ({
+          projectType,
+          language: data.language,
+          ann_cumulative_tasks_count: data.ann_cumulative_tasks_count,
+          rew_cumulative_tasks_count: data.rew_cumulative_tasks_count,
+        }));
+      });
+
+      const fileName = 'task_analytics';
+      const exportType = exportFromJSON.types.csv;
+      exportFromJSON({ data: transformedData, fileName, exportType });
+    }
+  };
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    let yOffset = 10;
+    const pageHeight = doc.internal.pageSize.height;
+  
+    doc.setFontSize(18);
+    doc.text("Task Analytics Report", 10, yOffset);
+    yOffset += 20;
+  
+    taskAnalyticsData.forEach((dataArray, index) => {
+      if (dataArray.length) {
+        const projectType = dataArray[0].projectType;
+        doc.setFontSize(14);
+        doc.text(`Project Type: ${projectType}`, 10, yOffset);
+        yOffset += 10;
+  
+        doc.setFontSize(12);
+        dataArray.forEach((data, i) => {
+          doc.text(`Language: ${data.languages || 'N/A'}`, 10, yOffset);
+          doc.text(`Ann Cumulative Tasks Count: ${data.annotation_cumulative_tasks_count || 'N/A'}`, 10, yOffset + 5);
+          doc.text(`Rew Cumulative Tasks Count: ${data.review_cumulative_tasks_count || 'N/A'}`, 10, yOffset + 10);
+          yOffset += 25;
+  
+          if (yOffset > pageHeight - 30) { 
+            doc.addPage();
+            yOffset = 10;
+          }
+        });
+  
+        yOffset += 10; 
+      }
+    });
+  
+    doc.save('task_analytics.pdf');
+  };
+  const downloadJSON = () => {
+    if (taskAnalyticsDataJson) {
+      const transformedData = Object.keys(taskAnalyticsDataJson).flatMap(projectType => {
+        return taskAnalyticsDataJson[projectType].map(data => ({
+          projectType,
+          language: data.language,
+          ann_cumulative_tasks_count: data.ann_cumulative_tasks_count,
+          rew_cumulative_tasks_count: data.rew_cumulative_tasks_count,
+        }));
+      });
+
+      const fileName = 'task_analytics';
+      const exportType = exportFromJSON.types.json;
+      exportFromJSON({ data: transformedData, fileName, exportType });
+    }
+  };  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+
+  };
+
+
   return (
     <>
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
-        <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
+      <Grid item xs={6} sm={6} md={6} lg={6} xl={6} display={"flex"} justifyContent="space-between" >
+      <FormControl  size="small">
             <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px",zIndex: 0 }}>
               Project Type {" "}
               {
@@ -127,10 +234,32 @@ console.log(selectedType);
               ))}
             </Select>
           </FormControl>
-        </Grid>
-        <CustomButton label="Submit" sx={{ width:"120px", mt: 3 }} onClick={handleSubmit}
-              disabled={loading} />
+          <CustomButton label="Submit" sx={{ width: { xs: "100px", md: "120px" }, height: "40px" }} onClick={handleSubmit}  />
+          <Box display="flex"   sx={{ width: { xs: "100px", md: "120px" }, height: "40px", marginRight: 1 }}alignItems="center">
+            <CustomButton           
+              onClick={handleClick}
+              disabled={loading}
+              sx={{ marginRight: 1 }}
+              endIcon={<KeyboardArrowDown />}
+              label="Download"
+            >
+              Download
+            </CustomButton>
+            <StyledMenu
+              id="demo-customized-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={downloadCSV}>CSV</MenuItem>
+              <MenuItem onClick={downloadPDF}>PDF</MenuItem>
+              <MenuItem onClick={downloadJSON}>JSON</MenuItem>
+            </StyledMenu>
+          </Box>
+        {/* </Grid> */}
       </Grid>
+        </Grid>
+      
       {loading && <Spinner />}
       {taskAnalyticsData.length ?
         taskAnalyticsData.map((analyticsData,_index)=>{
