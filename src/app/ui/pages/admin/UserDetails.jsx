@@ -101,6 +101,7 @@ const UserDetail = (props) => {
       participation_type: participationType,
       role: Role,
       is_active: active,
+      guest_user:guest_user
     };
   
     const UserObj = new GetUserDetailUpdateAPI(id, data);
@@ -305,6 +306,7 @@ const UserDetail = (props) => {
                       el.participation_type,
                       el.role,
                       el.is_active,
+                      el.guest_user
                     )
                   }
                 />

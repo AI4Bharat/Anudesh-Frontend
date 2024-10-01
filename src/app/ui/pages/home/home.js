@@ -153,7 +153,8 @@ const Home = () => {
               >
                 {banner.logIn}
               </button>
-            <button className="text-xl font-medium hover:underline">
+            <button   onClick={() => window.open("https://github.com/AI4Bharat/Anudesh", "_blank")}
+             className="text-xl font-medium hover:underline">
               Codebase
             </button>
             <button className="text-xl font-medium hover:underline">
@@ -171,7 +172,7 @@ const Home = () => {
               {banner.subheading}
             </div>
             <div className="flex gap-8">
-              <Link to={"https://www.youtube.com/playlist?list=PL9n2cBQBp3vyZ3JOcGzYbRKMgaW2PtTJ4"}>
+              <Link to={"https://www.youtube.com/watch?v=6k7fk3mCk9A"}>
               <button  className="bg-orange-600 text-white text-xl p-4 rounded-md hover:bg-white hover:text-orange-600 border border-orange-600">
                 {banner.demo}
               </button>

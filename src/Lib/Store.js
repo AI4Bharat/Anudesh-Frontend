@@ -70,10 +70,14 @@ import WorkspaceUserReports from './Features/projects/WorkspaceUserReports';
 import WorkspaceProjectReport from './Features/projects/WorkspaceProjectReport';
 import GetExportProjectButton from './Features/datasets/GetExportProjectButton';
 import getDatasetByType from './Features/datasets/getDatasetByType';
+import wsgetTaskAnalytics from './Features/Analytics/Workspace/wsgetTaskAnalytics';
+import wsgetMetaAnalytics from './Features/Analytics/Workspace/wsgetMetaAnalytics';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        wsgetTaskAnalytics:wsgetTaskAnalytics,
+        wsgetMetaAnalytics:wsgetMetaAnalytics,
         GetExportProjectButton:GetExportProjectButton,
         getDatasetByType:getDatasetByType,
         WorkspaceProjectReport:WorkspaceProjectReport,

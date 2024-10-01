@@ -64,7 +64,8 @@ const InstructionDrivenChatPage = ({
   id,
   stage,
   notes,
-  info
+  info,
+  disableUpdateButton
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
@@ -88,7 +89,7 @@ const InstructionDrivenChatPage = ({
   const handleOpen = () => {
     setOpen(true);
   };
-
+console.log(disableUpdateButton);
   const handleClose = () => {
     setOpen(false);
   };
@@ -335,7 +336,7 @@ const InstructionDrivenChatPage = ({
               <ReactMarkdown className="flex-col">
                 {formatPrompt(message.prompt)}
               </ReactMarkdown>
-              {index === chatHistory.length - 1 && stage !== "Alltask" && (
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
                 <IconButton
                   size="large"
                   sx={{
@@ -630,7 +631,7 @@ const InstructionDrivenChatPage = ({
           </Box>
           <div ref={bottomRef} />
         </Grid>
-        {stage!=="Alltask" ?<Grid item xs={12} sx={{ boxSizing: "border-box" }}>
+        {stage!=="Alltask" && !disableUpdateButton ?<Grid item xs={12} sx={{ boxSizing: "border-box" }}>
           <Textarea
             handleButtonClick={handleButtonClick}
             handleOnchange={handleOnchange}
