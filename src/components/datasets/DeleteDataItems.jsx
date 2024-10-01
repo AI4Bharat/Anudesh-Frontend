@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Button,
     Popover,
     Box,
     TextField,
-    Grid, Typography, Radio,Dialog, DialogActions, DialogContent, DialogContentText,
+    Grid, Typography, Radio,Dialog, DialogActions, DialogContent, DialogContentText,DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
 } from "@mui/material";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -16,6 +16,8 @@ import { useParams } from 'react-router-dom';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import LoginAPI from "@/app/actions/api/user/Login";
 import DeleteDataItemsAPI from "@/app/actions/api/dataset/DeleteDataItemsAPI";
+import fetchParams from "@/Lib/fetchParams";
+import ENDPOINTS from "../../config/apiendpoint"
 
 export default function DeleteDataItems() {
           /* eslint-disable react-hooks/exhaustive-deps */
@@ -30,12 +32,55 @@ export default function DeleteDataItems() {
     const [radiobutton, setRadiobutton] = useState(true)
     const [dataIds, setDataIds] = useState("")
     const [openDialog, setOpenDialog] = useState(false);
-
+    const [data, setData] = useState(null);
+    const [filteredData, setFilteredData] = useState([]);
+    const [openPreview, setOpenPreview] = useState(false); 
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
         variant: "success",
     });
+    useEffect(() => {
+        if (datasetId) {
+          const fetchDataset = async () => {
+            try {
+              const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=JSON`);
+              const response = await fetch(params.url, params.options);
+              const jsonData = await response.json();
+              console.log(jsonData)
+              setData(jsonData)
+              
+            } catch (err) {
+              console.log(err); // Handle any errors
+            }
+          };
+    
+          fetchDataset();
+        }
+      }, [datasetId]);
+      console.log(JSON.stringify(data))
+
+      useEffect(() => {
+        if (data && data.length > 0) {
+          const filterData = () => {
+            let filtered;
+            const idsToDelete = dataIds.split(',').map(id => Number(id.trim())); // Use trim()
+    
+            console.log(idsToDelete);
+            if (radiobutton) {
+              filtered = data.filter(item => item.id >= startdataid && item.id <= enddataid);
+            } else {
+                filtered = data.filter(item => idsToDelete.includes(Number(item.id)));
+    
+              console.log(filtered)
+            }
+            setFilteredData(filtered);
+           
+          };
+          filterData();
+        }
+      }, [data, startdataid, enddataid, radiobutton, dataIds]);
+      console.log(JSON.stringify(filteredData))
     const Dataitems = JSON.parse( localStorage.getItem("DataitemsList"))
 
     const handleClick = (event) => {
@@ -123,10 +168,13 @@ export default function DeleteDataItems() {
     }
 
     const handleSearchSubmit = async () => {
-        setOpenDialog(true);
+        setOpenDialog(false);
+        setOpenPreview(true);
 
     }
-
+    const closePreview = () => {
+        setOpenPreview(false);
+    };
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
@@ -368,6 +416,80 @@ export default function DeleteDataItems() {
                     </Button>
                 </Box>
             </Popover>
+            <Dialog
+                open={openPreview}
+                onClose={closePreview}
+                fullWidth
+                maxWidth="md"
+            >
+                <DialogTitle>Preview of Data Items to Delete</DialogTitle>
+                <DialogContent>
+                {filteredData.length > 0 ? (
+    <Box sx={{ width: '100%', overflowX: 'auto' }}>
+        <TableContainer component={Paper}>
+            <Table stickyHeader>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Id</TableCell>
+                        <TableCell>Metadata Json</TableCell>
+                        <TableCell>Draft Data Json</TableCell>
+                        <TableCell>Meta Info Model</TableCell>
+                        <TableCell>Meta Info Auto Generated</TableCell>
+                        <TableCell>Meta Info Intent</TableCell>
+                        <TableCell>Meta Info Domain</TableCell>
+                        <TableCell>Meta Info Structure</TableCell>
+                        <TableCell>Meta Info Language</TableCell>
+                        <TableCell>Instruction Data	</TableCell>
+                        <TableCell>Examples</TableCell>
+                        <TableCell>Hint</TableCell>
+                        <TableCell>Parent Data</TableCell>
+                        
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {filteredData.map((item) => (
+                        <TableRow key={item.id}>
+                            <TableCell>{item.id}</TableCell>
+                            <TableCell>{item.metadata_json}</TableCell>
+                            <TableCell>{item.draft_data_json}</TableCell>
+                            <TableCell>{item.meta_info_model}</TableCell>
+                            <TableCell>{item.meta_info_auto_generated}</TableCell>
+                            <TableCell>{item.meta_info_intent}</TableCell>
+                            <TableCell>{item.meta_info_domain}</TableCell>
+                            <TableCell>{item.meta_info_structure}</TableCell>
+                            <TableCell>{item.meta_info_language}</TableCell>
+                            <TableCell>{item.instruction_data}</TableCell>
+                            <TableCell>{item.examples}</TableCell>
+                            <TableCell>{item.hint}</TableCell>
+                            <TableCell>{item.parent_data}</TableCell>                         
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
+    </Box>
+) : (
+    <Typography>No data found for the given IDs.</Typography>
+)}
+
+
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closePreview} color="primary">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            closePreview();
+                            setOpenDialog(true);
+                        }}
+                        color="primary"
+                        variant="contained"
+                    >
+                        Continue
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <Dialog
                 open={openDialog}
                 onClose={handleCloseDialog}
