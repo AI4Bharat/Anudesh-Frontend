@@ -662,7 +662,6 @@ const ReviewPage = () => {
       };
       
       
-console.log("hello");
 
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
