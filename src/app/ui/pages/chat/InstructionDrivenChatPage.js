@@ -138,28 +138,19 @@ console.log(disableUpdateButton);
       let modifiedChatHistory = [];
       if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
         if (stage === "Review") {
-          let reviewData;
+          let reviewData = data.find((item) => item.annotation_type === 2);
           if (reviewData.annotation_status === "unreviewed") {
             reviewData = data.find((item) => item.annotation_type === 1);
           }
-          else {
-             reviewData = data.find((item) => item.annotation_type === 2);
-          }
-            modifiedChatHistory = reviewData?.result?.map((interaction) => {
+          modifiedChatHistory = reviewData?.result?.map((interaction) => {
             return {
               ...interaction,
               output: formatResponse(interaction.output),
             };
           });
         }else if(stage=="SuperChecker"){
-          let scData;
-          if (scData.annotation_status === "unvalidated") {
-            scData = data.find((item) => item.annotation_type === 2);
-          }
-          else {
-            scData = data.find((item) => item.annotation_type === 3);
-          }
-          modifiedChatHistory = scData?.result?.map((interaction) => {
+          let obj = data.filter((data)=>data.annotation_type==3)
+          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
             return {
               ...interaction,
               output: formatResponse(interaction.output),
@@ -190,7 +181,7 @@ console.log(disableUpdateButton);
       if (data[0]?.result) setShowChatContainer(true);
     };
     fetchData();
-  }, [taskId,inputValue]);
+  }, [taskId]);
 
   const cleanMetaInfo = (value) => value.replace(/\(for example:.*?\)/gi, '').trim();
 
