@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Button from "../../../../components/common/Button";
+import ReactMarkdown from "react-markdown";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
@@ -420,7 +421,11 @@ const handleNoteChange = (event) => {
     return updatedInteraction;
   });
 };
-
+const formatPrompt = (prompt) => {
+  const lines = prompt?.split('\n');
+  const markdownString = lines?.join('  \n');
+  return markdownString;
+}
 console.log(forms);
 const handleFormBtnClick = (e) => {
   const clickedPromptOutputPairId = parseInt(e.target.id);
@@ -569,13 +574,17 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
           <div className={classes.heading} style={{ fontSize: "20px" }}>
             {translate("modal.prompt")}
           </div>
-          {currentInteraction?.prompt}
+          <ReactMarkdown>
+          {formatPrompt(currentInteraction?.prompt)}
+          </ReactMarkdown>
         </div>
         <div className={classes.heading} style={{ fontSize: "20px" }}>
           {translate("modal.output")}
         </div>
-        <div className={classes.outputContainer} style={{ maxHeight: "100px", overflowY: "auto" }}>
-          {currentInteraction?.output}
+        <div className={classes.outputContainer} style={{ maxHeight: "auto", overflowY: "auto" }}>
+        <ReactMarkdown>
+        {formatPrompt(currentInteraction?.output)}
+        </ReactMarkdown>
         </div>
         {/* <div className={classes.ratingText}>
           {translate("model_evaluation_rating")}
