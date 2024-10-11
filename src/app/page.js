@@ -32,6 +32,8 @@ import ReviewPage from "./ui/pages/chat/ReviewPage";
 import AnnotatePage from "./ui/pages/chat/AnnotatePage";
 import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
 import CreateProject from "./new-project/newproject";
+import OutputSelection from "./ui/pages/dual-screen-preference-ranking/PreferenceRanking";
+import PreferenceRanking from "./ui/pages/n-screen-preference-ranking/PreferenceRanking";
 
 export default function Root() {
   if (typeof window !== 'undefined') {
@@ -72,6 +74,18 @@ export default function Root() {
               path="projects/:id"
               element={ProtectedRouteWrapper(
                 <Layout component={<Projects />} Backbutton={true} backPressNavigationPath={"/projects"} />
+              )}
+            />
+             <Route
+              path="pre"
+              element={ProtectedRouteWrapper(
+                <Layout component={<OutputSelection />} Backbutton={true} backPressNavigationPath={"/projects"} />
+              )}
+            />
+            <Route
+              path="pref"
+              element={ProtectedRouteWrapper(
+                <Layout component={<PreferenceRanking />} Backbutton={true} backPressNavigationPath={"/projects"} />
               )}
             />
             <Route
