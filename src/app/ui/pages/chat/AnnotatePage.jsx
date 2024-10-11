@@ -338,7 +338,7 @@ const AnnotatePage = () => {
         }, 1000);
       });
   };
-  let Annotation = AnnotationsTaskDetails.filter(
+  let Annotation = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 1,
   )[0];
 
