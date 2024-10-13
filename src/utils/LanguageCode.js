@@ -119,6 +119,16 @@ const LanguageCode = {
         "code": "gom",
         "label": "Goan Konkani",
         "active": true
+      },
+      {
+        "code": "th",
+        "label": "Thai",
+        "active": true
+      },
+      {
+        "code": "fil",
+        "label": "Filipino",
+        "active": true
       }
     ]
   }

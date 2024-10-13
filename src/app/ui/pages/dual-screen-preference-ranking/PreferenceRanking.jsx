@@ -154,6 +154,7 @@ const OutputSelection = () => {
           </Typography>
         </Box>
       </Box>
+      
 
       <Box className="feedback-section">
         {globalTransliteration ? (

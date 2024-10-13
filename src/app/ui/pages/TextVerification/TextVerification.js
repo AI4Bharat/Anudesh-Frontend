@@ -41,7 +41,7 @@ import { useSelector } from "react-redux";
 
 
 
-const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
+const TextVerification = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
@@ -981,4 +981,4 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
   );
 };
 
-export default ModelInteractionEvaluation;
+export default TextVerification;
