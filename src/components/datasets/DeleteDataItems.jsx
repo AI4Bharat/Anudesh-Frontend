@@ -433,16 +433,14 @@ export default function DeleteDataItems() {
                         <TableCell>Id</TableCell>
                         <TableCell>Metadata Json</TableCell>
                         <TableCell>Draft Data Json</TableCell>
-                        <TableCell>Meta Info Model</TableCell>
-                        <TableCell>Meta Info Auto Generated</TableCell>
-                        <TableCell>Meta Info Intent</TableCell>
-                        <TableCell>Meta Info Domain</TableCell>
-                        <TableCell>Meta Info Structure</TableCell>
-                        <TableCell>Meta Info Language</TableCell>
-                        <TableCell>Instruction Data	</TableCell>
-                        <TableCell>Examples</TableCell>
-                        <TableCell>Hint</TableCell>
+                        <TableCell>Model</TableCell>
+                        <TableCell>No Of Turns</TableCell>
+                        <TableCell>DateTime</TableCell>
+                        <TableCell>Time Taken</TableCell>
                         <TableCell>Parent Data</TableCell>
+                        <TableCell>Meta Info Language</TableCell>
+                        <TableCell>Instruction id</TableCell>
+                        <TableCell>Instance Id</TableCell>
                         
                     </TableRow>
                 </TableHead>
@@ -452,16 +450,14 @@ export default function DeleteDataItems() {
                             <TableCell>{item.id}</TableCell>
                             <TableCell>{item.metadata_json}</TableCell>
                             <TableCell>{item.draft_data_json}</TableCell>
-                            <TableCell>{item.meta_info_model}</TableCell>
-                            <TableCell>{item.meta_info_auto_generated}</TableCell>
-                            <TableCell>{item.meta_info_intent}</TableCell>
-                            <TableCell>{item.meta_info_domain}</TableCell>
-                            <TableCell>{item.meta_info_structure}</TableCell>
-                            <TableCell>{item.meta_info_language}</TableCell>
-                            <TableCell>{item.instruction_data}</TableCell>
-                            <TableCell>{item.examples}</TableCell>
-                            <TableCell>{item.hint}</TableCell>
+                            <TableCell>{item.model}</TableCell>
+                            <TableCell>{item.no_of_turns}</TableCell>
+                            <TableCell>{item.datetime}</TableCell>
+                            <TableCell>{item.time_taken}</TableCell>
                             <TableCell>{item.parent_data}</TableCell>                         
+                            <TableCell>{item.language}</TableCell>
+                            <TableCell>{item.instruction_id}</TableCell>
+                            <TableCell>{item.instance_id}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
