@@ -43,6 +43,7 @@ import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import UploadIcon from '@mui/icons-material/Upload';
+import sampleQuestion from './sampleQue';
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
   return reg.test(String(str));
@@ -63,12 +64,11 @@ const CreateAnnotationsAutomatically = [
 
 
 const CreateProject = () => {
+   /* eslint-disable react-hooks/exhaustive-deps */
 
   const router = useRouter();
   const dispatch = useDispatch();
   const { id } = useParams();
-  //remove this line:
-  //and uncomment this after implementing dynamic routes:
   //const { workspaceId } = useParams();
   const ProjectDomains = useSelector(state => state.domains?.domains);
   const ProjectDomains1 = useSelector(state => console.log(state));
@@ -124,25 +124,57 @@ const CreateProject = () => {
   const [passwordForProjects, setPasswordForProjects] = useState("");
   const [shownewpassword, setShowNewPassword] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
-  const [questionsJSON, setQuestionsJSON] = useState([]);
-
-   /* eslint-disable react-hooks/exhaustive-deps */
+  const [jsonInput, setJsonInput] = useState(JSON.stringify(sampleQuestion)); 
+  const [questionsJSON, setQuestionsJSON] = useState(sampleQuestion); 
+  
   const handleJsonInputChange = (event) => {
     const input = event.target.value;
-  
+    setJsonInput(input); 
     try {
-      const parsedInput = JSON.parse(input);
-      console.log("parsed input: ", parsedInput);
+      const parsedInput = JSON.parse(input); 
       if (Array.isArray(parsedInput) && parsedInput.every(item => typeof item === 'object' && item !== null)) {
-        setQuestionsJSON(parsedInput);
+        setQuestionsJSON(parsedInput); 
       } else {
         console.error("Input is not a valid array of objects");
       }
     } catch (error) {
-      console.error("Invalid JSON input");
+      console.error("Invalid JSON input"); 
     }
   };
-  useEffect(() => {
+  
+  const handleCsvUpload = (event) => {
+    const file = event.target.files[0];
+    
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const csvData = e.target.result;
+        
+        try {
+          const csvJson = convertCsvToJson(csvData); 
+          setJsonInput(JSON.stringify(csvJson, null, 2)); 
+          setQuestionsJSON(csvJson); 
+        } catch (error) {
+          console.error("Error parsing CSV:", error);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+  
+  const convertCsvToJson = (csvData) => {
+    const rows = csvData.split("\n").filter(row => row.trim() !== ""); 
+    const headers = rows[0].split(","); 
+    return rows.slice(1).map(row => {
+      const values = row.split(",");
+      let obj = {};
+      headers.forEach((header, index) => {
+        obj[header.trim()] = values[index].trim();
+      });
+      return obj;
+    });
+  };
+        useEffect(() => {
     console.log('questionsJSON:', questionsJSON);
     console.log('typeof questionsJSON:', typeof questionsJSON);
     console.log('Array.isArray(questionsJSON):', Array.isArray(questionsJSON));
@@ -271,7 +303,6 @@ const CreateProject = () => {
   if(questionsJSON[0]?.mandatory) console.log("this is true")
   else console.log("this is false");
  /* eslint-disable react-hooks/exhaustive-deps */
-// console.log("now the questions is: " + typeof(questionsJSON))
   const searchOpen = Boolean(searchAnchor);
   const excludeKeys = [
     "parent_data_id",
@@ -483,6 +514,8 @@ const CreateProject = () => {
       password: passwordForProjects,
       metadata_json: questionsJSON
     };
+    console.log(newProject);
+    
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
     
@@ -490,7 +523,34 @@ const CreateProject = () => {
     
   };
 
-
+  const newProject = {
+    title: title,
+    description: description,
+    created_by: UserData?.id,
+    is_archived: false,
+    is_published: false,
+    users: [UserData?.id],
+    workspace_id: id,
+    organization_id: UserData?.organization?.id,
+    project_type: selectedType,
+    src_language: sourceLanguage,
+    tgt_language: targetLanguage,
+    dataset_id: selectedInstances,
+    label_config: "string",
+    sampling_mode: samplingMode,
+    sampling_parameters_json: samplingParameters,
+    batch_size:batchSize,
+    batch_number:batchNumber,
+    // variable_parameters: selectedVariableParameters,
+    filter_string: filterString,
+    project_stage: taskReviews,
+    required_annotators_per_task: selectedAnnotatorsNum,
+    automatic_annotation_creation_mode: createannotationsAutomatically,
+    is_published:is_published,
+    password: passwordForProjects,
+    metadata_json: questionsJSON
+  };
+  console.log(newProject);
 
   const setPasswordForNewProject = async (projectId) => {
     try {
@@ -1250,36 +1310,23 @@ const CreateProject = () => {
                     Upload CSV or Paste JSON<span style={{ color: '#d93025' }}>*</span> : 
                   </Typography>
                   
-                  <Grid container item xs={12} style={{ marginTop: '20px', alignItems: 'center' }}>
-  <TextField
-    variant="outlined"
-    multiline
-    rows={4}
-    value={JSON.stringify(questionsJSON)}
-    onChange={handleJsonInputChange}
-    style={{ flex: 1, marginRight: '10px' }}
-  />
+    <input
+      type="file"
+      accept=".csv"
+      onChange={handleCsvUpload}
+      style={{ marginBottom: '20px' }}
+    />
+   
+    <Grid container item xs={12} style={{ marginTop: '20px', alignItems: 'center' }}>
+      <TextField
+        variant="outlined"
+        multiline
+        rows={4}
+        value={jsonInput} 
+        onChange={handleJsonInputChange}
+        style={{ flex: 1, marginRight: '10px' }}
+      />
   
-  <InputLabel htmlFor="csv-file-input" style={{ display: 'none' }}>
-    Upload CSV File
-  </InputLabel>
-  <input
-    id="csv-file-input"
-    type="file"
-    accept=".csv"
-    onChange={handleFileChange}
-    style={{ display: 'none' }}
-  />
-  <label htmlFor="csv-file-input">
-    <Button
-      variant="contained"
-      color="primary"
-      component="span"
-      startIcon={<UploadIcon />}
-    >
-      Upload CSV
-    </Button>
-  </label>
 </Grid>
                 </Grid>
                 
