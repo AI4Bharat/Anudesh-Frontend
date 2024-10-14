@@ -234,14 +234,14 @@ const TaskTable = (props) => {
          setSnackbarInfo({
           open: true,
           message: resp?.message,
-          variant: "error",
+          variant: "success",
         });
       }
       else{
       setSnackbarInfo({
         open: true,
         message: resp?.message,
-        variant: "success",
+        variant: "error",
       });
       if (
         ((props.type === "annotation" &&

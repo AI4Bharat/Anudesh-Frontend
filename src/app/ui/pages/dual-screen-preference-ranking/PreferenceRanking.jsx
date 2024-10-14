@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import classNames from "classnames";
-import { Box, Typography } from "@mui/material";
+import { Box, FormControlLabel, Typography } from "@mui/material";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
 
 import "./styles.css";
+import { CheckBox } from "@mui/icons-material";
 
 const orange = {
   200: "pink",
@@ -25,7 +26,17 @@ const OutputSelection = () => {
   const targetLang = localStorage.getItem("language") || "en";
   const globalTransliteration =
     localStorage.getItem("globalTransliteration") === "true" ? true : false;
-
+    const [response1Ranks, setResponse1Ranks] = useState({
+      factualErrors: false,
+      grammaticalErrors: false,
+      culturallyInappropriate: false,
+    });
+    const [response2Ranks, setResponse2Ranks] = useState({
+      factualErrors: false,
+      grammaticalErrors: false,
+      culturallyInappropriate: false,
+    });
+  
   const handleSelectOutput = (output) => {
     setSelectedOutput(output);
   };
@@ -154,8 +165,98 @@ const OutputSelection = () => {
           </Typography>
         </Box>
       </Box>
-      
+        {/* Ranking Section */}
+        {/* Response 1 Rankings */}
+          
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box >
+            <Typography sx={{fontSize:"17px",textAlign:"center"}}>Response 1 </Typography>
+            </Box>
+            {/* Factual Errors */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Factual Errors/Non-Sensical?</Typography>
+              <CheckBox
+                checked={response1Ranks.factualErrors}
+                onChange={() => handleRankChange("response1", "factualErrors")}
+              />
+            </Box>
+            {/* Grammatical Errors */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Grammatical Errors / Typographical Error?</Typography>
+              <CheckBox
+                checked={response1Ranks.grammaticalErrors}
+                onChange={() => handleRankChange("response1", "grammaticalErrors")}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Asking for something illegal</Typography>
+              <CheckBox
+                checked={response1Ranks.grammaticalErrors}
+                onChange={() => handleRankChange("response1", "grammaticalErrors")}
+              />
+            </Box>
+            {/* Culturally Inappropriate */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Culturally Inappropriate/Insensitive?</Typography>
+              <CheckBox
+                checked={response1Ranks.culturallyInappropriate}
+                onChange={() => handleRankChange("response1", "culturallyInappropriate")}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>A valid question for migrant workers to ask?</Typography>
+              <CheckBox
+                checked={response1Ranks.culturallyInappropriate}
+                onChange={() => handleRankChange("response1", "culturallyInappropriate")}
+              />
+            </Box>
+        </Box>
 
+        {/* Response 2 Rankings */}
+          
+        <Box sx={{ display: "flex", justifyContent: "space-evenly" }}>
+            <Box >
+            <Typography >Response 2 </Typography>
+            </Box>
+            {/* Factual Errors */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Factual Errors/Non-Sensical?</Typography>
+              <CheckBox
+                checked={response1Ranks.factualErrors}
+                onChange={() => handleRankChange("response2", "factualErrors")}
+              />
+            </Box>
+            {/* Grammatical Errors */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Grammatical Errors / Typographical Error?</Typography>
+              <CheckBox
+                checked={response1Ranks.grammaticalErrors}
+                onChange={() => handleRankChange("response2", "grammaticalErrors")}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Asking for something illegal</Typography>
+              <CheckBox
+                checked={response1Ranks.grammaticalErrors}
+                onChange={() => handleRankChange("response2", "grammaticalErrors")}
+              />
+            </Box>
+            {/* Culturally Inappropriate */}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>Culturally Inappropriate/Insensitive?</Typography>
+              <CheckBox
+                checked={response1Ranks.culturallyInappropriate}
+                onChange={() => handleRankChange("response2", "culturallyInappropriate")}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <Typography sx={{fontSize:"15px",textAlign:"center"}}>A valid question for migrant workers to ask?</Typography>
+              <CheckBox
+                checked={response1Ranks.culturallyInappropriate}
+                onChange={() => handleRankChange("response2", "culturallyInappropriate")}
+              />
+            </Box>
+        </Box>
       <Box className="feedback-section">
         {globalTransliteration ? (
           <IndicTransliterate
