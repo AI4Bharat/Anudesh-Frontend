@@ -111,6 +111,9 @@ const AllTaskPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [answered, setAnswered] = useState(false);
+  const [interactions, setInteractions] = useState([]);
+  const [forms, setForms] = useState([]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -383,8 +386,15 @@ const AllTaskPage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
+        setCurrentInteraction={setCurrentInteraction}
+        currentInteraction={currentInteraction}
+        interactions={interactions}
+        setInteractions={setInteractions}
+        forms={forms}
+        setForms={setForms}
+        stage={"Alltask"}
+        answered={answered}
+        setAnswered={setAnswered}
         />
       );
       break;
