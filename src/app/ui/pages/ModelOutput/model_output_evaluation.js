@@ -41,7 +41,7 @@ import { useSelector } from "react-redux";
 
 
 
-const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
+const ModelOutputEvaluation = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
@@ -54,9 +54,6 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
-  useEffect(()=>{
-    setCurrentInteraction({})
-  },[taskId])
 
   useEffect(() => {
     
@@ -68,8 +65,10 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
       });
       const annotationForms = await response.json();
       let formsData = []
+      console.log(annotationForms[0].result?.length);
+      
       if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length){
-        
+        console.log(stage)
         if(stage ==="Review"){
           console.log("here in review if")
           let reviewData = annotationForms.find((item) => item.annotation_type === 2);
@@ -95,14 +94,11 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         console.log(formsData)
       }
       else{
-        
-        let allformsData = annotationForms.find((item) => item.annotation_type === 1);
-        formsData = allformsData.result
-      
+        console.log("here in else")
       }
-
     }
     else if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length===0 && stage==="SuperChecker"){
+      console.log("here in sc if")
         let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
         console.log(superCheckerData[0].annotation_status)
         if(superCheckerData[0].annotation_status === "unvalidated"){
@@ -112,12 +108,6 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
         formsData = superCheckerData?.result
         console.log(formsData)  
     }
-    else{
-      let allformsData = annotationForms.find((item) => item.annotation_type === 1);
-        formsData = allformsData.result
-      
-    }
-
       setForms(formsData?.length ? [...formsData] : [])
     };
     fetchData();
@@ -147,12 +137,12 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
   }, [forms, taskId]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
+    if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
-  
-      const currentForm = forms?.find(form => form?.prompt_output_pair_id === defaultFormId);
-      if (currentForm) {
-       console.log("current form: " + JSON.stringify(currentForm));
+      const currentForm = forms.find(form => form?.prompt_output_pair_id === defaultFormId);
+      
+      if (currentForm && (!currentInteraction || currentInteraction?.prompt !== currentForm?.prompt)) {
+        console.log("current form: " + JSON.stringify(currentForm));
         const questionsResponse = currentForm?.questions_response || Array(questions?.length).fill(null);
         console.log(JSON.stringify(questionsResponse));
         
@@ -163,6 +153,7 @@ const ModelInteractionEvaluation = ({ currentInteraction, setCurrentInteraction,
           additional_note: currentForm?.additional_note || "",
           questions_response: questionsResponse,
         };
+        
         setCurrentInteraction(newState);
       }
     }
@@ -990,4 +981,4 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
   );
 };
 
-export default ModelInteractionEvaluation;
+export default ModelOutputEvaluation;

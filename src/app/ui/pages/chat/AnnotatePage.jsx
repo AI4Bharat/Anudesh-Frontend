@@ -51,6 +51,7 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+import OutputSelection from "../dual-screen-preference-ranking/PreferenceRanking";
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
@@ -338,7 +339,7 @@ const AnnotatePage = () => {
         }, 1000);
       });
   };
-  let Annotation = AnnotationsTaskDetails.filter(
+  let Annotation = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 1,
   )[0];
 
@@ -689,6 +690,20 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
           setAnswered={setAnswered}
         />
       );
+      // case "PreferenceRanking":
+      // componentToRender = (
+      //   <OutputSelection
+      //     setCurrentInteraction={setCurrentInteraction}
+      //     currentInteraction={currentInteraction}
+      //     interactions={interactions}
+      //     setInteractions={setInteractions}
+      //     forms={forms}
+      //     setForms={setForms}
+      //     stage={"Annotation"}
+      //     answered={answered}
+      //     setAnswered={setAnswered}
+      //   />
+      // );
       break;
     default:
       componentToRender = null;

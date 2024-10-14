@@ -2,7 +2,7 @@ import React from 'react'
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import CustomButton from "@/components/common/Button";
-import { Grid, Select, MenuItem, InputLabel, FormControl} from "@mui/material";
+import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu} from "@mui/material";
 import AudioDurationChart from '../MetaAnalytics/AudioDurationMetaAnalyticsChart';
 import Spinner from "@/components/common/Spinner";
 import LightTooltip from '@/components/common/Tooltip';
@@ -14,6 +14,32 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchwsMetaAnalyticsData } from '@/Lib/Features/Analytics/Workspace/wsgetMetaAnalytics';
 import WordCountMetaAnalyticsChart from '../MetaAnalytics/WordCountMetaAnalyticsChart';
 import SentanceCountMetaAnalyticsChart from '../MetaAnalytics/SentanceCountMetaAnalyticsChart';
+import exportFromJSON from 'export-from-json';
+import jsPDF from 'jspdf';
+import { KeyboardArrowDown } from "@material-ui/icons";
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={3}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  '& .MuiPaper-root': {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 100,
+
+
+  },
+}));
+
 
 export default function MetaAnalytics(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
@@ -28,10 +54,15 @@ export default function MetaAnalytics(props) {
   const [snackbarMessage, setSnackbarMessage] = useState("");
     const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
     const workspaceDetails = useSelector((state) => state.getWorkspaceDetails.data);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
 
     const metaAnalyticsData = useSelector(
         (state) => state.wsgetMetaAnalytics.data
       );
+
+      const metaAnalyticsDataJson = useSelector((state) => state.wsgetMetaAnalytics.originalData);
+
       const getMetaAnalyticsdata = () => {
         setLoading(true);
         dispatch(fetchwsMetaAnalyticsData({wsID:workspaceDetails?.id,project_type_filter:selectedType}));
@@ -92,11 +123,91 @@ export default function MetaAnalytics(props) {
 
         }
       }, [metaAnalyticsData]);
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
+      const downloadCSV = () => {
+        if (metaAnalyticsDataJson) {
+          const transformedData = Object.keys(metaAnalyticsDataJson).flatMap(projectType => {
+            return metaAnalyticsDataJson[projectType].map(data => ({
+              projectType,
+              language: data.language,
+              Ann_Cumulative_sentence_Count: data.annotation_cumulative_sentance_count,
+              Rew_Cumulative_sentence_Count: data.review_cumulative_sentance_count,
+              Ann_Cumulative_word_Count:data.ann_cumulative_word_count,
+              Rew_Cumulative_word_Count:data.rew_cumulative_word_count
+            }));
+          });
+    
+          const fileName = 'meta_analytics';
+          const exportType = exportFromJSON.types.csv;
+          exportFromJSON({ data: transformedData, fileName, exportType });
+        }
+      };
+      const downloadPDF = () => {
+        const doc = new jsPDF();
+        let yOffset = 10;
+        const pageHeight = doc.internal.pageSize.height;
+      
+        doc.setFontSize(18);
+        doc.text("Task Analytics Report", 10, yOffset);
+        yOffset += 20;
+      
+        metaAnalyticsData.forEach((dataArray, index) => {
+          if (dataArray.length) {
+            const projectType = dataArray[0].projectType;
+            doc.setFontSize(14);
+            doc.text(`Project Type: ${projectType}`, 10, yOffset);
+            yOffset += 10;
+      
+            doc.setFontSize(12);
+            dataArray.forEach((data, i) => {
+              doc.text(`Language: ${data.languages || 'N/A'}`, 10, yOffset);
+              doc.text(`Ann Cumulative word Count: ${data.annotation_cumulative_word_count || 'N/A'}`, 10, yOffset + 5);
+              doc.text(`Rew Cumulative word Count: ${data.review_cumulative_word_count || 'N/A'}`, 10, yOffset + 10);
+              yOffset += 25;
+      
+              if (yOffset > pageHeight - 30) { 
+                doc.addPage();
+                yOffset = 10;
+              }
+            });
+      
+            yOffset += 10; 
+          }
+        });
+      
+        doc.save('meta_analytics.pdf');
+      };
+      const downloadJSON = () => {
+        if (metaAnalyticsDataJson) {
+          const transformedData = Object.keys(metaAnalyticsDataJson).flatMap(projectType => {
+            return metaAnalyticsDataJson[projectType].map(data => ({
+              projectType,
+              language: data.language,
+              Ann_Cumulative_sentence_Count: data.annotation_cumulative_sentance_count,
+              Rew_Cumulative_sentence_Count: data.review_cumulative_sentance_count,
+              Ann_Cumulative_word_Count:data.ann_cumulative_word_count,
+              Rew_Cumulative_word_Count:data.rew_cumulative_word_count
+
+            }));
+          });
+    
+          const fileName = 'meta_analytics';
+          const exportType = exportFromJSON.types.json;
+          exportFromJSON({ data: transformedData, fileName, exportType });
+        }
+      };  const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    
+      };
+
+
   return (
     <div>
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
-        <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
+      <Grid item xs={6} sm={6} md={6} lg={6} xl={6} display={"flex"} justifyContent="space-between" >
+      <FormControl  size="small">
             <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
               Project Type {" "}
               {
@@ -127,11 +238,32 @@ export default function MetaAnalytics(props) {
               ))}
             </Select>
           </FormControl>
-        </Grid>
-        <CustomButton label="Submit" sx={{ width:"120px", mt: 3 }} onClick={handleSubmit}
-              disabled={loading} />
-
+          <CustomButton label="Submit" sx={{ width: { xs: "100px", md: "120px" }, height: "40px" }} onClick={handleSubmit}  />
+          <Box display="flex"   sx={{ width: { xs: "100px", md: "120px" }, height: "40px", marginRight: 1 }}alignItems="center">
+            <CustomButton           
+              onClick={handleClick}
+              disabled={loading}
+              sx={{ marginRight: 1 }}
+              endIcon={<KeyboardArrowDown />}
+              label="Download"
+            >
+              Download
+            </CustomButton>
+            <StyledMenu
+              id="demo-customized-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={downloadCSV}>CSV</MenuItem>
+              <MenuItem onClick={downloadPDF}>PDF</MenuItem>
+              <MenuItem onClick={downloadJSON}>JSON</MenuItem>
+            </StyledMenu>
+          </Box>
+        {/* </Grid> */}
       </Grid>
+        </Grid>
+      
       {loading && <Spinner />}
 
       {metaAnalyticsData.length ?

@@ -1,0 +1,15 @@
+.response-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .rank-container {
+    border-right: 1px solid #ccc;
+    padding: 20px;
+    margin: 2rem 0px 10px;
+  }
+  
+  .rank-container.highlight {
+    background-color: #f0f8ff;
+  }
+  
