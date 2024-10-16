@@ -313,6 +313,7 @@ const CreateProject = () => {
     "instance_id",
     "labse_score",
     "interactions_json",
+    "eval_form_json",
     "multiple_interaction_json",
     "parent_data",
     "id",
