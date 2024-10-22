@@ -18,27 +18,23 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
   container: {
     display: 'flex',
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#F6F6F6",
     marginBottom:"30px"
   },
 
   
 
   leftPanel: {
-    flex: '0 0 30%',
-    height: 'auto',
     display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-    overflowY: 'auto',
-    backgroundColor: '#f0f0f0',
-    marginBottom: "30px",
+    backgroundColor: '#F6F6F6',
     // maxHeight: '1000vh',
   },
 
   rightPanel: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#F6F6F6',
     flex: '1',
     // maxHeight: '1000vh',
     height: "auto",
@@ -119,12 +115,11 @@ const ModelResponseEvaluationStyle = makeStyles ({
   },
 
   interactionWindow: {
-    height: '20rem',
-    width: '100%',
+    width: '100wh',
     padding: '2rem',
-    overflowY: 'auto',
     color: '#6C5F5B',
     borderRadius: '2rem 0px 0px 1rem',
+    flexDirection:"row"
     // marginTop:"1.5rem"
   },
  
