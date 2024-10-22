@@ -70,7 +70,7 @@ const OutputSelection = () => {
           marginTop: "1rem",
           padding: "1.5rem",
           borderRadius: "20px",
-          backgroundColor: "#FEF1EE",
+          backgroundColor: "#F6F6F6",
         }}
       >
         <Typography
