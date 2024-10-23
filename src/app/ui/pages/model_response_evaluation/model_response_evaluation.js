@@ -28,6 +28,8 @@ import {
   AccordionDetails,
   Divider,
 } from "@material-ui/core";
+import Spinner from "@/components/common/Spinner";
+
 import MenuIcon from "@mui/icons-material/Menu";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Resizable } from "re-resizable";
@@ -56,6 +58,8 @@ const ModelInteractionEvaluation = ({
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
+  const [loading, setLoading] = useState(true);
+
   // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
   const questions =
@@ -70,6 +74,7 @@ const ModelInteractionEvaluation = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
         method: "GET",
@@ -144,6 +149,7 @@ const ModelInteractionEvaluation = ({
       }
 
       setForms(formsData?.length ? [...formsData] : []);
+      setLoading(false);
     };
     fetchData();
   }, [taskId, stage]);
@@ -158,6 +164,7 @@ const ModelInteractionEvaluation = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const taskDetailsObj = new GetTaskDetailsAPI(taskId);
       const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
         method: "GET",
@@ -165,6 +172,7 @@ const ModelInteractionEvaluation = ({
       });
       const taskData = await taskResponse.json();
       setInteractions(taskData ? [...taskData.data?.interactions_json] : []);
+      setLoading(false);
     };
     fetchData();
   }, [forms, taskId]);
@@ -625,6 +633,33 @@ const ModelInteractionEvaluation = ({
       return updatedInteraction;
     });
   };
+  const styles = {
+    responseContainer: {
+      display: "flex",
+      gap: "20px",
+      flexWrap: "wrap",
+    },
+    responseBox: {
+      flex: "1 1 45%",
+      minWidth: "300px",
+      border: "1px solid #ccc",
+      fontSize: "16px",
+      padding: "10px",
+      borderRadius: "8px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      backgroundColor: "white",
+    },
+    response1Box: {
+      flex: "1 1 45%",
+      minWidth: "300px",
+      border: "1px solid #ccc",
+      padding: "10px",
+      fontSize: "17px",
+      borderRadius: "8px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      backgroundColor: "white",
+    },
+  };
 
   const EvaluationForm = () => {
     return (
@@ -633,9 +668,11 @@ const ModelInteractionEvaluation = ({
           <div className={classes.heading} style={{ fontSize: "20px" }}>
             {translate("modal.prompt")}
           </div>
-          <ReactMarkdown>
-            {formatPrompt(currentInteraction?.prompt)}
-          </ReactMarkdown>
+          <div style={styles.response1Box}>
+            <ReactMarkdown>
+              {formatPrompt(currentInteraction?.prompt)}
+            </ReactMarkdown>
+          </div>
         </div>
         <div className={classes.heading} style={{ fontSize: "20px" }}>
           {translate("modal.output")}
@@ -644,9 +681,11 @@ const ModelInteractionEvaluation = ({
           className={classes.outputContainer}
           style={{ maxHeight: "auto", overflowY: "auto" }}
         >
-          <ReactMarkdown>
-            {formatPrompt(currentInteraction?.output)}
-          </ReactMarkdown>
+          <div style={styles.response1Box}>
+            <ReactMarkdown>
+              {formatPrompt(currentInteraction?.output)}
+            </ReactMarkdown>
+          </div>
         </div>
         {/* <div className={classes.ratingText}>
           {translate("model_evaluation_rating")}
@@ -724,7 +763,10 @@ const ModelInteractionEvaluation = ({
                     <p className={classes.inputQuestion}>
                       {i + 1}.{" "}
                       {splitQuestion?.map((part, index) => (
-                        <span key={`${i}-${index}`}>
+                        <span
+                          key={`${i}-${index}`}
+                          style={{ fontSize: "18px" }}
+                        >
                           {part}
                           {index < splitQuestion.length - 1 && (
                             <input
@@ -771,7 +813,7 @@ const ModelInteractionEvaluation = ({
                 return (
                   <div key={i}>
                     <div className={classes.inputQuestion}>
-                      <span>
+                      <span style={{ fontSize: "18px" }}>
                         {i + 1}. {question.input_question}
                       </span>
                       {question.mandatory && (
@@ -822,7 +864,10 @@ const ModelInteractionEvaluation = ({
               case "multi_select_options":
                 return (
                   <div key={i}>
-                    <div className={classes.inputQuestion}>
+                    <div
+                      className={classes.inputQuestion}
+                      style={{ fontSize: "18px" }}
+                    >
                       {i + 1}. {question.input_question}
                       {question.mandatory && (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
@@ -861,7 +906,10 @@ const ModelInteractionEvaluation = ({
               case "mcq":
                 return (
                   <div key={i}>
-                    <div className={classes.inputQuestion}>
+                    <div
+                      className={classes.inputQuestion}
+                      style={{ fontSize: "18px" }}
+                    >
                       {i + 1}. {question.input_question}
                       {question.mandatory && (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
@@ -1111,37 +1159,41 @@ const ModelInteractionEvaluation = ({
 
   return (
     <>
-      <div
-        className={classes.container}
-        style={{
-          width: "100%",
-          maxwidth: "2300px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-        }}
-      >
-        <IconButton onClick={toggleLeftPanel}>
-          <MenuIcon />
-        </IconButton>
-        <div className={classes.leftPanel}>
-          {leftPanelVisible && <InteractionDisplay />}
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div
+          className={classes.container}
+          style={{
+            width: "100%",
+            maxwidth: "2300px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+          }}
+        >
+          <IconButton onClick={toggleLeftPanel}>
+            <MenuIcon />
+          </IconButton>
+          <div className={classes.leftPanel}>
+            {leftPanelVisible && <InteractionDisplay />}
+          </div>
+
+          {leftPanelVisible && (
+            <Divider
+              variant="middle"
+              style={{
+                width: "95%",
+                margin: "0 2rem 0 2rem",
+                backgroundColor: "black",
+              }}
+            />
+          )}
+
+          {EvaluationForm()}
         </div>
-
-        {leftPanelVisible && (
-          <Divider
-            variant="middle"
-            style={{
-              width: "95%",
-              margin: "0 2rem 0 2rem",
-              backgroundColor: "black",
-            }}
-          />
-        )}
-
-        {EvaluationForm()}
-      </div>
+      )}
     </>
   );
 };

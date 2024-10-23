@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import Spinner from "@/components/common/Spinner";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
   FormControlLabel,
@@ -22,11 +23,12 @@ import {
 } from "@mui/material";
 import "../model_response_evaluation/model_response_evaluation.css";
 import { Paper } from "@mui/material";
+import Divider from "@mui/material/Divider";
+
 import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Divider,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -40,6 +42,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
 import { current } from "@reduxjs/toolkit";
 import { output } from "../../../../../next.config";
+import { fontSize } from "@mui/system";
 // import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
 const PreferenceRanking = ({
@@ -58,6 +61,8 @@ const PreferenceRanking = ({
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
+  const [loading, setLoading] = useState(true);
+
   // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
   const questions =
@@ -69,6 +74,7 @@ const PreferenceRanking = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
         method: "GET",
@@ -138,6 +144,7 @@ const PreferenceRanking = ({
         console.log(formsData);
       }
       setForms(formsData?.length ? [...formsData] : []);
+      setLoading(false);
     };
     fetchData();
   }, [taskId, stage]);
@@ -156,6 +163,7 @@ const PreferenceRanking = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const taskDetailsObj = new GetTaskDetailsAPI(taskId);
       const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
         method: "GET",
@@ -165,6 +173,7 @@ const PreferenceRanking = ({
       setInteractions(
         taskData ? [...taskData.data?.multiple_interaction_json] : [],
       );
+      setLoading(false);
       console.log(interactions);
     };
     fetchData();
@@ -182,7 +191,6 @@ const PreferenceRanking = ({
                   question,
                   response: [],
                 })),
-                additional_note: null,
               };
             });
           })
@@ -192,6 +200,7 @@ const PreferenceRanking = ({
           prompt: interaction?.prompt,
           model_responses_json: modelResponses,
           prompt_output_pair_id: interaction?.prompt_output_pair_id,
+          additional_note: interaction?.additional_note,
         };
       });
 
@@ -228,7 +237,6 @@ const PreferenceRanking = ({
                     response: questionResponse?.response || [],
                   }),
                 ) || [],
-              additional_note: modelResponse?.additional_note || "",
             };
           },
         );
@@ -237,6 +245,7 @@ const PreferenceRanking = ({
           prompt: currentForm?.prompt || "",
           model_responses_json: modelResponses,
           prompt_output_pair_id: currentForm?.prompt_output_pair_id,
+          additional_note: currentForm?.additional_note || "",
         };
         setCurrentInteraction(newState);
         console.log(currentInteraction, "new");
@@ -307,6 +316,7 @@ const PreferenceRanking = ({
       flex: "1 1 45%",
       minWidth: "300px",
       border: "1px solid #ccc",
+      fontSize: "16px",
       padding: "10px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
@@ -317,6 +327,7 @@ const PreferenceRanking = ({
       minWidth: "300px",
       border: "1px solid #ccc",
       padding: "10px",
+      fontSize: "17px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       backgroundColor: "white",
@@ -550,7 +561,6 @@ const PreferenceRanking = ({
                 response: questionResponse?.response || [],
               }),
             ) || [],
-          additional_note: modelResponse?.additional_note || "",
         };
       },
     );
@@ -560,6 +570,7 @@ const PreferenceRanking = ({
         prompt: currInteraction?.prompt,
         model_responses_json: modelResponses,
         prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
+        additional_note: currInteraction?.additional_note || "",
       });
     }
   };
@@ -644,7 +655,13 @@ const PreferenceRanking = ({
             ),
           )}
         </div>
-        <Divider variant="middle" />
+        <hr
+          style={{
+            width: "100%",
+            marginTop: "1rem",
+            border: "1px solid #ccc",
+          }}
+        />
         {questions?.map((question, questionIdx) => (
           <div key={questionIdx} style={{ marginTop: "20px" }}>
             <div style={{ overflowY: "auto", maxHeight: "90vh" }}>
@@ -965,7 +982,11 @@ const PreferenceRanking = ({
           minRows={3}
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
-          value={currentInteraction?.additional_note || ""}
+          value={
+            currentInteraction?.additional_note
+              ? currentInteraction?.additional_note
+              : null
+          }
           style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
           onChange={handleNoteChange}
           className={classes.notesTextarea}
@@ -1134,37 +1155,40 @@ const PreferenceRanking = ({
 
   return (
     <>
-      <div
-        className={classes.container}
-        style={{
-          width: "100%",
-          maxwidth: "2300px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-        }}
-      >
-        <IconButton onClick={toggleLeftPanel}>
-          <MenuIcon />
-        </IconButton>
-        <div className={classes.leftPanel}>
-          {leftPanelVisible && <InteractionDisplay />}
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div
+          className={classes.container}
+          style={{
+            width: "100%",
+            maxwidth: "2300px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+          }}
+        >
+          <IconButton onClick={toggleLeftPanel}>
+            <MenuIcon />
+          </IconButton>
+          <div className={classes.leftPanel}>
+            {leftPanelVisible && <InteractionDisplay />}
+          </div>
+
+          {leftPanelVisible && (
+            <hr
+              style={{
+                width: "95%",
+                margin: "0 2rem",
+                border: "1px solid black",
+              }}
+            />
+          )}
+
+          {EvaluationForm()}
         </div>
-
-        {leftPanelVisible && (
-          <Divider
-            variant="middle"
-            style={{
-              width: "95%",
-              margin: "0 2rem 0 2rem",
-              backgroundColor: "black",
-            }}
-          />
-        )}
-
-        {EvaluationForm()}
-      </div>
+      )}
     </>
   );
 };
