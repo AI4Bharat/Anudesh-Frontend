@@ -387,7 +387,7 @@ const AnnotatePage = () => {
           questions_response: response.questions_response,
         })),
         prompt_output_pair_id: form.prompt_output_pair_id,
-        additional_note: forms.additional_note,
+        additional_note: form.additional_note,
       }));
       console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {

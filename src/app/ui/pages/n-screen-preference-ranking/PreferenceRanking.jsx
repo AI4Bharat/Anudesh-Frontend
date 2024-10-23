@@ -1155,40 +1155,36 @@ const PreferenceRanking = ({
 
   return (
     <>
-      {loading ? (
-        <Spinner />
-      ) : (
-        <div
-          className={classes.container}
-          style={{
-            width: "100%",
-            maxwidth: "2300px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
-          }}
-        >
-          <IconButton onClick={toggleLeftPanel}>
-            <MenuIcon />
-          </IconButton>
-          <div className={classes.leftPanel}>
-            {leftPanelVisible && <InteractionDisplay />}
-          </div>
-
-          {leftPanelVisible && (
-            <hr
-              style={{
-                width: "95%",
-                margin: "0 2rem",
-                border: "1px solid black",
-              }}
-            />
-          )}
-
-          {EvaluationForm()}
+      <div
+        className={classes.container}
+        style={{
+          width: "100%",
+          maxwidth: "2300px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+        }}
+      >
+        <IconButton onClick={toggleLeftPanel}>
+          <MenuIcon />
+        </IconButton>
+        <div className={classes.leftPanel}>
+          {leftPanelVisible && <InteractionDisplay />}
         </div>
-      )}
+
+        {leftPanelVisible && (
+          <hr
+            style={{
+              width: "95%",
+              margin: "0 2rem",
+              border: "1px solid black",
+            }}
+          />
+        )}
+
+        {EvaluationForm()}
+      </div>
     </>
   );
 };
