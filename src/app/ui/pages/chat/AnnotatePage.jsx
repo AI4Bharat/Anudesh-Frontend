@@ -523,20 +523,28 @@ const AnnotatePage = () => {
   }
 
   useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
+    if (AnnotationsTaskDetails?.length > 0) {
+      filterAnnotations(AnnotationsTaskDetails, userData);
+    }
   }, [AnnotationsTaskDetails, userData]);
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
+  const [filteredReady, setFilteredReady] = useState(false);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
     getProjectDetails();
     getTaskData(taskId);
-  }, []);
+    return () => {
+      setAnnotations([]); // Clear annotations on unmount
+      setFilteredReady(false); // Reset filtered ready flag
+    };
+  }, [taskId]);
   const filterAnnotations = (annotations, user) => {
+    setFilteredReady(true);
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -625,12 +633,16 @@ const AnnotatePage = () => {
       disableSkip = true;
       disableUpdate = true;
     }
+
     setAutoSave(!disableUpdate);
     setAnnotations(filteredAnnotations);
     setDisableBtns(disableDraft);
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
+    console.log(annotations, "hhhh");
+
+    setFilteredReady(false);
     return [
       filteredAnnotations,
       disableDraft,
@@ -711,6 +723,9 @@ const AnnotatePage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -721,6 +736,7 @@ const AnnotatePage = () => {
           answered={answered}
           setAnswered={setAnswered}
           annotation={annotations}
+          loading={loading}
         />
       );
       break;
@@ -1209,10 +1225,12 @@ const AnnotatePage = () => {
             </Alert>
           )}
         </Grid>
-        <Grid item container>
-          {" "}
-          {componentToRender}{" "}
-        </Grid>
+        {filteredReady == false && annotations.length > 0 ? (
+          <Grid item container>
+            {" "}
+            {componentToRender}{" "}
+          </Grid>
+        ) : null}
       </Grid>
     </>
   );

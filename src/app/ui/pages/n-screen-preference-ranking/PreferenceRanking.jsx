@@ -24,7 +24,6 @@ import {
 import "../model_response_evaluation/model_response_evaluation.css";
 import { Paper } from "@mui/material";
 import Divider from "@mui/material/Divider";
-
 import {
   Accordion,
   AccordionSummary,
@@ -46,6 +45,7 @@ import { fontSize } from "@mui/system";
 // import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
 const PreferenceRanking = ({
+  key,
   currentInteraction,
   setCurrentInteraction,
   interactions,
@@ -55,15 +55,16 @@ const PreferenceRanking = ({
   stage,
   answered,
   setAnswered,
+  annotation,
+  loading,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const ProjectDetails = useSelector((state) => console.log(state));
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
-  const [loading, setLoading] = useState(true);
 
-  // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
@@ -73,81 +74,9 @@ const PreferenceRanking = ({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
-      const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
-        method: "GET",
-        headers: taskAnnotationsObj.getHeaders().headers,
-      });
-      const annotationForms = await response.json();
-      let formsData = [];
-      console.log(annotationForms[0].result?.length);
-
-      if (
-        annotationForms &&
-        Array.isArray(annotationForms[0]?.result) &&
-        [...annotationForms[0]?.result]?.length
-      ) {
-        console.log(stage);
-        if (stage === "Review") {
-          console.log("here in review if");
-          let reviewData = annotationForms.find(
-            (item) => item.annotation_type === 2,
-          );
-          if (reviewData.annotation_status === "unreviewed") {
-            reviewData = annotationForms.find(
-              (item) => item.annotation_type === 1,
-            );
-          }
-          formsData = reviewData?.result;
-          console.log("reviewdata: " + JSON.stringify(reviewData));
-          console.log(formsData);
-        } else if (stage === "SuperChecker") {
-          console.log("here in sc if");
-          let superCheckerData = annotationForms.filter(
-            (data) => data.annotation_type == 3,
-          );
-          console.log(superCheckerData[0].annotation_status);
-          console.log("supercheckdata: " + JSON.stringify(superCheckerData));
-          formsData = superCheckerData[0]?.result;
-          console.log(formsData);
-        } else if (stage === "Annotation") {
-          console.log("here in annotation if");
-          let annotationData = annotationForms.filter(
-            (data) => data.annotation_type == 1,
-          );
-          console.log("annotationdata: " + JSON.stringify(annotationData));
-          formsData = annotationData[0]?.result;
-          console.log(formsData);
-        } else {
-          console.log("here in else");
-        }
-      } else if (
-        annotationForms &&
-        Array.isArray(annotationForms[0]?.result) &&
-        [...annotationForms[0]?.result]?.length === 0 &&
-        stage === "SuperChecker"
-      ) {
-        console.log("here in sc if");
-        let superCheckerData = annotationForms.filter(
-          (data) => data.annotation_type == 3,
-        );
-        console.log(superCheckerData[0].annotation_status);
-        if (superCheckerData[0].annotation_status === "unvalidated") {
-          superCheckerData = annotationForms.find(
-            (item) => item.annotation_type == 1,
-          );
-        }
-        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
-        formsData = superCheckerData?.result;
-        console.log(formsData);
-      }
-      setForms(formsData?.length ? [...formsData] : []);
-      setLoading(false);
-    };
-    fetchData();
-  }, [taskId, stage]);
+    setForms(annotation[0]?.result?.length ? [...annotation[0]?.result] : []);
+    console.log(forms?.length, annotation[0], "ann");
+  }, []);
 
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
@@ -163,7 +92,6 @@ const PreferenceRanking = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const taskDetailsObj = new GetTaskDetailsAPI(taskId);
       const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
         method: "GET",
@@ -173,14 +101,15 @@ const PreferenceRanking = ({
       setInteractions(
         taskData ? [...taskData.data?.multiple_interaction_json] : [],
       );
-      setLoading(false);
-      console.log(interactions);
+      console.log(interactions, taskData);
     };
     fetchData();
   }, [forms, taskId]);
 
   useEffect(() => {
-    if (forms?.length === 0 && interactions?.length > 0) {
+    console.log("kkk", interactions.length, forms?.length);
+
+    if (forms?.length == 0 && interactions?.length > 0) {
       const initialForms = interactions?.map((interaction) => {
         const modelResponses = interaction?.model_responses_json
           ?.map((modelResponse) => {
@@ -210,16 +139,14 @@ const PreferenceRanking = ({
   }, [forms, interactions, taskId]);
 
   useEffect(() => {
-    if (
-      forms?.length > 0 &&
-      interactions?.length > 0 &&
-      !currentInteraction?.prompt
-    ) {
+    if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
 
       const currentForm = forms?.find(
         (form) => form?.prompt_output_pair_id == defaultFormId,
       );
+      console.log(forms, currentForm);
+
       if (currentForm) {
         console.log("current form: " + JSON.stringify(currentForm));
         const modelResponses = currentForm?.model_responses_json?.map(
@@ -712,6 +639,17 @@ const PreferenceRanking = ({
                           flexDirection: "row",
                         }}
                       >
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: "bold",
+                            marginRight: "15px",
+                            marginTop: "0.7rem",
+                            marginLeft: "20px",
+                          }}
+                        >
+                          {response?.model_name}
+                        </Typography>
                         {question.input_question
                           .split("<blank>")
                           .slice(0, -1)
@@ -751,16 +689,6 @@ const PreferenceRanking = ({
                               required={question.mandatory}
                             />
                           ))}
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: "bold",
-                            marginLeft: "15px",
-                            marginTop: "0.7rem",
-                          }}
-                        >
-                          {response?.model_name}
-                        </Typography>
                       </div>
                     ),
                   )}
@@ -784,6 +712,17 @@ const PreferenceRanking = ({
                     (response, outputIdx) => (
                       <div key={outputIdx} style={{ marginBottom: "20px" }}>
                         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              marginRight: "15px",
+                              marginTop: "0.5rem",
+                              fontWeight: "bold",
+                              marginLeft: "20px",
+                            }}
+                          >
+                            {response?.model_name}
+                          </Typography>
                           {Array.from(
                             { length: question.rating_scale_list.length },
                             (_, index) => (
@@ -819,16 +758,6 @@ const PreferenceRanking = ({
                               />
                             ),
                           )}
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              marginLeft: "5px",
-                              marginTop: "0.5rem",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {response?.model_name}
-                          </Typography>
                         </Box>
                       </div>
                     ),
@@ -855,47 +784,63 @@ const PreferenceRanking = ({
                       (option, optionIdx) => (
                         <div key={optionIdx} style={{ marginBottom: "10px" }}>
                           <span>{option}</span>{" "}
-                          {currentInteraction?.model_responses_json?.map(
-                            (response, outputIdx) => (
-                              <FormControl
-                                component="fieldset"
-                                style={{ display: "block", marginLeft: "20px" }}
-                              >
-                                <FormGroup>
-                                  <FormControlLabel
-                                    key={optionIdx}
-                                    control={
-                                      <Checkbox
-                                        onChange={(e) =>
-                                          handleMultiSelect(
-                                            e.target.checked,
-                                            option,
-                                            questionIdx,
-                                            outputIdx,
-                                          )
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              marginTop: "10px",
+                            }}
+                          >
+                            {currentInteraction?.model_responses_json?.map(
+                              (response, outputIdx) => (
+                                <div
+                                  key={`${optionIdx}-${outputIdx}`}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    marginBottom: "5px",
+                                  }}
+                                >
+                                  <FormControl component="fieldset">
+                                    <FormGroup>
+                                      <FormControlLabel
+                                        key={optionIdx}
+                                        control={
+                                          <Checkbox
+                                            onChange={(e) =>
+                                              handleMultiSelect(
+                                                e.target.checked,
+                                                option,
+                                                questionIdx,
+                                                outputIdx,
+                                              )
+                                            }
+                                            checked={
+                                              currentInteraction?.model_responses_json?.[
+                                                outputIdx
+                                              ]?.questions_response?.[
+                                                questionIdx
+                                              ]?.response?.includes(option) ??
+                                              false
+                                            }
+                                          />
                                         }
-                                        checked={
-                                          currentInteraction?.model_responses_json?.[
-                                            outputIdx
-                                          ]?.questions_response?.[
-                                            questionIdx
-                                          ]?.response?.includes(option) ?? false
+                                        labelPlacement="start"
+                                        label={
+                                          <Typography
+                                            variant="subtitle2"
+                                            sx={{ fontWeight: "bold" }}
+                                          >
+                                            {response?.model_name}
+                                          </Typography>
                                         }
-                                      />
-                                    }
-                                    label={
-                                      <Typography
-                                        variant="subtitle2"
-                                        sx={{ fontWeight: "bold" }}
-                                      >
-                                        {response?.model_name}
-                                      </Typography>
-                                    }
-                                  />{" "}
-                                </FormGroup>
-                              </FormControl>
-                            ),
-                          )}
+                                      />{" "}
+                                    </FormGroup>
+                                  </FormControl>
+                                </div>
+                              ),
+                            )}
+                          </div>
                         </div>
                       ),
                     )}
@@ -923,46 +868,63 @@ const PreferenceRanking = ({
                       (option, optionIdx) => (
                         <div key={optionIdx} style={{ marginBottom: "10px" }}>
                           <span>{option}</span>{" "}
-                          {currentInteraction?.model_responses_json?.map(
-                            (response, outputIdx) => (
-                              <FormControl
-                                component="fieldset"
-                                key={outputIdx}
-                                style={{ display: "block", marginLeft: "20px" }}
-                              >
-                                <RadioGroup
-                                  value={
-                                    currentInteraction?.model_responses_json?.[
-                                      outputIdx
-                                    ]?.questions_response?.[questionIdx]
-                                      ?.response?.[0] || ""
-                                  }
-                                  onChange={(e) =>
-                                    handleMCQ(
-                                      e.target.value,
-                                      option,
-                                      questionIdx,
-                                      outputIdx,
-                                    )
-                                  }
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              marginTop: "10px",
+                            }}
+                          >
+                            {currentInteraction?.model_responses_json?.map(
+                              (response, outputIdx) => (
+                                <div
+                                  key={`${optionIdx}-${outputIdx}`}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    marginBottom: "5px",
+                                  }}
                                 >
-                                  <FormControlLabel
-                                    key={optionIdx}
-                                    value={option}
-                                    control={<Radio />}
-                                    label={
-                                      <Typography
-                                        variant="subtitle2"
-                                        sx={{ fontWeight: "bold" }}
-                                      >
-                                        {response?.model_name}
-                                      </Typography>
-                                    }
-                                  />
-                                </RadioGroup>
-                              </FormControl>
-                            ),
-                          )}
+                                  <FormControl
+                                    component="fieldset"
+                                    key={outputIdx}
+                                  >
+                                    <RadioGroup
+                                      value={
+                                        currentInteraction
+                                          ?.model_responses_json?.[outputIdx]
+                                          ?.questions_response?.[questionIdx]
+                                          ?.response?.[0] || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleMCQ(
+                                          e.target.value,
+                                          option,
+                                          questionIdx,
+                                          outputIdx,
+                                        )
+                                      }
+                                    >
+                                      <FormControlLabel
+                                        key={optionIdx}
+                                        value={option}
+                                        control={<Radio />}
+                                        labelPlacement="start"
+                                        label={
+                                          <Typography
+                                            variant="subtitle2"
+                                            sx={{ fontWeight: "bold" }}
+                                          >
+                                            {response?.model_name}
+                                          </Typography>
+                                        }
+                                      />
+                                    </RadioGroup>
+                                  </FormControl>
+                                </div>
+                              ),
+                            )}
+                          </div>
                         </div>
                       ),
                     )}
@@ -1155,36 +1117,41 @@ const PreferenceRanking = ({
 
   return (
     <>
-      <div
-        className={classes.container}
-        style={{
-          width: "100%",
-          maxwidth: "2300px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-        }}
-      >
-        <IconButton onClick={toggleLeftPanel}>
-          <MenuIcon />
-        </IconButton>
-        <div className={classes.leftPanel}>
-          {leftPanelVisible && <InteractionDisplay />}
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div
+          className={classes.container}
+          style={{
+            width: "100%",
+            maxwidth: "2300px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+          }}
+        >
+          <IconButton onClick={toggleLeftPanel}>
+            <MenuIcon />
+          </IconButton>
+          <div className={classes.leftPanel}>
+            {leftPanelVisible && <InteractionDisplay />}
+          </div>
+
+          {leftPanelVisible && (
+            <Divider
+              variant="middle"
+              style={{
+                width: "95%",
+                margin: "0 2rem 0 2rem",
+                backgroundColor: "black",
+              }}
+            />
+          )}
+
+          {EvaluationForm()}
         </div>
-
-        {leftPanelVisible && (
-          <hr
-            style={{
-              width: "95%",
-              margin: "0 2rem",
-              border: "1px solid black",
-            }}
-          />
-        )}
-
-        {EvaluationForm()}
-      </div>
+      )}
     </>
   );
 };
