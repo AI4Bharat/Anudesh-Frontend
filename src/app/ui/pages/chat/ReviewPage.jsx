@@ -51,6 +51,7 @@ import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 /* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line react/display-name
 
@@ -133,8 +134,8 @@ const ReviewPage = () => {
   const [labellingMode, setLabellingMode] = useState(null);
   const load_time = useRef();
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mode = localStorage.getItem('labellingMode');
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
       setLabellingMode(mode);
     }
   }, []);
@@ -161,6 +162,10 @@ const ReviewPage = () => {
     (state) => state.getAnnotationsTask?.data,
   );
   const superCheckerNotesRef = useRef(null);
+  const taskList = useSelector(
+    (state) => state.GetTasksByProjectId?.data?.result,
+  );
+
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [showChatContainer, setShowChatContainer] = useState(false);
@@ -549,6 +554,24 @@ const ReviewPage = () => {
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
+    // const task = JSON.parse(localStorage.getItem("Task"));
+    // const currentIndex = taskList?.findIndex(
+    //   (obj) => obj.correct_annotation_id == task.correct_annotation_id,
+    // );
+    // const newtasklist = taskList?.filter((value) => {
+    //   return value.id == task.id;
+    // });
+    // console.log(currentIndex, newtasklist, "llove");
+
+    // if (
+    //   ProjectDetails.required_annotators_per_task > 1 &&
+    //   currentIndex + 1 < ProjectDetails.required_annotators_per_task
+    // ) {
+    //   localStorage.setItem(
+    //     "Task",
+    //     JSON.stringify(newtasklist[currentIndex + 1]),
+    //   );
+    // } else {
     const nextAPIData = {
       id: projectId,
       current_task_id: taskId,
@@ -567,6 +590,7 @@ const ReviewPage = () => {
         rsp_data = await response.json();
         setLoading(false);
         if (response.ok) {
+          localStorage.setItem("Task", JSON.stringify(rsp_data));
           setNextData(rsp_data);
           tasksComplete(rsp_data?.id || null);
           getAnnotationsTaskData(rsp_data.id);
@@ -580,13 +604,15 @@ const ReviewPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          if(typeof window !== "undefined"){
+          if (typeof window !== "undefined") {
             localStorage.removeItem("labelAll");
           }
-          
+
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
+    // }
+    // setLoading(false);
   };
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
@@ -603,10 +629,10 @@ const ReviewPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          if(typeof window !== "undefined"){
+          if (typeof window !== "undefined") {
             localStorage.removeItem("labelAll");
           }
-          
+
           window.location.replace(`/#/projects/${projectId}`);
           window.location.reload();
         }, 1000);
@@ -616,53 +642,59 @@ const ReviewPage = () => {
 
   const handleReviewClick = async (value, id, lead_time, parentannotation) => {
     if (typeof window !== "undefined") {
-
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
         resultValue = chatHistory.map((chat) => ({
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
-
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
-        resultValue = forms.map((form) =>({
+        resultValue = forms.map((form) => ({
           prompt: form.prompt,
           output: form.output,
           additional_note: form.additional_note,
           rating: form.rating,
           questions_response: form.questions_response,
-          prompt_output_pair_id: form.prompt_output_pair_id
-        })
-        
-        );
+          prompt_output_pair_id: form.prompt_output_pair_id,
+        }));
       }
 
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
-        annotation_status: typeof window !== "undefined" && (value === "delete" || value === "delete-pair")
-          ? localStorage.getItem("labellingMode")
-          : value,
-        review_notes: typeof window !== "undefined" ? JSON.stringify(
-          reviewNotesRef?.current?.getEditor().getContents()
-        ) : null,
-        lead_time: (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-        ...((value === "to_be_revised" || value === "accepted" || value === "accepted_with_minor_changes" || value === "accepted_with_major_changes") && {
+        annotation_status:
+          typeof window !== "undefined" &&
+          (value === "delete" || value === "delete-pair")
+            ? localStorage.getItem("labellingMode")
+            : value,
+        review_notes:
+          typeof window !== "undefined"
+            ? JSON.stringify(reviewNotesRef?.current?.getEditor().getContents())
+            : null,
+        lead_time:
+          (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+        ...((value === "to_be_revised" ||
+          value === "accepted" ||
+          value === "accepted_with_minor_changes" ||
+          value === "accepted_with_major_changes") && {
           parent_annotation: parentannotation,
         }),
-        result: value === "delete"
-          ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+        result:
+          value === "delete"
+            ? []
+            : value === "delete-pair"
+              ? resultValue.slice(0, resultValue.length - 1)
+              : resultValue,
         task_id: taskId,
-        auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
+        auto_save:
+          value === "delete" || value === "delete-pair" || value === "rejected"
+            ? true
+            : false,
         interaction_llm: value === "delete" || value === "delete-pair",
         clear_conversation: value === "delete" || value === "rejected",
       };
-      
-      
-console.log("hello");
+
+      console.log("hello");
 
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
@@ -674,26 +706,29 @@ console.log("hello");
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
-          console.log("answered variable: ")
-        if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
-          setAutoSave(true);
-          setSnackbarInfo({
-            open: true,
-            message: "Answer all the mandatory questions in all forms",
-            variant: "error",
-          });
-          setLoading(false);
-          setShowNotes(false);
-          return; 
-        }
+        if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+          console.log("answered variable: ");
+          if (
+            ProjectDetails.project_type == "ModelInteractionEvaluation" &&
+            !answered
+          ) {
+            setAutoSave(true);
+            setSnackbarInfo({
+              open: true,
+              message: "Answer all the mandatory questions in all forms",
+              variant: "error",
+            });
+            setLoading(false);
+            setShowNotes(false);
+            return;
+          }
         }
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
         const res = await fetch(TaskObj.apiEndPoint(), {
           method: "PATCH",
           body: JSON.stringify(TaskObj.getBody()),
           headers: TaskObj.getHeaders().headers,
-        });        
+        });
 
         const resp = await res.json();
         if (
@@ -711,12 +746,11 @@ console.log("hello");
         }
         if (res.ok) {
           if ((value === "delete" || value === "delete-pair") === false) {
-            if(typeof window !== "undefined"){
+            if (typeof window !== "undefined") {
               if (localStorage.getItem("labelAll") || value === "skipped") {
-              onNextAnnotation(resp.task);
+                onNextAnnotation(resp.task);
+              }
             }
-            }
-            
           }
           value === "delete"
             ? setSnackbarInfo({
@@ -779,12 +813,23 @@ console.log("hello");
   };
 
   const filterAnnotations = (annotations, user, taskData) => {
+    const Task = JSON.parse(localStorage.getItem("Task"));
+
     let filteredAnnotations = annotations;
-    let userAnnotation = annotations.find((annotation) => {
-      return (
-        annotation.completed_by === user.id && annotation.parent_annotation
-      );
-    });
+    if (ProjectDetails.required_annotators_per_task > 1) {
+      var userAnnotation = annotations?.find((task) => {
+        return task.id == Task.correct_annotation_id;
+      });
+    } else {
+      var userAnnotation = annotations.find((annotation) => {
+        return (
+          annotation.completed_by === user.id && annotation.parent_annotation
+        );
+      });
+    }
+
+    console.log(userAnnotation);
+
     let disable = false;
     let disableSkip = false;
     let disablebtn = false;
@@ -797,18 +842,24 @@ console.log("hello");
       if (userAnnotation.annotation_status === "unreviewed") {
         filteredAnnotations =
           userAnnotation.result.length > 0 &&
-          !taskData?.revision_loop_count?.review_count
+          taskData?.revision_loop_count?.review_count !== 0
             ? [userAnnotation]
             : annotations.filter(
                 (annotation) =>
                   annotation.id === userAnnotation.parent_annotation &&
                   annotation.annotation_type === 1,
               );
+        console.log(
+          filteredAnnotations,
+          userAnnotation.parent_annotation,
+          !taskData?.revision_loop_count?.review_count,
+        );
       } else if (
         userAnnotation &&
         ["rejected"].includes(userAnnotation.annotation_status)
       ) {
         filteredAnnotations = [userAnnotation];
+        console.log(filteredAnnotations, userAnnotation.parent_annotation, "2");
         disableSkip = true;
         disableButton = true;
         filterMessage =
@@ -818,6 +869,7 @@ console.log("hello");
         ["draft"].includes(userAnnotation.annotation_status)
       ) {
         filteredAnnotations = [userAnnotation];
+        console.log(filteredAnnotations, userAnnotation.parent_annotation, "3");
         disableSkip = true;
         disableButton = true;
         filterMessage =
@@ -862,26 +914,52 @@ console.log("hello");
         } else {
           filteredAnnotations = [userAnnotation];
         }
+        console.log(filteredAnnotations, userAnnotation.parent_annotation, "4");
       } else if (userAnnotation.annotation_status === "skipped") {
-        filteredAnnotations = annotations.filter(
-          (value) => value.annotation_type === 1,
-        );
+        if (ProjectDetails.required_annotators_per_task > 1) {
+          filteredAnnotations = annotations.filter(
+            (value) => value.id == userAnnotation.parent_annotation,
+          );
+          console.log("req", ProjectDetails.required_annotators_per_task);
+        } else {
+          filteredAnnotations = annotations.filter(
+            (value) => value.annotation_type === 1,
+          );
+        }
+        console.log(filteredAnnotations, userAnnotation.parent_annotation, "5");
       } else if (userAnnotation.annotation_status === "to_be_revised") {
         filteredAnnotations = annotations.filter(
           (annotation) =>
             annotation.id === userAnnotation.parent_annotation &&
             annotation.annotation_type === 1,
         );
+        console.log(filteredAnnotations, userAnnotation.parent_annotation, "6");
       } else if (userAnnotation.annotation_status === "rejected") {
-        filteredAnnotations = annotations.filter(
-          (annotation) => annotation.annotation_type === 2,
-        );
+        if (ProjectDetails.required_annotators_per_task > 1) {
+          filteredAnnotations = annotations.filter(
+            (annotation) => annotation.id === Task.correct_annotation_id,
+          );
+        } else {
+          filteredAnnotations = annotations.filter(
+            (annotation) => annotation.annotation_type === 2,
+          );
+        }
+        console.log(filteredAnnotations, userAnnotation.parent_annotation, "7");
       }
     } else if ([4, 5, 6].includes(user.role)) {
-      filteredAnnotations = annotations.filter((a) => a.annotation_type === 2);
+      if (ProjectDetails.required_annotators_per_task > 1) {
+        filteredAnnotations = annotations.filter(
+          (a) => a.id === Task.correct_annotation_id,
+        );
+      } else {
+        filteredAnnotations = annotations.filter(
+          (a) => a.annotation_type === 2,
+        );
+      }
       disable = true;
       disablebtn = true;
       disableSkip = true;
+      console.log(filteredAnnotations, userAnnotation.parent_annotation, "8");
     }
     setAutoSave(!disablebtn);
     setdisableSkip(disableSkip);
@@ -902,10 +980,9 @@ console.log("hello");
   useEffect(() => {
     filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
-  if(typeof window !== "undefined"){
-     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
- 
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -947,6 +1024,9 @@ console.log("hello");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -956,12 +1036,16 @@ console.log("hello");
           stage={"Review"}
           notes={reviewNotesRef}
           info={info}
+          annotation={annotations}
         />
       );
       break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -971,6 +1055,27 @@ console.log("hello");
           stage={"Review"}
           answered={answered}
           setAnswered={setAnswered}
+          annotation={annotations}
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          loading={loading}
         />
       );
       break;
@@ -1012,16 +1117,16 @@ console.log("hello");
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                if(typeof window !== "undefined"){
+                if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-                
+
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
               }}
             >
-             Back to Previous Page
+              Back to Previous Page
             </Button>
           </Box>
         </Grid>
@@ -1123,7 +1228,26 @@ console.log("hello");
           >
             <Grid item>
               {/* title={assignedUsers ? assignedUsers : ""} */}
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip
+                title={
+                  <div>
+                    <div>
+                      {Array.isArray(assignedUsers)
+                        ? assignedUsers.join(", ")
+                        : assignedUsers || "No assigned users"}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      ANNOTATION ID: {annotations[0]?.id}
+                    </div>
+                  </div>
+                }
+              >
                 <Button
                   type="default"
                   className="lsf-button"
