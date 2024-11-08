@@ -43,6 +43,7 @@ import { useSelector } from "react-redux";
 // import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
 const ModelInteractionEvaluation = ({
+  key,
   currentInteraction,
   setCurrentInteraction,
   interactions,
@@ -52,6 +53,7 @@ const ModelInteractionEvaluation = ({
   stage,
   answered,
   setAnswered,
+  annotation,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -68,91 +70,44 @@ const ModelInteractionEvaluation = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
-  useEffect(() => {
-    setCurrentInteraction({});
-  }, [taskId]);
+
+  console.log(annotation[0]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
-      const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
-        method: "GET",
-        headers: taskAnnotationsObj.getHeaders().headers,
-      });
-      const annotationForms = await response.json();
-      let formsData = [];
-      if (
-        annotationForms &&
-        Array.isArray(annotationForms[0]?.result) &&
-        [...annotationForms[0]?.result]?.length
-      ) {
-        if (stage === "Review") {
-          console.log("here in review if");
-          let reviewData = annotationForms.find(
-            (item) => item.annotation_type === 2,
-          );
-          if (reviewData.annotation_status === "unreviewed") {
-            reviewData = annotationForms.find(
-              (item) => item.annotation_type === 1,
-            );
-          }
-          formsData = reviewData?.result;
-          console.log("reviewdata: " + JSON.stringify(reviewData));
-          console.log(formsData);
-        } else if (stage === "SuperChecker") {
-          console.log("here in sc if");
-          let superCheckerData = annotationForms.filter(
-            (data) => data.annotation_type == 3,
-          );
-          console.log(superCheckerData[0].annotation_status);
-          console.log("supercheckdata: " + JSON.stringify(superCheckerData));
-          formsData = superCheckerData[0]?.result;
-          console.log(formsData);
-        } else if (stage === "Annotation") {
-          console.log("here in annotation if");
-          let annotationData = annotationForms.filter(
-            (data) => data.annotation_type == 1,
-          );
-          console.log("annotationdata: " + JSON.stringify(annotationData));
-          formsData = annotationData[0]?.result;
-          console.log(formsData);
-        } else {
-          let allformsData = annotationForms.find(
-            (item) => item.annotation_type === 1,
-          );
-          formsData = allformsData.result;
-        }
-      } else if (
-        annotationForms &&
-        Array.isArray(annotationForms[0]?.result) &&
-        [...annotationForms[0]?.result]?.length === 0 &&
-        stage === "SuperChecker"
-      ) {
-        let superCheckerData = annotationForms.filter(
-          (data) => data.annotation_type == 3,
+    if (annotation && annotation[0]) {
+      const result = annotation[0].result;
+
+      if (Array.isArray(result)) {
+        setForms(
+          result.map((item) => ({
+            prompt: item.prompt || "",
+            output: item.output || "",
+            questions_response: item.questions_response || [],
+            additional_note: item.additional_note || null,
+            prompt_output_pair_id: item.prompt_output_pair_id || null,
+          })),
         );
-        console.log(superCheckerData[0].annotation_status);
-        if (superCheckerData[0].annotation_status === "unvalidated") {
-          superCheckerData = annotationForms.find(
-            (item) => item.annotation_type == 1,
-          );
-        }
-        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
-        formsData = superCheckerData?.result;
-        console.log(formsData);
+      } else if (result) {
+        setForms([
+          {
+            prompt: result.prompt || "",
+            output: result.output || "",
+            questions_response: result.questions_response || [],
+            additional_note: result.additional_note || null,
+            prompt_output_pair_id: result.prompt_output_pair_id || null,
+          },
+        ]);
       } else {
-        let allformsData = annotationForms.find(
-          (item) => item.annotation_type === 1,
-        );
-        formsData = allformsData.result;
+        setForms([]);
       }
+    } else {
+      setForms([]);
+    }
 
-      setForms(formsData?.length ? [...formsData] : []);
-      setLoading(false);
-    };
-    fetchData();
-  }, [taskId, stage]);
+    // Log for debugging
+    console.log("Updated forms:", forms);
+    console.log("Annotation result:", annotation);
+  }, [annotation, taskId]);
 
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
@@ -178,15 +133,11 @@ const ModelInteractionEvaluation = ({
   }, [forms, taskId]);
 
   useEffect(() => {
-    if (
-      forms?.length > 0 &&
-      interactions?.length > 0 &&
-      !currentInteraction?.prompt
-    ) {
+    if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
 
       const currentForm = forms?.find(
-        (form) => form?.prompt_output_pair_id === defaultFormId,
+        (form) => form?.prompt_output_pair_id == defaultFormId,
       );
       if (currentForm) {
         console.log("current form: " + JSON.stringify(currentForm));
@@ -208,35 +159,29 @@ const ModelInteractionEvaluation = ({
         setCurrentInteraction(newState);
       }
     }
-  }, [forms, interactions, questions?.length, taskId]);
+  }, [forms, interactions, questions?.length, taskId, annotation]);
 
   useEffect(() => {
-    if (forms?.length === 0 && interactions?.length > 0) {
+    console.log("kkk", interactions.length, forms?.length);
+
+    if (forms?.length == 0 && interactions?.length > 0) {
       const initialForms = interactions?.map((interaction) => ({
         prompt: interaction?.prompt,
         output: interaction?.output,
         prompt_output_pair_id: interaction?.prompt_output_pair_id,
-        // rating: null,
         additional_note: null,
         questions_response: questions?.map((question) => ({
           question,
-          // answer: null,
-          // chosen_options: [],
-          // input_question: question?.input_question,
-          // question_type: question?.question_type,
-          // rating: null,
-          // blank_answer: null
           response: [],
-          // mandatory: question?.mandatory
         })),
       }));
       console.log("init forms: " + initialForms);
       setForms(initialForms);
     }
-  }, [forms, interactions, taskId]);
+  }, [forms, interactions, taskId, annotation]);
 
   useEffect(() => {
-    if (!forms || forms.length === 0) {
+    if (!forms || forms.length == 0) {
       setAnswered(false);
       return;
     }
@@ -247,7 +192,7 @@ const ModelInteractionEvaluation = ({
       }
 
       const mandatoryQuestions = questions.filter((question) => {
-        return question.mandatory && question.mandatory === true;
+        return question.mandatory && question.mandatory == true;
       });
       console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
 
@@ -326,7 +271,7 @@ const ModelInteractionEvaluation = ({
     setCurrentInteraction((prev) => {
       const updatedQuestionsResponse = prev.questions_response.map(
         (q, index) => {
-          if (index === interactionIndex) {
+          if (index == interactionIndex) {
             return {
               ...q,
               response: answerArray,
@@ -427,34 +372,6 @@ const ModelInteractionEvaluation = ({
   console.log(currentInteraction);
   console.log(interactions);
   console.log(forms);
-
-  // const handleRating = (rating, index) => {
-  // setCurrentInteraction((prev) => {
-
-  //   const updatedInteraction = {
-  //     ...prev,
-  //     rating: rating,
-  //   };
-  //   console.log("updatedinteraction: "+ updatedInteraction);
-  //   // setInteractions((prevInteractions) =>
-  //   //   prevInteractions.map((interaction) =>
-  //   //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-  //   //       ? updatedInteraction
-  //   //       : interaction
-  //   //   )
-  //   // );
-
-  //   setForms((prevInteractions) =>
-  //     prevInteractions.map((interaction) =>
-  //       interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-  //         ? updatedInteraction
-  //         : interaction
-  //     )
-  //   );
-
-  //   return updatedInteraction;
-  // });
-  // };
 
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
@@ -715,45 +632,13 @@ const ModelInteractionEvaluation = ({
           ))}
         </Box> */}
         <hr className={classes.hr} />
-        {questions?.length > 0 ? (
-          <div className={classes.heading}>{translate("modal.select_que")}</div>
-        ) : (
-          <div className={classes.heading}>
-            {translate("modal.pls_select_que")}
-          </div>
-        )}
+        <div className={classes.heading}>{translate("modal.select_que")}</div>
         <div
           style={{
             overflowY: "auto",
             maxHeight: "90vh",
           }}
         >
-          {/* {selectedQuestions.map((question, index) => (
-            <div key={index} className={classes.questionContainer}>
-              <div className={classes.questionText}>{question}</div>
-              <div className={classes.radioGroupContainer}>
-              <RadioGroup
-      value={
-        currentInteraction?.questions_response
-          ? currentInteraction.questions_response[index]?.answer
-          : null
-      }
-      onChange={(event) => handleOptionChange(index, event.target.value)}
-    >
-      <FormControlLabel
-        value="Yes"
-        control={<Radio className={classes.orangeRadio} />}
-        label={<span className={classes.yesText}>Yes</span>}
-      />
-      <FormControlLabel
-        value="No"
-        control={<Radio className={classes.orangeRadio} />}
-        label={<span className={classes.yesText}>No</span>}
-      />         
-    </RadioGroup>   
-              </div>
-            </div>            
-          ))} */}
           {questions?.map((question, i) => {
             switch (question?.question_type) {
               case "fill_in_blanks":

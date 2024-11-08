@@ -1,46 +1,41 @@
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from "@mui/styles";
 // #EE6633
 
-
 const DatasetStyle = makeStyles({
-
   Projectsettingtextarea: {
     width: "100%",
     fontSize: "1.4rem",
     fontFamily: "Roboto",
     fontWeight: 10,
     lineHeight: 1.2,
-
   },
-  custombtn:{
-    borderRadius:0
+  custombtn: {
+    borderRadius: 0,
   },
   workspaceTables: {
-    marginTop: "20px"
+    marginTop: "20px",
   },
   projectButton: {
     width: "100%",
     textDecoration: "none",
   },
   annotatorsButton: {
-    width: "100%"
+    width: "100%",
   },
   managersButton: {
-    width: "100%"
+    width: "100%",
   },
   settingsButton: {
     width: "100%",
-    color: "#ee6633"
+    color: "#ee6633",
   },
   workspaceCard: {
     width: "100%",
     minHeight: "420px",
     padding: "40px",
-    justifyContent: "center", justifyItems: "center"
   },
   projectsettingGrid: {
     margin: "20px 0px 10px 0px",
-
   },
   filterToolbarContainer: {
     // alignItems : 'center',
@@ -51,9 +46,8 @@ const DatasetStyle = makeStyles({
     justifyContent: "flex-end",
     alignItems: "center",
     columnGap: "10px",
-
   },
-  
+
   clearAllBtn: {
     float: "right",
     margin: "9px 16px 0px auto",
@@ -112,7 +106,7 @@ const DatasetStyle = makeStyles({
     },
   },
   projectCardContainer: {
-    cursor: 'pointer'
+    cursor: "pointer",
   },
   modelname: {
     boxSizing: "border-box",
@@ -120,7 +114,7 @@ const DatasetStyle = makeStyles({
     height: "64px",
     backgroundColor: "white",
     maxWidth: "90%",
-    minWidth: '90%',
+    minWidth: "90%",
     width: "auto",
     display: "flex",
     alignItems: "center",
@@ -133,51 +127,50 @@ const DatasetStyle = makeStyles({
     alignItems: "center",
     paddingBottom: "5vh",
     // justifyContent: "space-around",
-    flexGrow: 0
+    flexGrow: 0,
   },
   projectCardContainer1: {
     backgroundColor: "#EE6633",
     height: "100%",
-    width: "100%"
+    width: "100%",
   },
   projectCardContainer2: {
     backgroundColor: "#66bb6a",
     height: "100%",
-    width: "100%"
+    width: "100%",
   },
   userCardContainer: {
     direction: "column",
     alignItems: "center",
     height: "100%",
-    placeContent: "center"
+    placeContent: "center",
   },
   dashboardContentContainer: {
     alignItems: "left",
     justifyContent: "space-around",
     minHeight: "70vh",
-    borderLeft: '1px solid lightgray',
-    paddingLeft: '5%'
+    borderLeft: "1px solid lightgray",
+    paddingLeft: "5%",
   },
   link: {
-    textDecoration: "none"
+    textDecoration: "none",
   },
   progress: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
   },
   progressDiv: {
-    position: 'fixed',
+    position: "fixed",
     // backgroundColor: 'rgba(0.5, 0, 0, 0.5)',
     zIndex: 1000,
     // width: '100%',
     // height: '100%',
-    top: '50%',
-    left: '50%',
+    top: "50%",
+    left: "50%",
     opacity: 1,
-    pointerEvents: 'none',
+    pointerEvents: "none",
   },
   search: {
     //position: "relative",
@@ -192,7 +185,6 @@ const DatasetStyle = makeStyles({
     //   position: "absolute",
     //  Right: "200px",
     //  top:"155px",
-
   },
   searchIcon: {
     // padding: theme.spacing(0, 2),
@@ -217,14 +209,13 @@ const DatasetStyle = makeStyles({
   ToolbarContainer: {
     position: "absolute",
     bottom: "14px",
-    right: "45px"
-
+    right: "45px",
   },
   TotalSummarydata: {
     padding: "4px 0px 0px 4px",
   },
   projectgrid: {
-    textAlign: "start"
+    textAlign: "start",
   },
   // fixedWidthContainer: {
   // 	maxWidth: "5%",
@@ -245,8 +236,7 @@ const DatasetStyle = makeStyles({
     overflow: "hidden",
     "@media (max-width:400px)": {
       marginLeft: "-14px",
-      fontSize: "12px"
-
+      fontSize: "12px",
     },
   },
   descCardIcon: {
@@ -256,19 +246,21 @@ const DatasetStyle = makeStyles({
     height: "fit-content",
   },
   formControl: {
-    width: 300
+    width: 300,
   },
   AddGlossaryCard: {
     width: "100%",
     minHeight: "420px",
     padding: "20px 40px 20px 40px",
-    justifyContent: "center", justifyItems: "center"
+    justifyContent: "center",
+    justifyItems: "center",
   },
   SuggestAnEditCard: {
     width: "100%",
     minHeight: "350px",
     padding: "20px 40px 20px 40px",
-    justifyContent: "center", justifyItems: "center"
+    justifyContent: "center",
+    justifyItems: "center",
   },
 
   heading: {
@@ -293,23 +285,35 @@ const DatasetStyle = makeStyles({
     boxShadow: "3px 0 2px -2px #00000029",
   },
   toolTip: {
-    width: "200px", height: "180px", fontSize: "16px", backgroundColor: "white", color: "black", padding: "5px 10px 10px 10px", border: "1px solid gray"
+    width: "200px",
+    height: "180px",
+    fontSize: "16px",
+    backgroundColor: "white",
+    color: "black",
+    padding: "5px 10px 10px 10px",
+    border: "1px solid gray",
   },
 
-    toolTips: {
-    width: "280px", height: "220px", fontSize: "16px", backgroundColor: "white", color: "black", padding: "5px 10px 10px 10px", border: "1px solid gray"
+  toolTips: {
+    width: "280px",
+    height: "220px",
+    fontSize: "16px",
+    backgroundColor: "white",
+    color: "black",
+    padding: "5px 10px 10px 10px",
+    border: "1px solid gray",
   },
 
-  textTransliteration:{
+  textTransliteration: {
     borderRadius: "3px",
 
-            height: "60px",
-            padding: "15px 10px 10px 10px",
-            resize: "none",
-            margin: "7px 0px 0px 0px",
-             width: "200px",fontSize:"16px"
-  }
+    height: "60px",
+    padding: "15px 10px 10px 10px",
+    resize: "none",
+    margin: "7px 0px 0px 0px",
+    width: "200px",
+    fontSize: "16px",
+  },
+});
 
-})
-
-export default DatasetStyle
+export default DatasetStyle;
