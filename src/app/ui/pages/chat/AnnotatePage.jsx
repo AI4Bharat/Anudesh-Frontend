@@ -437,7 +437,8 @@ const AnnotatePage = () => {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
         if (
-          ProjectDetails.project_type == "ModelInteractionEvaluation" &&
+          (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
+            ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
           !answered
         ) {
           setAutoSave(true);

@@ -179,57 +179,104 @@ const PreferenceRanking = ({
       }
     }
   }, [forms, interactions, questions?.length, taskId]);
-
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
       return;
     }
 
-    const allFormsAnswered = forms.every((form) => {
-      if (!form) {
+    const formStatuses = forms.map((form, formIndex) => {
+      if (
+        !form?.model_responses_json ||
+        form.model_responses_json.length === 0
+      ) {
+        console.log(
+          `Form #${formIndex + 1} has no model responses or is empty.`,
+        );
         return false;
       }
 
-      const mandatoryQuestions = questions.filter((question) => {
-        return question.mandatory && question.mandatory === true;
-      });
-      console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
-
-      const allMandatoryAnswered = mandatoryQuestions.every((question) => {
-        let parts = 0;
-        if (question.question_type === "fill_in_blanks") {
-          parts = question?.input_question?.split("<blank>")?.length;
-        }
-        const mandatoryQuestion = form?.questions_response?.find(
-          (qr) =>
-            qr?.question?.input_question === question?.input_question &&
-            qr?.question?.question_type === question?.question_type,
-        );
-        if (!mandatoryQuestion?.response) {
-          return false;
-        }
-        if (question.question_type === "fill_in_blanks") {
-          if (mandatoryQuestion?.response?.length !== parts - 1) {
-            return false;
-          }
-          return !mandatoryQuestion.response.some(
-            (response) => response === "" || response === undefined,
+      const formAnswered = form.model_responses_json.every(
+        (modelResponse, modelIndex) => {
+          console.log(
+            `Checking modelResponse #${modelIndex + 1} for model ${
+              modelResponse.model_name
+            } in Form #${formIndex + 1}`,
           );
-        }
-        return (
-          mandatoryQuestion.response.length > 0 &&
-          !mandatoryQuestion.response.some(
-            (response) => response === "" || response === undefined,
-          )
-        );
-      });
 
-      console.log("all answered for form: " + allMandatoryAnswered);
-      return allMandatoryAnswered;
+          const allMandatoryAnswered = questions.every(
+            (question, questionIndex) => {
+              let expectedParts = 0;
+              if (question.question_type === "fill_in_blanks") {
+                expectedParts =
+                  question?.input_question?.split("<blank>")?.length - 1;
+              }
+
+              const responseForQuestion =
+                modelResponse?.questions_response?.find(
+                  (qr) =>
+                    qr?.question?.input_question === question?.input_question &&
+                    qr?.question?.question_type === question?.question_type,
+                );
+
+              if (!responseForQuestion?.response) {
+                console.log(
+                  `Question #${questionIndex + 1} in model ${
+                    modelResponse.model_name
+                  } is unanswered or missing response`,
+                );
+                return false; // If the question is not answered, return false
+              }
+
+              if (question.question_type === "fill_in_blanks") {
+                const isCorrectLength =
+                  responseForQuestion.response.length === expectedParts;
+                const hasNoEmptyResponse = !responseForQuestion.response.some(
+                  (response) => response === "" || response === undefined,
+                );
+                if (!isCorrectLength || !hasNoEmptyResponse) {
+                  console.log(
+                    `Fill-in-the-blanks question #${
+                      questionIndex + 1
+                    } not fully answered in model ${modelResponse.model_name}`,
+                  );
+                  return false;
+                }
+                return true;
+              }
+
+              const hasValidResponse =
+                responseForQuestion.response.length > 0 &&
+                !responseForQuestion.response.some(
+                  (response) => response === "" || response === undefined,
+                );
+
+              if (!hasValidResponse) {
+                console.log(
+                  `Question #${
+                    questionIndex + 1
+                  } has invalid response in model ${modelResponse.model_name}`,
+                );
+              }
+
+              return hasValidResponse;
+            },
+          );
+
+          console.log(
+            `All mandatory questions answered for model ${modelResponse.model_name}: ${allMandatoryAnswered}`,
+          );
+          return allMandatoryAnswered; // If any model response doesn't pass, this will be false
+        },
+      );
+
+      console.log(`Form #${formIndex + 1} fully answered: ${formAnswered}`);
+      return formAnswered;
     });
 
-    console.log("all forms answered?: " + allFormsAnswered);
+    const allFormsAnswered = formStatuses.every((status) => status === true);
+    console.log("All forms answered:", allFormsAnswered);
+
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
 
@@ -621,12 +668,10 @@ const PreferenceRanking = ({
                           )}
                         </span>
                       ))}
-                    {question.mandatory && (
-                      <span style={{ color: "#d93025", fontSize: "25px" }}>
-                        {" "}
-                        *
-                      </span>
-                    )}
+                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                      {" "}
+                      *
+                    </span>
                   </p>
 
                   {currentInteraction?.model_responses_json?.map(
@@ -686,7 +731,7 @@ const PreferenceRanking = ({
                                 backgroundColor: "white",
                                 fontWeight: "normal",
                               }}
-                              required={question.mandatory}
+                              required
                             />
                           ))}
                       </div>
@@ -701,12 +746,10 @@ const PreferenceRanking = ({
                     <span style={{ fontSize: "18px" }}>
                       {questionIdx + 1}. {question.input_question}
                     </span>
-                    {question.mandatory && (
-                      <span style={{ color: "#d93025", fontSize: "25px" }}>
-                        {" "}
-                        *
-                      </span>
-                    )}
+                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                      {" "}
+                      *
+                    </span>
                   </div>
                   {currentInteraction?.model_responses_json?.map(
                     (response, outputIdx) => (
@@ -754,7 +797,7 @@ const PreferenceRanking = ({
                                   width: "47px",
                                   padding: "13px",
                                 }}
-                                required={question.mandatory}
+                                required
                               />
                             ),
                           )}
@@ -772,12 +815,10 @@ const PreferenceRanking = ({
                     style={{ fontSize: "18px" }}
                   >
                     {questionIdx + 1}. {question.input_question}
-                    {question.mandatory && (
-                      <span style={{ color: "#d93025", fontSize: "25px" }}>
-                        {" "}
-                        *
-                      </span>
-                    )}
+                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                      {" "}
+                      *
+                    </span>
                   </div>
                   <div style={{ marginBottom: "10px" }}>
                     {question?.input_selections_list?.map(
@@ -855,12 +896,10 @@ const PreferenceRanking = ({
                     style={{ fontSize: "18px" }}
                   >
                     {questionIdx + 1}. {question.input_question}
-                    {question.mandatory && (
-                      <span style={{ color: "#d93025", fontSize: "25px" }}>
-                        {" "}
-                        *
-                      </span>
-                    )}
+                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                      {" "}
+                      *
+                    </span>
                   </div>
 
                   <div style={{ marginBottom: "10px" }}>

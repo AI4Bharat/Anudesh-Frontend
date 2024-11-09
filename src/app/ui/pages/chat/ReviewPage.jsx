@@ -554,65 +554,101 @@ const ReviewPage = () => {
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
-    // const task = JSON.parse(localStorage.getItem("Task"));
-    // const currentIndex = taskList?.findIndex(
-    //   (obj) => obj.correct_annotation_id == task.correct_annotation_id,
-    // );
-    // const newtasklist = taskList?.filter((value) => {
-    //   return value.id == task.id;
-    // });
-    // console.log(currentIndex, newtasklist, "llove");
+    const task = JSON.parse(localStorage.getItem("Task"));
+    const filteredAnnotations = AnnotationsTaskDetails?.filter(
+      (obj) => obj.annotation_type === 2,
+    );
 
-    // if (
-    //   ProjectDetails.required_annotators_per_task > 1 &&
-    //   currentIndex + 1 < ProjectDetails.required_annotators_per_task
-    // ) {
-    //   localStorage.setItem(
-    //     "Task",
-    //     JSON.stringify(newtasklist[currentIndex + 1]),
-    //   );
-    // } else {
-    const nextAPIData = {
-      id: projectId,
-      current_task_id: taskId,
-      mode: "review",
-      annotation_status: labellingMode,
-    };
+    const maxIdAnnotation = filteredAnnotations?.reduce((max, obj) =>
+      obj.id > max.id ? obj : max,
+    );
 
-    let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
-    var rsp_data = [];
-    fetch(apiObj.apiEndPoint(), {
-      method: "post",
-      body: JSON.stringify(apiObj.getBody()),
-      headers: apiObj.getHeaders().headers,
-    })
-      .then(async (response) => {
-        rsp_data = await response.json();
-        setLoading(false);
-        if (response.ok) {
-          localStorage.setItem("Task", JSON.stringify(rsp_data));
-          setNextData(rsp_data);
-          tasksComplete(rsp_data?.id || null);
-          getAnnotationsTaskData(rsp_data.id);
-          getTaskData(rsp_data.id);
-        }
+    const isMaxIdAnnotation =
+      maxIdAnnotation?.id === task.correct_annotation_id;
+    console.log(isMaxIdAnnotation, "llove");
+
+    if (ProjectDetails.required_annotators_per_task > 1 && !isMaxIdAnnotation) {
+      const nextAPIData = {
+        id: projectId,
+        current_task_id: taskId,
+        mode: "review",
+        annotation_status: labellingMode,
+        current_annotation_id: task.correct_annotation_id,
+      };
+
+      let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+      var rsp_data = [];
+      fetch(apiObj.apiEndPoint(), {
+        method: "post",
+        body: JSON.stringify(apiObj.getBody()),
+        headers: apiObj.getHeaders().headers,
       })
-      .catch((error) => {
-        setSnackbarInfo({
-          open: true,
-          message: "No more tasks to label",
-          variant: "info",
-        });
-        setTimeout(() => {
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("labelAll");
+        .then(async (response) => {
+          rsp_data = await response.json();
+          setLoading(false);
+          if (response.ok) {
+            localStorage.setItem("Task", JSON.stringify(rsp_data));
+            setNextData(rsp_data);
+            tasksComplete(rsp_data?.id || null);
+            getAnnotationsTaskData(rsp_data.id);
+            getTaskData(rsp_data.id);
           }
+        })
+        .catch((error) => {
+          setSnackbarInfo({
+            open: true,
+            message: "No more tasks to label",
+            variant: "info",
+          });
+          setTimeout(() => {
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("labelAll");
+            }
 
-          window.location.replace(`/#/projects/${projectId}`);
-        }, 1000);
-      });
-    // }
-    // setLoading(false);
+            window.location.replace(`/#/projects/${projectId}`);
+          }, 1000);
+        });
+    } else {
+      const nextAPIData = {
+        id: projectId,
+        current_task_id: taskId,
+        mode: "review",
+        annotation_status: labellingMode,
+      };
+
+      let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+      var rsp_data = [];
+      fetch(apiObj.apiEndPoint(), {
+        method: "post",
+        body: JSON.stringify(apiObj.getBody()),
+        headers: apiObj.getHeaders().headers,
+      })
+        .then(async (response) => {
+          rsp_data = await response.json();
+          setLoading(false);
+          if (response.ok) {
+            localStorage.setItem("Task", JSON.stringify(rsp_data));
+            setNextData(rsp_data);
+            tasksComplete(rsp_data?.id || null);
+            getAnnotationsTaskData(rsp_data.id);
+            getTaskData(rsp_data.id);
+          }
+        })
+        .catch((error) => {
+          setSnackbarInfo({
+            open: true,
+            message: "No more tasks to label",
+            variant: "info",
+          });
+          setTimeout(() => {
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("labelAll");
+            }
+
+            window.location.replace(`/#/projects/${projectId}`);
+          }, 1000);
+        });
+    }
   };
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
@@ -708,8 +744,11 @@ const ReviewPage = () => {
       ) {
         if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
           console.log("answered variable: ");
+          console.log(answered, "kelo");
+
           if (
-            ProjectDetails.project_type == "ModelInteractionEvaluation" &&
+            (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
+              ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
             !answered
           ) {
             setAutoSave(true);
@@ -842,7 +881,7 @@ const ReviewPage = () => {
       if (userAnnotation.annotation_status === "unreviewed") {
         filteredAnnotations =
           userAnnotation.result.length > 0 &&
-          taskData?.revision_loop_count?.review_count !== 0
+          !taskData?.revision_loop_count?.review_count
             ? [userAnnotation]
             : annotations.filter(
                 (annotation) =>
@@ -959,7 +998,6 @@ const ReviewPage = () => {
       disable = true;
       disablebtn = true;
       disableSkip = true;
-      console.log(filteredAnnotations, userAnnotation.parent_annotation, "8");
     }
     setAutoSave(!disablebtn);
     setdisableSkip(disableSkip);
