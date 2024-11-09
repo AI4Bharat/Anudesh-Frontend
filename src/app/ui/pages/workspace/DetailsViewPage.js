@@ -588,7 +588,7 @@ const DetailsViewPage = (props) => {
                     columnSpacing={4}
                     rowSpacing={2}
                   >
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12}>
                       <CustomButton
                         className={classes.annotatorsButton}
                         label={"Add Members to Workspace"}
@@ -596,14 +596,14 @@ const DetailsViewPage = (props) => {
                         onClick={handleAnnotatorDialogOpen}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    {/* <Grid item xs={12} sm={6}>
                       <CustomButton
                         className={classes.annotatorsButton}
                         label={"Invite Users to Organisation"}
                         sx={{ width: "100%", mb: 2 }}
                         onClick={handleUserDialogOpen}
                       />
-                    </Grid>
+                    </Grid> */}
                   </Grid>
                   <AnnotatorsTable
                     onRemoveSuccessGetUpdatedMembers={() =>

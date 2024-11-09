@@ -111,6 +111,11 @@ const CreateProject = () => {
   const [selectedVariableParameters, setSelectedVariableParameters] = useState(
     [],
   );
+  const filteredProjectStage =
+    selectedAnnotatorsNum > 1
+      ? projectStage.filter((stage) => stage.value !== 3)
+      : projectStage;
+
   const workspaceDtails = useSelector(
     (state) => state.getWorkspaceDetails.data,
   );
@@ -1298,7 +1303,7 @@ const CreateProject = () => {
                       value={taskReviews}
                       onChange={handleReviewToggle}
                     >
-                      {projectStage.map((type, index) => (
+                      {filteredProjectStage.map((type, index) => (
                         <MenuItem value={type.value} key={index}>
                           {type.name}
                         </MenuItem>
