@@ -283,7 +283,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
     console.log("id1", id);
     if (id) fetchAllUsers(userType, id, dispatch);
   }, [userType, id, projectDetails]);
-  const filteruser = availableUsers.filter(
+  const filteruser = availableUsers?.filter(
     (user) =>
       !projectDetails.annotators.some((annotator) => annotator.id === user.id),
   );
