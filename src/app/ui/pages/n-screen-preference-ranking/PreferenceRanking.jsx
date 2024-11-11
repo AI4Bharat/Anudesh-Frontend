@@ -1099,7 +1099,7 @@ const PreferenceRanking = ({
                     id={pair?.prompt_output_pair_id}
                   />
                   <Button
-                    label="reset"
+                    label="Reset"
                     buttonVariant={"outlined"}
                     style={{
                       marginLeft: "1.5rem",
