@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { parse } from "csv-parse/sync";
 import MUIDataTable from "mui-datatables";
+import { Parser } from "json2csv";
+
 import {
   Box,
   Chip,
@@ -19,6 +22,7 @@ import {
   InputLabel,
   TextField,
 } from "@mui/material";
+import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
@@ -178,17 +182,34 @@ const CreateProject = () => {
   };
 
   const convertCsvToJson = (csvData) => {
-    const rows = csvData.split("\n").filter((row) => row.trim() !== "");
-    const headers = rows[0].split(",");
-    return rows.slice(1).map((row) => {
-      const values = row.split(",");
-      let obj = {};
-      headers.forEach((header, index) => {
-        obj[header.trim()] = values[index].trim();
-      });
-      return obj;
+    const records = parse(csvData, {
+      columns: true, // Treat first row as headers
+      skip_empty_lines: true, // Skip empty lines
+      cast: true, // Automatically cast values
+      on_record: (record) => {
+        // Handle array-like values for specific columns
+        const arrayColumns = ["rating_scale_list", "input_selections_list"];
+
+        arrayColumns.forEach((column) => {
+          if (
+            record[column] &&
+            record[column].startsWith("[") &&
+            record[column].endsWith("]")
+          ) {
+            try {
+              record[column] = JSON.parse(record[column].replace(/""/g, '"'));
+            } catch (e) {
+              // If parsing fails, keep the original value
+            }
+          }
+        });
+        return record;
+      },
     });
+
+    return records;
   };
+
   useEffect(() => {
     console.log("questionsJSON:", questionsJSON);
     console.log("typeof questionsJSON:", typeof questionsJSON);
@@ -674,6 +695,40 @@ const CreateProject = () => {
     }
   }, [currentPageNumber, currentRowPerPage]);
   const sample = useSelector((state) => console.log(state));
+
+  const downloadCsv = () => {
+    try {
+      const json = JSON.parse(jsonInput); // Ensure this is valid JSON
+
+      if (json.length === 0) {
+        console.error("Empty JSON data");
+        return;
+      }
+
+      // Configure `json2csv` parser options if necessary
+      const json2csvParser = new Parser();
+      const csv = json2csvParser.parse(json);
+
+      // Create a CSV blob
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+
+      // Create a link to download the CSV
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.csv";
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error converting JSON to CSV", error);
+    }
+  };
+  const replacer = (key, value) => (value === null ? "" : value);
+
   const renderToolBar = () => {
     return (
       <Grid container spacing={0} md={12}>
@@ -1340,7 +1395,8 @@ const CreateProject = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                {selectedType === "ModelInteractionEvaluation" ? (
+                {selectedType === "ModelInteractionEvaluation" ||
+                selectedType === "MultipleInteractionEvaluation" ? (
                   <Grid
                     item
                     xs={12}
@@ -1377,6 +1433,14 @@ const CreateProject = () => {
                         onChange={handleJsonInputChange}
                         style={{ flex: 1, marginRight: "10px" }}
                       />
+                      <IconButton
+                        onClick={downloadCsv}
+                        style={{ marginLeft: "10px" }}
+                        aria-label="download CSV"
+                      >
+                        <ArrowCircleDownIcon />{" "}
+                        {/* Replace this with your download icon component */}
+                      </IconButton>
                     </Grid>
                   </Grid>
                 ) : null}

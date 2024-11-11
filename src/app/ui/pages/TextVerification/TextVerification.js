@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
-import RefreshIcon from '@mui/icons-material/Refresh';
+import RefreshIcon from "@mui/icons-material/Refresh";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
   FormControlLabel,
@@ -35,13 +35,21 @@ import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotation
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
 // import { questions } from "./config";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
 // import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
-
-
-const TextVerification = ({ currentInteraction, setCurrentInteraction, interactions, setInteractions, forms, setForms, stage,answered, setAnswered }) => {
+const TextVerification = ({
+  currentInteraction,
+  setCurrentInteraction,
+  interactions,
+  setInteractions,
+  forms,
+  setForms,
+  stage,
+  answered,
+  setAnswered,
+}) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { taskId } = useParams();
@@ -49,14 +57,14 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
-    const questions = useSelector(state=>state.getProjectDetails.data.metadata_json) ?? []
-    console.log("questions that were fetched: "+typeof questions)
+  const questions =
+    useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
+  console.log("questions that were fetched: " + typeof questions);
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
 
   useEffect(() => {
-    
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
       const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
@@ -64,51 +72,69 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
         headers: taskAnnotationsObj.getHeaders().headers,
       });
       const annotationForms = await response.json();
-      let formsData = []
+      let formsData = [];
       console.log(annotationForms[0].result?.length);
-      
-      if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length){
-        console.log(stage)
-        if(stage ==="Review"){
-          console.log("here in review if")
-          let reviewData = annotationForms.find((item) => item.annotation_type === 2);
-          if(reviewData.annotation_status === "unreviewed"){
-            reviewData = annotationForms.find((item) => item.annotation_type === 1);
+
+      if (
+        annotationForms &&
+        Array.isArray(annotationForms[0]?.result) &&
+        [...annotationForms[0]?.result]?.length
+      ) {
+        console.log(stage);
+        if (stage === "Review") {
+          console.log("here in review if");
+          let reviewData = annotationForms.find(
+            (item) => item.annotation_type === 2,
+          );
+          if (reviewData.annotation_status === "unreviewed") {
+            reviewData = annotationForms.find(
+              (item) => item.annotation_type === 1,
+            );
           }
           formsData = reviewData?.result;
           console.log("reviewdata: " + JSON.stringify(reviewData));
-          console.log(formsData)
+          console.log(formsData);
+        } else if (stage === "SuperChecker") {
+          console.log("here in sc if");
+          let superCheckerData = annotationForms.filter(
+            (data) => data.annotation_type == 3,
+          );
+          console.log(superCheckerData[0].annotation_status);
+          console.log("supercheckdata: " + JSON.stringify(superCheckerData));
+          formsData = superCheckerData[0]?.result;
+          console.log(formsData);
+        } else if (stage === "Annotation") {
+          console.log("here in annotation if");
+          let annotationData = annotationForms.filter(
+            (data) => data.annotation_type == 1,
+          );
+          console.log("annotationdata: " + JSON.stringify(annotationData));
+          formsData = annotationData[0]?.result;
+          console.log(formsData);
+        } else {
+          console.log("here in else");
         }
-      else if(stage === "SuperChecker"){
-        console.log("here in sc if")
-        let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
-        console.log(superCheckerData[0].annotation_status)
-        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
-        formsData = superCheckerData[0]?.result
-        console.log(formsData)
-      }else if(stage === "Annotation"){
-        console.log("here in annotation if")
-        let annotationData = annotationForms.filter((data)=>data.annotation_type==1)
-        console.log("annotationdata: "+ JSON.stringify(annotationData));
-        formsData = annotationData[0]?.result;
-        console.log(formsData)
-      }
-      else{
-        console.log("here in else")
-      }
-    }
-    else if(annotationForms && Array.isArray(annotationForms[0]?.result) && [...annotationForms[0]?.result]?.length===0 && stage==="SuperChecker"){
-      console.log("here in sc if")
-        let superCheckerData = annotationForms.filter((data)=>data.annotation_type==3)
-        console.log(superCheckerData[0].annotation_status)
-        if(superCheckerData[0].annotation_status === "unvalidated"){
-          superCheckerData = annotationForms.find((item) => item.annotation_type == 1);
+      } else if (
+        annotationForms &&
+        Array.isArray(annotationForms[0]?.result) &&
+        [...annotationForms[0]?.result]?.length === 0 &&
+        stage === "SuperChecker"
+      ) {
+        console.log("here in sc if");
+        let superCheckerData = annotationForms.filter(
+          (data) => data.annotation_type == 3,
+        );
+        console.log(superCheckerData[0].annotation_status);
+        if (superCheckerData[0].annotation_status === "unvalidated") {
+          superCheckerData = annotationForms.find(
+            (item) => item.annotation_type == 1,
+          );
         }
         console.log("supercheckdata: " + JSON.stringify(superCheckerData));
-        formsData = superCheckerData?.result
-        console.log(formsData)  
-    }
-      setForms(formsData?.length ? [...formsData] : [])
+        formsData = superCheckerData?.result;
+        console.log(formsData);
+      }
+      setForms(formsData?.length ? [...formsData] : []);
     };
     fetchData();
   }, [taskId, stage]);
@@ -120,8 +146,6 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
       questions_response: Array(questions?.length).fill(null),
     }));
   };
-  
- 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,27 +163,37 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
-      const currentForm = forms.find(form => form?.prompt_output_pair_id === defaultFormId);
-      
-      if (currentForm && (!currentInteraction || currentInteraction?.prompt !== currentForm?.prompt)) {
+      const currentForm = forms.find(
+        (form) => form?.prompt_output_pair_id === defaultFormId,
+      );
+
+      if (
+        currentForm &&
+        (!currentInteraction ||
+          currentInteraction?.prompt !== currentForm?.prompt)
+      ) {
         console.log("current form: " + JSON.stringify(currentForm));
-        const questionsResponse = currentForm?.questions_response || Array(questions?.length).fill(null);
+        const questionsResponse =
+          currentForm?.questions_response ||
+          Array(questions?.length).fill(null);
         console.log(JSON.stringify(questionsResponse));
-        
+
         const newState = {
           prompt: currentForm?.prompt || "",
-          output: typeof currentForm?.output === "string" ? currentForm.output : currentForm?.output?.map((item) => item.value).join(', ') || "",
+          output:
+            typeof currentForm?.output === "string"
+              ? currentForm.output
+              : currentForm?.output?.map((item) => item.value).join(", ") || "",
           prompt_output_pair_id: currentForm?.prompt_output_pair_id,
           additional_note: currentForm?.additional_note || "",
           questions_response: questionsResponse,
         };
-        
+
         setCurrentInteraction(newState);
       }
     }
-  }, [forms, interactions, questions?.length,taskId]);
-  
-  
+  }, [forms, interactions, questions?.length, taskId]);
+
   useEffect(() => {
     if (forms?.length === 0 && interactions?.length > 0) {
       const initialForms = interactions?.map((interaction) => ({
@@ -178,36 +212,38 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
           // blank_answer: null
           response: [],
           // mandatory: question?.mandatory
-        }))
+        })),
       }));
-      console.log("init forms: "+ initialForms)
+      console.log("init forms: " + initialForms);
       setForms(initialForms);
     }
-  }, [forms, interactions,taskId]);
+  }, [forms, interactions, taskId]);
 
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
       return;
     }
-  
-    const allFormsAnswered = forms.every(form => {
+
+    const allFormsAnswered = forms.every((form) => {
       if (!form) {
         return false;
       }
-  
-      const mandatoryQuestions = questions.filter(question => {
+
+      const mandatoryQuestions = questions.filter((question) => {
         return question.mandatory && question.mandatory === true;
       });
       console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
-  
-      const allMandatoryAnswered = mandatoryQuestions.every(question => {
+
+      const allMandatoryAnswered = mandatoryQuestions.every((question) => {
         let parts = 0;
         if (question.question_type === "fill_in_blanks") {
           parts = question?.input_question?.split("<blank>")?.length;
         }
         const mandatoryQuestion = form?.questions_response?.find(
-          qr => qr?.question?.input_question === question?.input_question && qr?.question?.question_type === question?.question_type
+          (qr) =>
+            qr?.question?.input_question === question?.input_question &&
+            qr?.question?.question_type === question?.question_type,
         );
         if (!mandatoryQuestion?.response) {
           return false;
@@ -216,34 +252,42 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
           if (mandatoryQuestion?.response?.length !== parts - 1) {
             return false;
           }
-          return !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+          return !mandatoryQuestion.response.some(
+            (response) => response === "" || response === undefined,
+          );
         }
-        return mandatoryQuestion.response.length > 0 && !mandatoryQuestion.response.some(response => response === "" || response === undefined);
+        return (
+          mandatoryQuestion.response.length > 0 &&
+          !mandatoryQuestion.response.some(
+            (response) => response === "" || response === undefined,
+          )
+        );
       });
-  
+
       console.log("all answered for form: " + allMandatoryAnswered);
       return allMandatoryAnswered;
     });
-  
+
     console.log("all forms answered?: " + allFormsAnswered);
     setAnswered(allFormsAnswered);
-  }, [forms,taskId]);
-  
+  }, [forms, taskId]);
 
   const handleRating = (rating, interactionIndex) => {
     setCurrentInteraction((prev) => {
-      const selectedQuestion = questions[interactionIndex];      
+      const selectedQuestion = questions[interactionIndex];
       const ratingArray = [String(rating)];
       // const ratingScaleList = selectedQuestion?.rating_scale_list;
-      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
-        if (index === interactionIndex) {
-          return {
-            ...q,
-            response: ratingArray,
-          };
-        }
-        return q;
-      });
+      const updatedQuestionsResponse = prev.questions_response.map(
+        (q, index) => {
+          if (index === interactionIndex) {
+            return {
+              ...q,
+              response: ratingArray,
+            };
+          }
+          return q;
+        },
+      );
       const updatedInteraction = {
         ...prev,
         questions_response: updatedQuestionsResponse,
@@ -252,117 +296,124 @@ const TextVerification = ({ currentInteraction, setCurrentInteraction, interacti
         prevInteractions.map((interaction) =>
           interaction.prompt_output_pair_id === prev.prompt_output_pair_id
             ? updatedInteraction
-            : interaction
-        )
+            : interaction,
+        ),
       );
-  
-  
+
       return updatedInteraction;
     });
   };
-  
 
   const handleMCQ = (selectedOption, interactionIndex) => {
     // const selectedQuestion = selectedQuestions[interactionIndex];
-    const answerArray = [String(selectedOption)]
+    const answerArray = [String(selectedOption)];
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
-        if (index === interactionIndex) {
-          return {
-            ...q,
-            response: answerArray,
-          };
-        }
-        return q;
-      });
-  
+      const updatedQuestionsResponse = prev.questions_response.map(
+        (q, index) => {
+          if (index === interactionIndex) {
+            return {
+              ...q,
+              response: answerArray,
+            };
+          }
+          return q;
+        },
+      );
+
       const updatedInteraction = {
         ...prev,
         questions_response: updatedQuestionsResponse,
       };
-  
+
       setForms((prevInteractions) =>
         prevInteractions.map((interaction) =>
           interaction.prompt_output_pair_id === prev.prompt_output_pair_id
             ? updatedInteraction
-            : interaction
-        )
+            : interaction,
+        ),
       );
-  
+
       return updatedInteraction;
     });
   };
   const handleMultiSelect = (isChecked, selectedOption, interactionIndex) => {
-    console.log("checked: " + isChecked)
+    console.log("checked: " + isChecked);
     const selectedQuestion = questions[interactionIndex];
-    const indexInQuestions = questions?.findIndex(q => q.id === selectedQuestion?.id);
-  
+    const indexInQuestions = questions?.findIndex(
+      (q) => q.id === selectedQuestion?.id,
+    );
+
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
-        if (index === interactionIndex) {
-          const updatedAnswers = isChecked
-            ? [...q?.response || [], selectedOption] 
-            : q?.response.filter(answer => answer !== selectedOption);
-  
-          return {
-            ...q,
-            response: updatedAnswers,
-          };
-        }
-        return q;
-      });
-  
+      const updatedQuestionsResponse = prev.questions_response.map(
+        (q, index) => {
+          if (index === interactionIndex) {
+            const updatedAnswers = isChecked
+              ? [...(q?.response || []), selectedOption]
+              : q?.response.filter((answer) => answer !== selectedOption);
+
+            return {
+              ...q,
+              response: updatedAnswers,
+            };
+          }
+          return q;
+        },
+      );
+
       const updatedInteraction = {
         ...prev,
         questions_response: updatedQuestionsResponse,
       };
-  
+
       setForms((prevInteractions) =>
         prevInteractions.map((interaction) =>
           interaction.prompt_output_pair_id === prev.prompt_output_pair_id
             ? updatedInteraction
-            : interaction
-        )
+            : interaction,
+        ),
       );
-  
+
       return updatedInteraction;
     });
   };
-  
-  
-console.log(interactions);
-const handleOptionChange = (selectedIndex, answer) => {
-  setCurrentInteraction((prev) => {
-    const newAnswers = questions?.map((question, i) => {
-      if (questions[selectedIndex] === question) {
-        return { question, answer: answer || null };
-      } else {
-        return prev.questions_response?.find(response => response?.question === question) || { question, answer: null };
-      }
+
+  console.log(interactions);
+  const handleOptionChange = (selectedIndex, answer) => {
+    setCurrentInteraction((prev) => {
+      const newAnswers = questions?.map((question, i) => {
+        if (questions[selectedIndex] === question) {
+          return { question, answer: answer || null };
+        } else {
+          return (
+            prev.questions_response?.find(
+              (response) => response?.question === question,
+            ) || { question, answer: null }
+          );
+        }
+      });
+
+      const updatedInteraction = {
+        ...prev,
+        questions_response: newAnswers,
+      };
+      setForms((prevForms) =>
+        prevForms.map((form) =>
+          form?.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : form,
+        ),
+      );
+
+      return updatedInteraction;
     });
+  };
 
-    const updatedInteraction = {
-      ...prev,
-      questions_response: newAnswers,
-    };
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form?.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : form
-      )
-    );
+  console.log(currentInteraction);
+  console.log(interactions);
+  console.log(forms);
 
-    return updatedInteraction;
-  });
-};
-
-console.log(currentInteraction);
-console.log(interactions);
-console.log(forms);
-
-// const handleRating = (rating, index) => {
+  // const handleRating = (rating, index) => {
   // setCurrentInteraction((prev) => {
 
   //   const updatedInteraction = {
@@ -386,202 +437,209 @@ console.log(forms);
   //     )
   //   );
 
-
   //   return updatedInteraction;
   // });
-// };
+  // };
 
-const handleNoteChange = (event) => {
-  const newNote = event.target.value;
-  setCurrentInteraction((prev) => {
-    const updatedInteraction = {
-      ...prev,
-      additional_note: newNote,
-    };
+  const handleNoteChange = (event) => {
+    const newNote = event.target.value;
+    setCurrentInteraction((prev) => {
+      const updatedInteraction = {
+        ...prev,
+        additional_note: newNote,
+      };
 
-    // setInteractions((prevInteractions) =>
-    //   prevInteractions.map((interaction) =>
-    //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-    //       ? updatedInteraction
-    //       : interaction
-    //   )
-    // );
+      // setInteractions((prevInteractions) =>
+      //   prevInteractions.map((interaction) =>
+      //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
+      //       ? updatedInteraction
+      //       : interaction
+      //   )
+      // );
 
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form?.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? updatedInteraction
-          : form
-      )
-    );
+      setForms((prevForms) =>
+        prevForms.map((form) =>
+          form?.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? updatedInteraction
+            : form,
+        ),
+      );
 
-    return updatedInteraction;
-  });
-};
-const formatPrompt = (prompt) => {
-  const lines = prompt?.split('\n');
-  const markdownString = lines?.join('  \n');
-  return markdownString;
-}
-console.log(forms);
-const handleFormBtnClick = (e) => {
-  const clickedPromptOutputPairId = parseInt(e.target.id);
-  console.log("clicked id" + clickedPromptOutputPairId);
-  const currInteraction = forms?.find(
-    (interaction) => interaction?.prompt_output_pair_id === clickedPromptOutputPairId
-  );
-  console.log(currInteraction);
-  if (currInteraction) {
-    setCurrentInteraction({
-      prompt: currInteraction?.prompt,
-      output: Array.isArray(currInteraction.output)
-        ? currInteraction?.output?.map((item) => item.value).join(', ')
-        : currInteraction.output,
-      prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
-      // rating: currInteraction?.rating || null,
-      additional_note: currInteraction?.additional_note || '',
-      questions_response: currInteraction?.questions_response || Array(questions.length).fill(null),
-    })
-    // setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
-  }
-};
-// const handleQuestionClick = (question) => {
-//   const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
-//     return (
-//       selectedQ?.input_question === question?.input_question &&
-//       selectedQ?.question_type === question?.question_type
-//     );
-//   });
-
-//   if (!isQuestionSelected) {
-//     setSelectedQuestions([...selectedQuestions, question]);
-//     setCurrentInteraction((prev) => {
-//       const newResponse = {
-//         question: question,
-//         response: [],
-//       };
-
-//       const updatedQuestionsResponse = prev?.questions_response.some(
-//         (response) =>
-//           response.question?.input_question === question?.input_question &&
-//           response.question?.question_type === question?.question_type
-//       )
-//         ? prev?.questions_response
-//         : [...prev?.questions_response, newResponse];
-
-//       const updatedInteraction = {
-//         ...prev,
-//         questions_response: updatedQuestionsResponse,
-//       };
-
-//       setForms((prevForms) =>
-//         prevForms.map((form) =>
-//           form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-//             ? {
-//                 ...form,
-//                 questions_response: updatedQuestionsResponse,
-//               }
-//             : form
-//         )
-//       );
-
-//       return updatedInteraction;
-//     });
-//   } else {
-//     removeElement(question);
-//   }
-// };
-
-// const removeElement = (questionToRemove) => {
-//   setSelectedQuestions((prevQuestions) => {
-//     const filteredQuestions = prevQuestions?.filter(
-//       (q) =>
-//         q?.input_question !== questionToRemove?.input_question ||
-//         q?.question_type !== questionToRemove?.question_type
-//     );
-//     return filteredQuestions;
-//   });
-
-//   setCurrentInteraction((prev) => {
-//     const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
-//       return (
-//         response.question?.input_question !== questionToRemove?.input_question ||
-//         response.question?.question_type !== questionToRemove?.question_type
-//       );
-//     });
-
-//     const updatedInteraction = {
-//       ...prev,
-//       questions_response: updatedQuestionsResponse,
-//     };
-
-//     setForms((prevForms) =>
-//       prevForms.map((form) =>
-//         form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-//           ? {
-//               ...form,
-//               questions_response: updatedQuestionsResponse,
-//             }
-//           : form
-//       )
-//     );
-
-//     return updatedInteraction;
-//   });
-// };
-
-// console.log("Selected : q" + JSON.stringify(selectedQuestions));
-const handleInputChange = (e, interactionIndex, blankIndex) => {
-  const { value } = e.target;
-
-  setCurrentInteraction((prev) => {
-    const updatedQuestionsResponse = prev.questions_response.map((q, index) => {
-      if (index === interactionIndex) {
-        const updatedBlankAnswers = q?.response ? [...q?.response] : [];
-        updatedBlankAnswers[blankIndex] = value;
-        return {
-          ...q,
-          response: updatedBlankAnswers,
-        };
-      }
-      return q;
+      return updatedInteraction;
     });
-
-    const updatedInteraction = {
-      ...prev,
-      questions_response: updatedQuestionsResponse,
-    };
-
-    setForms((prevForms) =>
-      prevForms.map((form) =>
-        form?.prompt_output_pair_id === prev.prompt_output_pair_id
-          ? { ...form, questions_response: updatedQuestionsResponse }
-          : form
-      )
+  };
+  const formatPrompt = (prompt) => {
+    const lines = prompt?.split("\n");
+    const markdownString = lines?.join("  \n");
+    return markdownString;
+  };
+  console.log(forms);
+  const handleFormBtnClick = (e) => {
+    const clickedPromptOutputPairId = parseInt(e.target.id);
+    console.log("clicked id" + clickedPromptOutputPairId);
+    const currInteraction = forms?.find(
+      (interaction) =>
+        interaction?.prompt_output_pair_id === clickedPromptOutputPairId,
     );
+    console.log(currInteraction);
+    if (currInteraction) {
+      setCurrentInteraction({
+        prompt: currInteraction?.prompt,
+        output: Array.isArray(currInteraction.output)
+          ? currInteraction?.output?.map((item) => item.value).join(", ")
+          : currInteraction.output,
+        prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
+        // rating: currInteraction?.rating || null,
+        additional_note: currInteraction?.additional_note || "",
+        questions_response:
+          currInteraction?.questions_response ||
+          Array(questions.length).fill(null),
+      });
+      // setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
+    }
+  };
+  // const handleQuestionClick = (question) => {
+  //   const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
+  //     return (
+  //       selectedQ?.input_question === question?.input_question &&
+  //       selectedQ?.question_type === question?.question_type
+  //     );
+  //   });
 
-    return updatedInteraction;
-  });
-};
-  
+  //   if (!isQuestionSelected) {
+  //     setSelectedQuestions([...selectedQuestions, question]);
+  //     setCurrentInteraction((prev) => {
+  //       const newResponse = {
+  //         question: question,
+  //         response: [],
+  //       };
+
+  //       const updatedQuestionsResponse = prev?.questions_response.some(
+  //         (response) =>
+  //           response.question?.input_question === question?.input_question &&
+  //           response.question?.question_type === question?.question_type
+  //       )
+  //         ? prev?.questions_response
+  //         : [...prev?.questions_response, newResponse];
+
+  //       const updatedInteraction = {
+  //         ...prev,
+  //         questions_response: updatedQuestionsResponse,
+  //       };
+
+  //       setForms((prevForms) =>
+  //         prevForms.map((form) =>
+  //           form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+  //             ? {
+  //                 ...form,
+  //                 questions_response: updatedQuestionsResponse,
+  //               }
+  //             : form
+  //         )
+  //       );
+
+  //       return updatedInteraction;
+  //     });
+  //   } else {
+  //     removeElement(question);
+  //   }
+  // };
+
+  // const removeElement = (questionToRemove) => {
+  //   setSelectedQuestions((prevQuestions) => {
+  //     const filteredQuestions = prevQuestions?.filter(
+  //       (q) =>
+  //         q?.input_question !== questionToRemove?.input_question ||
+  //         q?.question_type !== questionToRemove?.question_type
+  //     );
+  //     return filteredQuestions;
+  //   });
+
+  //   setCurrentInteraction((prev) => {
+  //     const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
+  //       return (
+  //         response.question?.input_question !== questionToRemove?.input_question ||
+  //         response.question?.question_type !== questionToRemove?.question_type
+  //       );
+  //     });
+
+  //     const updatedInteraction = {
+  //       ...prev,
+  //       questions_response: updatedQuestionsResponse,
+  //     };
+
+  //     setForms((prevForms) =>
+  //       prevForms.map((form) =>
+  //         form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+  //           ? {
+  //               ...form,
+  //               questions_response: updatedQuestionsResponse,
+  //             }
+  //           : form
+  //       )
+  //     );
+
+  //     return updatedInteraction;
+  //   });
+  // };
+
+  // console.log("Selected : q" + JSON.stringify(selectedQuestions));
+  const handleInputChange = (e, interactionIndex, blankIndex) => {
+    const { value } = e.target;
+
+    setCurrentInteraction((prev) => {
+      const updatedQuestionsResponse = prev.questions_response.map(
+        (q, index) => {
+          if (index === interactionIndex) {
+            const updatedBlankAnswers = q?.response ? [...q?.response] : [];
+            updatedBlankAnswers[blankIndex] = value;
+            return {
+              ...q,
+              response: updatedBlankAnswers,
+            };
+          }
+          return q;
+        },
+      );
+
+      const updatedInteraction = {
+        ...prev,
+        questions_response: updatedQuestionsResponse,
+      };
+
+      setForms((prevForms) =>
+        prevForms.map((form) =>
+          form?.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? { ...form, questions_response: updatedQuestionsResponse }
+            : form,
+        ),
+      );
+
+      return updatedInteraction;
+    });
+  };
+
   const EvaluationForm = () => {
     return (
-      <div className={classes.rightPanel} >
+      <div className={classes.rightPanel}>
         <div className={classes.promptContainer} style={{ overflowY: "auto" }}>
           <div className={classes.heading} style={{ fontSize: "20px" }}>
             {translate("modal.prompt")}
           </div>
           <ReactMarkdown>
-          {formatPrompt(currentInteraction?.prompt)}
+            {formatPrompt(currentInteraction?.prompt)}
           </ReactMarkdown>
         </div>
         <div className={classes.heading} style={{ fontSize: "20px" }}>
           {translate("modal.output")}
         </div>
-        <div className={classes.outputContainer} style={{ maxHeight: "auto", overflowY: "auto" }}>
-        <ReactMarkdown>
-        {formatPrompt(currentInteraction?.output)}
-        </ReactMarkdown>
+        <div
+          className={classes.outputContainer}
+          style={{ maxHeight: "auto", overflowY: "auto" }}
+        >
+          <ReactMarkdown>
+            {formatPrompt(currentInteraction?.output)}
+          </ReactMarkdown>
         </div>
         {/* <div className={classes.ratingText}>
           {translate("model_evaluation_rating")}
@@ -611,15 +669,19 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
           ))}
         </Box> */}
         <hr className={classes.hr} />
-        {questions?.length > 0 ? <div className={classes.heading}>
-          {translate("modal.select_que")}
-        </div> : <div className={classes.heading}>
-          {translate("modal.pls_select_que")}
-        </div>}
-        <div style={{
-          overflowY: 'auto',
-          maxHeight: "90vh"
-        }}>
+        {questions?.length > 0 ? (
+          <div className={classes.heading}>{translate("modal.select_que")}</div>
+        ) : (
+          <div className={classes.heading}>
+            {translate("modal.pls_select_que")}
+          </div>
+        )}
+        <div
+          style={{
+            overflowY: "auto",
+            maxHeight: "90vh",
+          }}
+        >
           {/* {selectedQuestions.map((question, index) => (
             <div key={index} className={classes.questionContainer}>
               <div className={classes.questionText}>{question}</div>
@@ -647,147 +709,190 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
             </div>            
           ))} */}
           {questions?.map((question, i) => {
-  switch (question?.question_type) {
-    case "fill_in_blanks":
-      const splitQuestion = question?.input_question.split("<blank>");
-      return (
-        <div key={i}> 
-          <p className={classes.inputQuestion}>
-            {i + 1}.{" "}
-            {splitQuestion?.map((part, index) => (
-              <span key={`${i}-${index}`}>
-                {part}
-                {index < splitQuestion.length - 1 && (
-                  <input
-                  type="text"
-                  value={
-                    currentInteraction?.questions_response &&
-                    currentInteraction?.questions_response[i]?.response.length > 0
-                      ? currentInteraction?.questions_response[i]?.response[index]
-                      : ""
-                  }
-                  onChange={(e) => handleInputChange(e, i, index)}
-                  style={{
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    padding: "4px",
-                    fontSize: "14px",
-                    lineHeight: "1.5",
-                    verticalAlign: "middle",
-                    width: "100%",
-                    maxWidth: "200px",
-                    margin: "4px 0",
-                    boxSizing: "border-box",
-                    backgroundColor: "white",
-                    fontWeight: "normal"
-                  }}
-                  required={question.mandatory}
-                />
-                
-                
-                )}
-              </span>
-            ))}
-            {question.mandatory && (
-              <span style={{ color: "#d93025", fontSize: "25px" }}> *</span>
-            )}
-          </p>
-        </div>
-      );
+            switch (question?.question_type) {
+              case "fill_in_blanks":
+                const splitQuestion = question?.input_question.split("<blank>");
+                return (
+                  <div key={i}>
+                    <p className={classes.inputQuestion}>
+                      {i + 1}.{" "}
+                      {splitQuestion?.map((part, index) => (
+                        <span key={`${i}-${index}`}>
+                          {part}
+                          {index < splitQuestion.length - 1 && (
+                            <input
+                              type="text"
+                              value={
+                                currentInteraction?.questions_response &&
+                                currentInteraction?.questions_response[i]
+                                  ?.response.length > 0
+                                  ? currentInteraction?.questions_response[i]
+                                      ?.response[index]
+                                  : ""
+                              }
+                              onChange={(e) => handleInputChange(e, i, index)}
+                              style={{
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                                padding: "4px",
+                                fontSize: "14px",
+                                lineHeight: "1.5",
+                                verticalAlign: "middle",
+                                width: "100%",
+                                maxWidth: "200px",
+                                margin: "4px 0",
+                                boxSizing: "border-box",
+                                backgroundColor: "white",
+                                fontWeight: "normal",
+                              }}
+                              required={question.mandatory}
+                            />
+                          )}
+                        </span>
+                      ))}
+                      {question.mandatory && (
+                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                          {" "}
+                          *
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                );
 
-    case "rating":
-      return (
-        <div key={i}>
-          <div className={classes.inputQuestion}>
-            <span>{i + 1}. {question.input_question}</span>
-            {question.mandatory && (
-              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
-            )}
-          </div>
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-            }}
-          >
-            {Array.from({ length: question.rating_scale_list.length }, (_, index) => (
-              <Button
-                key={index + 1}
-                className={`${classes.numBtn} ${currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response == index + 1 ? classes.selected : "" : ""}`}
-                label={index + 1}
-                onClick={() => handleRating(index + 1, i)}
-                style={{
-                  marginRight: "1rem",
-                  marginLeft: "0.9px",
-                  marginBottom: "2rem",
-                  borderRadius: "1rem",
-                  width: "47px",
-                  padding: "13px",
-                }}
-                required={question.mandatory}
-              />
-            ))}
-          </Box>
-        </div>
-      );
+              case "rating":
+                return (
+                  <div key={i}>
+                    <div className={classes.inputQuestion}>
+                      <span>
+                        {i + 1}. {question.input_question}
+                      </span>
+                      {question.mandatory && (
+                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                          {" "}
+                          *
+                        </span>
+                      )}
+                    </div>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {Array.from(
+                        { length: question.rating_scale_list.length },
+                        (_, index) => (
+                          <Button
+                            key={index + 1}
+                            className={`${classes.numBtn} ${
+                              currentInteraction?.questions_response
+                                ? currentInteraction?.questions_response[i]
+                                    ?.response ==
+                                  index + 1
+                                  ? classes.selected
+                                  : ""
+                                : ""
+                            }`}
+                            label={index + 1}
+                            onClick={() => handleRating(index + 1, i)}
+                            style={{
+                              marginRight: "1rem",
+                              marginLeft: "0.9px",
+                              marginBottom: "2rem",
+                              borderRadius: "1rem",
+                              width: "47px",
+                              padding: "13px",
+                            }}
+                            required={question.mandatory}
+                          />
+                        ),
+                      )}
+                    </Box>
+                  </div>
+                );
 
-    case "multi_select_options":
-      return (
-        <div key={i}>
-          <div className={classes.inputQuestion}>{i + 1}. {question.input_question}
-            {question.mandatory && (
-              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
-            )}
-          </div>
-          <FormControl component="fieldset">
-            <FormGroup>
-              {question.input_selections_list.map((option, idx) => (
-                <FormControlLabel
-                  key={idx}
-                  control={
-                    <Checkbox
-                      onChange={(e) => handleMultiSelect(e.target.checked, option, i)}
-                      checked={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response?.includes(option) ?? false : ""}
-                    />
-                  }
-                  label={option}
-                />
-              ))}
-            </FormGroup>
-          </FormControl>
-        </div>
-      );
+              case "multi_select_options":
+                return (
+                  <div key={i}>
+                    <div className={classes.inputQuestion}>
+                      {i + 1}. {question.input_question}
+                      {question.mandatory && (
+                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                          {" "}
+                          *
+                        </span>
+                      )}
+                    </div>
+                    <FormControl component="fieldset">
+                      <FormGroup>
+                        {question.input_selections_list.map((option, idx) => (
+                          <FormControlLabel
+                            key={idx}
+                            control={
+                              <Checkbox
+                                onChange={(e) =>
+                                  handleMultiSelect(e.target.checked, option, i)
+                                }
+                                checked={
+                                  currentInteraction?.questions_response
+                                    ? currentInteraction?.questions_response[
+                                        i
+                                      ]?.response?.includes(option) ?? false
+                                    : ""
+                                }
+                              />
+                            }
+                            label={option}
+                          />
+                        ))}
+                      </FormGroup>
+                    </FormControl>
+                  </div>
+                );
 
-    case "mcq":
-      return (
-        <div key={i}>
-          <div className={classes.inputQuestion}>{i + 1}. {question.input_question}
-            {question.mandatory && (
-              <span style={{ color: '#d93025', fontSize: "25px" }}> *</span>
-            )}
-          </div>
-          <FormControl component="fieldset" required={question.mandatory}>
-            <RadioGroup
-             value={currentInteraction?.questions_response ? currentInteraction?.questions_response[i]?.response : ""}
-             onChange={(e) => handleMCQ(e.target.value, i)}
-            >
-              {question?.input_selections_list?.map((option, idx) => (
-                <FormControlLabel
-                  key={idx}
-                  value={option}
-                  control={<Radio />}
-                  label={option}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-        </div>
-      );
+              case "mcq":
+                return (
+                  <div key={i}>
+                    <div className={classes.inputQuestion}>
+                      {i + 1}. {question.input_question}
+                      {question.mandatory && (
+                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                          {" "}
+                          *
+                        </span>
+                      )}
+                    </div>
+                    <FormControl
+                      component="fieldset"
+                      required={question.mandatory}
+                    >
+                      <RadioGroup
+                        value={
+                          currentInteraction?.questions_response
+                            ? currentInteraction?.questions_response[i]
+                                ?.response
+                            : ""
+                        }
+                        onChange={(e) => handleMCQ(e.target.value, i)}
+                      >
+                        {question?.input_selections_list?.map((option, idx) => (
+                          <FormControlLabel
+                            key={idx}
+                            value={option}
+                            control={<Radio />}
+                            label={option}
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </div>
+                );
 
-    default:
-      return null;
-  }
-})}
+              default:
+                return null;
+            }
+          })}
         </div>
         <hr className={classes.hr} />
         <div className={classes.notesContainer}>
@@ -848,28 +953,36 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
                   expanded: "Mui-expanded",
                 }}
               >
-
-<Box
-  sx={{
-    width: "100%",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: expanded[index] ? "normal" : "nowrap",
-    maxWidth: "200px",
-    maxHeight: "3rem",
-    position: "relative",
-  }}
-  className={classes.promptTile}
->
-  {pair?.prompt}
-  {expanded[index] && (
-    <Tooltip title={pair.prompt} placement="bottom">
-    <span style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", cursor: "pointer" }}>
-      {pair.text}
-    </span>
-  </Tooltip>
-  )}
-</Box>
+                <Box
+                  sx={{
+                    width: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: expanded[index] ? "normal" : "nowrap",
+                    maxWidth: "200px",
+                    maxHeight: "3rem",
+                    position: "relative",
+                  }}
+                  className={classes.promptTile}
+                >
+                  {pair?.prompt}
+                  {expanded[index] && (
+                    <Tooltip title={pair.prompt} placement="bottom">
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {pair.text}
+                      </span>
+                    </Tooltip>
+                  )}
+                </Box>
               </AccordionSummary>
               <AccordionDetails style={{ display: "block", cursor: "pointer" }}>
                 {/* <Box
@@ -885,27 +998,35 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
                 >
                   {typeof(pair.output)==="string"?pair?.output:pair?.output[0]?.value}
                 </Box> */}
-                <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'wrap',justifyContent: 'flex-start', marginTop: '1rem'}}>
-                    <Button
-                      label={translate("model_evaluation_btn")}
-                      buttonVariant={"outlined"}
-                      style={{
-                        marginTop: "1rem",
-                        padding:"0.5rem"
-                      }}
-                      onClick={handleFormBtnClick}
-                      id={pair?.prompt_output_pair_id}
-                    />
-                    <Button
-                      label="reset"
-                      buttonVariant={"outlined"}
-                      style={{
-                        marginTop: "1rem",
-                        marginLeft: "1.5rem",
-                      }}
-                      onClick={handleReset}
-                    />
-                    </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    justifyContent: "flex-start",
+                    marginTop: "1rem",
+                  }}
+                >
+                  <Button
+                    label={translate("model_evaluation_btn")}
+                    buttonVariant={"outlined"}
+                    style={{
+                      marginTop: "1rem",
+                      padding: "0.5rem",
+                    }}
+                    onClick={handleFormBtnClick}
+                    id={pair?.prompt_output_pair_id}
+                  />
+                  <Button
+                    label="Reset"
+                    buttonVariant={"outlined"}
+                    style={{
+                      marginTop: "1rem",
+                      marginLeft: "1.5rem",
+                    }}
+                    onClick={handleReset}
+                  />
+                </Box>
               </AccordionDetails>
             </Accordion>
           );
@@ -951,10 +1072,16 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
         // maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
-        <div className={classes.heading} style={{ margin: "2rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
+        <div
+          className={classes.heading}
+          style={{ margin: "2rem 0 0.5rem 1.5rem", fontSize: "20px" }}
+        >
           {translate("modal.interact")}
         </div>
-        <Paper className={classes.interactionWindow} style={{ border: "none", backgroundColor: '#f0f0f0' }}>
+        <Paper
+          className={classes.interactionWindow}
+          style={{ border: "none", backgroundColor: "#f0f0f0" }}
+        >
           {interactions && (
             <PairAccordion pairs={interactions} classes={classes} />
           )}
@@ -969,7 +1096,7 @@ const handleInputChange = (e, interactionIndex, blankIndex) => {
 
   return (
     <>
-      <div className={classes.container} style={{width: "2300px"}}>
+      <div className={classes.container} style={{ width: "2300px" }}>
         <IconButton onClick={toggleLeftPanel}>
           <ExpandMoreIcon />
         </IconButton>

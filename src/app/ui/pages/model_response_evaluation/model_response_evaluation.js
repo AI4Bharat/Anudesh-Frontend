@@ -959,7 +959,7 @@ const ModelInteractionEvaluation = ({
                     id={pair?.prompt_output_pair_id}
                   />
                   <Button
-                    label="reset"
+                    label="Reset"
                     buttonVariant={"outlined"}
                     style={{
                       marginTop: "1rem",
