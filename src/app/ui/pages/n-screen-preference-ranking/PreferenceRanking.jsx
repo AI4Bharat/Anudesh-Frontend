@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -56,6 +56,7 @@ const PreferenceRanking = ({
   answered,
   setAnswered,
   annotation,
+  setLoading,
   loading,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -72,12 +73,19 @@ const PreferenceRanking = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
+  const [isFormsInitialized, setIsFormsInitialized] = useState(false);
+  const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
+  const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
 
   useEffect(() => {
-    setForms(annotation[0]?.result?.length ? [...annotation[0]?.result] : []);
-    console.log(forms?.length, annotation[0], "ann");
-  }, []);
-
+    setLoading(true);
+    setForms(
+      annotation[0]?.result?.length !== 0 ? [...annotation[0]?.result] : [],
+    );
+    console.log("jack", "1");
+    setIsFormsInitialized(true);
+    setLoading(false);
+  }, [annotation]);
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
@@ -91,22 +99,29 @@ const PreferenceRanking = ({
   };
 
   useEffect(() => {
+    if (!isFormsInitialized) return;
     const fetchData = async () => {
-      const taskDetailsObj = new GetTaskDetailsAPI(taskId);
-      const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
-        method: "GET",
-        headers: taskDetailsObj.getHeaders().headers,
-      });
-      const taskData = await taskResponse.json();
-      setInteractions(
-        taskData ? [...taskData.data?.multiple_interaction_json] : [],
-      );
-      console.log(interactions, taskData);
+      setLoading(true);
+      try {
+        const taskDetailsObj = new GetTaskDetailsAPI(taskId);
+        const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
+          method: "GET",
+          headers: taskDetailsObj.getHeaders().headers,
+        });
+        const taskData = await taskResponse.json();
+        setInteractions(taskData?.data?.multiple_interaction_json || []);
+        console.log("jack", "2");
+        setIsInteractionsFetched(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+      setLoading(false);
     };
     fetchData();
-  }, [forms, taskId]);
+  }, [isFormsInitialized, taskId]);
 
   useEffect(() => {
+    if (!isInteractionsFetched) return;
     console.log("kkk", interactions.length, forms?.length);
 
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -184,7 +199,6 @@ const PreferenceRanking = ({
       setAnswered(false);
       return;
     }
-
     const formStatuses = forms.map((form, formIndex) => {
       if (
         !form?.model_responses_json ||
@@ -634,10 +648,11 @@ const PreferenceRanking = ({
             width: "100%",
             marginTop: "1rem",
             border: "1px solid #ccc",
+            marginBottom: "1rem",
           }}
         />
         {questions?.map((question, questionIdx) => (
-          <div key={questionIdx} style={{ marginTop: "20px" }}>
+          <div key={questionIdx}>
             <div style={{ overflowY: "auto", maxHeight: "90vh" }}>
               {question.question_type === "fill_in_blanks" && (
                 <div>
@@ -646,10 +661,7 @@ const PreferenceRanking = ({
                     {question.input_question
                       .split("<blank>")
                       .map((part, index) => (
-                        <span
-                          style={{ fontSize: "18px" }}
-                          key={`${questionIdx}-${index}`}
-                        >
+                        <span key={`${questionIdx}-${index}`}>
                           {part}
                           {index <
                             question.input_question.split("<blank>").length -
@@ -690,7 +702,6 @@ const PreferenceRanking = ({
                             fontWeight: "bold",
                             marginRight: "15px",
                             marginTop: "0.7rem",
-                            marginLeft: "20px",
                           }}
                         >
                           {response?.model_name}
@@ -730,6 +741,7 @@ const PreferenceRanking = ({
                                 boxSizing: "border-box",
                                 backgroundColor: "white",
                                 fontWeight: "normal",
+                                marginRight: "5px",
                               }}
                               required
                             />
@@ -743,7 +755,7 @@ const PreferenceRanking = ({
               {question.question_type === "rating" && (
                 <div>
                   <div className={classes.inputQuestion}>
-                    <span style={{ fontSize: "18px" }}>
+                    <span>
                       {questionIdx + 1}. {question.input_question}
                     </span>
                     <span style={{ color: "#d93025", fontSize: "25px" }}>
@@ -753,7 +765,7 @@ const PreferenceRanking = ({
                   </div>
                   {currentInteraction?.model_responses_json?.map(
                     (response, outputIdx) => (
-                      <div key={outputIdx} style={{ marginBottom: "20px" }}>
+                      <div key={outputIdx}>
                         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                           <Typography
                             variant="subtitle2"
@@ -761,7 +773,6 @@ const PreferenceRanking = ({
                               marginRight: "15px",
                               marginTop: "0.5rem",
                               fontWeight: "bold",
-                              marginLeft: "20px",
                             }}
                           >
                             {response?.model_name}
@@ -810,26 +821,37 @@ const PreferenceRanking = ({
 
               {question.question_type === "multi_select_options" && (
                 <div>
-                  <div
-                    className={classes.inputQuestion}
-                    style={{ fontSize: "18px" }}
-                  >
+                  <div className={classes.inputQuestion}>
                     {questionIdx + 1}. {question.input_question}
                     <span style={{ color: "#d93025", fontSize: "25px" }}>
                       {" "}
                       *
                     </span>
                   </div>
-                  <div style={{ marginBottom: "10px" }}>
+                  <div
+                    style={{
+                      marginBottom: "10px",
+                    }}
+                  >
                     {question?.input_selections_list?.map(
                       (option, optionIdx) => (
-                        <div key={optionIdx} style={{ marginBottom: "10px" }}>
-                          <span>{option}</span>{" "}
+                        <div
+                          key={optionIdx}
+                          style={{
+                            marginBottom: "10px",
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <span>{option} :</span>{" "}
                           <div
                             style={{
                               display: "flex",
-                              flexDirection: "column",
-                              marginTop: "10px",
+                              flexDirection: "row",
+                              alignItems: "center",
+                              flexWrap: "wrap",
                             }}
                           >
                             {currentInteraction?.model_responses_json?.map(
@@ -839,7 +861,6 @@ const PreferenceRanking = ({
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    marginBottom: "5px",
                                   }}
                                 >
                                   <FormControl component="fieldset">
@@ -891,10 +912,7 @@ const PreferenceRanking = ({
 
               {question.question_type === "mcq" && (
                 <div>
-                  <div
-                    className={classes.inputQuestion}
-                    style={{ fontSize: "18px" }}
-                  >
+                  <div className={classes.inputQuestion}>
                     {questionIdx + 1}. {question.input_question}
                     <span style={{ color: "#d93025", fontSize: "25px" }}>
                       {" "}
@@ -905,13 +923,23 @@ const PreferenceRanking = ({
                   <div style={{ marginBottom: "10px" }}>
                     {question?.input_selections_list?.map(
                       (option, optionIdx) => (
-                        <div key={optionIdx} style={{ marginBottom: "10px" }}>
-                          <span>{option}</span>{" "}
+                        <div
+                          key={optionIdx}
+                          style={{
+                            marginBottom: "10px",
+                            display: "flex",
+                            alignItems: "center",
+                            flexDirection: "row",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <span>{option} :</span>{" "}
                           <div
                             style={{
                               display: "flex",
-                              flexDirection: "column",
-                              marginTop: "10px",
+                              alignItems: "center",
+                              flexDirection: "row",
+                              flexWrap: "wrap",
                             }}
                           >
                             {currentInteraction?.model_responses_json?.map(
@@ -921,7 +949,6 @@ const PreferenceRanking = ({
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    marginBottom: "5px",
                                   }}
                                 >
                                   <FormControl

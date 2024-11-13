@@ -464,6 +464,8 @@ const TaskTable = (props) => {
   }, [selectedFilters, pull, rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
+      console.log(taskList);
+
       const data = taskList.map((el) => {
         const email = props.type === "review" ? el.annotator_mail : "";
         let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
@@ -483,6 +485,12 @@ const TaskTable = (props) => {
         props.type === "review" &&
           taskList[0].review_status &&
           row.push(el.review_status);
+        if (
+          ProjectDetails?.required_annotators_per_task > 1 &&
+          taskList[0].input_data_id
+        ) {
+          row.push(el.input_data_id);
+        }
         props.type === "annotation" &&
           row.push(
             <Link
@@ -557,6 +565,11 @@ const TaskTable = (props) => {
         ),
       );
       taskList[0].task_status && colList.push("status");
+      if (ProjectDetails?.required_annotators_per_task > 1) {
+        if (taskList[0].input_data_id) {
+          colList.push("Input_data_id");
+        }
+      }
       colList.push("actions");
       var defaultCheckedCols = [
         "id",
@@ -565,6 +578,7 @@ const TaskTable = (props) => {
         "status",
         "actions",
       ];
+
       const metaInfoMapping = {
         meta_info_language: "language",
         meta_info_domain: "domain",
@@ -586,12 +600,14 @@ const TaskTable = (props) => {
         };
       });
       setColumns(cols);
+
       setSelectedColumns(
         ProjectDetails?.project_type == "InstructionDrivenChat"
           ? colList.filter((col) => defaultCheckedCols.includes(col))
           : colList,
       );
       setTasks(data);
+      console.log(data);
     } else {
       setTasks([]);
     }

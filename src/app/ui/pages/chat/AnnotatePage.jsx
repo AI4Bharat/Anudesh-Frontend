@@ -540,8 +540,9 @@ const AnnotatePage = () => {
     getProjectDetails();
     getTaskData(taskId);
     return () => {
-      setAnnotations([]); // Clear annotations on unmount
-      setFilteredReady(false); // Reset filtered ready flag
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
     };
   }, [taskId]);
   const filterAnnotations = (annotations, user) => {
@@ -705,6 +706,8 @@ const AnnotatePage = () => {
           info={info}
           disableUpdateButton={disableUpdateButton}
           annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
@@ -724,6 +727,8 @@ const AnnotatePage = () => {
           answered={answered}
           setAnswered={setAnswered}
           annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
@@ -743,6 +748,7 @@ const AnnotatePage = () => {
           answered={answered}
           setAnswered={setAnswered}
           annotation={annotations}
+          setLoading={setLoading}
           loading={loading}
         />
       );
