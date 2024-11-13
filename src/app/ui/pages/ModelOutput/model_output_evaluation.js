@@ -49,6 +49,8 @@ const ModelOutputEvaluation = ({
   stage,
   answered,
   setAnswered,
+  setLoading,
+  loading,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 

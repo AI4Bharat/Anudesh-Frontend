@@ -567,88 +567,88 @@ const ReviewPage = () => {
       maxIdAnnotation?.id === task.correct_annotation_id;
     console.log(isMaxIdAnnotation, "llove");
 
-    if (ProjectDetails.required_annotators_per_task > 1 && !isMaxIdAnnotation) {
-      const nextAPIData = {
-        id: projectId,
-        current_task_id: taskId,
-        mode: "review",
-        annotation_status: labellingMode,
-        current_annotation_id: task.correct_annotation_id,
-      };
+    // if (ProjectDetails.required_annotators_per_task > 1 && !isMaxIdAnnotation) {
+    //   const nextAPIData = {
+    //     id: projectId,
+    //     current_task_id: taskId,
+    //     mode: "review",
+    //     annotation_status: labellingMode,
+    //     current_annotation_id: task.correct_annotation_id,
+    //   };
 
-      let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
-      var rsp_data = [];
-      fetch(apiObj.apiEndPoint(), {
-        method: "post",
-        body: JSON.stringify(apiObj.getBody()),
-        headers: apiObj.getHeaders().headers,
+    //   let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    //   var rsp_data = [];
+    //   fetch(apiObj.apiEndPoint(), {
+    //     method: "post",
+    //     body: JSON.stringify(apiObj.getBody()),
+    //     headers: apiObj.getHeaders().headers,
+    //   })
+    //     .then(async (response) => {
+    //       rsp_data = await response.json();
+    //       setLoading(false);
+    //       if (response.ok) {
+    //         localStorage.setItem("Task", JSON.stringify(rsp_data));
+    //         setNextData(rsp_data);
+    //         tasksComplete(rsp_data?.id || null);
+    //         getAnnotationsTaskData(rsp_data.id);
+    //         getTaskData(rsp_data.id);
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       setSnackbarInfo({
+    //         open: true,
+    //         message: "No more tasks to label",
+    //         variant: "info",
+    //       });
+    //       setTimeout(() => {
+    //         if (typeof window !== "undefined") {
+    //           localStorage.removeItem("labelAll");
+    //         }
+
+    //         window.location.replace(`/#/projects/${projectId}`);
+    //       }, 1000);
+    //     });
+    // } else {
+    const nextAPIData = {
+      id: projectId,
+      current_task_id: taskId,
+      mode: "review",
+      annotation_status: labellingMode,
+    };
+
+    let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    var rsp_data = [];
+    fetch(apiObj.apiEndPoint(), {
+      method: "post",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        rsp_data = await response.json();
+        setLoading(false);
+        if (response.ok) {
+          localStorage.setItem("Task", JSON.stringify(rsp_data));
+          setNextData(rsp_data);
+          tasksComplete(rsp_data?.id || null);
+          getAnnotationsTaskData(rsp_data.id);
+          getTaskData(rsp_data.id);
+        }
       })
-        .then(async (response) => {
-          rsp_data = await response.json();
-          setLoading(false);
-          if (response.ok) {
-            localStorage.setItem("Task", JSON.stringify(rsp_data));
-            setNextData(rsp_data);
-            tasksComplete(rsp_data?.id || null);
-            getAnnotationsTaskData(rsp_data.id);
-            getTaskData(rsp_data.id);
-          }
-        })
-        .catch((error) => {
-          setSnackbarInfo({
-            open: true,
-            message: "No more tasks to label",
-            variant: "info",
-          });
-          setTimeout(() => {
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("labelAll");
-            }
-
-            window.location.replace(`/#/projects/${projectId}`);
-          }, 1000);
+      .catch((error) => {
+        setSnackbarInfo({
+          open: true,
+          message: "No more tasks to label",
+          variant: "info",
         });
-    } else {
-      const nextAPIData = {
-        id: projectId,
-        current_task_id: taskId,
-        mode: "review",
-        annotation_status: labellingMode,
-      };
-
-      let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
-      var rsp_data = [];
-      fetch(apiObj.apiEndPoint(), {
-        method: "post",
-        body: JSON.stringify(apiObj.getBody()),
-        headers: apiObj.getHeaders().headers,
-      })
-        .then(async (response) => {
-          rsp_data = await response.json();
-          setLoading(false);
-          if (response.ok) {
-            localStorage.setItem("Task", JSON.stringify(rsp_data));
-            setNextData(rsp_data);
-            tasksComplete(rsp_data?.id || null);
-            getAnnotationsTaskData(rsp_data.id);
-            getTaskData(rsp_data.id);
+        setTimeout(() => {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("labelAll");
           }
-        })
-        .catch((error) => {
-          setSnackbarInfo({
-            open: true,
-            message: "No more tasks to label",
-            variant: "info",
-          });
-          setTimeout(() => {
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("labelAll");
-            }
 
-            window.location.replace(`/#/projects/${projectId}`);
-          }, 1000);
-        });
-    }
+          window.location.replace(`/#/projects/${projectId}`);
+        }, 1000);
+      });
+    // }
   };
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
@@ -836,12 +836,18 @@ const ReviewPage = () => {
     dispatch(fetchAnnotationsTask(id));
   };
 
+  const [filteredReady, setFilteredReady] = useState(false);
+
   useEffect(() => {
     getAnnotationsTaskData(taskId);
     getProjectDetails();
     getTaskData(taskId);
-  }, []);
-
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -852,23 +858,13 @@ const ReviewPage = () => {
   };
 
   const filterAnnotations = (annotations, user, taskData) => {
-    const Task = JSON.parse(localStorage.getItem("Task"));
-
+    setFilteredReady(true);
     let filteredAnnotations = annotations;
-    if (ProjectDetails.required_annotators_per_task > 1) {
-      var userAnnotation = annotations?.find((task) => {
-        return task.id == Task.correct_annotation_id;
-      });
-    } else {
-      var userAnnotation = annotations.find((annotation) => {
-        return (
-          annotation.completed_by === user.id && annotation.parent_annotation
-        );
-      });
-    }
-
-    console.log(userAnnotation);
-
+    let userAnnotation = annotations.find((annotation) => {
+      return (
+        annotation.completed_by === user.id && annotation.parent_annotation
+      );
+    });
     let disable = false;
     let disableSkip = false;
     let disablebtn = false;
@@ -888,17 +884,11 @@ const ReviewPage = () => {
                   annotation.id === userAnnotation.parent_annotation &&
                   annotation.annotation_type === 1,
               );
-        console.log(
-          filteredAnnotations,
-          userAnnotation.parent_annotation,
-          !taskData?.revision_loop_count?.review_count,
-        );
       } else if (
         userAnnotation &&
         ["rejected"].includes(userAnnotation.annotation_status)
       ) {
         filteredAnnotations = [userAnnotation];
-        console.log(filteredAnnotations, userAnnotation.parent_annotation, "2");
         disableSkip = true;
         disableButton = true;
         filterMessage =
@@ -908,7 +898,6 @@ const ReviewPage = () => {
         ["draft"].includes(userAnnotation.annotation_status)
       ) {
         filteredAnnotations = [userAnnotation];
-        console.log(filteredAnnotations, userAnnotation.parent_annotation, "3");
         disableSkip = true;
         disableButton = true;
         filterMessage =
@@ -953,48 +942,23 @@ const ReviewPage = () => {
         } else {
           filteredAnnotations = [userAnnotation];
         }
-        console.log(filteredAnnotations, userAnnotation.parent_annotation, "4");
       } else if (userAnnotation.annotation_status === "skipped") {
-        if (ProjectDetails.required_annotators_per_task > 1) {
-          filteredAnnotations = annotations.filter(
-            (value) => value.id == userAnnotation.parent_annotation,
-          );
-          console.log("req", ProjectDetails.required_annotators_per_task);
-        } else {
-          filteredAnnotations = annotations.filter(
-            (value) => value.annotation_type === 1,
-          );
-        }
-        console.log(filteredAnnotations, userAnnotation.parent_annotation, "5");
+        filteredAnnotations = annotations.filter(
+          (value) => value.annotation_type === 1,
+        );
       } else if (userAnnotation.annotation_status === "to_be_revised") {
         filteredAnnotations = annotations.filter(
           (annotation) =>
             annotation.id === userAnnotation.parent_annotation &&
             annotation.annotation_type === 1,
         );
-        console.log(filteredAnnotations, userAnnotation.parent_annotation, "6");
       } else if (userAnnotation.annotation_status === "rejected") {
-        if (ProjectDetails.required_annotators_per_task > 1) {
-          filteredAnnotations = annotations.filter(
-            (annotation) => annotation.id === Task.correct_annotation_id,
-          );
-        } else {
-          filteredAnnotations = annotations.filter(
-            (annotation) => annotation.annotation_type === 2,
-          );
-        }
-        console.log(filteredAnnotations, userAnnotation.parent_annotation, "7");
+        filteredAnnotations = annotations.filter(
+          (annotation) => annotation.annotation_type === 2,
+        );
       }
     } else if ([4, 5, 6].includes(user.role)) {
-      if (ProjectDetails.required_annotators_per_task > 1) {
-        filteredAnnotations = annotations.filter(
-          (a) => a.id === Task.correct_annotation_id,
-        );
-      } else {
-        filteredAnnotations = annotations.filter(
-          (a) => a.annotation_type === 2,
-        );
-      }
+      filteredAnnotations = annotations.filter((a) => a.annotation_type === 2);
       disable = true;
       disablebtn = true;
       disableSkip = true;
@@ -1005,6 +969,7 @@ const ReviewPage = () => {
     setDisableButton(disableButton);
     setFilterMessage(filterMessage);
     setAnnotations(filteredAnnotations);
+    setFilteredReady(false);
     return [
       filteredAnnotations,
       disable,
@@ -1014,7 +979,6 @@ const ReviewPage = () => {
       filterMessage,
     ];
   };
-
   useEffect(() => {
     filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
   }, [AnnotationsTaskDetails, userData, taskDataArr]);
@@ -1075,6 +1039,8 @@ const ReviewPage = () => {
           notes={reviewNotesRef}
           info={info}
           annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
@@ -1094,6 +1060,8 @@ const ReviewPage = () => {
           answered={answered}
           setAnswered={setAnswered}
           annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
@@ -1113,6 +1081,7 @@ const ReviewPage = () => {
           answered={answered}
           setAnswered={setAnswered}
           annotation={annotations}
+          setLoading={setLoading}
           loading={loading}
         />
       );
@@ -1526,10 +1495,12 @@ const ReviewPage = () => {
             </Alert>
           )}
         </Grid>
-        <Grid item container>
-          {" "}
-          {componentToRender}
-        </Grid>
+        {filteredReady == false && annotations.length > 0 ? (
+          <Grid item container>
+            {" "}
+            {componentToRender}{" "}
+          </Grid>
+        ) : null}
       </Grid>
     </>
   );

@@ -70,10 +70,14 @@ const ModelInteractionEvaluation = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
+  const [isFormsInitialized, setIsFormsInitialized] = useState(false);
+  const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
+  const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
 
   console.log(annotation[0]);
 
   useEffect(() => {
+    setLoading(true);
     if (annotation && annotation[0]) {
       const result = annotation[0].result;
 
@@ -103,10 +107,8 @@ const ModelInteractionEvaluation = ({
     } else {
       setForms([]);
     }
-
-    // Log for debugging
-    console.log("Updated forms:", forms);
-    console.log("Annotation result:", annotation);
+    setIsFormsInitialized(true);
+    setLoading(false);
   }, [annotation, taskId]);
 
   const handleReset = () => {
@@ -118,19 +120,26 @@ const ModelInteractionEvaluation = ({
   };
 
   useEffect(() => {
+    if (!isFormsInitialized) return;
     const fetchData = async () => {
       setLoading(true);
-      const taskDetailsObj = new GetTaskDetailsAPI(taskId);
-      const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
-        method: "GET",
-        headers: taskDetailsObj.getHeaders().headers,
-      });
-      const taskData = await taskResponse.json();
-      setInteractions(taskData ? [...taskData.data?.interactions_json] : []);
+      try {
+        const taskDetailsObj = new GetTaskDetailsAPI(taskId);
+        const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
+          method: "GET",
+          headers: taskDetailsObj.getHeaders().headers,
+        });
+        const taskData = await taskResponse.json();
+        setInteractions(taskData?.data?.multiple_interaction_json || []);
+        console.log("jack", "2");
+        setIsInteractionsFetched(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
       setLoading(false);
     };
     fetchData();
-  }, [forms, taskId]);
+  }, [isFormsInitialized, taskId]);
 
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0) {
@@ -162,6 +171,8 @@ const ModelInteractionEvaluation = ({
   }, [forms, interactions, questions?.length, taskId, annotation]);
 
   useEffect(() => {
+    if (!isInteractionsFetched) return;
+
     console.log("kkk", interactions.length, forms?.length);
 
     if (forms?.length == 0 && interactions?.length > 0) {
