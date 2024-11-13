@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import {
   ThemeProvider,
@@ -22,11 +22,15 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
-import { fetchGuestWorkspaceData } from "@/Lib/Features/getGuestWorkspaces";
+import {
+  fetchGuestWorkspaceData,
+  addAuthenticatedWorkspace,
+} from "@/Lib/Features/getGuestWorkspaces";
+import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
-import { useNavigate } from 'react-router-dom';
-
+import { store } from "@/Lib/Store";
+import ProjectList from "@/app/ui/pages/projects/project";
 const style = {
   position: "absolute",
   top: "50%",
@@ -57,6 +61,7 @@ const GuestWorkspaceTable = (props) => {
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [totalWorkspaces, setTotalWorkspaces] = useState(10);
+  const [filteredProjects, setFilteredProjects] = useState(null); // Added state for filtered projects
 
   // const totalWorkspaceCount = useSelector(state => state.getGuestWorkspace.data.count);
 
@@ -65,6 +70,9 @@ const GuestWorkspaceTable = (props) => {
   );
   const SearchWorkspace = useSelector(
     (state) => state.searchProjectCard?.searchValue,
+  );
+  const authenticatedWorkspaces = useSelector(
+    (state) => state.getGuestWorkspaces?.authenticatedWorkspaces
   );
 
   const handleOpen = (workspace_name, workspace_id) => {
@@ -116,10 +124,26 @@ const GuestWorkspaceTable = (props) => {
       setSnackbarInfo({
         open: true,
         message: "Successfully Authenticated",
-        variant: "Success",
+        variant: "success",
       });
-      navigate("/projects");
+      dispatch(addAuthenticatedWorkspace(currentWorkspaceId)); 
     }
+  };
+
+  const handleViewWorkspace = (workspaceId) => {
+    dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(
+      () => {
+        const allIncludedProjects = store.getState().getProjects.data?.included_projects || [];
+        const allExcludedProjects = store.getState().getProjects.data?.excluded_projects || [];
+        const allProjects = [...allIncludedProjects, ...allExcludedProjects];
+        const filteredProjects = allProjects.filter(
+          (project) => project.workspace_id === workspaceId
+        );
+
+        setFilteredProjects(filteredProjects);
+        console.log(filteredProjects);
+      }
+    );
   };
 
   const renderSnackBar = () => {
@@ -230,11 +254,19 @@ const GuestWorkspaceTable = (props) => {
               .join(", "),
             el.created_by && el.created_by.username,
             <CustomButton
-              key={i}
-              sx={{ borderRadius: 2 }}
-              label="Authenticate"
-              onClick={handleOpen.bind(null, el.workspace_name, el.id)}
-            />,
+            key={i}
+            sx={{ borderRadius: 2 }}
+            label={
+              authenticatedWorkspaces.includes(el.id)
+                ? "View"
+                : "Authenticate"
+            }
+            onClick={
+              authenticatedWorkspaces.includes(el.id)
+                ? () => handleViewWorkspace(el.id)
+                : () => handleOpen(el.workspace_name, el.id)
+            }
+          />,
           ];
         })
       : [];
@@ -273,6 +305,9 @@ const GuestWorkspaceTable = (props) => {
       <Grid sx={{ mb: 1 }}>
         <Search />
       </Grid>
+      {filteredProjects ? (
+        <ProjectList data={filteredProjects} />
+      ) : (
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           title={""}
@@ -281,6 +316,7 @@ const GuestWorkspaceTable = (props) => {
           options={options}
         />
       </ThemeProvider>
+      )}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
