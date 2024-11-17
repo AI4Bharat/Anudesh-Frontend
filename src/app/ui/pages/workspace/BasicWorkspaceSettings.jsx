@@ -71,7 +71,6 @@ const BasicWorkspaceSettings = (props) => {
         is_archived: workspaceDetails.is_archived,
         public_analytics: publicanalytics
     }
-    console.log(sendData);
     const workspaceObj = new GetWorkspaceSaveButtonAPI(id, sendData);
     dispatch(APITransport(workspaceObj));
     const res = await fetch(workspaceObj.apiEndPoint(), {
