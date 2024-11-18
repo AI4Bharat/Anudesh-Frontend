@@ -80,22 +80,15 @@ const PreferenceRanking = ({
       
       const forms = result.map((currentForm) => ({
         prompt: currentForm.prompt || "",
-        model_responses_json: (Array.isArray(currentForm.output)
-          ? currentForm.output.map((item) => ({
-              ...item,
-              output: item.value,
-            }))
-          : [{ output: currentForm.output }]
-        ).map((modelResponse) => ({
+        model_responses_json: currentForm.model_responses_json.map((modelResponse) => ({
           ...modelResponse,
-          questions_response:
-            modelResponse?.questions_response?.map(
-              (questionResponse, index) => ({
-                ...questionResponse,
-                question: questions[index],
-                response: questionResponse?.response || [],
-              })
-            ) || [],
+          output: modelResponse.output || "",
+          model_name: modelResponse.model_name || "",
+          questions_response: modelResponse.questions_response.map((questionResponse) => ({
+            ...questionResponse,
+            question: questionResponse?.question || {},
+            response: questionResponse?.response || [],
+          })),
         })),
         prompt_output_pair_id: currentForm?.prompt_output_pair_id || null,
         additional_note: currentForm?.additional_note || "",

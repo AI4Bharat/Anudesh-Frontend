@@ -912,29 +912,6 @@ const SuperCheckerPage = () => {
                 placeholder="Superchecker Notes"
               ></ReactQuill>
             </div>
-            <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            </div>
             {ProjectDetails.revision_loop_count >
             taskData?.revision_loop_count?.super_check_count
               ? false
@@ -1094,6 +1071,7 @@ const SuperCheckerPage = () => {
               )}
             </Grid>
             <Grid item>
+            {ProjectDetails.project_type == "InstructionDrivenChat"?(<Grid item>
               {!disableSkip && taskData?.super_check_user === userData?.id && (
                 <Tooltip title="clear the entire chat history">
                   <Button
@@ -1101,11 +1079,7 @@ const SuperCheckerPage = () => {
                     type="default"
                     variant="outlined"
                     onClick={() =>
-                      handleSuperCheckerClick(
-                        "delete",
-                        SuperChecker.id,
-                        SuperChecker.lead_time,
-                      )
+                      handleSuperCheckerClick("delete", SuperChecker.id, SuperChecker.lead_time)
                     }
                     style={{
                       minWidth: "150px",
@@ -1122,7 +1096,33 @@ const SuperCheckerPage = () => {
                   </Button>
                 </Tooltip>
               )}
-            </Grid>
+            </Grid>):((<Grid item>
+              {!disableSkip && taskData?.super_check_user === userData?.id && (
+                <Tooltip title="Reset the entire chat history">
+                  <Button
+                    value="Reset All"
+                    type="default"
+                    variant="outlined"
+                    onClick={() =>
+                      handleSuperCheckerClick("delete", SuperChecker.id, SuperChecker.lead_time)
+                    }
+                    style={{
+                      minWidth: "150px",
+                      color: "black",
+                      borderRadius: "5px",
+                      border: "0px",
+                      pt: 2,
+                      pb: 2,
+                      backgroundColor: "#ffe0b2",
+                    }}
+                    // className="lsf-button"
+                  >
+                    Reset All
+                  </Button>
+                </Tooltip>
+              )}
+            </Grid>))}
+
             <Grid item>
               {taskData?.super_check_user === userData?.id && (
                 <Tooltip title="Reject">
