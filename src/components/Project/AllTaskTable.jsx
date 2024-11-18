@@ -89,7 +89,7 @@ const AllTaskTable = (props) => {
   const [selectedFilters, setsSelectedFilters] = useState({
     task_status: [filterData.Status[0]],
   });
-  if (ProjectDetails?.project_type === "MultipleInteractionEvaluation") {
+  if (ProjectDetails?.required_annotators_per_task > 1) {
     filterData.Status = filterData.Status.filter(
       (status) => status !== "super_checked"
     );
