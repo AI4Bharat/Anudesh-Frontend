@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback ,useMemo} from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -56,11 +56,8 @@ const PreferenceRanking = ({
   answered,
   setAnswered,
   annotation,
-  setLoading,
-  loading,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const ProjectDetails = useSelector((state) => console.log(state));
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
@@ -77,15 +74,42 @@ const PreferenceRanking = ({
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
 
+  const parsedForms = useMemo(() => {
+    if (annotation && annotation[0]?.result) {
+      const result = annotation?.[0]?.result || [];
+      
+      const forms = result.map((currentForm) => ({
+        prompt: currentForm.prompt || "",
+        model_responses_json: currentForm.model_responses_json.map((modelResponse) => ({
+          ...modelResponse,
+          output: modelResponse.output || "",
+          model_name: modelResponse.model_name || "",
+          questions_response: modelResponse.questions_response.map((questionResponse) => ({
+            ...questionResponse,
+            question: questionResponse?.question || {},
+            response: questionResponse?.response || [],
+          })),
+        })),
+        prompt_output_pair_id: currentForm?.prompt_output_pair_id || null,
+        additional_note: currentForm?.additional_note || "",
+      }));
+  
+      setForms(forms.length > 0 ? forms : []);
+      setIsFormsInitialized(forms.length > 0);
+      console.log("Parsed Forms:", forms,"jack","1");
+      return forms;
+    }
+    setForms([]);
+    setIsFormsInitialized(false);
+    return [];
+  }, [annotation, taskId]);
+  
   useEffect(() => {
-    setLoading(true);
-    setForms(
-      annotation[0]?.result?.length !== 0 ? [...annotation[0]?.result] : [],
-    );
-    console.log("jack", "1");
-    setIsFormsInitialized(true);
-    setLoading(false);
-  }, [annotation]);
+    setForms(parsedForms);
+    console.log("Forms updated:", parsedForms);
+  }, [parsedForms, setForms]);
+
+
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
@@ -98,30 +122,29 @@ const PreferenceRanking = ({
     }));
   };
 
-  useEffect(() => {
-    if (!isFormsInitialized) return;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const taskDetailsObj = new GetTaskDetailsAPI(taskId);
-        const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
-          method: "GET",
-          headers: taskDetailsObj.getHeaders().headers,
-        });
-        const taskData = await taskResponse.json();
-        setInteractions(taskData?.data?.multiple_interaction_json || []);
-        console.log("jack", "2");
-        setIsInteractionsFetched(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [isFormsInitialized, taskId]);
+
+
+  const fetchInteractions = useCallback(async () => {
+    try {
+      const taskDetailsObj = new GetTaskDetailsAPI(taskId);
+      const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
+        method: "GET",
+        headers: taskDetailsObj.getHeaders().headers,
+      });
+      const taskData = await taskResponse.json();
+      setInteractions(taskData?.data?.multiple_interaction_json || []);
+    } catch (error) {
+      console.error("Error fetching interactions:", error);
+    }
+    console.log("jack","2");
+
+  }, [taskId]);
 
   useEffect(() => {
-    if (!isInteractionsFetched) return;
+    fetchInteractions();
+  }, [fetchInteractions]);  
+  useEffect(() => {
+
     console.log("kkk", interactions.length, forms?.length);
 
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -150,10 +173,13 @@ const PreferenceRanking = ({
 
       console.log("init forms: ", initialForms);
       setForms(initialForms);
+      console.log("jack", "3");
+
     }
-  }, [forms, interactions, taskId]);
+  }, [forms, interactions]);
 
   useEffect(() => {
+
     if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
 
@@ -193,7 +219,9 @@ const PreferenceRanking = ({
         console.log(currentInteraction, "new");
       }
     }
-  }, [forms, interactions, questions?.length, taskId]);
+    console.log("jack", "4");
+
+  }, [forms, interactions, questions?.length]);
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
@@ -1183,9 +1211,7 @@ const PreferenceRanking = ({
 
   return (
     <>
-      {loading ? (
-        <Spinner />
-      ) : (
+
         <div
           className={classes.container}
           style={{
@@ -1217,7 +1243,6 @@ const PreferenceRanking = ({
 
           {EvaluationForm()}
         </div>
-      )}
     </>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback,useMemo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -76,41 +76,6 @@ const ModelInteractionEvaluation = ({
 
   console.log(annotation[0]);
 
-  useEffect(() => {
-    setLoading(true);
-    if (annotation && annotation[0]) {
-      const result = annotation[0].result;
-
-      if (Array.isArray(result)) {
-        setForms(
-          result.map((item) => ({
-            prompt: item.prompt || "",
-            output: item.output || "",
-            questions_response: item.questions_response || [],
-            additional_note: item.additional_note || null,
-            prompt_output_pair_id: item.prompt_output_pair_id || null,
-          })),
-        );
-      } else if (result) {
-        setForms([
-          {
-            prompt: result.prompt || "",
-            output: result.output || "",
-            questions_response: result.questions_response || [],
-            additional_note: result.additional_note || null,
-            prompt_output_pair_id: result.prompt_output_pair_id || null,
-          },
-        ]);
-      } else {
-        setForms([]);
-      }
-    } else {
-      setForms([]);
-    }
-    setIsFormsInitialized(true);
-    setLoading(false);
-  }, [annotation, taskId]);
-
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
@@ -119,77 +84,101 @@ const ModelInteractionEvaluation = ({
     }));
   };
 
+  const parsedForms = useMemo(() => {
+    if (annotation && annotation[0]?.result) {
+      const result = annotation[0].result;
+      return Array.isArray(result)
+        ? result.map((item) => ({
+            prompt: item.prompt || "",
+            output: item.output || "",
+            questions_response: item.questions_response || [],
+            additional_note: item.additional_note || null,
+            prompt_output_pair_id: item.prompt_output_pair_id || null,
+          }))
+        : [
+            {
+              prompt: result.prompt || "",
+              output: result.output || "",
+              questions_response: result.questions_response || [],
+              additional_note: result.additional_note || null,
+              prompt_output_pair_id: result.prompt_output_pair_id || null,
+            },
+          ];
+    }
+    console.log("jack","1");
+    
+    return [];
+  }, [annotation,taskId]);
+
   useEffect(() => {
-    if (!isFormsInitialized) return;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const taskDetailsObj = new GetTaskDetailsAPI(taskId);
-        const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
-          method: "GET",
-          headers: taskDetailsObj.getHeaders().headers,
-        });
-        const taskData = await taskResponse.json();
-        setInteractions(taskData?.data?.multiple_interaction_json || []);
-        console.log("jack", "2");
-        setIsInteractionsFetched(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [isFormsInitialized, taskId]);
+    setForms(parsedForms);
+    console.log("Forms updated:", parsedForms);
+  }, [parsedForms, setForms]);
+
+  const fetchInteractions = useCallback(async () => {
+    try {
+      const taskDetailsObj = new GetTaskDetailsAPI(taskId);
+      const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
+        method: "GET",
+        headers: taskDetailsObj.getHeaders().headers,
+      });
+      const taskData = await taskResponse.json();
+      setInteractions(taskData?.data?.interactions_json || []);
+    } catch (error) {
+      console.error("Error fetching interactions:", error);
+    }
+    console.log("jack","2");
+
+  }, [taskId]);
+
+  useEffect(() => {
+    fetchInteractions();
+  }, [fetchInteractions]);
 
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0) {
       const defaultFormId = 1;
-
-      const currentForm = forms?.find(
-        (form) => form?.prompt_output_pair_id == defaultFormId,
+      const currentForm = forms.find(
+        (form) => form?.prompt_output_pair_id === defaultFormId
       );
-      if (currentForm) {
-        console.log("current form: " + JSON.stringify(currentForm));
-        const questionsResponse =
-          currentForm?.questions_response ||
-          Array(questions?.length).fill(null);
-        console.log(JSON.stringify(questionsResponse));
 
+      if (currentForm) {
         const newState = {
-          prompt: currentForm?.prompt || "",
+          prompt: currentForm.prompt || "",
           output:
-            typeof currentForm?.output === "string"
+            typeof currentForm.output === "string"
               ? currentForm.output
-              : currentForm?.output?.map((item) => item.value).join(", ") || "",
-          prompt_output_pair_id: currentForm?.prompt_output_pair_id,
-          additional_note: currentForm?.additional_note || "",
-          questions_response: questionsResponse,
+              : currentForm.output?.map((item) => item.value).join(", ") || "",
+          prompt_output_pair_id: currentForm.prompt_output_pair_id,
+          additional_note: currentForm.additional_note || "",
+          questions_response:
+            currentForm.questions_response ||
+            Array(questions?.length).fill(null),
         };
         setCurrentInteraction(newState);
       }
     }
-  }, [forms, interactions, questions?.length, taskId, annotation]);
+    console.log("jack","3");
+
+  }, [forms, interactions, setCurrentInteraction, questions?.length]);
 
   useEffect(() => {
-    if (!isInteractionsFetched) return;
-
-    console.log("kkk", interactions.length, forms?.length);
-
     if (forms?.length == 0 && interactions?.length > 0) {
-      const initialForms = interactions?.map((interaction) => ({
-        prompt: interaction?.prompt,
-        output: interaction?.output,
-        prompt_output_pair_id: interaction?.prompt_output_pair_id,
+      const initialForms = interactions.map((interaction) => ({
+        prompt: interaction.prompt,
+        output: interaction.output,
+        prompt_output_pair_id: interaction.prompt_output_pair_id,
         additional_note: null,
         questions_response: questions?.map((question) => ({
           question,
           response: [],
         })),
       }));
-      console.log("init forms: " + initialForms);
       setForms(initialForms);
     }
-  }, [forms, interactions, taskId, annotation]);
+    console.log("jack","4");
+
+  }, [forms, interactions, setForms, questions]);
 
   useEffect(() => {
     if (!forms || forms.length == 0) {

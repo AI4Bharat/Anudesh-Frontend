@@ -546,7 +546,6 @@ const AnnotatePage = () => {
     };
   }, [taskId]);
   const filterAnnotations = (annotations, user) => {
-    setFilteredReady(true);
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -644,7 +643,6 @@ const AnnotatePage = () => {
     setFilterMessage(Message);
     console.log(annotations, "hhhh");
 
-    setFilteredReady(false);
     return [
       filteredAnnotations,
       disableDraft,
@@ -870,7 +868,7 @@ const AnnotatePage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-            <Button
+            {/* <Button
               variant="contained"
               style={{
                 marginLeft: "10px",
@@ -892,7 +890,7 @@ const AnnotatePage = () => {
               }}
             >
               {/* <Glossary taskData={taskData} /> */}
-            </div>
+            {/* </div> */} 
           </Box>
           <Grid
             container
@@ -1139,15 +1137,14 @@ const AnnotatePage = () => {
                     </Button>
                   </Tooltip> */}
 
-                  <Tooltip
+                  {ProjectDetails?.project_type=="InstructionDrivenChat"?(<Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
                         clear the entire chat history
                       </span>
                     }
                   >
-                    {ProjectDetails.project_type == "InstructionDrivenChat" ? (
-                      <Button
+                     <Button
                         value="Clear Chats"
                         type="default"
                         variant="outlined"
@@ -1170,8 +1167,13 @@ const AnnotatePage = () => {
                       >
                         Clear Chats
                       </Button>
-                    ) : (
-                      <Button
+                  </Tooltip>):            (<Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        Reset the entire chat history
+                      </span>
+                    }
+                  >          <Button
                         value="Reset All Forms"
                         type="default"
                         variant="outlined"
@@ -1195,10 +1197,8 @@ const AnnotatePage = () => {
                         {" "}
                         Reset All
                       </Button>
-                    )}
-                  </Tooltip>
-                </Grid>
-              )}
+</Tooltip>)}
+                </Grid>)}
             {!disableUpdateButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
@@ -1238,12 +1238,10 @@ const AnnotatePage = () => {
             </Alert>
           )}
         </Grid>
-        {filteredReady == false && annotations.length > 0 ? (
           <Grid item container>
             {" "}
             {componentToRender}{" "}
           </Grid>
-        ) : null}
       </Grid>
     </>
   );
