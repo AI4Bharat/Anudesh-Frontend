@@ -86,9 +86,16 @@ const AllTaskTable = (props) => {
       "exported",
     ],
   };
-  const [selectedFilters, setsSelectedFilters] = useState({
-    task_status: [filterData.Status[0]],
+
+  const [selectedFilters, setSelectedFilters] = useState(() => {
+    const savedFilters = localStorage.getItem('selectedFilters');
+    return savedFilters ? JSON.parse(savedFilters) :
+     { task_status: [filterData.Status[0]] };
   });
+
+  useEffect(() => {
+    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
+  }, [selectedFilters]);
 
   const GetAllTasksdata = () => {
     const taskobj = {
@@ -300,7 +307,7 @@ const AllTaskTable = (props) => {
               anchorEl={anchorEl}
               handleClose={handleClose}
               filterStatusData={filterData}
-              updateFilters={setsSelectedFilters}
+              updateFilters={setSelectedFilters}
               currentFilters={selectedFilters}
               onchange={GetAllTasksdata}
             />
@@ -310,7 +317,7 @@ const AllTaskTable = (props) => {
               open={searchOpen}
               anchorEl={searchAnchor}
               handleClose={handleSearchClose}
-              updateFilters={setsSelectedFilters}
+              updateFilters={setSelectedFilters}
               //filterStatusData={filterData}
               currentFilters={selectedFilters}
               searchedCol={searchedCol}
