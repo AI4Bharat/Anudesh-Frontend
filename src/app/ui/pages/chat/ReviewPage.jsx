@@ -1198,29 +1198,6 @@ const ReviewPage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-            <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            </div>
           </Box>
           <Grid
             container
@@ -1354,7 +1331,7 @@ const ReviewPage = () => {
                 </Tooltip>
               )}
             </Grid>
-            <Grid item>
+            {ProjectDetails.project_type == "InstructionDrivenChat"?(<Grid item>
               {!disableSkip && taskData?.review_user === userData?.id && (
                 <Tooltip title="clear the entire chat history">
                   <Button
@@ -1379,7 +1356,32 @@ const ReviewPage = () => {
                   </Button>
                 </Tooltip>
               )}
-            </Grid>
+            </Grid>):((<Grid item>
+              {!disableSkip && taskData?.review_user === userData?.id && (
+                <Tooltip title="Reset the entire chat history">
+                  <Button
+                    value="Reset All"
+                    type="default"
+                    variant="outlined"
+                    onClick={() =>
+                      handleReviewClick("delete", review.id, review.lead_time)
+                    }
+                    style={{
+                      minWidth: "150px",
+                      color: "black",
+                      borderRadius: "5px",
+                      border: "0px",
+                      pt: 2,
+                      pb: 2,
+                      backgroundColor: "#ffe0b2",
+                    }}
+                    // className="lsf-button"
+                  >
+                    Reset All
+                  </Button>
+                </Tooltip>
+              )}
+            </Grid>))}
             {!disableBtns &&
               !disableButton &&
               taskData?.review_user === userData?.id && (

@@ -93,9 +93,18 @@ const AllTaskTable = (props) => {
      { task_status: [filterData.Status[0]] };
   });
 
+
   useEffect(() => {
     localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
   }, [selectedFilters]);
+
+
+  if (ProjectDetails?.required_annotators_per_task > 1) {
+    filterData.Status = filterData.Status.filter(
+      (status) => status !== "super_checked"
+    );
+  }
+  
 
   const GetAllTasksdata = () => {
     const taskobj = {
