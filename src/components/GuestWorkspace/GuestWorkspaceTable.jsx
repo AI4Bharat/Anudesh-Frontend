@@ -75,6 +75,10 @@ const GuestWorkspaceTable = (props) => {
     (state) => state.getGuestWorkspaces?.authenticatedWorkspaces
   );
 
+  const authenticatedWorkspaces1 = useSelector(
+    (state) => console.log(state)
+    
+  );
   const handleOpen = (workspace_name, workspace_id) => {
     setPassword("");
     setWorkspaceCurrentId(workspace_id);
@@ -131,21 +135,28 @@ const GuestWorkspaceTable = (props) => {
   };
 
   const handleViewWorkspace = (workspaceId) => {
-    dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(
-      () => {
-        const allIncludedProjects = store.getState().getProjects.data?.included_projects || [];
-        const allExcludedProjects = store.getState().getProjects.data?.excluded_projects || [];
-        const allProjects = [...allIncludedProjects, ...allExcludedProjects];
-        const filteredProjects = allProjects.filter(
-          (project) => project.workspace_id === workspaceId
-        );
-
-        setFilteredProjects(filteredProjects);
-        console.log(filteredProjects);
-      }
-    );
+    dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
+      const state = store.getState().getProjects.data || {};
+      const includedProjects = state.included_projects || [];
+      const excludedProjects = state.excluded_projects || [];
+  
+      const filteredIncludedProjects = includedProjects.filter(
+        (project) => project.workspace_id === workspaceId
+      );
+      const filteredExcludedProjects = excludedProjects.filter(
+        (project) => project.workspace_id === workspaceId
+      );
+  
+      const filteredProjects = {
+        included_projects: filteredIncludedProjects,
+        excluded_projects: filteredExcludedProjects,
+      };
+  
+      setFilteredProjects(filteredProjects);
+      console.log(filteredProjects);
+    });
   };
-
+  
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -301,13 +312,15 @@ const GuestWorkspaceTable = (props) => {
 
   return (
     <div>
+            {filteredProjects ? (
+        <ProjectList data={filteredProjects} />
+      ) : (
+        <>
       {renderSnackBar()}
       <Grid sx={{ mb: 1 }}>
         <Search />
       </Grid>
-      {filteredProjects ? (
-        <ProjectList data={filteredProjects} />
-      ) : (
+
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           title={""}
@@ -316,7 +329,7 @@ const GuestWorkspaceTable = (props) => {
           options={options}
         />
       </ThemeProvider>
-      )}
+      
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -372,6 +385,8 @@ const GuestWorkspaceTable = (props) => {
           </Box>
         </Fade>
       </Modal>
+      </>
+      )}
     </div>
   );
 };
