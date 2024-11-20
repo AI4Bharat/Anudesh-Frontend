@@ -7,8 +7,9 @@ import IconButton from "@mui/material/IconButton";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
-import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
+import { IndicTransliterate } from "@/libs/dist";
 import { TextareaAutosize } from "@material-ui/core";
+import configs from "@/config/config";
 
 const orange = {
   200: "pink",
@@ -160,6 +161,8 @@ export default function Textarea({
     >
       {globalTransliteration ? (
         <IndicTransliterate
+          customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+          apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
           renderComponent={(props) => (
             <textarea
               xs={size}

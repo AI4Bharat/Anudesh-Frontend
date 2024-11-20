@@ -5,8 +5,8 @@ import themeDefault from '../../themes/theme'
  import  "../../styles/Dataset.css";
  import { useDispatch, useSelector } from "react-redux";
 import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
-import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
-
+import { IndicTransliterate } from "@/libs/dist";
+import configs from "@/config/config";
 
 const Search = (props) => {
   const ref = useRef(null);
@@ -52,6 +52,8 @@ const Search = (props) => {
                     </Grid>
                     {globalTransliteration=="true" ? 
                     <IndicTransliterate 
+                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                    apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     renderComponent={(props) => (
                       <textarea
                       
