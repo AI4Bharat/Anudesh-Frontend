@@ -25,11 +25,12 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import {
   IndicTransliterate,
   getTransliterationLanguages,
-} from "@ai4bharat/indic-transliterate";
+} from "@/libs/dist";
 import "../../../../IndicTransliterate/index.css";
 import { MenuProps } from "@/utils/utils";
 import { fetchGetAddGlossary, setDomain } from "@/Lib/Features/actions/AddGlossary";
 import { fetchDomain } from "@/Lib/Features/actions/getDomain";
+import configs from "@/config/config";
 
 const AddGlossary = ({
   openDialog,
@@ -281,6 +282,8 @@ const AddGlossary = ({
                
                 { Sourcedata.length > 0 && selectedSourceLang !== "en" ? (
                  <IndicTransliterate
+                  customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                  apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                   lang={Sourcelanguage.LangCode  ? Sourcelanguage.LangCode  : (Sourcedata.length > 0   ?   Sourcedata[0]?.LangCode  : "hi" )}
                   value={SourceText}
                   onChangeText={(SourceText) => {
@@ -297,6 +300,8 @@ const AddGlossary = ({
               />)}
                { data.length > 0 && selectedTargetLang !== "en" ? (
                 <IndicTransliterate
+                  customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                  apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                   lang={Targetlanguage.LangCode  ? Targetlanguage.LangCode : (data.length > 0  ?  data[0]?.LangCode : "hi")}
                   value={targetText}
                   onChangeText={(targetText) => {

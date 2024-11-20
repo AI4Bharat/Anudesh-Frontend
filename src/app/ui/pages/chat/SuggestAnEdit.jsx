@@ -23,11 +23,9 @@ import { setDomain } from "@/Lib/Features/actions/AddGlossary";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import SuggestAnEditAPI from "../../../actions/api/Annotate/SuggestAnEditAPI";
 import { MenuProps } from "@/utils/utils";
-import {
-  IndicTransliterate,
-  getTransliterationLanguages,
-} from "@ai4bharat/indic-transliterate";
-import "@ai4bharat/indic-transliterate/dist/index.css";
+import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
+import configs from "@/config/config";
+// import "@ai4bharat/indic-transliterate/dist/index.css";
 
 const SuggestAnEdit = ({
     openDialog,
@@ -150,6 +148,8 @@ const SuggestAnEdit = ({
   
                   { targetData.length > 0 && targetlang !== "en" ? (
                    <IndicTransliterate
+                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                    apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     lang={Targetlanguage.LangCode ? Targetlanguage.LangCode : (targetData.length > 0  ?  targetData[0]?.LangCode : "en" )}
                     value={targetText}
                     onChangeText={(targetText) => {
