@@ -21,6 +21,7 @@ export default function ProjectList({data}) {
 
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
+console.log(data);
 
   // const [loading, setLoading] = useState(true);
   const [selectedFilters, setsSelectedFilters] = useState({
