@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import classNames from "classnames";
 import { Box, FormControlLabel, Typography } from "@mui/material";
-import { IndicTransliterate } from "@ai4bharat/indic-transliterate";
+import { IndicTransliterate } from "@/libs/dist";
 
 import "./styles.css";
 import { CheckBox } from "@mui/icons-material";
+import configs from "@/config/config";
 
 const orange = {
   200: "pink",
@@ -350,6 +351,8 @@ const OutputSelection = () => {
       <Box className="feedback-section">
         {globalTransliteration ? (
           <IndicTransliterate
+            customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+            apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
             renderComponent={(props) => (
               <textarea
                 sx={{
