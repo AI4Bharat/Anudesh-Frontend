@@ -858,6 +858,7 @@ const ReviewPage = () => {
   };
 
   const filterAnnotations = (annotations, user, taskData) => {
+    setLoading(true)
     setFilteredReady(true);
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
@@ -970,6 +971,7 @@ const ReviewPage = () => {
     setFilterMessage(filterMessage);
     setAnnotations(filteredAnnotations);
     setFilteredReady(false);
+    setLoading(false)
     return [
       filteredAnnotations,
       disable,
@@ -1227,7 +1229,9 @@ const ReviewPage = () => {
                         textAlign: "center",
                       }}
                     >
-                      ANNOTATION ID: {annotations[0]?.id}
+                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }
