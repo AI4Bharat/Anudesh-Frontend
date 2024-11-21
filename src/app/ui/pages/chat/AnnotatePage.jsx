@@ -546,6 +546,7 @@ const AnnotatePage = () => {
     };
   }, [taskId]);
   const filterAnnotations = (annotations, user) => {
+    setLoading(true)
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -642,6 +643,7 @@ const AnnotatePage = () => {
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
     console.log(annotations, "hhhh");
+    setLoading(false)
 
     return [
       filteredAnnotations,
@@ -904,7 +906,28 @@ const AnnotatePage = () => {
             }}
           >
             <Grid item>
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip                 title={
+                  <div>
+                    <div>
+                      {Array.isArray(assignedUsers)
+                        ? assignedUsers.join(", ")
+                        : assignedUsers || "No assigned users"}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+
+                    </div>
+                  </div>
+                }
+>
                 <Button
                   type="default"
                   className="lsf-button"

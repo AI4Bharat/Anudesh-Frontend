@@ -78,13 +78,13 @@ const PreferenceRanking = ({
     if (annotation && annotation[0]?.result) {
       const result = annotation?.[0]?.result || [];
       
-      const forms = result.map((currentForm) => ({
+      const forms = result?.map((currentForm) => ({
         prompt: currentForm.prompt || "",
-        model_responses_json: currentForm.model_responses_json.map((modelResponse) => ({
+        model_responses_json: currentForm.model_responses_json?.map((modelResponse) => ({
           ...modelResponse,
           output: modelResponse.output || "",
           model_name: modelResponse.model_name || "",
-          questions_response: modelResponse.questions_response.map((questionResponse) => ({
+          questions_response: modelResponse.questions_response?.map((questionResponse) => ({
             ...questionResponse,
             question: questionResponse?.question || {},
             response: questionResponse?.response || [],
