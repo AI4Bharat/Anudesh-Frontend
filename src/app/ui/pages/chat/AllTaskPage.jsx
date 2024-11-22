@@ -158,8 +158,11 @@ const AllTaskPage = () => {
   }, [taskData]);
   useEffect(() => {
     if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
       setAnnotations(AnnotationsTaskDetails);
+      setLoading(false);
+
+
+      
     }
   }, [AnnotationsTaskDetails]);
 
@@ -432,57 +435,6 @@ console.log(annotations);
       componentToRender = null;
       break;
   }
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
-
-  // const formatResponseformatResponse = (response) => {
-  //   response = String(response);
-  //   const output = [];
-  //   let count = 0;
-
-  //   while (response) {
-  //     response = response.trim();
-  //     let index = response.indexOf("```");
-  //     if (index == -1) {
-  //       output.push({
-  //         type: "text",
-  //         value: response,
-  //       });
-  //       break;
-  //     } else {
-  //       count++;
-  //       if (count % 2 !== 0) {
-  //         output.push({
-  //           type: "text",
-  //           value: response.substring(0, index),
-  //         });
-  //         response = response.slice(index + 3);
-  //       } else if (count % 2 === 0) {
-  //         let next_space = response.indexOf("\n");
-  //         let language = response.substring(0, next_space);
-  //         response = response.slice(next_space + 1);
-  //         let new_index = response.indexOf("```");
-  //         let value = response.substring(0, new_index);
-  //         output.push({
-  //           type: "code",
-  //           value: value,
-  //           language: language,
-  //         });
-  //         response = response.slice(new_index + 3);
-  //       }
-  //     }
-  //   }
-  //   return output;
-  // };
-
-  // const formatPrompt = (prompt) => {
-  //   const lines = prompt.split("\n");
-  //   const markdownString = lines.join("  \n");
-  //   return markdownString;
-  // };
 
   return (
     <>
@@ -560,29 +512,7 @@ console.log(annotations);
                 readOnly={true}
               ></ReactQuill>
             </div>
-            <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            </div>
+
           </Box>
           <Grid
             container
