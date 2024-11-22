@@ -137,7 +137,7 @@ const ModelInteractionEvaluation = ({
 
   useEffect(() => {
     if (forms?.length > 0 && interactions?.length > 0) {
-      const defaultFormId = 1;
+      const defaultFormId = forms[0]?.prompt_output_pair_id;
       const currentForm = forms.find(
         (form) => form?.prompt_output_pair_id === defaultFormId
       );

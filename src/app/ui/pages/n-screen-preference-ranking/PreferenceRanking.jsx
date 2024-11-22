@@ -176,17 +176,18 @@ const PreferenceRanking = ({
       console.log("jack", "3");
 
     }
-  }, [forms, interactions]);
+  }, [forms, interactions, setForms, questions]);
 
   useEffect(() => {
-
+    console.log(forms,interactions,"checking");
+    
     if (forms?.length > 0 && interactions?.length > 0) {
-      const defaultFormId = 1;
+      const defaultFormId = forms[0]?.prompt_output_pair_id;
 
       const currentForm = forms?.find(
         (form) => form?.prompt_output_pair_id == defaultFormId,
       );
-      console.log(forms, currentForm);
+      console.log("forms", currentForm);
 
       if (currentForm) {
         console.log("current form: " + JSON.stringify(currentForm));
@@ -221,7 +222,7 @@ const PreferenceRanking = ({
     }
     console.log("jack", "4");
 
-  }, [forms, interactions, questions?.length]);
+  }, [forms, interactions, setCurrentInteraction, questions?.length]);
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
