@@ -7,6 +7,8 @@ const getTaskAssignedUsers = async (taskDetails) => {
             return Promise.resolve(null);
         
         const annotatorObj = new FetchUserByIdAPI(taskDetails?.annotation_users[0]);
+        console.log(annotatorObj,"ll");
+        
         return fetch(annotatorObj.apiEndPoint(), {
             method: "GET",
             headers: annotatorObj.getHeaders().headers,
@@ -34,7 +36,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
             headers: superCheckerObj.getHeaders().headers,
         }).then(res => res.json()).then(res => res.email);
     };
-
+    
     return Promise.all([getAnnotator(), getReviewer(), getSuperChecker()]).then(res => 
         <div style={{display: "flex", padding: "8px 0px", flexDirection: "column", gap: "14px"}}>
             {res.map((email, idx) => 

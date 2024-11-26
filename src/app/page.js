@@ -34,6 +34,7 @@ import SuperCheckerPage from "./ui/pages/chat/SuperCheckerPage";
 import CreateProject from "./new-project/newproject";
 import OutputSelection from "./ui/pages/dual-screen-preference-ranking/PreferenceRanking";
 import PreferenceRanking from "./ui/pages/n-screen-preference-ranking/PreferenceRanking";
+import GuestWorkspaceTable from "@/components/GuestWorkspace/table";
 
 export default function Root() {
   if (typeof window !== 'undefined') {
@@ -136,6 +137,12 @@ export default function Root() {
               path="workspaces/:id"
               element={ProtectedRouteWrapper(
                 <Layout component={<Workspace />} Backbutton={true} />
+              )}
+            />
+            <Route
+              path="guest_workspaces/:id"
+              element={ProtectedRouteWrapper(
+                <Layout component={<GuestWorkspaceTable />} Backbutton={true} />
               )}
             />
             <Route
