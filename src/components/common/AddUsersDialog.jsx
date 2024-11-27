@@ -285,7 +285,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   }, [userType, id, projectDetails]);
   const filteruser = availableUsers?.filter(
     (user) =>
-      !projectDetails.annotators.some((annotator) => annotator.id === user.id),
+      !projectDetails?.annotators?.some((annotator) => annotator?.id === user.id),
   );
   console.log(workspaceAnnotators);
   useEffect(() => {

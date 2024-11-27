@@ -347,7 +347,7 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 0 ? "#d3d3d3" : "transparent",
+                      bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
                       borderRadius: 1,
                       "&:hover": {

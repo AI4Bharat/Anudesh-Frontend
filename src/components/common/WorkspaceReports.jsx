@@ -104,20 +104,7 @@ const WorkspaceReports = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (radioButton === "payment") {
-      setProjectTypes([
-        "AudioSegmentation",
-        "AudioTranscription",
-        "AudioTranscriptionEditing",
-        "ConversationTranslation",
-        "ConversationTranslationEditing",
-        "AcousticNormalisedTranscriptionEditing",
-        "AllAudioProjects",
-        "OCRTranscription",
-        "OCRTranscriptionEditing",
-      ]);
-      setSelectedType("AllAudioProjects");
-    } else if (ProjectTypes) {
+     if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
         let subTypes = Object.keys(ProjectTypes[key]["project_types"]);

@@ -28,6 +28,7 @@ import { fetchScheduledMails } from "@/Lib/Features/user/GetScheduledMails";
 import UpdateScheduledMailsAPI from "@/app/actions/api/user/UpdateScheduleMailsAPI";
 import CreateScheduledMailsAPI from "@/app/actions/api/user/CreateScheduledMailsAPI";
 import DeleteScheduledMailsAPI from "@/app/actions/api/user/DeleteScheduledMailsAPI";
+import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 
 const ScheduleMails = () => {
   const { id } = useParams();
@@ -40,17 +41,7 @@ const ScheduleMails = () => {
   const [reportLevel, setReportLevel] = useState(1);
   const [selectedProjectType, setSelectedProjectType] =
     useState("AllAudioProjects");
-  const [projectTypes, setProjectTypes] = useState([
-    "AudioSegmentation",
-    "AudioTranscription",
-    "AudioTranscriptionEditing",
-    "ConversationTranslation",
-    "ConversationTranslationEditing",
-    "AcousticNormalisedTranscriptionEditing",
-    "AllAudioProjects",
-    "OCRTranscription",
-    "OCRTranscriptionEditing",
-  ]);
+  const [projectTypes, setProjectTypes] = useState();
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [schedule, setSchedule] = useState("Daily");
@@ -66,7 +57,20 @@ const ScheduleMails = () => {
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const workspaceData = useSelector((state) => state.GetWorkspace.data);
   const scheduledMails = useSelector((state) => state.GetScheduledMails.data);
+  const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+
   //const [requested, setRequested] = useState({ get: false, create: false, update: false, delete: false });
+  useEffect(() => {
+    if (ProjectTypes) {
+      let types = [];
+      Object.keys(ProjectTypes).forEach((key) => {
+        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+        types.push(...subTypes);
+      });
+      setProjectTypes(types);
+      setSelectedProjectType(types[3]);
+    }
+  }, [ProjectTypes]);
 
   const getWorkspaceData = () => {
     dispatch(fetchWorkspaceData());
@@ -200,6 +204,8 @@ const ScheduleMails = () => {
   };
 
   useEffect(() => {
+    dispatch(fetchProjectDomains());
+
     getWorkspaceData();
     getScheduledMails();
   }, []);
@@ -386,7 +392,7 @@ const ScheduleMails = () => {
                   label="Project Type"
                   onChange={(e) => setSelectedProjectType(e.target.value)}
                 >
-                  {projectTypes.map((type, index) => (
+                  {projectTypes?.map((type, index) => (
                     <MenuItem value={type} key={index}>
                       {type}
                     </MenuItem>

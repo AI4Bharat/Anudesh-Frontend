@@ -133,29 +133,33 @@ const GuestWorkspaceTable = (props) => {
       dispatch(addAuthenticatedWorkspace(currentWorkspaceId)); 
     }
   };
-
-  const handleViewWorkspace = (workspaceId) => {
-    dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
-      const state = store.getState().getProjects.data || {};
-      const includedProjects = state.included_projects || [];
-      const excludedProjects = state.excluded_projects || [];
-  
-      const filteredIncludedProjects = includedProjects.filter(
-        (project) => project.workspace_id === workspaceId
-      );
-      const filteredExcludedProjects = excludedProjects.filter(
-        (project) => project.workspace_id === workspaceId
-      );
-  
-      const filteredProjects = {
-        included_projects: filteredIncludedProjects,
-        excluded_projects: filteredExcludedProjects,
-      };
-  
-      setFilteredProjects(filteredProjects);
-      console.log(filteredProjects);
-    });
+    const handleViewWorkspace = (workspaceId) => {
+    navigate(`/guest_workspaces/${workspaceId}`);
   };
+
+
+  // const handleViewWorkspace = (workspaceId) => {
+  //   dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
+  //     const state = store.getState().getProjects.data || {};
+  //     const includedProjects = state.included_projects || [];
+  //     const excludedProjects = state.excluded_projects || [];
+  
+  //     const filteredIncludedProjects = includedProjects.filter(
+  //       (project) => project.workspace_id === workspaceId
+  //     );
+  //     const filteredExcludedProjects = excludedProjects.filter(
+  //       (project) => project.workspace_id === workspaceId
+  //     );
+  
+  //     const filteredProjects = {
+  //       included_projects: filteredIncludedProjects,
+  //       excluded_projects: filteredExcludedProjects,
+  //     };
+  
+  //     setFilteredProjects(filteredProjects);
+  //     console.log(filteredProjects,"hello",workspaceId);
+  //   });
+  // };
   
   const renderSnackBar = () => {
     return (
