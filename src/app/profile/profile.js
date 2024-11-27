@@ -36,9 +36,15 @@ export default function ProfilePage () {
     variant: "success",
   });
     /* eslint-disable react-hooks/exhaustive-deps */
-  const UserDetails = useSelector((state) => state.getUserById.data);
   const LoggedInUserId = useSelector((state) => state.getLoggedInData.data.id);
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
+  if(loggedInUserData?.id==id){
+    var UserDetails = useSelector((state) => state.getLoggedInData.data);
+
+  }else{
+    var UserDetails = useSelector((state) => state.getUserById.data);
+
+  }
   const handleEmailToggle = async () => {
     setLoading(true);
     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
@@ -103,7 +109,7 @@ export default function ProfilePage () {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(fetchUserById(id));
+    dispatch(fetchUserById(id))
   }, [id]);
 
   useEffect(() => {
