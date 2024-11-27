@@ -271,9 +271,13 @@ const InstructionDrivenChatPage = ({
     setShowChatContainer(true);
   };
   const handleOnchange = (prompt) => {
-    inputValue = prompt;
-  };
 
+    inputValue = prompt;
+    // console.log(inputValue,chatHistory);
+
+  };
+  
+// const gg= true
   const renderChatHistory = () => {
     const chatElements = [];
     for (let index = 0; index < chatHistory?.length; index++) {
@@ -316,9 +320,25 @@ const InstructionDrivenChatPage = ({
                   marginRight: "1rem",
                 }}
               />
+              {/* {gg == true ? (
+              <textarea
+                defaultValue={formatPrompt(message.prompt)}
+                onChange={(e) => handleOnchange(e, index)}
+                className="editable-textarea"
+                style={{
+                  width: "100%",
+                  fontSize: "1rem",
+                  padding: "0.5rem",
+                  borderRadius: "5px",
+                  border: "1px solid #ccc",
+                  resize: "none",
+                }}
+              />
+            ) : ( */}
               <ReactMarkdown className="flex-col">
                 {formatPrompt(message.prompt)}
               </ReactMarkdown>
+            {/* )} */}
               {index === chatHistory.length - 1 &&
                 stage !== "Alltask" &&
                 !disableUpdateButton && (
@@ -368,13 +388,51 @@ const InstructionDrivenChatPage = ({
             <Box className="flex-col">
               {message?.output?.map((segment, index) =>
                 segment.type == "text" ? (
-                  <ReactMarkdown
-                    key={index}
-                    className="flex-col overflow-x-scroll"
-                  >
-                    {segment.value}
-                  </ReactMarkdown>
+//                    gg == true ? ( 
+//                     <textarea
+//   key={index}
+//   value={gg ? "" : segment.value} 
+//   onChange={(e) => {
+//     const updatedValue = e.target.value;
+
+//     // Update chatHistory
+//     const updatedChatHistory = [...chatHistory];
+//     const messageIndex = chatHistory.findIndex((msg) => msg === message);
+//     if (messageIndex !== -1) {
+//       updatedChatHistory[messageIndex].output[index].value = updatedValue;
+//     }
+//     setChatHistory(updatedChatHistory);
+
+//     // Update prompt (if needed)
+//     // handleTextChange(e, index, message); // Assuming it updates `prompt`
+//   }}
+//   className="editable-textarea"
+//   style={{
+//     width: "100%",
+//     fontSize: "1rem",
+//     padding: "0.5rem",
+//     border: "none", // No separate border
+//     resize: "none", // Disable manual resizing
+//     overflow: "hidden", // For autosizing
+//     minHeight: "3rem", // Default height
+//   }}
+//   rows={1} // Default number of rows
+//   onInput={(e) => {
+//     e.target.style.height = "auto"; // Reset height
+//     e.target.style.height = `${e.target.scrollHeight}px`; // Adjust to content
+//   }}
+// />
+
+//                   ) : (
+                    <ReactMarkdown
+                      key={index}
+                      className="flex-col overflow-x-scroll"
+                    >
+                      {segment.value}
+                    </ReactMarkdown>
+                  // )
                 ) : (
+  
                   <>
                     <Box
                       key={index}
