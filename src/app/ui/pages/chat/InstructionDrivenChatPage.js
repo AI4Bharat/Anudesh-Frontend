@@ -9,9 +9,12 @@ import {
   Modal,
   Tooltip,
   Typography,
+  TextareaAutosize,
 } from "@mui/material";
+import configs from "@/config/config";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
+import { IndicTransliterate } from "@/libs/dist";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
@@ -81,6 +84,7 @@ const InstructionDrivenChatPage = ({
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -109,6 +113,31 @@ const InstructionDrivenChatPage = ({
     );
   };
 
+  
+const orange = {
+  200: "pink",
+  400: "#EE6633",
+  600: "#EE663366",
+};
+
+const grey = {
+  50: "#F3F6F9",
+  200: "#DAE2ED",
+  300: "#C7D0DD",
+  700: "#434D5B",
+  900: "#1C2025",
+};
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleButtonClick();
+      setText("");
+    } else if (event.key === "Enter" && event.shiftKey) {
+      setText((prevText) => prevText + "\n");
+    }
+  };
+
   const copyToClipboard = async (code) => {
     try {
       await navigator.clipboard.writeText(code);
@@ -125,6 +154,23 @@ const InstructionDrivenChatPage = ({
       });
     }
   };
+  const handleMouseEnter = (event) => {
+    event.target.style.borderColor = orange[400];
+  };
+
+  const handleMouseLeave = (event) => {
+    event.target.style.borderColor = grey[200];
+  };
+  const handleFocus = (event) => {
+    event.target.style.outline = "0px";
+    event.target.style.borderColor = orange[400];
+    event.target.style.boxShadow = `0 0 0 3px ${orange[200]}`;
+  };
+
+  const handleBlur = (event) => {
+    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+  };
+
 
   useEffect(() => {
     let modifiedChatHistory = [];
@@ -273,11 +319,55 @@ const InstructionDrivenChatPage = ({
   const handleOnchange = (prompt) => {
 
     inputValue = prompt;
-    // console.log(inputValue,chatHistory);
+    console.log(inputValue,chatHistory);
 
   };
+  const handleTextChange = (e, index, message, fieldType) => {
+    const updatedValue = e;
+  console.log(message);
   
-// const gg= true
+    const updatedChatHistory = [...chatHistory];
+  
+    const messageIndex = chatHistory.findIndex((msg) => msg === message);
+  
+    if (messageIndex !== -1) {
+      if (fieldType === "prompt") {
+        updatedChatHistory[messageIndex].prompt = updatedValue;
+      } else if (fieldType === "output") {
+        updatedChatHistory[messageIndex].output[index].value = updatedValue;
+      }
+  
+      setChatHistory(updatedChatHistory);
+      console.log(updatedChatHistory);
+      
+    }
+  }; 
+  const [text, setText] = useState("");
+  const [targetLang, setTargetLang] = useState("");
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (typeof window !== "undefined") {
+      const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
+      const storedLanguage = localStorage.getItem("language");
+
+      if (storedGlobalTransliteration !== null) {
+        setGlobalTransliteration(storedGlobalTransliteration === "true");
+      }
+      if (storedLanguage !== null) {
+        setTargetLang(storedLanguage);
+      }
+
+      console.log(globalTransliteration, "lll", localStorage.getItem("globalTransliteration"));
+    }
+  }, [text]);
+
+  
+const gg= true
   const renderChatHistory = () => {
     const chatElements = [];
     for (let index = 0; index < chatHistory?.length; index++) {
@@ -320,25 +410,66 @@ const InstructionDrivenChatPage = ({
                   marginRight: "1rem",
                 }}
               />
-              {/* {gg == true ? (
-              <textarea
+              {gg == true ? (
+                      globalTransliteration ? (
+                        <IndicTransliterate
+                          customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                          apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                          renderComponent={(props) => (
+                            <textarea
+                              sx={{
+                                whiteSpace: 'pre-wrap',
+                              }}
+                              maxRows={10}
+                              aria-label="empty textarea"
+                              placeholder={translate("chat_placeholder")}
+                              onMouseEnter={handleMouseEnter}
+                              onMouseLeave={handleMouseLeave}
+                              onFocus={handleFocus}
+                              onBlur={handleBlur}
+                              {...props}
+                            />
+                          )}
+                          value={message.prompt}
+                          onChangeText={(e) => handleTextChange(e, null, message, "prompt")}
+                          onKeyDown={handleKeyDown}
+                          lang={targetLang}
+                          style={{
+                            resize: "none",
+                            fontSize: "1rem",
+                            height: "50%",
+                            width: "160%",
+                            height: "50px",
+                            fontWeight: "400",
+                            lineHeight: "1.5",
+                            padding: "12px",
+                            borderRadius: "12px 12px 0 12px",
+                            color: grey[900],
+                            border: `1px solid ${grey[200]}`,
+                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                          }}
+                          horizontalView={true}
+                        />
+                        ):(                
+              <TextareaAutosize
+              className="flex-col"
                 defaultValue={formatPrompt(message.prompt)}
-                onChange={(e) => handleOnchange(e, index)}
-                className="editable-textarea"
+                onChange={(e) => handleTextChange(e, null, message, "prompt")}
                 style={{
-                  width: "100%",
+                  width: "90%",
                   fontSize: "1rem",
                   padding: "0.5rem",
                   borderRadius: "5px",
                   border: "1px solid #ccc",
                   resize: "none",
+                  backgroundColor:"none"
                 }}
               />
-            ) : ( */}
+            )) : (
               <ReactMarkdown className="flex-col">
                 {formatPrompt(message.prompt)}
               </ReactMarkdown>
-            {/* )} */}
+             )} 
               {index === chatHistory.length - 1 &&
                 stage !== "Alltask" &&
                 !disableUpdateButton && (
@@ -388,49 +519,82 @@ const InstructionDrivenChatPage = ({
             <Box className="flex-col">
               {message?.output?.map((segment, index) =>
                 segment.type == "text" ? (
-//                    gg == true ? ( 
-//                     <textarea
-//   key={index}
-//   value={gg ? "" : segment.value} 
-//   onChange={(e) => {
-//     const updatedValue = e.target.value;
+                   gg == true ? (
+                    globalTransliteration ? (
+                      <IndicTransliterate
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                        renderComponent={(props) => (
+                          <textarea
+                            sx={{
+                              whiteSpace: 'pre-wrap',
+                            }}
+                            maxRows={10}
+                            aria-label="empty textarea"
+                            placeholder={translate("chat_placeholder")}
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+                            {...props}
+                          />
+                        )}
+                        value={formatPrompt(message.prompt)}
+                        onChangeText={(e) => handleTextChange(e, index, message, "output")}
+                        onKeyDown={handleKeyDown}
+                        lang={targetLang}
+                        style={{
+                          resize: "none",
+                          fontSize: "1rem",
+                          height: "50%",
+                          width: "160%",
+                          height: "50px",
+                          fontWeight: "400",
+                          lineHeight: "1.5",
+                          padding: "12px",
+                          borderRadius: "12px 12px 0 12px",
+                          color: grey[900],
+                          border: `1px solid ${grey[200]}`,
+                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                        }}
+                        horizontalView={true}
+                      />
+                      ):(       
+                    <TextareaAutosize
+  key={index}
+  value={formatPrompt(segment.value)} 
+  onChange={(e) => handleTextChange(e, index, message, "output")}
+  className="editable-textarea"
+  style={{
+    fontSize: "1rem",
+    width: "60%",
+    fontWeight: "400",
+    lineHeight: "1.5",
+    padding: "12px",
+    borderRadius: "12px 12px 0 12px",
+    color: grey[900],
+    background: "#ffffff",
+    border: `1px solid ${grey[200]}`,
+    boxShadow: `0px 2px 2px ${grey[50]}`,
+    outline: 0,
+    transition: "border-color 0.2s, box-shadow 0.2s",
 
-//     // Update chatHistory
-//     const updatedChatHistory = [...chatHistory];
-//     const messageIndex = chatHistory.findIndex((msg) => msg === message);
-//     if (messageIndex !== -1) {
-//       updatedChatHistory[messageIndex].output[index].value = updatedValue;
-//     }
-//     setChatHistory(updatedChatHistory);
+  }}
+  rows={1} 
+  onInput={(e) => {
+    e.target.style.height = "auto"; 
+    e.target.style.height = `${e.target.scrollHeight}px`; 
+  }}
+/>
 
-//     // Update prompt (if needed)
-//     // handleTextChange(e, index, message); // Assuming it updates `prompt`
-//   }}
-//   className="editable-textarea"
-//   style={{
-//     width: "100%",
-//     fontSize: "1rem",
-//     padding: "0.5rem",
-//     border: "none", // No separate border
-//     resize: "none", // Disable manual resizing
-//     overflow: "hidden", // For autosizing
-//     minHeight: "3rem", // Default height
-//   }}
-//   rows={1} // Default number of rows
-//   onInput={(e) => {
-//     e.target.style.height = "auto"; // Reset height
-//     e.target.style.height = `${e.target.scrollHeight}px`; // Adjust to content
-//   }}
-// />
-
-//                   ) : (
+                  )) : (
                     <ReactMarkdown
                       key={index}
                       className="flex-col overflow-x-scroll"
                     >
                       {segment.value}
                     </ReactMarkdown>
-                  // )
+                  )
                 ) : (
   
                   <>
@@ -579,6 +743,9 @@ const InstructionDrivenChatPage = ({
       </>
     );
   };
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
