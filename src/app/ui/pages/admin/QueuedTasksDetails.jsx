@@ -24,8 +24,20 @@ const QueuedTasksDetails = (props) => {
   });
   const [tableData, setTableData] = useState([])
   const [queuedTaskData,setQueuedTaskData] = useState([])
+  const UserDetail = useSelector((state) => {
+    return state.getQueuedTaskDetails?.data;
+  });
+  useEffect(() => {
+    const fetchQueuedTasks = async () => {
+      const apiInstance = new GetQueuedTaskDetailsAPI();
+      const action = await apiInstance.call(); 
+      console.log(action);
+      dispatch(action);
+    };
 
-  const UserDetail = useSelector((state) => state.getQueuedTaskDetails?.data);
+    fetchQueuedTasks();
+  }, [dispatch]);
+
   const apiLoading = useSelector((state) => state.apiStatus.loading);
   const SearchQueuedTasks = useSelector(
     (state) => state.SearchProjectCards?.data
@@ -72,7 +84,7 @@ const QueuedTasksDetails = (props) => {
 
   const pageSearch = (data) => {
     return data.filter((el) => {
-      if (SearchQueuedTasks == "") {
+      if (!SearchQueuedTasks || SearchQueuedTasks === "") {
         return el;
       } else if (
         el.name?.toLowerCase().includes(SearchQueuedTasks?.toLowerCase())
