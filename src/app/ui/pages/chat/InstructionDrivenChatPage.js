@@ -11,10 +11,8 @@ import {
   Typography,
   TextareaAutosize,
 } from "@mui/material";
-import configs from "@/config/config";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
-import { IndicTransliterate } from "@/libs/dist";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
@@ -33,7 +31,6 @@ import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotation
 import { Block } from "@mui/icons-material";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@/libs/dist";
-import { TextareaAutosize } from "@material-ui/core";
 import configs from "@/config/config";
 
 const useStyles = makeStyles((theme) => ({
@@ -146,15 +143,6 @@ const grey = {
   900: "#1C2025",
 };
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleButtonClick();
-      setText("");
-    } else if (event.key === "Enter" && event.shiftKey) {
-      setText((prevText) => prevText + "\n");
-    }
-  };
 
   const copyToClipboard = async (code) => {
     try {
@@ -172,23 +160,7 @@ const grey = {
       });
     }
   };
-  const handleMouseEnter = (event) => {
-    event.target.style.borderColor = orange[400];
-  };
-
-  const handleMouseLeave = (event) => {
-    event.target.style.borderColor = grey[200];
-  };
-  const handleFocus = (event) => {
-    event.target.style.outline = "0px";
-    event.target.style.borderColor = orange[400];
-    event.target.style.boxShadow = `0 0 0 3px ${orange[200]}`;
-  };
-
-  const handleBlur = (event) => {
-    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
-  };
-
+ 
 
   useEffect(() => {
     let modifiedChatHistory = [];
