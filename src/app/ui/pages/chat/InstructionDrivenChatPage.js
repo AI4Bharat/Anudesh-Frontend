@@ -9,9 +9,12 @@ import {
   Modal,
   Tooltip,
   Typography,
+  TextareaAutosize,
 } from "@mui/material";
+import configs from "@/config/config";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
+import { IndicTransliterate } from "@/libs/dist";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
@@ -97,6 +100,7 @@ const InstructionDrivenChatPage = ({
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -127,6 +131,31 @@ const InstructionDrivenChatPage = ({
     );
   };
 
+  
+const orange = {
+  200: "pink",
+  400: "#EE6633",
+  600: "#EE663366",
+};
+
+const grey = {
+  50: "#F3F6F9",
+  200: "#DAE2ED",
+  300: "#C7D0DD",
+  700: "#434D5B",
+  900: "#1C2025",
+};
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleButtonClick();
+      setText("");
+    } else if (event.key === "Enter" && event.shiftKey) {
+      setText((prevText) => prevText + "\n");
+    }
+  };
+
   const copyToClipboard = async (code) => {
     try {
       await navigator.clipboard.writeText(code);
@@ -143,6 +172,23 @@ const InstructionDrivenChatPage = ({
       });
     }
   };
+  const handleMouseEnter = (event) => {
+    event.target.style.borderColor = orange[400];
+  };
+
+  const handleMouseLeave = (event) => {
+    event.target.style.borderColor = grey[200];
+  };
+  const handleFocus = (event) => {
+    event.target.style.outline = "0px";
+    event.target.style.borderColor = orange[400];
+    event.target.style.boxShadow = `0 0 0 3px ${orange[200]}`;
+  };
+
+  const handleBlur = (event) => {
+    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+  };
+
 
   useEffect(() => {
     let modifiedChatHistory = [];
@@ -309,7 +355,7 @@ const InstructionDrivenChatPage = ({
   const handleOnchange = (prompt) => {
 
     inputValue = prompt;
-    // console.log(inputValue,chatHistory);
+    console.log(inputValue,chatHistory);
 
   };
   const [text, setText] = useState("");
@@ -797,6 +843,9 @@ const InstructionDrivenChatPage = ({
       </>
     );
   };
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
