@@ -13,7 +13,6 @@ const initialState = {
 export const getQueuedTaskDetailsReducer = (state = initialState, action) => {
   switch (action.type) {
     case constants.GET_QUEUED_TASK_DETAILS:
-      console.log(action.payload);
       return {
         ...state,
         data: action.payload,
@@ -71,7 +70,7 @@ export default class GetQueuedTaskDetailsAPI extends API {
   }
 
   getBody() {
-    return null; // No body for GET requests
+    return null; 
   }
 
   getHeaders() {
