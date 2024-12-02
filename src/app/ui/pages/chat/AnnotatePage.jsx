@@ -159,10 +159,21 @@ const AnnotatePage = () => {
     "script",
   ];
 
-  const formatResponse = (response) => {
+  const formatResponse = (response,isLast) => {
+    if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
     response = String(response);
     const output = [];
     let count = 0;
+    
+  
+console.log(output,"kk");
 
     while (response) {
       response = response.trim();
@@ -214,7 +225,7 @@ const AnnotatePage = () => {
   };
 
   const formatPrompt = (prompt) => {
-    const lines = prompt.split("\n");
+    const lines = prompt?.split("\n");
     const markdownString = lines.join("  \n");
     return markdownString;
   };
