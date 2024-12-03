@@ -444,7 +444,7 @@ const grey = {
         >
           <Box
             sx={{
-              width: "50vw",
+              width: { xs: "100%", sm: "70%", md: "50%" },
               display: "flex",
               flexDirection: "column",
               padding: "1.5rem",
@@ -501,7 +501,9 @@ const grey = {
                       fontSize: "1rem",
                       width: "270%",
                       height: "auto",
+                      resize:"none",
                       fontWeight: "400",
+                      minHeight: "5rem",
                       lineHeight: "1.5",
                       padding: "12px",
                       borderRadius: "12px 12px 0 12px",
@@ -522,8 +524,9 @@ const grey = {
                       fontSize: "1rem",
                       padding: "0.5rem",
                       border: "none",
+                      resize:"none",
                       overflow: "hidden",
-                      minHeight: "3rem",
+                      minHeight: "5rem",
                       height: "auto",
                       border: `1px solid ${grey[200]}`,
                       boxShadow: `0px 2px 2px ${grey[50]}`,
@@ -572,7 +575,8 @@ const grey = {
 
           <Box
             sx={{
-              width: "50vw",
+              width: { xs: "100%", sm: "70%", md: "50%" },
+
               display: "flex",
               justifyContent: "start",
               alignItems: "start",
@@ -622,7 +626,9 @@ const grey = {
                           height: "50%",
                           width: "270%",
                           height: "auto",
+                          resize:"none",
                           fontWeight: "400",
+                          minHeight: "5rem",
                           lineHeight: "1.5",
                           padding: "12px",
                           borderRadius: "12px 12px 0 12px",
@@ -646,7 +652,7 @@ const grey = {
                           padding: "0.5rem",
                           border: "none",
                           overflow: "hidden",
-                          minHeight: "3rem",
+                          minHeight: "5rem",
                           height: "auto",
                           border: `1px solid ${grey[200]}`,
                           boxShadow: `0px 2px 2px ${grey[50]}`,
