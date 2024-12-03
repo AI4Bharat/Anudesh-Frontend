@@ -31,7 +31,6 @@ const QueuedTasksDetails = (props) => {
     const fetchQueuedTasks = async () => {
       const apiInstance = new GetQueuedTaskDetailsAPI();
       const action = await apiInstance.call(); 
-      console.log(action);
       dispatch(action);
     };
 
