@@ -235,6 +235,7 @@ const TaskTable = (props) => {
   }, [currentPageNumber, currentRowPerPage]);
 
   const fetchNewTasks = async () => {
+    setLoading(true);
     const batchObj =
       props.type === "annotation"
         ? new PullNewBatchAPI(id, Math.round(pullSize))
@@ -283,6 +284,7 @@ const TaskTable = (props) => {
       });
     }
     getTaskListData();
+    setLoading(false);
   };
 
   const unassignTasks = async () => {

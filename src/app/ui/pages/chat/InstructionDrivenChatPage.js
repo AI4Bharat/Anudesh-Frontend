@@ -444,7 +444,7 @@ const grey = {
         >
           <Box
             sx={{
-              width: { xs: "100%", sm: "70%", md: "50%" },
+              width: "100%",
               display: "flex",
               flexDirection: "column",
               padding: "1.5rem",
@@ -520,7 +520,7 @@ const grey = {
                     onChange={(e) => handleTextChange(e, null, message, "prompt")}
                     className="flex-col"
                     style={{
-                      width: "80%",
+                      width: "100%",
                       fontSize: "1rem",
                       padding: "0.5rem",
                       border: "none",
@@ -575,8 +575,7 @@ const grey = {
 
           <Box
             sx={{
-              width: { xs: "100%", sm: "70%", md: "50%" },
-
+              width: "100%",
               display: "flex",
               justifyContent: "start",
               alignItems: "start",
@@ -646,7 +645,7 @@ const grey = {
                         onChange={(e) => handleTextChange(e, index, message, "output")}
                         className="flex-col"
                         style={{
-                          width: "280%",
+                          width: "100%",
                           resize:"none",
                           fontSize: "1rem",
                           padding: "0.5rem",

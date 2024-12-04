@@ -49,7 +49,6 @@ const Invites = (props) => {
             {userDetails && userDetails.role === 6 &&  
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="user-tabs">
                     <Tab label="Invited Users" sx={{ fontSize: 17, fontWeight: '700' }} />
-                    <Tab label="Manager Suggestions" sx={{ fontSize: 17, fontWeight: '700', marginRight: '28px !important' }} />
                 </Tabs>
             }
             </Box> 

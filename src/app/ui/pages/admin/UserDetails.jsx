@@ -291,7 +291,7 @@ const UserDetail = (props) => {
             <>
               <div style={{display:"flex", flexDirection:"row"}}>
               <IconButton size="small" color="primary">
-                <VisibilityIcon onClick={()=>router.push(`/profile/${el.id}`)} />
+                <VisibilityIcon onClick={()=>navigate(`/profile/${el.id}`)} />
               </IconButton>
               <IconButton size="small" color="primary">
                 <EditOutlinedIcon
