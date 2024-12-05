@@ -653,7 +653,6 @@ console.log(output,"kk");
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
-    console.log(annotations, "hhhh");
     setLoading(false)
 
     return [

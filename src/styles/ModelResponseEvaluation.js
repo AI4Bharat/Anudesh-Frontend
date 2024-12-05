@@ -34,6 +34,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   rightPanel: {
     backgroundColor: "#F6F6F6",
     flex: "1",
+    width: "100%",
     // maxHeight: '1000vh',
     height: "auto",
     overflowY: "auto",

@@ -4,6 +4,7 @@ import { useState, useEffect,useCallback,useMemo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import remarkBreaks from "remark-breaks";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
   FormControlLabel,
@@ -401,11 +402,11 @@ const ModelInteractionEvaluation = ({
     });
   };
   const formatPrompt = (prompt) => {
-    const lines = prompt?.split("\n");
-    const markdownString = lines?.join("  \n");
-    return markdownString;
+    if (!prompt) return "";
+    const formattedText = prompt.replace(/(\r\n|\r|\n)/g, "  \n");  
+    return formattedText;
   };
-  console.log(forms);
+      console.log(forms);
   const handleFormBtnClick = (e) => {
     const clickedPromptOutputPairId = parseInt(e.target.id);
     console.log("clicked id" + clickedPromptOutputPairId);
@@ -558,7 +559,7 @@ const ModelInteractionEvaluation = ({
     },
     responseBox: {
       flex: "1 1 45%",
-      minWidth: "300px",
+      minWidth: "100px",
       border: "1px solid #ccc",
       fontSize: "16px",
       padding: "10px",
@@ -568,14 +569,16 @@ const ModelInteractionEvaluation = ({
     },
     response1Box: {
       flex: "1 1 45%",
-      minWidth: "300px",
+      maxWidth: "100%",
       border: "1px solid #ccc",
-      padding: "10px",
+      padding: "7px",
+      height:"auto",
       fontSize: "17px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       backgroundColor: "white",
-    },
+      wordWrap: "break-word",
+        },
   };
 
   const EvaluationForm = () => {
@@ -586,8 +589,12 @@ const ModelInteractionEvaluation = ({
             {translate("modal.prompt")}
           </div>
           <div style={styles.response1Box}>
-            <ReactMarkdown>
-              {formatPrompt(currentInteraction?.prompt)}
+            <ReactMarkdown style={{ overflow: "hidden",height:"auto" }}
+              remarkPlugins={[remarkBreaks]}
+
+              children={currentInteraction?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+
+            >
             </ReactMarkdown>
           </div>
         </div>
@@ -599,8 +606,11 @@ const ModelInteractionEvaluation = ({
           style={{ maxHeight: "auto", overflowY: "auto" }}
         >
           <div style={styles.response1Box}>
-            <ReactMarkdown>
-              {formatPrompt(currentInteraction?.output)}
+            <ReactMarkdown
+                          remarkPlugins={[remarkBreaks]}
+
+                          children={currentInteraction?.output?.replace(/\n/gi, "&nbsp; \n")}
+>
             </ReactMarkdown>
           </div>
         </div>
@@ -650,7 +660,7 @@ const ModelInteractionEvaluation = ({
                       {splitQuestion?.map((part, index) => (
                         <span
                           key={`${i}-${index}`}
-                          style={{ fontSize: "18px" }}
+                          style={{fontSize:"16px"}}
                         >
                           {part}
                           {index < splitQuestion.length - 1 && (
@@ -698,7 +708,7 @@ const ModelInteractionEvaluation = ({
                 return (
                   <div key={i}>
                     <div className={classes.inputQuestion}>
-                      <span style={{ fontSize: "18px" }}>
+                      <span style={{ fontSize: "16px" }}>
                         {i + 1}. {question.input_question}
                       </span>
                       {question.mandatory && (
@@ -751,7 +761,7 @@ const ModelInteractionEvaluation = ({
                   <div key={i}>
                     <div
                       className={classes.inputQuestion}
-                      style={{ fontSize: "18px" }}
+                      style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
                       {question.mandatory && (
@@ -793,7 +803,7 @@ const ModelInteractionEvaluation = ({
                   <div key={i}>
                     <div
                       className={classes.inputQuestion}
-                      style={{ fontSize: "18px" }}
+                      style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
                       {question.mandatory && (

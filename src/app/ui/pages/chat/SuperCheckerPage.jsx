@@ -51,6 +51,7 @@ import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 
 /* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line react/display-name
@@ -535,6 +536,18 @@ const SuperCheckerPage = () => {
         prompt: chat.prompt,
         output: reverseFormatResponse(chat.output),
       }));
+    } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+      resultValue = forms.map((form) => ({
+        prompt: form.prompt,
+        model_responses_json: form.model_responses_json.map((response) => ({
+          model_name: response.model_name,
+          output: response.output,
+          questions_response: response.questions_response,
+        })),
+        prompt_output_pair_id: form.prompt_output_pair_id,
+        additional_note: form.additional_note,
+      }));
+      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -682,14 +695,21 @@ const SuperCheckerPage = () => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
+  const [filteredReady, setFilteredReady] = useState(false);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
     getProjectDetails();
     getTaskData(taskId);
-  }, []);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
 
   const filterAnnotations = (annotations, user) => {
+    setLoading(true)
     let disableSkip = false;
     let disableAutoSave = false;
     let filteredAnnotations = annotations;
@@ -730,6 +750,7 @@ const SuperCheckerPage = () => {
     }
     setAnnotations(filteredAnnotations);
     setdisableSkip(disableSkip);
+    setLoading(false)
     return [filteredAnnotations, disableSkip, disableAutoSave];
   };
 
@@ -781,33 +802,68 @@ const SuperCheckerPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          handleClick={handleSuperCheckerClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={SuperChecker}
-          stage={"SuperChecker"}
-          notes={superCheckerNotesRef}
-          info={info}
+        key={`annotations-${annotations?.length}-${
+          annotations?.[0]?.id || "default"
+        }`}
+        handleClick={handleSuperCheckerClick}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+        formatResponse={formatResponse}
+        formatPrompt={formatPrompt}
+        id={SuperChecker}
+        stage={"SuperChecker"}
+        notes={superCheckerNotesRef}
+      info={info}
+        disableUpdateButton={disableUpdateButton}
+        annotation={annotations}
+        setLoading={setLoading}
+        loading={loading}
         />
       );
       break;
-    case "ModelInteractionEvaluation":
-      componentToRender = (
-        <ModelInteractionEvaluation
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
-          stage={"SuperChecker"}
-          answered={answered}
-          setAnswered={setAnswered}
-        />
-      );
-      break;
+      case "ModelInteractionEvaluation":
+        componentToRender = (
+          <ModelInteractionEvaluation
+            key={`annotations-${annotations?.length}-${
+              annotations?.[0]?.id || "default"
+            }`}
+            setCurrentInteraction={setCurrentInteraction}
+            currentInteraction={currentInteraction}
+            interactions={interactions}
+            setInteractions={setInteractions}
+            forms={forms}
+            setForms={setForms}
+            stage={"SuperChecker"}
+            answered={answered}
+            setAnswered={setAnswered}
+            annotation={annotations}
+            setLoading={setLoading}
+            loading={loading}
+          />
+        );
+        break;
+      case "MultipleInteractionEvaluation":
+        componentToRender = (
+          <PreferenceRanking
+            key={`annotations-${annotations?.length}-${
+              annotations?.[0]?.id || "default"
+            }`}
+            setCurrentInteraction={setCurrentInteraction}
+            currentInteraction={currentInteraction}
+            interactions={interactions}
+            setInteractions={setInteractions}
+            forms={forms}
+            setForms={setForms}
+            stage={"SuperChecker"}
+            notes={superCheckerNotesRef}
+            answered={answered}
+            setAnswered={setAnswered}
+            annotation={annotations}
+            setLoading={setLoading}
+            loading={loading}
+          />
+        );
+        break;
     default:
       componentToRender = null;
       break;
@@ -912,29 +968,7 @@ const SuperCheckerPage = () => {
                 placeholder="Superchecker Notes"
               ></ReactQuill>
             </div>
-            <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            </div>
+            
             {ProjectDetails.revision_loop_count >
             taskData?.revision_loop_count?.super_check_count
               ? false
