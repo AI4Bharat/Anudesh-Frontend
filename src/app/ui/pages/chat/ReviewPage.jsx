@@ -684,6 +684,18 @@ const ReviewPage = () => {
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
+      } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+        resultValue = forms.map((form) => ({
+          prompt: form.prompt,
+          model_responses_json: form.model_responses_json.map((response) => ({
+            model_name: response.model_name,
+            output: response.output,
+            questions_response: response.questions_response,
+          })),
+          prompt_output_pair_id: form.prompt_output_pair_id,
+          additional_note: form.additional_note,
+        }));
+        console.log("resval: " + resultValue);
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
@@ -859,7 +871,6 @@ const ReviewPage = () => {
 
   const filterAnnotations = (annotations, user, taskData) => {
     setLoading(true)
-    setFilteredReady(true);
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
       return (
