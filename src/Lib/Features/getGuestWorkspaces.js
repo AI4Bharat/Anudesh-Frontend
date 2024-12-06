@@ -1,25 +1,34 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../fetchParams';
-import ENDPOINTS from "../../config/apiendpoint"
+import ENDPOINTS from "../../config/apiendpoint";
+
 const initialState = {
-  data: [],
+  data: [], 
+  authenticatedWorkspaces: [], 
   status: 'idle',
   error: null,
 };
 
 export const fetchGuestWorkspaceData = createAsyncThunk(
   'getGuestWorkspace/fetchGuestWorkspaceData',
-  async (pageNumber, { dispatch }) => {
-    const params = fetchParams(`${ENDPOINTS.getWorkspaces}list_unauthenticated_guest_workspaces/`);
+  async (pageNumber) => {
+    const params = fetchParams(`${ENDPOINTS.getWorkspaces}list_guest_workspaces/`);
     return fetch(params.url, params.options)
-      .then(response => response.json())
+      .then((response) => response.json());
   }
 );
 
 const getGuestWorkspaces = createSlice({
   name: 'getGuestWorkspaces',
   initialState,
-  reducers: {},
+  reducers: {
+    addAuthenticatedWorkspace: (state, action) => {
+      const workspaceId = action.payload;
+      if (!state.authenticatedWorkspaces.includes(workspaceId)) {
+        state.authenticatedWorkspaces.push(workspaceId);
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchGuestWorkspaceData.pending, (state) => {
@@ -36,4 +45,5 @@ const getGuestWorkspaces = createSlice({
   },
 });
 
+export const { addAuthenticatedWorkspace } = getGuestWorkspaces.actions;
 export default getGuestWorkspaces.reducer;

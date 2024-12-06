@@ -61,6 +61,7 @@ import getMetaAnalyticsData from './Features/Analytics/getMetaAnalyticsData';
 import getGuestWorkspaces from './Features/getGuestWorkspaces';
 import getAnnotationsTask from './Features/projects/getAnnotationsTask';
 import getTaskDetails from './Features/getTaskDetails';
+import  {getQueuedTaskDetailsReducer}  from './Features/getQueuedTaskDetails';
 import GlossarysentenceAPI from './Features/actions/GlossarysentenceAPI';
 import AddGlossary from './Features/actions/AddGlossary';
 import getDomain from './Features/actions/getDomain';
@@ -120,6 +121,7 @@ const makeStore = () => {
         domains: domainsReducer,
         projects: projectsReducer,
         user: userReducer,
+        getQueuedTaskDetails:getQueuedTaskDetailsReducer,
         SendOrganizationUserReports:SendOrganizationUserReports,
         GetOrganizationUserReports:GetOrganizationUserReports,
         GetOrganizationDetailedProjectReports:GetOrganizationDetailedProjectReports,

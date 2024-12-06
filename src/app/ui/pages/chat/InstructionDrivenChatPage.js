@@ -9,6 +9,7 @@ import {
   Modal,
   Tooltip,
   Typography,
+  TextareaAutosize,
 } from "@mui/material";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
@@ -29,12 +30,27 @@ import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import { Block } from "@mui/icons-material";
 import ChatLang from "@/utils/Chatlang";
+import { IndicTransliterate } from "@/libs/dist";
+import configs from "@/config/config";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important", // Adjust the font size as needed
   },
 }));
+const orange = {
+  200: "pink",
+  400: "#EE6633",
+  600: "#EE663366",
+};
+
+const grey = {
+  50: "#F3F6F9",
+  200: "#DAE2ED",
+  300: "#C7D0DD",
+  700: "#434D5B",
+  900: "#1C2025",
+};
 
 const codeStyle = {
   borderRadius: "0xp 0px 5px 5px",
@@ -65,7 +81,8 @@ const InstructionDrivenChatPage = ({
   stage,
   notes,
   info,
-  disableUpdateButton
+  disableUpdateButton,
+  annotation,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
@@ -74,27 +91,28 @@ const InstructionDrivenChatPage = ({
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
-  const [hasMounted,setHasMounted] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const handleOpen = () => {
     setOpen(true);
   };
-console.log(disableUpdateButton);
+  console.log(disableUpdateButton);
   const handleClose = () => {
     setOpen(false);
   };
-  
-
 
   const renderSnackBar = () => {
     return (
@@ -109,6 +127,22 @@ console.log(disableUpdateButton);
       />
     );
   };
+
+  
+const orange = {
+  200: "pink",
+  400: "#EE6633",
+  600: "#EE663366",
+};
+
+const grey = {
+  50: "#F3F6F9",
+  200: "#DAE2ED",
+  300: "#C7D0DD",
+  700: "#434D5B",
+  900: "#1C2025",
+};
+
 
   const copyToClipboard = async (code) => {
     try {
@@ -126,122 +160,120 @@ console.log(disableUpdateButton);
       });
     }
   };
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
-      const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
-        method: "GET",
-        headers: taskAnnotationsObj.getHeaders().headers,
-      });
-      const data = await response.json();
-      let modifiedChatHistory = [];
-      if (data && Array.isArray(data[0]?.result) && [...data[0]?.result]?.length) {
-        if (stage === "Review") {
-          let reviewData = data.find((item) => item.annotation_type === 2);
-          if (reviewData.annotation_status === "unreviewed") {
-            reviewData = data.find((item) => item.annotation_type === 1);
-          }
-          modifiedChatHistory = reviewData?.result?.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
-        }else if(stage=="SuperChecker"){
-          let obj = data.filter((data)=>data.annotation_type==3)
-          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
-        }else if(stage=="Annotation"){
-          let obj = data.filter((data)=>data.annotation_type==1)
-          modifiedChatHistory = obj[0]?.result?.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
-        }
-        else{
-          modifiedChatHistory = data[0]?.result?.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
-        }
-        setChatHistory([...modifiedChatHistory]);
-      } else {
-        setChatHistory([]);
-      }
-      setAnnotationId(data[0]?.id);
-      if (data[0]?.result) setShowChatContainer(true);
-    };
-    fetchData();
-  }, [taskId]);
+ 
 
-  const cleanMetaInfo = (value) => value.replace(/\(for example:.*?\)/gi, '').trim();
+  useEffect(() => {
+    let modifiedChatHistory = [];
+    if (
+      annotation &&
+      Array.isArray(annotation[0]?.result) &&
+      [...annotation[0]?.result]?.length
+    ) {
+      // if (ProjectDetails?.metadata_json?.blank_response == true) {
+      //   modifiedChatHistory = annotation[0]?.result?.map((interaction) => ({
+      //     ...interaction,
+      //     output: [],
+      //   }));
+      //   console.log(modifiedChatHistory);
+
+      //   setChatHistory(modifiedChatHistory);
+      // }
+      // else {
+        modifiedChatHistory = annotation[0]?.result?.map((interaction,index) => {
+          const isLastInteraction = index === annotation[0]?.result?.length - 1;
+          return {
+            ...interaction,
+            output: formatResponse(interaction.output,isLastInteraction),
+          };
+        });
+      // }
+      setChatHistory([...modifiedChatHistory]);
+    } else {
+      setChatHistory([]);
+    }
+    setAnnotationId(annotation[0]?.id);
+    if (annotation[0]?.result) setShowChatContainer(true);
+  }, []);
+
+  const cleanMetaInfo = (value) =>
+    value.replace(/\(for example:.*?\)/gi, "").trim();
 
   const escapeRegExp = (string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   };
-  
+
   const formatTextWithTooltips = (text, info) => {
     // Ensure text is a string
     text = String(text);
-  
+
     // Clean the meta info values
     const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
     const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
     const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
-  
+
     let formattedText = text;
-  
+
     const placeholders = [
-      { key: 'meta_info_intent', value: metaInfoIntent, tooltip: 'Intent of the instruction' },
-      { key: 'meta_info_language', value: metaInfoLanguage, tooltip: 'Language used' },
-      { key: 'meta_info_domain', value: metaInfoDomain, tooltip: 'Domain of the content' }
+      {
+        key: "meta_info_intent",
+        value: metaInfoIntent,
+        tooltip: "Intent of the instruction",
+      },
+      {
+        key: "meta_info_language",
+        value: metaInfoLanguage,
+        tooltip: "Language used",
+      },
+      {
+        key: "meta_info_domain",
+        value: metaInfoDomain,
+        tooltip: "Domain of the content",
+      },
     ];
-  
+
     placeholders.forEach(({ value, tooltip }) => {
-      if (value !== 'None') {
+      if (value !== "None") {
         const escapedValue = escapeRegExp(value);
-        const regex = new RegExp(`(${escapedValue})`, 'gi');
+        const regex = new RegExp(`(${escapedValue})`, "gi");
         text = text.replace(regex, (match) => {
           return `<Tooltip title="${tooltip}"><strong>${match}</strong></Tooltip>`;
         });
-  
       }
     });
-  
+
     return text;
   };
-    const formattedText = formatTextWithTooltips(info.instruction_data, info);
-  
-    const handleButtonClick = async () => {
+  const formattedText = formatTextWithTooltips(info.instruction_data, info);
+
+  const handleButtonClick = async () => {
     if (inputValue) {
       setLoading(true);
       const body = {
         result: inputValue,
-        lead_time: (new Date() - loadtime) / 1000 + Number(id?.lead_time?.lead_time ?? 0),
+        lead_time:
+          (new Date() - loadtime) / 1000 +
+          Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
       };
-      console.log(id,stage);
-      if(stage==="Alltask"){
-        body.annotation_status = id?.annotation_status
-      }else{
-        body.annotation_status = localStorage.getItem("labellingMode")
+      console.log(id, stage);
+      if (stage === "Alltask") {
+        body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
       }
       if (stage === "Review") {
-        body.review_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
       } else if (stage === "SuperChecker") {
-        body.superchecker_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
       } else {
-        body.annotation_notes = JSON.stringify(notes?.current?.getEditor().getContents());
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
       }
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
@@ -257,12 +289,14 @@ console.log(disableUpdateButton);
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
         if (data && data.result) {
-          modifiedChatHistory = data.result.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
+            modifiedChatHistory = data.result.map((interaction,index) => {
+              const isLastInteraction = index === data?.result?.length - 1; 
+
+              return {
+                ...interaction,
+                output: formatResponse(interaction.output,isLastInteraction),
+              };
+            });
         } else {
           setSnackbarInfo({
             open: true,
@@ -274,7 +308,9 @@ console.log(disableUpdateButton);
           ? [...modifiedChatHistory]
           : [...prevChatHistory];
       });
-    } else {
+    } 
+    
+    else {
       setSnackbarInfo({
         open: true,
         message: "Please provide a prompt",
@@ -282,13 +318,118 @@ console.log(disableUpdateButton);
       });
     }
     setTimeout(() => {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }, 1000);
     setShowChatContainer(true);
   };
+  console.log(chatHistory, ProjectDetails?.metadata_json);
+
   const handleOnchange = (prompt) => {
+
     inputValue = prompt;
+    console.log(inputValue,chatHistory);
+
   };
+  const [text, setText] = useState("");
+  const [targetLang, setTargetLang] = useState("");
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (typeof window !== "undefined") {
+      const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
+      const storedLanguage = localStorage.getItem("language");
+
+      if (storedGlobalTransliteration !== null) {
+        setGlobalTransliteration(storedGlobalTransliteration === "true");
+      }
+      if (storedLanguage !== null) {
+        setTargetLang(storedLanguage);
+      }
+
+      console.log(globalTransliteration, "lll", localStorage.getItem("globalTransliteration"));
+    }
+  }, [chatHistory]);
+
+  useEffect(() => {
+    if (text !== "") {
+      handleOnchange(text);
+    }
+  }, [text]);
+
+  const handleMouseEnter = (event) => {
+    event.target.style.borderColor = orange[400];
+  };
+
+  const handleMouseLeave = (event) => {
+    event.target.style.borderColor = grey[200];
+  };
+
+  const handleFocus = (event) => {
+    event.target.style.outline = "0px";
+    event.target.style.borderColor = orange[400];
+    event.target.style.boxShadow = `0 0 0 3px ${orange[200]}`;
+  };
+
+  const handleBlur = (event) => {
+    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleButtonClick();
+      setText("");
+    } else if (event.key === "Enter" && event.shiftKey) {
+      setText((prevText) => prevText + "\n");
+    }
+  };
+  const textareaStyle = {
+    resize: "none",
+    fontSize: "1rem",
+    width: "60%",
+    fontWeight: "400",
+    lineHeight: "1.5",
+    padding: "12px",
+    borderRadius: "12px 12px 0 12px",
+    color: grey[900],
+    background: "#ffffff",
+    border: `1px solid ${grey[200]}`,
+    boxShadow: `0px 2px 2px ${grey[50]}`,
+    outline: 0,
+    transition: "border-color 0.2s, box-shadow 0.2s",
+  };
+
+
+  if (!isMounted) {
+    return null;
+  }
+  const handleTextChange = (e, index, message, fieldType) => {
+    if(globalTransliteration){
+      var updatedValue = e;
+
+    }else{
+      var updatedValue = e.target.value;
+
+    }
+
+    const updatedChatHistory = [...chatHistory];
+
+    const messageIndex = chatHistory.findIndex((msg) => msg === message);
+
+    if (messageIndex !== -1) {
+      if (fieldType === "prompt") {
+        updatedChatHistory[messageIndex].prompt = updatedValue;
+      } else if (fieldType === "output") {
+        updatedChatHistory[messageIndex].output[index].value = updatedValue;
+      }
+
+      setChatHistory(updatedChatHistory);
+    }
+  };
+  const gg = true;
 
   const renderChatHistory = () => {
     const chatElements = [];
@@ -303,7 +444,7 @@ console.log(disableUpdateButton);
         >
           <Box
             sx={{
-              width: "50vw",
+              width: "100%",
               display: "flex",
               flexDirection: "column",
               padding: "1.5rem",
@@ -332,37 +473,109 @@ console.log(disableUpdateButton);
                   marginRight: "1rem",
                 }}
               />
-              <ReactMarkdown className="flex-col">
-                {formatPrompt(message.prompt)}
-              </ReactMarkdown>
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
-                <IconButton
-                  size="large"
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    margin: "0.5rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => {
-                    handleClick("delete-pair", id?.id, 0.0);
-                  }}
-                >
-                  <DeleteOutlinedIcon
+              {ProjectDetails?.metadata_json?.editable_prompt == true ? (
+                globalTransliteration ? (
+                  <IndicTransliterate
+                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                    apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                    renderComponent={(props) => (
+                      <textarea
+                        sx={{
+                          whiteSpace: 'pre-wrap',
+                        }}
+                        maxRows={10}
+                        aria-label="empty textarea"
+                        placeholder={translate("chat_placeholder")}
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        {...props}
+                      />
+                    )}
+                    value={formatPrompt(message.prompt)}
+                    onChangeText={(e) => handleTextChange(e, null, message, "prompt")}
+                    onKeyDown={handleKeyDown}
+                    lang={targetLang}
                     style={{
-                      color: "#EE6633",
-                      fontSize: "1.2rem",
+                      fontSize: "1rem",
+                      width: "270%",
+                      height: "auto",
+                      resize:"none",
+                      fontWeight: "400",
+                      minHeight: "5rem",
+                      lineHeight: "1.5",
+                      padding: "12px",
+                      borderRadius: "12px 12px 0 12px",
+                      color: grey[900],
+                      background: "#ffffff",
+                      border: `1px solid ${grey[200]}`,
+                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                    }}
+                    horizontalView={true}
+                  />
+                ) : (
+                  <textarea
+                    value={message.prompt}
+                    onChange={(e) => handleTextChange(e, null, message, "prompt")}
+                    className="flex-col"
+                    style={{
+                      width: "100%",
+                      fontSize: "1rem",
+                      padding: "0.5rem",
+                      border: "none",
+                      resize:"none",
+                      overflow: "hidden",
+                      minHeight: "5rem",
+                      height: "auto",
+                      border: `1px solid ${grey[200]}`,
+                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                      borderRadius: "12px 12px 0 12px",
+
+                    }}
+                    rows={1}
+                    onInput={(e) => {
+                      e.target.style.height = "auto";
+                      e.target.style.height = `${e.target.scrollHeight}px`;
                     }}
                   />
-                </IconButton>
+
+
+                )) : (
+                <ReactMarkdown className="flex-col">
+                  {formatPrompt(message.prompt)}
+                </ReactMarkdown>
               )}
+              {index === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="large"
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      margin: "0.5rem",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => {
+                      handleClick("delete-pair", id?.id, 0.0);
+                    }}
+                  >
+                    <DeleteOutlinedIcon
+                      style={{
+                        color: "#EE6633",
+                        fontSize: "1.2rem",
+                      }}
+                    />
+                  </IconButton>
+                )}
             </Box>
           </Box>
 
           <Box
             sx={{
-              width: "50vw",
+              width: "100%",
               display: "flex",
               justifyContent: "start",
               alignItems: "start",
@@ -381,14 +594,86 @@ console.log(disableUpdateButton);
             />
             <Box className="flex-col">
               {message?.output?.map((segment, index) =>
-                segment.type == "text" ? (
-                  <ReactMarkdown
-                    key={index}
-                    className="flex-col overflow-x-scroll"
-                  >
-                    {segment.value}
-                  </ReactMarkdown>
+                segment.type == "text"  ? (
+                  ProjectDetails?.metadata_json?.editable_response == true ?
+                    globalTransliteration ? (
+                      <IndicTransliterate
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                        renderComponent={(props) => (
+                          <textarea
+                            sx={{
+                              whiteSpace: 'pre-wrap',
+                            }}
+                            maxRows={10}
+                            aria-label="empty textarea"
+                            placeholder={translate("chat_placeholder")}
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+                            {...props}
+                          />
+                        )}
+                        value={formatPrompt(segment.value)}
+                        onChangeText={(e) => handleTextChange(e, index, message, "output")}
+
+                        onKeyDown={handleKeyDown}
+                        lang={targetLang}
+                        style={{
+                          fontSize: "1rem",
+                          height: "50%",
+                          width: "270%",
+                          height: "auto",
+                          resize:"none",
+                          fontWeight: "400",
+                          minHeight: "5rem",
+                          lineHeight: "1.5",
+                          padding: "12px",
+                          borderRadius: "12px 12px 0 12px",
+                          color: grey[900],
+                          background: "#ffffff",
+                          border: `1px solid ${grey[200]}`,
+                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                        }}
+                        horizontalView={true}
+                      />
+                    ) : ((
+                      <textarea
+                        key={index}
+                        value={segment.value}
+                        onChange={(e) => handleTextChange(e, index, message, "output")}
+                        className="flex-col"
+                        style={{
+                          width: "100%",
+                          resize:"none",
+                          fontSize: "1rem",
+                          padding: "0.5rem",
+                          border: "none",
+                          overflow: "hidden",
+                          minHeight: "5rem",
+                          height: "auto",
+                          border: `1px solid ${grey[200]}`,
+                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                          borderRadius: "12px 12px 0 12px",
+
+                        }}
+                        rows={1}
+                        onInput={(e) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = `${e.target.scrollHeight}px`;
+                        }}
+                      />
+                    )) : (
+                      <ReactMarkdown
+                        key={index}
+                        className="flex-col overflow-x-scroll"
+                      >
+                        {segment.value}
+                      </ReactMarkdown>
+                    )
                 ) : (
+
                   <>
                     <Box
                       key={index}
@@ -535,6 +820,9 @@ console.log(disableUpdateButton);
       </>
     );
   };
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -555,7 +843,6 @@ console.log(disableUpdateButton);
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                
               }}
             >
               <Typography
@@ -571,18 +858,17 @@ console.log(disableUpdateButton);
                 {translate("typography.instructions")}
               </Typography>
 
-
-<Tooltip
-      title={
-        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-          Hint and Metadata
-        </span>
-      }
-    >
-      <IconButton onClick={handleOpen}>
-        <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
-      </IconButton>
-    </Tooltip>
+              <Tooltip
+                title={
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    Hint and Metadata
+                  </span>
+                }
+              >
+                <IconButton onClick={handleOpen}>
+                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
+                </IconButton>
+              </Tooltip>
             </Box>
 
             <Typography
@@ -599,7 +885,7 @@ console.log(disableUpdateButton);
                 justifyContent: "center",
               }}
             >
-             {info.instruction_data}
+              {info.instruction_data}
             </Typography>
           </Box>
         </Grid>
@@ -630,17 +916,19 @@ console.log(disableUpdateButton);
           </Box>
           <div ref={bottomRef} />
         </Grid>
-        {stage!=="Alltask" && !disableUpdateButton ?<Grid item xs={12} sx={{ boxSizing: "border-box" }}>
-          <Textarea
-            handleButtonClick={handleButtonClick}
-            handleOnchange={handleOnchange}
-            size={12}
-            grid_size={"80.6rem"}
-            class_name={""}
-            loading={loading}
-            inputValue={inputValue}
-          />
-        </Grid>:null}
+        {stage !== "Alltask" && !disableUpdateButton ? (
+          <Grid item xs={12} sx={{ boxSizing: "border-box" }}>
+            <Textarea
+              handleButtonClick={handleButtonClick}
+              handleOnchange={handleOnchange}
+              size={12}
+              grid_size={"80.6rem"}
+              class_name={""}
+              loading={loading}
+              inputValue={inputValue}
+            />
+          </Grid>
+        ) : null}
       </Grid>
 
       <Modal

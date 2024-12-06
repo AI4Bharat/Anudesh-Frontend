@@ -410,7 +410,8 @@ import {
             sx={{
               width: "100%",
               minHeight: 500,
-              padding: 5,
+              padding: { xs: 2, sm: 4, md: 5 },
+
             }}
           >
             <Grid

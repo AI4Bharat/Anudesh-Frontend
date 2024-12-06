@@ -46,6 +46,7 @@ import { ArrowDropDown } from "@material-ui/icons";
 import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 
 const ReactQuill = dynamic(
   async () => {
@@ -57,7 +58,6 @@ const ReactQuill = dynamic(
     ssr: false,
   },
 );
-
 
 const AllTaskPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -111,6 +111,9 @@ const AllTaskPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [answered, setAnswered] = useState(false);
+  const [interactions, setInteractions] = useState([]);
+  const [forms, setForms] = useState([]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -153,6 +156,15 @@ const AllTaskPage = () => {
       });
     }
   }, [taskData]);
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setAnnotations(AnnotationsTaskDetails);
+      setLoading(false);
+
+
+      
+    }
+  }, [AnnotationsTaskDetails]);
 
   useEffect(() => {
     if (
@@ -213,7 +225,6 @@ const AllTaskPage = () => {
     resetNotes();
   }, [taskId]);
 
-  
   useEffect(() => {
     const showAssignedUsers = async () => {
       getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
@@ -242,7 +253,7 @@ const AllTaskPage = () => {
         if (response.ok) {
           tasksComplete(rsp_data?.id || null);
           getAnnotationsTaskData(rsp_data?.id);
-          getTaskData(rsp_data?.id)
+          getTaskData(rsp_data?.id);
         }
       })
       .catch((error) => {
@@ -258,8 +269,6 @@ const AllTaskPage = () => {
       });
   };
 
-
- 
   const tasksComplete = (id) => {
     if (id) {
       navigate(`/projects/${projectId}/Alltask/${id}`);
@@ -278,8 +287,6 @@ const AllTaskPage = () => {
     }
   };
   window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-
-
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -331,6 +338,7 @@ const AllTaskPage = () => {
     const markdownString = lines.join("  \n");
     return markdownString;
   };
+console.log(annotations);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
@@ -369,6 +377,9 @@ const AllTaskPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
@@ -377,14 +388,46 @@ const AllTaskPage = () => {
           stage={"Alltask"}
           notes={annotationNotesRef}
           info={info}
+          annotation={annotations}
         />
       );
       break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Alltask"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
         />
       );
       break;
@@ -392,58 +435,6 @@ const AllTaskPage = () => {
       componentToRender = null;
       break;
   }
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
-
-  // const formatResponseformatResponse = (response) => {
-  //   response = String(response);
-  //   const output = [];
-  //   let count = 0;
-
-  //   while (response) {
-  //     response = response.trim();
-  //     let index = response.indexOf("```");
-  //     if (index == -1) {
-  //       output.push({
-  //         type: "text",
-  //         value: response,
-  //       });
-  //       break;
-  //     } else {
-  //       count++;
-  //       if (count % 2 !== 0) {
-  //         output.push({
-  //           type: "text",
-  //           value: response.substring(0, index),
-  //         });
-  //         response = response.slice(index + 3);
-  //       } else if (count % 2 === 0) {
-  //         let next_space = response.indexOf("\n");
-  //         let language = response.substring(0, next_space);
-  //         response = response.slice(next_space + 1);
-  //         let new_index = response.indexOf("```");
-  //         let value = response.substring(0, new_index);
-  //         output.push({
-  //           type: "code",
-  //           value: value,
-  //           language: language,
-  //         });
-  //         response = response.slice(new_index + 3);
-  //       }
-  //     }
-  //   }
-  //   return output;
-  // };
-
-  // const formatPrompt = (prompt) => {
-  //   const lines = prompt.split("\n");
-  //   const markdownString = lines.join("  \n");
-  //   return markdownString;
-  // };
-
 
   return (
     <>
@@ -521,29 +512,7 @@ const AllTaskPage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-            <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            </div>
+
           </Box>
           <Grid
             container
@@ -557,7 +526,28 @@ const AllTaskPage = () => {
             }}
           >
             <Grid item>
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip
+                title={
+                  <div>
+                    <div>
+                      {Array.isArray(assignedUsers)
+                        ? assignedUsers.join(", ")
+                        : assignedUsers || "No assigned users"}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+                    </div>
+                  </div>
+                }
+              >
                 <Button
                   type="default"
                   className="lsf-button"

@@ -47,13 +47,22 @@ const InviteUsersDialog = ({
   
   
 /* eslint-disable react-hooks/exhaustive-deps */
-
+const [inputValue, setInputValue] = useState("");
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setCsvFile(file);
       parseCSV(file);
+    }
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " " || event.key === ",") {
+      event.preventDefault();
+      if (inputValue.trim()) {
+        setSelectedUsers((prev) => [...prev, inputValue.trim()]);
+        setInputValue("");
+      }
     }
   };
 
@@ -99,6 +108,8 @@ const InviteUsersDialog = ({
                 freeSolo
                 value={selectedUsers}
                 onChange={(e, newVal) => setSelectedUsers(newVal)}
+                inputValue={inputValue}
+                onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
                 renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
@@ -141,7 +152,9 @@ const InviteUsersDialog = ({
                 freeSolo
                 value={selectedUsers}
                 onChange={(e, newVal) => setSelectedUsers(newVal)}
-                renderTags={(value, getTagProps) =>
+                inputValue={inputValue}
+                onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+                onKeyDown={handleKeyDown}                renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
                     key={index}

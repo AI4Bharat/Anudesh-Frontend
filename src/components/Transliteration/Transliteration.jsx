@@ -1,13 +1,14 @@
 import React, { useEffect, useState ,useRef} from "react";
 import { TextField } from "@mui/material";
 import { Autocomplete, Box, Button, Card, Grid, Typography } from "@mui/material";
-import { IndicTransliterate, getTransliterationLanguages } from "@ai4bharat/indic-transliterate";
+import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
 import "../../IndicTransliterate/index.css"
 import GlobalStyles from "@/styles/LayoutStyles";
 import CustomizedSnackbars from "../common/Snackbar";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import configs from "@/config/config";
   /* eslint-disable react-hooks/exhaustive-deps */
 
 const Transliteration = (props) => {
@@ -123,6 +124,8 @@ const Transliteration = (props) => {
       </Grid>
 
       <IndicTransliterate
+        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
         lang={selectedLang.LangCode ? selectedLang.LangCode : (data.length > 0 && (params.taskId || params.id) ? data[0]?.LangCode : "hi")}
         value={text}
         onChangeText={(val) => {

@@ -19,12 +19,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import  "../../styles/Dataset.css";
 import { useDispatch, useSelector } from "react-redux";
-import GetWorkspaceUserReportsAPI from "../../app/actions/api/workspace/GetWorkspaceUserReportsAPI";
-import GetProjectDomainsAPI from "../../app/actions/api/workspace/GetProjectDomainsAPI";
-import GetWorkspaceProjectReportAPI from "../../app/actions/api/workspace/GetWorkspaceProjectReportAPI";
-import SendWorkspaceUserReportsAPI from "../../app/actions/api/workspace/SendWorkspaceUserReportsAPI";
-import FetchLanguagesAPI from "../../app/actions/api/workspace/FetchLanguagesAPI.js";
-import GetWorkspaceDetailedProjectReportsAPI from "../../app/actions/api/workspace/GetWorkspaceDetailedProjectReportsAPI";
 import DatasetStyle from "../../styles/dataset";
 import ColumnList from "../common/ColumnList";
 import { isSameDay, format } from 'date-fns';
@@ -38,11 +32,10 @@ import CustomizedSnackbars from "./Snackbar";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import { useParams } from "react-router-dom";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
-import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
-import { fetchSendWorkspaceUserReports } from "@/Lib/Features/projects/SendWorkspaceUserReports";
 import { fetchWorkspaceUserReports } from "@/Lib/Features/projects/WorkspaceUserReports";
 import { fetchWorkspaceProjectReport } from "@/Lib/Features/projects/WorkspaceProjectReport";
 import { fetchWorkspaceDetailedProjectReports } from "@/Lib/Features/projects/WorkspaceDetailedProjectReports";
+import { fetchSendWorkspaceUserReports } from "@/Lib/Features/projects/SendWorkspaceUserReports";
 
 const ProgressType = [{ name: "Annotation Stage", value: 1 }, { name: "Review Stage", value: 2 }, { name: "Super Check Stage", value: 3 }, { name: "All Stage", value: "AllStage" }]
 
@@ -104,20 +97,7 @@ const WorkspaceReports = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (radioButton === "payment") {
-      setProjectTypes([
-        "AudioSegmentation",
-        "AudioTranscription",
-        "AudioTranscriptionEditing",
-        "ConversationTranslation",
-        "ConversationTranslationEditing",
-        "AcousticNormalisedTranscriptionEditing",
-        "AllAudioProjects",
-        "OCRTranscription",
-        "OCRTranscriptionEditing",
-      ]);
-      setSelectedType("AllAudioProjects");
-    } else if (ProjectTypes) {
+     if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
         let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
@@ -268,15 +248,14 @@ const WorkspaceReports = () => {
   };
   const handleDateSubmit = (sendMail) => {
     if (radioButton === "payment") {
-      const userReportObj = (
-        {orgId:id,
+ 
+      dispatch(fetchSendWorkspaceUserReports({orgId:id,
         userId:UserDetails.id,
         projectType:selectedType,
         participationTypes:participationTypes,
-        fromDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
-        toDate:format(selectRange[0].endDate, 'yyyy-MM-dd')
-      });
-      dispatch(fetchSendWorkspaceUserReports(userReportObj));
+        fromDate:format(selectRange[0]?.startDate, 'yyyy-MM-dd'),
+        toDate:format(selectRange[0]?.endDate, 'yyyy-MM-dd')
+      }));
       setSnackbarInfo({
         open: true,
         message: "Report will be e-mailed to you shortly",

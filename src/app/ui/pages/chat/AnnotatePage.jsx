@@ -51,6 +51,8 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+import OutputSelection from "../dual-screen-preference-ranking/PreferenceRanking";
+import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
@@ -88,12 +90,12 @@ const AnnotatePage = () => {
 
   const load_time = useRef();
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mode = localStorage.getItem('labellingMode');
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
       setLabellingMode(mode);
     }
   }, []);
- 
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -146,8 +148,6 @@ const AnnotatePage = () => {
     ],
   };
 
-
-
   const formats = [
     "size",
     "bold",
@@ -159,10 +159,21 @@ const AnnotatePage = () => {
     "script",
   ];
 
-  const formatResponse = (response) => {
+  const formatResponse = (response,isLast) => {
+    if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
     response = String(response);
     const output = [];
     let count = 0;
+    
+  
+console.log(output,"kk");
 
     while (response) {
       response = response.trim();
@@ -214,7 +225,7 @@ const AnnotatePage = () => {
   };
 
   const formatPrompt = (prompt) => {
-    const lines = prompt.split("\n");
+    const lines = prompt?.split("\n");
     const markdownString = lines.join("  \n");
     return markdownString;
   };
@@ -330,15 +341,15 @@ const AnnotatePage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          if(typeof window !== "undefined"){
+          if (typeof window !== "undefined") {
             localStorage.removeItem("labelAll");
           }
-          
+
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
   };
-  let Annotation = AnnotationsTaskDetails.filter(
+  let Annotation = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 1,
   )[0];
 
@@ -357,50 +368,66 @@ const AnnotatePage = () => {
         variant: "info",
       });
       setTimeout(() => {
-        if(typeof window !== "undefined"){
-           localStorage.removeItem("labelAll");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("labelAll");
         }
-       
+
         window.location.replace(`/#/projects/${projectId}`);
         window.location.reload();
       }, 1000);
     }
     // }
   };
-console.log(interactions[0]);
+  console.log(interactions[0]);
   const handleAnnotationClick = async (value, id, lead_time) => {
     // if (typeof window !== "undefined") {
     let resultValue;
+    console.log(forms);
+
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
         prompt: chat.prompt,
         output: reverseFormatResponse(chat.output),
       }));
+    } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+      resultValue = forms.map((form) => ({
+        prompt: form.prompt,
+        model_responses_json: form.model_responses_json.map((response) => ({
+          model_name: response.model_name,
+          output: response.output,
+          questions_response: response.questions_response,
+        })),
+        prompt_output_pair_id: form.prompt_output_pair_id,
+        additional_note: form.additional_note,
+      }));
+      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
-      resultValue = forms.map((form) =>({
+      resultValue = forms.map((form) => ({
         prompt: form.prompt,
         output: form.output,
         additional_note: form.additional_note,
         rating: form.rating,
         questions_response: form.questions_response,
-        prompt_output_pair_id: form.prompt_output_pair_id
-      })
-      
-      );
+        prompt_output_pair_id: form.prompt_output_pair_id,
+      }));
       console.log("resval: " + resultValue);
-     
     }
-    
+
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
       annotation_status:
         value === "delete" || value === "delete-pair"
-          ? (typeof window !== "undefined" ? localStorage.getItem("labellingMode") : null)
+          ? typeof window !== "undefined"
+            ? localStorage.getItem("labellingMode")
+            : null
           : value,
-      annotation_notes: typeof window !== "undefined" ? JSON.stringify(
-        annotationNotesRef?.current?.getEditor().getContents()
-      ) : null,
+      annotation_notes:
+        typeof window !== "undefined"
+          ? JSON.stringify(
+              annotationNotesRef?.current?.getEditor().getContents(),
+            )
+          : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
       result:
@@ -414,24 +441,27 @@ console.log(interactions[0]);
       interaction_llm: value === "delete" || value === "delete-pair",
       clear_conversation: value === "delete",
     };
-    
-   
+
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
-      if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
-        console.log("answered variable: ")
-      if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
-        setAutoSave(true);
-        setSnackbarInfo({
-          open: true,
-          message: "Answer all the mandatory questions in all forms",
-          variant: "error",
-        });
-        setLoading(false);
-        setShowNotes(false);
-        return; 
-      }
+      if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+        console.log("answered variable: ");
+        if (
+          (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
+            ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
+          !answered
+        ) {
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: "Answer all the mandatory questions in all forms",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+        }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
@@ -456,12 +486,11 @@ console.log(interactions[0]);
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
-          if(typeof window !== "undefined"){
-if (localStorage.getItem("labelAll") || value === "skipped") {
-            onNextAnnotation(resp.task);
+          if (typeof window !== "undefined") {
+            if (localStorage.getItem("labelAll") || value === "skipped") {
+              onNextAnnotation(resp.task);
+            }
           }
-          }
-          
         }
         value === "delete"
           ? setSnackbarInfo({
@@ -501,26 +530,34 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
     setShowNotes(false);
     // }
   };
-  if(typeof window !== "undefined"){
-     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
- 
 
   useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
+    if (AnnotationsTaskDetails?.length > 0) {
+      filterAnnotations(AnnotationsTaskDetails, userData);
+    }
   }, [AnnotationsTaskDetails, userData]);
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
+  const [filteredReady, setFilteredReady] = useState(false);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
     getProjectDetails();
     getTaskData(taskId);
-  }, []);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
   const filterAnnotations = (annotations, user) => {
+    setLoading(true)
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -609,12 +646,15 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
       disableSkip = true;
       disableUpdate = true;
     }
+
     setAutoSave(!disableUpdate);
     setAnnotations(filteredAnnotations);
     setDisableBtns(disableDraft);
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
+    setLoading(false)
+
     return [
       filteredAnnotations,
       disableDraft,
@@ -662,6 +702,9 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -672,12 +715,18 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
           notes={annotationNotesRef}
           info={info}
           disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -687,6 +736,30 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
           stage={"Annotation"}
           answered={answered}
           setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
@@ -707,30 +780,29 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
       />
     );
   };
-  const topref = useRef(null)
+  const topref = useRef(null);
   useEffect(() => {
     const observer = new MutationObserver((mutations, obs) => {
       const element = topref.current;
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
         obs.disconnect(); // Stop observing after scroll
       }
     });
 
     observer.observe(document, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
 
     return () => observer.disconnect();
   }, []);
 
-
   return (
     <>
       {loading && <Spinner />}
       <div id="top" ref={topref}></div>
-      <Grid container spacing={2} >
+      <Grid container spacing={2}>
         {renderSnackBar()}
         <Grid item>
           <Box
@@ -747,10 +819,10 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                if(typeof window !== "undefined"){
+                if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-                
+
                 // navigate(`/projects/${projectId}`);
                 navigate(-1);
               }}
@@ -808,7 +880,7 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
                 readOnly={true}
               ></ReactQuill>
             </div>
-            <Button
+            {/* <Button
               variant="contained"
               style={{
                 marginLeft: "10px",
@@ -830,7 +902,7 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
               }}
             >
               {/* <Glossary taskData={taskData} /> */}
-            </div>
+            {/* </div> */} 
           </Box>
           <Grid
             container
@@ -844,7 +916,28 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
             }}
           >
             <Grid item>
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip                 title={
+                  <div>
+                    <div>
+                      {Array.isArray(assignedUsers)
+                        ? assignedUsers.join(", ")
+                        : assignedUsers || "No assigned users"}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
+    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+
+                    </div>
+                  </div>
+                }
+>
                 <Button
                   type="default"
                   className="lsf-button"
@@ -902,29 +995,37 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
                     </Button>
                   </Tooltip> */}
 
-<Tooltip
-      title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Save task for later</span>}
-    >
-      <Button
-        value="Draft"
-        type="default"
-        variant="outlined"
-        onClick={() =>
-          handleAnnotationClick("draft", Annotation.id, Annotation.lead_time)
-        }
-        style={{
-          minWidth: '150px',
-          color: 'black',
-          borderRadius: '5px',
-          border: '0px',
-          paddingTop: 2,
-          paddingBottom: 2,
-          backgroundColor: '#ffe0b2',
-        }}
-      >
-        Draft
-      </Button>
-    </Tooltip>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        Save task for later
+                      </span>
+                    }
+                  >
+                    <Button
+                      value="Draft"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleAnnotationClick(
+                          "draft",
+                          Annotation.id,
+                          Annotation.lead_time,
+                        )
+                      }
+                      style={{
+                        minWidth: "150px",
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        paddingTop: 2,
+                        paddingBottom: 2,
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Draft
+                    </Button>
+                  </Tooltip>
                   {/* )} */}
                 </Grid>
               )}
@@ -948,26 +1049,30 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
                 </Button>
               </Tooltip> */}
 
-<Tooltip
-      title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Go to next task</span>}
-    >
-      <Button
-        value="Next"
-        type="default"
-        onClick={() => onNextAnnotation('next', getNextTask?.id)}
-        style={{
-          minWidth: '150px',
-          color: 'black',
-          borderRadius: '5px',
-          border: '0px',
-          paddingTop: 2,
-          paddingBottom: 2,
-          backgroundColor: '#ffe0b2',
-        }}
-      >
-        Next
-      </Button>
-    </Tooltip>
+              <Tooltip
+                title={
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    Go to next task
+                  </span>
+                }
+              >
+                <Button
+                  value="Next"
+                  type="default"
+                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  style={{
+                    minWidth: "150px",
+                    color: "black",
+                    borderRadius: "5px",
+                    border: "0px",
+                    paddingTop: 2,
+                    paddingBottom: 2,
+                    backgroundColor: "#ffe0b2",
+                  }}
+                >
+                  Next
+                </Button>
+              </Tooltip>
             </Grid>
             {!disableSkipButton &&
               taskData?.annotation_users?.some(
@@ -1001,32 +1106,36 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
                     </Button>
                   </Tooltip> */}
                   <Tooltip
-      title={
-        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-          skip to next task
-        </span>
-      }
-    >
-      <Button
-        value="Skip"
-        type="default"
-        variant="outlined"
-        onClick={() =>
-          handleAnnotationClick("skipped", Annotation.id, Annotation.lead_time)
-        }
-        style={{
-          minWidth: '150px',
-          color: 'black',
-          borderRadius: '5px',
-          border: '0px',
-          paddingTop: 2,
-          paddingBottom: 2,
-          backgroundColor: '#ffe0b2',
-        }}
-      >
-        Skip
-      </Button>
-    </Tooltip>
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        skip to next task
+                      </span>
+                    }
+                  >
+                    <Button
+                      value="Skip"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleAnnotationClick(
+                          "skipped",
+                          Annotation.id,
+                          Annotation.lead_time,
+                        )
+                      }
+                      style={{
+                        minWidth: "150px",
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        paddingTop: 2,
+                        paddingBottom: 2,
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Skip
+                    </Button>
+                  </Tooltip>
                 </Grid>
               )}
             {!disableSkipButton &&
@@ -1061,51 +1170,68 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
                     </Button>
                   </Tooltip> */}
 
-<Tooltip
-      title={
-        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-          clear the entire chat history
-        </span>
-      }
-    >
-      {ProjectDetails.project_type=="InstructionDrivenChat"?<Button
-        value="Clear Chats"
-        type="default"
-        variant="outlined"
-        onClick={() =>
-          handleAnnotationClick("delete", Annotation.id, Annotation.lead_time)
-        }
-        style={{
-          minWidth: '150px',
-          color: 'black',
-          borderRadius: '5px',
-          border: '0px',
-          paddingTop: 2,
-          paddingBottom: 2,
-          backgroundColor: '#ffe0b2',
-        }}
-      >
-        Clear Chats
-      </Button>:<Button
-        value="Reset All Forms"
-        type="default"
-        variant="outlined"
-        onClick={() =>
-          handleAnnotationClick("delete", Annotation.id, Annotation.lead_time)
-        }
-        style={{
-          minWidth: '150px',
-          color: 'black',
-          borderRadius: '5px',
-          border: '0px',
-          paddingTop: 2,
-          paddingBottom: 2,
-          backgroundColor: '#ffe0b2',
-        }}
-      > Reset All</Button>}
-    </Tooltip>
-                </Grid>
-              )}
+                  {ProjectDetails?.project_type=="InstructionDrivenChat"?(<Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        clear the entire chat history
+                      </span>
+                    }
+                  >
+                     <Button
+                        value="Clear Chats"
+                        type="default"
+                        variant="outlined"
+                        onClick={() =>
+                          handleAnnotationClick(
+                            "delete",
+                            Annotation.id,
+                            Annotation.lead_time,
+                          )
+                        }
+                        style={{
+                          minWidth: "150px",
+                          color: "black",
+                          borderRadius: "5px",
+                          border: "0px",
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          backgroundColor: "#ffe0b2",
+                        }}
+                      >
+                        Clear Chats
+                      </Button>
+                  </Tooltip>):            (<Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        Reset the entire chat history
+                      </span>
+                    }
+                  >          <Button
+                        value="Reset All Forms"
+                        type="default"
+                        variant="outlined"
+                        onClick={() =>
+                          handleAnnotationClick(
+                            "delete",
+                            Annotation.id,
+                            Annotation.lead_time,
+                          )
+                        }
+                        style={{
+                          minWidth: "150px",
+                          color: "black",
+                          borderRadius: "5px",
+                          border: "0px",
+                          paddingTop: 2,
+                          paddingBottom: 2,
+                          backgroundColor: "#ffe0b2",
+                        }}
+                      >
+                        {" "}
+                        Reset All
+                      </Button>
+</Tooltip>)}
+                </Grid>)}
             {!disableUpdateButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
@@ -1145,10 +1271,10 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
             </Alert>
           )}
         </Grid>
-        <Grid item container>
-          {" "}
-          {componentToRender}{" "}
-        </Grid>
+          <Grid item container>
+            {" "}
+            {componentToRender}{" "}
+          </Grid>
       </Grid>
     </>
   );

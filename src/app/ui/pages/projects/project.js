@@ -15,12 +15,13 @@ import tableTheme from "@/themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
-export default function ProjectList() {
+export default function ProjectList({data}) {
          /* eslint-disable react-hooks/exhaustive-deps */
            /* eslint-disable-next-line react/jsx-key */
 
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
+console.log(data);
 
   // const [loading, setLoading] = useState(true);
   const [selectedFilters, setsSelectedFilters] = useState({
@@ -48,6 +49,7 @@ const [radiobutton, setRadiobutton] = useState(true);
     }
   }, [selectedFilters,loggedInUserData]);
 
+console.log(data?.length,"hel");
 
 
   const handleProjectlist = () => {
@@ -56,6 +58,7 @@ const [radiobutton, setRadiobutton] = useState(true);
   const handleProjectcard = () => {
     setRadiobutton(false);
   };
+  const displayedProjects = data?.length > 0 ? data : projectData || [];
   return (
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? <Spinner /> :  
@@ -100,13 +103,13 @@ const [radiobutton, setRadiobutton] = useState(true);
         <Box sx={{ marginTop: "20px" }}>
           {radiobutton ? (
             <ProjectCardList
-              projectData={projectData}
+              projectData={displayedProjects}
               selectedFilters={selectedFilters} 
               setsSelectedFilters={setsSelectedFilters} 
             />
           ) : (
             <ProjectCard 
-            projectData={projectData}
+            projectData={displayedProjects}
              selectedFilters={selectedFilters} 
             setsSelectedFilters={setsSelectedFilters}
               />
@@ -116,5 +119,5 @@ const [radiobutton, setRadiobutton] = useState(true);
       </>
       }
     </ThemeProvider>
-  );
+  );
 }

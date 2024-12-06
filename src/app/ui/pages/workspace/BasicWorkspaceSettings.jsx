@@ -16,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Spinner from "../../../../components/common/Spinner";
 import GetWorkspaceSaveButtonAPI from "@/app/actions/api/Projects/GetWorkspaceSaveButton";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import APITransport from "@/Lib/apiTransport/apitransport";
 
 const BasicWorkspaceSettings = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */

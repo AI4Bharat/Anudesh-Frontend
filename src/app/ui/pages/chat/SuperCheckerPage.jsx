@@ -51,6 +51,7 @@ import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 
 /* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line react/display-name
@@ -135,12 +136,12 @@ const SuperCheckerPage = () => {
 
   const load_time = useRef();
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mode = localStorage.getItem('labellingMode');
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
       setLabellingMode(mode);
     }
   }, []);
- 
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -305,11 +306,13 @@ const SuperCheckerPage = () => {
                 (annotation) =>
                   annotation.parent_annotation === reviewerAnnotations[0]?.id,
               );
-              console.log(reviewerAnnotations,superCheckerAnnotation);
+              console.log(reviewerAnnotations, superCheckerAnnotation);
               reviewNotesRef.current.value =
                 reviewerAnnotations[0]?.review_notes ?? "";
-              if(superCheckerAnnotation){superCheckerNotesRef.current.value =
-                superCheckerAnnotation[0]?.supercheck_notes ?? ""};
+              if (superCheckerAnnotation) {
+                superCheckerNotesRef.current.value =
+                  superCheckerAnnotation[0]?.supercheck_notes ?? "";
+              }
 
               try {
                 const newDelta1 =
@@ -482,10 +485,10 @@ const SuperCheckerPage = () => {
           variant: "info",
         });
         setTimeout(() => {
-          if(typeof window !== "undefined"){
+          if (typeof window !== "undefined") {
             localStorage.removeItem("labelAll");
           }
-          
+
           window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
@@ -510,10 +513,10 @@ const SuperCheckerPage = () => {
         variant: "info",
       });
       setTimeout(() => {
-        if(typeof window !== "undefined"){
+        if (typeof window !== "undefined") {
           localStorage.removeItem("labelAll");
         }
-        
+
         window.location.replace(`/#/projects/${projectId}`);
         window.location.reload();
       }, 1000);
@@ -533,62 +536,88 @@ const SuperCheckerPage = () => {
         prompt: chat.prompt,
         output: reverseFormatResponse(chat.output),
       }));
+    } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+      resultValue = forms.map((form) => ({
+        prompt: form.prompt,
+        model_responses_json: form.model_responses_json.map((response) => ({
+          model_name: response.model_name,
+          output: response.output,
+          questions_response: response.questions_response,
+        })),
+        prompt_output_pair_id: form.prompt_output_pair_id,
+        additional_note: form.additional_note,
+      }));
+      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
-      resultValue = forms.map((form) =>({
+      resultValue = forms.map((form) => ({
         prompt: form.prompt,
         output: form.output,
         additional_note: form.additional_note,
         rating: form.rating,
         questions_response: form.questions_response,
-        prompt_output_pair_id: form.prompt_output_pair_id
-      })
-      
-      );
+        prompt_output_pair_id: form.prompt_output_pair_id,
+      }));
     }
 
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
-      annotation_status: typeof window !== "undefined" && (value === "delete" || value === "delete-pair")
-        ? localStorage.getItem("labellingMode")
-        : value,
-      supercheck_notes: typeof window !== "undefined" ? JSON.stringify(
-        superCheckerNotesRef?.current?.getEditor().getContents()
-      ) : null,
-      lead_time: (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      ...((value === "rejected" || value === "validated" || value === "validated_with_changes") && {
+      annotation_status:
+        typeof window !== "undefined" &&
+        (value === "delete" || value === "delete-pair")
+          ? localStorage.getItem("labellingMode")
+          : value,
+      supercheck_notes:
+        typeof window !== "undefined"
+          ? JSON.stringify(
+              superCheckerNotesRef?.current?.getEditor().getContents(),
+            )
+          : null,
+      lead_time:
+        (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
+      ...((value === "rejected" ||
+        value === "validated" ||
+        value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
-      result: value === "delete"
-        ? []
-        : value === "delete-pair"
-          ? resultValue.slice(0, resultValue.length - 1)
-          : resultValue,
+      result:
+        value === "delete"
+          ? []
+          : value === "delete-pair"
+            ? resultValue.slice(0, resultValue.length - 1)
+            : resultValue,
       task_id: taskId,
-      auto_save: value === "delete" || value === "delete-pair" || value === "rejected" ? true : false,
+      auto_save:
+        value === "delete" || value === "delete-pair" || value === "rejected"
+          ? true
+          : false,
       interaction_llm: value === "delete" || value === "delete-pair",
       clear_conversation: value === "delete",
     };
-        
+
     if (
       ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
         value,
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      if(!(["draft", "skipped", "delete", "delete-pair"].includes(value))){
-        console.log("answered variable: ")
-      if (ProjectDetails.project_type == "ModelInteractionEvaluation" && !answered) {
-        setAutoSave(true);
-        setSnackbarInfo({
-          open: true,
-          message: "Answer all the mandatory questions in all forms",
-          variant: "error",
-        });
-        setLoading(false);
-        setShowNotes(false);
-        return; 
-      }
+      if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+        console.log("answered variable: ");
+        if (
+          (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
+            ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
+          !answered
+        ) {
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: "Answer all the mandatory questions in all forms",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+        }
       }
       if (value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -613,12 +642,11 @@ const SuperCheckerPage = () => {
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
-          if(typeof window !== "undefined"){
-if (localStorage.getItem("labelAll") || value === "skipped") {
-            onNextAnnotation(resp.task);
+          if (typeof window !== "undefined") {
+            if (localStorage.getItem("labelAll") || value === "skipped") {
+              onNextAnnotation(resp.task);
+            }
           }
-          }
-          
         }
         value === "delete"
           ? setSnackbarInfo({
@@ -659,23 +687,29 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
     setShowNotes(false);
     setAnchorEl(null);
   };
-  if(typeof window !== "undefined"){
-     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
- 
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
+  const [filteredReady, setFilteredReady] = useState(false);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
     getProjectDetails();
     getTaskData(taskId);
-  }, []);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
 
   const filterAnnotations = (annotations, user) => {
+    setLoading(true)
     let disableSkip = false;
     let disableAutoSave = false;
     let filteredAnnotations = annotations;
@@ -716,6 +750,7 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
     }
     setAnnotations(filteredAnnotations);
     setdisableSkip(disableSkip);
+    setLoading(false)
     return [filteredAnnotations, disableSkip, disableAutoSave];
   };
 
@@ -767,33 +802,68 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          handleClick={handleSuperCheckerClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={SuperChecker}
-          stage={"SuperChecker"}
-          notes={superCheckerNotesRef}
-          info={info}
+        key={`annotations-${annotations?.length}-${
+          annotations?.[0]?.id || "default"
+        }`}
+        handleClick={handleSuperCheckerClick}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+        formatResponse={formatResponse}
+        formatPrompt={formatPrompt}
+        id={SuperChecker}
+        stage={"SuperChecker"}
+        notes={superCheckerNotesRef}
+      info={info}
+        disableUpdateButton={disableUpdateButton}
+        annotation={annotations}
+        setLoading={setLoading}
+        loading={loading}
         />
       );
       break;
-    case "ModelInteractionEvaluation":
-      componentToRender = (
-        <ModelInteractionEvaluation
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
-          stage={"SuperChecker"}
-          answered={answered}
-          setAnswered={setAnswered}
-        />
-      );
-      break;
+      case "ModelInteractionEvaluation":
+        componentToRender = (
+          <ModelInteractionEvaluation
+            key={`annotations-${annotations?.length}-${
+              annotations?.[0]?.id || "default"
+            }`}
+            setCurrentInteraction={setCurrentInteraction}
+            currentInteraction={currentInteraction}
+            interactions={interactions}
+            setInteractions={setInteractions}
+            forms={forms}
+            setForms={setForms}
+            stage={"SuperChecker"}
+            answered={answered}
+            setAnswered={setAnswered}
+            annotation={annotations}
+            setLoading={setLoading}
+            loading={loading}
+          />
+        );
+        break;
+      case "MultipleInteractionEvaluation":
+        componentToRender = (
+          <PreferenceRanking
+            key={`annotations-${annotations?.length}-${
+              annotations?.[0]?.id || "default"
+            }`}
+            setCurrentInteraction={setCurrentInteraction}
+            currentInteraction={currentInteraction}
+            interactions={interactions}
+            setInteractions={setInteractions}
+            forms={forms}
+            setForms={setForms}
+            stage={"SuperChecker"}
+            notes={superCheckerNotesRef}
+            answered={answered}
+            setAnswered={setAnswered}
+            annotation={annotations}
+            setLoading={setLoading}
+            loading={loading}
+          />
+        );
+        break;
     default:
       componentToRender = null;
       break;
@@ -803,7 +873,7 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
   if (typeof window !== "undefined") {
     ProjectsData = localStorage.getItem("projectData");
   }
-  
+
   const ProjectData = ProjectsData ? JSON.parse(ProjectsData) : null;
 
   const renderSnackBar = () => {
@@ -839,8 +909,9 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
               color="primary"
               sx={{ mt: 2 }}
               onClick={() => {
-                if(typeof window !== "undefined"){
-                localStorage.removeItem("labelAll");}
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("labelAll");
+                }
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
@@ -897,29 +968,7 @@ if (localStorage.getItem("labelAll") || value === "skipped") {
                 placeholder="Superchecker Notes"
               ></ReactQuill>
             </div>
-            <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            </div>
+            
             {ProjectDetails.revision_loop_count >
             taskData?.revision_loop_count?.super_check_count
               ? false

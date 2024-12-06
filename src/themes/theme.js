@@ -1,9 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 import Card from "../assets/Card.svg";
 
-
-
-
 const themeDefault = createTheme({
   palette: {
     primary: {
@@ -23,7 +20,7 @@ const themeDefault = createTheme({
     },
   },
   typography: {
-    fontFamily: 'Roboto',
+    fontFamily: "Roboto",
     fontWeight: "400",
     h1: {
       fontSize: "3.125rem",
@@ -35,7 +32,7 @@ const themeDefault = createTheme({
     },
     h2: {
       fontSize: "2.5rem",
-      fontFamily: 'Roboto, sans-serif',
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "1.5rem",
@@ -43,7 +40,7 @@ const themeDefault = createTheme({
     },
     h3: {
       fontSize: "1.6875rem",
-      fontFamily: 'Roboto, sans-serif',
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "600",
       letterSpacing: "0px",
       "@media (max-width:550px)": {
@@ -52,7 +49,7 @@ const themeDefault = createTheme({
     },
     h4: {
       fontSize: "1.5rem",
-      fontFamily: 'Roboto, sans-serif',
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "0.9rem",
@@ -60,7 +57,7 @@ const themeDefault = createTheme({
     },
     h5: {
       fontSize: "1.3125rem",
-      fontFamily: 'Roboto, sans-serif',
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "600",
       "@media (max-width:550px)": {
         fontSize: "1rem",
@@ -68,7 +65,7 @@ const themeDefault = createTheme({
     },
     h6: {
       fontSize: "1.125rem",
-      fontFamily: 'Roboto ,sans-serif',       
+      fontFamily: "Roboto ,sans-serif",
       fontWeight: "600",
       paddingTop: "4px",
       "@media (max-width:550px)": {
@@ -77,12 +74,12 @@ const themeDefault = createTheme({
     },
     body1: {
       fontSize: "1.25rem",
-      fontFamily: 'Roboto, sans-serif',
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "400",
     },
     body2: {
       fontSize: "0.875rem",
-      fontFamily: 'Roboto, sans-serif',
+      fontFamily: "Roboto, sans-serif",
       fontWeight: "400",
       color: "#0C0F0F",
       lineHeight: "22px",
@@ -91,7 +88,7 @@ const themeDefault = createTheme({
       fontSize: "0.75rem",
       fontFamily: "Roboto, sans-serif",
       fontWeight: "400",
-      color: "#3A3A3A"
+      color: "#3A3A3A",
     },
     subtitle1: {
       fontSize: "1.125rem",
@@ -103,7 +100,7 @@ const themeDefault = createTheme({
     },
     subtitle2: {
       fontSize: "1rem",
-      fontFamily: 'Roboto,sans-serif',
+      fontFamily: "Roboto,sans-serif",
       fontWeight: "300",
       "@media (max-width:550px)": {
         fontSize: ".7rem",
@@ -111,24 +108,11 @@ const themeDefault = createTheme({
     },
   },
   components: {
-    // MuiButtonBase:{
-    //   styleOverrides:{
-    //     root:{
-    //       backgroundColor: "#ee6633",
-    //       borderRadius: "20px",
-    //       color: "#FFFFFF" 
-    //     },
-    //   }
-    // },
-
-   
-
     MuiTableRow: {
       styleOverrides: {
         root: {
           "&:nth-of-type(odd)": {
             backgroundColor: "#ffe0b2",
-            
           },
           "&:nth-of-type(even)": {
             backgroundColor: "#fffde7",
@@ -205,14 +189,13 @@ const themeDefault = createTheme({
           minHeight: "674px",
           boxShadow: "0px 0px 2px #00000029",
           border: "0",
-          maxHeight: "100vh"
+          maxHeight: "100vh",
         },
         responsiveBase: {
           minHeight: "560px",
         },
       },
     },
-   
 
     MUIDataTableToolbar: {
       styleOverrides: {
@@ -222,7 +205,7 @@ const themeDefault = createTheme({
         MuiButton: {
           root: {
             display: "none",
-            fontFamily: 'Roboto ,sans-serif',
+            fontFamily: "Roboto ,sans-serif",
             fontWeight: 550,
           },
         },
@@ -234,8 +217,6 @@ const themeDefault = createTheme({
           padding: ".5rem .5rem .5rem .8rem",
           textTransform: "capitalize",
           fontFamily: '"Roboto" ,"sans-serif"',
-          
-         
         },
 
         stackedParent: {
@@ -282,17 +263,17 @@ const themeDefault = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#b33a0c",
-          color: "#FFFFFF"
-        }
-      }
+          color: "#FFFFFF",
+        },
+      },
     },
     MuiIconButton: {
       styleOverrides: {
         root: {
           borderRadius: "5%",
-          fontWeight: 550
-        }
-      }
+          fontWeight: 550,
+        },
+      },
     },
     MuiAppBar: {
       styleOverrides: {
@@ -317,7 +298,7 @@ const themeDefault = createTheme({
           height: "36px",
         },
         label: {
-          fontFamily: 'Roboto ,sans-serif',
+          fontFamily: "Roboto ,sans-serif",
           fontSize: "0.875rem",
           "@media (max-width:640px)": {
             fontSize: "10px",
@@ -331,7 +312,7 @@ const themeDefault = createTheme({
           minWidth: "25",
           borderRadius: "none",
           textTransform: "none",
-          fontFamily: 'Roboto ,sans-serif',
+          fontFamily: "Roboto ,sans-serif",
           fontWeight: 550,
         },
         label: {
@@ -417,7 +398,6 @@ const themeDefault = createTheme({
       root: {
         "&:nth-of-type(odd)": {
           backgroundColor: "#D6EAF8",
-          
         },
         "&:nth-of-type(even)": {
           backgroundColor: "#E9F7EF",
@@ -446,7 +426,8 @@ const themeDefault = createTheme({
       MuiButton: {
         root: {
           display: "none",
-          fontFamily: 'Roboto ,sans-serif',
+          fontFamily: "Roboto ,sans-serif",
+          fontSize: "16px",
           fontWeight: 550,
         },
       },
@@ -455,7 +436,6 @@ const themeDefault = createTheme({
       root: {
         backgroundColor: "white",
         width: "80%",
-
       },
       checkboxFormControl: {
         minWidth: "200px",
@@ -484,25 +464,23 @@ const themeDefault = createTheme({
       styleOverrides: {
         select: {
           fontSize: "0.875rem",
-        }
-      }
+        },
+      },
     },
     MuiInputLabel: {
       styleOverrides: {
         sizeSmall: {
           fontSize: "0.875rem",
-        }
-      }
+        },
+      },
     },
     MuiAutocomplete: {
       styleOverrides: {
         inputRoot: {
           fontSize: "0.875rem",
-        }
-      }
-    }
-
-    
+        },
+      },
+    },
   },
 });
 

@@ -115,21 +115,7 @@ const OrganizationReports = () => {
   }, []);
 
   useEffect(() => {
-    if (radiobutton === "PaymentReports") {
-      setProjectTypes([
-        "AudioSegmentation",
-        "AudioTranscription",
-        "AudioTranscriptionEditing",
-        "ConversationTranslation",
-        "ConversationTranslationEditing",
-        "AcousticNormalisedTranscriptionEditing",
-        "AllAudioProjects",
-        "OCRTranscription",
-        "OCRTranscriptionEditing",
-      ]);
-      setSelectedType("AllAudioProjects");
-      
-    } else if (ProjectTypes) {
+    if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
         let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
@@ -140,29 +126,30 @@ const OrganizationReports = () => {
     }
   }, [ProjectTypes, radiobutton]);
 
-  useEffect(() => {
-    if (radiobutton === "ProjectReports") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "ProjectReports") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluvation",
+  //      "InstructionDrivenChat",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
 
-  useEffect(() => {
-    if (radiobutton === "UsersReports") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "UsersReports") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluvation",
+  //      "InstructionDrivenChat",
+  //      "MultipleInteractionEvaluation",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
  
 
   useEffect(() => {

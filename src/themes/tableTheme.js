@@ -1,4 +1,4 @@
-import themeDefault from './theme';
+import themeDefault from "./theme";
 import { createTheme } from "@mui/material/styles";
 
 const tableTheme = createTheme({
@@ -8,16 +8,16 @@ const tableTheme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
+          fontSize: "16px",
           minWidth: "25",
           borderRadius: "none",
           textTransform: "none",
-          fontFamily: 'Roboto ,sans-serif',
-          fontWeight: 550
-          
+          fontFamily: "Roboto ,sans-serif",
+          fontWeight: 550,
         },
         label: {
           textTransform: "none",
-          fontFamily: '"Roboto", "Segoe UI"',
+          fontFamily: "Roboto ,sans-serif",
           fontSize: "100px",
           letterSpacing: "0.16px",
           textAlign: "center",
@@ -30,6 +30,29 @@ const tableTheme = createTheme({
         },
       },
     },
+    MUIDataTable: {
+      styleOverrides: {
+        root: {
+          fontSize: "16px",
+          fontFamily: '"Roboto" ,sans-serif',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Roboto", sans-serif',
+          fontSize: "16px",
+        },
+        head: {
+          fontFamily: '"Roboto", sans-serif',
+          fontWeight: 700,
+          fontSize: "16px",
+          backgroundColor: "#FAFAFA",
+        },
+      },
+    },
+
     MuiPopover: {
       styleOverrides: {
         paper: {
@@ -43,6 +66,7 @@ const tableTheme = createTheme({
           backgroundColor: "white",
           width: "80%",
           fontFamily: '"Roboto" ,sans-serif',
+          fontSize: "16px",
         },
         checkboxFormControl: {
           minWidth: "120px",
