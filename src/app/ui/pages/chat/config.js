@@ -4,8 +4,8 @@ export const welcomeText = {
 
 export const card1 = {
     heading: 'What is Anudesh?',
-    content: 'Anudesh is an open-source platform dedicated to advancingthe development of state-of-the-art Large language models for Indian languages. '
-} 
+    content: 'Anudesh is an open-source platform dedicated to advancing the development of state-of-the-art Large language models for Indian languages. '
+}
 
 export const card2 = {
     heading: 'How Can You Help?',
