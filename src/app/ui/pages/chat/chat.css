@@ -67,7 +67,6 @@
 
 /* Chat container styles */
 .chat-container {
-    overflow-y:scroll;
     max-height: 200px;
     width: 46%;
     padding: 10px;

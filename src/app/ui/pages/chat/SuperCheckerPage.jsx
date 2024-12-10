@@ -618,6 +618,17 @@ const SuperCheckerPage = () => {
           setShowNotes(false);
           return;
         }
+        else{
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: "Please Enter Prompt",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+        }
       }
       if (value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);

@@ -442,6 +442,7 @@ console.log(output,"kk");
       clear_conversation: value === "delete",
     };
 
+
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
@@ -461,6 +462,17 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
+        }
+        else{
+          setSnackbarInfo({
+            open: true,
+            message: "Please enter prompt",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
