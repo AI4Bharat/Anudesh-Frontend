@@ -522,8 +522,9 @@ const grey = {
                   position: 'absolute',
                   bottom: 0,
                   right: 0,
-                  margin: '0.5rem',
+                  marginTop: '1rem',
                   borderRadius: '50%',
+
                 }}
                 onClick={() => handleClick('delete-pair', id?.id, 0.0)}
               >

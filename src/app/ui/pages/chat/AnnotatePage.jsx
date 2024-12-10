@@ -448,6 +448,8 @@ console.log(output,"kk");
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
+        console.log(chatHistory.length);
+        
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -463,7 +465,9 @@ console.log(output,"kk");
           setShowNotes(false);
           return;
         }
-        else{
+        else if(chatHistory.length==0) {
+          console.log(chatHistory);
+          
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",

@@ -773,7 +773,7 @@ const ReviewPage = () => {
             setShowNotes(false);
             return;
           }
-          else{
+          else if(chatHistory.length==0){
             setAutoSave(true);
             setSnackbarInfo({
               open: true,
