@@ -442,11 +442,14 @@ console.log(output,"kk");
       clear_conversation: value === "delete",
     };
 
+
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
+        console.log(chatHistory.length);
+        
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -461,6 +464,19 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
+        }
+        else if(chatHistory.length==0) {
+          console.log(chatHistory);
+          
+          setSnackbarInfo({
+            open: true,
+            message: "Please enter prompt",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);

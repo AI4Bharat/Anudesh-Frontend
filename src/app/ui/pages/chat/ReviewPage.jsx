@@ -773,6 +773,17 @@ const ReviewPage = () => {
             setShowNotes(false);
             return;
           }
+          else if(chatHistory.length==0){
+            setAutoSave(true);
+            setSnackbarInfo({
+              open: true,
+              message: "Please Enter Prompt",
+              variant: "error",
+            });
+            setLoading(false);
+            setShowNotes(false);
+            return;
+          }
         }
         const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
         const res = await fetch(TaskObj.apiEndPoint(), {

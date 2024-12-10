@@ -11,6 +11,7 @@ import {
   Typography,
   TextareaAutosize,
 } from "@mui/material";
+import remarkBreaks from "remark-breaks";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
@@ -246,6 +247,8 @@ const grey = {
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
   const handleButtonClick = async () => {
+    console.log(inputValue);
+    
     if (inputValue) {
       setLoading(true);
       const body = {
@@ -291,7 +294,6 @@ const grey = {
         if (data && data.result) {
             modifiedChatHistory = data.result.map((interaction,index) => {
               const isLastInteraction = index === data?.result?.length - 1; 
-
               return {
                 ...interaction,
                 output: formatResponse(interaction.output,isLastInteraction),
@@ -429,323 +431,215 @@ const grey = {
       setChatHistory(updatedChatHistory);
     }
   };
-  const gg = true;
 
   const renderChatHistory = () => {
-    const chatElements = [];
-    for (let index = 0; index < chatHistory?.length; index++) {
-      const message = chatHistory[index];
-      chatElements.push(
-        <Box
-          sx={{
-            paddingY: "1.5rem",
+    const chatElements = chatHistory?.map((message, index) => (
+      <Grid
+        container
+        spacing={2}
+        key={index}
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        style={{ padding: '1.5rem',margin:"auto" }}
+      >
+        <Grid
+          item
+          style={{
+            backgroundColor: 'rgba(247, 184, 171, 0.2)',
+            padding: '1.5rem',
+            borderRadius: '0.5rem',
+            position: 'relative',
           }}
-          key={index}
         >
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              padding: "1.5rem",
-              borderRadius: "0.5rem",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              position: "relative",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "start",
-                alignItems: "center",
-              }}
-            >
+          <Grid container alignItems="center" spacing={2}>
+            <Grid item>
               <Avatar
                 alt="user_profile_pic"
-                variant="contained"
-                src={
-                  loggedInUserData?.profile_photo
-                    ? loggedInUserData.profile_photo
-                    : ""
-                }
-                className={classes.avatar}
-                sx={{
-                  marginRight: "1rem",
-                }}
+                src={loggedInUserData?.profile_photo || ''}
+                style={{ marginRight: '1rem' }}
               />
-              {ProjectDetails?.metadata_json?.editable_prompt == true ? (
+            </Grid>
+            <Grid item xs>
+              {ProjectDetails?.metadata_json?.editable_prompt ? (
                 globalTransliteration ? (
                   <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                     apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     renderComponent={(props) => (
                       <textarea
-                        sx={{
-                          whiteSpace: 'pre-wrap',
-                        }}
                         maxRows={10}
-                        aria-label="empty textarea"
-                        placeholder={translate("chat_placeholder")}
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
+                        placeholder={translate('chat_placeholder')}
                         {...props}
+                        style={{
+                          fontSize: '1rem',
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '12px 12px 0 12px',
+                          color: grey[900],
+                          background: '#ffffff',
+                          border: `1px solid ${grey[200]}`,
+                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                          minHeight: '5rem',
+                          resize: 'none',
+                        }}
                       />
                     )}
-                    value={formatPrompt(message.prompt)}
-                    onChangeText={(e) => handleTextChange(e, null, message, "prompt")}
-                    onKeyDown={handleKeyDown}
+                    value={message.prompt}
+                    onChangeText={(e) => handleTextChange(e, null, message, 'prompt')}
                     lang={targetLang}
-                    style={{
-                      fontSize: "1rem",
-                      width: "270%",
-                      height: "auto",
-                      resize:"none",
-                      fontWeight: "400",
-                      minHeight: "5rem",
-                      lineHeight: "1.5",
-                      padding: "12px",
-                      borderRadius: "12px 12px 0 12px",
-                      color: grey[900],
-                      background: "#ffffff",
-                      border: `1px solid ${grey[200]}`,
-                      boxShadow: `0px 2px 2px ${grey[50]}`,
-                    }}
-                    horizontalView={true}
                   />
                 ) : (
                   <textarea
                     value={message.prompt}
-                    onChange={(e) => handleTextChange(e, null, message, "prompt")}
-                    className="flex-col"
+                    onChange={(e) => handleTextChange(e, null, message, 'prompt')}
                     style={{
-                      width: "100%",
-                      fontSize: "1rem",
-                      padding: "0.5rem",
-                      border: "none",
-                      resize:"none",
-                      overflow: "hidden",
-                      minHeight: "5rem",
-                      height: "auto",
+                      fontSize: '1rem',
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '12px 12px 0 12px',
+                      color: grey[900],
+                      background: '#ffffff',
                       border: `1px solid ${grey[200]}`,
                       boxShadow: `0px 2px 2px ${grey[50]}`,
-                      borderRadius: "12px 12px 0 12px",
-
+                      minHeight: '5rem',
+                      resize: 'none',
                     }}
                     rows={1}
-                    onInput={(e) => {
-                      e.target.style.height = "auto";
-                      e.target.style.height = `${e.target.scrollHeight}px`;
-                    }}
                   />
-
-
-                )) : (
-                <ReactMarkdown className="flex-col">
-                  {formatPrompt(message.prompt)}
-                </ReactMarkdown>
+                )
+              ) : (
+                <ReactMarkdown
+                  className="flex-col"
+                  children={message?.prompt?.replace(/\n/gi, '&nbsp; \n')}
+                />
               )}
-              {index === chatHistory.length - 1 &&
-                stage !== "Alltask" &&
-                !disableUpdateButton && (
-                  <IconButton
-                    size="large"
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      right: 0,
-                      margin: "0.5rem",
-                      borderRadius: "50%",
-                    }}
-                    onClick={() => {
-                      handleClick("delete-pair", id?.id, 0.0);
-                    }}
-                  >
-                    <DeleteOutlinedIcon
-                      style={{
-                        color: "#EE6633",
-                        fontSize: "1.2rem",
-                      }}
-                    />
-                  </IconButton>
-                )}
-            </Box>
-          </Box>
+            </Grid>
+            {index === chatHistory.length - 1 && stage !== 'Alltask' && !disableUpdateButton && (
+              <IconButton
+                size="large"
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  marginTop: '1rem',
+                  borderRadius: '50%',
 
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "start",
-              alignItems: "start",
-              padding: "3.5rem 1.5rem 0rem",
-              borderRadius: "0.5rem",
-            }}
-          >
-            <Image
-              width={50}
-              height={50}
-              src="https://i.imgur.com/56Ut9oz.png"
-              alt="Bot Avatar"
-              style={{
-                marginRight: "1rem",
-              }}
-            />
-            <Box className="flex-col">
+                }}
+                onClick={() => handleClick('delete-pair', id?.id, 0.0)}
+              >
+                <DeleteOutlinedIcon style={{ color: '#EE6633', fontSize: '1.2rem' }} />
+              </IconButton>
+            )}
+          </Grid>
+        </Grid>
+  
+        <Grid
+  item
+  xs={12}
+  style={{
+    textAlign: 'left', 
+    position: 'relative',
+
+  }}
+>
+
+  <Grid
+container alignItems="start" spacing={2} 
+justifyContent="flex-start"
+style={{
+  padding: '1.5rem',
+  borderRadius: '0.5rem',
+}}
+>
+
+    <Grid
+      item
+      xs={3}
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-end', 
+        alignItems: 'center',    
+        minWidth: '50px',         
+      }}
+    >
+      <img
+        width={50}
+        height={50}
+        src="https://i.imgur.com/56Ut9oz.png"
+        alt="Bot Avatar"
+      />
+    </Grid>
+
+    <Grid item  xs={6}  >
+
               {message?.output?.map((segment, index) =>
-                segment.type == "text"  ? (
-                  ProjectDetails?.metadata_json?.editable_response == true ?
+                segment.type === 'text' ? (
+                  ProjectDetails?.metadata_json?.editable_response ? (
                     globalTransliteration ? (
                       <IndicTransliterate
-                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-                        renderComponent={(props) => (
-                          <textarea
-                            sx={{
-                              whiteSpace: 'pre-wrap',
-                            }}
-                            maxRows={10}
-                            aria-label="empty textarea"
-                            placeholder={translate("chat_placeholder")}
-                            onMouseEnter={handleMouseEnter}
-                            onMouseLeave={handleMouseLeave}
-                            onFocus={handleFocus}
-                            onBlur={handleBlur}
-                            {...props}
-                          />
-                        )}
-                        value={formatPrompt(segment.value)}
-                        onChangeText={(e) => handleTextChange(e, index, message, "output")}
-
-                        onKeyDown={handleKeyDown}
+                        key={index}
+                        value={segment.value}
+                        onChangeText={(e) => handleTextChange(e, index, message, 'output')}
                         lang={targetLang}
                         style={{
-                          fontSize: "1rem",
-                          height: "50%",
-                          width: "270%",
-                          height: "auto",
-                          resize:"none",
-                          fontWeight: "400",
-                          minHeight: "5rem",
-                          lineHeight: "1.5",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
+                          fontSize: '1rem',
+                          padding: '12px',
+                          borderRadius: '12px 12px 0 12px',
                           color: grey[900],
-                          background: "#ffffff",
+                          background: '#ffffff',
                           border: `1px solid ${grey[200]}`,
                           boxShadow: `0px 2px 2px ${grey[50]}`,
+                          minHeight: '5rem',
+                          resize: 'none',
                         }}
-                        horizontalView={true}
                       />
-                    ) : ((
+                    ) : (
                       <textarea
                         key={index}
                         value={segment.value}
-                        onChange={(e) => handleTextChange(e, index, message, "output")}
-                        className="flex-col"
+                        onChange={(e) => handleTextChange(e, index, message, 'output')}
                         style={{
-                          width: "100%",
-                          resize:"none",
-                          fontSize: "1rem",
-                          padding: "0.5rem",
-                          border: "none",
-                          overflow: "hidden",
-                          minHeight: "5rem",
-                          height: "auto",
+                          fontSize: '1rem',
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '12px 12px 0 12px',
+                          color: grey[900],
+                          background: '#ffffff',
                           border: `1px solid ${grey[200]}`,
                           boxShadow: `0px 2px 2px ${grey[50]}`,
-                          borderRadius: "12px 12px 0 12px",
-
+                          minHeight: '5rem',
+                          resize: 'none',
                         }}
                         rows={1}
-                        onInput={(e) => {
-                          e.target.style.height = "auto";
-                          e.target.style.height = `${e.target.scrollHeight}px`;
-                        }}
                       />
-                    )) : (
-                      <ReactMarkdown
-                        key={index}
-                        className="flex-col overflow-x-scroll"
-                      >
-                        {segment.value}
-                      </ReactMarkdown>
                     )
-                ) : (
-
-                  <>
-                    <Box
+                  ) : (
+                    <ReactMarkdown
                       key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignContent: "center",
-                        paddingX: "1rem",
-                        borderRadius: "5px 5px 0 0",
-                        backgroundColor: "#c5c5c5",
-                        paddingY: "0.8rem",
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: "1rem",
-                          color: "#4e4e4e",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {segment.language}
-                      </p>
-                      <Tooltip
-                        title="Copy code to clipboard"
-                        classes={{ tooltip: tooltipStyle.tooltip }}
-                      >
-                        <button
-                          style={{
-                            display: "flex",
-                            justifyContent: "end",
-                            alignItems: "end",
-                          }}
-                          onClick={copyToClipboard.bind(null, segment.value)}
-                        >
-                          <ContentPasteIcon
-                            sx={{
-                              fontSize: "1.4rem",
-                              color: "#4e4e4e",
-                            }}
-                          />
-                          <p
-                            style={{
-                              paddingLeft: "0.2rem",
-                              fontSize: "1rem",
-                              color: "#4e4e4e",
-                              fontWeight: "500",
-                            }}
-                          >
-                            Copy
-                          </p>
-                        </button>
-                      </Tooltip>
-                    </Box>
-                    <SyntaxHighlighter
-                      language={segment.language}
-                      style={gruvboxDark}
-                      className="code"
-                      customStyle={codeStyle}
-                    >
-                      {segment.value}
-                    </SyntaxHighlighter>
-                  </>
-                ),
+                      children={segment?.value?.replace(/\n/gi, '&nbsp; \n')}
+                    />
+                  )
+                ) : (
+                  <SyntaxHighlighter
+                    key={index}
+                    language={segment.language}
+                    style={gruvboxDark}
+                    customStyle={{ padding: '1rem', borderRadius: '5px' }}
+                  >
+                    {segment.value}
+                  </SyntaxHighlighter>
+                )
               )}
-            </Box>
-          </Box>
-        </Box>,
-      );
-    }
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    ));
+  
     return chatElements;
   };
-
+  
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
 
@@ -907,8 +801,7 @@ const grey = {
             sx={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
-              width: "100% !important",
+              alignItems: "center !important",
               padding: "1rem 0 4rem",
             }}
           >
