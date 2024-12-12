@@ -596,7 +596,7 @@ const SuperCheckerPage = () => {
     };
 
     if (
-      ["draft", "skipped", "rejected", "delete", "delete-pair","to_be_revised"].includes(
+      ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
         value,
       ) ||
       ["validated", "validated_with_changes"].includes(value)
