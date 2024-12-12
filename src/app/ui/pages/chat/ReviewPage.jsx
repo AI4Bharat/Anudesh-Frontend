@@ -754,7 +754,7 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+        if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
           console.log("answered variable: ");
           console.log(answered, "kelo");
 

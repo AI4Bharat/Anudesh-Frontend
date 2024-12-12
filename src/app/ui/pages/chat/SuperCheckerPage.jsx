@@ -596,12 +596,12 @@ const SuperCheckerPage = () => {
     };
 
     if (
-      ["draft", "skipped", "rejected", "delete", "delete-pair"].includes(
+      ["draft", "skipped", "rejected", "delete", "delete-pair","to_be_revised"].includes(
         value,
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+      if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
         console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
