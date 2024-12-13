@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, TextField, Button, Tab, Tabs, Box, Typography } from '@mui/material';
 import { JSONTree } from 'react-json-tree';
+import { Link } from 'react-router-dom';
 import { snakeToTitleCase } from '../../../../utils/utils';
 import {CircularProgress} from '@mui/material';
 import CustomizedSnackbars from '@/components/common/Snackbar';
@@ -276,6 +277,11 @@ function TaskDetails() {
                             valueRenderer={(raw) => <span>{typeof raw === "string" && raw.match(/^"(.*)"$/) ? raw.slice(1, -1) :  raw}</span>}
                             theme={theme}
                         />
+                        {taskDetails &&(
+                            <Link to ={`/projects/${taskDetails.project_id}`}>
+                                <Button variant="contained">Project Page</Button>
+                            </Link>
+                        )}
                     </TabPanel>
                     <TabPanel value={tabValue} index={1}>
                         <JSONTree
