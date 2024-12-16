@@ -22,7 +22,8 @@ import { useDispatch, useSelector } from "react-redux";
 import APITransport from "@/app/actions/apitransport/apitransport";
 import FetchLanguagesAPI from "@/app/actions/api/UserManagement/FetchLanguages.js";
 import { MenuProps } from "@/utils/utils";
-import UserRolesList from "@/utils/UserMappedByRole";
+import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
+import OrganizationAPI from "@/app/actions/api/UserManagement/Organizations";
 
 const participationTypes = [
   { name: "FULL TIME", value: 1 },
@@ -51,28 +52,56 @@ const EditProfile = (props) => {
     setLanguage,
     setParticipationType,
     guest_user,
-    setguest_user
+    setguest_user,
+    organization,
+    setorganization
   } = props;
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const [languageOptions, setLanguageOptions] = useState([]);
+const [org,setorg] = useState([])
 
   const LanguageList = useSelector((state) => state.fetchLanguages?.data);
 
-  const getLanguageList = useCallback(() => {
+  const getLanguageList = useCallback(async() => {
     const langObj = new FetchLanguagesAPI();
-    dispatch(APITransport(langObj));
-  }, [dispatch]); 
-  
-  useEffect(() => {
-    getLanguageList();
-  }, [getLanguageList]);
+    const res = await fetch(langObj.apiEndPoint(), {
+      method: "GET",
+      body: JSON.stringify(langObj.getBody()),
+      headers: langObj.getHeaders().headers,
+  });
+  const resp = await res.json();
+  if (res.ok) {
+    console.log(resp);
+    setLanguageOptions(resp?.language)
+  } else {
+    
+  }
+
+  }, []);
+  const fetchPreviewData = useCallback(async () => {
+    const mailObj = new OrganizationAPI();
+    const res = await fetch(mailObj.apiEndPoint(), {
+        method: "GET",
+        body: JSON.stringify(mailObj.getBody()),
+        headers: mailObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      console.log(resp);
+      setorg(resp?.results)
+    } else {
+      
+    }
+
+
+  }, []); 
 
   useEffect(() => {
-    if (LanguageList) {
-      setLanguageOptions(LanguageList.language);
-    }
-  }, [LanguageList]);
+    getLanguageList();
+    fetchPreviewData()
+  }, []);
+
 
   return (
     <Grid>
@@ -254,6 +283,31 @@ const EditProfile = (props) => {
           </FormControl>
         </Grid>
       </Grid>
+      {guest_user==false?(<Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ mb: 2 }}>
+
+          <FormControl sx={{ m: 1, minWidth: 210 }}>
+            <InputLabel id="demo-simple-select-helper-label">Organization</InputLabel>
+            <Select
+              labelId="demo-simple-select-helper-label"
+              id="demo-simple-select-helper"
+              value={organization}
+              label="Organization"
+              onChange={(e) => setorganization(e.target.value)}
+              sx={{
+                textAlign: "left",
+              }}
+              MenuProps={MenuProps}
+            >
+           {org.map((orgItem, index) => (
+          <MenuItem key={index} value={orgItem.id}>
+            {orgItem.title}
+          </MenuItem>
+        ))}
+            </Select>
+          </FormControl>
+          {organization==null&&guest_user==false?<span style={{ color: "#d93025" }}>*</span>:null}
+
+        </Grid>):null}
       <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{display:"flex",ml:1}}>
             <Typography gutterBottom component="div" label="Required">
                     Guest User :
@@ -280,6 +334,7 @@ const EditProfile = (props) => {
             borderRadius: 2,
             textDecoration: "none",
           }}
+          disabled={(organization!=null)?false:true}
         />
         <CustomButton
           label={translate("button.cancel")}
