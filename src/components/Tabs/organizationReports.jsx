@@ -130,7 +130,7 @@ const OrganizationReports = () => {
   //   if (radiobutton === "ProjectReports") {
   //     setProjectTypes([
   //      "ModelOutputEvaluvation",
-  //      "ModelInteractionEvaluvation",
+  //      "ModelInteractionEvaluation",
   //      "InstructionDrivenChat",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
@@ -142,7 +142,7 @@ const OrganizationReports = () => {
   //   if (radiobutton === "UsersReports") {
   //     setProjectTypes([
   //      "ModelOutputEvaluvation",
-  //      "ModelInteractionEvaluvation",
+  //      "ModelInteractionEvaluation",
   //      "InstructionDrivenChat",
   //      "MultipleInteractionEvaluation",
   //     ]);
