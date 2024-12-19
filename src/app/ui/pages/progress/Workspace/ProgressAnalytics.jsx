@@ -203,7 +203,7 @@ function ProgressList() {
     if (radiobutton === "Annotation") {
       setProjectTypes([
        "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
+       "ModelInteractionEvaluation",
        "InstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");
