@@ -259,6 +259,8 @@ const GuestWorkspaceTable = (props) => {
   const data =
     guestWorkspaceData && guestWorkspaceData.length > 0
       ? pageSearch().map((el, i) => {
+          const isAuthenticated =
+          el.is_authenticated || authenticatedWorkspaces.includes(el.id);
           return [
             el.id,
             el.workspace_name,
@@ -271,13 +273,15 @@ const GuestWorkspaceTable = (props) => {
             <CustomButton
             key={i}
             sx={{ borderRadius: 2 }}
-            label={
-              authenticatedWorkspaces.includes(el.id)
-                ? "View"
-                : "Authenticate"
-            }
+            label={isAuthenticated ? "View" : "Authenticate"}
+            // label={
+            //   authenticatedWorkspaces.includes(el.id)
+            //     ? "View"
+            //     : "Authenticate"
+            // }
             onClick={
-              authenticatedWorkspaces.includes(el.id)
+              // authenticatedWorkspaces.includes(el.id)
+              isAuthenticated
                 ? () => handleViewWorkspace(el.id)
                 : () => handleOpen(el.workspace_name, el.id)
             }
