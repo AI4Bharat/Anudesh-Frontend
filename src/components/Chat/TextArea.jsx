@@ -230,7 +230,7 @@ console.log(text,"llm",inputValue);
         onClick={() => {
           handleButtonClick();
         }}
-        // disabled={!text?.trim()}
+        disabled={!text?.trim()}
 
       >
         <SendRoundedIcon style={{ color: "#EE6633", height: "4rem" }} />
