@@ -115,21 +115,7 @@ const OrganizationReports = () => {
   }, []);
 
   useEffect(() => {
-    if (radiobutton === "PaymentReports") {
-      setProjectTypes([
-        "AudioSegmentation",
-        "AudioTranscription",
-        "AudioTranscriptionEditing",
-        "ConversationTranslation",
-        "ConversationTranslationEditing",
-        "AcousticNormalisedTranscriptionEditing",
-        "AllAudioProjects",
-        "OCRTranscription",
-        "OCRTranscriptionEditing",
-      ]);
-      setSelectedType("AllAudioProjects");
-      
-    } else if (ProjectTypes) {
+    if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
         let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
@@ -223,7 +209,7 @@ const OrganizationReports = () => {
       if(emailRequested){
         setSnackbarInfo({
           open: true,
-          message: ProjectReports.message,
+          message: ProjectReports.message|| "Email will be sent shortly",
           variant: "success",
         })
         setEmailRequested(false);
@@ -368,11 +354,19 @@ const OrganizationReports = () => {
       }
       else if (radiobutton === "ProjectReports") {
         if(projectReportType === 1){
+        setEmailRequested(true);
         dispatch(fetchOrganizationProjectReports({orgId:orgId,
           projectType:selectedType,
           targetLanguage:targetLanguage,
           userId:userId,
           sendMail:sendMail}));
+        if (sendMail){
+        setSnackbarInfo({
+          open: true,
+          message: "Report will be e-mailed to you shortly",
+          variant: "success",
+        })
+      }
       }else if(projectReportType === 2){
         dispatch(fetchOrganizationDetailedProjectReports( {orgId:Number(orgId),
           projectType:selectedType,
