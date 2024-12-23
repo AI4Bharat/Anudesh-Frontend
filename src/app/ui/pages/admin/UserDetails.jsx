@@ -40,6 +40,9 @@ const UserDetail = (props) => {
   const [language, setLanguage] = useState([]);
   const [participationType, setParticipationType] = useState("");
   const [Role, setRole] = useState("");
+  const [organization, setorganization] = useState("");
+  
+
 
   const UserDetail = useSelector((state) => state.getUserDetails.data);
   const apiLoading = useSelector((state) => state.apiStatus.loading);
@@ -73,6 +76,7 @@ const UserDetail = (props) => {
     role,
     is_active,
     guest_user,
+    organization
   ) => {
     setOpenDialog(true);
     setId(id);
@@ -85,6 +89,7 @@ const UserDetail = (props) => {
     setRole(role);
     setActive(is_active);
     setguest_user(guest_user)
+    setorganization(organization?.id||organization)
   };
 
   const handleCloseDialog = () => {
@@ -101,11 +106,12 @@ const UserDetail = (props) => {
       participation_type: participationType,
       role: Role,
       is_active: active,
-      guest_user:guest_user
+      guest_user:guest_user,
+    ...(organization && { organization: organization }), 
+
     };
   
     const UserObj = new GetUserDetailUpdateAPI(id, data);
-    //  dispatch(APITransport(UserObj));
     const res = await fetch(UserObj.apiEndPoint(), {
       method: "PATCH",
       body: JSON.stringify(UserObj.getBody()),
@@ -306,7 +312,8 @@ const UserDetail = (props) => {
                       el.participation_type,
                       el.role,
                       el.is_active,
-                      el.guest_user
+                      el.guest_user,
+                      el.organization
                     )
                   }
                 />
@@ -399,6 +406,8 @@ console.log(data);
           setRole={setRole}
           guest_user={guest_user}
           setguest_user={setguest_user}
+          organization={organization}
+          setorganization={setorganization}
         />
       )}
     </div>
