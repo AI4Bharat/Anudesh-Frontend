@@ -126,29 +126,30 @@ const OrganizationReports = () => {
     }
   }, [ProjectTypes, radiobutton]);
 
-  useEffect(() => {
-    if (radiobutton === "ProjectReports") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "ProjectReports") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluation",
+  //      "InstructionDrivenChat",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
 
-  useEffect(() => {
-    if (radiobutton === "UsersReports") {
-      setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
-       "InstructionDrivenChat",
-      ]);
-      setSelectedType("InstructionDrivenChat");
+  // useEffect(() => {
+  //   if (radiobutton === "UsersReports") {
+  //     setProjectTypes([
+  //      "ModelOutputEvaluvation",
+  //      "ModelInteractionEvaluation",
+  //      "InstructionDrivenChat",
+  //      "MultipleInteractionEvaluation",
+  //     ]);
+  //     setSelectedType("InstructionDrivenChat");
       
-    } 
-  }, [ProjectTypes, radiobutton]);
+  //   } 
+  // }, [ProjectTypes, radiobutton]);
  
 
   useEffect(() => {
@@ -209,7 +210,7 @@ const OrganizationReports = () => {
       if(emailRequested){
         setSnackbarInfo({
           open: true,
-          message: ProjectReports.message|| "Email will be sent shortly",
+          message: ProjectReports.message,
           variant: "success",
         })
         setEmailRequested(false);
@@ -354,19 +355,18 @@ const OrganizationReports = () => {
       }
       else if (radiobutton === "ProjectReports") {
         if(projectReportType === 1){
-        setEmailRequested(true);
         dispatch(fetchOrganizationProjectReports({orgId:orgId,
           projectType:selectedType,
           targetLanguage:targetLanguage,
           userId:userId,
           sendMail:sendMail}));
-        if (sendMail){
+        if(sendMail){
         setSnackbarInfo({
           open: true,
-          message: "Report will be e-mailed to you shortly",
+          message: "Project Report will be e-mailed to you shortly",
           variant: "success",
         })
-      }
+      };
       }else if(projectReportType === 2){
         dispatch(fetchOrganizationDetailedProjectReports( {orgId:Number(orgId),
           projectType:selectedType,
