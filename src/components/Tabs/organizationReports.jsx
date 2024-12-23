@@ -130,7 +130,7 @@ const OrganizationReports = () => {
   //   if (radiobutton === "ProjectReports") {
   //     setProjectTypes([
   //      "ModelOutputEvaluvation",
-  //      "ModelInteractionEvaluvation",
+  //      "ModelInteractionEvaluation",
   //      "InstructionDrivenChat",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
@@ -142,7 +142,7 @@ const OrganizationReports = () => {
   //   if (radiobutton === "UsersReports") {
   //     setProjectTypes([
   //      "ModelOutputEvaluvation",
-  //      "ModelInteractionEvaluvation",
+  //      "ModelInteractionEvaluation",
   //      "InstructionDrivenChat",
   //      "MultipleInteractionEvaluation",
   //     ]);
@@ -360,6 +360,11 @@ const OrganizationReports = () => {
           targetLanguage:targetLanguage,
           userId:userId,
           sendMail:sendMail}));
+        setSnackbarInfo({
+          open: true,
+          message: "Project Report will be e-mailed to you shortly",
+          variant: "success",
+        })
       }else if(projectReportType === 2){
         dispatch(fetchOrganizationDetailedProjectReports( {orgId:Number(orgId),
           projectType:selectedType,
