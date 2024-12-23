@@ -334,7 +334,7 @@ const [org,setorg] = useState([])
             borderRadius: 2,
             textDecoration: "none",
           }}
-          disabled={(organization!=null)?false:true}
+          disabled={organization==null&&guest_user==false}
         />
         <CustomButton
           label={translate("button.cancel")}

@@ -32,11 +32,12 @@ export default function Textarea({
   grid_size,
   class_name,
   loading,
-  prompt,
+  inputValue,
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [text, setText] = useState("");
+
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -63,6 +64,7 @@ export default function Textarea({
     if (text !== "") {
       handleOnchange(text);
     }
+  
   }, [text]);
 
   const handleMouseEnter = (event) => {
@@ -87,7 +89,6 @@ export default function Textarea({
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       handleButtonClick();
-      setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
     }
@@ -145,6 +146,7 @@ export default function Textarea({
   if (!isMounted) {
     return null;
   }
+console.log(text,"llm",inputValue);
 
   return (
     <Grid
@@ -227,9 +229,8 @@ export default function Textarea({
         size="large"
         onClick={() => {
           handleButtonClick();
-          setText("");
         }}
-        disabled={!text.trim()}
+        // disabled={!text?.trim()}
 
       >
         <SendRoundedIcon style={{ color: "#EE6633", height: "4rem" }} />
