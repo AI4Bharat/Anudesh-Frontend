@@ -839,8 +839,7 @@ console.log(output,"kk");
                   localStorage.removeItem("labelAll");
                 }
 
-                // navigate(`/projects/${projectId}`);
-                navigate(-1);
+                navigate(`/projects/${projectId}`);
               }}
             >
               Back to Project
