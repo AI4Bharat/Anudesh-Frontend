@@ -914,7 +914,7 @@ const SuperCheckerPage = () => {
             }}
           >
             <Button
-              value="Back to Previous Page"
+              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -928,7 +928,7 @@ const SuperCheckerPage = () => {
                 //window.location.reload();
               }}
             >
-              Back to Previous Page
+              Back to Project
             </Button>
           </Box>
         </Grid>
