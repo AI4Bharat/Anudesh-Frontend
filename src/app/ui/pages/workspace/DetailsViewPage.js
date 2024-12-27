@@ -13,6 +13,8 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
+import { useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
@@ -258,6 +260,10 @@ const DetailsViewPage = (props) => {
     setbtn(null);
     setUserType(Object.keys(UserRolesList)[0]);
   };
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? (
@@ -340,6 +346,7 @@ const DetailsViewPage = (props) => {
                 TabIndicatorProps={{
                   style: { display: "none" },
                 }}
+                orientation={isSmallScreen ? "vertical" : "horizontal"}
               >
                 {pageType === componentType.Type_Workspace && (
                   <Tab

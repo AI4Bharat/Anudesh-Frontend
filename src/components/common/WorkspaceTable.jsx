@@ -89,6 +89,7 @@ const WorkspaceTable = (props) => {
         setCellHeaderProps: (sort) => ({
           style: { height: "70px", padding: "16px" },
         }),
+        setCellProps: () => ({ style: { wordWrap: "break-word" } }),
       },
     },
     {

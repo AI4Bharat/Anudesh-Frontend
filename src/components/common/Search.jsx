@@ -45,7 +45,7 @@ const Search = (props) => {
 
 
   return (
-   <Grid container justifyContent="end" sx={{marginTop:"20px"}}>
+   <Grid container justifyContent={{xs:"start",md:"end"}} sx={{marginTop:"20px",width:"100%"}}>
                 <Grid   className="search">
                     <Grid className="searchIcon">
                         <SearchIcon fontSize="small" />
@@ -57,7 +57,7 @@ const Search = (props) => {
                     renderComponent={(props) => (
                       <textarea
                       
-                      placeholder="Search..."
+                      placeholder="Search here"
                       {...props}
                       style={{background: "transparent", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%", border: "none", outline: "none", overflow: "hidden"}}
                       />
@@ -74,15 +74,15 @@ const Search = (props) => {
                     }}
                     lang={targetLang}
                     style={{background:"#F0F0F0", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%"}}
-                    /> : 
+                    /> : (
                     <InputBase
-                        sx={{ ml: 4 }}
+                        sx={{ ml: 4 ,width:"120px"}}
                         // inputRef={ref}
-                        placeholder="Search..."
+                        placeholder="Search here"
                         value={searchValue}
                         onChange={(e) => handleChangeName(e.target.value)}
                         inputProps={{ "aria-label": "search" }}
-                    />}
+                    />)}
                 </Grid>
                 </Grid>
           

@@ -177,7 +177,7 @@ function MobileNavbar(props) {
                 padding: "0 5%"
             }}
         > 
-            <Grid item sx={{ display: "flex", alignItems: "center" }}>
+            <Grid item sx={{ display: "flex", alignItems: "center" ,gap: "10px"}}>
                 <Link href="/projects">
                 <Image 
                     onClick={() => navigate("/")} 
@@ -190,12 +190,12 @@ function MobileNavbar(props) {
                   />
                 </Link>
                 <Typography
-                  variant="h4"
                   className="headerTitle"
                   style={{
                     fontSize: "28px",
-                    fontWeight: "lighter",
-                    fontFamily: 'Rowdies,cursive,Roboto,sans-serif'
+                    fontWeight: "bold",
+                    fontFamily: 'Rowdies,"Roboto,sans-serif',
+                    color: "#000000",
 
                   }}
                 >
