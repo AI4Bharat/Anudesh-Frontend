@@ -57,6 +57,7 @@ const ReportsTable = (props) => {
     const classes = DatasetStyle();
     const [radiobutton, setRadiobutton] = useState(isAnnotators?"AnnotatationReports":isReviewer?"ReviewerReports":"SuperCheckerReports");
     const [submitted, setSubmitted] = useState(false);
+    const [title, setTitle] = useState('');
 
     const loggedInUserData = useSelector(
         (state) => state.getLoggedInData.data
@@ -140,6 +141,7 @@ const ReportsTable = (props) => {
         setReportRequested(true);
         setSubmitted(true);
         setLoading(true);
+        setTitle(radiobutton === "AnnotatationReports" ? "Annotation Report" : (radiobutton === "ReviewerReports" ? "Reviewer Report" : "Super Checker Report"))
         setTimeout(() => {
             setLoading(false)
         }, 1000);
@@ -299,7 +301,7 @@ const ReportsTable = (props) => {
                         {
                             loading ? <CircularProgress style={{marginLeft: "50%"}}/> : reportRequested && (
                                 <MUIDataTable
-                                    title={radiobutton === "AnnotatationReports" ? "Annotation Report" : (radiobutton === "ReviewerReports" ? "Reviewer Report" : "Super Checker Report")}
+                                    title={title}
                                     data={ProjectReport}
                                     columns={columns.filter(col => selectedColumns.includes(col.name))}
                                     options={options}
