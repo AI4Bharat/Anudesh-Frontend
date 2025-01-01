@@ -1040,9 +1040,9 @@ const PreferenceRanking = ({
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
-            currentInteraction?.additional_note
+            currentInteraction?.additional_note!=""
               ? currentInteraction?.additional_note
-              : null
+              : ""
           }
           style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
           onChange={handleNoteChange}
