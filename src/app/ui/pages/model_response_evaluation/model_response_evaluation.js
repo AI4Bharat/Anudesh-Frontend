@@ -80,13 +80,14 @@ const ModelInteractionEvaluation = ({
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
-      // rating: null,
       questions_response: Array(questions?.length).fill(null),
     }));
   };
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
+      console.log("kek",annotation[0]);
+
       const result = annotation[0].result;
       return Array.isArray(result)
         ? result.map((item) => ({
@@ -106,7 +107,6 @@ const ModelInteractionEvaluation = ({
             },
           ];
     }
-    console.log("jack","1");
     
     return [];
   }, [annotation,taskId]);
@@ -128,17 +128,17 @@ const ModelInteractionEvaluation = ({
     } catch (error) {
       console.error("Error fetching interactions:", error);
     }
-    console.log("jack","2");
 
-  }, [taskId]);
+  }, [annotation,taskId]);
 
   useEffect(() => {
     fetchInteractions();
   }, [fetchInteractions]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0) {
-      const defaultFormId = forms[0]?.prompt_output_pair_id;
+    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {    
+        
+      const defaultFormId = forms[0]?.prompt_output_pair_id; ;
       const currentForm = forms.find(
         (form) => form?.prompt_output_pair_id === defaultFormId
       );
@@ -159,9 +159,8 @@ const ModelInteractionEvaluation = ({
         setCurrentInteraction(newState);
       }
     }
-    console.log("jack","3");
 
-  }, [forms, interactions, setCurrentInteraction, questions?.length]);
+  }, [forms, interactions, questions,annotation,setForms]);
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -177,9 +176,8 @@ const ModelInteractionEvaluation = ({
       }));
       setForms(initialForms);
     }
-    console.log("jack","4");
 
-  }, [forms, interactions, setForms, questions]);
+  }, [forms, interactions, setForms, questions,annotation]);
 
   useEffect(() => {
     if (!forms || forms.length == 0) {
@@ -235,11 +233,12 @@ const ModelInteractionEvaluation = ({
   }, [forms, taskId]);
 
   const handleRating = (rating, interactionIndex) => {
-    setCurrentInteraction((prev) => {
+    
+    setCurrentInteraction((prev) => {      
       const selectedQuestion = questions[interactionIndex];
       const ratingArray = [String(rating)];
       // const ratingScaleList = selectedQuestion?.rating_scale_list;
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index === interactionIndex) {
             return {
@@ -270,7 +269,7 @@ const ModelInteractionEvaluation = ({
     const answerArray = [String(selectedOption)];
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index == interactionIndex) {
             return {
@@ -306,7 +305,7 @@ const ModelInteractionEvaluation = ({
     );
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index === interactionIndex) {
             const updatedAnswers = isChecked
@@ -370,9 +369,6 @@ const ModelInteractionEvaluation = ({
     });
   };
 
-  console.log(currentInteraction);
-  console.log(interactions);
-  console.log(forms);
 
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
@@ -521,7 +517,7 @@ const ModelInteractionEvaluation = ({
     const { value } = e.target;
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index === interactionIndex) {
             const updatedBlankAnswers = q?.response ? [...q?.response] : [];
