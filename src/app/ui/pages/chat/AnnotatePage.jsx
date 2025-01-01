@@ -831,7 +831,7 @@ console.log(output,"kk");
             }}
           >
             <Button
-              value="Back to Previous Page"
+              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -841,11 +841,10 @@ console.log(output,"kk");
                   localStorage.removeItem("labelAll");
                 }
 
-                // navigate(`/projects/${projectId}`);
-                navigate(-1);
+                navigate(`/projects/${projectId}`);
               }}
             >
-              Back to Previous Page
+              Back to Project
             </Button>
           </Box>
         </Grid>

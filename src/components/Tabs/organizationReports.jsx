@@ -360,11 +360,13 @@ const OrganizationReports = () => {
           targetLanguage:targetLanguage,
           userId:userId,
           sendMail:sendMail}));
+        if(sendMail){
         setSnackbarInfo({
           open: true,
           message: "Project Report will be e-mailed to you shortly",
           variant: "success",
         })
+      };
       }else if(projectReportType === 2){
         dispatch(fetchOrganizationDetailedProjectReports( {orgId:Number(orgId),
           projectType:selectedType,
