@@ -722,8 +722,9 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${new Date().getTime()}`}
-          handleClick={handleAnnotationClick}
+        key={`annotations-${annotations?.length}-${
+          annotations?.[0]?.id || "default"
+        }`}          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
