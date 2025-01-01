@@ -465,7 +465,7 @@ console.log(output,"kk");
           setShowNotes(false);
           return;
         }
-        else if(ProjectDetails.project_type == "InstructionDrivenChat"&&chatHistory.length==0) {
+        else if(chatHistory.length==0) {
           console.log(chatHistory);
           
           setSnackbarInfo({
@@ -509,14 +509,11 @@ console.log(output,"kk");
           }
         }
         value === "delete"
-          ? (setSnackbarInfo({
-            open: true,
-            message: "Chat history has been cleared successfully!",
-            variant: "success",
-          }),
-          setChatHistory([{}]),
-          setCurrentInteraction({})
-        )
+          ? setSnackbarInfo({
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            })
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -528,7 +525,6 @@ console.log(output,"kk");
                 message: resp?.message,
                 variant: "success",
               });
-              setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -722,7 +718,9 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${new Date().getTime()}`}
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -831,7 +829,7 @@ console.log(output,"kk");
             }}
           >
             <Button
-              value="Back to Project"
+              value="Back to Previous Page"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -841,10 +839,11 @@ console.log(output,"kk");
                   localStorage.removeItem("labelAll");
                 }
 
-                navigate(`/projects/${projectId}`);
+                // navigate(`/projects/${projectId}`);
+                navigate(-1);
               }}
             >
-              Back to Project
+              Back to Previous Page
             </Button>
           </Box>
         </Grid>
