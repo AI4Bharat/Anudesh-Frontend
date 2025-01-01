@@ -190,12 +190,12 @@ const ModelInteractionEvaluation = ({
         return false;
       }
 
-      const mandatoryQuestions = questions.filter((question) => {
-        return question.mandatory && question.mandatory == true;
-      });
-      console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
+      // const mandatoryQuestions = questions.filter((question) => {
+      //   return question.mandatory && question.mandatory == true;
+      // });
+      // console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
 
-      const allMandatoryAnswered = mandatoryQuestions.every((question) => {
+      const allMandatoryAnswered = questions.every((question) => {
         let parts = 0;
         if (question.question_type === "fill_in_blanks") {
           parts = question?.input_question?.split("<blank>")?.length;
@@ -685,12 +685,12 @@ const ModelInteractionEvaluation = ({
                                 backgroundColor: "white",
                                 fontWeight: "normal",
                               }}
-                              required={question.mandatory}
+                              required={true}
                             />
                           )}
                         </span>
                       ))}
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -707,7 +707,7 @@ const ModelInteractionEvaluation = ({
                       <span style={{ fontSize: "16px" }}>
                         {i + 1}. {question.input_question}
                       </span>
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -744,7 +744,7 @@ const ModelInteractionEvaluation = ({
                               width: "47px",
                               padding: "13px",
                             }}
-                            required={question.mandatory}
+                            required={true}
                           />
                         ),
                       )}
@@ -760,7 +760,7 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -802,7 +802,7 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -811,7 +811,7 @@ const ModelInteractionEvaluation = ({
                     </div>
                     <FormControl
                       component="fieldset"
-                      required={question.mandatory}
+                      required={true}
                     >
                       <RadioGroup
                         value={
@@ -850,9 +850,9 @@ const ModelInteractionEvaluation = ({
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
-            currentInteraction?.additional_note
+            currentInteraction?.additional_note != ""
               ? currentInteraction?.additional_note
-              : null
+              : ""
           }
           style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
           onChange={handleNoteChange}
