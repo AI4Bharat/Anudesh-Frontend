@@ -176,7 +176,7 @@ const PreferenceRanking = ({
       console.log("jack", "3");
 
     }
-  }, [forms, interactions, setForms, questions]);
+  }, [forms, interactions, questions,annotation]);
 
   useEffect(() => {
     console.log(forms,interactions,"checking");
@@ -222,7 +222,7 @@ const PreferenceRanking = ({
     }
     console.log("jack", "4");
 
-  }, [forms, interactions, questions?.length]);
+  }, [forms, interactions, questions,annotation]);
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
