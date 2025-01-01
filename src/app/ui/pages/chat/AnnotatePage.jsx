@@ -465,7 +465,7 @@ console.log(output,"kk");
           setShowNotes(false);
           return;
         }
-        else if(chatHistory.length==0) {
+        else if(ProjectDetails.project_type == "InstructionDrivenChat"&&chatHistory.length==0) {
           console.log(chatHistory);
           
           setSnackbarInfo({
@@ -509,11 +509,14 @@ console.log(output,"kk");
           }
         }
         value === "delete"
-          ? setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            })
+          ? (setSnackbarInfo({
+            open: true,
+            message: "Chat history has been cleared successfully!",
+            variant: "success",
+          }),
+          setChatHistory([{}]),
+          setCurrentInteraction({})
+        )
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -525,6 +528,7 @@ console.log(output,"kk");
                 message: resp?.message,
                 variant: "success",
               });
+              setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -718,9 +722,7 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+        key={`annotations-${annotations?.length}-${new Date().getTime()}`}
           handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}

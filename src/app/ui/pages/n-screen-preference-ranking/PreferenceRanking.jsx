@@ -222,7 +222,7 @@ const PreferenceRanking = ({
     }
     console.log("jack", "4");
 
-  }, [forms, interactions, setCurrentInteraction, questions?.length]);
+  }, [forms, interactions, questions?.length]);
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);

@@ -642,6 +642,17 @@ const handleopenproject=(id,type)=>{
   };
 
   const tabs = [
+    loggedInUserData?.guest_user ? <Typography variant="body1">
+      <NavLink
+        to="/guest_workspaces"
+        className={({ isActive }) =>
+          isActive ? classes.highlightedMenu : classes.headerMenu
+        }
+        activeClassName={classes.highlightedMenu}
+      >
+        Guest Workspaces
+      </NavLink>
+    </Typography> : null,
     <Typography key={1} variant="body1">
       <NavLink
         hidden={
