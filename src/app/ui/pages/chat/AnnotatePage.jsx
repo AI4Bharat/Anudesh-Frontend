@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef } from "react";
+import { useState, useRef, useEffect, LegacyRef,memo } from "react";
 import {
   Grid,
   Box,
@@ -517,14 +517,7 @@ console.log(output,"kk");
             variant: "success",
           }),
           await getAnnotationsTaskData(taskId),
-          await getTaskData(taskId),
-          setForms((prevInteractions) =>
-            prevInteractions.map((interaction) => ({
-              ...interaction,
-              questions_response: Array(questions?.length).fill(null), 
-            })),
-            console.log(forms),
-          )
+          await getTaskData(taskId)
           )
           : value === "delete-pair"
             ? setSnackbarInfo({
@@ -1307,4 +1300,4 @@ console.log(output,"kk");
   );
 };
 
-export default AnnotatePage;
+export default memo(AnnotatePage);

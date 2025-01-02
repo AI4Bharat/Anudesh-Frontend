@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect,useCallback,useMemo } from "react";
+import { useState, useEffect,useCallback,useMemo,memo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -146,7 +146,7 @@ const ModelInteractionEvaluation = ({
         var defaultFormId = forms[0]?.prompt_output_pair_id
       }
       const currentForm = forms.find(
-        (form) => form?.prompt_output_pair_id === defaultFormId
+        (form) => form?.prompt_output_pair_id == defaultFormId
       );
       if (currentForm) {
         const newState = {
@@ -166,7 +166,7 @@ const ModelInteractionEvaluation = ({
       }
     }
 
-  }, [forms,interactions,setForms,questions]);
+  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -180,13 +180,16 @@ const ModelInteractionEvaluation = ({
           response: [],
         })),
       }));
-      setForms((prevForms) => [...initialForms]);
-      console.log(forms,"helo");
-
-    }
+      console.log("Init forms:", initialForms); 
+      setForms(initialForms); 
+      console.log("helo",forms,interactions);
+      }
 
   }, [forms, interactions, taskId]);
-
+  useEffect(() => {
+    console.log("Forms updated:", forms);
+  }, [forms]);
+  
   useEffect(() => {
     if (!forms || forms.length == 0) {
       setAnswered(false);
@@ -1088,4 +1091,4 @@ const ModelInteractionEvaluation = ({
   );
 };
 
-export default ModelInteractionEvaluation;
+export default memo(ModelInteractionEvaluation);
