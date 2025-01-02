@@ -87,6 +87,8 @@ const AnnotatePage = () => {
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
+  const questions =
+    useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
 
   const load_time = useRef();
   useEffect(() => {
@@ -514,9 +516,16 @@ console.log(output,"kk");
             message: "Chat history has been cleared successfully!",
             variant: "success",
           }),
-          setChatHistory([{}]),
-          setCurrentInteraction({})
-        )
+          await getAnnotationsTaskData(taskId),
+          await getTaskData(taskId),
+          setForms((prevInteractions) =>
+            prevInteractions.map((interaction) => ({
+              ...interaction,
+              questions_response: Array(questions?.length).fill(null), 
+            })),
+            console.log(forms),
+          )
+          )
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
