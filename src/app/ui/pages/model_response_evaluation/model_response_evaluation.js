@@ -161,7 +161,6 @@ const ModelInteractionEvaluation = ({
     }
 
   }, [forms, interactions, questions,annotation,setForms]);
-  console.log(currentInteraction)
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
