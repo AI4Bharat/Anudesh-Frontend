@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect,useCallback,useMemo } from "react";
+import { useState, useEffect,useCallback,useMemo,memo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -62,6 +62,7 @@ const ModelInteractionEvaluation = ({
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [formupdate, setformupdate] = useState();
 
   // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
@@ -71,6 +72,7 @@ const ModelInteractionEvaluation = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
+  const [clickedPromptOutputPairId,setclickedPromptOutputPairId]=useState()
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
@@ -136,13 +138,16 @@ const ModelInteractionEvaluation = ({
   }, [fetchInteractions]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {    
-        
-      const defaultFormId = forms[0]?.prompt_output_pair_id; ;
+    if (forms?.length > 0 && interactions?.length > 0 ) {    
+      if(clickedPromptOutputPairId){
+        var defaultFormId = clickedPromptOutputPairId
+      }
+      else{
+        var defaultFormId = forms[0]?.prompt_output_pair_id
+      }
       const currentForm = forms.find(
-        (form) => form?.prompt_output_pair_id === defaultFormId
+        (form) => form?.prompt_output_pair_id == defaultFormId
       );
-
       if (currentForm) {
         const newState = {
           prompt: currentForm.prompt || "",
@@ -157,10 +162,11 @@ const ModelInteractionEvaluation = ({
             Array(questions?.length).fill(null),
         };
         setCurrentInteraction(newState);
+        console.log("helo","2",forms);
       }
     }
 
-  }, [forms, interactions, questions,annotation,setForms]);
+  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -174,11 +180,16 @@ const ModelInteractionEvaluation = ({
           response: [],
         })),
       }));
-      setForms(initialForms);
-    }
+      console.log("Init forms:", initialForms); 
+      setForms(initialForms); 
+      console.log("helo",forms,interactions);
+      }
 
-  }, [forms, interactions, setForms, questions,annotation]);
-
+  }, [forms, interactions, taskId]);
+  useEffect(() => {
+    console.log("Forms updated:", forms);
+  }, [forms]);
+  
   useEffect(() => {
     if (!forms || forms.length == 0) {
       setAnswered(false);
@@ -189,12 +200,6 @@ const ModelInteractionEvaluation = ({
       if (!form) {
         return false;
       }
-
-      // const mandatoryQuestions = questions.filter((question) => {
-      //   return question.mandatory && question.mandatory == true;
-      // });
-      // console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
-
       const allMandatoryAnswered = questions.every((question) => {
         let parts = 0;
         if (question.question_type === "fill_in_blanks") {
@@ -260,7 +265,8 @@ const ModelInteractionEvaluation = ({
             : interaction,
         ),
       );
-
+      console.log(currentInteraction);
+      
       return updatedInteraction;
     });
   };
@@ -404,13 +410,13 @@ const ModelInteractionEvaluation = ({
   };
       console.log(forms);
   const handleFormBtnClick = (e) => {
-    const clickedPromptOutputPairId = parseInt(e.target.id);
+    setclickedPromptOutputPairId(e.target.id);
     console.log("clicked id" + clickedPromptOutputPairId);
     const currInteraction = forms?.find(
       (interaction) =>
-        interaction?.prompt_output_pair_id === clickedPromptOutputPairId,
+        interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
-    console.log(currInteraction);
+    console.log(currInteraction,"cuur");
     if (currInteraction) {
       setCurrentInteraction({
         prompt: currInteraction?.prompt,
@@ -882,7 +888,7 @@ const ModelInteractionEvaluation = ({
           gap: "1rem",
         }}
       >
-        {pairs.map((pair, index) => {
+        {pairs?.map((pair, index) => {
           return (
             <Accordion
               key={index}
@@ -1085,4 +1091,4 @@ const ModelInteractionEvaluation = ({
   );
 };
 
-export default ModelInteractionEvaluation;
+export default memo(ModelInteractionEvaluation);

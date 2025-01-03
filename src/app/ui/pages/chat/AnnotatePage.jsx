@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef } from "react";
+import { useState, useRef, useEffect, LegacyRef,memo } from "react";
 import {
   Grid,
   Box,
@@ -87,6 +87,8 @@ const AnnotatePage = () => {
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
+  const questions =
+    useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
 
   const load_time = useRef();
   useEffect(() => {
@@ -514,9 +516,9 @@ console.log(output,"kk");
             message: "Chat history has been cleared successfully!",
             variant: "success",
           }),
-          setChatHistory([{}]),
-          setCurrentInteraction({})
-        )
+          await getAnnotationsTaskData(taskId),
+          await getTaskData(taskId)
+          )
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -1298,4 +1300,4 @@ console.log(output,"kk");
   );
 };
 
-export default AnnotatePage;
+export default memo(AnnotatePage);
