@@ -70,6 +70,8 @@ const PreferenceRanking = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
+  const [clickedPromptOutputPairId,setclickedPromptOutputPairId]=useState()
+
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
@@ -176,13 +178,17 @@ const PreferenceRanking = ({
       console.log("jack", "3");
 
     }
-  }, [forms, interactions, questions,annotation]);
+  }, [forms, interactions, taskId]);
 
   useEffect(() => {
-    console.log(forms,interactions,"checking");
     
-    if (forms?.length > 0 && interactions?.length > 0 && !currentInteraction?.prompt) {
-      const defaultFormId = forms[0]?.prompt_output_pair_id;
+    if (forms?.length > 0 && interactions?.length > 0 ) {
+      if(clickedPromptOutputPairId){
+        var defaultFormId = clickedPromptOutputPairId
+      }
+      else{
+        var defaultFormId = forms[0]?.prompt_output_pair_id
+      }
 
       const currentForm = forms?.find(
         (form) => form?.prompt_output_pair_id == defaultFormId,
@@ -222,7 +228,7 @@ const PreferenceRanking = ({
     }
     console.log("jack", "4");
 
-  }, [forms, interactions, questions,annotation]);
+  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
@@ -556,7 +562,7 @@ const PreferenceRanking = ({
   };
   console.log(forms);
   const handleFormBtnClick = (e) => {
-    const clickedPromptOutputPairId = parseInt(e.target.id);
+    setclickedPromptOutputPairId(e.target.id);
     console.log(clickedPromptOutputPairId, forms);
     const currInteraction = forms?.find(
       (interaction) =>
