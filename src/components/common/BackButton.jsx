@@ -6,7 +6,7 @@ const BackButton = ({ label, backPressNavigationPath, ...rest }) =>{
   return (
     <>
      <Button {...rest} variant="contained" color="primary" onClick={() => {
-           navigate(-1)
+           navigate(backPressNavigationPath)
       }}>
       {label}
     </Button>
