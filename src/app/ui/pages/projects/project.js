@@ -1,6 +1,7 @@
 'use client'
 import  { React,useEffect, useState } from "react";
 import { Radio, Box, Grid, Typography, ThemeProvider } from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
@@ -19,9 +20,12 @@ export default function ProjectList({data}) {
          /* eslint-disable react-hooks/exhaustive-deps */
            /* eslint-disable-next-line react/jsx-key */
 
+           
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
 console.log(data);
+const theme = useTheme();
+
 
   // const [loading, setLoading] = useState(true);
   const [selectedFilters, setsSelectedFilters] = useState({
@@ -100,7 +104,7 @@ console.log(data?.length,"hel");
       </Grid>
 
       <Box>
-        <Box sx={{ marginTop: "20px" }}>
+        <Box sx={{ margin: "20px" }}>
           {radiobutton ? (
             <ProjectCardList
               projectData={displayedProjects}

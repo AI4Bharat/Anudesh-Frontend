@@ -13,8 +13,8 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
@@ -356,6 +356,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -371,6 +372,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -387,6 +389,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 1 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -402,6 +405,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 1 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -418,6 +422,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 2 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -433,6 +438,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 2 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -449,6 +455,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 3 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -464,6 +471,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 3 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -491,6 +499,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 4 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -507,6 +516,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 4 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
