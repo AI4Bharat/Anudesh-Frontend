@@ -98,10 +98,19 @@ console.log(data?.length,"hel");
           </FormControl>
         </Grid>
 
-        <Grid xs={3} item className="fixedWidthContainer">
-          <Search />
-        </Grid> 
-      </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              className="fixedWidthContainer"
+              sx={{
+                paddingX: { xs: 2, sm: 3, md: 0 },
+              }}
+            >
+              <Search />
+            </Grid>
+          </Grid>
 
       <Box>
         <Box sx={{ margin: "20px" }}>
