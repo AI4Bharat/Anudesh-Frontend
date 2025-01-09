@@ -1,6 +1,7 @@
 "use client";
+"use client";
 import "@/styles/Dataset.css";
-import { Grid, Link } from "@mui/material";
+import { Box, Grid, Link } from "@mui/material";
 import LoginStyle from "../../../../styles/loginStyle";
 import AppInfo from "../../../../components/user/AppInfo";
 import CustomCard from "../../../../components/common/Card";
@@ -25,6 +26,8 @@ import { authenticateUser, getLoggedInUserData } from "@/utils/utils";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function Login() {
+  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable-next-line react/jsx-key */
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
 

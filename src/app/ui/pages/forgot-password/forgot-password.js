@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 // import CustomCard from "@/component/common/Card";
 import { Grid, Typography, Link, ThemeProvider } from "@mui/material";
@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 
 const ForgotPassword = () => {
-   /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const classes = LoginStyle();
   const dispatch = useDispatch();
@@ -44,31 +44,31 @@ const ForgotPassword = () => {
     setLoading(true);
     let obj = new ForgotPasswordAPI(ForgotPassword);
     const res = await fetch(obj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(obj.getBody()),
-        headers: obj.getHeaders().headers,
+      method: "POST",
+      body: JSON.stringify(obj.getBody()),
+      headers: obj.getHeaders().headers,
     });
     const resp = await res.json();
     setLoading(false);
     if (res.ok) {
-        setSnackbarInfo({
-            open: true,
-            message: resp?.message,
-            variant: "success",
-        })
-        navigate("/login");
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+      navigate("/login");
     } else {
-        setSnackbarInfo({
-            open: true,
-            message: resp?.message,
-            variant: "error",
-        })
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
     }
-  }
+  };
   const ValidateEmail = (mail) => {
     if (
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
-        mail
+        mail,
       )
     ) {
       return true;
@@ -127,8 +127,8 @@ const ForgotPassword = () => {
           />
         </Grid>
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12} textAlign={"right"}>
-          <Typography>
-            <Link href="/" style={{ fontSize: "14px" }}>
+          <Typography onClick={() => navigate("/login")}>
+            <Link style={{ fontSize: "14px", cursor: "pointer" }}>
               {" "}
               Back to Login
             </Link>
