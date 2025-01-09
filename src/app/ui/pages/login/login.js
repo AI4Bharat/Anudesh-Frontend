@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import "@/styles/Dataset.css";
 import { Box, Grid, Link } from "@mui/material";
 import LoginStyle from "../../../../styles/loginStyle";
@@ -9,7 +8,7 @@ import OutlinedTextField from "../../../../components/common/OutlinedTextField";
 import { useEffect, useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
-import { Visibility } from "@mui/icons-material";
+import { Height, Visibility } from "@mui/icons-material";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../../../../components/common/Button";
@@ -145,30 +144,43 @@ export default function Login() {
 
   const renderCardContent = () => (
     <CustomCard
-      className="items-center"
+      className="items-center w-full"
       title={"Sign in to Anudesh"}
       cardContent={TextFields()}
-    >
-      <Grid container spacing={2} style={{ width: "100%", cursor: "pointer" }}>
-        <Grid item xs={12} sm={12} md={12} lg={12} xl={12} textAlign={"right"}>
-          <Link onClick={() => navigate("/forgot-password")}>
-            {translate("forgotPassword")}
-          </Link>
+      cardContentTwo={
+        <Grid
+          container
+          spacing={2}
+          style={{ width: "100%", cursor: "pointer" }}
+        >
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={12}
+            lg={12}
+            xl={12}
+            textAlign={"right"}
+          >
+            <Link onClick={() => navigate("/forgot-password")}>
+              {translate("forgotPassword")}
+            </Link>
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <CustomButton
+              style={{
+                backgroundColor: "#ee6633",
+                borderRadius: "20px",
+                color: "#FFFFFF",
+              }}
+              fullWidth
+              onClick={handleSubmit}
+              label={"Login"}
+            />
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-          <CustomButton
-            style={{
-              backgroundColor: "#ee6633",
-              borderRadius: "20px",
-              color: "#FFFFFF",
-            }}
-            fullWidth
-            onClick={handleSubmit}
-            label={"Login"}
-          />
-        </Grid>
-      </Grid>
-    </CustomCard>
+      }
+    ></CustomCard>
   );
 
   const renderSnackBar = () => {
@@ -248,10 +260,10 @@ export default function Login() {
           <AppInfo />
         </div>
         <div item className="w-full px-10 md:w-3/5 flex flex-col items-center">
-          <form autoComplete="off" className="lg:w-1/2 ">
+          <form autoComplete="off" className="w-full lg:w-1/2 ">
             {renderCardContent()}
           </form>
-          <div className="w-full flex items-center justify-between my-4 m-auto">
+          <div className="w-full lg:w-1/2 flex items-center justify-between my-4 m-auto">
             <span className="border-b w-1/4"></span>
             <a href="#" className="text-xs text-center text-gray-500 uppercase">
               or login with google
