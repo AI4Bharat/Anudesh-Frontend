@@ -162,14 +162,14 @@ const AnnotatePage = () => {
   ];
 
   const formatResponse = (response,isLast) => {
-    if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
-      return [
-        {
-          type: "text",
-          value: "",
-        },
-      ];
-    }
+    // if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
+    //   return [
+    //     {
+    //       type: "text",
+    //       value: "",
+    //     },
+    //   ];
+    // }
     response = String(response);
     const output = [];
     let count = 0;
@@ -939,7 +939,7 @@ console.log(output,"kk");
               <LightTooltip                 title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails.conceal==true&&Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
