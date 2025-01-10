@@ -8,7 +8,7 @@ import OutlinedTextField from "../../../../components/common/OutlinedTextField";
 import { useEffect, useState } from "react";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
-import { Visibility } from "@mui/icons-material";
+import { Height, Visibility } from "@mui/icons-material";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../../../../components/common/Button";
@@ -25,6 +25,8 @@ import { authenticateUser, getLoggedInUserData } from "@/utils/utils";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 export default function Login() {
+  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable-next-line react/jsx-key */
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
 
@@ -104,13 +106,7 @@ export default function Login() {
 
   const TextFields = () => {
     return (
-      <Grid
-        container
-        spacing={2}
-        style={{ marginTop: "2px", width: "100%" }}
-        justifyContent="center"
-        alignItems="center"
-      >
+      <Grid container spacing={2} style={{ marginTop: "2px" }}>
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
           <OutlinedTextField
             fullWidth
@@ -147,65 +143,44 @@ export default function Login() {
   };
 
   const renderCardContent = () => (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-      }}
-    >
-      <CustomCard
-        className="items-center"
-        title={"Sign in to Anudesh"}
-        cardContent={TextFields()}
-        cardContentTwo={
+    <CustomCard
+      className="items-center w-full"
+      title={"Sign in to Anudesh"}
+      cardContent={TextFields()}
+      cardContentTwo={
+        <Grid
+          container
+          spacing={2}
+          style={{ width: "100%", cursor: "pointer" }}
+        >
           <Grid
-            container
-            direction={"column"}
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "1rem",
-            }}
-            alignItems={"center"}
-            justifyContent={"center"}
+            item
+            xs={12}
+            sm={12}
+            md={12}
+            lg={12}
+            xl={12}
+            textAlign={"right"}
           >
-            <Box display="flex" alignItems="flex-end" width="100%">
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                xl={12}
-                textAlign="right"
-              >
-                <Link
-                  onClick={() => navigate("/forgot-password")}
-                  style={{ cursor: "pointer" }}
-                >
-                  {translate("forgotPassword")}
-                </Link>
-              </Grid>
-            </Box>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12} width={"100%"}>
-              <CustomButton
-                style={{
-                  backgroundColor: "#ee6633",
-                  borderRadius: "20px",
-                  color: "#FFFFFF",
-                  width: "100%",
-                }}
-                fullWidth
-                onClick={handleSubmit}
-                label={"Login"}
-              />
-            </Grid>
+            <Link onClick={() => navigate("/forgot-password")}>
+              {translate("forgotPassword")}
+            </Link>
           </Grid>
-        }
-      />
-    </div>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <CustomButton
+              style={{
+                backgroundColor: "#ee6633",
+                borderRadius: "20px",
+                color: "#FFFFFF",
+              }}
+              fullWidth
+              onClick={handleSubmit}
+              label={"Login"}
+            />
+          </Grid>
+        </Grid>
+      }
+    ></CustomCard>
   );
 
   const renderSnackBar = () => {
@@ -271,30 +246,24 @@ export default function Login() {
   return (
     <>
       {renderSnackBar()}
-      <Grid container>
-        <Grid
+      <div
+        container
+        className="flex flex-col md:flex-row justify-center items-center h-auto md:h-full"
+      >
+        <div
           item
-          xs={12}
-          sm={4}
-          md={3}
-          lg={3}
-          color={"primary"}
-          className="appInfo"
+          // color={"primary"}
+          className="appInfo bg-orange-500 h-auto md:w-2/5 md:block"
           justifyContent="center"
           alignItems="center"
         >
           <AppInfo />
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={9}
-          md={9}
-          lg={9}
-          style={{ flex: "auto", margin: "auto" }}
-        >
-          <form autoComplete="off">{renderCardContent()}</form>
-          <div className="w-1/3 flex items-center justify-between my-4 m-auto">
+        </div>
+        <div item className="w-full px-10 md:w-3/5 flex flex-col items-center">
+          <form autoComplete="off" className="w-full lg:w-1/2 ">
+            {renderCardContent()}
+          </form>
+          <div className="w-full lg:w-1/2 flex items-center justify-between my-4 m-auto">
             <span className="border-b w-1/4"></span>
             <a href="#" className="text-xs text-center text-gray-500 uppercase">
               or login with google
@@ -304,7 +273,7 @@ export default function Login() {
 
           <button
             onClick={() => googleLogin()}
-            className="w-2/5 flex items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg hover:bg-gray-50 m-auto"
+            className="w-full flex items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg hover:bg-gray-50 m-auto lg:w-1/2"
           >
             <div className="px-4 py-2">
               <svg className="w-6 h-6" viewBox="0 0 40 40">
@@ -330,8 +299,8 @@ export default function Login() {
               Sign in with Google
             </span>
           </button>
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </>
   );
 }

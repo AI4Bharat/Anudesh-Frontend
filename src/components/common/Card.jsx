@@ -13,7 +13,7 @@ const CustomCard = ({ title, children, cardContent, cardContentTwo }) => {
       container
       alignItems="center"
       justifyContent="center"
-      style={{ width: "50%" }}
+      style={{ width: "100%" }}
     >
       <Card
         elevation={3}
