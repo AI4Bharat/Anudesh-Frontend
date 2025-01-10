@@ -300,6 +300,7 @@ const grey = {
               };
             });
         } else {
+          setLoading(false)
           setSnackbarInfo({
             open: true,
             message: data?.message,

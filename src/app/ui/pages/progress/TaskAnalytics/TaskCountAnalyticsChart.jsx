@@ -27,6 +27,7 @@ function TaskCountAnalyticsChart(props) {
   const [totalTaskCount, setTotalTaskCount] = useState();
   const [totalAnnotationTasksCount, setTotalAnnotationTasksCount] = useState();
   const [totalReviewTasksCount, setTotalReviewTasksCount] = useState();
+  const [difftotal,setdifftotal] =useState()
   const [data, setData] = useState([]);
   useEffect(() => {
     if (analyticsData.length > 0) {
@@ -47,9 +48,9 @@ function TaskCountAnalyticsChart(props) {
       sortedData.forEach((element, index) => {
         allAnnotatorCumulativeTasksCount += element.annotation_cumulative_tasks_count;
         allReviewCumulativeTasksCount += element.review_cumulative_tasks_count;
-        languages = element.languages; // This will be the last language in sortedData
+        languages = element.languages; 
       });
-  
+      setdifftotal(allAnnotatorCumulativeTasksCount-allReviewCumulativeTasksCount)
       setTotalAnnotationTasksCount(allAnnotatorCumulativeTasksCount);
       setTotalReviewTasksCount(allReviewCumulativeTasksCount);
       setTotalTaskCount(allAnnotatorCumulativeTasksCount + allReviewCumulativeTasksCount);
@@ -123,8 +124,8 @@ function TaskCountAnalyticsChart(props) {
 
               </Typography>
               <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
-                {totalTaskCount &&
-                  new Intl.NumberFormat("en").format(totalTaskCount)}
+                {totalAnnotationTasksCount &&
+                  new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
@@ -133,8 +134,8 @@ function TaskCountAnalyticsChart(props) {
 
               </Typography>
               <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
-                {totalAnnotationTasksCount &&
-                  new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
+                {difftotal &&
+                  new Intl.NumberFormat("en").format(difftotal)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>

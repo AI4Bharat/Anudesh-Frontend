@@ -260,7 +260,7 @@ const GuestWorkspaceTable = (props) => {
     guestWorkspaceData && guestWorkspaceData.length > 0
       ? pageSearch().map((el, i) => {
           const isAuthenticated =
-          el.is_authenticated || authenticatedWorkspaces.includes(el.id);
+          el.is_autheticated || authenticatedWorkspaces.includes(el.id);
           return [
             el.id,
             el.workspace_name,

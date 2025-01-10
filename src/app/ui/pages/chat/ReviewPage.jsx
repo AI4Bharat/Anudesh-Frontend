@@ -754,7 +754,7 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+        if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
           console.log("answered variable: ");
           console.log(answered, "kelo");
 
@@ -1142,7 +1142,7 @@ const ReviewPage = () => {
             }}
           >
             <Button
-              value="Back to Previous Page"
+              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -1157,7 +1157,7 @@ const ReviewPage = () => {
                 //window.location.reload();
               }}
             >
-              Back to Previous Page
+              Back to Project
             </Button>
           </Box>
         </Grid>
