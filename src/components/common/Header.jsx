@@ -233,9 +233,9 @@ const handleopenproject=(id,type)=>{
     setAnchorElHelp(event.currentTarget);
   };
 
-  const handleInfo = (event) => {
-    console.log('Information button clicked!')
-  }
+  const handleInfo = () => {
+    window.open('https://github.com/AI4Bharat/Anudesh/wiki', '_blank'); 
+  };
 
   const handleCloseHelpMenu = () => {
     setAnchorElHelp(null);
