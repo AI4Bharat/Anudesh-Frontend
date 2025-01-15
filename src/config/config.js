@@ -1,5 +1,5 @@
 const configs = {
-  BASE_URL: "https://backend.prod2.anudesh.ai4bharat.org",
+  BASE_URL: "https://backend.anudesh.ai4bharat.org",
   BASE_URL_AUTO: process.env.REACT_APP_APIGW_BASE_URL
     ? process.env.REACT_APP_APIGW_BASE_URL
        :"https://backend.dev.anudesh.ai4bharat.org",

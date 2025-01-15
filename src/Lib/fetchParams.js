@@ -1,8 +1,13 @@
 'use client'
+import API from "@/Constants/api";
+
+
+const apiInstance = new API();
+const endpoints = apiInstance.apiEndPointAuto();
 
 const fetchParams = (endpoint, method = "GET", body = null) => {
     return {
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}${endpoint}`,
+        url: `${endpoints}${endpoint}`,
         options: {
             method: method,
             body,
