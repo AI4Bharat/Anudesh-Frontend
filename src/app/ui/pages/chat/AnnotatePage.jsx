@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef } from "react";
+import { useState, useRef, useEffect, LegacyRef,memo } from "react";
 import {
   Grid,
   Box,
@@ -87,6 +87,8 @@ const AnnotatePage = () => {
 
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
+  const questions =
+    useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
 
   const load_time = useRef();
   useEffect(() => {
@@ -442,11 +444,14 @@ console.log(output,"kk");
       clear_conversation: value === "delete",
     };
 
+
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
+        console.log(chatHistory.length);
+        
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -461,6 +466,19 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
+        }
+        else if(ProjectDetails.project_type == "InstructionDrivenChat"&&chatHistory.length==0) {
+          console.log(chatHistory);
+          
+          setSnackbarInfo({
+            open: true,
+            message: "Please enter prompt",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -493,11 +511,14 @@ console.log(output,"kk");
           }
         }
         value === "delete"
-          ? setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            })
+          ? (setSnackbarInfo({
+            open: true,
+            message: "Chat history has been cleared successfully!",
+            variant: "success",
+          }),
+          await getAnnotationsTaskData(taskId),
+          await getTaskData(taskId)
+          )
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -509,6 +530,7 @@ console.log(output,"kk");
                 message: resp?.message,
                 variant: "success",
               });
+              setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -702,10 +724,9 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
-          handleClick={handleAnnotationClick}
+        key={`annotations-${annotations?.length}-${
+          annotations?.[0]?.id || "default"
+        }`}          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
@@ -813,7 +834,7 @@ console.log(output,"kk");
             }}
           >
             <Button
-              value="Back to Previous Page"
+              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -823,11 +844,10 @@ console.log(output,"kk");
                   localStorage.removeItem("labelAll");
                 }
 
-                // navigate(`/projects/${projectId}`);
-                navigate(-1);
+                navigate(`/projects/${projectId}`);
               }}
             >
-              Back to Previous Page
+              Back to Project
             </Button>
           </Box>
         </Grid>
@@ -1280,4 +1300,4 @@ console.log(output,"kk");
   );
 };
 
-export default AnnotatePage;
+export default memo(AnnotatePage);

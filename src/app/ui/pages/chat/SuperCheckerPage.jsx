@@ -601,7 +601,7 @@ const SuperCheckerPage = () => {
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+      if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
         console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
@@ -612,6 +612,17 @@ const SuperCheckerPage = () => {
           setSnackbarInfo({
             open: true,
             message: "Answer all the mandatory questions in all forms",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+        }
+        else if (chatHistory.length==0){
+          setAutoSave(true);
+          setSnackbarInfo({
+            open: true,
+            message: "Please Enter Prompt",
             variant: "error",
           });
           setLoading(false);
@@ -903,7 +914,7 @@ const SuperCheckerPage = () => {
             }}
           >
             <Button
-              value="Back to Previous Page"
+              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -917,7 +928,7 @@ const SuperCheckerPage = () => {
                 //window.location.reload();
               }}
             >
-              Back to Previous Page
+              Back to Project
             </Button>
           </Box>
         </Grid>

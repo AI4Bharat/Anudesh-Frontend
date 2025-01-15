@@ -112,7 +112,7 @@ const WorkspaceReports = () => {
     if (radioButton === "project") {
       setProjectTypes([
        "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
+       "ModelInteractionEvaluation",
        "InstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");
@@ -124,7 +124,7 @@ const WorkspaceReports = () => {
     if (radioButton === "user") {
       setProjectTypes([
        "ModelOutputEvaluvation",
-       "ModelInteractionEvaluvation",
+       "ModelInteractionEvaluation",
        "InstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");

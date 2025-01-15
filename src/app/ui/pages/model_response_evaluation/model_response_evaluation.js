@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect,useCallback,useMemo } from "react";
+import { useState, useEffect,useCallback,useMemo,memo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -62,6 +62,7 @@ const ModelInteractionEvaluation = ({
   const classes = ModelResponseEvaluationStyle();
   const [leftPanelVisible, setLeftPanelVisible] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [formupdate, setformupdate] = useState();
 
   // const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [blank, setBlank] = useState("");
@@ -71,6 +72,7 @@ const ModelInteractionEvaluation = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
+  const [clickedPromptOutputPairId,setclickedPromptOutputPairId]=useState()
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
@@ -80,13 +82,14 @@ const ModelInteractionEvaluation = ({
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
       ...prev,
-      // rating: null,
       questions_response: Array(questions?.length).fill(null),
     }));
   };
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
+      console.log("kek",annotation[0]);
+
       const result = annotation[0].result;
       return Array.isArray(result)
         ? result.map((item) => ({
@@ -106,7 +109,6 @@ const ModelInteractionEvaluation = ({
             },
           ];
     }
-    console.log("jack","1");
     
     return [];
   }, [annotation,taskId]);
@@ -128,21 +130,24 @@ const ModelInteractionEvaluation = ({
     } catch (error) {
       console.error("Error fetching interactions:", error);
     }
-    console.log("jack","2");
 
-  }, [taskId]);
+  }, [annotation,taskId]);
 
   useEffect(() => {
     fetchInteractions();
   }, [fetchInteractions]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0) {
-      const defaultFormId = forms[0]?.prompt_output_pair_id;
+    if (forms?.length > 0 && interactions?.length > 0 ) {    
+      if(clickedPromptOutputPairId){
+        var defaultFormId = clickedPromptOutputPairId
+      }
+      else{
+        var defaultFormId = forms[0]?.prompt_output_pair_id
+      }
       const currentForm = forms.find(
-        (form) => form?.prompt_output_pair_id === defaultFormId
+        (form) => form?.prompt_output_pair_id == defaultFormId
       );
-
       if (currentForm) {
         const newState = {
           prompt: currentForm.prompt || "",
@@ -157,11 +162,11 @@ const ModelInteractionEvaluation = ({
             Array(questions?.length).fill(null),
         };
         setCurrentInteraction(newState);
+        console.log("helo","2",forms);
       }
     }
-    console.log("jack","3");
 
-  }, [forms, interactions, setCurrentInteraction, questions?.length]);
+  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -175,12 +180,16 @@ const ModelInteractionEvaluation = ({
           response: [],
         })),
       }));
-      setForms(initialForms);
-    }
-    console.log("jack","4");
+      console.log("Init forms:", initialForms); 
+      setForms(initialForms); 
+      console.log("helo",forms,interactions);
+      }
 
-  }, [forms, interactions, setForms, questions]);
-
+  }, [forms, interactions, taskId]);
+  useEffect(() => {
+    console.log("Forms updated:", forms);
+  }, [forms]);
+  
   useEffect(() => {
     if (!forms || forms.length == 0) {
       setAnswered(false);
@@ -191,13 +200,7 @@ const ModelInteractionEvaluation = ({
       if (!form) {
         return false;
       }
-
-      const mandatoryQuestions = questions.filter((question) => {
-        return question.mandatory && question.mandatory == true;
-      });
-      console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
-
-      const allMandatoryAnswered = mandatoryQuestions.every((question) => {
+      const allMandatoryAnswered = questions.every((question) => {
         let parts = 0;
         if (question.question_type === "fill_in_blanks") {
           parts = question?.input_question?.split("<blank>")?.length;
@@ -235,11 +238,12 @@ const ModelInteractionEvaluation = ({
   }, [forms, taskId]);
 
   const handleRating = (rating, interactionIndex) => {
-    setCurrentInteraction((prev) => {
+    
+    setCurrentInteraction((prev) => {      
       const selectedQuestion = questions[interactionIndex];
       const ratingArray = [String(rating)];
       // const ratingScaleList = selectedQuestion?.rating_scale_list;
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index === interactionIndex) {
             return {
@@ -261,7 +265,8 @@ const ModelInteractionEvaluation = ({
             : interaction,
         ),
       );
-
+      console.log(currentInteraction);
+      
       return updatedInteraction;
     });
   };
@@ -270,7 +275,7 @@ const ModelInteractionEvaluation = ({
     const answerArray = [String(selectedOption)];
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index == interactionIndex) {
             return {
@@ -306,7 +311,7 @@ const ModelInteractionEvaluation = ({
     );
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index === interactionIndex) {
             const updatedAnswers = isChecked
@@ -370,9 +375,6 @@ const ModelInteractionEvaluation = ({
     });
   };
 
-  console.log(currentInteraction);
-  console.log(interactions);
-  console.log(forms);
 
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
@@ -408,13 +410,13 @@ const ModelInteractionEvaluation = ({
   };
       console.log(forms);
   const handleFormBtnClick = (e) => {
-    const clickedPromptOutputPairId = parseInt(e.target.id);
+    setclickedPromptOutputPairId(e.target.id);
     console.log("clicked id" + clickedPromptOutputPairId);
     const currInteraction = forms?.find(
       (interaction) =>
-        interaction?.prompt_output_pair_id === clickedPromptOutputPairId,
+        interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
-    console.log(currInteraction);
+    console.log(currInteraction,"cuur");
     if (currInteraction) {
       setCurrentInteraction({
         prompt: currInteraction?.prompt,
@@ -521,7 +523,7 @@ const ModelInteractionEvaluation = ({
     const { value } = e.target;
 
     setCurrentInteraction((prev) => {
-      const updatedQuestionsResponse = prev.questions_response.map(
+      const updatedQuestionsResponse = prev.questions_response?.map(
         (q, index) => {
           if (index === interactionIndex) {
             const updatedBlankAnswers = q?.response ? [...q?.response] : [];
@@ -689,12 +691,12 @@ const ModelInteractionEvaluation = ({
                                 backgroundColor: "white",
                                 fontWeight: "normal",
                               }}
-                              required={question.mandatory}
+                              required={true}
                             />
                           )}
                         </span>
                       ))}
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -711,7 +713,7 @@ const ModelInteractionEvaluation = ({
                       <span style={{ fontSize: "16px" }}>
                         {i + 1}. {question.input_question}
                       </span>
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -748,7 +750,7 @@ const ModelInteractionEvaluation = ({
                               width: "47px",
                               padding: "13px",
                             }}
-                            required={question.mandatory}
+                            required={true}
                           />
                         ),
                       )}
@@ -764,7 +766,7 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -806,7 +808,7 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      {question.mandatory && (
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -815,7 +817,7 @@ const ModelInteractionEvaluation = ({
                     </div>
                     <FormControl
                       component="fieldset"
-                      required={question.mandatory}
+                      required={true}
                     >
                       <RadioGroup
                         value={
@@ -854,9 +856,9 @@ const ModelInteractionEvaluation = ({
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
-            currentInteraction?.additional_note
+            currentInteraction?.additional_note != ""
               ? currentInteraction?.additional_note
-              : null
+              : ""
           }
           style={{ minHeight: "50px", maxHeight: "10rem", height: "50px" }}
           onChange={handleNoteChange}
@@ -886,7 +888,7 @@ const ModelInteractionEvaluation = ({
           gap: "1rem",
         }}
       >
-        {pairs.map((pair, index) => {
+        {pairs?.map((pair, index) => {
           return (
             <Accordion
               key={index}
@@ -1089,4 +1091,4 @@ const ModelInteractionEvaluation = ({
   );
 };
 
-export default ModelInteractionEvaluation;
+export default memo(ModelInteractionEvaluation);

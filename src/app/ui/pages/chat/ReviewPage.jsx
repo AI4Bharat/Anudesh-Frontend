@@ -754,7 +754,7 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+        if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
           console.log("answered variable: ");
           console.log(answered, "kelo");
 
@@ -767,6 +767,17 @@ const ReviewPage = () => {
             setSnackbarInfo({
               open: true,
               message: "Answer all the mandatory questions in all forms",
+              variant: "error",
+            });
+            setLoading(false);
+            setShowNotes(false);
+            return;
+          }
+          else if(chatHistory.length==0){
+            setAutoSave(true);
+            setSnackbarInfo({
+              open: true,
+              message: "Please Enter Prompt",
               variant: "error",
             });
             setLoading(false);
@@ -1131,7 +1142,7 @@ const ReviewPage = () => {
             }}
           >
             <Button
-              value="Back to Previous Page"
+              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
@@ -1146,7 +1157,7 @@ const ReviewPage = () => {
                 //window.location.reload();
               }}
             >
-              Back to Previous Page
+              Back to Project
             </Button>
           </Box>
         </Grid>
