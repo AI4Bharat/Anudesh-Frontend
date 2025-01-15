@@ -1030,7 +1030,7 @@ const SuperCheckerPage = () => {
             }}
           >
             <Grid item>
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip title={ProjectDetails.conceal==true&&assignedUsers ? assignedUsers : ""}>
                 <Button
                   type="default"
                   className="lsf-button"

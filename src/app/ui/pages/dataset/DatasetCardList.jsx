@@ -7,6 +7,7 @@ import tableTheme from "@/themes/tableTheme";
 import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DatasetFilterList from "./DatasetFilterList";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const DatasetCardList = (props) => {
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -161,6 +162,35 @@ const DatasetCardList = (props) => {
     jumpToPage: true,
     customToolbar: renderToolBar,
   };
+  const isXLarge = useMediaQuery("(min-width: 1280px)");
+  const isLarge = useMediaQuery("(min-width: 769px) and (max-width: 1279px)");
+  const isMedium = useMediaQuery("(min-width: 481px) and (max-width: 768px)");
+  const isSmall = useMediaQuery("(max-width: 480px)");
+
+  // Adjust columns based on screen size
+  const responsiveColumns = React.useMemo(() => {
+    if (isXLarge) {
+      return columns; // Full set of columns
+    }
+    if (isLarge) {
+      return columns.slice(0, Math.max(columns.length - 1, 2)); // Slightly reduced
+    }
+    if (isMedium) {
+      return columns.slice(0, 2); // Limited columns
+    }
+    if (isSmall) {
+      return columns.slice(0, 1); // Minimal columns
+    }
+    return columns; // Default
+  }, [isXLarge, isLarge, isMedium, isSmall, columns]);
+
+  // Adjust options based on screen size
+  const responsiveOptions = {
+    ...options,
+    rowsPerPage: isSmall ? 5 : 10,
+    rowsPerPageOptions: isSmall ? [5] : [10, 25, 50],
+    responsive: "standard", // Can also use "vertical" or "simple" for better small screen support
+  };
 
   return (
     <div>
@@ -168,8 +198,8 @@ const DatasetCardList = (props) => {
         <MUIDataTable
           title={""}
           data={data}
-          columns={columns}
-          options={options}
+          columns={responsiveColumns}
+          options={responsiveOptions}
         />
       </ThemeProvider>
       <DatasetFilterList
