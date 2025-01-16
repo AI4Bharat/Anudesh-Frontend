@@ -35,14 +35,14 @@ const codeStyle = {
 const Chat = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
-  let inputValue = "";
+  const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
   const navigate = useNavigate();
   const bottomRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [chatHistory, setChatHistory] = useState(() => {
-    return JSON.parse(sessionStorage.getItem("interaction_json")) || [];
-  });
+  const [chatHistory, setChatHistory] = useState([]);
+
+
   const [showChatContainer, setShowChatContainer] = useState(
     chatHistory.length > 0 ? true : false,
   );
@@ -54,12 +54,24 @@ const Chat = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    window.sessionStorage.setItem(
-      "interaction_json",
-      JSON.stringify(chatHistory),
-    );
-  }, [chatHistory]);
+    const storedHistory = sessionStorage.getItem("interaction_json");
+    if (storedHistory) {
+      console.log("Stored History found in sessionStorage:", storedHistory);
+      setChatHistory(JSON.parse(storedHistory));
+      setShowChatContainer(true);
+    } else {
+      console.log("No stored history found in sessionStorage.");
+    }
+  }, []); 
+
+  useEffect(() => {
+    console.log("chatHistory updated:", chatHistory);
+    if (chatHistory.length > 0) {
+      sessionStorage.setItem("interaction_json", JSON.stringify(chatHistory));
+      console.log("sessionStorage updated with new chat history");
+    }
+  }, [chatHistory]); 
+
 
   const formatResponse = (response) => {
     response = String(response);
@@ -147,7 +159,7 @@ const Chat = () => {
   };
 
   const handleOnchange = (prompt) => {
-    inputValue = prompt;
+    setInputValue(prompt);
   };
 
   const renderSnackBar = () => {
