@@ -1251,10 +1251,9 @@ const ReviewPage = () => {
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${review?.id}`}
+                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
     {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
-                    </div>
+    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}                    </div>
                   </div>
                 }
               >

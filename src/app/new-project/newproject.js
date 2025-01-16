@@ -134,7 +134,7 @@ const CreateProject = () => {
   const [tableData, setTableData] = useState([]);
   const [searchAnchor, setSearchAnchor] = useState(null);
   const [is_published, setIsPublished] = useState(false);
-  const [conceal, setconceal] = useState(false);
+  // const [conceal, setconceal] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] =
     useState("none");
@@ -394,9 +394,9 @@ const CreateProject = () => {
   const handleChangeIsPublished = (event) => {
     setIsPublished(event.target.checked);
   };
-  const handleChangeconceal = (event) => {
-    setconceal(event.target.checked);
-  };
+  // const handleChangeconceal = (event) => {
+  //   setconceal(event.target.checked);
+  // };
 
 
   useEffect(() => {
@@ -576,7 +576,7 @@ const CreateProject = () => {
       is_published: is_published,
       password: passwordForProjects,
       metadata_json: questionsJSON,
-      conceal:conceal
+      // conceal:conceal
     };
     console.log(newProject);
 
@@ -612,7 +612,7 @@ const CreateProject = () => {
     is_published: is_published,
     password: passwordForProjects,
     metadata_json: questionsJSON,
-    conceal:conceal
+    // conceal:conceal
   };
   console.log(newProject);
 

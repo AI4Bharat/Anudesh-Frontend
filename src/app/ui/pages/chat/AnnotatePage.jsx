@@ -939,7 +939,7 @@ console.log(output,"kk");
               <LightTooltip                 title={
                   <div>
                     <div>
-                      {ProjectDetails.conceal==true&&Array.isArray(assignedUsers)
+                    {Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>

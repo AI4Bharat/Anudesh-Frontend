@@ -114,7 +114,7 @@ const Chat = () => {
         message: inputValue,
       };
       const ChatInteractionObj = new PostChatInteractionAPI(body);
-      const interactionRes = await fetch(ChatInteractionObj.apiEndPoint(), {
+      const interactionRes = await fetch(ChatInteractionObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(ChatInteractionObj.getBody()),
         headers: ChatInteractionObj.getHeaders().headers,
@@ -133,7 +133,7 @@ const Chat = () => {
         message: inputValue,
       };
       const ChatLogObj = new PostChatLogAPI(chatLogBody);
-      const logRes = await fetch(ChatLogObj.apiEndPoint(), {
+      const logRes = await fetch(ChatLogObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(ChatLogObj.getBody()),
         headers: ChatLogObj.getHeaders().headers,
