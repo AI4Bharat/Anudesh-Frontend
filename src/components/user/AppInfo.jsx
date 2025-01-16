@@ -11,38 +11,56 @@ export default function AppInfo() {
         display: "flex",
         justifyContent: "center",
         alignItems: "start",
+        gap: "1rem",
         flexDirection: "column",
+        padding: "1rem",
       }}
     >
-      <Hidden only="xs">
-        <Image
-          src={AnudeshLogo}
-          alt="anudesh-logo"
-          style={{
-            width: "150px",
-            margin: "10% 0px 0% 35px",
-            borderRadius: "50%",
-          }}
-        />
-      </Hidden>
+      {/* <Hidden only="xs"> */}
+      <Image
+        src={AnudeshLogo}
+        alt="anudesh-logo"
+        style={{
+          width: "150px",
+
+          borderRadius: "50%",
+        }}
+      />
+      {/* </Hidden> */}
       <Typography
         variant={"h2"}
         className="title"
-        style={{ margin: "10% 294px 10% 39px" }}
+        style={{ color: "#fff" }}
+        sx={{
+          fontSize: {
+            xs: "18px", // Font size for small screens
+            sm: "22px", // Font size for ≥ 600px
+            md: "24px", // Font size for ≥ 900px
+            lg: "26px", // Font size for ≥ 1200px
+          },
+        }}
       >
         Anudesh
       </Typography>
-      <Hidden only="xs">
-        <Typography
-          variant={"body1"}
-          className="body"
-          style={{ marginLeft: "39px" }}
-        >
-          Anudesh is an open source platform where you can contribute to the
-          development of state of the art LLMs for Indian languages by helping
-          us create high quality conversational data.
-        </Typography>
-      </Hidden>
+      {/* <Hidden only="xs"> */}
+      <Typography
+        variant={"body1"}
+        className="body"
+        style={{}}
+        sx={{
+          fontSize: {
+            xs: "18px", // Font size for small screens
+            sm: "22px", // Font size for ≥ 600px
+            md: "24px", // Font size for ≥ 900px
+            lg: "26px", // Font size for ≥ 1200px
+          },
+        }}
+      >
+        Anudesh is an open source platform where you can contribute to the
+        development of state of the art LLMs for Indian languages by helping us
+        create high quality conversational data.
+      </Typography>
+      {/* </Hidden> */}
     </Box>
   );
 }
