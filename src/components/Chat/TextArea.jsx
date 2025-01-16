@@ -89,6 +89,7 @@ export default function Textarea({
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       handleButtonClick();
+      setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
     }
@@ -146,7 +147,6 @@ export default function Textarea({
   if (!isMounted) {
     return null;
   }
-console.log(text,"llm",inputValue);
 
   return (
     <Grid
@@ -229,6 +229,7 @@ console.log(text,"llm",inputValue);
         size="large"
         onClick={() => {
           handleButtonClick();
+          setText("");
         }}
         disabled={!text?.trim()}
 
