@@ -69,7 +69,7 @@ const ModelOutputEvaluation = ({
   useEffect(() => {
     const fetchData = async () => {
       const taskAnnotationsObj = new GetTaskAnnotationsAPI(taskId);
-      const response = await fetch(taskAnnotationsObj.apiEndPoint(), {
+      const response = await fetch(taskAnnotationsObj.apiEndPointAuto(), {
         method: "GET",
         headers: taskAnnotationsObj.getHeaders().headers,
       });
@@ -152,7 +152,7 @@ const ModelOutputEvaluation = ({
   useEffect(() => {
     const fetchData = async () => {
       const taskDetailsObj = new GetTaskDetailsAPI(taskId);
-      const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
+      const taskResponse = await fetch(taskDetailsObj.apiEndPointAuto(), {
         method: "GET",
         headers: taskDetailsObj.getHeaders().headers,
       });

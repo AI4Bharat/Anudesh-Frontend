@@ -1513,7 +1513,7 @@ const CreateProject = () => {
                 }
               </>
             )}
-            <Grid container direction="row" alignItems="center">
+            {/* <Grid container direction="row" alignItems="center">
                 <Typography gutterBottom components="div">
                   Hide Details :
                 </Typography>
@@ -1523,7 +1523,7 @@ const CreateProject = () => {
                   inputProps={{ "aria-label": "controlled" }}
                   sx={{ mt: 2, ml: 2, mb: 2 }}
                 />
-              </Grid>
+              </Grid> */}
             <Grid
               item
               className="projectsettingGrid"

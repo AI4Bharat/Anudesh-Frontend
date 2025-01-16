@@ -282,7 +282,7 @@ const grey = {
         body.parentannotation = id?.parent_annotation;
       }
       const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
+      const res = await fetch(AnnotationObj.apiEndPointAuto(), {
         method: "PATCH",
         body: JSON.stringify(AnnotationObj.getBody()),
         headers: AnnotationObj.getHeaders().headers,

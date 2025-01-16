@@ -181,7 +181,7 @@ const InterAutomateDataset = () => {
       checked,
     );
     setLoading(true);
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

@@ -95,7 +95,7 @@ export default function DeleteProjectTasks() {
         } else {
              projectObj = new DeleteProjectTasksAPI(id, ProjectTaskIDs)
         }
-        const res = await fetch(projectObj.apiEndPoint(), {
+        const res = await fetch(projectObj.apiEndPointAuto(), {
             method: "POST",
             body: JSON.stringify(projectObj.getBody()),
             headers: projectObj.getHeaders().headers,
@@ -145,7 +145,7 @@ export default function DeleteProjectTasks() {
     const [password, setPassword] = useState("");
     const handleConfirm = async () => {
       const apiObj = new LoginAPI(emailId, password);
-        const res = await fetch(apiObj.apiEndPoint(), {
+        const res = await fetch(apiObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,

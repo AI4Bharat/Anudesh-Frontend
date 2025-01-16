@@ -320,7 +320,7 @@ const handleSearchClose = () => {
 const unassignTasks = async () => {
   setDeallocateDialog(false);
   const deallocateObj = new DeallocateSuperCheckerTasksAPI(id, selectedFilters.supercheck_status);
-  const res = await fetch(deallocateObj.apiEndPoint(), {
+  const res = await fetch(deallocateObj.apiEndPointAuto(), {
     method: "GET",
     body: JSON.stringify(deallocateObj.getBody()),
     headers: deallocateObj.getHeaders().headers,
@@ -345,7 +345,7 @@ const unassignTasks = async () => {
 
 const fetchNewTasks = async () => {
   const batchObj = new PullNewSuperCheckerBatchAPI(id, Math.round(pullSize))
-const res = await fetch(batchObj.apiEndPoint(), {
+const res = await fetch(batchObj.apiEndPointAuto(), {
   method: "POST",
   body: JSON.stringify(batchObj.getBody()),
   headers: batchObj.getHeaders().headers,
@@ -545,7 +545,7 @@ if (typeof window !== 'undefined') {
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

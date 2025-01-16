@@ -240,7 +240,7 @@ export default function PerformanceAnalytics() {
       ...(radiobutton==="Supercheck" && {supercheck_reports:true})
       };
     const performanceAnalyticsAPIObj = new wsPerformanceAnalyticsAPI(payload, wsId, metaInfo);
-    await axios.post(performanceAnalyticsAPIObj.apiEndPoint(), performanceAnalyticsAPIObj.getBody(), performanceAnalyticsAPIObj.getHeaders())
+    await axios.post(performanceAnalyticsAPIObj.apiEndPointAuto(), performanceAnalyticsAPIObj.getBody(), performanceAnalyticsAPIObj.getHeaders())
     .then(response => {
         if (response.statusText === "OK") {
         setPerformanceAnalyticsTasksData(response.data);

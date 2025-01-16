@@ -50,7 +50,7 @@ export default function SuperCheckSettings(props) {
         setSupercheckLoopCount();
         setSupercheckvalue();
         let projectObj = new SuperCheckSettingsAPI(id, data)
-        const res = await fetch(projectObj.apiEndPoint(), {
+        const res = await fetch(projectObj.apiEndPointAuto(), {
             method: "PATCH",
             body: JSON.stringify(projectObj.getBody()),
             headers: projectObj.getHeaders().headers,

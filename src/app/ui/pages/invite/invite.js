@@ -63,7 +63,7 @@ export default function SignUp() {
     const handleSubmit = () => {
         let apiObj = new SignUpAPI(comformdata,inviteCode)
         var rsp_data = []
-        fetch(apiObj.apiEndPoint(), {
+        fetch(apiObj.apiEndPointAuto(), {
             method: 'PATCH',
             body: JSON.stringify(apiObj.getBody()),
             headers: apiObj.getHeaders().headers

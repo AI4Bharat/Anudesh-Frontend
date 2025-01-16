@@ -151,7 +151,7 @@ const handleok = async() => {
     setSuperCheckStatus([])
     const projectObj = new DeallocationAnnotatorsAndReviewersAPI(id,radiobutton,annotatorsUser,reviewerssUser,annotationStatus,reviewStatus,superCheckersUser,superCheckStatus);
     // dispatch(APITransport(projectObj));
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(projectObj.getBody()),
         headers: projectObj.getHeaders().headers,
@@ -195,7 +195,7 @@ const renderSnackBar = () => {
   const handleConfirm = async () => {
     if(radiobutton === "annotation" || radiobutton === "review"){
       const apiObj = new LoginAPI(emailId, password);
-      const res = await fetch(apiObj.apiEndPoint(), {
+      const res = await fetch(apiObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,

@@ -121,7 +121,7 @@ const BasicSettings = (props) => {
         }
         console.log(sendData);
         const projectObj = new GetSaveButtonAPI(id, sendData);
-        const res = await fetch(projectObj.apiEndPoint(), {
+        const res = await fetch(projectObj.apiEndPointAuto(), {
             method: "PUT",
             body: JSON.stringify(projectObj.getBody()),
             headers: projectObj.getHeaders().headers,

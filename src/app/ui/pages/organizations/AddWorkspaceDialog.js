@@ -28,7 +28,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler, orgId = 0 }) => {
         //     workspaceName,
         //     publicanalytics
         // );
-        // const createWorkspaceRes = await fetch(createWorkspaceObj.apiEndPoint(), {
+        // const createWorkspaceRes = await fetch(createWorkspaceObj.apiEndPointAuto(), {
         //     method: "POST",
         //     body: JSON.stringify(createWorkspaceObj.getBody()),
         //     headers: createWorkspaceObj.getHeaders().headers,

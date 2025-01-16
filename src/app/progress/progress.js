@@ -41,7 +41,7 @@ export default function ProgressPage () {
   const handleEmailToggle = async () => {
     setLoading(true);
     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
-    const res = await fetch(mailObj.apiEndPoint(), {
+    const res = await fetch(mailObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(mailObj.getBody()),
         headers: mailObj.getHeaders().headers,

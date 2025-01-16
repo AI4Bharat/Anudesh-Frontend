@@ -220,7 +220,7 @@ function ProgressList() {
   const getCumulativeTasksData = async (payload, OrgId) => {
     // setLoading(true);
     const cumulativeTasksAPIObj = new CumulativeTasksAPI(payload, OrgId, metaInfo);
-    await axios.post(cumulativeTasksAPIObj.apiEndPoint(), cumulativeTasksAPIObj.getBody(), cumulativeTasksAPIObj.getHeaders())
+    await axios.post(cumulativeTasksAPIObj.apiEndPointAuto(), cumulativeTasksAPIObj.getBody(), cumulativeTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setCumulativeTasksData(response.data);
@@ -237,7 +237,7 @@ function ProgressList() {
   const getPeriodicalTasksData = async (payload, OrgId) => {
     // setLoading(true);
     const periodicalTasksAPIObj = new PeriodicalTasks(payload, OrgId, metaInfo);
-    await axios.post(periodicalTasksAPIObj.apiEndPoint(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
+    await axios.post(periodicalTasksAPIObj.apiEndPointAuto(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setPeriodicalTasksData(response.data);
@@ -254,7 +254,7 @@ function ProgressList() {
   const getSecondaryPeriodicalTasksData = async (payload, OrgId) => {
     setLoading(true);
     const periodicalTasksAPIObj = new PeriodicalTasks(payload, OrgId, metaInfo);
-    await axios.post(periodicalTasksAPIObj.apiEndPoint(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
+    await axios.post(periodicalTasksAPIObj.apiEndPointAuto(), periodicalTasksAPIObj.getBody(), periodicalTasksAPIObj.getHeaders())
       .then(response => {
         if (response.statusText === "OK") {
           setSecondaryPeriodicalTasksData(response.data);

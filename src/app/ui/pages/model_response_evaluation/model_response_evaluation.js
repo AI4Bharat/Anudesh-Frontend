@@ -121,7 +121,7 @@ const ModelInteractionEvaluation = ({
   const fetchInteractions = useCallback(async () => {
     try {
       const taskDetailsObj = new GetTaskDetailsAPI(taskId);
-      const taskResponse = await fetch(taskDetailsObj.apiEndPoint(), {
+      const taskResponse = await fetch(taskDetailsObj.apiEndPointAuto(), {
         method: "GET",
         headers: taskDetailsObj.getHeaders().headers,
       });

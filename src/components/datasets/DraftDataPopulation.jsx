@@ -126,7 +126,7 @@ const DraftDataPopulation = () => {
       return items.instance_id === srcInstance
     })[0].organisation_id);
     const apiObj = new intraAutomateDatasetsAPI(srcInstance, org_id, field);
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

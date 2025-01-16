@@ -201,7 +201,7 @@ const DetailsViewPage = (props) => {
         selectedUsers,
         userType,
       );
-      const res = await fetch(addUsesrsObj.apiEndPoint(), {
+      const res = await fetch(addUsesrsObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addUsesrsObj.getBody()),
         headers: addUsesrsObj.getHeaders().headers,
@@ -228,7 +228,7 @@ const DetailsViewPage = (props) => {
         selectedUsers,
         userType,
       );
-      const res = await fetch(addMembersObj.apiEndPoint(), {
+      const res = await fetch(addMembersObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addMembersObj.getBody()),
         headers: addMembersObj.getHeaders().headers,

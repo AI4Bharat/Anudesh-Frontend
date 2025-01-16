@@ -24,7 +24,7 @@ import {
     const verifyEmail = async () => {
       setLoading(true);
       const apiObj = new VerifyEmailAPI(oldEmailCode, newEmailCode);
-      fetch(apiObj.apiEndPoint(), {
+      fetch(apiObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,

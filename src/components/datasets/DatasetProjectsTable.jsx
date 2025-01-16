@@ -111,7 +111,7 @@ export default function DatasetProjectsTable({ datasetId }) {
 		const projectObj = project.project_type === "InstructionDrivenChat" ?
 			new GetExportProjectButtonAPI(project.id, project.dataset_id[0]) : new GetExportProjectButtonAPI(project.id);
 		dispatch(fetchExportProjectButton(projectObj1));
-		const res = await fetch(projectObj.apiEndPoint(), {
+		const res = await fetch(projectObj.apiEndPointAuto(), {
 			method: "POST",
 			body: JSON.stringify(projectObj.getBody()),
 			headers: projectObj.getHeaders().headers,
@@ -162,7 +162,7 @@ export default function DatasetProjectsTable({ datasetId }) {
 	const getPullNewDataAPI = async (project) => {
 		const projectObj = new GetPullNewDataAPI(project.id);
 		//dispatch(APITransport(projectObj));
-		const res = await fetch(projectObj.apiEndPoint(), {
+		const res = await fetch(projectObj.apiEndPointAuto(), {
 			method: "POST",
 			body: JSON.stringify(projectObj.getBody()),
 			headers: projectObj.getHeaders().headers,

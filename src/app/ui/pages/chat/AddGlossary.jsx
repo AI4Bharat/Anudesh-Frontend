@@ -101,7 +101,7 @@ const AddGlossary = ({
     };
     const domainApiObj = new AddGlossaryAPI(AddGlossaryData);
     dispatch(fetchGetAddGlossary(AddGlossaryData));
-    const res = await fetch(domainApiObj.apiEndPoint(), {
+    const res = await fetch(domainApiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(domainApiObj.getBody()),
       headers: domainApiObj.getHeaders().headers,

@@ -43,7 +43,7 @@ const ForgotPassword = () => {
   const handleSubmit = async () => {
     setLoading(true);
     let obj = new ForgotPasswordAPI(ForgotPassword);
-    const res = await fetch(obj.apiEndPoint(), {
+    const res = await fetch(obj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(obj.getBody()),
       headers: obj.getHeaders().headers,

@@ -73,7 +73,7 @@ const BasicWorkspaceSettings = (props) => {
     }
     const workspaceObj = new GetWorkspaceSaveButtonAPI(id, sendData);
     dispatch(APITransport(workspaceObj));
-    const res = await fetch(workspaceObj.apiEndPoint(), {
+    const res = await fetch(workspaceObj.apiEndPointAuto(), {
         method: "PUT",
         body: JSON.stringify(workspaceObj.getBody()),
         headers: workspaceObj.getHeaders().headers,

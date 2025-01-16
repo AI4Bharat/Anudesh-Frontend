@@ -114,7 +114,7 @@ const Header = () => {
 
   const fetchNotifications = () => {
     let apiObj = new NotificationAPI();
-    const endpoint = unread == null ? apiObj.apiEndPoint() : `${apiObj.apiEndPoint()}?seen=${unread}`;
+    const endpoint = unread == null ? apiObj.apiEndPointAuto() : `${apiObj.apiEndPointAuto()}?seen=${unread}`;
 
     fetch(endpoint, {
       method: "get",
@@ -277,7 +277,7 @@ const handleopenproject=(id,type)=>{
   const handleTranscriptionFlowChange = async (event) => {
     const obj = new UpdateUIPrefsAPI(event.target.checked);
     // dispatch(APITransport(loggedInUserObj));
-    const res = await fetch(obj.apiEndPoint(), {
+    const res = await fetch(obj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(obj.getBody()),
       headers: obj.getHeaders().headers,
@@ -818,7 +818,7 @@ const handleopenproject=(id,type)=>{
 
   const handleChangePassword = async (email) => {
     let obj = new ForgotPasswordAPI({email: email});
-    const res = await fetch(obj.apiEndPoint(), {
+    const res = await fetch(obj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(obj.getBody()),
         headers: obj.getHeaders().headers,

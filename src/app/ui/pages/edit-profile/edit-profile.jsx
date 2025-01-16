@@ -83,7 +83,7 @@ const MyProfile = () => {
   const handleUpdateEmail = () => {
     setEmailVerifyLoading(true);
     const apiObj = new UpdateEmailAPI(email.toLowerCase());
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -126,7 +126,7 @@ const MyProfile = () => {
       newDetails.availability_status,
       newDetails.participation_type
     );
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "PATCH",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

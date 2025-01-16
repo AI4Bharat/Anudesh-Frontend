@@ -156,7 +156,7 @@ const ReportsTable = (props) => {
         }
         // projectId, startDate, endDate,reports_type
         dispatch(fetchProjectReport(projectObj));
-        const res = await fetch(projectObj.apiEndPoint(), {
+        const res = await fetch(projectObj.apiEndPointAuto(), {
             method: "POST",
             body: JSON.stringify(projectObj.getBody()),
             headers: projectObj.getHeaders().headers,

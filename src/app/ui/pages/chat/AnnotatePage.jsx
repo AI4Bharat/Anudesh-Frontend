@@ -321,7 +321,7 @@ console.log(output,"kk");
 
     let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
     var rsp_data = [];
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "post",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -483,7 +483,7 @@ console.log(output,"kk");
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
-      const res = await fetch(TaskObj.apiEndPoint(), {
+      const res = await fetch(TaskObj.apiEndPointAuto(), {
         method: "PATCH",
         body: JSON.stringify(TaskObj.getBody()),
         headers: TaskObj.getHeaders().headers,
@@ -689,7 +689,7 @@ console.log(output,"kk");
   const getTaskData = async (id) => {
     setLoading(true);
     const ProjectObj = new GetTaskDetailsAPI(id);
-    const res = await fetch(ProjectObj.apiEndPoint(), {
+    const res = await fetch(ProjectObj.apiEndPointAuto(), {
       method: "GET",
       body: JSON.stringify(ProjectObj.getBody()),
       headers: ProjectObj.getHeaders().headers,

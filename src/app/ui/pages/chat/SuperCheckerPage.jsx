@@ -463,7 +463,7 @@ const SuperCheckerPage = () => {
 
     let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
     var rsp_data = [];
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "post",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -632,7 +632,7 @@ const SuperCheckerPage = () => {
       }
       if (value === "rejected") PatchAPIdata["result"] = [];
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      const res = await fetch(TaskObj.apiEndPoint(), {
+      const res = await fetch(TaskObj.apiEndPointAuto(), {
         method: "PATCH",
         body: JSON.stringify(TaskObj.getBody()),
         headers: TaskObj.getHeaders().headers,
@@ -772,7 +772,7 @@ const SuperCheckerPage = () => {
   const getTaskData = async (id) => {
     setLoading(true);
     const ProjectObj = new GetTaskDetailsAPI(id);
-    const res = await fetch(ProjectObj.apiEndPoint(), {
+    const res = await fetch(ProjectObj.apiEndPointAuto(), {
       method: "GET",
       body: JSON.stringify(ProjectObj.getBody()),
       headers: ProjectObj.getHeaders().headers,

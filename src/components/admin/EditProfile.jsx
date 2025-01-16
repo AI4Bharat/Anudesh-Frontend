@@ -65,7 +65,7 @@ const [org,setorg] = useState([])
 
   const getLanguageList = useCallback(async() => {
     const langObj = new FetchLanguagesAPI();
-    const res = await fetch(langObj.apiEndPoint(), {
+    const res = await fetch(langObj.apiEndPointAuto(), {
       method: "GET",
       body: JSON.stringify(langObj.getBody()),
       headers: langObj.getHeaders().headers,
@@ -81,7 +81,7 @@ const [org,setorg] = useState([])
   }, []);
   const fetchPreviewData = useCallback(async () => {
     const mailObj = new OrganizationAPI();
-    const res = await fetch(mailObj.apiEndPoint(), {
+    const res = await fetch(mailObj.apiEndPointAuto(), {
         method: "GET",
         body: JSON.stringify(mailObj.getBody()),
         headers: mailObj.getHeaders().headers,

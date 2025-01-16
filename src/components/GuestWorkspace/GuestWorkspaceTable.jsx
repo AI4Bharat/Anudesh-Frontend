@@ -110,7 +110,7 @@ const GuestWorkspaceTable = (props) => {
     };
 
     const AuthenticationObj = new AuthenticateToWorkspaceAPI(currentWorkspaceId, body);
-    const res = await fetch(AuthenticationObj.apiEndPoint(), {
+    const res = await fetch(AuthenticationObj.apiEndPointAuto(), {
         method: "PUT",
         body: JSON.stringify(AuthenticationObj.getBody()),
         headers: AuthenticationObj.getHeaders().headers,

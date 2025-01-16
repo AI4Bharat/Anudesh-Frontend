@@ -129,7 +129,7 @@ const GuestWorkspaceTable = (props) => {
   const handlePasswordSubmit = async() => {
     console.log(selectedProject?.id);
     const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

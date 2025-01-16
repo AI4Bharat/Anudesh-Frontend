@@ -139,7 +139,7 @@ const handleChange = (event) => {
 const handleok = async() => {
   const  datasetObj = new removeDuplicatesDatasetInstanceAPI(datasetId,dataitems.toString())
        // dispatch(APITransport(datasetObj));
-        const res = await fetch(datasetObj.apiEndPoint(), {
+        const res = await fetch(datasetObj.apiEndPointAuto(), {
             method: "GET",
             body: JSON.stringify(datasetObj.getBody()),
             headers: datasetObj.getHeaders().headers,
@@ -181,7 +181,7 @@ const renderSnackBar = () => {
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

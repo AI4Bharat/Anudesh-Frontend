@@ -102,7 +102,7 @@ import ChangePasswordAPI from "@/app/actions/api/user/ChangePasswordAPI";
       }
       else{
         const userObj = new ChangePasswordAPI(loggedInUserData.id,ChangePassword);
-        const res = await fetch(userObj.apiEndPoint(), {
+        const res = await fetch(userObj.apiEndPointAuto(), {
             method: "PATCH",
             body: JSON.stringify(userObj.getBody()),
             headers: userObj.getHeaders().headers,

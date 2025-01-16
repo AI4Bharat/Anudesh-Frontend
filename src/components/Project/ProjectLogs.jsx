@@ -76,7 +76,7 @@ const ProjectLogs = () => {
   const getProjectLogs = () => {
     setLoading(true);
     const apiObj = new GetProjectLogsAPI(id, taskName);
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "GET",
       headers: apiObj.getHeaders().headers,
     })

@@ -27,7 +27,7 @@ function AnnotationDetails() {
         setAnnotationDetails(null);
         //not actually deleting the annotation, just fetching the details
         const apiObj = new DeleteAnnotationAPI(annotationId);
-        fetch(apiObj.apiEndPoint(), apiObj.getHeaders())
+        fetch(apiObj.apiEndPointAuto(), apiObj.getHeaders())
             .then(async (res) => {
                 if(res.status === 200) {
                     const data = await res.json();
@@ -77,14 +77,14 @@ function AnnotationDetails() {
 
     const getUserEmail = async (userId) => {
         const apiObj = new FetchUserByIdAPI(userId);
-        return fetch(apiObj.apiEndPoint(), apiObj.getHeaders())
+        return fetch(apiObj.apiEndPointAuto(), apiObj.getHeaders())
             .then(res => res.json())
             .then(res => res?.email);
     };
 
     const getProjectId = async (taskId) => {
         const apiObj = new GetTaskDetailsAPI(taskId);
-        return fetch(apiObj.apiEndPoint(), apiObj.getHeaders())
+        return fetch(apiObj.apiEndPointAuto(), apiObj.getHeaders())
             .then(res => res.json())
             .then(res => res?.project_id);
     };

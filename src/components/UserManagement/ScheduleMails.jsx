@@ -118,7 +118,7 @@ const ScheduleMails = () => {
       schedule,
       scheduleDay,
     );
-    fetch(scheduledMailsObj.apiEndPoint(), {
+    fetch(scheduledMailsObj.apiEndPointAuto(), {
       method: "POST",
       headers: scheduledMailsObj.getHeaders().headers,
       body: JSON.stringify(scheduledMailsObj.getBody()),
@@ -147,7 +147,7 @@ const ScheduleMails = () => {
 
   const updateScheduledMail = (mail) => {
     const scheduledMailsObj = new UpdateScheduledMailsAPI(id, mail.id);
-    fetch(scheduledMailsObj.apiEndPoint(), {
+    fetch(scheduledMailsObj.apiEndPointAuto(), {
       method: "PATCH",
       headers: scheduledMailsObj.getHeaders().headers,
       body: JSON.stringify(scheduledMailsObj.getBody()),
@@ -176,7 +176,7 @@ const ScheduleMails = () => {
 
   const deleteScheduledMail = (mail) => {
     const scheduledMailsObj = new DeleteScheduledMailsAPI(id, mail.id);
-    fetch(scheduledMailsObj.apiEndPoint(), {
+    fetch(scheduledMailsObj.apiEndPointAuto(), {
       method: "POST",
       headers: scheduledMailsObj.getHeaders().headers,
       body: JSON.stringify(scheduledMailsObj.getBody()),

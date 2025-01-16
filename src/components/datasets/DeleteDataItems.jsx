@@ -17,7 +17,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import LoginAPI from "@/app/actions/api/user/Login";
 import DeleteDataItemsAPI from "@/app/actions/api/dataset/DeleteDataItemsAPI";
 import fetchParams from "@/Lib/fetchParams";
-import ENDPOINTS from "../../config/apiendpoint"
+import ENDPOINTS from "../../config/apiEndPointAuto"
 
 export default function DeleteDataItems() {
           /* eslint-disable react-hooks/exhaustive-deps */
@@ -144,7 +144,7 @@ export default function DeleteDataItems() {
             datasetObj = new DeleteDataItemsAPI(datasetId, dataitemids)
         }
         // dispatch(APITransport(datasetObj));
-        const res = await fetch(datasetObj.apiEndPoint(), {
+        const res = await fetch(datasetObj.apiEndPointAuto(), {
             method: "POST",
             body: JSON.stringify(datasetObj.getBody()),
             headers: datasetObj.getHeaders().headers,
@@ -197,7 +197,7 @@ export default function DeleteDataItems() {
     const [password, setPassword] = useState("");
     const handleConfirm = async () => {
       const apiObj = new LoginAPI(emailId, password);
-        const res = await fetch(apiObj.apiEndPoint(), {
+        const res = await fetch(apiObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,

@@ -113,7 +113,7 @@ function WorkspaceSetting(props) {
       setOpenToggleDialog(true);
     } else {
       const apiObj = new EditWorkspace(id);
-      const res = await fetch(apiObj.apiEndPoint(), {
+      const res = await fetch(apiObj.apiEndPointAuto(), {
         method: "PATCH",
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,
@@ -156,7 +156,7 @@ function WorkspaceSetting(props) {
 
   const handleArchiveWorkspace = async () => {
     const projectObj = new ArchiveWorkspaceAPI(id, id);
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -202,7 +202,7 @@ function WorkspaceSetting(props) {
     }
     setPasswordEqual(true);
     const apiObj = new CreateGuestWorkspace(id,newpassword);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "PATCH",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -231,7 +231,7 @@ function WorkspaceSetting(props) {
   const handlePasswordUpdate = async() => {
 
     const apiObj = new EditGuestWorkspace(id,newpassword);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "PATCH",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -283,7 +283,7 @@ function WorkspaceSetting(props) {
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -298,7 +298,7 @@ function WorkspaceSetting(props) {
   const user = useSelector((state) => state.getLoggedInData?.data);
   const handleDownloadProject = async () => {
     const projectObj = new DownloadAllProjects(workspaceDtails.id, user.id);
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,

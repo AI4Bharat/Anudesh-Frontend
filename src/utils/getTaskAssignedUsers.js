@@ -9,7 +9,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
         const annotatorObj = new FetchUserByIdAPI(taskDetails?.annotation_users[0]);
         console.log(annotatorObj,"ll");
         
-        return fetch(annotatorObj.apiEndPoint(), {
+        return fetch(annotatorObj.apiEndPointAuto(), {
             method: "GET",
             headers: annotatorObj.getHeaders().headers,
         }).then(res => res.json()).then(res => res.email);
@@ -20,7 +20,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
             return Promise.resolve(null);
 
         const reviewerObj = new FetchUserByIdAPI(taskDetails?.review_user);
-        return fetch(reviewerObj.apiEndPoint(), {
+        return fetch(reviewerObj.apiEndPointAuto(), {
             method: "GET",
             headers: reviewerObj.getHeaders().headers,
         }).then(res => res.json()).then(res => res.email);
@@ -31,7 +31,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
             return Promise.resolve(null);
         
         const superCheckerObj = new FetchUserByIdAPI(taskDetails?.super_check_user);
-        return fetch(superCheckerObj.apiEndPoint(), {
+        return fetch(superCheckerObj.apiEndPointAuto(), {
             method: "GET",
             headers: superCheckerObj.getHeaders().headers,
         }).then(res => res.json()).then(res => res.email);

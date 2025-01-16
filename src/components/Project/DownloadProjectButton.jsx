@@ -89,7 +89,7 @@ function DownloadProjectButton(props) {
     // SetTask([]) //used to clear the selected task statuses
     const projectObj = ({projectId:id,taskStatus:taskStatus,downloadMetadataToggle:downloadMetadataToggle});
     dispatch(fetchDownloadJSONProject(projectObj));
-    // const res = await fetch(projectObj.apiEndPoint(), {
+    // const res = await fetch(projectObj.apiEndPointAuto(), {
     //   method: "POST",
     //   body: JSON.stringify(projectObj.getBody()),
     //   headers: projectObj.getHeaders().headers,
@@ -121,7 +121,7 @@ function DownloadProjectButton(props) {
     setLoading(true)
     const projectObj = ({projectId:id,taskStatus:taskStatus,downloadMetadataToggle:downloadMetadataToggle});
     dispatch(fetchDownloadCSVProject(projectObj));
-    // const res = await fetch(projectObj.apiEndPoint(), {
+    // const res = await fetch(projectObj.apiEndPointAuto(), {
     //   method: "POST",
     //   body: JSON.stringify(projectObj.getBody()),
     //   headers: projectObj.getHeaders().headers,
@@ -150,7 +150,7 @@ function DownloadProjectButton(props) {
     setLoading(true)
     const projectObj = ({projectId:id,taskStatus:taskStatus,downloadMetadataToggle:downloadMetadataToggle});
     dispatch(fetchDownloadTSVProject(projectObj));
-    // const res = await fetch(projectObj.apiEndPoint(), {
+    // const res = await fetch(projectObj.apiEndPointAuto(), {
     //   method: "POST",
     //   body: JSON.stringify(projectObj.getBody()),
     //   headers: projectObj.getHeaders().headers,

@@ -240,7 +240,7 @@ const TaskTable = (props) => {
       props.type === "annotation"
         ? new PullNewBatchAPI(id, Math.round(pullSize))
         : new PullNewReviewBatchAPI(id, Math.round(pullSize));
-    const res = await fetch(batchObj.apiEndPoint(), {
+    const res = await fetch(batchObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(batchObj.getBody()),
       headers: batchObj.getHeaders().headers,
@@ -293,7 +293,7 @@ const TaskTable = (props) => {
       props.type === "annotation"
         ? new DeallocateTasksAPI(id, selectedFilters.annotation_status)
         : new DeallocateReviewTasksAPI(id, selectedFilters.review_status);
-    const res = await fetch(deallocateObj.apiEndPoint(), {
+    const res = await fetch(deallocateObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(deallocateObj.getBody()),
       headers: deallocateObj.getHeaders().headers,
@@ -379,7 +379,7 @@ const TaskTable = (props) => {
         AnnotationObj: ReplaceData,
       }),
     );
-    const res = await fetch(AnnotationObj.apiEndPoint(), {
+    const res = await fetch(AnnotationObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(AnnotationObj.getBody()),
       headers: AnnotationObj.getHeaders().headers,
@@ -989,7 +989,7 @@ const TaskTable = (props) => {
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

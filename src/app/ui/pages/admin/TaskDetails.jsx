@@ -30,7 +30,7 @@ function TaskDetails() {
         setAnnotations(null);
         fetchTaskAnnotations();
         const apiObj = new GetTaskDetailsAPI(taskId);
-        fetch(apiObj.apiEndPoint(), apiObj.getHeaders())
+        fetch(apiObj.apiEndPointAuto(), apiObj.getHeaders())
             .then(async (res) => {
                 if(res.status === 200) {
                     const data = await res.json();
@@ -77,7 +77,7 @@ function TaskDetails() {
 
     const fetchTaskAnnotations = async () => {
         const apiObj = new GetTaskAnnotationsAPI(taskId);
-        fetch(apiObj.apiEndPoint(), apiObj.getHeaders())
+        fetch(apiObj.apiEndPointAuto(), apiObj.getHeaders())
             .then(async (res) => {
                 if(res.status === 200) {
                     const data = await res.json();
@@ -134,7 +134,7 @@ function TaskDetails() {
                 return Promise.resolve(null);
             
             const annotatorObj = new FetchUserByIdAPI(data?.annotation_users[0]);
-            return fetch(annotatorObj.apiEndPoint(), annotatorObj.getHeaders())
+            return fetch(annotatorObj.apiEndPointAuto(), annotatorObj.getHeaders())
                 .then(res => res.json());
         };
     
@@ -143,7 +143,7 @@ function TaskDetails() {
                 return Promise.resolve(null);
     
             const reviewerObj = new FetchUserByIdAPI(data?.review_user);
-            return fetch(reviewerObj.apiEndPoint(), reviewerObj.getHeaders())
+            return fetch(reviewerObj.apiEndPointAuto(), reviewerObj.getHeaders())
                 .then(res => res.json());
         }
     
@@ -152,7 +152,7 @@ function TaskDetails() {
                 return Promise.resolve(null);
             
             const superCheckerObj = new FetchUserByIdAPI(data?.super_check_user);
-            return fetch(superCheckerObj.apiEndPoint(), superCheckerObj.getHeaders())
+            return fetch(superCheckerObj.apiEndPointAuto(), superCheckerObj.getHeaders())
                 .then(res => res.json());
         };
     

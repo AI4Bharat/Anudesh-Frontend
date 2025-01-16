@@ -154,7 +154,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
         id,
         users.map((user) => user.id),
       );
-      const res = await fetch(addMembersObj.apiEndPoint(), {
+      const res = await fetch(addMembersObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addMembersObj.getBody()),
         headers: addMembersObj.getHeaders().headers,
@@ -173,7 +173,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
         id,
         users.map((user) => user.id),
       );
-      const reviewerRes = await fetch(addReviewersObj.apiEndPoint(), {
+      const reviewerRes = await fetch(addReviewersObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addReviewersObj.getBody()),
         headers: addReviewersObj.getHeaders().headers,
@@ -191,7 +191,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
         id,
         users.map((user) => user.id),
       );
-      const superCheckerRes = await fetch(addsuperCheckerObj.apiEndPoint(), {
+      const superCheckerRes = await fetch(addsuperCheckerObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addsuperCheckerObj.getBody()),
         headers: addsuperCheckerObj.getHeaders().headers,
@@ -210,7 +210,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
         id,
         users.map((user) => user.id).join(","),
       );
-      const addAnnotatorsRes = await fetch(addAnnotatorsObj.apiEndPoint(), {
+      const addAnnotatorsRes = await fetch(addAnnotatorsObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addAnnotatorsObj.getBody()),
         headers: addAnnotatorsObj.getHeaders().headers,
@@ -229,7 +229,7 @@ const handleAddUsers = async (userType, users, id, dispatch) => {
         id,
         users.map((user) => user.id),
       );
-      const assignManagerRes = await fetch(addManagerObj.apiEndPoint(), {
+      const assignManagerRes = await fetch(addManagerObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(addManagerObj.getBody()),
         headers: addManagerObj.getHeaders().headers,

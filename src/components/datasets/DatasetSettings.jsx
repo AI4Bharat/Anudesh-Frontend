@@ -104,7 +104,7 @@ export default function DatasetSettings() {
     UploadFile.append("deduplicate", switchs);
     setLoading(true);
     const projectObj = new UploaddataAPI(datasetId, UploadFile);
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: projectObj.getBody(),
       headers: projectObj.getHeaders().headers,

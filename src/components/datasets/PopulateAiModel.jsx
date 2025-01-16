@@ -159,7 +159,7 @@ const PopulateAiModel = () => {
     
     srcDatasetType === "Interaction" && ( apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
     srcDatasetType === "Instruction" && (apiObj = new aiModel(srcInstance, translationModel, org_id, checked,srcDatasetType))
-    fetch(apiObj.apiEndPoint(), {
+    fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

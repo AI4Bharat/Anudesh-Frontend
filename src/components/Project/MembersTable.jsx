@@ -201,7 +201,7 @@ const MembersTable = (props) => {
   const handleApproveUser = async (userId) => {
     const projectObj = new ApproveManagerSuggestions(userId);
 
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -226,7 +226,7 @@ const MembersTable = (props) => {
 
   const handleRejectUser = (userId) => {
     const projectObj = new RejectManagerSuggestionsAPI(userId);
-    const res = fetch(projectObj.apiEndPoint(), {
+    const res = fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -266,7 +266,7 @@ const MembersTable = (props) => {
   const handleProjectMember = async (userid) => {
     dispatch(fetchRemoveProjectMember({ projectId: id, projectObj: [userid] }));
     const projectObj = new RemoveProjectReviewerAPI(id, { ids: [userid] });
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -303,7 +303,7 @@ const MembersTable = (props) => {
       );
     }
     // dispatch(APITransport(projectObj));
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -329,7 +329,7 @@ const MembersTable = (props) => {
   const handleResendUser = async (email) => {
     const projectObj = new ResendUserInviteAPI((email = [email]));
 
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -362,7 +362,7 @@ const MembersTable = (props) => {
       selectedUsers,
       userRoleString,
     );
-    const res = await fetch(addMembersObj.apiEndPoint(), {
+    const res = await fetch(addMembersObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(addMembersObj.getBody()),
       headers: addMembersObj.getHeaders().headers,
@@ -393,7 +393,7 @@ const MembersTable = (props) => {
   const handleRemoveFrozenUsers = async (FrozenUserId) => {
     const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
     //dispatch(APITransport(projectObj));
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -611,7 +611,7 @@ const MembersTable = (props) => {
   const handleConfirm = async () => {
     if (memberOrReviewer === "member" || memberOrReviewer === "reviewer") {
       const apiObj = new LoginAPI(emailId, password);
-      const res = await fetch(apiObj.apiEndPoint(), {
+      const res = await fetch(apiObj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,

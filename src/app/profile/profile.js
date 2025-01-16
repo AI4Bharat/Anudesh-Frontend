@@ -48,7 +48,7 @@ export default function ProfilePage () {
   const handleEmailToggle = async () => {
     setLoading(true);
     const mailObj = new ToggleMailsAPI(LoggedInUserId, !userDetails.enable_mail);
-    const res = await fetch(mailObj.apiEndPoint(), {
+    const res = await fetch(mailObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(mailObj.getBody()),
       headers: mailObj.getHeaders().headers,
@@ -90,7 +90,7 @@ export default function ProfilePage () {
       setLoading(true);
       let pickedFile=event.target.files[0];
       const updateProfileImageAPIObj = new UpdateProfileImageAPI(LoggedInUserId,pickedFile);
-      await axios.post(updateProfileImageAPIObj.apiEndPoint(), updateProfileImageAPIObj.getBody(), updateProfileImageAPIObj.getHeaders())
+      await axios.post(updateProfileImageAPIObj.apiEndPointAuto(), updateProfileImageAPIObj.getBody(), updateProfileImageAPIObj.getHeaders())
         .then(response => {
           if (response.status == 200 || response.status == 201) {
             dispatch(fetchUserById(id))

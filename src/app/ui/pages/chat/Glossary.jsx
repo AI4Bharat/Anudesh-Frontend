@@ -101,7 +101,7 @@ export default function Glossary(props) {
         tgtLanguage: filtereddata[0]?.code,
       };
       const GlossaryObj = new GlossarysentenceAPI(Glossarysentencedata);
-      const res = await fetch(GlossaryObj.apiEndPoint(),  {
+      const res = await fetch(GlossaryObj.apiEndPointAuto(),  {
         method: "POST",
         body: JSON.stringify(GlossaryObj.getBody()),
         headers: GlossaryObj.getHeaders().headers,
@@ -182,7 +182,7 @@ export default function Glossary(props) {
     };
     const GlossaryObj = new UpVoteAndDownVoteAPI(UpVotedata);
     //dispatch(APITransport(GlossaryObj));
-    const res = await fetch(GlossaryObj.apiEndPoint(), {
+    const res = await fetch(GlossaryObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(GlossaryObj.getBody()),
       headers: GlossaryObj.getHeaders().headers,
@@ -212,7 +212,7 @@ export default function Glossary(props) {
     
     const GlossaryObj = new UpVoteAndDownVoteAPI(DownVotedata);
     //dispatch(APITransport(GlossaryObj));
-    const res = await fetch(GlossaryObj.apiEndPoint(), {
+    const res = await fetch(GlossaryObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(GlossaryObj.getBody()),
       headers: GlossaryObj.getHeaders().headers,
@@ -254,7 +254,7 @@ export default function Glossary(props) {
     };
     const GlossaryObj = new SuggestAnEditAPI(SuggestAnEditData);
     //dispatch(APITransport(GlossaryObj));
-    const res = await fetch(GlossaryObj.apiEndPoint(), {
+    const res = await fetch(GlossaryObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(GlossaryObj.getBody()),
       headers: GlossaryObj.getHeaders().headers,

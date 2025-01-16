@@ -60,7 +60,7 @@ const BasicDatasetSettings = (props) => {
             users: DatasetDetails.users,
         }
         const DatasetObj = new GetSaveButtonAPI(datasetId, sendData);
-        const res = await fetch(DatasetObj.apiEndPoint(), {
+        const res = await fetch(DatasetObj.apiEndPointAuto(), {
             method: "PUT",
             body: JSON.stringify(DatasetObj.getBody()),
             headers: DatasetObj.getHeaders().headers,

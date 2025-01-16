@@ -34,7 +34,7 @@ import { useNavigate } from "react-router-dom";
 
 const handleChangePassword = async (email) => {
     let obj = new ForgotPasswordAPI({email: email});
-    const res = await fetch(obj.apiEndPoint(), {
+    const res = await fetch(obj.apiEndPointAuto(), {
         method: "POST",
         body: JSON.stringify(obj.getBody()),
         headers: obj.getHeaders().headers,

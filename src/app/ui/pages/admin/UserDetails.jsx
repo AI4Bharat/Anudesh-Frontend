@@ -112,7 +112,7 @@ const UserDetail = (props) => {
     };
   
     const UserObj = new GetUserDetailUpdateAPI(id, data);
-    const res = await fetch(UserObj.apiEndPoint(), {
+    const res = await fetch(UserObj.apiEndPointAuto(), {
       method: "PATCH",
       body: JSON.stringify(UserObj.getBody()),
       headers: UserObj.getHeaders().headers,

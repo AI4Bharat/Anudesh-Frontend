@@ -107,7 +107,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
             publicanalytics
         );
         const token = localStorage.getItem('anudesh_access_token');
-        const createWorkspaceRes = await fetch(createWorkspaceObj.apiEndPoint(), {
+        const createWorkspaceRes = await fetch(createWorkspaceObj.apiEndPointAuto(), {
             method: "POST",
             body: JSON.stringify(createWorkspaceObj),
             headers: {
@@ -120,7 +120,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
 
         if (createWorkspaceRes.ok) {
           const getWorkspaceApiObj = new GetWorkspaceAPI(); 
-          const workspaceDataRes = await fetch(getWorkspaceApiObj.apiEndPoint(), {
+          const workspaceDataRes = await fetch(getWorkspaceApiObj.apiEndPointAuto(), {
               method: "GET",
               headers: {
                   Authorization: `JWT ${token}`,
@@ -133,7 +133,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
           const workspaceDetails = workspaceData.find(ws => ws.workspace_name === workspaceName);
           console.log(workspaceDetails,workspaceName);
           if(guestWorkspace){ const apiObj = new CreateGuestWorkspace(workspaceDetails.id,password1||"");
-              const res = await fetch(apiObj.apiEndPoint(), {
+              const res = await fetch(apiObj.apiEndPointAuto(), {
                 method: "PATCH",
                 body: JSON.stringify(apiObj.getBody()),
                 headers: apiObj.getHeaders().headers,

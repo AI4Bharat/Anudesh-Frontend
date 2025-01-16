@@ -174,7 +174,7 @@ const AdvancedOperation = (props) => {
             ProjectTypes?.output_dataset?.save_type,
           )
         : new GetExportProjectButtonAPI(id);
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -202,7 +202,7 @@ const AdvancedOperation = (props) => {
     // setLoading(true)
     dispatch(fetchDownloadProjectAnnotations(id, taskStatus));
     // const projectObj = new GetPublishProjectButtonAPI(id);
-    // const res = await fetch(projectObj.apiEndPoint(), {
+    // const res = await fetch(projectObj.apiEndPointAuto(), {
     //   method: "POST",
     //   body: JSON.stringify(projectObj.getBody()),
     //   headers: projectObj.getHeaders().headers,
@@ -256,7 +256,7 @@ const AdvancedOperation = (props) => {
 
     setLoading(true);
     const reviewObj = new TaskReviewsAPI(id, e.target.value);
-    const res = await fetch(reviewObj.apiEndPoint(), {
+    const res = await fetch(reviewObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(reviewObj.getBody()),
       headers: reviewObj.getHeaders().headers,
@@ -289,7 +289,7 @@ const AdvancedOperation = (props) => {
   const getPublishProjectButton = async () => {
     const projectObj = new GetPublishProjectButtonAPI(id);
     //dispatch(APITransport(projectObj));
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -323,7 +323,7 @@ const AdvancedOperation = (props) => {
   const getPullNewDataAPI = async () => {
     const projectObj = new GetPullNewDataAPI(id);
     //dispatch(APITransport(projectObj));
-    const res = await fetch(projectObj.apiEndPoint(), {
+    const res = await fetch(projectObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
       headers: projectObj.getHeaders().headers,
@@ -417,7 +417,7 @@ const AdvancedOperation = (props) => {
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,

@@ -72,7 +72,7 @@ export default function Login() {
       credentials.email.toLowerCase(),
       credentials.password,
     );
-    const res = await fetch(apiObj.apiEndPoint(), {
+    const res = await fetch(apiObj.apiEndPointAuto(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
@@ -209,7 +209,7 @@ export default function Login() {
           const { user } = result;
           const fireResult = await user.getIdTokenResult();
           const apiObj = new GoogleLoginAPI(fireResult.token);
-          const res = await fetch(apiObj.apiEndPoint(), {
+          const res = await fetch(apiObj.apiEndPointAuto(), {
             method: "POST",
             body: JSON.stringify(apiObj.getBody()),
             headers: apiObj.getHeaders().headers,
