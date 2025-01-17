@@ -724,9 +724,8 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${
-          annotations?.[0]?.id || "default"
-        }`}          handleClick={handleAnnotationClick}
+        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
+          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
@@ -745,9 +744,7 @@ console.log(output,"kk");
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -766,9 +763,7 @@ console.log(output,"kk");
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1128,7 +1123,7 @@ console.log(output,"kk");
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        skip to next task
+                        Skip to next task
                       </span>
                     }
                   >
