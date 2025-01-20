@@ -1240,7 +1240,7 @@ const ReviewPage = () => {
                 title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
