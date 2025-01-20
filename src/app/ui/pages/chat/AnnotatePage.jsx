@@ -159,15 +159,16 @@ const AnnotatePage = () => {
     "script",
   ];
 
-  const formatResponse = (response,isLast) => {
-    // if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
-    //   return [
-    //     {
-    //       type: "text",
-    //       value: "",
-    //     },
-    //   ];
-    // }
+  const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+  
     response = String(response);
     const output = [];
     let count = 0;
@@ -715,9 +716,7 @@ const AnnotatePage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
           handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -737,9 +736,7 @@ const AnnotatePage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -758,9 +755,7 @@ const AnnotatePage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -932,7 +927,7 @@ const AnnotatePage = () => {
               <LightTooltip                 title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -1121,7 +1116,7 @@ const AnnotatePage = () => {
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        skip to next task
+                        Skip to next task
                       </span>
                     }
                   >

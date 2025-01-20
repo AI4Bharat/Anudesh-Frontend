@@ -164,38 +164,22 @@ const grey = {
  
 
   useEffect(() => {
-    let modifiedChatHistory = [];
-    if (
-      annotation &&
-      Array.isArray(annotation[0]?.result) &&
-      [...annotation[0]?.result]?.length
-    ) {
-      // if (ProjectDetails?.metadata_json?.blank_response == true) {
-      //   modifiedChatHistory = annotation[0]?.result?.map((interaction) => ({
-      //     ...interaction,
-      //     output: [],
-      //   }));
-      //   console.log(modifiedChatHistory);
-
-      //   setChatHistory(modifiedChatHistory);
-      // }
-      // else {
-        modifiedChatHistory = annotation[0]?.result?.map((interaction,index) => {
-          const isLastInteraction = index === annotation[0]?.result?.length - 1;
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output,isLastInteraction),
-          };
-        });
-      // }
-      setChatHistory([...modifiedChatHistory]);
+    let modifiedChatHistory = [];   
+    if (annotation && Array.isArray(annotation[0]?.result) && annotation[0]?.result.length > 0) {    
+      modifiedChatHistory = annotation[0]?.result.map((interaction, index) => {
+        return {
+          ...interaction,
+          output: formatResponse(interaction.output),
+        };
+      });
+      setChatHistory(modifiedChatHistory); 
     } else {
-      setChatHistory([]);
-    }
-    setAnnotationId(annotation[0]?.id);
-    if (annotation[0]?.result) setShowChatContainer(true);
-  }, []);
-
+      setChatHistory([]);  
+    }  
+    setAnnotationId(annotation[0]?.id);    
+    setShowChatContainer(!!annotation[0]?.result);  
+  }, [annotation]);  
+  
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
 
@@ -574,9 +558,9 @@ style={{
 
     <Grid item  xs={6}  >
 
-              {message?.output?.map((segment, index) =>
+              {message?.output.map((segment, index) =>
                 segment.type === 'text' ? (
-                  ProjectDetails?.metadata_json?.editable_response ? (
+                  (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
                     globalTransliteration ? (
                       <IndicTransliterate
                         key={index}

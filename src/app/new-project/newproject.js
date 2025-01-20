@@ -134,6 +134,7 @@ const CreateProject = () => {
   const [tableData, setTableData] = useState([]);
   const [searchAnchor, setSearchAnchor] = useState(null);
   const [is_published, setIsPublished] = useState(false);
+  const [conceal, setconceal] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [createannotationsAutomatically, setsCreateannotationsAutomatically] =
     useState("none");
@@ -393,6 +394,10 @@ const CreateProject = () => {
   const handleChangeIsPublished = (event) => {
     setIsPublished(event.target.checked);
   };
+  const handleChangeconceal = (event) => {
+    setconceal(event.target.checked);
+  };
+
 
   useEffect(() => {
     setTotalDataitems(DataItems.count);
@@ -571,6 +576,7 @@ const CreateProject = () => {
       is_published: is_published,
       password: passwordForProjects,
       metadata_json: questionsJSON,
+      conceal:conceal
     };
     console.log(newProject);
 
@@ -606,6 +612,7 @@ const CreateProject = () => {
     is_published: is_published,
     password: passwordForProjects,
     metadata_json: questionsJSON,
+    conceal:conceal
   };
   console.log(newProject);
 
@@ -1502,7 +1509,20 @@ const CreateProject = () => {
                       sx={{ mt: 2, ml: 2, mb: 2 }}
                     />
                   </Grid>
-                ) : null}
+                ) :null
+                }
+                            <Grid container direction="row" alignItems="center">
+                <Typography gutterBottom components="div">
+                  Hide Details :
+                </Typography>
+                <Switch
+                  checked={conceal}
+                  onChange={handleChangeconceal}
+                  inputProps={{ "aria-label": "controlled" }}
+                  sx={{ mt: 2, ml: 2, mb: 2 }}
+                />
+              </Grid>
+
               </>
             )}
             <Grid
