@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef,memo } from "react";
+import { useState, useRef, useEffect, LegacyRef, memo } from "react";
 import {
   Grid,
   Box,
@@ -161,8 +161,8 @@ const AnnotatePage = () => {
     "script",
   ];
 
-  const formatResponse = (response,isLast) => {
-    if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
+  const formatResponse = (response, isLast) => {
+    if (ProjectDetails?.metadata_json?.blank_response == true && isLast) {
       return [
         {
           type: "text",
@@ -173,9 +173,8 @@ const AnnotatePage = () => {
     response = String(response);
     const output = [];
     let count = 0;
-    
-  
-console.log(output,"kk");
+
+    console.log(output, "kk");
 
     while (response) {
       response = response.trim();
@@ -444,14 +443,13 @@ console.log(output,"kk");
       clear_conversation: value === "delete",
     };
 
-
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
         console.log(chatHistory.length);
-        
+
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -466,10 +464,12 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
-        }
-        else if(ProjectDetails.project_type == "InstructionDrivenChat"&&chatHistory.length==0) {
+        } else if (
+          ProjectDetails.project_type == "InstructionDrivenChat" &&
+          chatHistory.length == 0
+        ) {
           console.log(chatHistory);
-          
+
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
@@ -478,7 +478,6 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
-
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -512,13 +511,12 @@ console.log(output,"kk");
         }
         value === "delete"
           ? (setSnackbarInfo({
-            open: true,
-            message: "Chat history has been cleared successfully!",
-            variant: "success",
-          }),
-          await getAnnotationsTaskData(taskId),
-          await getTaskData(taskId)
-          )
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            }),
+            await getAnnotationsTaskData(taskId),
+            await getTaskData(taskId))
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -530,7 +528,7 @@ console.log(output,"kk");
                 message: resp?.message,
                 variant: "success",
               });
-              setLoading(false);
+        setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -579,7 +577,7 @@ console.log(output,"kk");
     };
   }, [taskId]);
   const filterAnnotations = (annotations, user) => {
-    setLoading(true)
+    setLoading(true);
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -675,7 +673,7 @@ console.log(output,"kk");
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
-    setLoading(false)
+    setLoading(false);
 
     return [
       filteredAnnotations,
@@ -724,9 +722,10 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${
-          annotations?.[0]?.id || "default"
-        }`}          handleClick={handleAnnotationClick}
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
@@ -823,14 +822,12 @@ console.log(output,"kk");
     <>
       {loading && <Spinner />}
       <div id="top" ref={topref}></div>
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
         <Grid item>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
+              padding: "0px 10px",
             }}
           >
             <Button
@@ -838,7 +835,12 @@ console.log(output,"kk");
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -854,19 +856,21 @@ console.log(output,"kk");
         <Grid item xs={12}>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
+              padding: "0px 10px",
             }}
           >
-            {/* ( */}
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                mt: 2,
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   reviewtext.trim().length === 0 ? "#bf360c" : "green",
@@ -922,21 +926,21 @@ console.log(output,"kk");
               }}
             >
               {/* <Glossary taskData={taskData} /> */}
-            {/* </div> */} 
+            {/* </div> */}
           </Box>
           <Grid
             container
             justifyContent="center"
-            spacing={3}
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "16px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              <LightTooltip                 title={
+              <LightTooltip
+                title={
                   <div>
                     <div>
                       {Array.isArray(assignedUsers)
@@ -950,14 +954,16 @@ console.log(output,"kk");
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
-
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }
->
+              >
                 <Button
                   type="default"
                   className="lsf-button"
@@ -1001,7 +1007,7 @@ console.log(output,"kk");
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1033,13 +1039,13 @@ console.log(output,"kk");
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        paddingTop: 2,
-                        paddingBottom: 2,
                         backgroundColor: "#ffe0b2",
                       }}
                     >
@@ -1056,7 +1062,7 @@ console.log(output,"kk");
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   style={{
-                    minWidth: "150px",
+                    // minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
@@ -1080,13 +1086,13 @@ console.log(output,"kk");
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    paddingTop: 2,
-                    paddingBottom: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1112,7 +1118,7 @@ console.log(output,"kk");
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1143,13 +1149,13 @@ console.log(output,"kk");
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        paddingTop: 2,
-                        paddingBottom: 2,
                         backgroundColor: "#ffe0b2",
                       }}
                     >
@@ -1176,7 +1182,7 @@ console.log(output,"kk");
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1190,14 +1196,15 @@ console.log(output,"kk");
                     </Button>
                   </Tooltip> */}
 
-                  {ProjectDetails?.project_type=="InstructionDrivenChat"?(<Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        clear the entire chat history
-                      </span>
-                    }
-                  >
-                     <Button
+                  {ProjectDetails?.project_type == "InstructionDrivenChat" ? (
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          clear the entire chat history
+                        </span>
+                      }
+                    >
+                      <Button
                         value="Clear Chats"
                         type="default"
                         variant="outlined"
@@ -1208,25 +1215,33 @@ console.log(output,"kk");
                             Annotation.lead_time,
                           )
                         }
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                            md: "1rem",
+                          },
+                        }}
                         style={{
-                          minWidth: "150px",
                           color: "black",
                           borderRadius: "5px",
                           border: "0px",
-                          paddingTop: 2,
-                          paddingBottom: 2,
                           backgroundColor: "#ffe0b2",
                         }}
                       >
                         Clear Chats
                       </Button>
-                  </Tooltip>):            (<Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        Reset the entire chat history
-                      </span>
-                    }
-                  >          <Button
+                    </Tooltip>
+                  ) : (
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          Reset the entire chat history
+                        </span>
+                      }
+                    >
+                      {" "}
+                      <Button
                         value="Reset All Forms"
                         type="default"
                         variant="outlined"
@@ -1237,21 +1252,27 @@ console.log(output,"kk");
                             Annotation.lead_time,
                           )
                         }
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                            md: "1rem",
+                          },
+                        }}
                         style={{
-                          minWidth: "150px",
                           color: "black",
                           borderRadius: "5px",
                           border: "0px",
-                          paddingTop: 2,
-                          paddingBottom: 2,
                           backgroundColor: "#ffe0b2",
                         }}
                       >
                         {" "}
                         Reset All
                       </Button>
-</Tooltip>)}
-                </Grid>)}
+                    </Tooltip>
+                  )}
+                </Grid>
+              )}
             {!disableUpdateButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
@@ -1269,13 +1290,13 @@ console.log(output,"kk");
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        pt: 2,
-                        pb: 2,
                         backgroundColor: "#ee6633",
                       }}
                     >
@@ -1291,10 +1312,10 @@ console.log(output,"kk");
             </Alert>
           )}
         </Grid>
-          <Grid item container>
-            {" "}
-            {componentToRender}{" "}
-          </Grid>
+        <Grid item container sx={{ width: "100%" }}>
+          {" "}
+          {componentToRender}{" "}
+        </Grid>
       </Grid>
     </>
   );
