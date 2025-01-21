@@ -165,33 +165,22 @@ const InstructionDrivenChatPage = ({
     if (
       annotation &&
       Array.isArray(annotation[0]?.result) &&
-      [...annotation[0]?.result]?.length
+      annotation[0]?.result.length > 0
     ) {
-      // if (ProjectDetails?.metadata_json?.blank_response == true) {
-      //   modifiedChatHistory = annotation[0]?.result?.map((interaction) => ({
-      //     ...interaction,
-      //     output: [],
-      //   }));
-      //   console.log(modifiedChatHistory);
-
-      //   setChatHistory(modifiedChatHistory);
-      // }
-      // else {
-      modifiedChatHistory = annotation[0]?.result?.map((interaction, index) => {
-        const isLastInteraction = index === annotation[0]?.result?.length - 1;
+      modifiedChatHistory = annotation[0]?.result.map((interaction, index) => {
+        const isLastInteraction = index === annotation[0]?.result.length - 1;
         return {
           ...interaction,
           output: formatResponse(interaction.output, isLastInteraction),
         };
       });
-      // }
-      setChatHistory([...modifiedChatHistory]);
+      setChatHistory(modifiedChatHistory);
     } else {
       setChatHistory([]);
     }
     setAnnotationId(annotation[0]?.id);
-    if (annotation[0]?.result) setShowChatContainer(true);
-  }, []);
+    setShowChatContainer(!!annotation[0]?.result);
+  }, [annotation]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
