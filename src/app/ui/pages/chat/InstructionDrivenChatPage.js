@@ -756,10 +756,8 @@ style={{
                 fontSize: "1.2rem",
                 padding: "0.5rem 1rem 0",
                 minHeight: "6rem",
-                maxHeight: "6rem",
                 overflowY: "auto",
                 display: "flex",
-                // alignItems: "center",
                 alignItems: "flex-start",
                 justifyContent: "center",
               }}
