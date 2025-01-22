@@ -67,10 +67,10 @@ console.log(data?.length,"hel");
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? <Spinner /> :  
       <>
-      {/* <Grid container direction="row" columnSpacing={3} rowSpacing={2} sx={{ position: "static", bottom: "-51px", left: "20px" }} > */}
-      <Grid container className="root">
-        <Grid item style={{ flexGrow: "0" }}>
-          <Typography variant="h6" sx={{ paddingBottom: "7px" }}>
+      <Grid container className="root" >
+
+        <Grid item style={{ flexGrow: "0" }} >
+          <Typography variant="h6" sx={{ paddingBottom: "7px" ,paddingLeft: "15px"}}>
             View :{" "}
           </Typography>
         </Grid>

@@ -61,152 +61,226 @@ function MobileNavbar(props) {
 
   return (
     <>
-      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} PaperProps={{
-        style: {
-            padding: "16px"
-        }
-      }}>
+      <Drawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        PaperProps={{
+          sx: {
+            padding: 2,
+            width: { xs: "75%", sm: "50%", md: "30%" }, 
+          },
+        }}
+      >
         <Box
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                height: "100%",
-                paddingBottom: "16px"
-            }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            height: "100%",
+            pb: 2,
+          }}
         >
-            <Box>
-                <Link href="/profile" onClick={() => setOpenDrawer(false)} style={{
-                    textDecoration: "none"
-                }}>
-                    <Box
-                        style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            columnGap: "16px",
-                            paddingBottom: "16px",
-                        }}
-                    >
-                        <Avatar
-                            alt="user_profile_pic"
-                            variant="contained"
-                            className="avatar"
-                        >
-                            {loggedInUserData && loggedInUserData.username && loggedInUserData.username.split("")[0]}
-                        </Avatar>
-                        <Typography variant="h6" sx={{ p: 0, ml : 1 }} style={{
-                            color: "black"
-                        }}>
-                            {loggedInUserData.username}
-                        </Typography>
-                    </Box>
-                </Link>
-                <Divider />
-            </Box>
-            <Box>
-                <List>
-                    {tabs.map((tab,i) => (
-                        <ListItem key={i} onClick={() => setOpenDrawer(false)}>
-                            {tab}
-                        </ListItem>
-                    ))}
-                </List>
-            </Box>
-            <Box>
-                <Typography variant="h6" align="center" style={{
-                    fontSize: "1.1rem"
-                }}>
-                    App Settings
+          <Box>
+            <Link
+              href="/profile"
+              onClick={() => setOpenDrawer(false)}
+              style={{ textDecoration: "none" }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 2,
+                  pb: 2,
+                }}
+              >
+                <Avatar
+                  alt="user_profile_pic"
+                  className="avatar"
+                  sx={{ bgcolor: "primary.main" }}
+                >
+                  {loggedInUserData?.username?.[0]}
+                </Avatar>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    ml: 1,
+                    color: "text.primary",
+                    fontSize: { xs: "1rem", sm: "1.25rem" },
+                  }}
+                >
+                  {loggedInUserData.username}
                 </Typography>
-                <Divider />
-                <List>
-                    {appSettings.map((setting,index) => (
-                        <ListItem key={index}  style={{cursor:"pointer"}} onClick={setting.onclick}>
-                            {setting.control ? 
-                                <FormControlLabel
-                                    control={setting.control}
-                                    label={setting.name}
-                                />
-                                : 
-                                <Typography variant="body1" textAlign="center">
-                                    {setting.name}
-                                </Typography>}
-                        </ListItem>
-                    ))}
-                </List>
-            </Box>
-            <Box>
-                <Typography variant="h6" align="center" style={{
-                    fontSize: "1.1rem"
-                }}>
-                    User Settings
+              </Box>
+            </Link>
+            <Divider />
+          </Box>
+
+          <Box>
+            <List>
+              {tabs.map((tab, i) => (
+                <ListItem
+                  key={i}
+                  sx={{
+                    cursor: "pointer",
+                    py: 1,
+                    px: 2,
+                    "&:hover": { bgcolor: "action.hover" },
+                  }}
+                  onClick={() => setOpenDrawer(false)}
+                >
+                  {tab}
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          {/* App Settings Section */}
+          <Box>
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, pb: 1 }}
+            >
+              App Settings
+            </Typography>
+            <Divider />
+            <List>
+              {appSettings.map((setting, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    cursor: "pointer",
+                    py: 1,
+                    px: 2,
+                    "&:hover": { bgcolor: "action.hover" },
+                  }}
+                  onClick={setting.onclick}
+                >
+                  {setting.control ? (
+                    <FormControlLabel
+                      control={setting.control}
+                      label={setting.name}
+                    />
+                  ) : (
+                    <Typography variant="body1" textAlign="center">
+                      {setting.name}
+                    </Typography>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+
+          <Box>
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, pb: 1 }}
+            >
+              User Settings
+            </Typography>
+            <Divider />
+            <List>
+              {userSettings.map((setting) => (
+                <ListItem
+                  key={setting.name}
+                  sx={{
+                    cursor: "pointer",
+                    py: 1,
+                    px: 2,
+                    "&:hover": { bgcolor: "action.hover" },
+                  }}
+                  onClick={() => {
+                    setting.onclick();
+                    setOpenDrawer(false);
+                  }}
+                >
+                  <Typography variant="body1" textAlign="center">
+                    {setting.name}
+                  </Typography>
+                </ListItem>
+              ))}
+              {!loggedInUserData.guest_user && (
+                <ListItem
+                  key="change-password"
+                  sx={{
+                    cursor: "pointer",
+                    py: 1,
+                    px: 2,
+                    "&:hover": { bgcolor: "action.hover" },
+                  }}
+                  onClick={() => {
+                    setOpenDrawer(false);
+                    handleChangePassword(loggedInUserData.email);
+                  }}
+                >
+                  <Typography variant="body1" textAlign="center">
+                    Change Password
+                  </Typography>
+                </ListItem>
+              )}
+              <ListItem
+                key="logout"
+                sx={{
+                  cursor: "pointer",
+                  py: 1,
+                  px: 2,
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+                onClick={onLogoutClick}
+              >
+                <Typography variant="body1" textAlign="center">
+                  Logout
                 </Typography>
-                <Divider />
-                <List>
-                    {userSettings.map((setting) => (
-                        <ListItem key={setting} style={{cursor:"pointer"}} onClick={() => {setting.onclick(); setOpenDrawer(false)}}>
-                            <Typography variant="body1" textAlign="center">
-                                {setting.name}
-                            </Typography>
-                        </ListItem>
-                    ))}
-                    {!loggedInUserData.guest_user && 
-                        <ListItem key={3} style={{cursor:"pointer"}}  onClick={() => {setOpenDrawer(false); handleChangePassword(loggedInUserData.email);}}>
-                            <Typography variant="body1" textAlign="center">
-                            Change Password
-                            </Typography>
-                        </ListItem>
-                    }
-                    <ListItem key={4}  style={{cursor:"pointer"}}  onClick={() => onLogoutClick() }>
-                        <Typography variant="body1" textAlign="center">
-                        Logout
-                        </Typography>
-                    </ListItem>
-                </List>
-            </Box>
+              </ListItem>
+            </List>
+          </Box>
         </Box>
       </Drawer>
       <AppBar style={{ backgroundColor: "#ffffff", padding: "8px 0" }}>
         <Grid
-            container
-            direction="row"
-            justifyContent={"space-between"}
-            style={{
-                padding: "0 5%"
-            }}
-        > 
-            <Grid item sx={{ display: "flex", alignItems: "center" ,gap: "10px"}}>
-                <Link href="/projects">
-                <Image 
-                    onClick={() => navigate("/")} 
-                    src="https://i.imgur.com/56Ut9oz.png"
-                    alt="anudesh"
-                    height="100"
-                    width="100"
-                    className={classes.headerLogo}
-                    sx={{ marginTop: "5%" }}
-                  />
-                </Link>
-                <Typography
-                  className="headerTitle"
-                  style={{
-                    fontSize: "28px",
-                    fontWeight: "bold",
-                    fontFamily: 'Rowdies,"Roboto,sans-serif',
-                    color: "#000000",
-
-                  }}
-                >
-                  Anudesh
-                </Typography>
-            </Grid>
-            <Grid item>
-                <IconButton onClick={() => setOpenDrawer(!openDrawer)}>
-                    <Menu />
-                </IconButton>
-            </Grid>
+          container
+          direction="row"
+          justifyContent={"space-between"}
+          style={{
+            padding: "0 5%",
+          }}
+        >
+          <Grid
+            item
+            sx={{ display: "flex", alignItems: "center", gap: "10px" }}
+          >
+            <Link href="/projects">
+              <Image
+                onClick={() => navigate("/")}
+                src="https://i.imgur.com/56Ut9oz.png"
+                alt="anudesh"
+                height="100"
+                width="100"
+                className={classes.headerLogo}
+                sx={{ marginTop: "5%" }}
+              />
+            </Link>
+            <Typography
+              className="headerTitle"
+              style={{
+                fontSize: "28px",
+                fontWeight: "bold",
+                fontFamily: 'Rowdies,"Roboto,sans-serif',
+                color: "#000000",
+              }}
+            >
+              Anudesh
+            </Typography>
+          </Grid>
+          <Grid item>
+            <IconButton onClick={() => setOpenDrawer(!openDrawer)}>
+              <Menu />
+            </IconButton>
+          </Grid>
         </Grid>
       </AppBar>
     </>
