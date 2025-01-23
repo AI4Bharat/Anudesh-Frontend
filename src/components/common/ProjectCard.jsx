@@ -38,7 +38,6 @@ const ProjectCard = (props) => {
 
   const userRole =projectObj.project_stage && UserMappedByProjectStage(projectObj.project_stage).name;
   return (
-    // <Link to={`/projects/${projectObj.id}`} style={{ textDecoration: "none" }}>
     <>
     <div onClick={() => handleCardClick(projectObj)}>
 

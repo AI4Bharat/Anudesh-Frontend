@@ -351,6 +351,15 @@ const SuperCheckerPage = () => {
   };
 
   const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+
     response = String(response);
     const output = [];
     let count = 0;
@@ -564,14 +573,14 @@ const SuperCheckerPage = () => {
     const PatchAPIdata = {
       annotation_status:
         typeof window !== "undefined" &&
-        (value === "delete" || value === "delete-pair")
+          (value === "delete" || value === "delete-pair")
           ? localStorage.getItem("labellingMode")
           : value,
       supercheck_notes:
         typeof window !== "undefined"
           ? JSON.stringify(
-              superCheckerNotesRef?.current?.getEditor().getContents(),
-            )
+            superCheckerNotesRef?.current?.getEditor().getContents(),
+          )
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
@@ -601,7 +610,7 @@ const SuperCheckerPage = () => {
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
+      if (!["draft", "skipped", "delete", "delete-pair", "to_be_revised"].includes(value)) {
         console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
@@ -618,7 +627,7 @@ const SuperCheckerPage = () => {
           setShowNotes(false);
           return;
         }
-        else if (chatHistory.length==0){
+        else if (chatHistory.length == 0) {
           setAutoSave(true);
           setSnackbarInfo({
             open: true,
@@ -661,21 +670,21 @@ const SuperCheckerPage = () => {
         }
         value === "delete"
           ? setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            })
+            open: true,
+            message: "Chat history has been cleared successfully!",
+            variant: "success",
+          })
           : value === "delete-pair"
             ? setSnackbarInfo({
-                open: true,
-                message: "Selected conversation is deleted",
-                variant: "success",
-              })
+              open: true,
+              message: "Selected conversation is deleted",
+              variant: "success",
+            })
             : setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "success",
-              });
+              open: true,
+              message: resp?.message,
+              variant: "success",
+            });
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -735,10 +744,10 @@ const SuperCheckerPage = () => {
           userAnnotation.result.length > 0
             ? [userAnnotation]
             : annotations.filter(
-                (annotation) =>
-                  annotation.id === userAnnotation.parent_annotation &&
-                  annotation.annotation_type === 2,
-              );
+              (annotation) =>
+                annotation.id === userAnnotation.parent_annotation &&
+                annotation.annotation_type === 2,
+            );
       } else if (
         ["validated", "validated_with_changes", "draft"].includes(
           userAnnotation.annotation_status,
@@ -813,68 +822,65 @@ const SuperCheckerPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${
-          annotations?.[0]?.id || "default"
-        }`}
-        handleClick={handleSuperCheckerClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={SuperChecker}
-        stage={"SuperChecker"}
-        notes={superCheckerNotesRef}
-      info={info}
-        disableUpdateButton={disableUpdateButton}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
-      case "ModelInteractionEvaluation":
-        componentToRender = (
-          <ModelInteractionEvaluation
-            key={`annotations-${annotations?.length}-${
-              annotations?.[0]?.id || "default"
+    case "ModelInteractionEvaluation":
+      componentToRender = (
+        <ModelInteractionEvaluation
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
             }`}
-            setCurrentInteraction={setCurrentInteraction}
-            currentInteraction={currentInteraction}
-            interactions={interactions}
-            setInteractions={setInteractions}
-            forms={forms}
-            setForms={setForms}
-            stage={"SuperChecker"}
-            answered={answered}
-            setAnswered={setAnswered}
-            annotation={annotations}
-            setLoading={setLoading}
-            loading={loading}
-          />
-        );
-        break;
-      case "MultipleInteractionEvaluation":
-        componentToRender = (
-          <PreferenceRanking
-            key={`annotations-${annotations?.length}-${
-              annotations?.[0]?.id || "default"
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"SuperChecker"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
             }`}
-            setCurrentInteraction={setCurrentInteraction}
-            currentInteraction={currentInteraction}
-            interactions={interactions}
-            setInteractions={setInteractions}
-            forms={forms}
-            setForms={setForms}
-            stage={"SuperChecker"}
-            notes={superCheckerNotesRef}
-            answered={answered}
-            setAnswered={setAnswered}
-            annotation={annotations}
-            setLoading={setLoading}
-            loading={loading}
-          />
-        );
-        break;
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
     default:
       componentToRender = null;
       break;
@@ -979,44 +985,44 @@ const SuperCheckerPage = () => {
                 placeholder="Superchecker Notes"
               ></ReactQuill>
             </div>
-            
+
             {ProjectDetails.revision_loop_count >
-            taskData?.revision_loop_count?.super_check_count
+              taskData?.revision_loop_count?.super_check_count
               ? false
               : true && (
-                  <div
-                    style={{
-                      textAlign: "left",
-                      marginBottom: "5px",
-                      marginLeft: "40px",
-                      marginTop: "5px",
-                    }}
-                  >
-                    <Typography variant="body" color="#f5222d">
-                      Note: The 'Revision Loop Count' limit has been reached for
-                      this task.
-                    </Typography>
-                  </div>
-                )}
+                <div
+                  style={{
+                    textAlign: "left",
+                    marginBottom: "5px",
+                    marginLeft: "40px",
+                    marginTop: "5px",
+                  }}
+                >
+                  <Typography variant="body" color="#f5222d">
+                    Note: The 'Revision Loop Count' limit has been reached for
+                    this task.
+                  </Typography>
+                </div>
+              )}
 
             {ProjectDetails.revision_loop_count -
               taskData?.revision_loop_count?.super_check_count !==
               0 && (
-              <div
-                style={{
-                  textAlign: "left",
-                  marginLeft: "40px",
-                  marginTop: "8px",
-                }}
-              >
-                <Typography variant="body" color="#f5222d">
-                  Note: This task can be rejected{" "}
-                  {ProjectDetails.revision_loop_count -
-                    taskData?.revision_loop_count?.super_check_count}{" "}
-                  more times.
-                </Typography>
-              </div>
-            )}
+                <div
+                  style={{
+                    textAlign: "left",
+                    marginLeft: "40px",
+                    marginTop: "8px",
+                  }}
+                >
+                  <Typography variant="body" color="#f5222d">
+                    Note: This task can be rejected{" "}
+                    {ProjectDetails.revision_loop_count -
+                      taskData?.revision_loop_count?.super_check_count}{" "}
+                    more times.
+                  </Typography>
+                </div>
+              )}
           </Box>
           <Grid
             container
@@ -1030,7 +1036,25 @@ const SuperCheckerPage = () => {
             }}
           >
             <Grid item>
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip title={<div>
+                <div>
+                  {ProjectDetails?.conceal == false && Array.isArray(assignedUsers)
+                    ? assignedUsers.join(", ")
+                    : assignedUsers || "No assigned users"}
+                </div>
+                <div
+                  style={{
+                    marginTop: "4px",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {annotations[0]?.annotation_type == 1 && `ANNOTATION ID: ${review?.id}`}
+                  {annotations[0]?.annotation_type == 2 && `REVIEW ID: ${annotations[0]?.id}`}
+                  {annotations[0]?.annotation_type == 3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+                </div>
+              </div>
+              }>
                 <Button
                   type="default"
                   className="lsf-button"
@@ -1079,7 +1103,7 @@ const SuperCheckerPage = () => {
                       pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
+                  // className="lsf-button"
                   >
                     Draft
                   </Button>
@@ -1131,7 +1155,7 @@ const SuperCheckerPage = () => {
                       pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
+                  // className="lsf-button"
                   >
                     Skip
                   </Button>
@@ -1161,7 +1185,7 @@ const SuperCheckerPage = () => {
                       pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
+                  // className="lsf-button"
                   >
                     Clear Chats
                   </Button>
@@ -1185,7 +1209,7 @@ const SuperCheckerPage = () => {
                     }
                     disabled={
                       ProjectData.revision_loop_count >
-                      taskData?.revision_loop_count?.super_check_count
+                        taskData?.revision_loop_count?.super_check_count
                         ? false
                         : true
                     }

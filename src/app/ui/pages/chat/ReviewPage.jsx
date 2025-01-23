@@ -183,6 +183,15 @@ const ReviewPage = () => {
   };
 
   const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+
     response = String(response);
     const output = [];
     let count = 0;
@@ -1240,7 +1249,7 @@ const ReviewPage = () => {
                 title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>

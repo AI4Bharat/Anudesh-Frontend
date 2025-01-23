@@ -1,6 +1,7 @@
 'use client'
 import  { React,useEffect, useState } from "react";
 import { Radio, Box, Grid, Typography, ThemeProvider } from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
@@ -19,9 +20,12 @@ export default function ProjectList({data}) {
          /* eslint-disable react-hooks/exhaustive-deps */
            /* eslint-disable-next-line react/jsx-key */
 
+           
 const dispatch = useDispatch();
 const [radiobutton, setRadiobutton] = useState(true);
 console.log(data);
+const theme = useTheme();
+
 
   // const [loading, setLoading] = useState(true);
   const [selectedFilters, setsSelectedFilters] = useState({
@@ -63,10 +67,10 @@ console.log(data?.length,"hel");
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? <Spinner /> :  
       <>
-      {/* <Grid container direction="row" columnSpacing={3} rowSpacing={2} sx={{ position: "static", bottom: "-51px", left: "20px" }} > */}
-      <Grid container className="root">
-        <Grid item style={{ flexGrow: "0" }}>
-          <Typography variant="h6" sx={{ paddingBottom: "7px" }}>
+      <Grid container className="root" >
+
+        <Grid item style={{ flexGrow: "0" }} >
+          <Typography variant="h6" sx={{ paddingBottom: "7px" ,paddingLeft: "15px"}}>
             View :{" "}
           </Typography>
         </Grid>
@@ -94,13 +98,22 @@ console.log(data?.length,"hel");
           </FormControl>
         </Grid>
 
-        <Grid xs={3} item className="fixedWidthContainer">
-          <Search />
-        </Grid> 
-      </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              className="fixedWidthContainer"
+              sx={{
+                paddingX: { xs: 2, sm: 3, md: 0 },
+              }}
+            >
+              <Search />
+            </Grid>
+          </Grid>
 
       <Box>
-        <Box sx={{ marginTop: "20px" }}>
+        <Box sx={{ margin: "20px" }}>
           {radiobutton ? (
             <ProjectCardList
               projectData={displayedProjects}

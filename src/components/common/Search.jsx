@@ -1,6 +1,7 @@
 import { InputBase,ThemeProvider,Grid } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@mui/material/styles";
 import themeDefault from '../../themes/theme'
  import  "../../styles/Dataset.css";
  import { useDispatch, useSelector } from "react-redux";
@@ -41,11 +42,10 @@ const Search = (props) => {
     setTargetLang(storedLanguage);
     console.log(globalTransliteration,localStorage.getItem("globalTransliteration"));
   }, [searchValue]);
- 
 
-
+  const theme = useTheme();
   return (
-   <Grid container justifyContent="end" sx={{marginTop:"20px"}}>
+   <Grid container justifyContent={{xs:"start",md:"end"}} sx={{marginTop:"20px",width:"100%"}}>
                 <Grid   className="search">
                     <Grid className="searchIcon">
                         <SearchIcon fontSize="small" />
@@ -57,7 +57,7 @@ const Search = (props) => {
                     renderComponent={(props) => (
                       <textarea
                       
-                      placeholder="Search..."
+                      placeholder="Search here"
                       {...props}
                       style={{background: "transparent", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%", border: "none", outline: "none", overflow: "hidden"}}
                       />
@@ -74,15 +74,18 @@ const Search = (props) => {
                     }}
                     lang={targetLang}
                     style={{background:"#F0F0F0", borderRadius:"16px", padding:"2px", height:"24px", width:"90%", marginLeft:"10%", resize:"none", marginTop:"2%"}}
-                    /> : 
-                    <InputBase
-                        sx={{ ml: 4 }}
-                        // inputRef={ref}
-                        placeholder="Search..."
-                        value={searchValue}
-                        onChange={(e) => handleChangeName(e.target.value)}
-                        inputProps={{ "aria-label": "search" }}
-                    />}
+                    /> : (
+                      <InputBase
+                      sx={{
+                        ml: 4,
+                        width: "120px",
+                      }}
+                      placeholder="Search here"
+                      value={searchValue}
+                      onChange={(e) => handleChangeName(e.target.value)}
+                      inputProps={{ "aria-label": "search" }}
+                    />
+                    )}
                 </Grid>
                 </Grid>
           
