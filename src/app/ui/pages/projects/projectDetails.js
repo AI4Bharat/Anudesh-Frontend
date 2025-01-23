@@ -405,6 +405,9 @@ import {
           direction="row"
           justifyContent="center"
           alignItems="center"
+          sx={{
+            padding: { xs: 2, sm: 3, md: 5 },
+          }}
         >
           <Card
             sx={{
@@ -419,21 +422,47 @@ import {
               direction="row"
               justifyContent="center"
               alignItems="center"
-              sx={{ mb: 3 }}
+              sx={{ mb: { xs: 2, md: 3 } }}
             >
-  <Grid item xs={12} sm={12} md={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} lg={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} xl={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12}>
-  <Typography variant="h3">{ProjectDetails.title}</Typography>
+              <Grid
+                item
+                xs={12}
+                md={
+                  loggedInUserData?.role &&
+                  (userRole.WorkspaceManager === loggedInUserData.role ||
+                    userRole.OrganizationOwner === loggedInUserData.role ||
+                    userRole.Admin === loggedInUserData.role)
+                    ? 10
+                    : 12
+                }
+                sx={{
+                  textAlign: { xs: "center", md: "left" },
+                  mb: { xs: 2, md: 0 },
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
+                >
+                  {ProjectDetails.title}
+                </Typography>
               </Grid>
 
               {(userRole.WorkspaceManager === loggedInUserData?.role ||
-              userRole.OrganizationOwner === loggedInUserData?.role ||
-              userRole.Admin === loggedInUserData?.role) && (
-                <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+                userRole.OrganizationOwner === loggedInUserData?.role ||
+                userRole.Admin === loggedInUserData?.role) && (
+                <Grid
+                  item
+                  xs={12}
+                  md={2}
+                  sx={{
+                    display: "flex",
+                    justifyContent: { xs: "center", md: "flex-end" },
+                    mt: { xs: 2, md: 0 },
+                  }}
+                >
                   <Tooltip title={translate("label.showProjectSettings")}>
-                    <IconButton
-                      onClick={handleOpenSettings}
-                      sx={{ marginLeft: "140px" }}
-                    >
+                    <IconButton onClick={handleOpenSettings}>
                       <SettingsOutlinedIcon
                         color="primary.dark"
                         fontSize="large"
@@ -442,8 +471,15 @@ import {
                   </Tooltip>
                 </Grid>
               )}
-          </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              sx={{
+                mb: { xs: 2, md: 3 },
+              }}
+            >
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (
                   <Grid key={i} item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
