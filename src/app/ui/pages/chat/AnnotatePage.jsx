@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef,memo } from "react";
+import { useState, useRef, useEffect, LegacyRef, memo } from "react";
 import {
   Grid,
   Box,
@@ -442,14 +442,13 @@ const AnnotatePage = () => {
       clear_conversation: value === "delete",
     };
 
-
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
         console.log(chatHistory.length);
-        
+
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -464,10 +463,12 @@ const AnnotatePage = () => {
           setLoading(false);
           setShowNotes(false);
           return;
-        }
-        else if(ProjectDetails.project_type == "InstructionDrivenChat"&&chatHistory.length==0) {
+        } else if (
+          ProjectDetails.project_type == "InstructionDrivenChat" &&
+          chatHistory.length == 0
+        ) {
           console.log(chatHistory);
-          
+
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
@@ -476,7 +477,6 @@ const AnnotatePage = () => {
           setLoading(false);
           setShowNotes(false);
           return;
-
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -510,13 +510,12 @@ const AnnotatePage = () => {
         }
         value === "delete"
           ? (setSnackbarInfo({
-            open: true,
-            message: "Chat history has been cleared successfully!",
-            variant: "success",
-          }),
-          await getAnnotationsTaskData(taskId),
-          await getTaskData(taskId)
-          )
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            }),
+            await getAnnotationsTaskData(taskId),
+            await getTaskData(taskId))
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -528,7 +527,7 @@ const AnnotatePage = () => {
                 message: resp?.message,
                 variant: "success",
               });
-              setLoading(false);
+        setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -577,7 +576,7 @@ const AnnotatePage = () => {
     };
   }, [taskId]);
   const filterAnnotations = (annotations, user) => {
-    setLoading(true)
+    setLoading(true);
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -673,7 +672,7 @@ const AnnotatePage = () => {
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
-    setLoading(false)
+    setLoading(false);
 
     return [
       filteredAnnotations,
@@ -722,7 +721,11 @@ const AnnotatePage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -742,7 +745,11 @@ const AnnotatePage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -761,7 +768,11 @@ const AnnotatePage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-        key={annotations?.length > 0 ? `annotations-${annotations[0]?.id}` : "annotations-default"}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -816,14 +827,12 @@ const AnnotatePage = () => {
     <>
       {loading && <Spinner />}
       <div id="top" ref={topref}></div>
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
         <Grid item>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
+              padding: "0px 10px",
             }}
           >
             <Button
@@ -831,7 +840,12 @@ const AnnotatePage = () => {
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -847,19 +861,21 @@ const AnnotatePage = () => {
         <Grid item xs={12}>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
+              padding: "0px 10px",
             }}
           >
-            {/* ( */}
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                mt: 2,
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   reviewtext.trim().length === 0 ? "#bf360c" : "green",
@@ -915,21 +931,21 @@ const AnnotatePage = () => {
               }}
             >
               {/* <Glossary taskData={taskData} /> */}
-            {/* </div> */} 
+            {/* </div> */}
           </Box>
           <Grid
             container
             justifyContent="center"
-            spacing={3}
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "16px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              <LightTooltip                 title={
+              <LightTooltip
+                title={
                   <div>
                     <div>
                       {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
@@ -943,14 +959,16 @@ const AnnotatePage = () => {
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
-
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }
->
+              >
                 <Button
                   type="default"
                   className="lsf-button"
@@ -994,7 +1012,7 @@ const AnnotatePage = () => {
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1026,13 +1044,13 @@ const AnnotatePage = () => {
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        paddingTop: 2,
-                        paddingBottom: 2,
                         backgroundColor: "#ffe0b2",
                       }}
                     >
@@ -1049,7 +1067,7 @@ const AnnotatePage = () => {
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   style={{
-                    minWidth: "150px",
+                    // minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
@@ -1073,13 +1091,13 @@ const AnnotatePage = () => {
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    paddingTop: 2,
-                    paddingBottom: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1105,7 +1123,7 @@ const AnnotatePage = () => {
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1136,13 +1154,13 @@ const AnnotatePage = () => {
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        paddingTop: 2,
-                        paddingBottom: 2,
                         backgroundColor: "#ffe0b2",
                       }}
                     >
@@ -1169,7 +1187,7 @@ const AnnotatePage = () => {
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1183,14 +1201,15 @@ const AnnotatePage = () => {
                     </Button>
                   </Tooltip> */}
 
-                  {ProjectDetails?.project_type=="InstructionDrivenChat"?(<Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        clear the entire chat history
-                      </span>
-                    }
-                  >
-                     <Button
+                  {ProjectDetails?.project_type == "InstructionDrivenChat" ? (
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          clear the entire chat history
+                        </span>
+                      }
+                    >
+                      <Button
                         value="Clear Chats"
                         type="default"
                         variant="outlined"
@@ -1201,25 +1220,33 @@ const AnnotatePage = () => {
                             Annotation.lead_time,
                           )
                         }
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                            md: "1rem",
+                          },
+                        }}
                         style={{
-                          minWidth: "150px",
                           color: "black",
                           borderRadius: "5px",
                           border: "0px",
-                          paddingTop: 2,
-                          paddingBottom: 2,
                           backgroundColor: "#ffe0b2",
                         }}
                       >
                         Clear Chats
                       </Button>
-                  </Tooltip>):            (<Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        Reset the entire chat history
-                      </span>
-                    }
-                  >          <Button
+                    </Tooltip>
+                  ) : (
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          Reset the entire chat history
+                        </span>
+                      }
+                    >
+                      {" "}
+                      <Button
                         value="Reset All Forms"
                         type="default"
                         variant="outlined"
@@ -1230,21 +1257,27 @@ const AnnotatePage = () => {
                             Annotation.lead_time,
                           )
                         }
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                            md: "1rem",
+                          },
+                        }}
                         style={{
-                          minWidth: "150px",
                           color: "black",
                           borderRadius: "5px",
                           border: "0px",
-                          paddingTop: 2,
-                          paddingBottom: 2,
                           backgroundColor: "#ffe0b2",
                         }}
                       >
                         {" "}
                         Reset All
                       </Button>
-</Tooltip>)}
-                </Grid>)}
+                    </Tooltip>
+                  )}
+                </Grid>
+              )}
             {!disableUpdateButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
@@ -1262,13 +1295,13 @@ const AnnotatePage = () => {
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        pt: 2,
-                        pb: 2,
                         backgroundColor: "#ee6633",
                       }}
                     >
@@ -1284,10 +1317,10 @@ const AnnotatePage = () => {
             </Alert>
           )}
         </Grid>
-          <Grid item container>
-            {" "}
-            {componentToRender}{" "}
-          </Grid>
+        <Grid item container sx={{ width: "100%" }}>
+          {" "}
+          {componentToRender}{" "}
+        </Grid>
       </Grid>
     </>
   );

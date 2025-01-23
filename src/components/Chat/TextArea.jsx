@@ -1,6 +1,6 @@
 import "./textarea.css";
 import { useEffect, useState } from "react";
-import { styled } from "@mui/system";
+import { styled, width } from "@mui/system";
 import { Grid } from "@mui/material";
 import { translate } from "@/config/localisation";
 import IconButton from "@mui/material/IconButton";
@@ -46,7 +46,9 @@ export default function Textarea({
     setIsMounted(true);
 
     if (typeof window !== "undefined") {
-      const storedGlobalTransliteration = localStorage.getItem("globalTransliteration");
+      const storedGlobalTransliteration = localStorage.getItem(
+        "globalTransliteration",
+      );
       const storedLanguage = localStorage.getItem("language");
 
       if (storedGlobalTransliteration !== null) {
@@ -56,7 +58,11 @@ export default function Textarea({
         setTargetLang(storedLanguage);
       }
 
-      console.log(globalTransliteration, "lll", localStorage.getItem("globalTransliteration"));
+      console.log(
+        globalTransliteration,
+        "lll",
+        localStorage.getItem("globalTransliteration"),
+      );
     }
   }, [text]);
 
@@ -64,7 +70,6 @@ export default function Textarea({
     if (text !== "") {
       handleOnchange(text);
     }
-  
   }, [text]);
 
   const handleMouseEnter = (event) => {
@@ -108,9 +113,8 @@ export default function Textarea({
     outline: 0,
     transition: "border-color 0.2s, box-shadow 0.2s",
   };
-  
 
-  const StyledTextarea  = styled(BaseTextareaAutosize)(
+  const StyledTextarea = styled(BaseTextareaAutosize)(
     ({ theme }) => `
     resize: none;
     margin-right: 5px;
@@ -146,13 +150,13 @@ export default function Textarea({
   if (!isMounted) {
     return null;
   }
-console.log(text,"llm",inputValue);
+  console.log(text, "llm", inputValue);
 
   return (
     <Grid
       item
-      xs={size}
-      backgroundColor="#FFF"
+      // xs={size}
+      backgroundColor="#FFf"
       justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}
@@ -160,16 +164,17 @@ console.log(text,"llm",inputValue);
       bottom={0}
       width={grid_size}
       className={class_name}
+      sx={{ width: "100%" }}
     >
       {globalTransliteration ? (
         <IndicTransliterate
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-          apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+          apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
           renderComponent={(props) => (
             <textarea
-              xs={size}
+              // xs={size}
               sx={{
-                whiteSpace: 'pre-wrap',
+                whiteSpace: "pre-wrap",
               }}
               maxRows={10}
               aria-label="empty textarea"
@@ -206,7 +211,7 @@ console.log(text,"llm",inputValue);
         />
       ) : (
         <TextareaAutosize
-          xs={size}
+          // xs={size}
           maxRows={10}
           aria-label="empty textarea"
           placeholder={translate("chat_placeholder")}
@@ -217,7 +222,8 @@ console.log(text,"llm",inputValue);
           }}
           onKeyDown={handleKeyDown}
           sx={{
-            whiteSpace: 'pre-wrap',
+            whiteSpace: "pre-wrap",
+            width: "100%",
           }}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -231,7 +237,6 @@ console.log(text,"llm",inputValue);
           handleButtonClick();
         }}
         disabled={!text?.trim()}
-
       >
         <SendRoundedIcon style={{ color: "#EE6633", height: "4rem" }} />
       </IconButton>
