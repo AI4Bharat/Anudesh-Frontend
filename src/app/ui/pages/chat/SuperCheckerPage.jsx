@@ -351,6 +351,15 @@ const SuperCheckerPage = () => {
   };
 
   const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+
     response = String(response);
     const output = [];
     let count = 0;
