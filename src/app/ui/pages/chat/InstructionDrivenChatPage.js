@@ -168,10 +168,9 @@ const InstructionDrivenChatPage = ({
       annotation[0]?.result.length > 0
     ) {
       modifiedChatHistory = annotation[0]?.result.map((interaction, index) => {
-        const isLastInteraction = index === annotation[0]?.result.length - 1;
         return {
           ...interaction,
-          output: formatResponse(interaction.output, isLastInteraction),
+          output: formatResponse(interaction.output),
         };
       });
       setChatHistory(modifiedChatHistory);
@@ -569,10 +568,11 @@ const InstructionDrivenChatPage = ({
               />
             </Grid>
 
-            <Grid item xs={6}>
-              {message?.output?.map((segment, index) =>
-                segment.type === "text" ? (
-                  ProjectDetails?.metadata_json?.editable_response ? (
+    <Grid item  xs={6}  >
+
+              {message?.output.map((segment, index) =>
+                segment.type === 'text' ? (
+                  (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
                     globalTransliteration ? (
                       <IndicTransliterate
                         key={index}

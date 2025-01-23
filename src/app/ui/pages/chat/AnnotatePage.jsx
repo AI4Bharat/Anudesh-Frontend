@@ -161,8 +161,8 @@ const AnnotatePage = () => {
     "script",
   ];
 
-  const formatResponse = (response, isLast) => {
-    if (ProjectDetails?.metadata_json?.blank_response == true && isLast) {
+  const formatResponse = (response) => {
+    if (!response) {
       return [
         {
           type: "text",
@@ -170,12 +170,11 @@ const AnnotatePage = () => {
         },
       ];
     }
+  
     response = String(response);
     const output = [];
     let count = 0;
-
-    console.log(output, "kk");
-
+    
     while (response) {
       response = response.trim();
       let index = response.indexOf("```");
@@ -949,7 +948,7 @@ const AnnotatePage = () => {
                 title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
