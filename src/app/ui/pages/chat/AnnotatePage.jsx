@@ -170,11 +170,11 @@ const AnnotatePage = () => {
         },
       ];
     }
-  
+
     response = String(response);
     const output = [];
     let count = 0;
-    
+
     while (response) {
       response = response.trim();
       let index = response.indexOf("```");
@@ -832,7 +832,8 @@ const AnnotatePage = () => {
         <Grid item>
           <Box
             sx={{
-              padding: "0px 10px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -861,7 +862,8 @@ const AnnotatePage = () => {
         <Grid item xs={12}>
           <Box
             sx={{
-              padding: "0px 10px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -870,7 +872,7 @@ const AnnotatePage = () => {
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
               sx={{
-                mt: 2,
+                // mt: 2,
                 px: { xs: 2, sm: 3, md: 4 },
                 py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
@@ -948,7 +950,8 @@ const AnnotatePage = () => {
                 title={
                   <div>
                     <div>
-                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
