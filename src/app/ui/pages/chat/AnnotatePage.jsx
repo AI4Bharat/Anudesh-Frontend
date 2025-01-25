@@ -990,45 +990,12 @@ const AnnotatePage = () => {
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
 
             {!disableBtns &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="Save task for later">
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "draft",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip> */}
-
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1049,6 +1016,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
                       }}
                       style={{
                         color: "black",
@@ -1096,6 +1064,7 @@ const AnnotatePage = () => {
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   sx={{
                     fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
                   }}
                   style={{
                     color: "black",
