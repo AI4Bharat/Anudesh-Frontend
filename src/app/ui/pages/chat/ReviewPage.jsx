@@ -1163,7 +1163,12 @@ const ReviewPage = () => {
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -1190,6 +1195,12 @@ const ReviewPage = () => {
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   annotationtext.trim().length === 0 &&
