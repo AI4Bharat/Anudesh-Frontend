@@ -87,7 +87,6 @@ const InstructionDrivenChatPage = ({
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
-  let inputValue = "";
   const classes = headerStyle();
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -98,6 +97,7 @@ const InstructionDrivenChatPage = ({
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
+  const [inputValue, setInputValue] = useState(""); // Use useState for inputValue
 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -311,7 +311,7 @@ const InstructionDrivenChatPage = ({
   console.log(chatHistory, ProjectDetails?.metadata_json);
 
   const handleOnchange = (prompt) => {
-    inputValue = prompt;
+    setInputValue(prompt); // Update inputValue using setInputValue
     console.log(inputValue, chatHistory);
   };
   const [text, setText] = useState("");
@@ -371,9 +371,9 @@ const InstructionDrivenChatPage = ({
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       handleButtonClick();
-      setText("");
+      setInputValue(""); // Clear inputValue after submission
     } else if (event.key === "Enter" && event.shiftKey) {
-      setText((prevText) => prevText + "\n");
+      setInputValue((prevText) => prevText + "\n");
     }
   };
   const textareaStyle = {
@@ -568,11 +568,11 @@ const InstructionDrivenChatPage = ({
               />
             </Grid>
 
-    <Grid item  xs={6}  >
-
+            <Grid item xs={6}>
               {message?.output.map((segment, index) =>
-                segment.type === 'text' ? (
-                  (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
+                segment.type === "text" ? (
+                  ProjectDetails?.metadata_json?.editable_response ||
+                  segment.value == "" ? (
                     globalTransliteration ? (
                       <IndicTransliterate
                         key={index}
@@ -860,7 +860,7 @@ const InstructionDrivenChatPage = ({
                 }}
                 class_name={"w-full"}
                 loading={loading}
-                inputValue={inputValue}
+                inputValue={inputValue} // Pass inputValue to Textarea
               />
             </Grid>
           ) : null}
