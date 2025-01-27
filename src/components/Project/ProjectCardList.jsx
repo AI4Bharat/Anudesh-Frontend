@@ -12,7 +12,7 @@ import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
-import { DialogActions } from "@mui/material";
+import { DialogActions, Badge } from "@mui/material";
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
@@ -248,9 +248,25 @@ const ProjectCardList = (props) => {
         })
       : [];
 
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+
   const renderToolBar = () => {
     return (
-      <>
+      <div style={{position: "relative"}}>
+        <Badge
+          color="primary"
+          variant="dot"
+          invisible={!filtersApplied}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
+        />
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
         <Tooltip
       title={
@@ -262,7 +278,7 @@ const ProjectCardList = (props) => {
       <FilterListIcon sx={{ color: '#515A5A' }} />
     </Tooltip>
         </Button>
-      </>
+      </div>
     );
   };
   const handleMouseDownPassword = (event) => {

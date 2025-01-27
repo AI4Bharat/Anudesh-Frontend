@@ -1,4 +1,4 @@
-import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
+import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions, Badge } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
 import { Link, useNavigate } from "react-router-dom";
@@ -135,6 +135,12 @@ const Projectcard = (props) => {
     setPassword("");
   };
 
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
 
   return (
     <React.Fragment>
@@ -142,6 +148,16 @@ const Projectcard = (props) => {
       {/* {loading && <Spinner />} */}
       <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
+          <Badge
+            color="primary"
+            variant="dot"
+            invisible={!filtersApplied}
+            sx={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+            }}
+          />
         <Tooltip title={"Filter Table"}>
           <FilterListIcon sx={{ color: "#515A5A" }} />
         </Tooltip>

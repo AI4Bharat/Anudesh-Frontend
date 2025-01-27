@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import CustomButton from "@/components/common/Button";
-import { ThemeProvider,Tooltip, Button } from "@mui/material";
+import { ThemeProvider,Tooltip, Button, Badge } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
 import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -114,15 +114,31 @@ const DatasetCardList = (props) => {
         })
       : [];
 
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
+
   const renderToolBar = () => {
     return (
-      <>
+      <div style={{ position: "relative" }}>
         {/* <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
           <Tooltip title={"Filter Table"}>
             <FilterListIcon sx={{ color: "#515A5A" }} />
           </Tooltip>
         </Button> */}
-
+      <Badge
+        color="primary"
+        variant="dot"
+        invisible={!filtersApplied}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
+        />
     <Button style={{ minWidth: '25px' }} onClick={handleShowFilter}>
       <Tooltip 
         title={<span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>}
@@ -130,7 +146,7 @@ const DatasetCardList = (props) => {
         <FilterListIcon sx={{ color: '#515A5A' }} />
       </Tooltip>
     </Button>
-      </>
+      </div>
     );
   };
 
