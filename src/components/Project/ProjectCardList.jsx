@@ -1,10 +1,23 @@
-import  {React, useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 // import Link from 'next/link';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from "@mui/material/styles";
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
 import { Link, useNavigate } from "react-router-dom";
-import { Grid, Tooltip, Button, Dialog, DialogTitle, DialogContent, TextField, FormHelperText, Typography, IconButton, InputAdornment } from "@mui/material";
+import {
+  Grid,
+  Tooltip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  FormHelperText,
+  Typography,
+  IconButton,
+  InputAdornment,
+  Badge,
+} from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,8 +30,8 @@ import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const ProjectCardList = (props) => {
-         /* eslint-disable react-hooks/exhaustive-deps */
-           /* eslint-disable-next-line react/jsx-key */
+  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable-next-line react/jsx-key */
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const [anchorEl, setAnchorEl] = useState(null);
@@ -28,24 +41,33 @@ const ProjectCardList = (props) => {
   const [password, setPassword] = useState("");
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [showPassword, setShowPassword] = useState(false);
-  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
-  const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects).sort((a, b) => a.id - b.id) : projectData
+  const [snackbarInfo, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "",
+  });
+  const combinedData =
+    projectData.included_projects && projectData.excluded_projects
+      ? projectData.excluded_projects
+          .concat(projectData.included_projects)
+          .sort((a, b) => a.id - b.id)
+      : projectData;
   const navigate = useNavigate();
-  const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
+  const SearchProject = useSelector(
+    (state) => state.searchProjectCard?.searchValue,
+  );
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
-
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const handleAuthOpen = (project,title) => {
+  const handleAuthOpen = (project, title) => {
     setSelectedProject(project);
     setOpenAuthDialog(true);
   };
@@ -59,9 +81,13 @@ const ProjectCardList = (props) => {
     setShowPassword(!showPassword);
   };
 
-  const handlePasswordSubmit = async() => {
+  const handlePasswordSubmit = async () => {
     console.log(selectedProject?.id);
-    const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
+    const apiObj = new VerifyProject(
+      loggedInUserData?.id,
+      selectedProject?.id,
+      password,
+    );
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
@@ -74,15 +100,15 @@ const ProjectCardList = (props) => {
         open: true,
         message: resp?.message,
         variant: "success",
-      })
+      });
     } else {
       setSnackbarInfo({
         open: true,
         message: resp?.message,
         variant: "error",
-      })
-    }  
-    navigate(`/projects/${selectedProject?.id}`)
+      });
+    }
+    navigate(`/projects/${selectedProject?.id}`);
     handleAuthClose();
   };
   const pageSearch = () => {
@@ -216,10 +242,13 @@ const ProjectCardList = (props) => {
             el.project_stage &&
             UserMappedByProjectStage(el.project_stage).element;
 
-            const isExcluded = projectData && projectData.excluded_projects && projectData.excluded_projects?.some(
-              (excludedProject) => excludedProject.id === el.id
+          const isExcluded =
+            projectData &&
+            projectData.excluded_projects &&
+            projectData.excluded_projects?.some(
+              (excludedProject) => excludedProject.id === el.id,
             );
-    
+
           return [
             el.id,
             el.title,
@@ -233,10 +262,14 @@ const ProjectCardList = (props) => {
                 key={i}
                 sx={{ borderRadius: 2, marginRight: 2 }}
                 label="Authenticate"
-                onClick={() => handleAuthOpen(el,el.title)}
+                onClick={() => handleAuthOpen(el, el.title)}
               />
             ) : (
-              <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }} key={i}>
+              <Link
+                to={`/projects/${el.id}`}
+                style={{ textDecoration: "none" }}
+                key={i}
+              >
                 <CustomButton
                   key={i}
                   sx={{ borderRadius: 2, marginRight: 2 }}
@@ -248,27 +281,51 @@ const ProjectCardList = (props) => {
         })
       : [];
 
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
+
   const renderToolBar = () => {
     return (
-      <>
-        <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
+      <div
+        style={{
+          position: "relative",
+        }}
+      >
+        <Badge
+          color="primary"
+          variant="dot"
+          invisible={!filtersApplied}
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
+        />
         <Tooltip
-      title={
-        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-          Filter Table
-        </span>
-      }
-    >
-      <FilterListIcon sx={{ color: '#515A5A' }} />
-    </Tooltip>
-        </Button>
-      </>
+          title={
+            <span style={{ fontFamily: "Roboto, sans-serif" }}>
+              Filter Table
+            </span>
+          }
+        >
+          <Button
+            style={{ minWidth: "25px", position: "relative" }}
+            onClick={handleShowFilter}
+          >
+            <FilterListIcon sx={{ color: "#515A5A" }} />
+          </Button>
+        </Tooltip>
+      </div>
     );
   };
+
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
 
   const options = {
     textLabels: {
@@ -340,15 +397,10 @@ const ProjectCardList = (props) => {
               ),
             }}
             onChange={(e) => setPassword(e.target.value)}
-
           />
           <FormHelperText id="enter-password">
-            To enter {" "}
-            <Typography
-              component="span"
-              fontWeight="bold"
-              fontSize={"12px"}
-            >
+            To enter{" "}
+            <Typography component="span" fontWeight="bold" fontSize={"12px"}>
               {selectedProject?.title}
             </Typography>{" "}
             project you must type in the password.
@@ -363,7 +415,6 @@ const ProjectCardList = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </>
   );
 };

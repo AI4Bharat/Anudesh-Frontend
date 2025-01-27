@@ -1,4 +1,4 @@
-import { Box, Grid ,Button,Tooltip } from "@mui/material";
+import { Box, Grid, Button, Tooltip, Badge } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DatasetCard from "@/components/common/DatasetCard";
 import DatasetStyle from "@/styles/dataset";
@@ -10,21 +10,21 @@ import { useNavigate } from "react-router-dom";
 import DatasetFilterList from "./DatasetFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
-
 const DatasetCards = (props) => {
-    /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
-  const { datasetList,selectedFilters,setsSelectedFilters } = props;
+  const { datasetList, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(9);
   // const apiLoading = useSelector(state => state.apiStatus.loading);
-  const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
+  const SearchDataset = useSelector(
+    (state) => state.searchProjectCard?.searchValue,
+  );
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
- 
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,7 +33,6 @@ const DatasetCards = (props) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
 
   const handleChangePage = (e, newPage) => {
     setPage(newPage);
@@ -70,17 +69,33 @@ const DatasetCards = (props) => {
   // useEffect(() => {
   //     setLoading(apiLoading);
   // }, [apiLoading])
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
 
   return (
     <React.Fragment>
       {/* <Header /> */}
       {/* {loading && <Spinner />} */}
-      <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
+      <Grid sx={{ textAlign: "end", margin: "-20px 10px 10px 0px" }}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-        <Tooltip title={"Filter Table"}>
-          <FilterListIcon sx={{ color: "#515A5A" }} />
-        </Tooltip>
-      </Button>
+          <Badge
+            color="primary"
+            variant="dot"
+            invisible={!filtersApplied}
+            sx={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+            }}
+          />
+          <Tooltip title={"Filter Table"}>
+            <FilterListIcon sx={{ color: "#515A5A" }} />
+          </Tooltip>
+        </Button>
       </Grid>
       {pageSearch().length > 0 && (
         <Box sx={{ margin: "0 auto", pb: 5 }}>

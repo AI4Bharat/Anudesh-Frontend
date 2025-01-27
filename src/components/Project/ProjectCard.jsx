@@ -1,8 +1,22 @@
-import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Button,
+  Tooltip,
+  Typography,
+  Dialog,
+  DialogTitle,
+  TextField,
+  FormHelperText,
+  InputAdornment,
+  IconButton,
+  DialogActions,
+  Badge,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
 import { Link, useNavigate } from "react-router-dom";
-import  "../../styles/Dataset.css";
+import "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
@@ -18,27 +32,35 @@ import { DialogContent } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 
-
 const Projectcard = (props) => {
-       /* eslint-disable react-hooks/exhaustive-deps */
-           /* eslint-disable-next-line react/jsx-key */
+  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable-next-line react/jsx-key */
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
-  const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
+  const SearchProject = useSelector(
+    (state) => state.searchProjectCard?.searchValue,
+  );
   const [page, setPage] = useState(0);
   const navigate = useNavigate();
   const [rowsPerPage, setRowsPerPage] = useState(9);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-  const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects) : projectData
-  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+  const combinedData =
+    projectData.included_projects && projectData.excluded_projects
+      ? projectData.excluded_projects.concat(projectData.included_projects)
+      : projectData;
+  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const [snackbarInfo, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "",
+  });
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -57,12 +79,10 @@ const Projectcard = (props) => {
     setOpenAuthDialog(true);
   };
 
-
   const rowChange = (e) => {
     setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
-
 
   const handlePasswordSubmit = async () => {
     const apiObj = new VerifyProject(selectedProject?.id, password);
@@ -85,12 +105,10 @@ const Projectcard = (props) => {
         variant: "error",
       });
     }
-    navigate(`/projects/${selectedProject?.id}`)
+    navigate(`/projects/${selectedProject?.id}`);
     handleAuthClose();
   };
 
-
- 
   const pageSearch = () => {
     return combinedData.filter((el) => {
       if (SearchProject == "") {
@@ -99,7 +117,7 @@ const Projectcard = (props) => {
         el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())
       ) {
         return el;
-      }  else if (
+      } else if (
         el.title?.toLowerCase().includes(SearchProject?.toLowerCase())
       ) {
         return el;
@@ -107,21 +125,24 @@ const Projectcard = (props) => {
         el.id.toString()?.toLowerCase()?.includes(SearchProject.toLowerCase())
       ) {
         return el;
-      }else if (
-        el.workspace_id.toString()?.toLowerCase().includes(SearchProject?.toLowerCase())
+      } else if (
+        el.workspace_id
+          .toString()
+          ?.toLowerCase()
+          .includes(SearchProject?.toLowerCase())
       ) {
-        return el;}
-        else if (
-          el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
-        ) {
-          return el;}
-          else if (
-            UserMappedByProjectStage(el.project_stage)
-              ?.name?.toLowerCase()
-              .includes(SearchProject?.toLowerCase())
-          ) {
-            return el;
-          }
+        return el;
+      } else if (
+        el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      } else if (
+        UserMappedByProjectStage(el.project_stage)
+          ?.name?.toLowerCase()
+          .includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      }
     });
   };
 
@@ -135,17 +156,33 @@ const Projectcard = (props) => {
     setPassword("");
   };
 
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
 
   return (
     <React.Fragment>
       {/* <Header /> */}
       {/* {loading && <Spinner />} */}
-      <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
+      <Grid sx={{ textAlign: "end", margin: "-10px 10px 10px 0px" }}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-        <Tooltip title={"Filter Table"}>
-          <FilterListIcon sx={{ color: "#515A5A" }} />
-        </Tooltip>
-      </Button>
+          <Badge
+            color="primary"
+            variant="dot"
+            invisible={!filtersApplied}
+            sx={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+            }}
+          />
+          <Tooltip title={"Filter Table"}>
+            <FilterListIcon sx={{ color: "#515A5A" }} />
+          </Tooltip>
+        </Button>
       </Grid>
       {pageSearch().length > 0 && (
         <Box sx={{ margin: "0 auto", pb: 5 }}>
@@ -163,17 +200,17 @@ const Projectcard = (props) => {
                 return (
                   <Grid key={el.id} item xs={12} sm={6} md={4} lg={4} xl={4}>
                     {/* <div onClick={() => handleCardClick(el)}> */}
-                      <ProjectCard
-                        classAssigned={
-                          i % 2 === 0
-                            ? classes.projectCardContainer2
-                            : classes.projectCardContainer1
-                        }
-                        projectObj={el}
-                        projectData={projectData}
-                        handleAuthOpen={handleAuthOpen}
-                        index={i}
-                      />
+                    <ProjectCard
+                      classAssigned={
+                        i % 2 === 0
+                          ? classes.projectCardContainer2
+                          : classes.projectCardContainer1
+                      }
+                      projectObj={el}
+                      projectData={projectData}
+                      handleAuthOpen={handleAuthOpen}
+                      index={i}
+                    />
                     {/* </div> */}
                   </Grid>
                 );
@@ -200,7 +237,7 @@ const Projectcard = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
-            <Dialog open={openAuthDialog} onClose={handleAuthClose}>
+      <Dialog open={openAuthDialog} onClose={handleAuthClose}>
         <DialogTitle>Enter Password</DialogTitle>
         <DialogContent>
           <TextField
@@ -241,7 +278,6 @@ const Projectcard = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </React.Fragment>
   );
 };
