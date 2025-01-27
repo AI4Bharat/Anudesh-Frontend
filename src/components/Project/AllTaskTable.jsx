@@ -27,6 +27,7 @@ const excludeCols = [
   "avg_rating",
   "curr_rating",
   "inter_annotator_difference",
+  "data",
   "context",
   "input_language",
   "output_language",
