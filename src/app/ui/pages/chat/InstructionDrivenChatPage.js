@@ -87,7 +87,7 @@ const InstructionDrivenChatPage = ({
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
-  let inputValue = "";
+  const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -311,7 +311,7 @@ const InstructionDrivenChatPage = ({
   console.log(chatHistory, ProjectDetails?.metadata_json);
 
   const handleOnchange = (prompt) => {
-    inputValue = prompt;
+    setInputValue(prompt);
     console.log(inputValue, chatHistory);
   };
   const [text, setText] = useState("");
