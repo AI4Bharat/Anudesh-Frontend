@@ -181,9 +181,13 @@ import {
     }
     }, [ProjectDetails.id]);
     const [annotationreviewertype, setAnnotationreviewertype] = useState();
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = React.useState(() => {
+    const savedTab = localStorage.getItem('projectSelectedTab');
+      return savedTab !== null ? parseInt(savedTab, 10) : 0;
+    });
     const handleChange = (event, newValue) => {
       setValue(newValue);
+      localStorage.setItem('projectSelectedTab', newValue);
     };
     const apiLoading = useSelector((state) => state.getProjectDetails.status !== "succeeded");
     const isAnnotators =
