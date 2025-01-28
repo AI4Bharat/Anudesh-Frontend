@@ -24,6 +24,9 @@ import AllTaskSearchPopup from "./AllTasksSearchpopup";
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 
 const excludeCols = [
+  "avg_rating",
+  "curr_rating",
+  "inter_annotator_difference",
   "context",
   "input_language",
   "output_language",
@@ -130,6 +133,12 @@ const AllTaskTable = (props) => {
             .map((key) => el.data[key]),
         );
         AllTaskData[0].task_status && row.push(el.task_status);
+        if (
+          ProjectDetails?.required_annotators_per_task > 1 &&
+          AllTaskData[0].input_data_id
+        ) {
+          row.push(el.input_data_id);
+        }
         row.push(
           <>
             <Link
@@ -157,12 +166,19 @@ const AllTaskTable = (props) => {
         return row;
       });
       let colList = ["id"];
+      
       colList.push(
         ...Object.keys(AllTaskData[0].data).filter(
           (el) => !excludeCols.includes(el),
         ),
       );
+      
       AllTaskData[0].task_status && colList.push("status");
+      if (ProjectDetails?.required_annotators_per_task > 1) {
+        if (AllTaskData[0].input_data_id) {
+          colList.push("Input_data_id");
+        }
+      }
       colList.push("actions");
       const cols = colList.map((col) => {
         return {
