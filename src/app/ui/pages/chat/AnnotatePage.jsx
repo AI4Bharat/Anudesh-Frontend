@@ -1128,6 +1128,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
                       }}
                       style={{
                         color: "black",
@@ -1198,6 +1199,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
+                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
                         }}
                         style={{
                           color: "black",
@@ -1235,6 +1237,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
+                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
                         }}
                         style={{
                           color: "black",
@@ -1269,6 +1272,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
                       }}
                       style={{
                         color: "black",
