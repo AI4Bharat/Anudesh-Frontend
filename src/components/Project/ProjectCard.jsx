@@ -1,4 +1,4 @@
-import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions, Badge } from "@mui/material";
+import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
 import { Link, useNavigate } from "react-router-dom";
@@ -17,6 +17,10 @@ import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 import { DialogContent } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
+import InfoIcon from '@mui/icons-material/Info';
+import { tooltipClasses } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
+
 
 
 const Projectcard = (props) => {
@@ -142,25 +146,45 @@ const Projectcard = (props) => {
   const filtersApplied = areFiltersApplied(selectedFilters);
   console.log("filtersApplied", filtersApplied);
 
+    const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: '#e0e0e0',
+      color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(12),
+    },
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#e0e0e0",
+    },
+  }));
+
   return (
     <React.Fragment>
       {/* <Header /> */}
       {/* {loading && <Spinner />} */}
       <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-          <Badge
-            color="primary"
-            variant="dot"
-            invisible={!filtersApplied}
-            sx={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-            }}
-          />
-        <Tooltip title={"Filter Table"}>
-          <FilterListIcon sx={{ color: "#515A5A" }} />
-        </Tooltip>
+                  {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
+        <CustomTooltip
+      title={
+        filtersApplied ? (
+          <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
+            {selectedFilters.project_type && <div><strong>Project Type:</strong> {selectedFilters.project_type}</div>}
+            {selectedFilters.project_user_type && <div><strong>Project User Type:</strong> {selectedFilters.project_user_type}</div>}
+            {selectedFilters.archived_projects && <div><strong>Archived Projects:</strong> {selectedFilters.archived_projects}</div>}
+        </Box>
+      ) : (
+      <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+        Filter Table
+      </span>
+      )  
+      }
+      disableInteractive
+    >
+      <FilterListIcon sx={{ color: '#515A5A' }} />
+    </CustomTooltip>
       </Button>
       </Grid>
       {pageSearch().length > 0 && (

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import CustomButton from "@/components/common/Button";
-import { ThemeProvider,Tooltip, Button, Badge, Box } from "@mui/material";
+import { ThemeProvider,Tooltip, Button, Box } from "@mui/material";
 import tableTheme from "@/themes/tableTheme";
 import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";

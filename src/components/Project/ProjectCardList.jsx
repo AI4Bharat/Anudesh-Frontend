@@ -12,7 +12,7 @@ import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
-import { DialogActions, Badge } from "@mui/material";
+import { DialogActions } from "@mui/material";
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import InfoIcon from '@mui/icons-material/Info';
