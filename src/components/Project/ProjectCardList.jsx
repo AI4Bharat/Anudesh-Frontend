@@ -1,10 +1,10 @@
 import  {React, useState, useEffect } from "react";
 // import Link from 'next/link';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, styled } from '@mui/material/styles';
 import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
 import { Link, useNavigate } from "react-router-dom";
-import { Grid, Tooltip, Button, Dialog, DialogTitle, DialogContent, TextField, FormHelperText, Typography, IconButton, InputAdornment } from "@mui/material";
+import { Grid, Tooltip, Button, Dialog, DialogTitle, DialogContent, TextField, FormHelperText, Typography, IconButton, InputAdornment, Box } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Search from "../common/Search";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +15,9 @@ import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { DialogActions, Badge } from "@mui/material";
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import InfoIcon from '@mui/icons-material/Info';
+import { tooltipClasses } from '@mui/material/Tooltip';
+
 
 const ProjectCardList = (props) => {
          /* eslint-disable react-hooks/exhaustive-deps */
@@ -254,29 +257,43 @@ const ProjectCardList = (props) => {
 
   const filtersApplied = areFiltersApplied(selectedFilters);
 
+  const CustomTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#e0e0e0',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 300,
+    fontSize: theme.typography.pxToRem(12),
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: "#e0e0e0",
+  },
+}));
+
   const renderToolBar = () => {
     return (
       <div style={{position: "relative"}}>
-        <Badge
-          color="primary"
-          variant="dot"
-          invisible={!filtersApplied}
-          sx={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-          }}
-        />
+        {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-        <Tooltip
+        <CustomTooltip
       title={
-        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-          Filter Table
-        </span>
+        filtersApplied ? (
+          <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
+            {selectedFilters.project_type && <div><strong>Project Type:</strong> {selectedFilters.project_type}</div>}
+            {selectedFilters.project_user_type && <div><strong>Project User Type:</strong> {selectedFilters.project_user_type}</div>}
+            {selectedFilters.archived_projects && <div><strong>Archived Projects:</strong> {selectedFilters.archived_projects}</div>}
+        </Box>
+      ) : (
+      <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+        Filter Table
+      </span>
+      )  
       }
+      disableInteractive
     >
       <FilterListIcon sx={{ color: '#515A5A' }} />
-    </Tooltip>
+    </CustomTooltip>
         </Button>
       </div>
     );
