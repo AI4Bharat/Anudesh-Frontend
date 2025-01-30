@@ -73,6 +73,7 @@ import GetExportProjectButton from './Features/datasets/GetExportProjectButton';
 import getDatasetByType from './Features/datasets/getDatasetByType';
 import wsgetTaskAnalytics from './Features/Analytics/Workspace/wsgetTaskAnalytics';
 import wsgetMetaAnalytics from './Features/Analytics/Workspace/wsgetMetaAnalytics';
+import projectTabs from "./Features/projects/ProjectTabs"
 const makeStore = () => {
     return configureStore({
       reducer: {
@@ -150,6 +151,7 @@ const makeStore = () => {
         getTaskAnalyticsData: getTaskAnalyticsData,
         getMetaAnalyticsData: getMetaAnalyticsData,
         getGuestWorkspaces: getGuestWorkspaces,
+        getProjectTabs: projectTabs,
       },
     });
   };
