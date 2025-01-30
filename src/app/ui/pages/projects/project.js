@@ -28,11 +28,17 @@ const theme = useTheme();
 
 
   // const [loading, setLoading] = useState(true);
-  const [selectedFilters, setsSelectedFilters] = useState({
-    project_type: "",
-    project_user_type: "",
-    archived_projects: "",
-  });
+  // Initialize selected filters from localStorage or set default values
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    const savedFilters = localStorage.getItem("projectSelectedFilters");
+    return savedFilters
+      ? JSON.parse(savedFilters)
+      : {
+          project_type: "",
+          project_user_type: "",
+          archived_projects: "",
+        }});
+
   const [guestworkspace, setguestworkspace] = useState(false);
   const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
   const apiLoading = useSelector((state) => state.getProjects.status === "loading");
@@ -52,6 +58,14 @@ const theme = useTheme();
       
     }
   }, [selectedFilters,loggedInUserData]);
+
+    // Save selected filters to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      "projectSelectedFilters",
+      JSON.stringify(selectedFilters),
+    );
+  }, [selectedFilters]);
 
 console.log(data?.length,"hel");
 
