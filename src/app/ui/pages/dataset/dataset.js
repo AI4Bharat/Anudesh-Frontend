@@ -26,9 +26,12 @@ export default function DatasetList() {
   const datasetList = useSelector((state) => state.GetDatasets.data);
   const apiLoading = useSelector((state) => state.GetDatasets.status == "loading" );
 
-  const [selectedFilters, setsSelectedFilters] = useState({
-    dataset_visibility: "",
-    dataset_type: "",
+  // Initialize selected filters from localStorage or set default values
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    const savedFilters = localStorage.getItem("datasetSelectedFilters");
+    return savedFilters
+      ? JSON.parse(savedFilters)
+      : { dataset_visibility: "", dataset_type: "" };
   });
   console.log(selectedFilters);
   const getDashboardprojectData = () => {
@@ -42,6 +45,14 @@ export default function DatasetList() {
 
   useEffect(() => {
     getDashboardprojectData();
+  }, [selectedFilters]);
+
+  // Save selected filters to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      "datasetSelectedFilters",
+      JSON.stringify(selectedFilters),
+    );
   }, [selectedFilters]);
 
   const handleProjectlist = () => {
