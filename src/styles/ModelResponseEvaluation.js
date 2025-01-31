@@ -1,6 +1,11 @@
 import { makeStyles } from "@mui/styles";
 
 const ModelResponseEvaluationStyle = makeStyles({
+  outputWrpr: {
+    "@media (max-width: 425px)": {
+      flexDirection: "column", // Stacks children vertically on smaller screens
+    },
+  },
   yesText: {
     marginRight: "1rem",
   },
@@ -28,7 +33,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     justifyContent: "space-evenly",
     alignItems: "center",
     backgroundColor: "#F6F6F6",
-    // maxHeight: '1000vh',
+    width: "100%",
   },
 
   rightPanel: {
@@ -60,6 +65,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     fontWeight: "bold",
     marginBottom: "1rem",
     color: "#6C5F5B",
+    width: "100%",
   },
   outputContainer: {
     marginBottom: "1rem",
@@ -72,7 +78,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   heading: {
     fontWeight: "bold",
-    marginBottom: "1rem",
+    // marginBottom: "1rem",
     color: "#6C5F5B",
   },
   ratingButton: {
@@ -114,10 +120,10 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   interactionWindow: {
-    width: "100wh",
-    padding: "2rem",
+    width: "100%",
+    padding: "0rem 2rem 2rem 2rem",
     color: "#6C5F5B",
-    borderRadius: "2rem 0px 0px 1rem",
+    // borderRadius: "2rem 0px 0px 1rem",
     flexDirection: "row",
     // marginTop:"1.5rem"
   },

@@ -170,11 +170,11 @@ const AnnotatePage = () => {
         },
       ];
     }
-  
+
     response = String(response);
     const output = [];
     let count = 0;
-    
+
     while (response) {
       response = response.trim();
       let index = response.indexOf("```");
@@ -832,7 +832,8 @@ const AnnotatePage = () => {
         <Grid item>
           <Box
             sx={{
-              padding: "0px 10px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -861,7 +862,8 @@ const AnnotatePage = () => {
         <Grid item xs={12}>
           <Box
             sx={{
-              padding: "0px 10px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -870,7 +872,7 @@ const AnnotatePage = () => {
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
               sx={{
-                mt: 2,
+                // mt: 2,
                 px: { xs: 2, sm: 3, md: 4 },
                 py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
@@ -948,7 +950,8 @@ const AnnotatePage = () => {
                 title={
                   <div>
                     <div>
-                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -987,45 +990,12 @@ const AnnotatePage = () => {
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
 
             {!disableBtns &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="Save task for later">
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "draft",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip> */}
-
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1046,6 +1016,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
                       }}
                       style={{
                         color: "black",
@@ -1093,6 +1064,7 @@ const AnnotatePage = () => {
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   sx={{
                     fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
                   }}
                   style={{
                     color: "black",
@@ -1156,6 +1128,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
                       }}
                       style={{
                         color: "black",
@@ -1226,6 +1199,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
+                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
                         }}
                         style={{
                           color: "black",
@@ -1263,6 +1237,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
+                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
                         }}
                         style={{
                           color: "black",
@@ -1297,6 +1272,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
                       }}
                       style={{
                         color: "black",

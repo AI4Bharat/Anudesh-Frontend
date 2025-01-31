@@ -693,7 +693,9 @@ const ReviewPage = () => {
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
-      } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+      } else if (
+        ProjectDetails.project_type == "MultipleInteractionEvaluation"
+      ) {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
           model_responses_json: form.model_responses_json.map((response) => ({
@@ -763,7 +765,15 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
+        if (
+          ![
+            "draft",
+            "skipped",
+            "delete",
+            "delete-pair",
+            "to_be_revised",
+          ].includes(value)
+        ) {
           console.log("answered variable: ");
           console.log(answered, "kelo");
 
@@ -781,8 +791,7 @@ const ReviewPage = () => {
             setLoading(false);
             setShowNotes(false);
             return;
-          }
-          else if(chatHistory.length==0){
+          } else if (chatHistory.length == 0) {
             setAutoSave(true);
             setSnackbarInfo({
               open: true,
@@ -890,7 +899,7 @@ const ReviewPage = () => {
   };
 
   const filterAnnotations = (annotations, user, taskData) => {
-    setLoading(true)
+    setLoading(true);
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
       return (
@@ -1002,7 +1011,7 @@ const ReviewPage = () => {
     setFilterMessage(filterMessage);
     setAnnotations(filteredAnnotations);
     setFilteredReady(false);
-    setLoading(false)
+    setLoading(false);
     return [
       filteredAnnotations,
       disable,
@@ -1140,14 +1149,13 @@ const ReviewPage = () => {
   return (
     <>
       {loading && <Spinner />}
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
         <Grid item>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -1155,7 +1163,12 @@ const ReviewPage = () => {
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -1173,11 +1186,8 @@ const ReviewPage = () => {
         <Grid item xs={12}>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -1185,6 +1195,12 @@ const ReviewPage = () => {
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   annotationtext.trim().length === 0 &&
@@ -1235,21 +1251,20 @@ const ReviewPage = () => {
           <Grid
             container
             justifyContent="center"
-            spacing={3}
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "16px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              {/* title={assignedUsers ? assignedUsers : ""} */}
               <LightTooltip
                 title={
                   <div>
                     <div>
-                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -1260,9 +1275,12 @@ const ReviewPage = () => {
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }
@@ -1285,12 +1303,7 @@ const ReviewPage = () => {
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
+
             {!disableBtns && taskData?.review_user === userData?.id && (
               <Grid item>
                 <Tooltip title="Save task for later">
@@ -1301,16 +1314,16 @@ const ReviewPage = () => {
                     onClick={() =>
                       handleReviewClick("draft", review.id, review.lead_time)
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Draft
                   </Button>
@@ -1325,13 +1338,14 @@ const ReviewPage = () => {
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    pt: 2,
-                    pb: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1350,73 +1364,77 @@ const ReviewPage = () => {
                     onClick={() =>
                       handleReviewClick("skipped", review.id, review.lead_time)
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Skip
                   </Button>
                 </Tooltip>
               )}
             </Grid>
-            {ProjectDetails.project_type == "InstructionDrivenChat"?(<Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="clear the entire chat history">
-                  <Button
-                    value="Clear Chats"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Clear Chats
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>):((<Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="Reset the entire chat history">
-                  <Button
-                    value="Reset All"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Reset All
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>))}
+            {ProjectDetails.project_type == "InstructionDrivenChat" ? (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="clear the entire chat history">
+                    <Button
+                      value="Clear Chats"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
+                      style={{
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Clear Chats
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            ) : (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="Reset the entire chat history">
+                    <Button
+                      value="Reset All"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
+                      style={{
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Reset All
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            )}
             {!disableBtns &&
               !disableButton &&
               taskData?.review_user === userData?.id && (
@@ -1434,13 +1452,14 @@ const ReviewPage = () => {
                           review?.parent_annotation,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        pt: 2,
-                        pb: 2,
                         backgroundColor: "#ee6633",
                       }}
                     >
@@ -1459,13 +1478,14 @@ const ReviewPage = () => {
                     aria-controls={open ? "accept-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ee6633",
                     }}
                     onClick={handleClick}
