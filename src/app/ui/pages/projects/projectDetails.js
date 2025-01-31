@@ -33,6 +33,7 @@ import {
   import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
   import SuperChecker from "../../../../components/Project/SuperChecker";
   import AllTaskTable from "@/components/Project/AllTaskTable";
+  import { setSelectedTab } from "@/Lib/Features/projects/ProjectTabs";
 
   const menuOptions = [
     { name: "Tasks", isChecked: false, component: () => null },
@@ -131,6 +132,7 @@ import {
     const loggedInUserData = useSelector(
       (state) => state.getLoggedInData?.data
     );
+    const selectedTab = useSelector((state) => state.getProjectTabs.selectedTab);
     const getProjectDetails = () => {
       dispatch(fetchProjectDetails(id))
     };
@@ -181,9 +183,10 @@ import {
     }
     }, [ProjectDetails.id]);
     const [annotationreviewertype, setAnnotationreviewertype] = useState();
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(selectedTab); // Initialize state with the value from Redux
     const handleChange = (event, newValue) => {
       setValue(newValue);
+      dispatch(setSelectedTab(newValue)); // Dispatch the action to update the selected tab in Redux
     };
     const apiLoading = useSelector((state) => state.getProjectDetails.status !== "succeeded");
     const isAnnotators =
