@@ -191,7 +191,7 @@ function DownloadProjectButton(props) {
     <div>
       {renderSnackBar()}
       <Button
-        sx={{ inlineSize: "max-content", p: 2, borderRadius: 3, ml: 2,width:"300px" }}
+        sx={{ inlineSize: "max-content", borderRadius: 3, width: "100%" }}
         id="demo-customized-button"
         // aria-controls={open ? 'demo-customized-menu' : undefined}
         // aria-haspopup="true"

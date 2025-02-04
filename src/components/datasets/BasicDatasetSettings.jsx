@@ -141,10 +141,10 @@ const BasicDatasetSettings = (props) => {
                     }}
                 >
                     <Grid
-                        items
+                        item
                         xs={12}
                         sm={12}
-                        md={12}
+                        md={3}
                         lg={2}
                         xl={2}
                     >
@@ -155,15 +155,15 @@ const BasicDatasetSettings = (props) => {
                     <Grid
                         item
                         xs={12}
-                        md={12}
+                        sm={12}
+                        md={9}
                         lg={9}
                         xl={9}
-                        sm={12}
                     >
                         <OutlinedTextField
                             fullWidth
                             name="instance_name"
-                            InputProps={{ style: { fontSize: "14px", width: "500px" } }}
+                            InputProps={{ style: { fontSize: "14px" } }}
                             // value={ProjectDetails.title}
                             value={newDetails?.instance_name}
                             onChange={handleDatasetName} />
@@ -179,10 +179,10 @@ const BasicDatasetSettings = (props) => {
                     }}
                 >
                     <Grid
-                        items
+                        item
                         xs={12}
                         sm={12}
-                        md={12}
+                        md={3}
                         lg={2}
                         xl={2}
                     >
@@ -194,16 +194,15 @@ const BasicDatasetSettings = (props) => {
                     <Grid
                         item
                         xs={12}
-                        md={12}
+                        sm={12}
+                        md={9}
                         lg={9}
                         xl={9}
-                        sm={12}
-
                     >
                         <OutlinedTextField
                             fullWidth
                             name="instance_description"
-                            InputProps={{ style: { fontSize: "14px", width: "500px" } }}
+                            InputProps={{ style: { fontSize: "14px" } }}
                             value={newDetails?.instance_description}
                             onChange={handleDatasetName}
                         />
@@ -211,22 +210,22 @@ const BasicDatasetSettings = (props) => {
                 </Grid>
                 <Grid
                     container
+                    item
                     xs={12}
+                    sm={12}
                     md={12}
                     lg={12}
                     xl={12}
-                    sm={12}
                     sx={{
-                        m: 7,
-                        // justifyContent: "center",
-
+                        mt: 4,
+                        justifyContent: { xs: "center", md: "flex-start" },
                     }}
                 >
-                    <CustomButton sx={{ inlineSize: "max-content", marginRight: "10px", width: "80px" }}
+                    <CustomButton sx={{ inlineSize: "max-content", marginRight: {sm:"20px"}, marginBottom:{xs:"10px", sm:0}, width: {xs:"100%",sm:"200px"} }}
                         onClick={() => navigate(-1)}
                         // onClick={handleCancel}
                         label="Cancel" />
-                    <CustomButton sx={{ inlineSize: "max-content", width: "80px" }}
+                    <CustomButton sx={{ inlineSize: "max-content", width: {xs:"100%",sm:"200px"} }}
                         onClick={handleSave}
                         label="Save" />
                 </Grid>
