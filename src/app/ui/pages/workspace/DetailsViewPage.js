@@ -276,13 +276,14 @@ const DetailsViewPage = (props) => {
           >
             {pageType === componentType.Type_Organization && (
               <Typography
-                variant="h2"
+                variant="h3"
                 gutterBottom
                 component="div"
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
                   textAlign: "center",
+                  fontSize: "1.5rem",
                 }}
               >
                 {title}
@@ -333,6 +334,7 @@ const DetailsViewPage = (props) => {
                 justifyContent: "center",
                 alignItems: "center",
                 textAlign: "center",
+                fontSize: "1rem",
               }}
             >
               Created by : {createdBy}
@@ -356,7 +358,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -372,7 +374,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -389,7 +391,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 1 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -405,7 +407,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 1 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -422,7 +424,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 2 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -438,7 +440,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 2 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -455,7 +457,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 3 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -471,7 +473,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 3 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -499,7 +501,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 4 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -516,7 +518,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 4 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0", 
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
