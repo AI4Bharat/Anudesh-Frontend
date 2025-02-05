@@ -964,7 +964,7 @@ const Header = () => {
                               sm: "block",
                               md: "none",
                               lg: "block",
-                            }, // Fixed
+                            }, 
                           }}
                         >
                           {loggedInUserData?.username}
