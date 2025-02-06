@@ -1,4 +1,4 @@
-import { Card, Grid, ThemeProvider, Typography } from "@mui/material";
+import { Box, Card, Grid, ThemeProvider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
@@ -27,20 +27,17 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
     <ThemeProvider theme={themeDefault}>
   <Grid
     container
-    direction="row"
-    sx={{
-      padding: { xs: 2, md: 4 }, // Adjust padding for smaller screens
-    }}
+    gap={2}
   >
     {ProjectDetails && ProjectDetails.sampling_mode && (
-      <div>
+      <>
         {/* Sampling Parameters Section */}
-        <Grid item xs={12} sx={{ mb: 2 }}>
+        <Grid item xs={12}>
           <Typography
             variant="h6"
             sx={{
               fontSize: { xs: "1rem", md: "1.25rem" }, // Adjust font size
-              textAlign: { xs: "center", md: "left" }, // Center-align on mobile
+              textAlign: { xs: "center", sm: "left" }, // Center-align on mobile
             }}
           >
             Sampling Parameters
@@ -52,16 +49,14 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
           item
           xs={12}
           sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            mb: 2,
+            display:"flex",
+            alignItems:"center"
           }}
+          gap={2}
         >
           <Typography variant="subtitle1">Sampling Mode:</Typography>
           <Typography
             variant="subtitle1"
-            sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
           >
             {ProjectDetails.sampling_mode === "f" && "Full"}
             {ProjectDetails.sampling_mode === "b" && "Batch"}
@@ -94,22 +89,25 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
         {/* Dataset Instances */}
         {ProjectDetails.datasets.map((dataset, i) => (
           <Grid
-            container
             item
             xs={12}
             key={i}
             sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 2,
+              display: {md:"flex"},
+              alignItems:"center"
             }}
+            gap={2}
           >
             <Typography variant="subtitle1">Dataset Instance:</Typography>
+            <Box sx={{
+              display:"flex",
+              alignItems:"center",
+              gap:2,
+              ml:{xs:4, md:0}
+            }}>
             <Typography
               variant="subtitle1"
-              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
-            >
+              >
               {dataset?.instance_name}
             </Typography>
             <Link
@@ -119,31 +117,36 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
               <CustomButton
                 sx={{
                   borderRadius: 2,
-                  ml: { xs: 0, md: 2 },
-                  mt: { xs: 1, md: 0 },
                 }}
                 label="View Dataset"
-              />
+                />
             </Link>
+                </Box>
           </Grid>
         ))}
 
         {/* Workspace Name */}
         <Grid
-          container
           item
           xs={12}
           sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            mb: 2,
+            display: {md:"flex"},
+            alignItems:"center"
           }}
+          gap={2}
         >
           <Typography variant="subtitle1">Workspace Name:</Typography>
+          <Box
+          sx={{
+              display:"flex",
+              alignItems:"center",
+              gap:2,
+              ml:{xs:4, md:0}
+
+            }}
+          >
           <Typography
             variant="subtitle1"
-            sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
           >
             {workspaceDetails.workspace_name}
           </Typography>
@@ -154,12 +157,11 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
             <CustomButton
               sx={{
                 borderRadius: 2,
-                ml: { xs: 0, md: 2 },
-                mt: { xs: 1, md: 0 },
               }}
               label="View Workspace"
             />
           </Link>
+          </Box>
         </Grid>
 
         {/* Filter String */}
@@ -183,7 +185,7 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
             </Typography>
           </Grid>
         )}
-      </div>
+      </>
     )}
   </Grid>
 

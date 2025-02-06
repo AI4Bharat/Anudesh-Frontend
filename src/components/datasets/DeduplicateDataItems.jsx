@@ -198,7 +198,7 @@ const renderSnackBar = () => {
     <div>
          {renderSnackBar()}
       <Button
-        sx={{ width: "200px" }}
+        sx={{ width: "100%" }}
         aria-describedby={id}
         variant="contained"
         color="error"
