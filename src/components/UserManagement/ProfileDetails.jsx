@@ -82,7 +82,7 @@ const ReportBarGraphs = ({ id }) => {
     };
 
     handleProgressSubmit();
-  }, [dispatch, selectRange]);
+  }, [dispatch, selectRange,id]);
 console.log(analyticsData);
 
   return (
