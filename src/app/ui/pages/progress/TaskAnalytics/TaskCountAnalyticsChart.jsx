@@ -163,7 +163,6 @@ function TaskCountAnalyticsChart(props) {
                 bottom: 20,
               }}
             >
-              {/* <CartesianGrid strokeDasharray="3 3" /> */}
               <XAxis
                 dataKey="languages"
                 textAnchor={"end"}
