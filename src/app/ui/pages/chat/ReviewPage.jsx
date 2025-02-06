@@ -1089,9 +1089,11 @@ const ReviewPage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1110,9 +1112,11 @@ const ReviewPage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
