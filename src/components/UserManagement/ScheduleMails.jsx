@@ -301,7 +301,6 @@ const ScheduleMails = () => {
     jumpToPage: true,
     customToolbar: renderToolBar,
   };
-
   return (
     <ThemeProvider theme={themeDefault}>
       <Grid
@@ -311,21 +310,24 @@ const ScheduleMails = () => {
         alignItems="center"
       >
         <Card
+       
           sx={{
+     
             width: "100%",
             minHeight: 500,
-            padding: 5,
-            border: 0,
+            border:0,
+            padding:5,
+            
           }}
         >
-          <Grid container spacing={4}>
+          <Grid container spacing={4}  >
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <Typography variant="h3" align="center" fontFamily="Roboto, snas-serif">
                 Schedule Emails (Payment Reports)
               </Typography>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+            <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4}>
               <FormControl fullWidth size="small">
                 <InputLabel id="report-level-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Report Level
@@ -348,8 +350,9 @@ const ScheduleMails = () => {
                 </Select>
               </FormControl>
             </Grid>
-
-            <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+            
+          {reportLevel === 2 && (  // Added conditional rendering
+            <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4}>
               <FormControl fullWidth size="small">
                 <InputLabel id="workspace-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Workspace
@@ -363,10 +366,7 @@ const ScheduleMails = () => {
                   value={workspaceId}
                   label="Workspace"
                   onChange={(e) => setWorkspaceId(e.target.value)}
-                  disabled={
-                    reportLevel === 1 ||
-                    !(workspaceData && workspaceData.length > 0)
-                  }
+                  disabled={!(workspaceData && workspaceData.length > 0)}  // Removed reportLevel check
                 >
                   {workspaces.map((w, index) => (
                     <MenuItem value={w.id} key={index}>
@@ -376,8 +376,9 @@ const ScheduleMails = () => {
                 </Select>
               </FormControl>
             </Grid>
+          )}  
 
-            <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+            <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4}>
               <FormControl fullWidth size="small">
                 <InputLabel id="project-type-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Project Type
@@ -401,7 +402,7 @@ const ScheduleMails = () => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+            <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4}>
               <FormControl fullWidth size="small">
                 <InputLabel id="schedule-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                   Schedule
@@ -423,7 +424,7 @@ const ScheduleMails = () => {
               </FormControl>
             </Grid>
             {schedule === "Weekly" && (
-              <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+              <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4}>
                 <FormControl fullWidth size="small">
                   <InputLabel id="weekday-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                     Day of Week
@@ -450,7 +451,7 @@ const ScheduleMails = () => {
               </Grid>
             )}
             {schedule === "Monthly" && (
-              <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+              <Grid item xs={12} sm={12} md={2} lg={2.4} xl={2.4}>
                 <FormControl fullWidth size="small">
                   <InputLabel id="month-day-label" sx={{ fontSize: "16px", zIndex: 0 }}>
                     Day of Month
@@ -474,9 +475,65 @@ const ScheduleMails = () => {
                 </FormControl>
               </Grid>
             )}
-            <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
-              <CustomButton label="+ Add" onClick={createScheduledMail} />
-            </Grid>
+
+            
+            {reportLevel !== 2 && schedule !== "Weekly" && schedule !== "Monthly" && (
+              <Grid item xs={12} sm={12} md={2.4} lg={2.4} xl={2.4} />
+            )}    
+                    
+            {schedule === "Weekly" || schedule === "Monthly"  ? (
+
+              <Grid 
+                item 
+                xs={12}
+                sm={12} 
+                md={2.4}
+                lg={2.4} 
+                xl={2.4}
+                sx={{
+                  display: 'flex',
+                  justifyContent: reportLevel === 2 ? 'flex-start' : 'flex-end',
+                  
+                }}
+              >
+                <CustomButton
+                  label="+ Add"
+                  onClick={createScheduledMail}
+                  sx={{ 
+                    width: '105px',
+                    minWidth: '105px'
+                  }}
+                />
+              </Grid>
+            ) : (
+            
+              <Grid 
+                item 
+                xs={12}
+                sm={12} 
+                md={2.4}
+                lg={2.4} 
+                xl={2.4}
+
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  
+                }}
+              >
+                <CustomButton
+                  label="+ Add"
+                  onClick={createScheduledMail}
+                  sx={{ 
+                    width: '105px',
+                    minWidth: '105px'
+                  }}
+                />
+              </Grid>
+            )}
+
+
+        
             {showSpinner ? (
               <div></div>
             ) : (
