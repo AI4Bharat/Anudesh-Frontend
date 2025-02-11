@@ -29,7 +29,7 @@ export default class NotificationAPI extends API {
      this.headers = {
        headers: {
          "Content-Type": "application/json",
-         "Authorization":`JWT ${localStorage.getItem("anudesh_access_token")}`
+         "Authorization":`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3ODA3ODExLCJqdGkiOiJiODFkZThlMGNmNjI0NTQ3YTc3ZmUxZWMxOWVhNDcxOCIsInVzZXJfaWQiOjJ9.5CrxEkcoI2hqPtOAHesxGZaEl9rRi52fQcISftaGfjw`
        },
      };
      return this.headers;

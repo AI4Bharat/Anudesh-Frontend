@@ -1,27 +1,5 @@
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-  Popover,
-  Badge,
-  Stack,
-  Tabs,
-  Tab,
-  Switch,
-  Select,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
+import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu,MenuItem,Toolbar,Tooltip,
+  Typography,Popover,Badge,Stack,Tabs,Tab,Switch,Select,InputLabel,FormControl,} from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -76,6 +54,8 @@ const Header = () => {
   const [Notification, setnotification] = useState()
   const [unread, setunread] = useState(null)
   const [selectedNotificationId, setSelectedNotificationId] = useState(null);
+  //below one is for Unreaded notification count countinue from line No. 157
+  const [notificationCount, setNotificationCount] = useState(0);
 
   if(localStorage.getItem("source") !== undefined){
     localStorage.setItem("source", "anudesh-frontend");
@@ -115,7 +95,6 @@ const Header = () => {
   const fetchNotifications = () => {
     let apiObj = new NotificationAPI();
     const endpoint = unread == null ? apiObj.apiEndPoint() : `${apiObj.apiEndPoint()}?seen=${unread}`;
-
     fetch(endpoint, {
       method: "get",
       body: JSON.stringify(apiObj.getBody()),
@@ -133,6 +112,31 @@ const Header = () => {
         console.error("Error fetching notifications:", error);
       });
   };
+  const fetchUnreadCount = async () => {
+    try {
+      let apiObj = new NotificationAPI();
+      const endpoint = `${apiObj.apiEndPoint()}unread`;
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: apiObj.getHeaders().headers,
+      });
+      if (!response.ok) {
+        throw new Error(`Error fetching unread notifications: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      // Assuming the response contains a total_count field
+      setNotificationCount(data.total_count || 0);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      setNotificationCount(0);
+    }
+  };
+  // Fetch unread notifications on mount
+  useEffect(() => {
+    fetchUnreadCount();
+  }, []);
+
+
   const markAsRead =  (notificationId) => {
     const task = new NotificationPatchAPI(notificationId);
     setSelectedNotificationId(notificationId);
@@ -157,10 +161,9 @@ const Header = () => {
     markAsRead(notificationId);
   };
 
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [unread,selectedNotificationId]);
+  // useEffect(() => {
+  //   fetchNotifications();
+  // }, [unread,selectedNotificationId]);
   
   useEffect(() => {
     getLoggedInUserData();
@@ -298,9 +301,15 @@ const handleopenproject=(id,type)=>{
     } else if (index === 1) {
       await setunread("False");
     }
-
-
   };
+
+  // const handleTabChange = (newValue) => {
+  //   setValue(newValue);
+  //   setunread(newValue === 0 ? "False" : null);
+  //   fetchNotifications();
+  // };
+
+  
   const handleTagsChange = (event) => {
   if (typeof window !== 'undefined') {
     if (event.target.checked) {
@@ -931,11 +940,10 @@ const handleopenproject=(id,type)=>{
                             Notifications
                           </span>
                     }>
-                      <IconButton onClick={handleOpenNotification}>
-                        <Badge badgeContent={unseenNotifications?.length>0 ?unseenNotifications?.length: null} color="primary">
+                     <IconButton onClick={handleOpenNotification}>
+                        <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
                           <NotificationsIcon color="primary.dark" fontSize="large" />
                         </Badge>
-
                       </IconButton>
                     </Tooltip>
                   </Grid>
