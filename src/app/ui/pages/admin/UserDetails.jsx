@@ -353,6 +353,7 @@ console.log(data);
     selectableRows: "none",
     search: false,
     jumpToPage: true,
+    responsive:"standard"
   };
   const renderSnackBar = () => {
     return (

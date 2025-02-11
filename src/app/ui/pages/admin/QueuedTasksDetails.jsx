@@ -185,6 +185,7 @@ const QueuedTasksDetails = (props) => {
     selectableRows: "none",
     search: false,
     jumpToPage: true,
+    responsive:"standard"
   };
   const renderSnackBar = () => {
     return (
