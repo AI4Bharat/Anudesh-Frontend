@@ -192,8 +192,16 @@ const AllTaskTable = (props) => {
           },
         };
       });
+      if(cols.length == 6){
+        cols.splice(1,2);
+      }
       setColumns(cols);
       setSelectedColumns(colList);
+      data.forEach(ele => {
+        if(ele.length == 6){
+          ele.splice(1,2);
+        }
+      });
       setTasks(data);
     } else {
       setTasks([]);
