@@ -938,16 +938,39 @@ const TaskTable = (props) => {
     );
   };
 
+  const useStyles = {
+    responsivePagination: {
+      "@media (max-width: 676px)": {
+        "& .MuiTablePagination-displayedRows": {
+          display: "none",
+        },
+        "& .MuiTablePagination-selectLabel": {
+          display: "none",
+        },
+        "& .MuiTablePagination-select": {
+          display: "none",
+        },
+        "& .MuiTablePagination-selectIcon": {
+          display: "none",
+        },
+        "& .MuiToolbar-root": {
+          paddingLeft: "0px",
+          paddingRight: "0px",
+        },
+      },
+    },
+  };
+
   const options = {
     count: totalTaskCount,
-    rowsPerPage: currentRowPerPage,
+    rowsPerPage: window.innerWidth <= 676 ? 10 : currentRowPerPage,
     page: currentPageNumber - 1,
-    rowsPerPageOptions: [10, 25, 50, 100],
+    rowsPerPageOptions: window.innerWidth <= 676 ? [] : [10, 25, 50, 100],
     textLabels: {
       pagination: {
         next: "Next >",
         previous: "< Previous",
-        rowsPerPage: "currentRowPerPage",
+        rowsPerPage: "Rows per page",
         displayRows: "OF",
       },
     },
@@ -955,8 +978,10 @@ const TaskTable = (props) => {
       setCurrentPageNumber(currentPage + 1);
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
-      setCurrentPageNumber(1);
-      setCurrentRowPerPage(rowPerPageCount);
+      if (window.innerWidth > 676) {
+        setCurrentPageNumber(1);
+        setCurrentRowPerPage(rowPerPageCount);
+      }
     },
     filterType: "checkbox",
     selectableRows: "none",
@@ -976,11 +1001,13 @@ const TaskTable = (props) => {
       pagination: {
         rowsPerPage: "Rows per page",
       },
-      options: { sortDirection: "desc" },
     },
     jumpToPage: true,
     serverSide: true,
     customToolbar: renderToolBar,
+    setTableProps: () => ({
+      sx: useStyles.responsivePagination,
+    }),
   };
 
   if (typeof window !== "undefined") {
