@@ -197,8 +197,13 @@ const QueuedTasksDetails = (props) => {
         rowsPerPage={rowsPerPage}
         onPageChange={(_, newPage) => changePage(newPage)}
         onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
-        sx={{ 
-          overflow: "hidden" 
+        sx={{
+          "& .MuiTablePagination-actions": {
+          marginLeft: "0px",
+        },
+        "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+          marginRight: "10px",
+        },
         }}
       />
 
