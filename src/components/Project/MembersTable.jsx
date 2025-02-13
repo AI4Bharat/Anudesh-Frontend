@@ -151,6 +151,7 @@ const MembersTable = (props) => {
       options: {
         filter: false,
         sort: false,
+        setCellProps: () => ({ style: { overflowWrap: "break-word" } }),
       },
     },
     {
@@ -443,7 +444,7 @@ const MembersTable = (props) => {
             <>
               {!hideViewButton && (
                 <CustomButton
-                  sx={{ p: 1, borderRadius: 2 }}
+                  sx={{ p: 1, borderRadius: 2 ,m:1}}
                   onClick={() => {
                     navigate(`/profile/${el.id}`);
                   }}
@@ -505,6 +506,7 @@ const MembersTable = (props) => {
                         backgroundColor: "#cf5959",
                         m: 1,
                         height: "40px",
+                        marginLeft: 0,
                       }}
                       label="Remove"
                       onClick={() => {
@@ -743,7 +745,7 @@ const MembersTable = (props) => {
         />
       )}
       {renderSnackBar()}
-      <Grid sx={{ mb: 1 }}>
+      <Grid sx={{ mb: 1, marginTop: "20px", marginBottom: "20px" }}>
         <Search />
       </Grid>
 
