@@ -21,7 +21,7 @@ import userRole from "@/utils/Role";
 import { fetchDatasets } from "@/Lib/Features/datasets/GetDatasets";
 
 export default function DatasetList() {
-      /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
   const classes = DatasetStyle();
@@ -29,7 +29,9 @@ export default function DatasetList() {
   const [radiobutton, setRadiobutton] = useState(true);
   // const [loading, setLoading] = useState(false);
   const datasetList = useSelector((state) => state.GetDatasets.data);
-  const apiLoading = useSelector((state) => state.GetDatasets.status == "loading" );
+  const apiLoading = useSelector(
+    (state) => state.GetDatasets.status == "loading",
+  );
 
   // Initialize selected filters from localStorage or set default values
   const [selectedFilters, setsSelectedFilters] = useState(() => {
@@ -42,11 +44,8 @@ export default function DatasetList() {
   const getDashboardprojectData = () => {
     dispatch(fetchDatasets(selectedFilters));
   };
-  
-  const loggedInUserData = useSelector(
-    (state) => state.getLoggedInData.data
-  );
 
+  const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
 
   useEffect(() => {
     getDashboardprojectData();
@@ -80,7 +79,7 @@ export default function DatasetList() {
   const handleAutomateButton = (e) => {
     navigate("/datasets/automate");
   };
-  
+
   return (
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? <Spinner /> : <> 
