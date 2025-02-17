@@ -206,6 +206,7 @@ const DatasetCardList = (props) => {
 
   // Adjust columns based on screen size
   const responsiveColumns = React.useMemo(() => {
+    return columns;
     if (isXLarge) {
       return columns; // Full set of columns
     }
@@ -226,7 +227,6 @@ const DatasetCardList = (props) => {
     ...options,
     rowsPerPage: isSmall ? 5 : 10,
     rowsPerPageOptions: isSmall ? [5] : [10, 25, 50],
-    responsive: "standard", // Can also use "vertical" or "simple" for better small screen support
   };
 
   return (
