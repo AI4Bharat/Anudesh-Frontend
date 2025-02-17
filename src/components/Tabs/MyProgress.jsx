@@ -184,7 +184,7 @@ import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
   
       }
       dispatch(fetchUserAnalytics({progressObj:reviewdata}));
-      // setShowSpinner(true);
+      setShowSpinner(true);
       setTotalsummary(true)
   
     };
