@@ -240,7 +240,7 @@ const Projectcard = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
-            <Dialog open={openAuthDialog} onClose={handleAuthClose}>
+      <Dialog open={openAuthDialog} onClose={handleAuthClose}>
         <DialogTitle>Enter Password</DialogTitle>
         <DialogContent>
           <TextField
