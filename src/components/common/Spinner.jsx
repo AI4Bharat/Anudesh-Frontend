@@ -8,7 +8,7 @@ function CircularIndeterminate(props) {
 
   return (
     <div className={classes.progressDiv}>
-      <CircularProgress color="primary" size={50} className={classes.progress}  />
+      <CircularProgress color="primary" size={50}  />
     </div>
   );
 }
