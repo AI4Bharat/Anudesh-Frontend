@@ -4,7 +4,6 @@ import {
   IconButton,
   List,
   ListItem,
-//   makeStyles,
   Grid,
   AppBar, 
   Divider,
@@ -21,16 +20,6 @@ import headerStyle from "@/styles/Header";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 import {  useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-// const useStyles = makeStyles(() => ({
-//   Navlink: {
-//     textDecoration: "none",
-//     color: "blue",
-//     fontSize: "20px",
-//   },
-//   icon: {
-//     color: "white",
-//   },
-// }));
 
 const handleChangePassword = async (email) => {
     let obj = new ForgotPasswordAPI({email: email});
@@ -51,7 +40,6 @@ function MobileNavbar(props) {
 
   const onLogoutClick = () => {
     dispatch(Logout());
-    // ExpireSession();
     if (typeof window !== 'undefined') {
       localStorage.clear();
     }
@@ -127,9 +115,8 @@ function MobileNavbar(props) {
                     cursor: "pointer",
                     py: 1,
                     px: 2,
-                    "&:hover": { bgcolor: "action.hover" },
                   }}
-                  onClick={() => setOpenDrawer(false)}
+                  onClick={() => setOpenDrawer(false)}                 
                 >
                   {tab}
                 </ListItem>
