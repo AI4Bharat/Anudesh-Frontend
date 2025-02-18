@@ -127,35 +127,35 @@ const DatasetCardList = (props) => {
 
   const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: '#e0e0e0',
-    color: 'rgba(0, 0, 0, 0.87)',
-    maxWidth: 300,
-    fontSize: theme.typography.pxToRem(12),
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: "#e0e0e0",
-  },
-}));
+      ))(({ theme }) => ({
+        [`& .${tooltipClasses.tooltip}`]: {
+          backgroundColor: '#e0e0e0',
+          color: 'rgba(0, 0, 0, 0.87)',
+          maxWidth: 300,
+          fontSize: theme.typography.pxToRem(12),
+        },
+        [`& .${tooltipClasses.arrow}`]: {
+          color: "#e0e0e0",
+        },
+      }));
 
   const renderToolBar = () => {
     return (
-      <div style={{ position: "relative" }}>
+      <div>
         {/* <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
           <Tooltip title={"Filter Table"}>
             <FilterListIcon sx={{ color: "#515A5A" }} />
           </Tooltip>
         </Button> */}
-        {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
-    <Button style={{ minWidth: '25px' }} onClick={handleShowFilter}>
+        <Button style={{ minWidth: '25px', position: "relative" }} onClick={handleShowFilter}>
+          {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
         <CustomTooltip
-      title={
-        filtersApplied ? (
-          <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
-            {selectedFilters.dataset_type && <div><strong>Dataset Type:</strong> {selectedFilters.dataset_type}</div>}
-            {selectedFilters.dataset_visibility && <div><strong>Dataset Visibility:</strong> {selectedFilters.dataset_visibility}</div>}
-        </Box>
+          title={
+            filtersApplied ? (
+              <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
+                {selectedFilters.dataset_type && <div><strong>Dataset Type:</strong> {selectedFilters.dataset_type}</div>}
+                {selectedFilters.dataset_visibility && <div><strong>Dataset Visibility:</strong> {selectedFilters.dataset_visibility}</div>}
+            </Box>
       ) : (
       <span style={{ fontFamily: 'Roboto, sans-serif' }}>
         Filter Table

@@ -169,6 +169,7 @@ const DatasetStyle = makeStyles({
     // height: '100%',
     top: "50%",
     left: "50%",
+    transform: "translate(-50%, -50%)",
     opacity: 1,
     pointerEvents: "none",
   },
