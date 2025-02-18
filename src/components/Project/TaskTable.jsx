@@ -24,6 +24,9 @@ import {
   ThemeProvider,
   TablePagination,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import InfoIcon from '@mui/icons-material/Info';
+import { tooltipClasses } from '@mui/material/Tooltip';
 import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -722,6 +725,7 @@ const TaskTable = (props) => {
   }, [NextTask]);
 
   const handleShowFilter = (event) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
@@ -736,6 +740,27 @@ const TaskTable = (props) => {
   const handleSearchClose = () => {
     setSearchAnchor(null);
   };
+
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+  
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: '#e0e0e0',
+      color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(12),
+    },
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#e0e0e0",
+    },
+  }));
+  
 
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
@@ -909,17 +934,32 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <Tooltip
-          title={
-            <span style={{ fontFamily: "Roboto, sans-serif" }}>
-              Filter Table
-            </span>
-          }
-        >
-          <Button onClick={handleShowFilter}>
-            <FilterListIcon />
-          </Button>
-        </Tooltip>
+        <div style={{ display: "inline-block", position: "relative" }} onClick={handleShowFilter}>
+        {filtersApplied && (
+          <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />
+        )}
+
+         <CustomTooltip
+        title={
+          filtersApplied ? (
+            <Box sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display: "flex", flexDirection: "column", gap: "5px" }}>
+              {selectedFilters.annotation_status && <div><strong>Annotation Status:</strong> {selectedFilters.annotation_status}</div>}
+              {selectedFilters.review_status && <div><strong>Review Status:</strong> {selectedFilters.review_status}</div>}
+              {selectedFilters.req_user !== -1 && <div><strong>Assigned User:</strong> {selectedFilters.req_user}</div>}
+              {pull !== "All" && <div><strong>Pull Status:</strong> {pull}</div>}
+              {rejected && <div><strong>Rejected:</strong> {rejected ? "Yes" : "No"}</div>}
+            </Box>
+          ) : (
+            <span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>
+          )
+        }
+        disableInteractive
+      >
+        <Button sx={{ position: "relative" }}>
+          <FilterListIcon sx={{ color: '#515A5A' }} />
+        </Button>
+      </CustomTooltip>
+      </div>
       </Box>
     );
   };
