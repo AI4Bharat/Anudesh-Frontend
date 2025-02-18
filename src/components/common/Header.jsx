@@ -2,8 +2,13 @@ import {
   AppBar,
   Avatar,
   Box,
+  Button,
   Checkbox,
   Divider,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControlLabel,
   Grid,
   IconButton,
@@ -73,6 +78,8 @@ const Header = () => {
     variant: "success",
   });
   //const[checkClUI,setCheckClUI]=useState(null)
+  const [open, setOpen] = useState(false);
+  const [emailToChange, setEmailToChange] = useState("");
   const [moreHorizonAnchorEl, setMoreHorizonAnchorEl] = useState(null);
   const [Notification, setnotification] = useState();
   const [unread, setunread] = useState(null);
@@ -746,6 +753,21 @@ const Header = () => {
     setShowTransliterationModel(false);
   };
 
+  const handleClickOpen = (email) => {
+    setEmailToChange(email);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEmailToChange("");
+  };
+
+  const handleApply = async () => {
+    await handleChangePassword(emailToChange);
+    handleClose();
+  };
+
   const handleChangePassword = async (email) => {
     let obj = new ForgotPasswordAPI({ email: email });
     const res = await fetch(obj.apiEndPoint(), {
@@ -1091,7 +1113,8 @@ const Header = () => {
                       key={3}
                       onClick={() => {
                         handleCloseUserMenu();
-                        handleChangePassword(loggedInUserData.email);
+                        handleClickOpen(loggedInUserData.email);
+                        // handleChangePassword(loggedInUserData.email);
                       }}
                     >
                       <Typography variant="body2" textAlign="center">
@@ -1099,6 +1122,20 @@ const Header = () => {
                       </Typography>
                     </MenuItem>
                   )}
+                <Dialog open={open} onClose={handleClose}>
+                  <DialogTitle>Change Password:</DialogTitle>
+                  <DialogContent>
+                   Are you sure you want to change your password?
+                 </DialogContent>
+                 <DialogActions>
+                  <Button onClick={handleClose} color="primary">
+                   Cancel
+                  </Button>
+                  <Button onClick={handleApply} color="primary">
+                   Confirm
+                  </Button>
+                 </DialogActions>
+                </Dialog>
                   <MenuItem
                     key={4}
                     onClick={() => onLogoutClick()}
