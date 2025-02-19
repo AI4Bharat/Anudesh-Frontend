@@ -1,4 +1,4 @@
-import { Button, Grid, ThemeProvider, Select, Box, MenuItem,Radio, InputLabel, FormControl, Card, Typography } from "@mui/material";
+import { Button, Grid, ThemeProvider, Select, Box, MenuItem, Radio, InputLabel, FormControl, Card, Typography } from "@mui/material";
 import React, { useEffect, useState, useRef } from "react";
 import CustomButton from "@/components/common/Button";
 import RadioGroup from '@mui/material/RadioGroup';
@@ -48,22 +48,40 @@ const footer = (tooltipItems) => {
   return 'Sum: ' + sum;
 };
 
-const labelChart = function(context) {
+const labelChart = function (context) {
   let label = context.dataset.label || '';
   let dataVal = context.parsed.y;
 
-  if(dataVal && dataVal !== 0 && dataVal !== null){
+  if (dataVal && dataVal !== 0 && dataVal !== null) {
     label += " : " + new Intl.NumberFormat('en-US').format(dataVal);
   } else {
-     label = ""
+    label = ""
   }
   return label;
 };
+const width = window.innerWidth;
+
+const categoryPercentage = width < 600 ? 0.2 : width < 900 ? 0.5 : 0.6;
+const barPercentage = width < 600 ? 0.3 : width < 900 ? 0.6 : 0.7;
+const chartHeight = width < 600 ? "300px" : width < 900 ? "350px" : "400px";
+const rotationAngle = width < 600 ? 90 : 45; // No rotation for small screens
+const fontSize = width < 600 ? 10 : 12;
+const chartWidth = width < 600 ? "1200px" : "100%"; // Wider width for small screens
+
 
 const defaultOptions = {
   responsive: true,
+  maintainAspectRatio: false,
+  indexAxis: "x",
   scales: {
     x: {
+      categoryPercentage,
+      barPercentage,
+      ticks: {
+        maxRotation: rotationAngle,
+        minRotation: rotationAngle,
+        autoSkip: false,
+      },
       grid: {
         display: false,
       },
@@ -74,14 +92,15 @@ const defaultOptions = {
         color: 'black',
         font: {
           family: 'Roboto',
-          size: 16,
+          size: fontSize,
           weight: 'bold',
           lineHeight: 1.2,
         },
         padding: { top: 20, left: 0, right: 0, bottom: 0 }
-      }
+      },
     },
     y: {
+      beginAtZero: true,
       stacked: true,
       display: true,
       title: {
@@ -128,7 +147,7 @@ const ProgressType = [{ ProgressTypename: "Cumulative" }, { ProgressTypename: "y
 const availableChartType = { Individual: "Individual", Comparison: "Comparison" }
 
 function ProgressList() {
-    /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const classes = DatasetStyle();
   const ref = useRef()
@@ -143,7 +162,7 @@ function ProgressList() {
   const [comparisonperiod, setComparisonperiod] = useState("monthly");
   const [monthvalue, setmonthvalue] = useState([])
   const [weekvalue, setweekvalue] = useState([])
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
   const [yearvalue, setyearvalue] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [SVGChartData, setSVGChartData] = useState([]);
@@ -167,7 +186,7 @@ function ProgressList() {
   const ProjectTypes1 = useSelector((state) => console.log(state));
 
   const userDetails = useSelector((state) => state.getLoggedInData.data);
-  
+
   const [CumulativeTasksData, setCumulativeTasksData] = useState([]);
   const [PeriodicalTasksData, setPeriodicalTasksData] = useState([]);
   const [SecondaryPeriodicalTasksData, setSecondaryPeriodicalTasksData] = useState([]);
@@ -201,13 +220,13 @@ function ProgressList() {
   useEffect(() => {
     if (radiobutton === "Annotation") {
       setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluation",
-       "InstructionDrivenChat",
+        "ModelOutputEvaluvation",
+        "ModelInteractionEvaluation",
+        "InstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");
-      
-    } 
+
+    }
   }, [ProjectTypes, radiobutton]);
 
 
@@ -273,8 +292,8 @@ function ProgressList() {
   }
   const handleSubmit = async () => {
     setShowBarChar(false);
-    if(metaInfo) {
-      if(!selectedType.includes("Audio") && !selectedType.includes("Acoustic")) {
+    if (metaInfo) {
+      if (!selectedType.includes("Audio") && !selectedType.includes("Acoustic")) {
         setOptions({
           ...defaultOptions,
           scales: {
@@ -302,8 +321,8 @@ function ProgressList() {
               },
               ticks: {
                 ...defaultOptions.scales.y.ticks,
-                callback: function(value) {
-                  if(Math.floor(value) === value)
+                callback: function (value) {
+                  if (Math.floor(value) === value)
                     return secondsToHours(value) + new Date(value * 1000).toISOString().substring(13, 19);
                 }
               }
@@ -315,7 +334,7 @@ function ProgressList() {
               ...defaultOptions.plugins.tooltip,
               callbacks: {
                 ...defaultOptions.plugins.tooltip.callbacks,
-                label: function(context) {
+                label: function (context) {
                   let label = context.dataset.label || '';
                   return label + " : " + context.dataset.time[context.dataIndex];
                 },
@@ -329,21 +348,21 @@ function ProgressList() {
               }
             }
           }
-      });
+        });
       }
     } else {
-      setOptions({...defaultOptions});
+      setOptions({ ...defaultOptions });
     }
 
-    const OrgId = typeof(userDetails?.organization?.id) === Number?userDetails?.organization?.id : 1
+    const OrgId = typeof (userDetails?.organization?.id) === Number ? userDetails?.organization?.id : 1
     setShowPicker(false);
     setShowPickers(false);
     // setLoading(true);
 
     const Cumulativedata = {
       project_type: selectedType,
-      ...(radiobutton==="Review" && {reviewer_reports:true}),
-      ...(radiobutton==="Supercheck" && {supercheck_reports:true})
+      ...(radiobutton === "Review" && { reviewer_reports: true }),
+      ...(radiobutton === "Supercheck" && { supercheck_reports: true })
 
     };
     const individualPeriodicaldata = {
@@ -351,8 +370,8 @@ function ProgressList() {
       periodical_type: baseperiod,
       start_date: format(baseperiodDatepicker[0].startDate, 'yyyy-MM-dd'),
       end_date: format(baseperiodDatepicker[0].endDate, 'yyyy-MM-dd'),
-      ...(radiobutton==="Review" && {reviewer_reports:true}),
-      ...(radiobutton==="Supercheck" && {supercheck_reports:true})
+      ...(radiobutton === "Review" && { reviewer_reports: true }),
+      ...(radiobutton === "Supercheck" && { supercheck_reports: true })
     };
 
     if (chartTypes === availableChartType.Individual) {
@@ -383,8 +402,8 @@ function ProgressList() {
           periodical_type: comparisonperiod,
           start_date: format(comparisonperiodDatepicker[0].startDate, 'yyyy-MM-dd'),
           end_date: format(comparisonperiodDatepicker[0].endDate, 'yyyy-MM-dd'),
-          ...(radiobutton==="Review" && {reviewer_reports:true}),
-          ...(radiobutton==="Supercheck" && {supercheck_reports:true})
+          ...(radiobutton === "Review" && { reviewer_reports: true }),
+          ...(radiobutton === "Supercheck" && { supercheck_reports: true })
         };
         await getPeriodicalTasksData(Periodicaldata, OrgId);
         await getCumulativeTasksData(Cumulativedata, OrgId);
@@ -395,8 +414,8 @@ function ProgressList() {
           periodical_type: baseperiod,
           start_date: format(baseperiodDatepicker[0].startDate, 'yyyy-MM-dd'),
           end_date: format(baseperiodDatepicker[0].endDate, 'yyyy-MM-dd'),
-          ...(radiobutton==="Review" && {reviewer_reports:true}),
-          ...(radiobutton==="Supercheck" && {supercheck_reports:true})
+          ...(radiobutton === "Review" && { reviewer_reports: true }),
+          ...(radiobutton === "Supercheck" && { supercheck_reports: true })
         };
         await getPeriodicalTasksData(individualPeriodicaldata, OrgId);
         await getCumulativeTasksData(Cumulativedata, OrgId);
@@ -405,17 +424,17 @@ function ProgressList() {
           project_type: selectedType,
           periodical_type: baseperiod,
           start_date: format(baseperiodDatepicker[0].startDate, 'yyyy-MM-dd'),
-          end_date: format(baseperiodDatepicker[0].endDate, 'yyyy-MM-dd'), 
-          ...(radiobutton==="Review" && {reviewer_reports:true})  ,
-          ...(radiobutton==="Supercheck" && {supercheck_reports:true})  
+          end_date: format(baseperiodDatepicker[0].endDate, 'yyyy-MM-dd'),
+          ...(radiobutton === "Review" && { reviewer_reports: true }),
+          ...(radiobutton === "Supercheck" && { supercheck_reports: true })
         };
         const comparisonPeriodicalPayload = {
           project_type: selectedType,
           periodical_type: comparisonperiod,
           start_date: format(comparisonperiodDatepicker[0].startDate, 'yyyy-MM-dd'),
           end_date: format(comparisonperiodDatepicker[0].endDate, 'yyyy-MM-dd'),
-          ...(radiobutton==="Review" && {reviewer_reports:true}),
-          ...(radiobutton==="Supercheck" && {supercheck_reports:true})
+          ...(radiobutton === "Review" && { reviewer_reports: true }),
+          ...(radiobutton === "Supercheck" && { supercheck_reports: true })
         };
 
         await getPeriodicalTasksData(basePeriodicalPayload, OrgId);
@@ -474,9 +493,9 @@ function ProgressList() {
     let dateRangeArr = dataRangeStr.split("To");
     let newDateRangeArr = [];
     // newDateRangeArr.join
-    dateRangeArr?.map((el,i)=> {
+    dateRangeArr?.map((el, i) => {
       let trimmedCurrentDate = el.trim();
-      newDateRangeArr.push(trimmedCurrentDate.split("-")[2]+"/"+ trimmedCurrentDate.split("-")[1] +"/"+ trimmedCurrentDate.split("-")[0]);
+      newDateRangeArr.push(trimmedCurrentDate.split("-")[2] + "/" + trimmedCurrentDate.split("-")[1] + "/" + trimmedCurrentDate.split("-")[0]);
     })
 
     return newDateRangeArr.join(" To ");
@@ -497,20 +516,20 @@ function ProgressList() {
     if (typeof window !== 'undefined') {
       document.addEventListener("mousedown", checkIfClickedOutside)
 
-  }
+    }
     return () => {
       if (typeof window !== 'undefined') {
         document.removeEventListener("mousedown", checkIfClickedOutside)
-  
-    }
+
+      }
     }
   }, [showPicker, showPickers])
 
   useEffect(() => {
     const getCumulativeMetaInfo = (e) => {
       let val;
-      if(metaInfo) {
-        if(selectedType.includes("Audio") || selectedType.includes("Acoustic")) {
+      if (metaInfo) {
+        if (selectedType.includes("Audio") || selectedType.includes("Acoustic")) {
           let [hours, minutes, seconds] = e.cumulative_aud_duration.split(":");
           val = hoursToSeconds(hours) + minutesToSeconds(minutes) + parseInt(seconds);
         } else {
@@ -523,8 +542,8 @@ function ProgressList() {
 
     const getPeriodicalMetaInfo = (e) => {
       let val;
-      if(metaInfo) {
-        if(selectedType.includes("Audio") || selectedType.includes("Acoustic")) {
+      if (metaInfo) {
+        if (selectedType.includes("Audio") || selectedType.includes("Acoustic")) {
           let [hours, minutes, seconds] = e.periodical_aud_duration.split(":");
           val = hoursToSeconds(hours) + minutesToSeconds(minutes) + parseInt(seconds);
         } else {
@@ -534,7 +553,7 @@ function ProgressList() {
       else val = e.periodical_tasks_count;
       return val;
     };
-    
+
     let chData;
     let svgChData;
     if (chartTypes === availableChartType.Individual) {
@@ -554,7 +573,7 @@ function ProgressList() {
               data: CumulativeTasksData.map((e) => getCumulativeMetaInfo(e)),
               time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? CumulativeTasksData.map((el, i) => el.cumulative_aud_duration) : null,
               stack: "stack 0",
-              borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+              borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
               borderColor: "white",
               backgroundColor: colorsData.orange[0].color,
               barThickness: 25,
@@ -579,7 +598,7 @@ function ProgressList() {
                 data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
                 time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
                 stack: "stack 0",
-                borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+                borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
                 borderColor: "white",
                 backgroundColor: colorsData.orange[i] ? colorsData.orange[i].color : 'hsla(33, 100%, 48%, 0.05)',
                 barThickness: 20,
@@ -590,7 +609,7 @@ function ProgressList() {
       }
 
     } else {
-     
+
       if (baseperiod !== "Cumulative" && comparisonperiod !== "Cumulative" && baseperiod === comparisonperiod) {
         const labels = PeriodicalTasksData[0]?.data && PeriodicalTasksData[0]?.data.map((el, i) => el.language);
         const PeriodicalTasksDataset = PeriodicalTasksData?.map((el, i) => {
@@ -599,7 +618,7 @@ function ProgressList() {
             data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
             time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
             stack: "stack 0",
-            borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+            borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
             borderColor: "white",
             backgroundColor: colorsData.orange[i] ? colorsData.orange[i].color : 'hsla(120, 128%, 25%, 0.05)',
             barThickness: 20,
@@ -612,7 +631,7 @@ function ProgressList() {
             data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
             time: (metaInfo && selectedType.includes("Audio")) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
             stack: "stack 1",
-            borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+            borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
             borderColor: "white",
             backgroundColor: colorsData.green[i] ? colorsData.green[i].color : 'hsla(33, 100%, 48%, 0.05)',
             barThickness: 20,
@@ -630,7 +649,7 @@ function ProgressList() {
             data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
             time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
             stack: "stack 0",
-            borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+            borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
             borderColor: "white",
             backgroundColor: colorsData.orange[i] ? colorsData.orange[i].color : 'hsla(33, 100%, 48%, 0.05)',
             barThickness: 20,
@@ -643,7 +662,7 @@ function ProgressList() {
             data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
             time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
             stack: "stack 1",
-            borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+            borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
             borderColor: "white",
             backgroundColor: colorsData.green[i] ? colorsData.green[i].color : 'hsla(120, 128%, 25%, 0.05)',
             barThickness: 20,
@@ -653,8 +672,8 @@ function ProgressList() {
           labels,
           datasets: PeriodicalTasksDataset.concat(SecondaryPeriodicalTasksDataset),
         };
-      
-      } else if(baseperiod !== "Cumulative" && comparisonperiod === "Cumulative"){
+
+      } else if (baseperiod !== "Cumulative" && comparisonperiod === "Cumulative") {
         const labels = PeriodicalTasksData[0]?.data && PeriodicalTasksData[0]?.data.map((el, i) => el.language);
         const PeriodicalTasksDataset = PeriodicalTasksData?.map((el, i) => {
           return {
@@ -662,7 +681,7 @@ function ProgressList() {
             data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
             time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
             stack: "stack 0",
-            borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+            borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
             borderColor: "white",
             backgroundColor: colorsData.orange[i] ? colorsData.orange[i].color : 'hsla(33, 100%, 48%, 0.05)',
             barThickness: 20,
@@ -674,7 +693,7 @@ function ProgressList() {
           data: CumulativeTasksData.map((e) => getCumulativeMetaInfo(e)),
           time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? CumulativeTasksData.map((el, i) => el.cumulative_aud_duration) : null,
           stack: "stack 1",
-          borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+          borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
           borderColor: "white",
           backgroundColor: colorsData.green[0].color,
           barThickness: 20,
@@ -686,15 +705,15 @@ function ProgressList() {
           datasets: PeriodicalTasksDataset.concat(cumulativeTasksDataset),
         };
 
-      } else if(baseperiod === "Cumulative" && comparisonperiod !== "Cumulative"){
+      } else if (baseperiod === "Cumulative" && comparisonperiod !== "Cumulative") {
         const labels = PeriodicalTasksData[0]?.data && PeriodicalTasksData[0]?.data.map((el, i) => el.language);
-        
+
         const cumulativeTasksDataset = [{
           label: baseperiod,
           data: CumulativeTasksData.map((e) => getCumulativeMetaInfo(e)),
           time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? CumulativeTasksData.map((el, i) => el.cumulative_aud_duration) : null,
           stack: "stack 0",
-          borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+          borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
           borderColor: "white",
           backgroundColor: colorsData.orange[0].color,
           barThickness: 20,
@@ -706,7 +725,7 @@ function ProgressList() {
             data: el.data?.map((e) => getPeriodicalMetaInfo(e)),
             time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? el.data?.map((el, i) => el.periodical_aud_duration) : null,
             stack: "stack 1",
-            borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+            borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
             borderColor: "white",
             backgroundColor: colorsData.green[i] ? colorsData.green[i].color : 'hsla(120, 128%, 25%, 0.05)',
             barThickness: 20,
@@ -731,18 +750,18 @@ function ProgressList() {
               data: CumulativeTasksData.map((e) => getCumulativeMetaInfo(e)),
               time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? CumulativeTasksData.map((el, i) => el.cumulative_aud_duration) : null,
               stack: "stack 0",
-              borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+              borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
               borderColor: "white",
               backgroundColor: colorsData.orange[0].color,
               barThickness: 20,
             },
             {
-            
+
               label: comparisonperiod,
               data: CumulativeTasksData.map((e) => getCumulativeMetaInfo(e)),
               time: (metaInfo && (selectedType.includes("Audio") || selectedType.includes("Acoustic"))) ? CumulativeTasksData.map((el, i) => el.cumulative_aud_duration) : null,
               stack: "stack 1",
-              borderWidth: {top: 2, left: 0, right: 0, bottom: 0},
+              borderWidth: { top: 2, left: 0, right: 0, bottom: 0 },
               borderColor: "white",
               backgroundColor: colorsData.green[0].color,
               barThickness: 20,
@@ -769,22 +788,22 @@ function ProgressList() {
 
   const downloadReportClick = (type) => {
     if (typeof window !== 'undefined') {
-    const srcElement = document.getElementById('chart-container');
-    html2canvas(srcElement)
-      .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        if (type === "img" ) {
-          let anchorEle = document.createElement("a");
-          anchorEle.href = imgData;
-          anchorEle.download = "Image.png";
-          anchorEle.click();
-        } else if (type === "pdf") {
-          const pdf = new jsPDF();
-          pdf.addImage(imgData, 'JPEG', 10, 10, 180, 150);
-          // pdf.output('dataurlnewwindow');
-          pdf.save("download.pdf");
-        }
-      })
+      const srcElement = document.getElementById('chart-container');
+      html2canvas(srcElement)
+        .then((canvas) => {
+          const imgData = canvas.toDataURL('image/png');
+          if (type === "img") {
+            let anchorEle = document.createElement("a");
+            anchorEle.href = imgData;
+            anchorEle.download = "Image.png";
+            anchorEle.click();
+          } else if (type === "pdf") {
+            const pdf = new jsPDF();
+            pdf.addImage(imgData, 'JPEG', 10, 10, 180, 150);
+            // pdf.output('dataurlnewwindow');
+            pdf.save("download.pdf");
+          }
+        })
     }
   }
 
@@ -806,50 +825,50 @@ function ProgressList() {
             justifyContent="center"
             alignItems="center"
           >
-             <Grid
-          container
-          direction="row"
-          spacing={0}
-          sx={{ mb:1, ml: 1 }}
-        >
+            <Grid
+              container
+              direction="row"
+              spacing={0}
+              sx={{ mb: 1, ml: 1 }}
+            >
 
-          <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
-            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", }}>
-              Select Report Type :
-            </Typography>
-          </Grid >
-          <Grid item xs={12} sm={12} md={10} lg={10} xl={10}  >
-            <FormControl >
+              <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
+                <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", }}>
+                  Select Report Type :
+                </Typography>
+              </Grid >
+              <Grid item xs={12} sm={12} md={10} lg={10} xl={10}  >
+                <FormControl >
 
-              <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                sx={{ marginTop: "5px" }}
-                value={radiobutton}
-                onChange={handleChangeReports}
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-row-radio-buttons-group-label"
+                    name="row-radio-buttons-group"
+                    sx={{ marginTop: "5px" }}
+                    value={radiobutton}
+                    onChange={handleChangeReports}
 
-              >
-                <FormControlLabel value="Annotation" control={<Radio />} label="Annotation" />
-                <FormControlLabel value="Review" control={<Radio />} label="Review" />
-                <FormControlLabel value="Supercheck" control={<Radio />} label="Supercheck" />
-              </RadioGroup>
-            </FormControl>
-          </Grid >
-        </Grid>
-        <Grid  container   mb={4} >
-        <Grid item xs={12} sm={12} md={6} lg={6} xl={6}  sx={{display:"flex",ml:1}} >
-            <Typography gutterBottom component="div" sx={{fontSize: "16px",mt:1, }}>
-              Meta-info based stats:
-            </Typography>
-            <Checkbox
-            sx={{ml:3}}
-              onChange={(e) => setMetaInfo(e.target.checked)} 
-              checked={metaInfo}
-            />
-          </Grid >
-          </Grid>
-            <Grid container columnSpacing={3} rowSpacing={2}  mb={1}>
+                  >
+                    <FormControlLabel value="Annotation" control={<Radio />} label="Annotation" />
+                    <FormControlLabel value="Review" control={<Radio />} label="Review" />
+                    <FormControlLabel value="Supercheck" control={<Radio />} label="Supercheck" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid >
+            </Grid>
+            <Grid container mb={4} >
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ display: "flex", ml: 1 }} >
+                <Typography gutterBottom component="div" sx={{ fontSize: "16px", mt: 1, }}>
+                  Meta-info based stats:
+                </Typography>
+                <Checkbox
+                  sx={{ ml: 3 }}
+                  onChange={(e) => setMetaInfo(e.target.checked)}
+                  checked={metaInfo}
+                />
+              </Grid >
+            </Grid>
+            <Grid container columnSpacing={3} rowSpacing={2} mb={1}>
 
               <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small" >
@@ -907,7 +926,7 @@ function ProgressList() {
                     id="demo-simple-select"
                     value={selectedType}
                     label="Project Type"
-                    sx={{padding:"1px"}}
+                    sx={{ padding: "1px" }}
                     onChange={(e) => setSelectedType(e.target.value)}
                     MenuProps={MenuProps}
                   >
@@ -940,7 +959,7 @@ function ProgressList() {
                         placement="top"
                         title={translate("tooltip.Baseperiod")}>
                         <InfoIcon
-                         sx={{color:"rgba(0, 0, 0, 0.6)"}}
+                          sx={{ color: "rgba(0, 0, 0, 0.6)" }}
                           fontSize="medium"
                         />
                       </LightTooltip>
@@ -958,7 +977,7 @@ function ProgressList() {
                     {ProgressType.map((item, index) => (
 
                       <LightTooltip title={ProgressTypedata[index].title} value={item.ProgressTypename} key={index} placement="left" arrow >
-                        <MenuItem value={item.ProgressTypename} key={index} sx={{ textTransform: "capitalize"}}>{item.ProgressTypename}</MenuItem>
+                        <MenuItem value={item.ProgressTypename} key={index} sx={{ textTransform: "capitalize" }}>{item.ProgressTypename}</MenuItem>
                       </LightTooltip>
                     ))}
                   </Select>
@@ -973,12 +992,12 @@ function ProgressList() {
                   sx={{ backgroundColor: "rgba(243, 156, 18)", "&:hover": { backgroundColor: "rgba(243, 156, 18 )", }, marginLeft: "20px" }}
 
                 >
-                 Pick Dates
+                  Pick Dates
                 </Button>
               </Grid>}
               {chartTypes === availableChartType.Comparison && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl   fullWidth size="small"  >
-                  <InputLabel  id="project-type-label" sx={{ fontSize: "16px", color: "rgba(35, 155, 86 )" }}  >
+                <FormControl fullWidth size="small"  >
+                  <InputLabel id="project-type-label" sx={{ fontSize: "16px", color: "rgba(35, 155, 86 )" }}  >
                     Comparison Period {" "}
                     {
                       <LightTooltip
@@ -986,12 +1005,12 @@ function ProgressList() {
                         placement="top"
                         title={translate("tooltip.ComparisonPeriod")}>
                         <InfoIcon
-                        sx={{color:"rgba(0, 0, 0, 0.6)"}}
+                          sx={{ color: "rgba(0, 0, 0, 0.6)" }}
                           fontSize="medium"
                         />
                       </LightTooltip>
                     }
-                    
+
                   </InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
@@ -1020,11 +1039,11 @@ function ProgressList() {
                   Pick Dates
                 </Button>
               </Grid>}
-              <Grid container sx={{marginLeft:"17px"}}>
-            <CustomButton label="Submit" sx={{ width:"120px", mt: 3 }} onClick={handleSubmit}
-              disabled={(baseperiod || comparisonperiod) ? false : true} />
-         
-        </Grid>
+              <Grid container sx={{ marginLeft: "17px" }}>
+                <CustomButton label="Submit" sx={{ width: "120px", mt: 3 }} onClick={handleSubmit}
+                  disabled={(baseperiod || comparisonperiod) ? false : true} />
+
+              </Grid>
 
               {showPicker && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
                 <Card sx={{ overflowX: "scroll" }}>
@@ -1072,8 +1091,8 @@ function ProgressList() {
                     ranges={baseperiodDatepicker}
                     direction="horizontal"
                     preventSnapRefocus={true}
-                    // calendarFocus="backwards"
-                    // weekStartsOn={2}
+                  // calendarFocus="backwards"
+                  // weekStartsOn={2}
 
                   />
                 </Card>
@@ -1124,16 +1143,16 @@ function ProgressList() {
                     ranges={comparisonperiodDatepicker}
                     direction="horizontal"
                     preventSnapRefocus={true}
-                    // calendarFocus="backwards"
+                  // calendarFocus="backwards"
                   />
                 </Card>
               </Box>}
             </Grid>
-           
+
           </Grid>
           {showBarChar &&
             <>
-              <Grid container justifyContent="end" sx={{mt:2}}>
+              <Grid container justifyContent="center" sx={{ mt: 2 }}>
                 <Button onClick={() => downloadReportClick("pdf")}>
                   Download Report As PDF
                 </Button>
@@ -1141,8 +1160,19 @@ function ProgressList() {
                   Download Report As Image
                 </Button>
               </Grid>
-              <div id="chart-container">
+              <div style={{
+                  overflow:"auto",
+                  width:"100%",
+                  padding:"0.2rem"
+                }}>
+              <div id="chart-container"
+                style={{
+                  width: chartWidth,
+                  height: chartHeight,
+                }}
+              >
                 <Bar options={options} data={chartData} />
+              </div>
               </div>
             </>
           }

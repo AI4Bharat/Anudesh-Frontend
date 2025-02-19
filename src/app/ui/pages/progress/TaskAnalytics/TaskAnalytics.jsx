@@ -433,7 +433,6 @@ if(isWorkspaceLevel && submit==true){
   return (
     <>
     <Grid container columnSpacing={3} rowSpacing={2} mb={1} gap={3}>
-    {/* Project Type and Workspace Level */}
     <Grid
       container
       item
@@ -446,7 +445,7 @@ if(isWorkspaceLevel && submit==true){
       alignItems="center"
     >
       {/* Project Type Dropdown */}
-      <Grid item xs={6}>
+      <Grid item xs={6} sm={6} md={6} lg={6} xl={4}>
         <FormControl size="small" fullWidth>
           <InputLabel
             id="demo-simple-select-label"
@@ -482,8 +481,8 @@ if(isWorkspaceLevel && submit==true){
       </Grid>
 
       {/* Workspace Level Checkbox */}
-      <Grid item xs={6}>
-        <Box display="flex" alignItems="center" justifyContent="flex-end">
+      <Grid item xs={6} sm={6} md={6} lg={6} xl={4}>
+        <Box display="flex" alignItems="center" justifyContent="center">
           <FormControlLabel
             control={
               <Checkbox
@@ -499,9 +498,8 @@ if(isWorkspaceLevel && submit==true){
       </Grid>
     </Grid>
 
-    {/* Workspace Level Dropdown */}
     {isWorkspaceLevel && (
-      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+      <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
         <FormControl fullWidth size="small">
           <InputLabel id="workspace-dropdown-label">Workspace</InputLabel>
           <Select
