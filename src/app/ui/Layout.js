@@ -45,7 +45,7 @@ const Layout = (props) => {
         {Backbutton && (
           <BackButton
             startIcon={<ArrowBackIcon />}
-            sx={{ color: "white", mb: 4, mt: 2 ,ml:2}}
+            sx={{ color: "white", m: {xs:1,md:1,lg:2,xl:2}}}
             backPressNavigationPath={
               backPressNavigationPath ? backPressNavigationPath : ""
             }
