@@ -73,6 +73,14 @@ const ReportsTable = (props) => {
                     options: {
                         filter: false,
                         sort: false,
+                        setCellProps: () => ({ 
+                            style: {
+                             fontSize: "16px",
+                            whiteSpace: "normal", 
+                            overflowWrap: "break-word",
+                            wordBreak: "break-word",  
+                          } 
+                          }),
                     }
                 })
                 selected.push(key);
@@ -284,7 +292,6 @@ const ReportsTable = (props) => {
                 </Grid >
                 <Grid item xs={12} sm={12} md={5} lg={5} xl={5}  >
                     <FormControl >
-
                         <RadioGroup
                             row
                             aria-labelledby="demo-row-radio-buttons-group-label"

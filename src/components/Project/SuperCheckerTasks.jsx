@@ -283,6 +283,15 @@ const SuperCheckerTasks = (props) => {
             sort: false,
             align: "center",
             customHeadLabelRender: customColumnHead,
+            setCellProps: () => ({ 
+              style: {
+                height: "70px", fontSize: "16px",
+              padding: "16px",
+              whiteSpace: "normal", 
+              overflowWrap: "break-word",
+              wordBreak: "break-word",  
+            } 
+            }),
           },
         };
       });

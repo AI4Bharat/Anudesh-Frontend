@@ -283,19 +283,16 @@ export default function DatasetProjectsTable({ datasetId }) {
 	const data = datasetProjects? pageSearch().map((project) => ({
 			...project,
 			actions: () => (
-				<Stack direction="row" spacing={2} style={{				whiteSpace: "normal", 
-					overflowWrap: "break-word",
-					wordBreak: "break-word",  
-	}}>
+				<>
 					<Link
 						to={`/projects/${project.id}`}
 						style={{ textDecoration: "none" }}
 					>
-						<CustomButton sx={{ borderRadius: 2 }} label="View" />
+						<CustomButton sx={{ m:1,borderRadius: 2 }} label="View" />
 					</Link>
-					<CustomButton sx={{ borderRadius: 2, height: 37 }} onClick={() => getExportProjectButton(project)} label="Export" />
-					<CustomButton sx={{ borderRadius: 2 }} onClick={() => getPullNewDataAPI(project)} label="Pull New Data Items" />
-				</Stack>
+					<CustomButton sx={{ m:1,borderRadius: 2, height: 37 }} onClick={() => getExportProjectButton(project)} label="Export" />
+					<CustomButton sx={{ m:1,borderRadius: 2 }} onClick={() => getPullNewDataAPI(project)} label="Pull New Data Items" />
+				</>
 			),
 		})):[]
     // )

@@ -206,7 +206,7 @@ const AnnotatorsTable = (props) => {
             <>
                 <Link to={`/profile/${el.id}`} style={{ textDecoration: "none" }}>
                     <CustomButton
-                        sx={{ borderRadius: 2, marginRight: 2 }}
+                        sx={{ m:1,borderRadius: 2, marginRight: 2 }}
                         label="View"
                     />
 

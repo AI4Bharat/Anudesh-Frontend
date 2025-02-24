@@ -229,10 +229,8 @@ const ScheduleMails = () => {
               options: {
                 filter: false,
                 sort: true,
-                align: "center",
-                setCellProps: () => ({ 
+                align: "center",setCellProps: () => ({ 
                   style: {
-                  padding: "16px",
                   whiteSpace: "normal", 
                   overflowWrap: "break-word",
                   wordBreak: "break-word",  
@@ -252,30 +250,30 @@ const ScheduleMails = () => {
               filter: false,
               sort: true,
               align: "center",
+              setCellProps: () => ({ 
+                style: {
+                whiteSpace: "normal", 
+                overflowWrap: "break-word",
+                wordBreak: "break-word",  
+              } 
+              }),
             },
           });
         }
         tempSelected.push("Actions");
         updatedMail.Actions = (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 1,
-            }}
-          >
+          <>
             <CustomButton
-            sx={{p:1}}
+            sx={{m:1,p:1}}
               label={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
               onClick={() => updateScheduledMail(updatedMail)}
             />
             <CustomButton
-            sx={{p:1}}
               label="Delete"
-              sx={{ backgroundColor: "#EC0000" }}
+              sx={{ m:1,backgroundColor: "#EC0000" }}
               onClick={() => deleteScheduledMail(updatedMail)}
             />
-          </Box>
+          </>
         );
         return updatedMail;
       });

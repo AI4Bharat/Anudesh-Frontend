@@ -96,8 +96,14 @@ const ProjectTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -108,8 +114,14 @@ const ProjectTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -121,8 +133,14 @@ const ProjectTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -133,8 +151,14 @@ const ProjectTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -164,8 +188,14 @@ const ProjectTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -284,7 +314,7 @@ const ProjectTable = (props) => {
     selectableRows: "none",
     search: false,
     jumpToPage: true,
-    responsive: "vertical",
+    responsive: "stacked",
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
       <CustomFooter
         count={count}
