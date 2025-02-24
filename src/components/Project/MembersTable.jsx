@@ -433,10 +433,6 @@ const MembersTable = (props) => {
     }
   };
 
-  // console.log(userRoles,loggedInUserData?.role);
-  // useEffect(() => {
-  //   setLoading(apiLoading);
-  // }, [apiLoading]);
 
   const projectlist = (el) => {
     let temp = false;
@@ -460,7 +456,7 @@ const MembersTable = (props) => {
             <>
               {!hideViewButton && (
                 <CustomButton
-                  sx={{ p: 1, borderRadius: 2 ,m:1}}
+                  sx={{ m: 1, borderRadius: 2 }}
                   onClick={() => {
                     navigate(`/profile/${el.id}`);
                   }}
@@ -522,7 +518,6 @@ const MembersTable = (props) => {
                         backgroundColor: "#cf5959",
                         m: 1,
                         height: "40px",
-                        marginLeft: 0,
                       }}
                       label="Remove"
                       onClick={() => {
@@ -539,7 +534,7 @@ const MembersTable = (props) => {
 
               {projectlist(el.id) && (
                 <CustomButton
-                  sx={{ borderRadius: 2 }}
+                  sx={{m:1, borderRadius: 2 }}
                   label="Add"
                   onClick={() => handleRemoveFrozenUsers(el.id)}
                   disabled={ProjectDetails.is_archived}
@@ -548,7 +543,7 @@ const MembersTable = (props) => {
 
               {reSendButton && (
                 <CustomButton
-                  sx={{ p: 1, m: 1, borderRadius: 2 }}
+                  sx={{m:1,  borderRadius: 2 }}
                   onClick={() => handleResendUser(el.email)}
                   label={"Resend"}
                 />
@@ -556,7 +551,7 @@ const MembersTable = (props) => {
 
               {approveButton && (
                 <CustomButton
-                  sx={{ p: 1, m: 1, borderRadius: 2 }}
+                  sx={{  m: 1, borderRadius: 2 }}
                   onClick={() => handleApproveUser(el.id)}
                   label={"Approve"}
                 />
@@ -564,7 +559,7 @@ const MembersTable = (props) => {
               {rejectButton && (
                 <CustomButton
                   sx={{
-                    p: 1,
+                    
                     m: 1,
                     borderRadius: 2,
                     backgroundColor: "#cf5959",

@@ -225,146 +225,176 @@ const Projects = () => {
     return ProjectDetails?.annotation_reviewers?.find(
       (choice) => choice.id === x.id,
     );
-  });
-
-  let annotationdata = ProjectDetails?.annotators?.filter(
-    (x) => x.id == userDetails.id,
-  );
-  let reviewerdata = ProjectDetails?.annotation_reviewers?.filter(
-    (x) => x.id == userDetails.id,
-  );
-  useEffect(() => {
-    if (annotationdata?.length && !reviewerdata?.length) {
-      setAnnotationreviewertype("Annotation Reports");
-    } else if (reviewerdata?.length && !annotationdata?.length) {
-      setAnnotationreviewertype("Reviewer Reports");
-    }
-  }, [annotationdata, reviewerdata, dispatch]);
-
-  const handleOpenSettings = () => {
-    navigate(`/projects/${id}/projectsetting`);
-  };
-
-  let projectValue = "Unassigned Super Check Tasks";
-  const filterdata = projectData.filter((item) => item.name !== projectValue);
-  const projectFilterData = isSuperChecker ? projectData : filterdata;
-
-  const TabPanData = [
-    {
-      tabEle: (
-        <Tab
-          label={translate("label.annotationTasks")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
-      tabPanelEle: (
-        <TaskTable type="annotation" ProjectDetails={ProjectDetails} />
-      ),
-      showTab: isAnnotators,
-    },
-    {
-      tabEle: (
-        <Tab
-          label={translate("label.reviewTasks")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
-      tabPanelEle: <TaskTable type="review" />,
-      showTab: isReviewer,
-    },
-    {
-      tabEle: (
-        <Tab
-          label="Super Check Tasks"
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
-      tabPanelEle: <SuperCheckerTasks type="superChecker" />,
-      showTab: isSuperChecker,
-    },
-
-    {
-      tabEle: (
-        <Tab
-          label={translate("label.annotators")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
-      tabPanelEle: (
-        <MembersTable
-          onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
-          dataSource={ProjectDetails.annotators}
-          type={addUserTypes.PROJECT_ANNOTATORS}
-        />
-      ),
-      showTab: isAnnotators,
-    },
-    {
-      tabEle: (
-        <Tab
-          label={translate("label.reviewers")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
-      tabPanelEle: (
-        <MembersTable
-          onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
-          dataSource={ProjectDetails.annotation_reviewers}
-          type={addUserTypes.PROJECT_REVIEWER}
-        />
-      ),
-      showTab: isReviewer,
-    },
-    {
-      tabEle: (
-        <Tab label="Super Checkers " sx={{ fontSize: 16, fontWeight: "700" }} />
-      ),
-      tabPanelEle: (
-        <MembersTable
-          dataSource={ProjectDetails.review_supercheckers}
-          type={addUserTypes.PROJECT_SUPERCHECKER}
-          onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
-        />
-      ),
-      showTab: isSuperChecker,
-    },
-
-    {
-      tabEle: (
-        <Tab
-          label={translate("label.reports")}
-          sx={{
-            fontSize: 16,
-            fontWeight: "700",
-            flexDirection: "row-reverse",
-          }}
-          onClick={handleClick}
-        />
-      ),
-      tabPanelEle: (
-        <ReportsTable
-          annotationreviewertype={annotationreviewertype}
-          userDetails={userDetails}
-          isAnnotators={isAnnotators}
-          isReviewer={isReviewer}
-          isSuperChecker={isSuperChecker}
-        />
-      ),
-      showTab: isAnnotators || isReviewer || isSuperChecker,
-    },
-
-    {
-      tabEle: (
-        <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
-      ),
-      tabPanelEle: <AllTaskTable />,
-      showTab: allTask,
-    },
-  ];
-
-  const filteredTabPanData = TabPanData.filter((el, i) => el.showTab);
-
-  const renderTabs = () => {
+    useEffect(() => {
+      if (annotationdata?.length && !reviewerdata?.length) {
+        setAnnotationreviewertype("Annotation Reports");
+      } else if (reviewerdata?.length && !annotationdata?.length) {
+        setAnnotationreviewertype("Reviewer Reports");
+      }
+    }, [annotationdata, reviewerdata,dispatch]);
+  
+    const handleOpenSettings = () => {
+      navigate(`/projects/${id}/projectsetting`);
+    };
+  
+  
+    let projectValue = "Unassigned Super Check Tasks"
+    const filterdata = projectData.filter(item => item.name !== projectValue)
+    const projectFilterData = isSuperChecker ? projectData : filterdata
+  
+  
+    const TabPanData = [
+      {
+        tabEle: (
+          <Tab
+            label={translate("label.annotationTasks")}
+            sx={{ fontSize: 16, fontWeight: "700" }}
+          />
+        ),
+        tabPanelEle: (
+          <TaskTable type="annotation" ProjectDetails={ProjectDetails} />
+        ),
+        showTab: isAnnotators,
+      },
+      {
+        tabEle: (
+          <Tab
+            label={translate("label.reviewTasks")}
+            sx={{ fontSize: 16, fontWeight: "700" }}
+          />
+        ),
+        tabPanelEle: <TaskTable type="review" />,
+        showTab: isReviewer,
+      },
+      {
+        tabEle: (
+          <Tab
+            label="Super Check Tasks"
+            sx={{ fontSize: 16, fontWeight: "700" }}
+          />
+        ),
+        tabPanelEle: <SuperCheckerTasks type="superChecker" />,
+        showTab: isSuperChecker,
+      },
+  
+      {
+        tabEle: (
+          <Tab
+            label={translate("label.annotators")}
+            sx={{ fontSize: 16, fontWeight: "700" }}
+          />
+        ),
+        tabPanelEle: (
+          <MembersTable
+            onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
+            dataSource={ProjectDetails.annotators}
+            type={addUserTypes.PROJECT_ANNOTATORS}
+          />
+        ),
+        showTab: isAnnotators,
+      },
+      {
+        tabEle: (
+          <Tab
+            label={translate("label.reviewers")}
+            sx={{ fontSize: 16, fontWeight: "700" }}
+          />
+        ),
+        tabPanelEle: (
+          <MembersTable
+            onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
+            dataSource={ProjectDetails.annotation_reviewers}
+            type={addUserTypes.PROJECT_REVIEWER}
+          />
+        ),
+        showTab: isReviewer,
+      },
+      {
+        tabEle: (
+          <Tab
+            label="Super Checkers "
+            sx={{ fontSize: 16, fontWeight: "700" }}
+          />
+        ),
+        tabPanelEle: (
+          <MembersTable
+            dataSource={ProjectDetails.review_supercheckers}
+            type={addUserTypes.PROJECT_SUPERCHECKER}
+            onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
+          />
+        ),
+        showTab: isSuperChecker,
+  
+      },
+  
+      {
+        tabEle: (
+          <Tab
+            label={translate("label.reports")}
+            sx={{
+              fontSize: 16,
+              fontWeight: "700",
+              flexDirection: "row-reverse",
+            }}
+            onClick={handleClick}
+          />
+        ),
+        tabPanelEle: (
+          <ReportsTable
+            annotationreviewertype={annotationreviewertype}
+            userDetails={userDetails}
+            isAnnotators={isAnnotators}
+            isReviewer={isReviewer}
+            isSuperChecker={isSuperChecker}
+          />
+        ),
+        showTab: (isAnnotators || isReviewer || isSuperChecker)
+      },
+  
+      {
+        tabEle: (
+          <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
+        ),
+        tabPanelEle: <AllTaskTable />,
+        showTab: allTask,
+      },
+    ];
+  
+    const filteredTabPanData = TabPanData.filter((el, i) => el.showTab);
+  
+    const renderTabs = () => {
+      return (
+        <>
+          <Grid>
+            <Box>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+                variant="scrollable"
+              >
+                {filteredTabPanData.map((el, i) => {
+                  return el.tabEle;
+                })}
+              </Tabs>
+            </Box>
+          </Grid>
+          {filteredTabPanData.map((el, i, array) => {
+            return (
+              <>
+  
+                <TabPanel value={value} index={i}>
+                  {el.tabPanelEle}
+  
+                </TabPanel>
+              </>
+            )
+          })}
+  
+        </>
+      );
+    };
+  
     return (
       <>
         <Grid>
