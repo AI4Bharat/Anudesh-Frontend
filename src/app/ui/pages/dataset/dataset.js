@@ -80,8 +80,8 @@ export default function DatasetList() {
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? <Spinner /> : <> 
 
-      <Grid container className={classes.root}>
-        <Grid item style={{ flexGrow: "0" }}>
+      <Grid container  className={classes.root}>
+        <Grid item sx={{ml:2}} style={{ flexGrow: "0" }}>
           <Typography variant="h6" sx={{ paddingBottom: "8px" }}>
             View :{" "}
           </Typography>
@@ -109,20 +109,25 @@ export default function DatasetList() {
             </RadioGroup>
           </FormControl>
         </Grid>
-        <Grid xs={3} item className={classes.fixedWidthContainer}>
+        <Grid  item
+              xs={12}
+              sm={3}
+              className={classes.fixedWidthContainer}
+              sx={{ margin: { xs: 1, sm: 1 ,md:1,lg:1,xl:1} }}>
           <Search />
         </Grid>
       </Grid>
 
-      <Box>
+      <Box sx={{m:1}}>
         <CustomButton
           sx={{
             p: 2,
             borderRadius: 3,
-            mt: 2,
-            mb: 2,
+            m:1,
             justifyContent: "flex-end",
           }}
+          xs={3}
+          sm={6}
           onClick={handleCreateProject}
           label="Create New Dataset Instance"
         />
@@ -130,11 +135,11 @@ export default function DatasetList() {
           sx={{
             p: 2,
             borderRadius: 3,
-            mt: 2,
-            mb: 2,
-            ml: 2,
+            m:1,
             justifyContent: "flex-end",
           }}
+          xs={3}
+          sm={6}
           disabled = {userRole.Admin === loggedInUserData?.role? false : true}
           onClick={handleAutomateButton}
           label="Automate Datasets"

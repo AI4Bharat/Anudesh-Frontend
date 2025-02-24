@@ -377,6 +377,7 @@ import {
                 value={value}
                 onChange={handleChange}
                 aria-label="basic tabs example"
+                variant="scrollable"
               >
                 {filteredTabPanData.map((el, i) => {
                   return el.tabEle;
