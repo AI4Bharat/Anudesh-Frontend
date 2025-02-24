@@ -132,8 +132,14 @@ const ProjectCardList = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -144,8 +150,14 @@ const ProjectCardList = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -157,8 +169,14 @@ const ProjectCardList = (props) => {
         sort: false,
         align: "center",
 
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -169,8 +187,14 @@ const ProjectCardList = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -181,8 +205,14 @@ const ProjectCardList = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -193,8 +223,14 @@ const ProjectCardList = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -205,8 +241,14 @@ const ProjectCardList = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", fontSize: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -273,17 +315,17 @@ const ProjectCardList = (props) => {
 
   const renderToolBar = () => {
     return (
-      <div style={{position: "relative"}}>
-        {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
-        <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
+      <div>
+        <Button style={{ minWidth: "25px", position: "relative" }} onClick={handleShowFilter}>
+          {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
         <CustomTooltip
-      title={
-        filtersApplied ? (
-          <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
-            {selectedFilters.project_type && <div><strong>Project Type:</strong> {selectedFilters.project_type}</div>}
-            {selectedFilters.project_user_type && <div><strong>Project User Type:</strong> {selectedFilters.project_user_type}</div>}
-            {selectedFilters.archived_projects && <div><strong>Archived Projects:</strong> {selectedFilters.archived_projects}</div>}
-        </Box>
+          title={
+            filtersApplied ? (
+            <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
+              {selectedFilters.project_type && <div><strong>Project Type:</strong> {selectedFilters.project_type}</div>}
+              {selectedFilters.project_user_type && <div><strong>Project User Type:</strong> {selectedFilters.project_user_type}</div>}
+              {selectedFilters.archived_projects && <div><strong>Archived Projects:</strong> {selectedFilters.archived_projects}</div>}
+          </Box>
       ) : (
       <span style={{ fontFamily: 'Roboto, sans-serif' }}>
         Filter Table

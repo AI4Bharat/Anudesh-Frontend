@@ -1,4 +1,5 @@
-'use client'
+"use client";
+
 import {
     Box,
     Button,
@@ -377,6 +378,7 @@ import {
                 value={value}
                 onChange={handleChange}
                 aria-label="basic tabs example"
+                variant="scrollable"
               >
                 {filteredTabPanData.map((el, i) => {
                   return el.tabEle;
@@ -400,9 +402,12 @@ import {
       );
     };
   
-    return (
-      <ThemeProvider theme={themeDefault}>
-        {apiLoading ? <Spinner /> : 
+
+  return (
+    <ThemeProvider theme={themeDefault}>
+      {apiLoading ? (
+        <Spinner />
+      ) : (
         <Grid
           container
           direction="row"
@@ -417,7 +422,6 @@ import {
               width: "100%",
               minHeight: 500,
               padding: { xs: 2, sm: 4, md: 5 },
-
             }}
           >
             <Grid
@@ -485,7 +489,7 @@ import {
             >
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (
-                  <Grid key={i} item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
+                  <Grid key={i} item xs={12} sm={6} md={3} lg={3} xl={3}>
                     <ProjectDescription
                       name={des.name}
                       value={des.value}
@@ -498,9 +502,9 @@ import {
             {renderTabs()}
           </Card>
         </Grid>
-        }
-      </ThemeProvider>
-    );
-  };
-  
-  export default Projects;
+      )}
+    </ThemeProvider>
+  );
+};
+
+export default Projects;

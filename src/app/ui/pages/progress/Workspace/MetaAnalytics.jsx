@@ -205,9 +205,18 @@ export default function MetaAnalytics(props) {
 
   return (
     <div>
-      <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
-      <Grid item xs={6} sm={6} md={6} lg={6} xl={6} display={"flex"} justifyContent="space-between" >
-      <FormControl  size="small">
+      <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={1}>
+      <Grid
+      container
+      item
+      xs={12}
+      sm={12}
+      md={12}
+      lg={4}
+      xl={4}
+      spacing={1}
+      alignItems="center"
+    >      <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>      <FormControl  size="small">
             <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
               Project Type {" "}
               {
@@ -238,12 +247,21 @@ export default function MetaAnalytics(props) {
               ))}
             </Select>
           </FormControl>
-          <CustomButton label="Submit" sx={{ width: { xs: "100px", md: "120px" }, height: "40px" }} onClick={handleSubmit}  />
-          <Box display="flex"   sx={{ width: { xs: "100px", md: "120px" }, height: "40px", marginRight: 1 }}alignItems="center">
+          </Grid>
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <CustomButton
+        label="Submit"
+        sx={{ width: "35%", height: "40px" }}
+        onClick={handleSubmit}
+        size="small"
+      />
+            <Box display="flex" alignItems="center" sx={{ width: "45%" }}>
             <CustomButton           
               onClick={handleClick}
               disabled={loading}
-              sx={{ marginRight: 1 }}
+              sx={{ width: "100%", height: "40px" }}
               endIcon={<KeyboardArrowDown />}
               label="Download"
             >
@@ -260,7 +278,7 @@ export default function MetaAnalytics(props) {
               <MenuItem onClick={downloadJSON}>JSON</MenuItem>
             </StyledMenu>
           </Box>
-        {/* </Grid> */}
+          </Box>
       </Grid>
         </Grid>
       
