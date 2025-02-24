@@ -59,7 +59,13 @@ const labelChart = function (context) {
   }
   return label;
 };
-const width = window.innerWidth;
+const getWidth = () => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth;
+  }
+};
+
+const width = getWidth();
 
 const categoryPercentage = width < 600 ? 0.2 : width < 900 ? 0.5 : 0.6;
 const barPercentage = width < 600 ? 0.3 : width < 900 ? 0.6 : 0.7;
