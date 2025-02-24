@@ -39,9 +39,10 @@ const ProgressList = () => {
     
     return (
       
-        < >
-            <Box sx={{mb:2,}} >
-                <Tabs value={tabValue} onChange={handleTabChange} aria-label="user-tabs">
+        <>
+            <Box sx={{m:1}} >
+                <Tabs value={tabValue} onChange={handleTabChange} aria-label="user-tabs" variant='scrollable'                     
+                >
                     <Tab label="Task Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} />
                     <Tab label="Meta Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} />
                     <Tab label="Advance Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} />
