@@ -83,11 +83,14 @@ const DatasetDetails = () => {
             <Grid
               container
               direction="row"
-              justifyContent="center"
+              justifyContent="space-between"
               alignItems="center"
-              sx={{ mb: 3 }}
+              sx={{
+                mb: 3,
+                flexWrap: "nowrap",
+              }}
             >
-              <Grid item xs={12} sm={12} md={10} lg={10} xl={10}>
+              <Grid item xs={9}>
                 <Typography variant="h3">
                   {DatasetDetails.instance_name}
                 </Typography>
@@ -96,7 +99,7 @@ const DatasetDetails = () => {
               {(userRole.Annotator !== userDetails?.role ||
                 userRole.Reviewer !== userDetails?.role ||
                 userRole.SuperChecker !== userDetails?.role) && (
-                <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+                <Grid item xs={3} container justifyContent="flex-end">
                   <Tooltip
                     title={
                       <Typography
@@ -110,10 +113,7 @@ const DatasetDetails = () => {
                       </Typography>
                     }
                   >
-                    <IconButton
-                      onClick={handleOpenSettings}
-                      sx={{ marginLeft: "140px" }}
-                    >
+                    <IconButton onClick={handleOpenSettings}>
                       <SettingsOutlinedIcon
                         color="primary.dark"
                         fontSize="large"
@@ -123,6 +123,7 @@ const DatasetDetails = () => {
                 </Grid>
               )}
             </Grid>
+
             <Grid
               item
               xs={12}
