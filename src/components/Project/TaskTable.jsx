@@ -741,6 +741,12 @@ const TaskTable = (props) => {
   };
 
   const areFiltersApplied = (filters) => {
+    if (
+      (filters.annotation_status && filters.annotation_status === "unlabeled") ||
+      (filters.review_status && filters.review_status === "unreviewed")
+    ) {
+      return false;
+    }
     return Object.values(filters).some((value) => value !== "");
   };
 
@@ -838,24 +844,13 @@ const TaskTable = (props) => {
           (roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
             roles?.Admin === userDetails?.role) &&
-          !getProjectUsers?.some(
-            (annotator) => annotator.id === userDetails?.id,
-          ) &&
-          !getProjectReviewers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) &&
-          !ProjectDetails?.review_supercheckers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) && (
+          !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
+          !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
+          !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
             <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
               <InputLabel
                 id="annotator-filter-label"
-                sx={{
-                  fontSize: "16px",
-                  position: "inherit",
-                  top: "23px",
-                  left: "-20px",
-                }}
+                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-20px" }}
               >
                 Filter by Annotator
               </InputLabel>
@@ -865,10 +860,7 @@ const TaskTable = (props) => {
                 value={selectedFilters.req_user}
                 label="Filter by Annotator"
                 onChange={(e) =>
-                  setsSelectedFilters({
-                    ...selectedFilters,
-                    req_user: e.target.value,
-                  })
+                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
                 }
                 sx={{ fontSize: "16px" }}
               >
@@ -885,24 +877,13 @@ const TaskTable = (props) => {
           (roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
             roles?.Admin === userDetails?.role) &&
-          !getProjectUsers?.some(
-            (annotator) => annotator.id === userDetails?.id,
-          ) &&
-          !getProjectReviewers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) &&
-          !ProjectDetails?.review_supercheckers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) && (
+          !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
+          !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
+          !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
             <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
               <InputLabel
                 id="reviewer-filter-label"
-                sx={{
-                  fontSize: "16px",
-                  position: "inherit",
-                  top: "23px",
-                  left: "-25px",
-                }}
+                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px" }}
               >
                 Filter by Reviewer
               </InputLabel>
@@ -912,10 +893,7 @@ const TaskTable = (props) => {
                 value={selectedFilters.req_user}
                 label="Filter by Reviewer"
                 onChange={(e) =>
-                  setsSelectedFilters({
-                    ...selectedFilters,
-                    req_user: e.target.value,
-                  })
+                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
                 }
                 sx={{ fontSize: "16px" }}
               >
@@ -933,32 +911,33 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <div style={{ display: "inline-block", position: "relative" }} onClick={handleShowFilter}>
-        {filtersApplied && (
-          <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />
-        )}
-
-         <CustomTooltip
-        title={
-          filtersApplied ? (
-            <Box sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display: "flex", flexDirection: "column", gap: "5px" }}>
-              {selectedFilters.annotation_status && <div><strong>Annotation Status:</strong> {selectedFilters.annotation_status}</div>}
-              {selectedFilters.review_status && <div><strong>Review Status:</strong> {selectedFilters.review_status}</div>}
-              {selectedFilters.req_user !== -1 && <div><strong>Assigned User:</strong> {selectedFilters.req_user}</div>}
-              {pull !== "All" && <div><strong>Pull Status:</strong> {pull}</div>}
-              {rejected && <div><strong>Rejected:</strong> {rejected ? "Yes" : "No"}</div>}
-            </Box>
-          ) : (
-            <span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>
-          )
-        }
-        disableInteractive
-      >
-        <Button sx={{ position: "relative" }}>
-          <FilterListIcon sx={{ color: '#515A5A' }} />
-        </Button>
-      </CustomTooltip>
-      </div>
+        
+        {/* Filter Button with Tooltip */}
+        <div style={{ position: "relative" }}>
+          {filtersApplied && (
+            <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />
+          )}
+          <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
+            <CustomTooltip
+              title={
+                filtersApplied ? (
+                  <Box sx={{ padding: "5px", maxWidth: "300px", fontSize: "12px", display: "flex", flexDirection: "column", gap: "5px" }}>
+                    {selectedFilters.annotation_status && <div><strong>Annotation Status:</strong> {selectedFilters.annotation_status}</div>}
+                    {selectedFilters.review_status && <div><strong>Review Status:</strong> {selectedFilters.review_status}</div>}
+                    {selectedFilters.req_user !== -1 && <div><strong>Assigned User:</strong> {selectedFilters.req_user}</div>}
+                    {pull !== "All" && <div><strong>Pull Status:</strong> {pull}</div>}
+                    {rejected && <div><strong>Rejected:</strong> {rejected ? "Yes" : "No"}</div>}
+                  </Box>
+                ) : (
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>Filter Table</span>
+                )
+              }
+              disableInteractive
+            >
+              <FilterListIcon sx={{ color: "#515A5A" }} />
+            </CustomTooltip>
+          </Button>
+        </div>
       </Box>
     );
   };

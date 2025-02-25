@@ -428,8 +428,15 @@ setLabellingStarted(true);
 }
 
 const areFiltersApplied = (filters) => {
+  if (
+    (filters.supercheck_status && filters.supercheck_status === "unvalidated")
+  ) {
+    return false;
+  }
+
   return Object.values(filters).some((value) => value !== "");
 };
+
 
 const filtersApplied = areFiltersApplied(selectedFilters);
 
@@ -495,10 +502,11 @@ const CustomTooltip = styled(({ className, ...props }) => (
                 setColumns={setSelectedColumns}
                 selectedColumns={selectedColumns}
             />
-         <Box sx={{ position: "relative", display: "inline-block" }} onClick={handleShowFilter}>
+        <Box sx={{ position: "relative", display: "inline-block" }} onClick={handleShowFilter}>
          {filtersApplied && (
           <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />
         )}
+        <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
         <CustomTooltip
           title={
             filtersApplied ? (
@@ -512,11 +520,10 @@ const CustomTooltip = styled(({ className, ...props }) => (
           }
           disableInteractive
         >
-          <Button sx={{ position: "relative" }}>
             <FilterListIcon sx={{ color: '#515A5A' }} />
-          </Button>
         </CustomTooltip>
-      </Box>
+        </Button>
+        </Box>
       </Box>
     );
   };
