@@ -318,20 +318,22 @@ function MobileNavbar(props) {
       </AppBar>
 
       <Dialog open={confirmDialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Confirm Password Change</DialogTitle>
+        <DialogTitle> Password Change: </DialogTitle>
         <DialogContent>
           <DialogContentText>
             Are you sure you want to change your password?
           </DialogContentText>
         </DialogContent>
+        <Box>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="secondary" variant="outlined">
-            Cancel
-          </Button>
           <Button onClick={() => handleChangePassword(loggedInUserData.email)} color="primary" variant="contained">
             Confirm
           </Button>
+          <Button onClick={handleCloseDialog} color="error" variant="contained">
+            Cancel
+          </Button>
         </DialogActions>
+        </Box>
       </Dialog>
 
       <CustomizedSnackbars

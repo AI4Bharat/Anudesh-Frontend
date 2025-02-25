@@ -1128,11 +1128,11 @@ const Header = () => {
                    Are you sure you want to change your password?
                  </DialogContent>
                  <DialogActions>
-                  <Button onClick={handleClose} color="primary">
-                   Cancel
-                  </Button>
-                  <Button onClick={handleApply} color="primary">
+                 <Button onClick={handleApply} color="primary" variant="contained">
                    Confirm
+                  </Button>
+                  <Button onClick={handleClose} color="error" variant="contained">
+                   Cancel
                   </Button>
                  </DialogActions>
                 </Dialog>
