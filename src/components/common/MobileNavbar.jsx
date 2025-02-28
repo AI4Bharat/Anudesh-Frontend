@@ -67,7 +67,7 @@ function MobileNavbar(props) {
         PaperProps={{
           sx: {
             padding: 2,
-            width: { xs: "75%", sm: "50%", md: "30%" }, 
+            width: { xs: "70%", sm: "40%", md: "30%" }, 
           },
         }}
       >
