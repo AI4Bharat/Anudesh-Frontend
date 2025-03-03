@@ -314,7 +314,7 @@ const ProjectTable = (props) => {
     selectableRows: "none",
     search: false,
     jumpToPage: true,
-    responsive: "stacked",
+    responsive: "vertical",
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
       <CustomFooter
         count={count}
