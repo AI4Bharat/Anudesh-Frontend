@@ -9,16 +9,16 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
-import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import getWorkspaceDetails, { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 
 
 const BasicSettings = (props) => {
-         /* eslint-disable react-hooks/exhaustive-deps */
+    /* eslint-disable react-hooks/exhaustive-deps */
 
-    const {ProjectDetails } = props;
+    const { ProjectDetails } = props;
 
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
@@ -38,32 +38,31 @@ const BasicSettings = (props) => {
     const dispatch = useDispatch();
     const apiLoading = useSelector(state => state.apiStatus.loading);
     const loggedInUserData = useSelector(state => state.getLoggedInData?.data); //retrieved the id of the current signedin user
-    const workspaceManagers = useSelector(state=>(state.getWorkspaceDetails.data.managers));
+    const workspaceManagers = useSelector(state => (state.getWorkspaceDetails.data.managers));
 
     const isManager = workspaceManagers?.some(manager => manager.id === loggedInUserData.id);
 
-    const getWorkspaceDetails = ()=>{
+    const getWorkspaceDetails = () => {
         dispatch(fetchWorkspaceDetails(ProjectDetails?.workspace_id));
-      }
-     
-      
-      useEffect(()=>{
+    }
+
+
+    useEffect(() => {
         getWorkspaceDetails();
-      },[]);
-    console.log(loggedInUserData.id);
+    }, []);
     const getLoggedInUserData = () => {
         dispatch(FetchLoggedInUserData("me"));
-      };
+    };
 
-      useEffect(() => {
+    useEffect(() => {
         getLoggedInUserData();
-      }, []);
-    
+    }, []);
+
 
     useEffect(() => {
         // if (ProjectDetails.project_type === "MonolingualTranslation" ||ProjectDetails.project_type === "SemanticTextualSimilarity" || ProjectDetails.project_type === "TranslationEditing" || ProjectDetails.project_type === "ContextualTranslationEditing"|| ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing") {
-            getLanguageChoices();
-            setShowLanguage(true);
+        getLanguageChoices();
+        setShowLanguage(true);
         // }
 
     }, [ProjectDetails]);
@@ -82,7 +81,7 @@ const BasicSettings = (props) => {
         setSourceLanguage(ProjectDetails?.src_language)
     }, [ProjectDetails]);
     const LanguageChoices = useSelector((state) => state.getLanguages.data.language);
-   
+
     const getLanguageChoices = () => {
         dispatch(fetchLanguages());
     };
@@ -112,14 +111,12 @@ const BasicSettings = (props) => {
             tgt_language: targetLanguage,
             src_language: sourceLanguage,
             project_type: ProjectDetails.project_type,
-            // project_mode: ProjectDetails.project_mode,
             users: ProjectDetails.users,
             annotation_reviewers: ProjectDetails.annotation_reviewers,
             max_pending_tasks_per_user: newDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: newDetails.tasks_pull_count_per_batch,
             max_tasks_per_user: newDetails.max_tasks_per_user,
         }
-        console.log(sendData);
         const projectObj = new GetSaveButtonAPI(id, sendData);
         const res = await fetch(projectObj.apiEndPoint(), {
             method: "PUT",
@@ -273,18 +270,18 @@ const BasicSettings = (props) => {
                         />
                     </Grid>
                 </Grid>
-            
-                    <>
-                        <Grid
-                            container
-                            direction='row'
-                            sx={{
-                                alignItems: "center",
-                                // justifyContent: "space-between",
-                                mt: 2
-                            }}
-                        >
-                            {ProjectDetails.project_type !== "ContextualSentenceVerification"||ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing" &&
+
+                <>
+                    <Grid
+                        container
+                        direction='row'
+                        sx={{
+                            alignItems: "center",
+                            // justifyContent: "space-between",
+                            mt: 2
+                        }}
+                    >
+                        {ProjectDetails.project_type !== "ContextualSentenceVerification" || ProjectDetails.project_type === "SingleSpeakerAudioTranscriptionEditing" &&
                             <>
                                 <Grid
                                     items
@@ -322,163 +319,163 @@ const BasicSettings = (props) => {
                                 </Grid>
                             </>
                         }
+                    </Grid>
+                    <Grid
+                        container
+                        direction='row'
+                        sx={{
+                            alignItems: "center",
+                            // justifyContent: "space-between",
+                            mt: 2
+                        }}
+                    >
+                        <Grid
+                            items
+                            xs={12}
+                            sm={12}
+                            md={12}
+                            lg={2}
+                            xl={2}
+                        >
+                            <Typography variant="body2" fontWeight='700' label="Required">
+                                {ProjectDetails.project_type === "SingleSpeakerAudioTranscriptionEditing" ? "Language" : "Target Language"}
+                            </Typography>
                         </Grid>
                         <Grid
-                            container
-                            direction='row'
-                            sx={{
-                                alignItems: "center",
-                                // justifyContent: "space-between",
-                                mt: 2
-                            }}
+                            item
+                            xs={12}
+                            md={12}
+                            lg={9}
+                            xl={9}
+                            sm={12}
                         >
-                            <Grid
-                                items
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                lg={2}
-                                xl={2}
-                            >
-                                <Typography variant="body2" fontWeight='700' label="Required">
-                                {ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing"?  "Language" :"Target Language"}
-                                </Typography>
-                            </Grid>
-                            <Grid
-                                item
-                                xs={12}
-                                md={12}
-                                lg={9}
-                                xl={9}
-                                sm={12}
-                            >
-                                <Autocomplete
-                                    onChange={(e, newVal) => setTargetLanguage(newVal)}
-                                    options={languageOptions}
-                                    value={targetLanguage}
-                                    style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            inputProps={{ ...params.inputProps, style: { fontSize: "14px" } }}
-                                            placeholder={ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing" ?"Enter language":"Enter target language"}
-                                        />
-                                    )}
-                                />
-                            </Grid>
-
-                        </Grid>
-                        <Grid
-                            container
-                            direction='row'
-                            sx={{
-                                alignItems: "center",
-                                mt: 2
-                            }}
-                        >
-                            <Grid
-                                items
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                lg={2}
-                                xl={2}
-                            >
-                                <Typography variant="body2" fontWeight='700' label="Required">
-                                    Max Pending Tasks Per User
-                                </Typography>
-                            </Grid>
-                            <Grid
-                                item
-                                xs={12}
-                                md={12}
-                                lg={9}
-                                xl={9}
-                                sm={12}
-                            >
-                                <OutlinedTextField
-                                    fullWidth
-                                    name="max_pending_tasks_per_user"
-                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
-                                    value={newDetails?.max_pending_tasks_per_user}
-                                    onChange={handleProjectName} />
-                            </Grid>
-                        </Grid>
-                        <Grid
-                            container
-                            direction='row'
-                            sx={{
-                                alignItems: "center",
-                                mt: 2
-                            }}
-                        >
-                            <Grid
-                                items
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                lg={2}
-                                xl={2}
-                            >
-                                <Typography variant="body2" fontWeight='700' label="Required">
-                                    Tasks Pull Count Per Batch
-                                </Typography>
-                            </Grid>
-                            <Grid
-                                item
-                                xs={12}
-                                md={12}
-                                lg={9}
-                                xl={9}
-                                sm={12}
-                            >
-                                <OutlinedTextField
-                                    fullWidth
-                                    name="tasks_pull_count_per_batch"
-                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
-                                    value={newDetails?.tasks_pull_count_per_batch}
-                                    onChange={handleProjectName} />
-                            </Grid>
+                            <Autocomplete
+                                onChange={(e, newVal) => setTargetLanguage(newVal)}
+                                options={languageOptions}
+                                value={targetLanguage}
+                                style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        inputProps={{ ...params.inputProps, style: { fontSize: "14px" } }}
+                                        placeholder={ProjectDetails.project_type === "SingleSpeakerAudioTranscriptionEditing" ? "Enter language" : "Enter target language"}
+                                    />
+                                )}
+                            />
                         </Grid>
 
+                    </Grid>
+                    <Grid
+                        container
+                        direction='row'
+                        sx={{
+                            alignItems: "center",
+                            mt: 2
+                        }}
+                    >
                         <Grid
-                            container
-                            direction='row'
-                            sx={{
-                                alignItems: "center",
-                                mt: 2
-                            }}
+                            items
+                            xs={12}
+                            sm={12}
+                            md={12}
+                            lg={2}
+                            xl={2}
                         >
-                            <Grid
-                                items
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                lg={2}
-                                xl={2}
-                            >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                            <Typography variant="body2" fontWeight='700' label="Required">
+                                Max Pending Tasks Per User
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={9}
+                            xl={9}
+                            sm={12}
+                        >
+                            <OutlinedTextField
+                                fullWidth
+                                name="max_pending_tasks_per_user"
+                                InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
+                                value={newDetails?.max_pending_tasks_per_user}
+                                onChange={handleProjectName} />
+                        </Grid>
+                    </Grid>
+                    <Grid
+                        container
+                        direction='row'
+                        sx={{
+                            alignItems: "center",
+                            mt: 2
+                        }}
+                    >
+                        <Grid
+                            items
+                            xs={12}
+                            sm={12}
+                            md={12}
+                            lg={2}
+                            xl={2}
+                        >
+                            <Typography variant="body2" fontWeight='700' label="Required">
+                                Tasks Pull Count Per Batch
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={9}
+                            xl={9}
+                            sm={12}
+                        >
+                            <OutlinedTextField
+                                fullWidth
+                                name="tasks_pull_count_per_batch"
+                                InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
+                                value={newDetails?.tasks_pull_count_per_batch}
+                                onChange={handleProjectName} />
+                        </Grid>
+                    </Grid>
+
+                    <Grid
+                        container
+                        direction='row'
+                        sx={{
+                            alignItems: "center",
+                            mt: 2
+                        }}
+                    >
+                        <Grid
+                            items
+                            xs={12}
+                            sm={12}
+                            md={12}
+                            lg={2}
+                            xl={2}
+                        >
+                            <Typography variant="body2" fontWeight='700' label="Required">
                                 Max Tasks Per User
-                                </Typography>
-                            </Grid>
-                            <Grid
-                                item
-                                xs={12}
-                                md={12}
-                                lg={9}
-                                xl={9}
-                                sm={12}
-                            >
-                                <OutlinedTextField
-                                    fullWidth
-                                    name="max_tasks_per_user"
-                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" }, readOnly: !isManager } }}
-                                    
-                                    value={newDetails?.max_tasks_per_user}
-                                    onChange={handleProjectName} />
-                            </Grid>
+                            </Typography>
                         </Grid>
-                    </>
+                        <Grid
+                            item
+                            xs={12}
+                            md={12}
+                            lg={9}
+                            xl={9}
+                            sm={12}
+                        >
+                            <OutlinedTextField
+                                fullWidth
+                                name="max_tasks_per_user"
+                                InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" }, readOnly: !isManager } }}
+
+                                value={newDetails?.max_tasks_per_user}
+                                onChange={handleProjectName} />
+                        </Grid>
+                    </Grid>
+                </>
                 <Grid
                     container
                     xs={12}
@@ -488,7 +485,7 @@ const BasicSettings = (props) => {
                     sm={12}
                     sx={{
                         // justifyContent: "center",
-                        mt:5,
+                        mt: 5,
                         display: 'flex',
                         justifyContent: { xs: 'center', sm: 'flex-start' },
                         gap: 2

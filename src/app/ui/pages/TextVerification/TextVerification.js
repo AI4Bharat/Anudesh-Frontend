@@ -59,7 +59,6 @@ const TextVerification = ({
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
-  console.log("questions that were fetched: " + typeof questions);
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
@@ -73,16 +72,13 @@ const TextVerification = ({
       });
       const annotationForms = await response.json();
       let formsData = [];
-      console.log(annotationForms[0].result?.length);
 
       if (
         annotationForms &&
         Array.isArray(annotationForms[0]?.result) &&
         [...annotationForms[0]?.result]?.length
       ) {
-        console.log(stage);
         if (stage === "Review") {
-          console.log("here in review if");
           let reviewData = annotationForms.find(
             (item) => item.annotation_type === 2,
           );
@@ -92,27 +88,16 @@ const TextVerification = ({
             );
           }
           formsData = reviewData?.result;
-          console.log("reviewdata: " + JSON.stringify(reviewData));
-          console.log(formsData);
         } else if (stage === "SuperChecker") {
-          console.log("here in sc if");
           let superCheckerData = annotationForms.filter(
             (data) => data.annotation_type == 3,
           );
-          console.log(superCheckerData[0].annotation_status);
-          console.log("supercheckdata: " + JSON.stringify(superCheckerData));
           formsData = superCheckerData[0]?.result;
-          console.log(formsData);
         } else if (stage === "Annotation") {
-          console.log("here in annotation if");
           let annotationData = annotationForms.filter(
             (data) => data.annotation_type == 1,
           );
-          console.log("annotationdata: " + JSON.stringify(annotationData));
           formsData = annotationData[0]?.result;
-          console.log(formsData);
-        } else {
-          console.log("here in else");
         }
       } else if (
         annotationForms &&
@@ -120,19 +105,15 @@ const TextVerification = ({
         [...annotationForms[0]?.result]?.length === 0 &&
         stage === "SuperChecker"
       ) {
-        console.log("here in sc if");
         let superCheckerData = annotationForms.filter(
           (data) => data.annotation_type == 3,
         );
-        console.log(superCheckerData[0].annotation_status);
         if (superCheckerData[0].annotation_status === "unvalidated") {
           superCheckerData = annotationForms.find(
             (item) => item.annotation_type == 1,
           );
         }
-        console.log("supercheckdata: " + JSON.stringify(superCheckerData));
         formsData = superCheckerData?.result;
-        console.log(formsData);
       }
       setForms(formsData?.length ? [...formsData] : []);
     };
@@ -172,11 +153,9 @@ const TextVerification = ({
         (!currentInteraction ||
           currentInteraction?.prompt !== currentForm?.prompt)
       ) {
-        console.log("current form: " + JSON.stringify(currentForm));
         const questionsResponse =
           currentForm?.questions_response ||
           Array(questions?.length).fill(null);
-        console.log(JSON.stringify(questionsResponse));
 
         const newState = {
           prompt: currentForm?.prompt || "",
@@ -204,17 +183,9 @@ const TextVerification = ({
         additional_note: null,
         questions_response: questions?.map((question) => ({
           question,
-          // answer: null,
-          // chosen_options: [],
-          // input_question: question?.input_question,
-          // question_type: question?.question_type,
-          // rating: null,
-          // blank_answer: null
           response: [],
-          // mandatory: question?.mandatory
         })),
       }));
-      console.log("init forms: " + initialForms);
       setForms(initialForms);
     }
   }, [forms, interactions, taskId]);
@@ -233,7 +204,6 @@ const TextVerification = ({
       const mandatoryQuestions = questions.filter((question) => {
         return question.mandatory && question.mandatory === true;
       });
-      console.log("mandatory questions: " + JSON.stringify(mandatoryQuestions));
 
       const allMandatoryAnswered = mandatoryQuestions.every((question) => {
         let parts = 0;
@@ -263,12 +233,9 @@ const TextVerification = ({
           )
         );
       });
-
-      console.log("all answered for form: " + allMandatoryAnswered);
       return allMandatoryAnswered;
     });
 
-    console.log("all forms answered?: " + allFormsAnswered);
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
 
@@ -338,7 +305,6 @@ const TextVerification = ({
     });
   };
   const handleMultiSelect = (isChecked, selectedOption, interactionIndex) => {
-    console.log("checked: " + isChecked);
     const selectedQuestion = questions[interactionIndex];
     const indexInQuestions = questions?.findIndex(
       (q) => q.id === selectedQuestion?.id,
@@ -377,8 +343,6 @@ const TextVerification = ({
       return updatedInteraction;
     });
   };
-
-  console.log(interactions);
   const handleOptionChange = (selectedIndex, answer) => {
     setCurrentInteraction((prev) => {
       const newAnswers = questions?.map((question, i) => {
@@ -409,38 +373,6 @@ const TextVerification = ({
     });
   };
 
-  console.log(currentInteraction);
-  console.log(interactions);
-  console.log(forms);
-
-  // const handleRating = (rating, index) => {
-  // setCurrentInteraction((prev) => {
-
-  //   const updatedInteraction = {
-  //     ...prev,
-  //     rating: rating,
-  //   };
-  //   console.log("updatedinteraction: "+ updatedInteraction);
-  //   // setInteractions((prevInteractions) =>
-  //   //   prevInteractions.map((interaction) =>
-  //   //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-  //   //       ? updatedInteraction
-  //   //       : interaction
-  //   //   )
-  //   // );
-
-  //   setForms((prevInteractions) =>
-  //     prevInteractions.map((interaction) =>
-  //       interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-  //         ? updatedInteraction
-  //         : interaction
-  //     )
-  //   );
-
-  //   return updatedInteraction;
-  // });
-  // };
-
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
     setCurrentInteraction((prev) => {
@@ -448,15 +380,6 @@ const TextVerification = ({
         ...prev,
         additional_note: newNote,
       };
-
-      // setInteractions((prevInteractions) =>
-      //   prevInteractions.map((interaction) =>
-      //     interaction.prompt_output_pair_id === prev.prompt_output_pair_id
-      //       ? updatedInteraction
-      //       : interaction
-      //   )
-      // );
-
       setForms((prevForms) =>
         prevForms.map((form) =>
           form?.prompt_output_pair_id === prev.prompt_output_pair_id
@@ -473,15 +396,12 @@ const TextVerification = ({
     const markdownString = lines?.join("  \n");
     return markdownString;
   };
-  console.log(forms);
   const handleFormBtnClick = (e) => {
     const clickedPromptOutputPairId = parseInt(e.target.id);
-    console.log("clicked id" + clickedPromptOutputPairId);
     const currInteraction = forms?.find(
       (interaction) =>
         interaction?.prompt_output_pair_id === clickedPromptOutputPairId,
     );
-    console.log(currInteraction);
     if (currInteraction) {
       setCurrentInteraction({
         prompt: currInteraction?.prompt,
@@ -489,101 +409,14 @@ const TextVerification = ({
           ? currInteraction?.output?.map((item) => item.value).join(", ")
           : currInteraction.output,
         prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
-        // rating: currInteraction?.rating || null,
         additional_note: currInteraction?.additional_note || "",
         questions_response:
           currInteraction?.questions_response ||
           Array(questions.length).fill(null),
       });
-      // setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
     }
   };
-  // const handleQuestionClick = (question) => {
-  //   const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
-  //     return (
-  //       selectedQ?.input_question === question?.input_question &&
-  //       selectedQ?.question_type === question?.question_type
-  //     );
-  //   });
 
-  //   if (!isQuestionSelected) {
-  //     setSelectedQuestions([...selectedQuestions, question]);
-  //     setCurrentInteraction((prev) => {
-  //       const newResponse = {
-  //         question: question,
-  //         response: [],
-  //       };
-
-  //       const updatedQuestionsResponse = prev?.questions_response.some(
-  //         (response) =>
-  //           response.question?.input_question === question?.input_question &&
-  //           response.question?.question_type === question?.question_type
-  //       )
-  //         ? prev?.questions_response
-  //         : [...prev?.questions_response, newResponse];
-
-  //       const updatedInteraction = {
-  //         ...prev,
-  //         questions_response: updatedQuestionsResponse,
-  //       };
-
-  //       setForms((prevForms) =>
-  //         prevForms.map((form) =>
-  //           form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-  //             ? {
-  //                 ...form,
-  //                 questions_response: updatedQuestionsResponse,
-  //               }
-  //             : form
-  //         )
-  //       );
-
-  //       return updatedInteraction;
-  //     });
-  //   } else {
-  //     removeElement(question);
-  //   }
-  // };
-
-  // const removeElement = (questionToRemove) => {
-  //   setSelectedQuestions((prevQuestions) => {
-  //     const filteredQuestions = prevQuestions?.filter(
-  //       (q) =>
-  //         q?.input_question !== questionToRemove?.input_question ||
-  //         q?.question_type !== questionToRemove?.question_type
-  //     );
-  //     return filteredQuestions;
-  //   });
-
-  //   setCurrentInteraction((prev) => {
-  //     const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
-  //       return (
-  //         response.question?.input_question !== questionToRemove?.input_question ||
-  //         response.question?.question_type !== questionToRemove?.question_type
-  //       );
-  //     });
-
-  //     const updatedInteraction = {
-  //       ...prev,
-  //       questions_response: updatedQuestionsResponse,
-  //     };
-
-  //     setForms((prevForms) =>
-  //       prevForms.map((form) =>
-  //         form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
-  //           ? {
-  //               ...form,
-  //               questions_response: updatedQuestionsResponse,
-  //             }
-  //           : form
-  //       )
-  //     );
-
-  //     return updatedInteraction;
-  //   });
-  // };
-
-  // console.log("Selected : q" + JSON.stringify(selectedQuestions));
   const handleInputChange = (e, interactionIndex, blankIndex) => {
     const { value } = e.target;
 
@@ -724,10 +557,10 @@ const TextVerification = ({
                               type="text"
                               value={
                                 currentInteraction?.questions_response &&
-                                currentInteraction?.questions_response[i]
-                                  ?.response.length > 0
+                                  currentInteraction?.questions_response[i]
+                                    ?.response.length > 0
                                   ? currentInteraction?.questions_response[i]
-                                      ?.response[index]
+                                    ?.response[index]
                                   : ""
                               }
                               onChange={(e) => handleInputChange(e, i, index)}
@@ -785,15 +618,14 @@ const TextVerification = ({
                         (_, index) => (
                           <Button
                             key={index + 1}
-                            className={`${classes.numBtn} ${
-                              currentInteraction?.questions_response
+                            className={`${classes.numBtn} ${currentInteraction?.questions_response
                                 ? currentInteraction?.questions_response[i]
-                                    ?.response ==
+                                  ?.response ==
                                   index + 1
                                   ? classes.selected
                                   : ""
                                 : ""
-                            }`}
+                              }`}
                             label={index + 1}
                             onClick={() => handleRating(index + 1, i)}
                             style={{
@@ -837,8 +669,8 @@ const TextVerification = ({
                                 checked={
                                   currentInteraction?.questions_response
                                     ? currentInteraction?.questions_response[
-                                        i
-                                      ]?.response?.includes(option) ?? false
+                                      i
+                                    ]?.response?.includes(option) ?? false
                                     : ""
                                 }
                               />
@@ -871,7 +703,7 @@ const TextVerification = ({
                         value={
                           currentInteraction?.questions_response
                             ? currentInteraction?.questions_response[i]
-                                ?.response
+                              ?.response
                             : ""
                         }
                         onChange={(e) => handleMCQ(e.target.value, i)}
@@ -985,19 +817,6 @@ const TextVerification = ({
                 </Box>
               </AccordionSummary>
               <AccordionDetails style={{ display: "block", cursor: "pointer" }}>
-                {/* <Box
-                  sx={{
-                    width: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "wrap": "nowrap",
-                    maxWidth: "200px",
-                    maxHeight: "3rem",
-                  }}
-                  className={classes.answerTile}
-                >
-                  {typeof(pair.output)==="string"?pair?.output:pair?.output[0]?.value}
-                </Box> */}
                 <Box
                   sx={{
                     display: "flex",
@@ -1035,31 +854,6 @@ const TextVerification = ({
     );
   };
 
-  // const QuestionList = ({ questions }) => {
-  //   return (
-  //     <div style={{ height: "25rem", overflowY: "scroll", margin: "1.5rem 1.5rem 2rem 1.5rem" }}>
-  //       <div className={classes.questionList}>
-  //         {questions?.map((question, index) => (
-  //           <Box
-  //             key={index}
-  //             sx={{
-  //               padding: "10px",
-  //               margin: "5px 0",
-  //               backgroundColor: selectedQuestions.some((selectedQ) =>
-  //                 selectedQ?.input_question === question?.input_question &&
-  //                 selectedQ?.question_type === question?.question_type
-  //               ) ? "#d3d3d3" : "#fff",
-  //               cursor: "pointer",
-  //             }}
-  //             onClick={() => handleQuestionClick(question)}
-  //           >
-  //             {question.input_question}
-  //           </Box>
-  //         ))}
-  //       </div>
-  //     </div>
-  //   );
-  // };
 
   const InteractionDisplay = () => {
     return (
@@ -1069,7 +863,6 @@ const TextVerification = ({
           height: "100%",
         }}
         minWidth={"20%"}
-        // maxWidth={"70%"}
         enable={{ right: true, top: false, bottom: false, left: false }}
       >
         <div
@@ -1086,10 +879,6 @@ const TextVerification = ({
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
-        {/* <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
-          {translate("modal.quelist")}
-        </div>
-        <QuestionList questions={questions} /> */}
       </Resizable>
     );
   };

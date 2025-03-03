@@ -306,7 +306,6 @@ const SuperCheckerPage = () => {
                 (annotation) =>
                   annotation.parent_annotation === reviewerAnnotations[0]?.id,
               );
-              console.log(reviewerAnnotations, superCheckerAnnotation);
               reviewNotesRef.current.value =
                 reviewerAnnotations[0]?.review_notes ?? "";
               if (superCheckerAnnotation) {
@@ -556,7 +555,6 @@ const SuperCheckerPage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -573,14 +571,14 @@ const SuperCheckerPage = () => {
     const PatchAPIdata = {
       annotation_status:
         typeof window !== "undefined" &&
-        (value === "delete" || value === "delete-pair")
+          (value === "delete" || value === "delete-pair")
           ? localStorage.getItem("labellingMode")
           : value,
       supercheck_notes:
         typeof window !== "undefined"
           ? JSON.stringify(
-              superCheckerNotesRef?.current?.getEditor().getContents(),
-            )
+            superCheckerNotesRef?.current?.getEditor().getContents(),
+          )
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
@@ -619,7 +617,6 @@ const SuperCheckerPage = () => {
           "to_be_revised",
         ].includes(value)
       ) {
-        console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -677,21 +674,21 @@ const SuperCheckerPage = () => {
         }
         value === "delete"
           ? setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            })
+            open: true,
+            message: "Chat history has been cleared successfully!",
+            variant: "success",
+          })
           : value === "delete-pair"
             ? setSnackbarInfo({
-                open: true,
-                message: "Selected conversation is deleted",
-                variant: "success",
-              })
+              open: true,
+              message: "Selected conversation is deleted",
+              variant: "success",
+            })
             : setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "success",
-              });
+              open: true,
+              message: resp?.message,
+              variant: "success",
+            });
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -751,10 +748,10 @@ const SuperCheckerPage = () => {
           userAnnotation.result.length > 0
             ? [userAnnotation]
             : annotations.filter(
-                (annotation) =>
-                  annotation.id === userAnnotation.parent_annotation &&
-                  annotation.annotation_type === 2,
-              );
+              (annotation) =>
+                annotation.id === userAnnotation.parent_annotation &&
+                annotation.annotation_type === 2,
+            );
       } else if (
         ["validated", "validated_with_changes", "draft"].includes(
           userAnnotation.annotation_status,
@@ -829,9 +826,8 @@ const SuperCheckerPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
           handleClick={handleSuperCheckerClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -851,9 +847,8 @@ const SuperCheckerPage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -872,9 +867,8 @@ const SuperCheckerPage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1005,64 +999,64 @@ const SuperCheckerPage = () => {
             </div>
 
             {ProjectDetails.revision_loop_count >
-            taskData?.revision_loop_count?.super_check_count
+              taskData?.revision_loop_count?.super_check_count
               ? false
               : true && (
-                  <div
-                    style={{
-                      textAlign: "left",
-                      marginBottom: "5px",
-                      marginLeft: "8px",
-                      marginTop: "5px",
+                <div
+                  style={{
+                    textAlign: "left",
+                    marginBottom: "5px",
+                    marginLeft: "8px",
+                    marginTop: "5px",
+                  }}
+                >
+                  <Typography
+                    variant="body"
+                    color="#f5222d"
+                    sx={{
+                      fontSize: {
+                        xs: "14px",
+                        md: "16px",
+                        lg: "18px",
+                        xl: "20px",
+                      },
                     }}
                   >
-                    <Typography
-                      variant="body"
-                      color="#f5222d"
-                      sx={{
-                        fontSize: {
-                          xs: "14px",
-                          md: "16px",
-                          lg: "18px",
-                          xl: "20px",
-                        },
-                      }}
-                    >
-                      Note: The 'Revision Loop Count' limit has been reached for
-                      this task.
-                    </Typography>
-                  </div>
-                )}
+                    Note: The 'Revision Loop Count' limit has been reached for
+                    this task.
+                  </Typography>
+                </div>
+              )}
 
             {ProjectDetails.revision_loop_count -
               taskData?.revision_loop_count?.super_check_count !==
               0 && (
-              <div
-                style={{
-                  textAlign: "left",
-                  marginLeft: "8px",
-                  marginTop: "8px",
-                }}
-              >
-                <Typography
-                  variant="body"
-                  color="#f5222d"
-                  sx={{
-                    fontSize: {
-                      xs: "14px",
-                      md: "16px",
-                      lg: "18px",
-                      xl: "20px",
-                    },
+                <div
+                  style={{
+                    textAlign: "left",
+                    marginLeft: "8px",
+                    marginTop: "8px",
                   }}
                 >
-                  Note: This task can be rejected{" "}
-                  {ProjectDetails.revision_loop_count -
-                    taskData?.revision_loop_count?.super_check_count}{" "}
-                  more times.
-                </Typography>
-              </div>
-            )}
+                  <Typography
+                    variant="body"
+                    color="#f5222d"
+                    sx={{
+                      fontSize: {
+                        xs: "14px",
+                        md: "16px",
+                        lg: "18px",
+                        xl: "20px",
+                      },
+                    }}
+                  >
+                    Note: This task can be rejected{" "}
+                    {ProjectDetails.revision_loop_count -
+                      taskData?.revision_loop_count?.super_check_count}{" "}
+                    more times.
+                  </Typography>
+                </div>
+              )}
           </Box>
           <Grid
             container
@@ -1080,7 +1074,7 @@ const SuperCheckerPage = () => {
                   <div>
                     <div>
                       {ProjectDetails?.conceal == false &&
-                      Array.isArray(assignedUsers)
+                        Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -1256,7 +1250,7 @@ const SuperCheckerPage = () => {
                     }
                     disabled={
                       ProjectData.revision_loop_count >
-                      taskData?.revision_loop_count?.super_check_count
+                        taskData?.revision_loop_count?.super_check_count
                         ? false
                         : true
                     }
