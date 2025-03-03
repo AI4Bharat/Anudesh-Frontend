@@ -209,11 +209,6 @@ const InterAutomateDataset = () => {
 
   if (roles?.Annotator === loggedInUserData?.role) return navigate("/projects");
 
-  // const handleAPi_Type = (e) => {
-  //   setApi_type(e.target.value)
-  // }
-  console.log(srcDatasetType,srcInstances,DatasetInstances,loading);
-
   const handleChangeAutomatemissingitems = (event) => {
     setChecked(event.target.checked);
   };
@@ -370,21 +365,21 @@ const InterAutomateDataset = () => {
                         value: 1,
                       },
                       ...(roles?.OrganizationOwner === loggedInUserData?.role ||
-                      roles?.Admin === loggedInUserData?.role
+                        roles?.Admin === loggedInUserData?.role
                         ? [
-                            {
-                              name: "Google Translate",
-                              value: 2,
-                            },
-                            {
-                              name: "Microsoft Azure Translate",
-                              value: 3,
-                            },
-                            {
-                              name: "AI4Bharat IndicTrans V2",
-                              value: 4,
-                            },
-                          ]
+                          {
+                            name: "Google Translate",
+                            value: 2,
+                          },
+                          {
+                            name: "Microsoft Azure Translate",
+                            value: 3,
+                          },
+                          {
+                            name: "AI4Bharat IndicTrans V2",
+                            value: 4,
+                          },
+                        ]
                         : []),
                     ]}
                     handleChange={handleTransModelChange}

@@ -162,7 +162,7 @@ const AllTaskPage = () => {
       setLoading(false);
 
 
-      
+
     }
   }, [AnnotationsTaskDetails]);
 
@@ -172,7 +172,6 @@ const AllTaskPage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      console.log(AnnotationsTaskDetails);
       if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
@@ -338,7 +337,6 @@ const AllTaskPage = () => {
     const markdownString = lines.join("  \n");
     return markdownString;
   };
-console.log(annotations);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
@@ -377,9 +375,8 @@ console.log(annotations);
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
@@ -395,9 +392,8 @@ console.log(annotations);
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -415,9 +411,8 @@ console.log(annotations);
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
+            }`}
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -541,9 +536,9 @@ console.log(annotations);
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 1 && `ANNOTATION ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 2 && `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }

@@ -1,8 +1,8 @@
-import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
+import { Box, Grid, Button, Tooltip, Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
 import { Link, useNavigate } from "react-router-dom";
-import  "../../styles/Dataset.css";
+import "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
@@ -24,8 +24,8 @@ import { styled } from '@mui/material/styles';
 
 
 const Projectcard = (props) => {
-       /* eslint-disable react-hooks/exhaustive-deps */
-           /* eslint-disable-next-line react/jsx-key */
+  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable-next-line react/jsx-key */
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
@@ -56,7 +56,6 @@ const Projectcard = (props) => {
   };
 
   const handleAuthOpen = (project, title) => {
-    console.log(title);
     setSelectedProject(project);
     setOpenAuthDialog(true);
   };
@@ -94,7 +93,7 @@ const Projectcard = (props) => {
   };
 
 
- 
+
   const pageSearch = () => {
     return combinedData.filter((el) => {
       if (SearchProject == "") {
@@ -103,7 +102,7 @@ const Projectcard = (props) => {
         el.project_type?.toLowerCase().includes(SearchProject?.toLowerCase())
       ) {
         return el;
-      }  else if (
+      } else if (
         el.title?.toLowerCase().includes(SearchProject?.toLowerCase())
       ) {
         return el;
@@ -111,21 +110,23 @@ const Projectcard = (props) => {
         el.id.toString()?.toLowerCase()?.includes(SearchProject.toLowerCase())
       ) {
         return el;
-      }else if (
+      } else if (
         el.workspace_id.toString()?.toLowerCase().includes(SearchProject?.toLowerCase())
       ) {
-        return el;}
-        else if (
-          el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
-        ) {
-          return el;}
-          else if (
-            UserMappedByProjectStage(el.project_stage)
-              ?.name?.toLowerCase()
-              .includes(SearchProject?.toLowerCase())
-          ) {
-            return el;
-          }
+        return el;
+      }
+      else if (
+        el.tgt_language?.toLowerCase().includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      }
+      else if (
+        UserMappedByProjectStage(el.project_stage)
+          ?.name?.toLowerCase()
+          .includes(SearchProject?.toLowerCase())
+      ) {
+        return el;
+      }
     });
   };
 
@@ -144,9 +145,8 @@ const Projectcard = (props) => {
   };
 
   const filtersApplied = areFiltersApplied(selectedFilters);
-  console.log("filtersApplied", filtersApplied);
 
-    const CustomTooltip = styled(({ className, ...props }) => (
+  const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
@@ -164,28 +164,28 @@ const Projectcard = (props) => {
     <React.Fragment>
       {/* <Header /> */}
       {/* {loading && <Spinner />} */}
-      <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
+      <Grid sx={{ textAlign: "end", margin: "-20px 10px 10px 0px" }}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-                  {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
-        <CustomTooltip
-      title={
-        filtersApplied ? (
-          <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
-            {selectedFilters.project_type && <div><strong>Project Type:</strong> {selectedFilters.project_type}</div>}
-            {selectedFilters.project_user_type && <div><strong>Project User Type:</strong> {selectedFilters.project_user_type}</div>}
-            {selectedFilters.archived_projects && <div><strong>Archived Projects:</strong> {selectedFilters.archived_projects}</div>}
-        </Box>
-      ) : (
-      <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-        Filter Table
-      </span>
-      )  
-      }
-      disableInteractive
-    >
-      <FilterListIcon sx={{ color: '#515A5A' }} />
-    </CustomTooltip>
-      </Button>
+          {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />}
+          <CustomTooltip
+            title={
+              filtersApplied ? (
+                <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display: "flex", flexDirection: "column", gap: "5px" }}>
+                  {selectedFilters.project_type && <div><strong>Project Type:</strong> {selectedFilters.project_type}</div>}
+                  {selectedFilters.project_user_type && <div><strong>Project User Type:</strong> {selectedFilters.project_user_type}</div>}
+                  {selectedFilters.archived_projects && <div><strong>Archived Projects:</strong> {selectedFilters.archived_projects}</div>}
+                </Box>
+              ) : (
+                <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+                  Filter Table
+                </span>
+              )
+            }
+            disableInteractive
+          >
+            <FilterListIcon sx={{ color: '#515A5A' }} />
+          </CustomTooltip>
+        </Button>
       </Grid>
       {pageSearch().length > 0 && (
         <Box sx={{ margin: "0 auto", pb: 5 }}>
@@ -203,17 +203,17 @@ const Projectcard = (props) => {
                 return (
                   <Grid key={el.id} item xs={12} sm={6} md={4} lg={4} xl={4}>
                     {/* <div onClick={() => handleCardClick(el)}> */}
-                      <ProjectCard
-                        classAssigned={
-                          i % 2 === 0
-                            ? classes.projectCardContainer2
-                            : classes.projectCardContainer1
-                        }
-                        projectObj={el}
-                        projectData={projectData}
-                        handleAuthOpen={handleAuthOpen}
-                        index={i}
-                      />
+                    <ProjectCard
+                      classAssigned={
+                        i % 2 === 0
+                          ? classes.projectCardContainer2
+                          : classes.projectCardContainer1
+                      }
+                      projectObj={el}
+                      projectData={projectData}
+                      handleAuthOpen={handleAuthOpen}
+                      index={i}
+                    />
                     {/* </div> */}
                   </Grid>
                 );

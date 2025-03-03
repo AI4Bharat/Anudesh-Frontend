@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Popover,
@@ -51,7 +51,7 @@ const MenuProps = {
   variant: "menu",
 };
 export default function DeduplicateDataItems() {
-        /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const classes = DatasetStyle();
   const dispatch = useDispatch();
@@ -70,50 +70,51 @@ export default function DeduplicateDataItems() {
     open: false,
     message: "",
     variant: "success",
-});
-
-
-useEffect(() => {
-  const storedData = localStorage.getItem("Dataitem");
-
-  if (storedData!=="undefined") {
-      const Dataitems = JSON.parse(storedData);
-      setDataitemsvalues(Dataitems)  
-  }
-}, [])
-
-
-console.log(dataitemsvalues);
-useEffect(() => {
-  let fetchedItems =dataitemsvalues.results;
-
-
-let tempSelected = [];
-if (fetchedItems?.length) {
-  Object.keys(fetchedItems[0]).forEach((key) => {
-    
-      tempSelected.push({ name: key,
-        label: snakeToTitleCase(key),});
-  
   });
-}
-setSelectedColumns(tempSelected);
 
 
- }, [dataitemsvalues])
+  useEffect(() => {
+    const storedData = localStorage.getItem("Dataitem");
 
- useEffect(() => {
-  const newCols = columns.map(col => {
+    if (storedData !== "undefined") {
+      const Dataitems = JSON.parse(storedData);
+      setDataitemsvalues(Dataitems)
+    }
+  }, [])
+
+
+  useEffect(() => {
+    let fetchedItems = dataitemsvalues.results;
+
+
+    let tempSelected = [];
+    if (fetchedItems?.length) {
+      Object.keys(fetchedItems[0]).forEach((key) => {
+
+        tempSelected.push({
+          name: key,
+          label: snakeToTitleCase(key),
+        });
+
+      });
+    }
+    setSelectedColumns(tempSelected);
+
+
+  }, [dataitemsvalues])
+
+  useEffect(() => {
+    const newCols = columns.map(col => {
       col.options.display = selectedColumns.includes(col.name) ? "true" : "false";
       return col;
-  });
-  setColumns(newCols);
-  
-}, [selectedColumns]);
+    });
+    setColumns(newCols);
 
-const handleChange = (event) => {
+  }, [selectedColumns]);
+
+  const handleChange = (event) => {
     const value = event.target.value;
-   
+
     setDataitems(value);
   };
   const handleSearchSubmit = () => {
@@ -134,48 +135,48 @@ const handleChange = (event) => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setDataitems([])
-};
+  };
 
-const handleok = async() => {
-  const  datasetObj = new removeDuplicatesDatasetInstanceAPI(datasetId,dataitems.toString())
-       // dispatch(APITransport(datasetObj));
-        const res = await fetch(datasetObj.apiEndPoint(), {
-            method: "GET",
-            body: JSON.stringify(datasetObj.getBody()),
-            headers: datasetObj.getHeaders().headers,
-        });
-        const resp = await res.json();
-        if (res.ok) {
-            setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "success",
-            })
+  const handleok = async () => {
+    const datasetObj = new removeDuplicatesDatasetInstanceAPI(datasetId, dataitems.toString())
+    // dispatch(APITransport(datasetObj));
+    const res = await fetch(datasetObj.apiEndPoint(), {
+      method: "GET",
+      body: JSON.stringify(datasetObj.getBody()),
+      headers: datasetObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      })
 
-        } else {
-            setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "error",
-            })
-        } 
-        setOpenDialog(false);
-        setDataitems([])
-}
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      })
+    }
+    setOpenDialog(false);
+    setDataitems([])
+  }
 
-const renderSnackBar = () => {
+  const renderSnackBar = () => {
     return (
-        <CustomizedSnackbars
-            open={snackbar.open}
-            handleClose={() =>
-                setSnackbarInfo({ open: false, message: "", variant: "" })
-            }
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            variant={snackbar.variant}
-            message={snackbar.message}
-        />
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
     );
-};
+  };
 
   const emailId = localStorage.getItem("email_id");
   const [password, setPassword] = useState("");
@@ -189,14 +190,14 @@ const renderSnackBar = () => {
     const rsp_data = await res.json();
     if (res.ok) {
       handleok();
-    }else{
+    } else {
       window.alert("Invalid credentials, please try again");
     }
   };
 
   return (
     <div>
-         {renderSnackBar()}
+      {renderSnackBar()}
       <Button
         sx={{ width: "100%" }}
         aria-describedby={id}
@@ -204,10 +205,10 @@ const renderSnackBar = () => {
         color="error"
         onClick={handleClick}
         disabled={
-            dataitemsvalues.length < 0
-              ? true
-              : false
-          }
+          dataitemsvalues.length < 0
+            ? true
+            : false
+        }
       >
         Deduplicate Data Items
       </Button>
@@ -231,32 +232,32 @@ const renderSnackBar = () => {
               p: 1,
             }}
           >
-            <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{mt:2}}>
+            <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{ mt: 2 }}>
 
-            <FormControl className={classes.formControl} size="small">
-      <InputLabel id="Select-fields-to-deduplicate" sx={{ fontSize: "16px" }}>Select Fields to Deduplicate</InputLabel>
-      <Select
-        labelId="Select-fields-to-deduplicate"
-        label= "Select Fields to Deduplicate"
-        id="Select-fields-to-deduplicate"
-        multiple
-        value={dataitems}
-        onChange={handleChange}
-        renderValue={(selected) => selected.join(", ")}
-        MenuProps={MenuProps}
-      >
-        
-        {selectedColumns.map((option) => (
-          <MenuItem key={option.name} value={option.name}>
-            <ListItemIcon>
-              <Checkbox checked={dataitems.indexOf(option.name) > -1} />
-            </ListItemIcon>
-            <ListItemText primary={option.label} />
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-            
+              <FormControl className={classes.formControl} size="small">
+                <InputLabel id="Select-fields-to-deduplicate" sx={{ fontSize: "16px" }}>Select Fields to Deduplicate</InputLabel>
+                <Select
+                  labelId="Select-fields-to-deduplicate"
+                  label="Select Fields to Deduplicate"
+                  id="Select-fields-to-deduplicate"
+                  multiple
+                  value={dataitems}
+                  onChange={handleChange}
+                  renderValue={(selected) => selected.join(", ")}
+                  MenuProps={MenuProps}
+                >
+
+                  {selectedColumns.map((option) => (
+                    <MenuItem key={option.name} value={option.name}>
+                      <ListItemIcon>
+                        <Checkbox checked={dataitems.indexOf(option.name) > -1} />
+                      </ListItemIcon>
+                      <ListItemText primary={option.label} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
             </Grid>
           </Grid>
         </>
@@ -279,10 +280,10 @@ const renderSnackBar = () => {
             size="small"
             className={classes.clearAllBtn}
             disabled={
-                dataitems.length < 0
-                  ? true
-                  : false
-              }
+              dataitems.length < 0
+                ? true
+                : false
+            }
           >
             {" "}
             {translate("button.submit")}
@@ -291,43 +292,43 @@ const renderSnackBar = () => {
       </Popover>
 
       <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogContent>
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogContent>
 
-                    <DialogContentText id="alert-dialog-description">
-                    Are you sure you want to delete the Duplicate Data Items ? Please note this action cannot be undone. 
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="password"
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog}
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        className={classes.clearAllBtn} >
-                          Cancel
-                    </Button>
-                    <Button onClick={handleConfirm}
-                        variant="contained"
-                        color="primary"
-                        size="small" className={classes.clearAllBtn} autoFocus >
-                        Confirm
-                    </Button>
-                </DialogActions>
-            </Dialog>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete the Duplicate Data Items ? Please note this action cannot be undone.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="password"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="standard"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}
+            variant="outlined"
+            color="primary"
+            size="small"
+            className={classes.clearAllBtn} >
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm}
+            variant="contained"
+            color="primary"
+            size="small" className={classes.clearAllBtn} autoFocus >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

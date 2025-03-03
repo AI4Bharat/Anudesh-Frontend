@@ -5,7 +5,7 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material";
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import themeDefault from "../../../../themes/theme";
 import OutlinedTextField from "../../../../components/common/OutlinedTextField";
@@ -40,19 +40,18 @@ const BasicWorkspaceSettings = (props) => {
     setpublicanalytics((publicanalytics) => !publicanalytics);
   };
   const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
-  console.log(workspaceDetails)
   const getWorkspaceDetails = () => {
-      dispatch(fetchWorkspaceDetails(id));
+    dispatch(fetchWorkspaceDetails(id));
   }
 
   useEffect(() => {
-      getWorkspaceDetails();
+    getWorkspaceDetails();
   }, []);
 
   useEffect(() => {
-      setNewDetails({
-          workspace_name: workspaceDetails?.workspace_name
-      });
+    setNewDetails({
+      workspace_name: workspaceDetails?.workspace_name
+    });
   }, [workspaceDetails]);
   function snakeToTitleCase(str) {
     return str
@@ -66,36 +65,36 @@ const BasicWorkspaceSettings = (props) => {
   const handleSave = async () => {
 
     const sendData = {
-        workspace_name: newDetails.workspace_name,
-        organization: workspaceDetails.organization,
-        is_archived: workspaceDetails.is_archived,
-        public_analytics: publicanalytics
+      workspace_name: newDetails.workspace_name,
+      organization: workspaceDetails.organization,
+      is_archived: workspaceDetails.is_archived,
+      public_analytics: publicanalytics
     }
     const workspaceObj = new GetWorkspaceSaveButtonAPI(id, sendData);
     dispatch(APITransport(workspaceObj));
     const res = await fetch(workspaceObj.apiEndPoint(), {
-        method: "PUT",
-        body: JSON.stringify(workspaceObj.getBody()),
-        headers: workspaceObj.getHeaders().headers,
+      method: "PUT",
+      body: JSON.stringify(workspaceObj.getBody()),
+      headers: workspaceObj.getHeaders().headers,
     });
     const resp = await res.json();
     setLoading(false);
     if (res.ok) {
-        setSnackbarInfo({
-            open: true,
-            message: "success",
-            variant: "success",
-        })
+      setSnackbarInfo({
+        open: true,
+        message: "success",
+        variant: "success",
+      })
 
     } else {
-        setSnackbarInfo({
-            open: true,
-            message: resp?.message,
-            variant: "error",
-        })
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      })
     }
 
-}
+  }
 
 
   const handleWorkspaceName = (event) => {

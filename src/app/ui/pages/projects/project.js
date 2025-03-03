@@ -22,7 +22,6 @@ export default function ProjectList({ data }) {
 
   const dispatch = useDispatch();
   const [radiobutton, setRadiobutton] = useState(true);
-  console.log(data);
   const theme = useTheme();
 
   // const [loading, setLoading] = useState(true);
@@ -32,10 +31,10 @@ export default function ProjectList({ data }) {
     return savedFilters
       ? JSON.parse(savedFilters)
       : {
-          project_type: "",
-          project_user_type: "",
-          archived_projects: "",
-        };
+        project_type: "",
+        project_user_type: "",
+        archived_projects: "",
+      };
   });
 
   const [guestworkspace, setguestworkspace] = useState(false);
@@ -44,7 +43,6 @@ export default function ProjectList({ data }) {
     (state) => state.getProjects.status === "loading",
   );
   const projectData = useSelector((state) => state.getProjects.data);
-  console.log(projectData);
   useEffect(() => {
     dispatch(FetchLoggedInUserData("me"));
   }, []);
@@ -52,7 +50,6 @@ export default function ProjectList({ data }) {
   useEffect(() => {
     if (loggedInUserData) {
       if (loggedInUserData?.guest_user == true) {
-        console.log(loggedInUserData.guest_user);
         setguestworkspace(true);
       }
       dispatch(
@@ -71,8 +68,6 @@ export default function ProjectList({ data }) {
       JSON.stringify(selectedFilters),
     );
   }, [selectedFilters]);
-
-  console.log(data?.length, "hel");
 
   const handleProjectlist = () => {
     setRadiobutton(true);
@@ -120,7 +115,7 @@ export default function ProjectList({ data }) {
               </FormControl>
             </Grid>
 
-            <Grid item sx={{mt:1,mb:1,mr:2,ml:2}}>
+            <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
               <Search />
             </Grid>
           </Grid>

@@ -41,11 +41,10 @@ const AudioRecorder = ({ onTranscription, prompt }) => {
   const handleSetText = () => {
     if (mediaBlobUrl) {
       const recognizer = new window.webkitSpeechRecognition();
-      recognizer.lang = 'en-US'; // Default language
+      recognizer.lang = 'en-US';
       recognizer.interimResults = false;
       recognizer.maxAlternatives = 1;
-       
-      console.log(recognizer);
+
       recognizer.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         onTranscription(transcript);
@@ -72,7 +71,6 @@ const AudioRecorder = ({ onTranscription, prompt }) => {
       } else {
         recognizer.lang = 'en-US';
       }
-      console.log('Detected language:', recognizer.lang);
 
       audio.play();
     }
@@ -81,9 +79,8 @@ const AudioRecorder = ({ onTranscription, prompt }) => {
   useEffect(() => {
     if (mediaBlobUrl) {
       setAudioUrl(mediaBlobUrl);
-      prompt=mediaBlobUrl
+      prompt = mediaBlobUrl
     }
-    // Clean up recognizer when the component unmounts
     return () => {
       if (recognizer) {
         recognizer.onresult = null;

@@ -34,15 +34,15 @@ const DatasetFilterList = (props) => {
     filterStatusData,
     currentFilters,
     updateFilters,
-  
+
   } = props;
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [selectDatasetVisibility, setSelectDatasetVisibility] = useState(currentFilters.dataset_visibility || "");
   const [selectedDatasetType, setSelectedDatasetType] = useState(currentFilters.dataset_type || "");
-      const [type, setType] = useState([]);
+  const [type, setType] = useState([]);
 
-  
+
   const datasetType = useSelector(state => state.GetDatasetType.data);
   const getProjectDetails = () => {
     dispatch(fetchDatasetType());
@@ -71,18 +71,17 @@ const DatasetFilterList = (props) => {
   const handleChange = (e) => {
     updateFilters({
       ...currentFilters,
-      dataset_visibility :selectDatasetVisibility,
+      dataset_visibility: selectDatasetVisibility,
       dataset_type: selectedDatasetType,
 
     });
     props.handleClose();
   };
-  console.log(selectDatasetVisibility,selectedDatasetType);
 
   const handleChangeCancelAll = () => {
     updateFilters({
-        dataset_visibility: "",
-        dataset_type: "",
+      dataset_visibility: "",
+      dataset_type: "",
     });
     setSelectedDatasetType("")
     setSelectDatasetVisibility("")
@@ -106,7 +105,7 @@ const DatasetFilterList = (props) => {
         }}
       >
         <Grid container className={classes.filterContainer}>
-        {/* <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
+          {/* <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
         <Typography
               variant="body2"
               sx={{  mb: 1, fontWeight: "900" }}
@@ -122,15 +121,15 @@ const DatasetFilterList = (props) => {
               />
             </Grid> */}
 
-  <FormControl fullWidth size="small" >
-            <InputLabel id="dataset-type-label" sx={{ fontSize: "16px"}}>Dataset Type: </InputLabel>
+          <FormControl fullWidth size="small" >
+            <InputLabel id="dataset-type-label" sx={{ fontSize: "16px" }}>Dataset Type: </InputLabel>
             <Select
               labelId="dataset-type-label"
               id="dataset-type-select"
               value={selectedDatasetType}
               label="Dataset Type"
               onChange={(e) => setSelectedDatasetType(e.target.value)}
-             
+
             >
               {datasetType.map((type, index) => (
                 <MenuItem key={index} value={type} >
@@ -139,22 +138,22 @@ const DatasetFilterList = (props) => {
               ))}
             </Select>
           </FormControl>
-       
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{mt:2}}>
+
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mt: 2 }}>
             <Typography
               variant="body2"
-              sx={{  mb: 1, fontWeight: "900" }}
+              sx={{ mb: 1, fontWeight: "900" }}
             >
-            Dataset Visibility :
+              Dataset Visibility :
             </Typography>
             <FormGroup>
-              {datasetvisibility.map((type,i) => {
+              {datasetvisibility.map((type, i) => {
                 return (
                   <FormControlLabel
-                  key={i}
+                    key={i}
                     control={
                       <Radio
-                        checked={ selectDatasetVisibility === type }
+                        checked={selectDatasetVisibility === type}
                         key={i}
                         name={type}
                         color="primary"
@@ -171,7 +170,7 @@ const DatasetFilterList = (props) => {
               })}
             </FormGroup>
           </Grid>
-         
+
         </Grid>
         <Divider />
         <Box
@@ -181,7 +180,7 @@ const DatasetFilterList = (props) => {
             justifyContent: "flex-end",
             alignItems: "center",
             columnGap: "10px",
-            padding:"15px"
+            padding: "15px"
           }}
         >
           <Button

@@ -47,7 +47,7 @@ export default function DeleteDataItems() {
               const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=JSON`);
               const response = await fetch(params.url, params.options);
               const jsonData = await response.json();
-              console.log(jsonData)
+           
               setData(jsonData)
               
             } catch (err) {
@@ -58,7 +58,7 @@ export default function DeleteDataItems() {
           fetchDataset();
         }
       }, [datasetId]);
-      console.log(JSON.stringify(data))
+      
 
       useEffect(() => {
         if (data && data.length > 0) {
@@ -66,13 +66,11 @@ export default function DeleteDataItems() {
             let filtered;
             const idsToDelete = dataIds.split(',').map(id => Number(id.trim())); // Use trim()
     
-            console.log(idsToDelete);
             if (radiobutton) {
               filtered = data.filter(item => item.id >= startdataid && item.id <= enddataid);
             } else {
                 filtered = data.filter(item => idsToDelete.includes(Number(item.id)));
     
-              console.log(filtered)
             }
             setFilteredData(filtered);
            
@@ -80,7 +78,6 @@ export default function DeleteDataItems() {
           filterData();
         }
       }, [data, startdataid, enddataid, radiobutton, dataIds]);
-      console.log(JSON.stringify(filteredData))
     const Dataitems = JSON.parse( localStorage.getItem("DataitemsList"))
 
     const handleClick = (event) => {

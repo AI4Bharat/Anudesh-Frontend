@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 const DatasetCard = (props) => {
 
     const { datasetObj } = props
-    console.log(datasetObj.instance_id);
     return (
         <Link to={`/datasets/${datasetObj.instance_id}`} style={{ textDecoration: "none" }}>
             <Grid
@@ -21,31 +20,31 @@ const DatasetCard = (props) => {
             >
                 <Typography
                     variant="h5"
-                    sx={{ mt: 4, textAlign: "center", color: "secondary.contrastText", backgroundColor: "primary.contrastText", borderRadius: 3, pt: 1, pb: 1, fontSize:"1.125rem"}}
+                    sx={{ mt: 4, textAlign: "center", color: "secondary.contrastText", backgroundColor: "primary.contrastText", borderRadius: 3, pt: 1, pb: 1, fontSize: "1.125rem" }}
                 >{datasetObj.instance_name}
                 </Typography>
                 <Grid
                     container
                     direction="row"
                     justifyContent={"space-around"}
-                    sx={{mt:1, mb:2}}
+                    sx={{ mt: 1, mb: 2 }}
                     spacing={3}
-                    columnSpacing={{xs: 10, sm: 10, md: 10}}
+                    columnSpacing={{ xs: 10, sm: 10, md: 10 }}
                 >
                     <Grid
                         item
                     >
                         <Typography variant="lightText">Type</Typography>
-                        <Typography variant="body2" sx={{ color: "primary.contrastText", mt : 0.5, fontWeight : "500" }}>{datasetObj.dataset_type}</Typography>
+                        <Typography variant="body2" sx={{ color: "primary.contrastText", mt: 0.5, fontWeight: "500" }}>{datasetObj.dataset_type}</Typography>
                     </Grid>
                     <Grid
                         item
                     >
                         <Typography variant="lightText">Dataset ID</Typography>
-                        <Typography variant="body2" sx={{ color: "primary.contrastText" , mt : 0.5, fontWeight : "500"}}>{datasetObj.instance_id}</Typography>
+                        <Typography variant="body2" sx={{ color: "primary.contrastText", mt: 0.5, fontWeight: "500" }}>{datasetObj.instance_id}</Typography>
                     </Grid>
                 </Grid>
-                
+
                 {/* <Typography variant="lightText">Description</Typography>
                 <Typography variant="body2" sx={{ color: "primary.contrastText" }}>{datasetObj.instance_description}</Typography> */}
 

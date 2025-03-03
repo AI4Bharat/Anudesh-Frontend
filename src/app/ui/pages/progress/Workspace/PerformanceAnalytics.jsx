@@ -44,7 +44,7 @@ import APITransport from "@/Lib/apiTransport/apitransport";
 import axios from "axios";
 import PerformanceAnalyticsAPI from "@/app/actions/api/Progress/PerformanceAnalytics";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
-import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import wsPerformanceAnalyticsAPI from "@/app/actions/api/Progress/wsPerformanceAnalytics";
 
@@ -137,7 +137,7 @@ const options = {
 };
 
 export default function PerformanceAnalytics() {
-     /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
@@ -151,7 +151,7 @@ export default function PerformanceAnalytics() {
   const [performanceAnalyticsTasksData, setPerformanceAnalyticsTasksData] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  
+
 
   const ref = useRef();
   var now = new Date();
@@ -183,7 +183,7 @@ export default function PerformanceAnalytics() {
   //      "InstructionDrivenChat",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
-      
+
   //   } 
   // }, [ProjectTypes, radiobutton]);
 
@@ -195,7 +195,7 @@ export default function PerformanceAnalytics() {
   //      "InstructionDrivenChat",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
-      
+
   //   } 
   // }, [ProjectTypes, radiobutton]);
 
@@ -207,7 +207,7 @@ export default function PerformanceAnalytics() {
   //      "InstructionDrivenChat",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
-      
+
   //   } 
   // }, [ProjectTypes, radiobutton]);
 
@@ -220,51 +220,50 @@ export default function PerformanceAnalytics() {
   };
 
   const handleSubmit = async () => {
-    console.log(selectedType);
     setShowPicker(false)
     setLoading(true);
-    metaInfo?
-    AudioTypes.includes(selectedType)?
-    options["scales"]["y"]["title"]["text"]="Compleated Audio Duration(Hrs)":
-    options["scales"]["y"]["title"]["text"]="Compleated Word Count":
-    options["scales"]["y"]["title"]["text"]="Compleated Tasks Count"
+    metaInfo ?
+      AudioTypes.includes(selectedType) ?
+        options["scales"]["y"]["title"]["text"] = "Compleated Audio Duration(Hrs)" :
+        options["scales"]["y"]["title"]["text"] = "Compleated Word Count" :
+      options["scales"]["y"]["title"]["text"] = "Compleated Tasks Count"
     const wsId = workspaceDetails.id
 
     const payload = {
       project_type: selectedType,
       periodical_type: baseperiod,
-      language : language,
+      language: language,
       start_date: format(baseperiodDatepicker[0].startDate, 'yyyy-MM-dd'),
-      end_date: format(baseperiodDatepicker[0].endDate, 'yyyy-MM-dd'), 
-      ...(radiobutton==="Review" && {reviewer_reports:true})    ,
-      ...(radiobutton==="Supercheck" && {supercheck_reports:true})
-      };
+      end_date: format(baseperiodDatepicker[0].endDate, 'yyyy-MM-dd'),
+      ...(radiobutton === "Review" && { reviewer_reports: true }),
+      ...(radiobutton === "Supercheck" && { supercheck_reports: true })
+    };
     const performanceAnalyticsAPIObj = new wsPerformanceAnalyticsAPI(payload, wsId, metaInfo);
     await axios.post(performanceAnalyticsAPIObj.apiEndPoint(), performanceAnalyticsAPIObj.getBody(), performanceAnalyticsAPIObj.getHeaders())
-    .then(response => {
+      .then(response => {
         if (response.statusText === "OK") {
-        setPerformanceAnalyticsTasksData(response.data);
-        setTimeout(() => {
-          setLoading(false); 
-        },1000)
-        // setLoading(false);
+          setPerformanceAnalyticsTasksData(response.data);
+          setTimeout(() => {
+            setLoading(false);
+          }, 1000)
+          // setLoading(false);
         } else {
           setTimeout(() => {
-            setLoading(false); 
-          },1000)
-        //setLoading(false);
-        setPerformanceAnalyticsTasksData([])
+            setLoading(false);
+          }, 1000)
+          //setLoading(false);
+          setPerformanceAnalyticsTasksData([])
         }
-    })
+      })
 
-    
-    .catch(err => {
-      setTimeout(() => {
-        setLoading(false); 
-      },1000)
+
+      .catch(err => {
+        setTimeout(() => {
+          setLoading(false);
+        }, 1000)
         //setLoading(false);
         setPerformanceAnalyticsTasksData([])
-    })
+      })
   };
   const showSnackbar = (message) => {
     setSnackbarMessage(message);
@@ -283,16 +282,16 @@ export default function PerformanceAnalytics() {
     let entries = [];
     for (let i of performanceAnalyticsTasksData) {
       labels.push(i["date_range"]);
-      if (metaInfo && AudioTypes.includes(selectedType)){
+      if (metaInfo && AudioTypes.includes(selectedType)) {
         let t = i["data"][0]["periodical_aud_duration"]
         t = t.split(':')
-        let hoursInDecimal=parseFloat(parseInt(t[0], 10) + parseInt(t[1], 10)/60 + parseInt(t[2], 10)/3600);
+        let hoursInDecimal = parseFloat(parseInt(t[0], 10) + parseInt(t[1], 10) / 60 + parseInt(t[2], 10) / 3600);
         entries.push(hoursInDecimal)
       }
-      else if (metaInfo){
+      else if (metaInfo) {
         entries.push(i["data"][0]["periodical_word_count"]);
       }
-      else{
+      else {
         entries.push(i["data"][0]["periodical_tasks_count"]);
       }
     }
@@ -301,7 +300,7 @@ export default function PerformanceAnalytics() {
       labels: labels,
       datasets: [
         {
-          label: `${metaInfo?"Word Counts":"Task Count"}`,
+          label: `${metaInfo ? "Word Counts" : "Task Count"}`,
           data: entries,
           backgroundColor: "rgba(255, 0, 0)",
           fill: {
@@ -439,23 +438,23 @@ export default function PerformanceAnalytics() {
           </Grid>
 
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "19px", zIndex: 0 }}>
-                  Plot Range {""}
-                  </InputLabel>
-                  <Select
-                    labelId="project-type-label"
-                    id="project-type-select"
-                    label="Plot Range"
-                    value={baseperiod}
-                    onChange={handleProgressType}
-                    sx={{ textTransform: "capitalize"}}
-                  >
-                    {ProgressType.map((item, index) => (
-                        <MenuItem key={index} value={item.ProgressTypename} sx={{ textTransform: "capitalize"}}>{item.ProgressTypename}</MenuItem>  
-                    ))}
-                  </Select>
-                </FormControl>
+            <FormControl fullWidth size="small">
+              <InputLabel id="demo-simple-select-label" sx={{ fontSize: "19px", zIndex: 0 }}>
+                Plot Range {""}
+              </InputLabel>
+              <Select
+                labelId="project-type-label"
+                id="project-type-select"
+                label="Plot Range"
+                value={baseperiod}
+                onChange={handleProgressType}
+                sx={{ textTransform: "capitalize" }}
+              >
+                {ProgressType.map((item, index) => (
+                  <MenuItem key={index} value={item.ProgressTypename} sx={{ textTransform: "capitalize" }}>{item.ProgressTypename}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
 
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
@@ -494,27 +493,27 @@ export default function PerformanceAnalytics() {
               </Select>
             </FormControl>
           </Grid>
-        <div style={{display: "flex"}}>
-          <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
-            <div>
-            <Button
-              endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
-              variant="contained"
-              color="primary"
-              onClick={handleCloseDatepicker}
-              sx={{
-                backgroundColor: "rgba(243, 156, 18)",
-                "&:hover": { backgroundColor: "rgba(243, 156, 18 )" },
-                marginLeft: "20px",
-                marginTop: "18px",
-                width: "150px",
-                flexShrink: 0,
-              }}
-            >
-              Pick Dates
-            </Button>
-            </div>
-          </Grid>
+          <div style={{ display: "flex" }}>
+            <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
+              <div>
+                <Button
+                  endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleCloseDatepicker}
+                  sx={{
+                    backgroundColor: "rgba(243, 156, 18)",
+                    "&:hover": { backgroundColor: "rgba(243, 156, 18 )" },
+                    marginLeft: "20px",
+                    marginTop: "18px",
+                    width: "150px",
+                    flexShrink: 0,
+                  }}
+                >
+                  Pick Dates
+                </Button>
+              </div>
+            </Grid>
           </div>
           {/* <Grid item xs={12} sm={12} md={1} lg={1} xl={1}>
             <Button
@@ -528,15 +527,15 @@ export default function PerformanceAnalytics() {
           </Grid> */}
         </Grid>
         <Grid container mt={4}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleSubmit}
-              sx={{ width: "130px" }}
-            >
-              Submit
-            </Button>
-          </Grid>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleSubmit}
+            sx={{ width: "130px" }}
+          >
+            Submit
+          </Button>
+        </Grid>
         {showPicker && (
           <Box
             sx={{
@@ -598,15 +597,15 @@ export default function PerformanceAnalytics() {
                       );
                     },
                   },
-                ].filter((staticRange)=>staticRange.label!=="Today" && staticRange.label!=="Yesterday")}
+                ].filter((staticRange) => staticRange.label !== "Today" && staticRange.label !== "Yesterday")}
               />
             </Card>
           </Box>
         )}
         {/* </Grid> */}
       </Grid>
-      {loading && <Box sx={{ display: 'flex',justifyContent: "center",width: "100%" }}><CircularProgress /></Box>}
-      {performanceAnalyticsTasksData?.length && !loading?<Line data={chartData} options={options} />:<div></div> }
+      {loading && <Box sx={{ display: 'flex', justifyContent: "center", width: "100%" }}><CircularProgress /></Box>}
+      {performanceAnalyticsTasksData?.length && !loading ? <Line data={chartData} options={options} /> : <div></div>}
 
       <CustomizedSnackbars
         message={snackbarMessage}

@@ -22,11 +22,9 @@ const ProjectCard = (props) => {
   const { projectObj ,projectData,handleAuthOpen} = props;
 
   const handleCardClick = (el) => {
-    console.log(projectObj);
     const isExcluded = projectData && projectData.excluded_projects && projectData.excluded_projects?.some(
       (excludedProject) => excludedProject.id === el.id
     )
-    console.log(loggedInUserData?.guest_user,isExcluded,projectObj);
 
     if (loggedInUserData?.guest_user==true && isExcluded==true) {
       handleAuthOpen(el, el.title);

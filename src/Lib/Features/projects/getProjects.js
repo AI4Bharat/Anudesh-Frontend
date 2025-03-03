@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchProjects = createAsyncThunk(
   'getProjects/fetchProjects',
-  async ({selectedFilters,guestworkspace}) => {
+  async ({ selectedFilters, guestworkspace }) => {
     let queryString = "";
 
     for (let key in selectedFilters) {
@@ -30,13 +30,12 @@ export const fetchProjects = createAsyncThunk(
         }
       }
     }
-    console.log(guestworkspace);
-    if(guestworkspace==true){
+    if (guestworkspace == true) {
       queryString += `${queryString ? '&' : ''}guest_view=true`;
     }
     const params = fetchParams(`${ENDPOINTS.getProjects}projects_list/optimized/?${queryString}`);
     return fetch(params.url, params.options)
-        .then(response => response.json())
+      .then(response => response.json())
   }
 );
 
