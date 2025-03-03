@@ -1,7 +1,6 @@
-// MembersTable
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import CustomButton from "../common/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import UserMappedByRole from "../../utils/UserMappedByRole";
@@ -22,6 +21,7 @@ import {
   Select,
   TablePagination,
   Box,
+  Skeleton
 } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
@@ -42,6 +42,25 @@ import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSug
 import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
 import APITransport from "@/Lib/apiTransport/apitransport";
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
 
 const columns = [
   {
@@ -102,9 +121,8 @@ const addLabel = {
 
 const MembersTable = (props) => {
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [displayWidth, setDisplayWidth] = useState(0);
   const { orgId, id } = useParams();
-  // const id=1;
-  // const orgId =1;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
@@ -135,6 +153,23 @@ const MembersTable = (props) => {
     (state) => state.searchProjectCard?.searchValue,
   );
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
+
+  useEffect(() => {
+      const handleResize = () => {
+        setDisplayWidth(window.innerWidth);
+      };
+  
+      if (typeof window !== 'undefined') {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+      }
+  
+      return () => {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('resize', handleResize);
+        }
+      };
+    }, []);
 
   const columns = [
     {
@@ -841,11 +876,14 @@ const MembersTable = (props) => {
 
       <ThemeProvider theme={tableTheme} sx={{ marginTop: "20px" }}>
         <MUIDataTable
+        key={`table-${displayWidth}`}
           title={""}
           data={data}
           columns={columns}
-          options={options}
-          // filter={false}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
     </React.Fragment>

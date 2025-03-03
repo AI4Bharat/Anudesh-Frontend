@@ -24,10 +24,10 @@ const MUIDataTable = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton 
-        variant="rectangular" 
+      <Skeleton
+        variant="rectangular"
         height={400}
-        sx={{ 
+        sx={{
           mx: 2,
           my: 3,
           borderRadius: '4px',
@@ -484,7 +484,7 @@ const ProjectCardList = (props) => {
 
   return (
     <>
-            <ThemeProvider theme={tableTheme}>
+      <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           key={`table-${displayWidth}`}
           title={""}
