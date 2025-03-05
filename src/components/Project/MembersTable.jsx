@@ -95,6 +95,7 @@ const options = {
 
 const addLabel = {
   organization: "Invite Users to Organization",
+  dataset:"Add Members to Dataset",
   [addUserTypes.PROJECT_ANNOTATORS]: "Add Annotators to Project",
   [addUserTypes.PROJECT_REVIEWER]: "Add Reviewers to Project",
   [addUserTypes.PROJECT_SUPERCHECKER]: "Add SuperChecker to Project",
