@@ -1,4 +1,4 @@
-import { Grid, Select, MenuItem, InputLabel, FormControl, Box, styled, Menu } from "@mui/material";
+import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu } from "@mui/material";
 import React from "react";
 // import TaskAnalyticsDataAPI from "@/app/actions/api/Progress/TaskAnalytics";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,7 +44,7 @@ const StyledMenu = styled((props) => (
 
 
 const TaskAnalytics = () => {
-  /* eslint-disable react-hooks/exhaustive-deps */
+    /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
   const [projectTypes, setProjectTypes] = useState([]);
@@ -58,6 +58,7 @@ const TaskAnalytics = () => {
   const taskAnalyticsDataJson = useSelector((state) => state.wsgetTaskAnalytics.originalData);
 
   const [loading, setLoading] = useState(false);
+console.log(selectedType);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
@@ -66,8 +67,8 @@ const TaskAnalytics = () => {
 
   const getTaskAnalyticsdata = () => {
     setLoading(true)
-    const userObj = new wsTaskAnalyticsAPI(workspaceDetails?.id, selectedType);
-    dispatch(fetchwsTaskAnalyticsData({ id: workspaceDetails?.id, project_type_filter: selectedType }))
+    const userObj = new wsTaskAnalyticsAPI(workspaceDetails?.id,selectedType);
+    dispatch(fetchwsTaskAnalyticsData({id:workspaceDetails?.id,project_type_filter:selectedType}))
   };
 
   const showSnackbar = (message) => {
@@ -78,13 +79,13 @@ const TaskAnalytics = () => {
   const closeSnackbar = () => {
     setSnackbarOpen(false);
   };
-  const audioProjectTypes = [
+  const audioProjectTypes=[
     'AudioTranscription',
     'AudioSegmentation',
     'AudioTranscriptionEditing',
     'AcousticNormalisedTranscriptionEditing'
   ]
-  const translationProjectTypes = [
+  const translationProjectTypes=[
     'MonolingualTranslation',
     'TranslationEditing',
     'SemanticTextualSimilarity_Scale5',
@@ -93,17 +94,17 @@ const TaskAnalytics = () => {
     'ContextualSentenceVerification',
     'ContextualSentenceVerificationAndDomainClassification',
   ]
-  const conversationProjectTypes = [
+  const conversationProjectTypes=[
     'ConversationTranslation',
     'ConversationTranslationEditing',
     'ConversationVerification'
   ]
-  const ocrProjectTypes = [
+  const ocrProjectTypes=[
     'OCRTranscriptionEditing',
   ]
 
   useEffect(() => {
-    let types = ["ModelOutputEvaluation", "ModelInteractionEvaluation", "InstructionDrivenChat", 'AllTypes']
+    let types=["ModelOutputEvaluation","ModelInteractionEvaluation","InstructionDrivenChat",'AllTypes']
     setProjectTypes(types);
   }, []);
 
@@ -113,11 +114,11 @@ const TaskAnalytics = () => {
 
 
   const handleSubmit = async () => {
-    getTaskAnalyticsdata();
+      getTaskAnalyticsdata();
   };
 
   useEffect(() => {
-    if (taskAnalyticsData.length >= 0) {
+    if(taskAnalyticsData.length >= 0){
       setLoading(false);
     }
   }, [taskAnalyticsData]);
@@ -146,35 +147,35 @@ const TaskAnalytics = () => {
     const doc = new jsPDF();
     let yOffset = 10;
     const pageHeight = doc.internal.pageSize.height;
-
+  
     doc.setFontSize(18);
     doc.text("Task Analytics Report", 10, yOffset);
     yOffset += 20;
-
+  
     taskAnalyticsData.forEach((dataArray, index) => {
       if (dataArray.length) {
         const projectType = dataArray[0].projectType;
         doc.setFontSize(14);
         doc.text(`Project Type: ${projectType}`, 10, yOffset);
         yOffset += 10;
-
+  
         doc.setFontSize(12);
         dataArray.forEach((data, i) => {
           doc.text(`Language: ${data.languages || 'N/A'}`, 10, yOffset);
           doc.text(`Ann Cumulative Tasks Count: ${data.annotation_cumulative_tasks_count || 'N/A'}`, 10, yOffset + 5);
           doc.text(`Rew Cumulative Tasks Count: ${data.review_cumulative_tasks_count || 'N/A'}`, 10, yOffset + 10);
           yOffset += 25;
-
-          if (yOffset > pageHeight - 30) {
+  
+          if (yOffset > pageHeight - 30) { 
             doc.addPage();
             yOffset = 10;
           }
         });
-
-        yOffset += 10;
+  
+        yOffset += 10; 
       }
     });
-
+  
     doc.save('task_analytics.pdf');
   };
   const downloadJSON = () => {
@@ -192,7 +193,7 @@ const TaskAnalytics = () => {
       const exportType = exportFromJSON.types.json;
       exportFromJSON({ data: transformedData, fileName, exportType });
     }
-  }; const handleClick = (event) => {
+  };  const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
 
   };
@@ -200,96 +201,95 @@ const TaskAnalytics = () => {
 
   return (
     <>
-      <Grid container columnSpacing={3} rowSpacing={2} mb={1} gap={1}>
-        <Grid
-          container
-          item
-          xs={12}
-          sm={12}
-          md={12}
-          lg={4}
-          xl={4}
-          spacing={1}
-          alignItems="center"
-        ><Grid item xs={12} sm={6} md={6} lg={6} xl={6}>      <FormControl size="small">
-          <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
-            Project Type {" "}
-            {
-              <LightTooltip
-                arrow
-                placement="top"
-                title={translate("tooltip.ProjectType")}>
-                <InfoIcon
-                  fontSize="medium"
-                />
-              </LightTooltip>
-            }
-          </InputLabel>
+<Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={1}>
+      <Grid
+      container
+      item
+      xs={12}
+      sm={12}
+      md={12}
+      lg={4}
+      xl={4}
+      spacing={1}
+      alignItems="center"
+    ><Grid item xs={12} sm={6} md={6} lg={6} xl={6}>      <FormControl  size="small">
+            <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px",zIndex: 0 }}>
+              Project Type {" "}
+              {
+                <LightTooltip
+                  arrow
+                  placement="top"
+                  title={translate("tooltip.ProjectType")}>
+                  <InfoIcon
+                    fontSize="medium"
+                  />
+                </LightTooltip>
+              }
+            </InputLabel>
 
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedType}
-            label="Project Type"
-            sx={{ padding: "1px" }}
-            onChange={(e) => setSelectedType(e.target.value)}
-            MenuProps={MenuProps}
-          >
-            {projectTypes.map((type, index) => (
-              <MenuItem value={type} key={index}>
-                {type}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedType}
+              label="Project Type"
+              sx={{padding:"1px"}}
+              onChange={(e) => setSelectedType(e.target.value)}
+              MenuProps={MenuProps}
+            >
+              {projectTypes.map((type, index) => (
+                <MenuItem value={type} key={index}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           </Grid>
-        </Grid>
-        <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <CustomButton
-              label="Submit"
-              sx={{ width: "35%", height: "40px" }}
-              onClick={handleSubmit}
-              size="small"
-            />
+      <CustomButton
+        label="Submit"
+        sx={{ width: "35%", height: "40px" }}
+        onClick={handleSubmit}
+        size="small"
+      />
 
-            {/* Download Button */}
-            <Box display="flex" alignItems="center" sx={{ width: "45%" }}>
-              <CustomButton
-                onClick={handleClick}
-                disabled={loading}
-                sx={{ width: "100%", height: "40px" }}
-                endIcon={<KeyboardArrowDown />}
-                label="Download"
-              >
-                Download
-              </CustomButton>
-              <StyledMenu
-                id="demo-customized-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-                <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-                <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-              </StyledMenu>
-            </Box>
+      {/* Download Button */}
+      <Box display="flex" alignItems="center" sx={{ width: "45%" }}>
+      <CustomButton
+          onClick={handleClick}
+          disabled={loading}
+          sx={{ width: "100%", height: "40px" }}
+          endIcon={<KeyboardArrowDown />}
+          label="Download"
+        >
+          Download
+        </CustomButton>
+            <StyledMenu
+              id="demo-customized-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={downloadCSV}>CSV</MenuItem>
+              <MenuItem onClick={downloadPDF}>PDF</MenuItem>
+              <MenuItem onClick={downloadJSON}>JSON</MenuItem>
+            </StyledMenu>
           </Box>
-        </Grid>
+          </Box>
       </Grid>
-
+        </Grid>
+      
       {loading && <Spinner />}
       {taskAnalyticsData.length ?
-        taskAnalyticsData.map((analyticsData, _index) => {
-
-          if (analyticsData.length) {
-            return <Grid key={_index} style={{ marginTop: "15px" }}>
-              <TaskCountAnalyticsChart analyticsData={analyticsData} />
-            </Grid>
-          }
+        taskAnalyticsData.map((analyticsData,_index)=>{
+          
+          if(analyticsData.length){ 
+            return <Grid key={_index} style={{marginTop:"15px"}}>
+            <TaskCountAnalyticsChart analyticsData={analyticsData}/>
+          </Grid>}
         })
-        : ''}
+      :''}
       <CustomizedSnackbars
         message={snackbarMessage}
         open={snackbarOpen}

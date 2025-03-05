@@ -190,6 +190,7 @@ const DatasetCardList = (props) => {
   };
 
   const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
 
   const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />

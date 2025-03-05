@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Button,
   Divider,
@@ -18,14 +18,14 @@ import {
   NativeSelect
 } from "@mui/material";
 import { translate } from "../../config/localisation";
-import "../../styles/Dataset.css";
+import  "../../styles/Dataset.css";
 import { snakeToTitleCase } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { Stack } from "@mui/material";
 
 const FilterList = (props) => {
-
-  const { filterStatusData, currentFilters, updateFilters, pull, setpull, rejected, setRejected, selectedStatus, setSelectedStatus, pullvalue } = props;
+  
+  const { filterStatusData, currentFilters, updateFilters, pull, setpull, rejected, setRejected,selectedStatus,setSelectedStatus, pullvalue } = props;
   const [selectAnnotator, setSelectAnnotator] = useState("All");
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
@@ -62,17 +62,36 @@ const FilterList = (props) => {
   }, [selectedStatus, pull, rejected]);
 
 
+  console.log(filterStatusData, selectedStatus, currentFilters,rejected,pull);
   const pulledstatus = currentFilters?.annotation_status ? ["Pulled By reviewer", "Not Pulled By reviewer"]
     : currentFilters?.review_status ? ["Pulled By SuperChecker", "Not Pulled By SuperChecker"] : null;
   const handleStatusChange = (e) => {
     let statusvalue = !!currentFilters?.annotation_status ? "annotation_status" : "review_status"
-
+    // let pullvalue = (pull == 'Pulled By reviewer' || pull == 'Pulled By SuperChecker') ? false :
+    //   (pull == 'Not Pulled By reviewer' || pull == 'Not Pulled By SuperChecker') ? true :
+    //     ''
+    console.log(pullvalue);
     updateFilters({
       ...currentFilters,
       [statusvalue]: selectedStatus,
+      // ["editable"]: pullvalue
     })
     props.handleClose();
   };
+  // const handleClearAll = () => {
+  //   setSelectedStatus([]);
+  //   setSelectedType([]);
+  //   clearAll({ datasetType: [], status: [] });
+  // };
+  // const isChecked = (type, param) => {
+  //   const index =
+  //     param === "status"
+  //       ? selectedStatus.indexOf(type)
+  //       : selectedType.indexOf(type);
+  //   if (index > -1) return true;
+  //   return false;
+  // };
+
   return (
     <div>
       <Popover
@@ -171,29 +190,29 @@ const FilterList = (props) => {
                   </FormControl> : null
 
               }
-              {currentFilters?.annotation_status && selectedStatus !== "unlabeled" ?
-                <FormControl sx={{ m: 1, minWidth: 125 }} size="small" >
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={rejected}
-                        onChange={() => setRejected(!rejected)}
-                      />
-                    }
-                    label={currentFilters?.annotation_status ? "Rejected By reviewer" : currentFilters?.review_status ? "Rejected By SuperChecker" : null}
-                  />
-                </FormControl> : currentFilters?.review_status && selectedStatus !== "unreviewed" ? <FormControl sx={{ m: 1, minWidth: 125 }} size="small" >
-
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={rejected}
-                        onChange={() => setRejected(!rejected)}
-                      />
-                    }
-                    label={currentFilters?.annotation_status ? "Rejected By reviewer" : currentFilters?.review_status ? "Rejected By SuperChecker" : null}
-                  />
-                </FormControl> : null}
+              {currentFilters?.annotation_status && selectedStatus !== "unlabeled" ? 
+              <FormControl sx={{ m: 1, minWidth: 125 }} size="small" >
+                 <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rejected}
+                  onChange={() => setRejected(!rejected)}
+                />
+              }
+              label={currentFilters?.annotation_status ? "Rejected By reviewer" : currentFilters?.review_status ? "Rejected By SuperChecker" : null}
+            />
+              </FormControl> : currentFilters?.review_status && selectedStatus !== "unreviewed" ? <FormControl sx={{ m: 1, minWidth: 125 }} size="small" >
+               
+                <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rejected}
+                  onChange={() => setRejected(!rejected)}
+                />
+              }
+              label={currentFilters?.annotation_status ? "Rejected By reviewer" : currentFilters?.review_status ? "Rejected By SuperChecker" : null}
+            />
+              </FormControl> : null}
             </Stack>
 
           </Stack>

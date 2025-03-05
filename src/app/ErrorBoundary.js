@@ -1,8 +1,8 @@
 "use client"
 import Error from "./error"
 
-
-import React, { useEffect, useState } from 'react'
+ 
+import React,{ useEffect,useState } from 'react'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -19,15 +19,16 @@ class ErrorBoundary extends React.Component {
   };
 
   onClose = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null }); 
+    console.log(this.state);
 
   };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ overflow: "auto" }}>
-          <Error error={this.state.error} reset={this.resetError} onClose={this.onClose} />
+        <div style={{overflow:"auto"}}>
+          <Error error={this.state.error} reset={this.resetError} onClose={this.onClose}/>
         </div>
       );
     }

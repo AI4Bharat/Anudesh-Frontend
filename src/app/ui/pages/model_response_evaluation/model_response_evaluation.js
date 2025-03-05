@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect,useCallback,useMemo,memo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -68,13 +68,16 @@ const ModelInteractionEvaluation = ({
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
+  console.log("questions that were fetched: " + typeof questions);
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
-  const [clickedPromptOutputPairId, setclickedPromptOutputPairId] = useState()
+  const [clickedPromptOutputPairId,setclickedPromptOutputPairId]=useState()
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
+
+  console.log(annotation[0]);
 
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
@@ -85,32 +88,34 @@ const ModelInteractionEvaluation = ({
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
+      console.log("kek",annotation[0]);
 
       const result = annotation[0].result;
       return Array.isArray(result)
         ? result.map((item) => ({
-          prompt: item.prompt || "",
-          output: item.output || "",
-          questions_response: item.questions_response || [],
-          additional_note: item.additional_note || null,
-          prompt_output_pair_id: item.prompt_output_pair_id || null,
-        }))
+            prompt: item.prompt || "",
+            output: item.output || "",
+            questions_response: item.questions_response || [],
+            additional_note: item.additional_note || null,
+            prompt_output_pair_id: item.prompt_output_pair_id || null,
+          }))
         : [
-          {
-            prompt: result.prompt || "",
-            output: result.output || "",
-            questions_response: result.questions_response || [],
-            additional_note: result.additional_note || null,
-            prompt_output_pair_id: result.prompt_output_pair_id || null,
-          },
-        ];
+            {
+              prompt: result.prompt || "",
+              output: result.output || "",
+              questions_response: result.questions_response || [],
+              additional_note: result.additional_note || null,
+              prompt_output_pair_id: result.prompt_output_pair_id || null,
+            },
+          ];
     }
-
+    
     return [];
-  }, [annotation, taskId]);
+  }, [annotation,taskId]);
 
   useEffect(() => {
     setForms(parsedForms);
+    console.log("Forms updated:", parsedForms);
   }, [parsedForms, setForms]);
 
   const fetchInteractions = useCallback(async () => {
@@ -126,18 +131,18 @@ const ModelInteractionEvaluation = ({
       console.error("Error fetching interactions:", error);
     }
 
-  }, [annotation, taskId]);
+  }, [annotation,taskId]);
 
   useEffect(() => {
     fetchInteractions();
   }, [fetchInteractions]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0) {
-      if (clickedPromptOutputPairId) {
+    if (forms?.length > 0 && interactions?.length > 0 ) {    
+      if(clickedPromptOutputPairId){
         var defaultFormId = clickedPromptOutputPairId
       }
-      else {
+      else{
         var defaultFormId = forms[0]?.prompt_output_pair_id
       }
       const currentForm = forms.find(
@@ -157,10 +162,11 @@ const ModelInteractionEvaluation = ({
             Array(questions?.length).fill(null),
         };
         setCurrentInteraction(newState);
+        console.log("helo","2",forms);
       }
     }
 
-  }, [forms, setForms, clickedPromptOutputPairId, interactions, setCurrentInteraction]);
+  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -174,11 +180,16 @@ const ModelInteractionEvaluation = ({
           response: [],
         })),
       }));
-      setForms(initialForms);
-    }
+      console.log("Init forms:", initialForms); 
+      setForms(initialForms); 
+      console.log("helo",forms,interactions);
+      }
 
   }, [forms, interactions, taskId]);
-
+  useEffect(() => {
+    console.log("Forms updated:", forms);
+  }, [forms]);
+  
   useEffect(() => {
     if (!forms || forms.length == 0) {
       setAnswered(false);
@@ -217,14 +228,18 @@ const ModelInteractionEvaluation = ({
           )
         );
       });
+
+      console.log("all answered for form: " + allMandatoryAnswered);
       return allMandatoryAnswered;
     });
+
+    console.log("all forms answered?: " + allFormsAnswered);
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
 
   const handleRating = (rating, interactionIndex) => {
-
-    setCurrentInteraction((prev) => {
+    
+    setCurrentInteraction((prev) => {      
       const selectedQuestion = questions[interactionIndex];
       const ratingArray = [String(rating)];
       // const ratingScaleList = selectedQuestion?.rating_scale_list;
@@ -250,6 +265,8 @@ const ModelInteractionEvaluation = ({
             : interaction,
         ),
       );
+      console.log(currentInteraction);
+      
       return updatedInteraction;
     });
   };
@@ -287,6 +304,7 @@ const ModelInteractionEvaluation = ({
     });
   };
   const handleMultiSelect = (isChecked, selectedOption, interactionIndex) => {
+    console.log("checked: " + isChecked);
     const selectedQuestion = questions[interactionIndex];
     const indexInQuestions = questions?.findIndex(
       (q) => q.id === selectedQuestion?.id,
@@ -326,6 +344,7 @@ const ModelInteractionEvaluation = ({
     });
   };
 
+  console.log(interactions);
   const handleOptionChange = (selectedIndex, answer) => {
     setCurrentInteraction((prev) => {
       const newAnswers = questions?.map((question, i) => {
@@ -386,15 +405,18 @@ const ModelInteractionEvaluation = ({
   };
   const formatPrompt = (prompt) => {
     if (!prompt) return "";
-    const formattedText = prompt.replace(/(\r\n|\r|\n)/g, "  \n");
+    const formattedText = prompt.replace(/(\r\n|\r|\n)/g, "  \n");  
     return formattedText;
   };
+      console.log(forms);
   const handleFormBtnClick = (e) => {
     setclickedPromptOutputPairId(e.target.id);
+    console.log("clicked id" + clickedPromptOutputPairId);
     const currInteraction = forms?.find(
       (interaction) =>
         interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
+    console.log(currInteraction,"cuur");
     if (currInteraction) {
       setCurrentInteraction({
         prompt: currInteraction?.prompt,
@@ -408,8 +430,95 @@ const ModelInteractionEvaluation = ({
           currInteraction?.questions_response ||
           Array(questions.length).fill(null),
       });
+      // setSelectedQuestions(currInteraction?.questions_response.map((response) => response.question));
     }
   };
+  // const handleQuestionClick = (question) => {
+  //   const isQuestionSelected = selectedQuestions?.some((selectedQ) => {
+  //     return (
+  //       selectedQ?.input_question === question?.input_question &&
+  //       selectedQ?.question_type === question?.question_type
+  //     );
+  //   });
+
+  //   if (!isQuestionSelected) {
+  //     setSelectedQuestions([...selectedQuestions, question]);
+  //     setCurrentInteraction((prev) => {
+  //       const newResponse = {
+  //         question: question,
+  //         response: [],
+  //       };
+
+  //       const updatedQuestionsResponse = prev?.questions_response.some(
+  //         (response) =>
+  //           response.question?.input_question === question?.input_question &&
+  //           response.question?.question_type === question?.question_type
+  //       )
+  //         ? prev?.questions_response
+  //         : [...prev?.questions_response, newResponse];
+
+  //       const updatedInteraction = {
+  //         ...prev,
+  //         questions_response: updatedQuestionsResponse,
+  //       };
+
+  //       setForms((prevForms) =>
+  //         prevForms.map((form) =>
+  //           form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+  //             ? {
+  //                 ...form,
+  //                 questions_response: updatedQuestionsResponse,
+  //               }
+  //             : form
+  //         )
+  //       );
+
+  //       return updatedInteraction;
+  //     });
+  //   } else {
+  //     removeElement(question);
+  //   }
+  // };
+
+  // const removeElement = (questionToRemove) => {
+  //   setSelectedQuestions((prevQuestions) => {
+  //     const filteredQuestions = prevQuestions?.filter(
+  //       (q) =>
+  //         q?.input_question !== questionToRemove?.input_question ||
+  //         q?.question_type !== questionToRemove?.question_type
+  //     );
+  //     return filteredQuestions;
+  //   });
+
+  //   setCurrentInteraction((prev) => {
+  //     const updatedQuestionsResponse = prev?.questions_response.filter((response) => {
+  //       return (
+  //         response.question?.input_question !== questionToRemove?.input_question ||
+  //         response.question?.question_type !== questionToRemove?.question_type
+  //       );
+  //     });
+
+  //     const updatedInteraction = {
+  //       ...prev,
+  //       questions_response: updatedQuestionsResponse,
+  //     };
+
+  //     setForms((prevForms) =>
+  //       prevForms.map((form) =>
+  //         form?.prompt_output_pair_id === updatedInteraction.prompt_output_pair_id
+  //           ? {
+  //               ...form,
+  //               questions_response: updatedQuestionsResponse,
+  //             }
+  //           : form
+  //       )
+  //     );
+
+  //     return updatedInteraction;
+  //   });
+  // };
+
+  // console.log("Selected : q" + JSON.stringify(selectedQuestions));
   const handleInputChange = (e, interactionIndex, blankIndex) => {
     const { value } = e.target;
 
@@ -465,13 +574,13 @@ const ModelInteractionEvaluation = ({
       maxWidth: "100%",
       border: "1px solid #ccc",
       padding: "7px",
-      height: "auto",
+      height:"auto",
       fontSize: "17px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       backgroundColor: "white",
       wordWrap: "break-word",
-    },
+        },
   };
 
   const EvaluationForm = () => {
@@ -482,7 +591,7 @@ const ModelInteractionEvaluation = ({
             {translate("modal.prompt")}
           </div>
           <div style={styles.response1Box}>
-            <ReactMarkdown style={{ overflow: "hidden", height: "auto" }}
+            <ReactMarkdown style={{ overflow: "hidden",height:"auto" }}
               remarkPlugins={[remarkBreaks]}
 
               children={currentInteraction?.prompt?.replace(/\n/gi, "&nbsp; \n")}
@@ -500,10 +609,10 @@ const ModelInteractionEvaluation = ({
         >
           <div style={styles.response1Box}>
             <ReactMarkdown
-              remarkPlugins={[remarkBreaks]}
+                          remarkPlugins={[remarkBreaks]}
 
-              children={currentInteraction?.output?.replace(/\n/gi, "&nbsp; \n")}
-            >
+                          children={currentInteraction?.output?.replace(/\n/gi, "&nbsp; \n")}
+>
             </ReactMarkdown>
           </div>
         </div>
@@ -553,7 +662,7 @@ const ModelInteractionEvaluation = ({
                       {splitQuestion?.map((part, index) => (
                         <span
                           key={`${i}-${index}`}
-                          style={{ fontSize: "16px" }}
+                          style={{fontSize:"16px"}}
                         >
                           {part}
                           {index < splitQuestion.length - 1 && (
@@ -561,10 +670,10 @@ const ModelInteractionEvaluation = ({
                               type="text"
                               value={
                                 currentInteraction?.questions_response &&
-                                  currentInteraction?.questions_response[i]
-                                    ?.response.length > 0
+                                currentInteraction?.questions_response[i]
+                                  ?.response.length > 0
                                   ? currentInteraction?.questions_response[i]
-                                    ?.response[index]
+                                      ?.response[index]
                                   : ""
                               }
                               onChange={(e) => handleInputChange(e, i, index)}
@@ -587,7 +696,7 @@ const ModelInteractionEvaluation = ({
                           )}
                         </span>
                       ))}
-                      {(
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -604,7 +713,7 @@ const ModelInteractionEvaluation = ({
                       <span style={{ fontSize: "16px" }}>
                         {i + 1}. {question.input_question}
                       </span>
-                      {(
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -622,14 +731,15 @@ const ModelInteractionEvaluation = ({
                         (_, index) => (
                           <Button
                             key={index + 1}
-                            className={`${classes.numBtn} ${currentInteraction?.questions_response
-                              ? currentInteraction?.questions_response[i]
-                                ?.response ==
-                                index + 1
-                                ? classes.selected
+                            className={`${classes.numBtn} ${
+                              currentInteraction?.questions_response
+                                ? currentInteraction?.questions_response[i]
+                                    ?.response ==
+                                  index + 1
+                                  ? classes.selected
+                                  : ""
                                 : ""
-                              : ""
-                              }`}
+                            }`}
                             label={index + 1}
                             onClick={() => handleRating(index + 1, i)}
                             style={{
@@ -656,7 +766,7 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      {(
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -676,8 +786,8 @@ const ModelInteractionEvaluation = ({
                                 checked={
                                   currentInteraction?.questions_response
                                     ? currentInteraction?.questions_response[
-                                      i
-                                    ]?.response?.includes(option) ?? false
+                                        i
+                                      ]?.response?.includes(option) ?? false
                                     : ""
                                 }
                               />
@@ -698,7 +808,7 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      {(
+                      { (
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
@@ -713,7 +823,7 @@ const ModelInteractionEvaluation = ({
                         value={
                           currentInteraction?.questions_response
                             ? currentInteraction?.questions_response[i]
-                              ?.response
+                                ?.response
                             : ""
                         }
                         onChange={(e) => handleMCQ(e.target.value, i)}

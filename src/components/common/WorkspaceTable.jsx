@@ -91,12 +91,14 @@ const WorkspaceTable = (props) => {
           ?.toLowerCase()
           .includes(SearchWorkspace?.toLowerCase())
       ) {
+        console.log(el);
         return el;
       } else if (
         el.managers?.some((val) =>
           val.username?.toLowerCase().includes(SearchWorkspace?.toLowerCase()),
         )
       ) {
+        console.log(el);
         return el;
       }
     });
@@ -218,6 +220,7 @@ const WorkspaceTable = (props) => {
         ];
       })
       : [];
+  // console.log('DATA', data);
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
       <Box

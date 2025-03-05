@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
-import { LinearProgress } from "@mui/material";
+import {  LinearProgress } from "@mui/material";
 
 const ReportBarGraphs = ({ id }) => {
   const [selectRange, setSelectRange] = useState([{ startDate: new Date(), endDate: new Date() }]);
@@ -44,12 +44,12 @@ const ReportBarGraphs = ({ id }) => {
             dispatch(fetchUserAnalytics({ progressObj: reviewdata }))
               .then((response) => {
                 const totalSummary = response?.payload?.total_summary || [];
-                if (totalSummary.length > 0 && reportType == "annotation") {
+                if (totalSummary.length > 0 && reportType=="annotation") {
                   projectResults[projectType][reportType] = {
                     annotatedTasks: totalSummary[0]?.["Annotated Tasks"] || 0,
                     avgAnnotationTime: totalSummary[0]?.["Avg Annotation Time (sec)"] || 0,
                   };
-                } else if (totalSummary.length > 0 && reportType == "review") {
+                }else if (totalSummary.length > 0 && reportType=="review") {
                   projectResults[projectType][reportType] = {
                     reviewedtasks: totalSummary[0]?.["Reviewed Tasks"] || 0,
                     avgAnnotationTime: totalSummary[0]?.["Avg Annotation Time (sec)"] || 0,
@@ -82,7 +82,8 @@ const ReportBarGraphs = ({ id }) => {
     };
 
     handleProgressSubmit();
-  }, [dispatch, selectRange, id]);
+  }, [dispatch, selectRange,id]);
+console.log(analyticsData);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -94,24 +95,24 @@ const ReportBarGraphs = ({ id }) => {
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" tick={{ fontSize: 10, textAnchor: "middle", angle: -5 }}
-                interval={0}
+              <XAxis dataKey="name"   tick={{ fontSize: 10, textAnchor: "middle", angle: -5 }}
+              interval={0} 
               />
               <YAxis />
 
               <Tooltip />
               <Legend verticalAlign="top" />
-              <Bar dataKey="annotation" fill="#8884d8" name="Annotation" stackId="a"
+              <Bar dataKey="annotation" fill="#8884d8" name="Annotation"                 stackId="a"
               />
-              <Bar dataKey="review" fill="#82ca9d" name="Review" stackId="a"
-              />
+              <Bar dataKey="review" fill="#82ca9d" name="Review"                stackId="a"
+ />
             </BarChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div style={{ width: "100%", height: "50%px" }}> {/* Explicit height for the progress bar */}
-          <LinearProgress />
-        </div>)}
+<div style={{ width: "100%", height: "50%px" }}> {/* Explicit height for the progress bar */}
+        <LinearProgress  />
+      </div>      )}
     </div>
   );
 };

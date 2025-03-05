@@ -28,7 +28,7 @@ const GuestWorkspaceTable = (props) => {
   const { showManager, showCreatedBy } = props;
   const { id } = useParams();
   const workspaceData = useSelector((state) => state.GetWorkspace.data);
-  const [filteredProjects, setFilteredProjects] = useState(null);
+  const [filteredProjects, setFilteredProjects] = useState(null); 
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
@@ -39,8 +39,8 @@ const GuestWorkspaceTable = (props) => {
   );
   const apiLoading = useSelector(
     (state) => state.GetWorkspace.status !== "succeeded",
-  );
-
+  );  
+  
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
 
@@ -56,24 +56,25 @@ const GuestWorkspaceTable = (props) => {
 
   useEffect(() => {
     dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
-      const state = store.getState().getProjects.data || {};
-      const includedProjects = state.included_projects || [];
-      const excludedProjects = state.excluded_projects || [];
-
-      const filteredIncludedProjects = includedProjects.filter(
-        (project) => project.workspace_id == id
-      );
-      const filteredExcludedProjects = excludedProjects.filter(
-        (project) => project.workspace_id == id
-      );
-
-      const filteredProjects = {
-        included_projects: filteredIncludedProjects,
-        excluded_projects: filteredExcludedProjects,
-      };
-
-      setFilteredProjects(filteredProjects);
-    });
+        const state = store.getState().getProjects.data || {};
+        const includedProjects = state.included_projects || [];
+        const excludedProjects = state.excluded_projects || [];
+          
+        const filteredIncludedProjects = includedProjects.filter(
+          (project) => project.workspace_id == id
+        );
+        const filteredExcludedProjects = excludedProjects.filter(
+          (project) => project.workspace_id == id
+        );
+    
+        const filteredProjects = {
+          included_projects: filteredIncludedProjects,
+          excluded_projects: filteredExcludedProjects,
+        };
+    
+        setFilteredProjects(filteredProjects);
+        console.log(filteredProjects,"hello",id);
+      });
   }, []);
 
   const pageSearch = () => {
@@ -112,7 +113,7 @@ const GuestWorkspaceTable = (props) => {
       }
     });
   };
-  const handleAuthOpen = (project, title) => {
+  const handleAuthOpen = (project,title) => {
     setSelectedProject(project);
     setOpenAuthDialog(true);
   };
@@ -125,14 +126,16 @@ const GuestWorkspaceTable = (props) => {
     setShowPassword(!showPassword);
   };
 
-  const handlePasswordSubmit = async () => {
-    const apiObj = new VerifyProject(loggedInUserData?.id, selectedProject?.id, password);
+  const handlePasswordSubmit = async() => {
+    console.log(selectedProject?.id);
+    const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
     });
     const resp = await res.json();
+    // setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,
@@ -145,7 +148,7 @@ const GuestWorkspaceTable = (props) => {
         message: resp?.message,
         variant: "error",
       })
-    }
+    }  
     navigate(`/projects/${selectedProject?.id}`)
     handleAuthClose();
   };
@@ -158,14 +161,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -176,14 +179,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -195,14 +198,14 @@ const GuestWorkspaceTable = (props) => {
         sort: false,
         align: "center",
 
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -213,14 +216,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -231,14 +234,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -249,14 +252,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -267,14 +270,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
             height: "70px", fontSize: "16px",
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -282,105 +285,105 @@ const GuestWorkspaceTable = (props) => {
   const data =
     combinedData && combinedData.length > 0
       ? pageSearch().map((el, i) => {
-        const userRole =
-          el.project_stage &&
-          UserMappedByProjectStage(el.project_stage).element;
+          const userRole =
+            el.project_stage &&
+            UserMappedByProjectStage(el.project_stage).element;
 
-        const isExcluded = filteredProjects && filteredProjects.excluded_projects && filteredProjects.excluded_projects?.some(
-          (excludedProject) => excludedProject.id === el.id
-        );
-
-
-        return [
-          el.id,
-          el.title,
-          el.project_type,
-          userRole ? userRole : el.project_stage,
-          el.tgt_language == null ? "-" : el.tgt_language,
-          el.workspace_id,
-          loggedInUserData?.guest_user && isExcluded ? (
-            <CustomButton
-              key={i}
-              sx={{ borderRadius: 2, marginRight: 2 }}
-              label="Authenticate"
-              onClick={() => handleAuthOpen(el, el.title)}
-            />
-          ) : (
-            <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }} key={i}>
+            const isExcluded = filteredProjects && filteredProjects.excluded_projects && filteredProjects.excluded_projects?.some(
+              (excludedProject) => excludedProject.id === el.id
+            );
+            
+    
+          return [
+            el.id,
+            el.title,
+            el.project_type,
+            userRole ? userRole : el.project_stage,
+            el.tgt_language == null ? "-" : el.tgt_language,
+            el.workspace_id,
+            loggedInUserData?.guest_user && isExcluded ? (
               <CustomButton
                 key={i}
                 sx={{ borderRadius: 2, marginRight: 2 }}
-                label="View"
+                label="Authenticate"
+                onClick={() => handleAuthOpen(el,el.title)}
               />
-            </Link>
-          ),
-        ];
-      })
+            ) : (
+              <Link to={`/projects/${el.id}`} style={{ textDecoration: "none" }} key={i}>
+                <CustomButton
+                  key={i}
+                  sx={{ borderRadius: 2, marginRight: 2 }}
+                  label="View"
+                />
+              </Link>
+            ),
+          ];
+        })
       : [];
-  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
-      >
-
-        {/* Pagination Controls */}
-        <TablePagination
-          component="div"
-          count={count}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(_, newPage) => changePage(newPage)}
-          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
-          sx={{
-            "& .MuiTablePagination-actions": {
-              marginLeft: "0px",
-            },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-              marginRight: "10px",
-            },
-          }}
-        />
-
-        {/* Jump to Page */}
-        <div>
-          <label style={{
-            marginRight: "5px",
-            fontSize: "0.83rem",
-          }}>
-            Jump to Page:
-          </label>
-          <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
+      const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+        return (
+          <Box
             sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
+              display: "flex",
+              flexWrap: "wrap", 
+              justifyContent: { 
+                xs: "space-between", 
+                md: "flex-end" 
+              }, 
+              alignItems: "center",
+              padding: "10px",
+              gap: { 
+                xs: "10px", 
+                md: "20px" 
+              }, 
             }}
           >
-            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-              <MenuItem key={i} value={i + 1}>
-                {i + 1}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-      </Box>
-    );
-  };
+      
+            {/* Pagination Controls */}
+            <TablePagination
+              component="div"
+              count={count}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={(_, newPage) => changePage(newPage)}
+              onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+              sx={{
+                "& .MuiTablePagination-actions": {
+                marginLeft: "0px",
+              },
+              "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+                marginRight: "10px",
+              },
+              }}
+            />
+      
+            {/* Jump to Page */}
+            <div>
+              <label style={{ 
+                marginRight: "5px", 
+                fontSize:"0.83rem", 
+              }}>
+              Jump to Page:
+              </label>
+              <Select
+                value={page + 1}
+                onChange={(e) => changePage(Number(e.target.value) - 1)}
+                sx={{
+                  fontSize: "0.8rem",
+                  padding: "4px",
+                  height: "32px",
+                }}
+              >
+                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+                  <MenuItem key={i} value={i + 1}>
+                    {i + 1}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+          </Box>
+        );
+      };
 
   const options = {
     textLabels: {
@@ -426,22 +429,22 @@ const GuestWorkspaceTable = (props) => {
       {/* {apiLoading ? (
         <Spinner />
       ) : ( */}
-      <div>
-        <Grid sx={{ mb: 1 }}>
-          <Search />
-        </Grid>
-        {filteredProjects && (
-          <ThemeProvider theme={tableTheme}>
-            <MUIDataTable
-              title={""}
-              data={data}
-              columns={columns}
-              options={options}
-            />
-          </ThemeProvider>
-        )}
-
-      </div>
+        <div>
+          <Grid sx={{ mb: 1 }}>
+            <Search />
+          </Grid>
+          {filteredProjects && (
+            <ThemeProvider theme={tableTheme}>
+              <MUIDataTable
+                title={""}
+                data={data}
+                columns={columns}
+                options={options}
+              />
+            </ThemeProvider>
+          )}
+          
+        </div>
       {/* )} */}
       <Dialog open={openAuthDialog} onClose={handleAuthClose}>
         <DialogTitle>Enter Password</DialogTitle>

@@ -1,5 +1,5 @@
-import { jsx as $eSIqy$jsx, jsxs as $eSIqy$jsxs } from "react/jsx-runtime";
-import { useState as $eSIqy$useState, useRef as $eSIqy$useRef, useMemo as $eSIqy$useMemo, useEffect as $eSIqy$useEffect } from "react";
+import {jsx as $eSIqy$jsx, jsxs as $eSIqy$jsxs} from "react/jsx-runtime";
+import {useState as $eSIqy$useState, useRef as $eSIqy$useRef, useMemo as $eSIqy$useMemo, useEffect as $eSIqy$useEffect} from "react";
 import $eSIqy$textareacaret from "textarea-caret";
 
 
@@ -46,9 +46,13 @@ const $5ac81081e5c28bfa$export$24b0ea3375909d37 = {
 };
 
 
-const $69c8f257da8dc8b1$export$27f30d10c00bcc6c = async (word, customApiURL, apiKey, config) => {
+const $69c8f257da8dc8b1$export$27f30d10c00bcc6c = async (word, customApiURL, apiKey, config)=>{
     const { showCurrentWordAsLastSuggestion: // numOptions = 5,
-        showCurrentWordAsLastSuggestion = true, lang: lang = "hi" } = config || {};
+    showCurrentWordAsLastSuggestion = true, lang: lang = "hi" } = config || {};
+    // fetch suggestion from api
+    // const url = `https://www.google.com/inputtools/request?ime=transliteration_en_${lang}&num=5&cp=0&cs=0&ie=utf-8&oe=utf-8&app=jsapi&text=${word}`;
+    // let myHeaders = new Headers();
+    // myHeaders.append("Content-Type", "application/json");
     const requestOptions = {
         method: "GET",
         headers: {
@@ -58,6 +62,7 @@ const $69c8f257da8dc8b1$export$27f30d10c00bcc6c = async (word, customApiURL, api
     try {
         const res = await fetch(customApiURL + `${lang}/${word === "." || word === ".." ? " " + word.replace(".", "%2E") : encodeURIComponent(word).replace(".", "%2E")}`, requestOptions);
         let data = await res.json();
+        console.log("library data", data);
         if (!customApiURL.includes("xlit-api")) data.result = data.output[0].target;
         if (data && data.result.length > 0) {
             const found = showCurrentWordAsLastSuggestion ? [
@@ -83,7 +88,7 @@ const $b9b628447857a10a$export$ca6dda5263526f75 = "https://xlit-api.ai4bharat.or
 const $b9b628447857a10a$export$a238c5e20ae27fe7 = "https://xlit-api.ai4bharat.org/tl/";
 
 
-const $d8161b358c525845$export$58f2e270169de9d3 = async () => {
+const $d8161b358c525845$export$58f2e270169de9d3 = async ()=>{
     if (sessionStorage.getItem("indic_transliterate__supported_languages")) return JSON.parse(sessionStorage.getItem("indic_transliterate__supported_languages") || "");
     else {
         const apiURL = `${(0, $b9b628447857a10a$export$ca6dda5263526f75)}languages`;
@@ -113,14 +118,14 @@ const $41d49c8a6078fe3c$var$KEY_RIGHT = "ArrowRight";
 const $41d49c8a6078fe3c$var$KEY_ESCAPE = "Escape";
 const $41d49c8a6078fe3c$var$OPTION_LIST_Y_OFFSET = 10;
 const $41d49c8a6078fe3c$var$OPTION_LIST_MIN_WIDTH = 100;
-const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComponent = (props) =>/*#__PURE__*/(0, $eSIqy$jsx)("input", {
-    ...props
-}), lang: lang = "hi", offsetX: offsetX = 0, offsetY: offsetY = 10, onChange: onChange, onChangeText: onChangeText, onBlur: onBlur, value: value, onKeyDown: onKeyDown, containerClassName: containerClassName = "", containerStyles: containerStyles = {}, activeItemStyles: activeItemStyles = {}, maxOptions: maxOptions = 5, hideSuggestionBoxOnMobileDevices: hideSuggestionBoxOnMobileDevices = false, hideSuggestionBoxBreakpoint: hideSuggestionBoxBreakpoint = 450, triggerKeys: triggerKeys = [
+const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComponent = (props)=>/*#__PURE__*/ (0, $eSIqy$jsx)("input", {
+        ...props
+    }), lang: lang = "hi", offsetX: offsetX = 0, offsetY: offsetY = 10, onChange: onChange, onChangeText: onChangeText, onBlur: onBlur, value: value, onKeyDown: onKeyDown, containerClassName: containerClassName = "", containerStyles: containerStyles = {}, activeItemStyles: activeItemStyles = {}, maxOptions: maxOptions = 5, hideSuggestionBoxOnMobileDevices: hideSuggestionBoxOnMobileDevices = false, hideSuggestionBoxBreakpoint: hideSuggestionBoxBreakpoint = 450, triggerKeys: triggerKeys = [
     (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_SPACE,
     (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_ENTER,
     (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_RETURN,
     (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_TAB
-], insertCurrentSelectionOnBlur: insertCurrentSelectionOnBlur = true, showCurrentWordAsLastSuggestion: showCurrentWordAsLastSuggestion = true, enabled: enabled = true, horizontalView: horizontalView = false, customApiURL: customApiURL = (0, $b9b628447857a10a$export$a238c5e20ae27fe7), apiKey: apiKey = "", ...rest }) => {
+], insertCurrentSelectionOnBlur: insertCurrentSelectionOnBlur = true, showCurrentWordAsLastSuggestion: showCurrentWordAsLastSuggestion = true, enabled: enabled = true, horizontalView: horizontalView = false, customApiURL: customApiURL = (0, $b9b628447857a10a$export$a238c5e20ae27fe7), apiKey: apiKey = "", ...rest })=>{
     const [left, setLeft] = (0, $eSIqy$useState)(0);
     const [top, setTop] = (0, $eSIqy$useState)(0);
     const [selection, setSelection] = (0, $eSIqy$useState)(0);
@@ -140,17 +145,17 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
     const [uuid, setUuid] = (0, $eSIqy$useState)(Math.random().toString(36).substr(2, 9));
     const [subStrLength, setSubStrLength] = (0, $eSIqy$useState)(0);
     const [restart, setRestart] = (0, $eSIqy$useState)(true);
-    const shouldRenderSuggestions = (0, $eSIqy$useMemo)(() => hideSuggestionBoxOnMobileDevices ? windowSize.width > hideSuggestionBoxBreakpoint : true, [
+    const shouldRenderSuggestions = (0, $eSIqy$useMemo)(()=>hideSuggestionBoxOnMobileDevices ? windowSize.width > hideSuggestionBoxBreakpoint : true, [
         windowSize,
         hideSuggestionBoxBreakpoint,
         hideSuggestionBoxOnMobileDevices
     ]);
-    const reset = () => {
+    const reset = ()=>{
         // reset the component
         setSelection(0);
         setOptions([]);
     };
-    const handleSelection = (index) => {
+    const handleSelection = (index)=>{
         var _inputRef_current;
         const currentString = value;
         // create a new string with the currently typed word
@@ -173,9 +178,9 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
         }
         // set the position of the caret (cursor) one character after the
         // the position of the new word
-        setTimeout(() => {
+        setTimeout(()=>{
             (0, $2f5cf912a7dc4b84$export$97ab23b40042f8af)(// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                inputRef.current, matchStart + options[index].length + 1);
+            inputRef.current, matchStart + options[index].length + 1);
         }, 1);
         // bubble up event to the parent component
         const e = {
@@ -188,7 +193,7 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
         reset();
         return (_inputRef_current = inputRef.current) === null || _inputRef_current === void 0 ? void 0 : _inputRef_current.focus();
     };
-    const renderSuggestions = async (lastWord, wholeText) => {
+    const renderSuggestions = async (lastWord, wholeText)=>{
         if (!shouldRenderSuggestions) return;
         // fetch suggestion from api
         // const url = `https://www.google.com/inputtools/request?ime=transliteration_en_${lang}&num=5&cp=0&cs=0&ie=utf-8&oe=utf-8&app=jsapi&text=${lastWord}`;
@@ -197,7 +202,7 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
         //   : maxOptions;
         const data = await (0, $69c8f257da8dc8b1$export$27f30d10c00bcc6c)(lastWord, customApiURL, apiKey, {
             showCurrentWordAsLastSuggestion: // numOptions,
-                showCurrentWordAsLastSuggestion,
+            showCurrentWordAsLastSuggestion,
             lang: lang
         });
         setOptions(data !== null && data !== void 0 ? data : []);
@@ -218,9 +223,9 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
             logJson
         ]);
     };
-    const getDirectionAndFont = async (lang) => {
+    const getDirectionAndFont = async (lang)=>{
         const langList = await (0, $d8161b358c525845$export$58f2e270169de9d3)();
-        const langObj = langList === null || langList === void 0 ? void 0 : langList.find((l) => l.LangCode === lang);
+        const langObj = langList === null || langList === void 0 ? void 0 : langList.find((l)=>l.LangCode === lang);
         var _langObj_Direction;
         return [
             (_langObj_Direction = langObj === null || langObj === void 0 ? void 0 : langObj.Direction) !== null && _langObj_Direction !== void 0 ? _langObj_Direction : "ltr",
@@ -228,7 +233,7 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
             langObj === null || langObj === void 0 ? void 0 : langObj.FallbackFont
         ];
     };
-    const handleChange = (e) => {
+    const handleChange = (e)=>{
         const value = e.currentTarget.value;
         if (numSpaces == 0 || restart) {
             if (value.length >= 4) setSubStrLength(value.length - 4);
@@ -255,9 +260,9 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
                 headers: {
                     "Content-Type": "application/json"
                 }
-            }).then(async (res) => {
+            }).then(async (res)=>{
                 if (!res.ok) throw await res.json();
-            }).catch((err) => {
+            }).catch((err)=>{
                 console.log("error", err);
             });
         }
@@ -299,13 +304,13 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
             setLeft(left);
         } else reset();
     };
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event)=>{
         const helperVisible = options.length > 0;
         if (helperVisible) {
             if (triggerKeys.includes(event.key)) {
                 event.preventDefault();
                 handleSelection(selection);
-            } else switch (event.key) {
+            } else switch(event.key){
                 case $41d49c8a6078fe3c$var$KEY_ESCAPE:
                     event.preventDefault();
                     reset();
@@ -332,14 +337,14 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
             }
         } else onKeyDown && onKeyDown(event);
     };
-    const handleBlur = (event) => {
+    const handleBlur = (event)=>{
         if (!(0, $19eb910254214610$export$e27e3030245d4c9b)()) {
             if (insertCurrentSelectionOnBlur && options[selection]) handleSelection(selection);
             else reset();
         }
         onBlur && onBlur(event);
     };
-    const handleResize = () => {
+    const handleResize = ()=>{
         // TODO implement the resize function to resize
         // the helper on screen size change
         const width = window.innerWidth;
@@ -349,7 +354,7 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
             height: height
         });
     };
-    (0, $eSIqy$useEffect)(() => {
+    (0, $eSIqy$useEffect)(()=>{
         window.addEventListener("resize", handleResize);
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -357,12 +362,12 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
             width: width,
             height: height
         });
-        return () => {
+        return ()=>{
             window.removeEventListener("resize", handleResize);
         };
     }, []);
-    (0, $eSIqy$useEffect)(() => {
-        getDirectionAndFont(lang).then(([direction, googleFont, fallbackFont]) => {
+    (0, $eSIqy$useEffect)(()=>{
+        getDirectionAndFont(lang).then(([direction, googleFont, fallbackFont])=>{
             setDirection(direction);
             // import google font if not already imported
             if (googleFont) {
@@ -426,30 +431,30 @@ const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComp
                 },
                 "data-testid": "rt-suggestions-list",
                 lang: lang,
-                children: Array.from(new Set(options)).map((item, index) =>/*#__PURE__*/(0, $eSIqy$jsx)("li", {
-                    style: index === selection ? {
-                        cursor: "pointer",
-                        padding: "10px",
-                        minWidth: "100px",
-                        backgroundColor: "#65c3d7",
-                        color: "#fff"
-                    } : {
-                        cursor: "pointer",
-                        padding: "10px",
-                        minWidth: "100px",
-                        backgroundColor: "#fff"
-                    },
-                    onMouseEnter: () => {
-                        setSelection(index);
-                    },
-                    onClick: () => handleSelection(index),
-                    children: item
-                }, item))
+                children: Array.from(new Set(options)).map((item, index)=>/*#__PURE__*/ (0, $eSIqy$jsx)("li", {
+                        style: index === selection ? {
+                            cursor: "pointer",
+                            padding: "10px",
+                            minWidth: "100px",
+                            backgroundColor: "#65c3d7",
+                            color: "#fff"
+                        } : {
+                            cursor: "pointer",
+                            padding: "10px",
+                            minWidth: "100px",
+                            backgroundColor: "#fff"
+                        },
+                        onMouseEnter: ()=>{
+                            setSelection(index);
+                        },
+                        onClick: ()=>handleSelection(index),
+                        children: item
+                    }, item))
             })
         ]
     });
 };
 
 
-export { $41d49c8a6078fe3c$export$a62758b764e9e41d as IndicTransliterate, $5ac81081e5c28bfa$export$24b0ea3375909d37 as TriggerKeys, $69c8f257da8dc8b1$export$27f30d10c00bcc6c as getTransliterateSuggestions, $d8161b358c525845$export$58f2e270169de9d3 as getTransliterationLanguages };
+export {$41d49c8a6078fe3c$export$a62758b764e9e41d as IndicTransliterate, $5ac81081e5c28bfa$export$24b0ea3375909d37 as TriggerKeys, $69c8f257da8dc8b1$export$27f30d10c00bcc6c as getTransliterateSuggestions, $d8161b358c525845$export$58f2e270169de9d3 as getTransliterationLanguages};
 //# sourceMappingURL=index.js.map

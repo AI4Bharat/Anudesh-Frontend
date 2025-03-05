@@ -47,6 +47,10 @@ const Search = (props) => {
     const storedLanguage = localStorage.getItem("language");
     setGlobalTransliteration(storedGlobalTransliteration);
     setTargetLang(storedLanguage);
+    console.log(
+      globalTransliteration,
+      localStorage.getItem("globalTransliteration"),
+    );
   }, [searchValue]);
 
   const theme = useTheme();

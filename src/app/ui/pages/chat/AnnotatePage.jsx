@@ -378,8 +378,11 @@ const AnnotatePage = () => {
     }
     // }
   };
+  console.log(interactions[0]);
   const handleAnnotationClick = async (value, id, lead_time) => {
+    // if (typeof window !== "undefined") {
     let resultValue;
+    console.log(forms);
 
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -397,6 +400,7 @@ const AnnotatePage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
+      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -406,6 +410,7 @@ const AnnotatePage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
+      console.log("resval: " + resultValue);
     }
 
     setLoading(true);
@@ -420,8 +425,8 @@ const AnnotatePage = () => {
       annotation_notes:
         typeof window !== "undefined"
           ? JSON.stringify(
-            annotationNotesRef?.current?.getEditor().getContents(),
-          )
+              annotationNotesRef?.current?.getEditor().getContents(),
+            )
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
@@ -441,6 +446,8 @@ const AnnotatePage = () => {
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
+        console.log("answered variable: ");
+        console.log(chatHistory.length);
 
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
@@ -460,6 +467,8 @@ const AnnotatePage = () => {
           ProjectDetails.project_type == "InstructionDrivenChat" &&
           chatHistory.length == 0
         ) {
+          console.log(chatHistory);
+
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
@@ -501,23 +510,23 @@ const AnnotatePage = () => {
         }
         value === "delete"
           ? (setSnackbarInfo({
-            open: true,
-            message: "Chat history has been cleared successfully!",
-            variant: "success",
-          }),
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            }),
             await getAnnotationsTaskData(taskId),
             await getTaskData(taskId))
           : value === "delete-pair"
             ? setSnackbarInfo({
-              open: true,
-              message: "Selected conversation is deleted",
-              variant: "success",
-            })
+                open: true,
+                message: "Selected conversation is deleted",
+                variant: "success",
+              })
             : setSnackbarInfo({
-              open: true,
-              message: resp?.message,
-              variant: "success",
-            });
+                open: true,
+                message: resp?.message,
+                variant: "success",
+              });
         setLoading(false);
       } else {
         setAutoSave(true);
@@ -942,7 +951,7 @@ const AnnotatePage = () => {
                   <div>
                     <div>
                       {ProjectDetails?.conceal == false &&
-                        Array.isArray(assignedUsers)
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>

@@ -65,11 +65,13 @@ const getAvailableUsers = (
   }
   switch (userType) {
     case addUserTypes.PROJECT_ANNOTATORS:
+      console.log(workspaceAnnotators);
       return workspaceAnnotators
         .filter(
           (workspaceAnnotator) =>
             projectDetails?.annotators.findIndex((projectUser) => {
               projectUser?.id === workspaceAnnotator?.id;
+              console.log(projectUser?.id, workspaceAnnotator?.id);
             }) === -1,
         )
         .map((user) => ({
@@ -273,16 +275,19 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
       case addUserTypes.ANNOTATOR:
       case addUserTypes.MANAGER:
         id = workspaceDetails?.organization;
+        console.log("id", id);
         break;
       default:
         break;
     }
+    console.log("id1", id);
     if (id) fetchAllUsers(userType, id, dispatch);
   }, [userType, id, projectDetails]);
   const filteruser = availableUsers?.filter(
     (user) =>
       !projectDetails?.annotators?.some((annotator) => annotator?.id === user.id),
   );
+  console.log(workspaceAnnotators);
   useEffect(() => {
     setAvailableUsers(
       getAvailableUsers(
@@ -308,6 +313,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const dialogCloseHandler = () => {
     handleDialogClose();
   };
+  console.log(availableUsers, filteruser, userType, "helo");
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
       <DialogTitle style={{ paddingBottom: 0 }}>
@@ -325,7 +331,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
           }
           options={
             projectDetails.required_annotators_per_task > 1 &&
-              userType == "PROJECT_REVIEWER"
+            userType == "PROJECT_REVIEWER"
               ? filteruser
               : availableUsers
           }

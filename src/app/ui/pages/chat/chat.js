@@ -56,16 +56,21 @@ const Chat = () => {
   useEffect(() => {
     const storedHistory = sessionStorage.getItem("interaction_json");
     if (storedHistory) {
+      console.log("Stored History found in sessionStorage:", storedHistory);
       setChatHistory(JSON.parse(storedHistory));
       setShowChatContainer(true);
+    } else {
+      console.log("No stored history found in sessionStorage.");
     }
-  }, []);
+  }, []); 
 
   useEffect(() => {
+    console.log("chatHistory updated:", chatHistory);
     if (chatHistory.length > 0) {
       sessionStorage.setItem("interaction_json", JSON.stringify(chatHistory));
+      console.log("sessionStorage updated with new chat history");
     }
-  }, [chatHistory]);
+  }, [chatHistory]); 
 
 
   const formatResponse = (response) => {
@@ -225,7 +230,7 @@ const Chat = () => {
             />
             <ReactMarkdown className="flex-col">{formatPrompt(message.prompt)}</ReactMarkdown>
           </Box>
-
+          
           <Box
             sx={{
               width: "50vw",

@@ -121,13 +121,13 @@ const AdvancedOperation = (props) => {
 
   const isSuperChecker =
     userRole.WorkspaceManager === loggedInUserData?.role ||
-      userRole.OrganizationOwner === loggedInUserData?.role ||
-      userRole.Admin === loggedInUserData?.role
+    userRole.OrganizationOwner === loggedInUserData?.role ||
+    userRole.Admin === loggedInUserData?.role
       ? ProjectDetails?.project_stage == 3
       : false ||
-      ProjectDetails?.review_supercheckers?.some(
-        (superchecker) => superchecker.id === loggedInUserData?.id,
-      );
+        ProjectDetails?.review_supercheckers?.some(
+          (superchecker) => superchecker.id === loggedInUserData?.id,
+        );
 
   const [taskStatus, setTaskStatus] = useState(
     isSuperChecker
@@ -164,14 +164,15 @@ const AdvancedOperation = (props) => {
 
   const getExportProjectButton = async () => {
     setOpenExportProjectDialog(false);
+    console.log(id, ProjectTypes);
     const projectObj =
       ProjectTypes?.output_dataset?.save_type === "new_record"
         ? new GetExportProjectButtonAPI(
-          id,
-          ProjectDetails?.datasets[0].instance_id,
-          datasetId,
-          ProjectTypes?.output_dataset?.save_type,
-        )
+            id,
+            ProjectDetails?.datasets[0].instance_id,
+            datasetId,
+            ProjectTypes?.output_dataset?.save_type,
+          )
         : new GetExportProjectButtonAPI(id);
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
@@ -437,22 +438,111 @@ const AdvancedOperation = (props) => {
         <Grid
           container
           columns={16}
-          spacing={{ xs: 2, lg: 4 }}
+          spacing={{xs:2,lg:4}}
           sx={{
-            alignItems: "flex-start",
-            justifyContent: "space-between"
+            alignItems:"flex-start",
+            justifyContent:"space-between"
           }}
         >
+        <Grid
+          container
+          item
+          // direction="row"
+          xs={12}
+          sm={4}
+          sx={{
+            gap:4,
+          }}
+        >
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <CustomButton
+              sx={{
+                inlineSize: "max-content",
+                borderRadius: 3,
+                width: "100%"
+              }}
+              onClick={handlePublishProject}
+              label="Publish Project"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <CustomButton
+              sx={{
+                inlineSize: "max-content",
+                borderRadius: 3,
+                width: "100%"
+              }}
+              color="error"
+              onClick={handleClickOpen}
+              label={isArchived ? "Archived" : "Archive"}
+              disabled={
+                userRole.WorkspaceManager === loggedInUserData?.role
+                  ? true
+                  : false
+              }
+            />
+          </Grid>
+
           <Grid
-            container
             item
-            // direction="row"
             xs={12}
-            sm={4}
-            sx={{
-              gap: 4,
-            }}
+            sm={12}
+            md={12}
+            lg={12}
+            xl={12}
           >
+            {userRole.WorkspaceManager === loggedInUserData?.role ? null : (
+              <FormControl 
+              className={classes.formControl}
+              sx={{
+                width: "100%"
+              }}
+              >
+                <InputLabel
+                  id="Select-Task-Statuses"
+                  sx={{ fontSize: "16px" }}
+                >
+                  Select Task Statuses
+                </InputLabel>
+                <Select
+                  labelId="Select-Task-Statuses"
+                  label="Select Task Statuses"
+                  multiple
+                  value={taskStatus}
+                  onChange={handleChange}
+                  renderValue={(taskStatus) => taskStatus.join(", ")}
+                  MenuProps={MenuProps}
+                >
+                  {FilterProgressType.map((option) => (
+                    <MenuItem
+                      sx={{ textTransform: "capitalize" }}
+                      key={option}
+                      value={option}
+                    >
+                      <ListItemIcon>
+                        <Checkbox checked={taskStatus.indexOf(option) > -1} />
+                      </ListItemIcon>
+                      <ListItemText primary={snakeToTitleCase(option)} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </Grid>
+        </Grid>
+
+        <Grid
+          container
+          item
+          // direction="row"
+          xs={12}
+          sm={4}
+          sx={{
+            gap:4,
+          }}
+        >
+          {ProjectDetails.project_type == "ContextualTranslationEditing" ? (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <CustomButton
                 sx={{
@@ -460,189 +550,100 @@ const AdvancedOperation = (props) => {
                   borderRadius: 3,
                   width: "100%"
                 }}
-                onClick={handlePublishProject}
-                label="Publish Project"
+                onClick={handleDownloadProjectAnnotations}
+                label="Downoload Project Annotations"
               />
             </Grid>
-
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+          ) : (
+            " "
+          )}
+          {/* <div className={classes.divider} ></div> */}
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            {ProjectTypes?.output_dataset?.save_type === "new_record" ? (
               <CustomButton
                 sx={{
                   inlineSize: "max-content",
                   borderRadius: 3,
-                  width: "100%"
+                  width: "100%",
+                  height: "50px",
                 }}
-                color="error"
-                onClick={handleClickOpen}
-                label={isArchived ? "Archived" : "Archive"}
+                onClick={handleOpenExportProjectDialog}
+                label="Export Project into Dataset"
                 disabled={
                   userRole.WorkspaceManager === loggedInUserData?.role
                     ? true
                     : false
                 }
               />
-            </Grid>
+            ) : (
+              <CustomButton
+                sx={{
+                  inlineSize: "max-content",
+                  borderRadius: 3,
+                  width: "100%",
+                  height: "50px",
 
-            <Grid
-              item
-              xs={12}
-              sm={12}
-              md={12}
-              lg={12}
-              xl={12}
-            >
-              {userRole.WorkspaceManager === loggedInUserData?.role ? null : (
-                <FormControl
-                  className={classes.formControl}
-                  sx={{
-                    width: "100%"
-                  }}
-                >
-                  <InputLabel
-                    id="Select-Task-Statuses"
-                    sx={{ fontSize: "16px" }}
-                  >
-                    Select Task Statuses
-                  </InputLabel>
-                  <Select
-                    labelId="Select-Task-Statuses"
-                    label="Select Task Statuses"
-                    multiple
-                    value={taskStatus}
-                    onChange={handleChange}
-                    renderValue={(taskStatus) => taskStatus.join(", ")}
-                    MenuProps={MenuProps}
-                  >
-                    {FilterProgressType.map((option) => (
-                      <MenuItem
-                        sx={{ textTransform: "capitalize" }}
-                        key={option}
-                        value={option}
-                      >
-                        <ListItemIcon>
-                          <Checkbox checked={taskStatus.indexOf(option) > -1} />
-                        </ListItemIcon>
-                        <ListItemText primary={snakeToTitleCase(option)} />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            </Grid>
+                }}
+                onClick={handleExportProject}
+                label="Export Project into Dataset"
+                disabled={
+                  userRole.WorkspaceManager === loggedInUserData?.role
+                    ? true
+                    : false
+                }
+              />
+            )}
           </Grid>
 
-          <Grid
-            container
-            item
-            // direction="row"
-            xs={12}
-            sm={4}
-            sx={{
-              gap: 4,
-            }}
-          >
-            {ProjectDetails.project_type == "ContextualTranslationEditing" ? (
-              <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                <CustomButton
-                  sx={{
-                    inlineSize: "max-content",
-                    borderRadius: 3,
-                    width: "100%"
-                  }}
-                  onClick={handleDownloadProjectAnnotations}
-                  label="Downoload Project Annotations"
-                />
-              </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            {ProjectDetails.sampling_mode == "f" ||
+            ProjectDetails.sampling_mode == "b" ? (
+              <CustomButton
+                sx={{
+                  inlineSize: "max-content",
+                  borderRadius: 3,
+                  width: "100%",
+                  height: "50px",
+                }}
+                onClick={handlePullNewData}
+                label="Pull New Data Items from Source Dataset"
+                disabled={
+                  userRole.WorkspaceManager === loggedInUserData?.role
+                    ? true
+                    : false
+                }
+              />
             ) : (
               " "
             )}
-            {/* <div className={classes.divider} ></div> */}
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              {ProjectTypes?.output_dataset?.save_type === "new_record" ? (
-                <CustomButton
-                  sx={{
-                    inlineSize: "max-content",
-                    borderRadius: 3,
-                    width: "100%",
-                    height: "50px",
-                  }}
-                  onClick={handleOpenExportProjectDialog}
-                  label="Export Project into Dataset"
-                  disabled={
-                    userRole.WorkspaceManager === loggedInUserData?.role
-                      ? true
-                      : false
-                  }
-                />
-              ) : (
-                <CustomButton
-                  sx={{
-                    inlineSize: "max-content",
-                    borderRadius: 3,
-                    width: "100%",
-                    height: "50px",
-
-                  }}
-                  onClick={handleExportProject}
-                  label="Export Project into Dataset"
-                  disabled={
-                    userRole.WorkspaceManager === loggedInUserData?.role
-                      ? true
-                      : false
-                  }
-                />
-              )}
-            </Grid>
-
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              {ProjectDetails.sampling_mode == "f" ||
-                ProjectDetails.sampling_mode == "b" ? (
-                <CustomButton
-                  sx={{
-                    inlineSize: "max-content",
-                    borderRadius: 3,
-                    width: "100%",
-                    height: "50px",
-                  }}
-                  onClick={handlePullNewData}
-                  label="Pull New Data Items from Source Dataset"
-                  disabled={
-                    userRole.WorkspaceManager === loggedInUserData?.role
-                      ? true
-                      : false
-                  }
-                />
-              ) : (
-                " "
-              )}
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <DownloadProjectButton
-                taskStatus={taskStatus}
-                SetTask={setTaskStatus}
-                downloadMetadataToggle={downloadMetadataToggle}
-              />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <DeleteProjectTasks />
-            </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <DeallocationAnnotatorsAndReviewers />
-            </Grid>
           </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <DownloadProjectButton
+              taskStatus={taskStatus}
+              SetTask={setTaskStatus}
+              downloadMetadataToggle={downloadMetadataToggle}
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <DeleteProjectTasks />
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <DeallocationAnnotatorsAndReviewers />
+          </Grid>
+        </Grid>
 
-          <Grid
-            container
-            item
-            // direction="row"
-            xs={12}
-            sm={4}
-            sx={{
-              gap: 4,
-            }}
-          >
-            {/* <div className={classes.divider} ></div> */}
-            {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+        <Grid
+          container
+          item
+          // direction="row"
+          xs={12}
+          sm={4}
+          sx={{ 
+            gap:4,
+           }}
+        >
+          {/* <div className={classes.divider} ></div> */}
+          {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <FormControlLabel
                 control={<Switch color="primary" />}
                 label="Task Reviews"
@@ -651,66 +652,66 @@ const AdvancedOperation = (props) => {
                 onChange={handleReviewToggle}
               />
             </Grid> */}
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <FormControl
-                className={classes.formControl}
-                sx={{
-                  width: "100%"
-                }}
-              >
-                <InputLabel id="task-Reviews-label" sx={{ fontSize: "16px" }}>
-                  Project Stage
-                </InputLabel>
-                <Select
-                  labelId="task-Reviews-label"
-                  id="task-Reviews-select"
-                  value={taskReviews}
-                  label="Task Reviews"
-                  onChange={handleReviewToggle}
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <FormControl 
+            className={classes.formControl}
+            sx={{
+                width: "100%"
+              }}
+            >
+              <InputLabel id="task-Reviews-label" sx={{ fontSize: "16px" }}>
+                Project Stage
+              </InputLabel>
+              <Select
+                labelId="task-Reviews-label"
+                id="task-Reviews-select"
+                value={taskReviews}
+                label="Task Reviews"
+                onChange={handleReviewToggle}
                 // getOptionDisabled={(option) => option.disabled}
-                >
-                  {filteredProjectStage.map((type, index) => (
-                    <MenuItem
-                      value={type.value}
-                      key={index}
-                      disabled={type.disabled}
-                    >
-                      {type.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
+              >
+                {filteredProjectStage.map((type, index) => (
+                  <MenuItem
+                    value={type.value}
+                    key={index}
+                    disabled={type.disabled}
+                  >
+                    {type.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
-            {(userRole.WorkspaceManager === loggedInUserData?.role ||
-              userRole.OrganizationOwner === loggedInUserData?.role ||
-              userRole.Admin === loggedInUserData?.role
-              ? ProjectDetails?.project_stage == 3
-              : false ||
+          {(userRole.WorkspaceManager === loggedInUserData?.role ||
+          userRole.OrganizationOwner === loggedInUserData?.role ||
+          userRole.Admin === loggedInUserData?.role
+            ? ProjectDetails?.project_stage == 3
+            : false ||
               ProjectDetails?.review_supercheckers?.some(
                 (superchecker) => superchecker.id === loggedInUserData?.id,
               )) && (
-                <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
-                  <SuperCheckSettings ProjectDetails={ProjectDetails} />
-                </Grid>
-              )}
-
-            {/* <div className={classes.divider} ></div> */}
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <FormControlLabel
-                control={<Switch color="primary" />}
-                label="Download Metadata"
-                labelPlacement="start"
-                checked={downloadMetadataToggle}
-                onChange={handleDownoadMetadataToggle}
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
+              <SuperCheckSettings ProjectDetails={ProjectDetails} />
             </Grid>
+          )}
+
+          {/* <div className={classes.divider} ></div> */}
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <FormControlLabel
+              control={<Switch color="primary" />}
+              label="Download Metadata"
+              labelPlacement="start"
+              checked={downloadMetadataToggle}
+              onChange={handleDownoadMetadataToggle}
+              disabled={
+                userRole.WorkspaceManager === loggedInUserData?.role
+                  ? true
+                  : false
+              }
+            />
           </Grid>
+        </Grid>
         </Grid>
 
 

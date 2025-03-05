@@ -574,7 +574,50 @@ const ReviewPage = () => {
 
     const isMaxIdAnnotation =
       maxIdAnnotation?.id === task.correct_annotation_id;
+    console.log(isMaxIdAnnotation, "llove");
 
+    // if (ProjectDetails.required_annotators_per_task > 1 && !isMaxIdAnnotation) {
+    //   const nextAPIData = {
+    //     id: projectId,
+    //     current_task_id: taskId,
+    //     mode: "review",
+    //     annotation_status: labellingMode,
+    //     current_annotation_id: task.correct_annotation_id,
+    //   };
+
+    //   let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
+    //   var rsp_data = [];
+    //   fetch(apiObj.apiEndPoint(), {
+    //     method: "post",
+    //     body: JSON.stringify(apiObj.getBody()),
+    //     headers: apiObj.getHeaders().headers,
+    //   })
+    //     .then(async (response) => {
+    //       rsp_data = await response.json();
+    //       setLoading(false);
+    //       if (response.ok) {
+    //         localStorage.setItem("Task", JSON.stringify(rsp_data));
+    //         setNextData(rsp_data);
+    //         tasksComplete(rsp_data?.id || null);
+    //         getAnnotationsTaskData(rsp_data.id);
+    //         getTaskData(rsp_data.id);
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       setSnackbarInfo({
+    //         open: true,
+    //         message: "No more tasks to label",
+    //         variant: "info",
+    //       });
+    //       setTimeout(() => {
+    //         if (typeof window !== "undefined") {
+    //           localStorage.removeItem("labelAll");
+    //         }
+
+    //         window.location.replace(`/#/projects/${projectId}`);
+    //       }, 1000);
+    //     });
+    // } else {
     const nextAPIData = {
       id: projectId,
       current_task_id: taskId,
@@ -663,6 +706,7 @@ const ReviewPage = () => {
           prompt_output_pair_id: form.prompt_output_pair_id,
           additional_note: form.additional_note,
         }));
+        console.log("resval: " + resultValue);
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
@@ -679,7 +723,7 @@ const ReviewPage = () => {
       const PatchAPIdata = {
         annotation_status:
           typeof window !== "undefined" &&
-            (value === "delete" || value === "delete-pair")
+          (value === "delete" || value === "delete-pair")
             ? localStorage.getItem("labellingMode")
             : value,
         review_notes:
@@ -709,6 +753,8 @@ const ReviewPage = () => {
         clear_conversation: value === "delete" || value === "rejected",
       };
 
+      console.log("hello");
+
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
           value,
@@ -728,6 +774,9 @@ const ReviewPage = () => {
             "to_be_revised",
           ].includes(value)
         ) {
+          console.log("answered variable: ");
+          console.log(answered, "kelo");
+
           if (
             (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
               ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -785,21 +834,21 @@ const ReviewPage = () => {
           }
           value === "delete"
             ? setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            })
-            : value === "delete-pair"
-              ? setSnackbarInfo({
                 open: true,
-                message: "Selected conversation is deleted",
+                message: "Chat history has been cleared successfully!",
                 variant: "success",
               })
+            : value === "delete-pair"
+              ? setSnackbarInfo({
+                  open: true,
+                  message: "Selected conversation is deleted",
+                  variant: "success",
+                })
               : setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "success",
-              });
+                  open: true,
+                  message: resp?.message,
+                  variant: "success",
+                });
         } else {
           setAutoSave(true);
           setSnackbarInfo({
@@ -869,13 +918,13 @@ const ReviewPage = () => {
       if (userAnnotation.annotation_status === "unreviewed") {
         filteredAnnotations =
           userAnnotation.result.length > 0 &&
-            !taskData?.revision_loop_count?.review_count
+          !taskData?.revision_loop_count?.review_count
             ? [userAnnotation]
             : annotations.filter(
-              (annotation) =>
-                annotation.id === userAnnotation.parent_annotation &&
-                annotation.annotation_type === 1,
-            );
+                (annotation) =>
+                  annotation.id === userAnnotation.parent_annotation &&
+                  annotation.annotation_type === 1,
+              );
       } else if (
         userAnnotation &&
         ["rejected"].includes(userAnnotation.annotation_status)
@@ -1019,8 +1068,9 @@ const ReviewPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
-            }`}
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -1158,14 +1208,14 @@ const ReviewPage = () => {
               style={{
                 backgroundColor:
                   annotationtext.trim().length === 0 &&
-                    supercheckertext.trim().length === 0
+                  supercheckertext.trim().length === 0
                     ? "#bf360c"
                     : "green",
               }}
             >
               Notes{" "}
               {annotationtext.trim().length === 0 &&
-                supercheckertext.trim().length === 0
+              supercheckertext.trim().length === 0
                 ? ""
                 : "*"}
             </Button>
@@ -1218,7 +1268,7 @@ const ReviewPage = () => {
                   <div>
                     <div>
                       {ProjectDetails?.conceal == false &&
-                        Array.isArray(assignedUsers)
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>

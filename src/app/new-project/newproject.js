@@ -212,6 +212,13 @@ const CreateProject = () => {
     return records;
   };
 
+  useEffect(() => {
+    console.log("questionsJSON:", questionsJSON);
+    console.log("typeof questionsJSON:", typeof questionsJSON);
+    console.log("Array.isArray(questionsJSON):", Array.isArray(questionsJSON));
+  }, [questionsJSON]);
+
+  console.log("questions json: " + typeof questionsJSON);
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -324,15 +331,32 @@ const CreateProject = () => {
         Array.isArray(jsonData) &&
         jsonData.every((item) => typeof item === "object" && item !== null)
       ) {
+        console.log("Parsed JSON Data is an array of objects:", jsonData);
         setQuestionsJSON(jsonData);
       } else {
         console.error("Parsed JSON Data is not an array of objects");
+      }
+      if (Array.isArray(questionsJSON)) {
+        console.log("questionsJSON is an array");
+        if (
+          questionsJSON.every(
+            (item) => typeof item === "object" && item !== null,
+          )
+        ) {
+          console.log("questionsJSON is an array of objects");
+        } else {
+          console.log("questionsJSON is not an array of objects");
+        }
+      } else {
+        console.log("questionsJSON is not an array");
       }
     };
 
     reader.readAsText(file);
   };
 
+  if (questionsJSON[0]?.mandatory) console.log("this is true");
+  else console.log("this is false");
   /* eslint-disable react-hooks/exhaustive-deps */
   const searchOpen = Boolean(searchAnchor);
   const excludeKeys = [
@@ -392,14 +416,14 @@ const CreateProject = () => {
               filter: false,
               sort: false,
               align: "center",
-              setCellProps: () => ({
+              setCellProps: () => ({ 
                 style: {
                   height: "70px", fontSize: "16px",
-                  padding: "16px",
-                  whiteSpace: "normal",
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
-                }
+                padding: "16px",
+                whiteSpace: "normal", 
+                overflowWrap: "break-word",
+                wordBreak: "break-word",  
+              } 
               }),
               customHeadLabelRender: customColumnHead,
               customBodyRender: (value) => {
@@ -455,16 +479,16 @@ const CreateProject = () => {
           tempTypesArr.push(project_type);
           if (
             ProjectDomains[domain]["project_types"][project_type][
-            "input_dataset"
+              "input_dataset"
             ]
           ) {
             tempDatasetTypes[project_type] =
               ProjectDomains[domain]["project_types"][project_type][
-              "input_dataset"
+                "input_dataset"
               ]["class"];
             tempColumnFields[project_type] =
               ProjectDomains[domain]["project_types"][project_type][
-              "input_dataset"
+                "input_dataset"
               ]["fields"];
           }
           // let temp =
@@ -562,8 +586,9 @@ const CreateProject = () => {
       is_published: is_published,
       password: passwordForProjects,
       metadata_json: questionsJSON,
-      conceal: conceal
+      conceal:conceal
     };
+    console.log(newProject);
 
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
@@ -597,11 +622,14 @@ const CreateProject = () => {
     is_published: is_published,
     password: passwordForProjects,
     metadata_json: questionsJSON,
-    conceal: conceal
+    conceal:conceal
   };
+  console.log(newProject);
 
   const setPasswordForNewProject = async (projectId) => {
     try {
+      console.log("Project id: " + projectId);
+      console.log("password: " + passwordForProjects);
       dispatch(
         setPasswordForProject({ projectId, password: passwordForProjects }),
       );
@@ -617,6 +645,7 @@ const CreateProject = () => {
 
       if (NewProject?.id) {
         const projectId = NewProject?.id;
+        console.log("Project ID:", projectId);
         setPasswordForNewProject(projectId);
       }
     }
@@ -768,20 +797,20 @@ const CreateProject = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
+          flexWrap: "wrap", 
+          justifyContent: { 
+            xs: "space-between", 
+            md: "flex-end" 
+          }, 
           alignItems: "center",
           padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
+          gap: { 
+            xs: "10px", 
+            md: "20px" 
+          }, 
         }}
       >
-
+  
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -792,21 +821,21 @@ const CreateProject = () => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-              marginLeft: "0px",
-            },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-              marginRight: "10px",
-            },
+            marginLeft: "0px",
+          },
+          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+            marginRight: "10px",
+          },
           }}
         />
-
+  
         {/* Jump to Page */}
         <div>
-          <label style={{
-            marginRight: "5px",
-            fontSize: "0.83rem",
+          <label style={{ 
+            marginRight: "5px", 
+            fontSize:"0.83rem", 
           }}>
-            Jump to Page:
+          Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -827,7 +856,7 @@ const CreateProject = () => {
       </Box>
     );
   };
-
+  
 
   const options = {
     count: totalDataitems,
@@ -1159,12 +1188,12 @@ const CreateProject = () => {
                                     confirmed
                                       ? undefined
                                       : () => {
-                                        setSelectedInstances(
-                                          selectedInstances.filter(
-                                            (instance) => instance !== key,
-                                          ),
-                                        );
-                                      }
+                                          setSelectedInstances(
+                                            selectedInstances.filter(
+                                              (instance) => instance !== key,
+                                            ),
+                                          );
+                                        }
                                   }
                                 />
                               ))}
@@ -1459,7 +1488,7 @@ const CreateProject = () => {
                   </FormControl>
                 </Grid>
                 {selectedType === "ModelInteractionEvaluation" ||
-                  selectedType === "MultipleInteractionEvaluation" ? (
+                selectedType === "MultipleInteractionEvaluation" ? (
                   <Grid
                     item
                     xs={12}
@@ -1565,19 +1594,19 @@ const CreateProject = () => {
                       sx={{ mt: 2, ml: 2, mb: 2 }}
                     />
                   </Grid>
-                ) : null
+                ) :null
                 }
-                <Grid container direction="row" alignItems="center">
-                  <Typography gutterBottom components="div">
-                    Hide Details :
-                  </Typography>
-                  <Switch
-                    checked={conceal}
-                    onChange={handleChangeconceal}
-                    inputProps={{ "aria-label": "controlled" }}
-                    sx={{ mt: 2, ml: 2, mb: 2 }}
-                  />
-                </Grid>
+                            <Grid container direction="row" alignItems="center">
+                <Typography gutterBottom components="div">
+                  Hide Details :
+                </Typography>
+                <Switch
+                  checked={conceal}
+                  onChange={handleChangeconceal}
+                  inputProps={{ "aria-label": "controlled" }}
+                  sx={{ mt: 2, ml: 2, mb: 2 }}
+                />
+              </Grid>
 
               </>
             )}
@@ -1611,15 +1640,15 @@ const CreateProject = () => {
                 onClick={handleCreateProject}
                 disabled={
                   title &&
-                    description &&
-                    selectedDomain &&
-                    selectedType &&
-                    selectedInstances &&
-                    domains &&
-                    samplingMode &&
-                    (selectedType === "ModelInteractionEvaluation"
-                      ? questionsJSON?.length > 0
-                      : true)
+                  description &&
+                  selectedDomain &&
+                  selectedType &&
+                  selectedInstances &&
+                  domains &&
+                  samplingMode &&
+                  (selectedType === "ModelInteractionEvaluation"
+                    ? questionsJSON?.length > 0
+                    : true)
                     ? false
                     : true
                 }

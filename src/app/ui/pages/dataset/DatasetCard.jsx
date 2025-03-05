@@ -1,4 +1,4 @@
-import { Box, Grid, Button, Tooltip } from "@mui/material";
+import { Box, Grid ,Button,Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import DatasetCard from "@/components/common/DatasetCard";
 import DatasetStyle from "@/styles/dataset";
@@ -15,9 +15,9 @@ import { styled } from '@mui/material/styles';
 
 
 const DatasetCards = (props) => {
-  /* eslint-disable react-hooks/exhaustive-deps */
+    /* eslint-disable react-hooks/exhaustive-deps */
 
-  const { datasetList, selectedFilters, setsSelectedFilters } = props;
+  const { datasetList,selectedFilters,setsSelectedFilters } = props;
   const classes = DatasetStyle();
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ const DatasetCards = (props) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-
+ 
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -69,13 +69,19 @@ const DatasetCards = (props) => {
       }
     });
   };
-  const areFiltersApplied = (filters) => {
+
+  // useEffect(() => {
+  //     setLoading(apiLoading);
+  // }, [apiLoading])
+
+   const areFiltersApplied = (filters) => {
     return Object.values(filters).some((value) => value !== "");
   };
 
   const filtersApplied = areFiltersApplied(selectedFilters);
+  console.log("filtersApplied", filtersApplied);
 
-  const CustomTooltip = styled(({ className, ...props }) => (
+    const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
@@ -93,27 +99,27 @@ const DatasetCards = (props) => {
     <React.Fragment>
       {/* <Header /> */}
       {/* {loading && <Spinner />} */}
-      <Grid sx={{ textAlign: "end", margin: "-20px 10px 10px 0px" }}>
+      <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-          {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />}
-          <CustomTooltip
-            title={
-              filtersApplied ? (
-                <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display: "flex", flexDirection: "column", gap: "5px" }}>
-                  {selectedFilters.dataset_type && <div><strong>Dataset Type:</strong> {selectedFilters.dataset_type}</div>}
-                  {selectedFilters.dataset_visibility && <div><strong>Dataset Visibility:</strong> {selectedFilters.dataset_visibility}</div>}
-                </Box>
-              ) : (
-                <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-                  Filter Table
-                </span>
-              )
-            }
-            disableInteractive
-          >
-            <FilterListIcon sx={{ color: '#515A5A' }} />
-          </CustomTooltip>
-        </Button>
+        {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}
+        <CustomTooltip
+      title={
+        filtersApplied ? (
+          <Box style={{ fontFamily: 'Roboto, sans-serif' }} sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display:"flex",flexDirection:"column", gap:"5px" }}>
+            {selectedFilters.dataset_type && <div><strong>Dataset Type:</strong> {selectedFilters.dataset_type}</div>}
+            {selectedFilters.dataset_visibility && <div><strong>Dataset Visibility:</strong> {selectedFilters.dataset_visibility}</div>}
+        </Box>
+      ) : (
+      <span style={{ fontFamily: 'Roboto, sans-serif' }}>
+        Filter Table
+      </span>
+      )  
+      }
+      disableInteractive
+    >
+      <FilterListIcon sx={{ color: '#515A5A' }} />
+    </CustomTooltip>
+      </Button>
       </Grid>
       {pageSearch().length > 0 && (
         <Box sx={{ margin: "0 auto", pb: 5 }}>

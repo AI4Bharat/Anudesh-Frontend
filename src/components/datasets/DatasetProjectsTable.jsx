@@ -71,82 +71,82 @@ const columns = [
 			sort: false,
 			filter: false,
 			align: "center",
-			setCellProps: () => ({
+			setCellProps: () => ({ 
 				style: {
-					padding: "16px",
-					whiteSpace: "normal",
-					overflowWrap: "break-word",
-					wordBreak: "break-word",
-				}
-			}),
+				padding: "16px",
+				whiteSpace: "normal", 
+				overflowWrap: "break-word",
+				wordBreak: "break-word",  
+			  } 
+			  }),
 		},
 	},
 ];
 
 const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-	return (
-		<Box
-			sx={{
-				display: "flex",
-				flexWrap: "wrap",
-				justifyContent: {
-					xs: "space-between",
-					md: "flex-end"
-				},
-				alignItems: "center",
-				padding: "10px",
-				gap: {
-					xs: "10px",
-					md: "20px"
-				},
-			}}
-		>
-
-			{/* Pagination Controls */}
-			<TablePagination
-				component="div"
-				count={count}
-				page={page}
-				rowsPerPage={rowsPerPage}
-				onPageChange={(_, newPage) => changePage(newPage)}
-				onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
-				sx={{
-					"& .MuiTablePagination-actions": {
-						marginLeft: "0px",
-					},
-					"& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-						marginRight: "10px",
-					},
-				}}
-			/>
-
-			{/* Jump to Page */}
-			<div>
-				<label style={{
-					marginRight: "5px",
-					fontSize: "0.83rem",
-				}}>
-					Jump to Page:
-				</label>
-				<Select
-					value={page + 1}
-					onChange={(e) => changePage(Number(e.target.value) - 1)}
-					sx={{
-						fontSize: "0.8rem",
-						padding: "4px",
-						height: "32px",
-					}}
-				>
-					{Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-						<MenuItem key={i} value={i + 1}>
-							{i + 1}
-						</MenuItem>
-					))}
-				</Select>
-			</div>
-		</Box>
-	);
-};
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap", 
+          justifyContent: { 
+            xs: "space-between", 
+            md: "flex-end" 
+          }, 
+          alignItems: "center",
+          padding: "10px",
+          gap: { 
+            xs: "10px", 
+            md: "20px" 
+          }, 
+        }}
+      >
+  
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+            marginLeft: "0px",
+          },
+          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+            marginRight: "10px",
+          },
+          }}
+        />
+  
+        {/* Jump to Page */}
+        <div>
+          <label style={{ 
+            marginRight: "5px", 
+            fontSize:"0.83rem", 
+          }}>
+          Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
 
 const options = {
 	filterType: "checkbox",
@@ -158,21 +158,21 @@ const options = {
 	viewColumns: false,
 	jumpToPage: true,
 	responsive: "vertical",
-	customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
-		<CustomFooter
-			count={count}
-			page={page}
-			rowsPerPage={rowsPerPage}
-			changeRowsPerPage={changeRowsPerPage}
-			changePage={changePage}
-		/>
-	),
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
 
 };
 
 export default function DatasetProjectsTable({ datasetId }) {
-	/* eslint-disable react-hooks/exhaustive-deps */
-	const dispatch = useDispatch();
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const dispatch = useDispatch();
 	const datasetProjects = useSelector((state) =>
 		state.GetDatasetProjects?.data);
 
@@ -185,12 +185,12 @@ export default function DatasetProjectsTable({ datasetId }) {
 
 	useEffect(() => {
 		dispatch(fetchDatasetProjects(datasetId));
-	}, [datasetId]);
+	}, [ datasetId]);
 
 	const getExportProjectButton = async (project) => {
 		setLoading(true);
 		const projectObj1 = project.project_type === "InstructionDrivenChat" ?
-			({ projectId: project.id, datasetId: project.dataset_id[0] }) : ({ projectId: project.id });
+			({projectId:project.id, datasetId:project.dataset_id[0]}) : ({projectId:project.id});
 		const projectObj = project.project_type === "InstructionDrivenChat" ?
 			new GetExportProjectButtonAPI(project.id, project.dataset_id[0]) : new GetExportProjectButtonAPI(project.id);
 		dispatch(fetchExportProjectButton(projectObj1));
@@ -218,24 +218,33 @@ export default function DatasetProjectsTable({ datasetId }) {
 	}
 	const SearchWorkspaceMembers = useSelector(
 		(state) => state.SearchProjectCard?.searchValue
-	);
-	const pageSearch = () => {
-		return datasetProjects.filter((el) => {
-			if (SearchWorkspaceMembers == "" || SearchWorkspaceMembers == undefined) {
-				return el;
-			} else if (
-				el.title
-					?.toLowerCase()
-					.includes(SearchWorkspaceMembers?.toLowerCase())
-			) {
+	  );
+  const pageSearch = () => {
+    return datasetProjects.filter((el) => {
+		console.log(SearchWorkspaceMembers);
+      if (SearchWorkspaceMembers == ""||SearchWorkspaceMembers==undefined) {
+        return el;
+      } else if (
+        el.title
+          ?.toLowerCase()
+          .includes(SearchWorkspaceMembers?.toLowerCase())
+      ) {
+		
+        return el;
+	  }
+    //   } else if (
+    //     el.email?.toLowerCase().includes(SearchWorkspaceMembers?.toLowerCase())
+    //   ) {
+    //     return el;
+    //   }
+    });
+  };
 
-				return el;
-			}
-		});
-	};
+
 
 	const getPullNewDataAPI = async (project) => {
 		const projectObj = new GetPullNewDataAPI(project.id);
+		//dispatch(APITransport(projectObj));
 		const res = await fetch(projectObj.apiEndPoint(), {
 			method: "POST",
 			body: JSON.stringify(projectObj.getBody()),
@@ -271,21 +280,23 @@ export default function DatasetProjectsTable({ datasetId }) {
 		);
 	};
 
-	const data = datasetProjects ? pageSearch().map((project) => ({
-		...project,
-		actions: () => (
-			<>
-				<Link
-					to={`/projects/${project.id}`}
-					style={{ textDecoration: "none" }}
-				>
-					<CustomButton sx={{ m: 1, borderRadius: 2 }} label="View" />
-				</Link>
-				<CustomButton sx={{ m: 1, borderRadius: 2, height: 37 }} onClick={() => getExportProjectButton(project)} label="Export" />
-				<CustomButton sx={{ m: 1, borderRadius: 2 }} onClick={() => getPullNewDataAPI(project)} label="Pull New Data Items" />
-			</>
-		),
-	})) : []
+	const data = datasetProjects? pageSearch().map((project) => ({
+			...project,
+			actions: () => (
+				<>
+					<Link
+						to={`/projects/${project.id}`}
+						style={{ textDecoration: "none" }}
+					>
+						<CustomButton sx={{ m:1,borderRadius: 2 }} label="View" />
+					</Link>
+					<CustomButton sx={{ m:1,borderRadius: 2, height: 37 }} onClick={() => getExportProjectButton(project)} label="Export" />
+					<CustomButton sx={{ m:1,borderRadius: 2 }} onClick={() => getPullNewDataAPI(project)} label="Pull New Data Items" />
+				</>
+			),
+		})):[]
+    // )
+console.log(data);
 	return (
 		<>
 			<ThemeProvider theme={tableTheme}>

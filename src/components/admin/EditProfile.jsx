@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import {
   Grid,
   FormControl,
@@ -59,41 +59,43 @@ const EditProfile = (props) => {
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const [languageOptions, setLanguageOptions] = useState([]);
-  const [org, setorg] = useState([])
+const [org,setorg] = useState([])
 
   const LanguageList = useSelector((state) => state.fetchLanguages?.data);
 
-  const getLanguageList = useCallback(async () => {
+  const getLanguageList = useCallback(async() => {
     const langObj = new FetchLanguagesAPI();
     const res = await fetch(langObj.apiEndPoint(), {
       method: "GET",
       body: JSON.stringify(langObj.getBody()),
       headers: langObj.getHeaders().headers,
-    });
-    const resp = await res.json();
-    if (res.ok) {
-      setLanguageOptions(resp?.language)
-    } else {
-
-    }
+  });
+  const resp = await res.json();
+  if (res.ok) {
+    console.log(resp);
+    setLanguageOptions(resp?.language)
+  } else {
+    
+  }
 
   }, []);
   const fetchPreviewData = useCallback(async () => {
     const mailObj = new OrganizationAPI();
     const res = await fetch(mailObj.apiEndPoint(), {
-      method: "GET",
-      body: JSON.stringify(mailObj.getBody()),
-      headers: mailObj.getHeaders().headers,
+        method: "GET",
+        body: JSON.stringify(mailObj.getBody()),
+        headers: mailObj.getHeaders().headers,
     });
     const resp = await res.json();
     if (res.ok) {
+      console.log(resp);
       setorg(resp?.results)
     } else {
-
+      
     }
 
 
-  }, []);
+  }, []); 
 
   useEffect(() => {
     getLanguageList();
@@ -242,7 +244,7 @@ const EditProfile = (props) => {
               //onChange={(e) => setRole(e.target.value)}
               onChange={(e) => {
                 const newRole = e.target.value;
-                const currentRole = Role;
+                const currentRole = Role; 
                 if (newRole < currentRole) {
                   alert("Warning: Demoting someone’s role on the platform may cause inconsistencies and is not advised. Please check with platform admins on this");
                 }
@@ -281,47 +283,47 @@ const EditProfile = (props) => {
           </FormControl>
         </Grid>
       </Grid>
-      {guest_user == false ? (<Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ mb: 2 }}>
+      {guest_user==false?(<Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ mb: 2 }}>
 
-        <FormControl sx={{ m: 1, minWidth: 210 }}>
-          <InputLabel id="demo-simple-select-helper-label">Organization</InputLabel>
-          <Select
-            labelId="demo-simple-select-helper-label"
-            id="demo-simple-select-helper"
-            value={organization}
-            label="Organization"
-            onChange={(e) => setorganization(e.target.value)}
-            sx={{
-              textAlign: "left",
-            }}
-            MenuProps={MenuProps}
-          >
-            {org.map((orgItem, index) => (
-              <MenuItem key={index} value={orgItem.id}>
-                {orgItem.title}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {organization == null && guest_user == false ? <span style={{ color: "#d93025" }}>*</span> : null}
+          <FormControl sx={{ m: 1, minWidth: 210 }}>
+            <InputLabel id="demo-simple-select-helper-label">Organization</InputLabel>
+            <Select
+              labelId="demo-simple-select-helper-label"
+              id="demo-simple-select-helper"
+              value={organization}
+              label="Organization"
+              onChange={(e) => setorganization(e.target.value)}
+              sx={{
+                textAlign: "left",
+              }}
+              MenuProps={MenuProps}
+            >
+           {org.map((orgItem, index) => (
+          <MenuItem key={index} value={orgItem.id}>
+            {orgItem.title}
+          </MenuItem>
+        ))}
+            </Select>
+          </FormControl>
+          {organization==null&&guest_user==false?<span style={{ color: "#d93025" }}>*</span>:null}
 
-      </Grid>) : null}
-      <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ display: "flex", ml: 1 }}>
-        <Typography gutterBottom component="div" label="Required">
-          Guest User :
-        </Typography>
-        <FormControlLabel
-          sx={{ ml: 1 }}
-          control={
-            <Switch
-              checked={guest_user}
-              onChange={(e) => setguest_user(e.target.checked)}
-              name="guestUserToggle"
-              color="primary"
-            />
-          }
-        />
-      </Grid>
+        </Grid>):null}
+      <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{display:"flex",ml:1}}>
+            <Typography gutterBottom component="div" label="Required">
+                    Guest User :
+                  </Typography>
+          <FormControlLabel
+          sx={{ml:1}}
+            control={
+              <Switch
+                checked={guest_user}
+                onChange={(e) => setguest_user(e.target.checked)}
+                name="guestUserToggle"
+                color="primary"
+              />
+            }
+          />
+        </Grid>
 
       <Grid sx={{ textAlignLast: "end" }}>
         <CustomButton
@@ -332,7 +334,7 @@ const EditProfile = (props) => {
             borderRadius: 2,
             textDecoration: "none",
           }}
-          disabled={organization == null && guest_user == false}
+          disabled={organization==null&&guest_user==false}
         />
         <CustomButton
           label={translate("button.cancel")}

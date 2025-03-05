@@ -23,14 +23,14 @@ const QueuedTasksDetails = (props) => {
     variant: "success",
   });
   const [tableData, setTableData] = useState([])
-  const [queuedTaskData, setQueuedTaskData] = useState([])
+  const [queuedTaskData,setQueuedTaskData] = useState([])
   const UserDetail = useSelector((state) => {
     return state.getQueuedTaskDetails?.data;
   });
   useEffect(() => {
     const fetchQueuedTasks = async () => {
       const apiInstance = new GetQueuedTaskDetailsAPI();
-      const action = await apiInstance.call();
+      const action = await apiInstance.call(); 
       dispatch(action);
     };
 
@@ -42,7 +42,9 @@ const QueuedTasksDetails = (props) => {
     (state) => state.SearchProjectCards?.data
   );
   const getUserDetail = () => {
+    // setLoading(true);
     const UserObj = new GetQueuedTaskDetailsAPI();
+    // console.log(UserObj)
     dispatch(APITransport(UserObj));
   };
 
@@ -50,30 +52,31 @@ const QueuedTasksDetails = (props) => {
     getUserDetail();
   }, []);
 
-  useEffect(() => {
-    const tData = pageSearch(queuedTaskData)
+  useEffect(()=>{
+    const tData=pageSearch(queuedTaskData)
     setTableData(tData)
-  }, [queuedTaskData, SearchQueuedTasks])
-
+  },[queuedTaskData,SearchQueuedTasks])
+  
 
   useEffect(() => {
-    let formatedQueuedTaskData = [];
-    if (UserDetail) {
-      formatedQueuedTaskData = Object.keys(UserDetail).map((key) => UserDetail[key]);
-    }
+  // const formatedQueuedTaskData=Object.keys(UserDetail).map((key) => UserDetail[key]);
+  let formatedQueuedTaskData = [];
+  if (UserDetail) {
+  formatedQueuedTaskData = Object.keys(UserDetail).map((key) => UserDetail[key]);
+  }
     if (formatedQueuedTaskData.length > 0) {
       // setLoading(false);
     }
-    const data = formatedQueuedTaskData && formatedQueuedTaskData.length > 0
-      ? formatedQueuedTaskData.map((el, i) => {
-        return {
-          uuid: el.uuid,
-          name: el.name,
-          state: el.state,
-          args: el.args,
-          args: el.kwargs,
-        };
-      })
+    const data=formatedQueuedTaskData && formatedQueuedTaskData.length > 0
+            ? formatedQueuedTaskData.map((el,i)=>{
+          return {
+            uuid:el.uuid,
+            name:el.name,
+            state:el.state,
+            args:el.args,
+            args:el.kwargs,
+            };
+        })
       : [];
     setQueuedTaskData(data)
   }, [UserDetail]);
@@ -86,7 +89,7 @@ const QueuedTasksDetails = (props) => {
         el.name?.toLowerCase().includes(SearchQueuedTasks?.toLowerCase())
       ) {
         return el;
-      }
+      } 
       else if (
         el.state?.toLowerCase().includes(SearchQueuedTasks?.toLowerCase())
       ) {
@@ -143,13 +146,13 @@ const QueuedTasksDetails = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({
+        setCellProps: () => ({ 
           style: {
-            padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
-          }
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -165,70 +168,70 @@ const QueuedTasksDetails = (props) => {
     },
   ];
 
-  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-    return (
-      <Box
+    const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap", 
+        justifyContent: { 
+          xs: "space-between", 
+          md: "flex-end" 
+        }, 
+        alignItems: "center",
+        padding: "10px",
+        gap: { 
+          xs: "10px", 
+          md: "20px" 
+        }, 
+      }}
+    >
+
+      {/* Pagination Controls */}
+      <TablePagination
+        component="div"
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={(_, newPage) => changePage(newPage)}
+        onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
+          "& .MuiTablePagination-actions": {
+          marginLeft: "0px",
+        },
+        "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+          marginRight: "10px",
+        },
         }}
-      >
+      />
 
-        {/* Pagination Controls */}
-        <TablePagination
-          component="div"
-          count={count}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(_, newPage) => changePage(newPage)}
-          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+      {/* Jump to Page */}
+      <div>
+        <label style={{ 
+          marginRight: "5px", 
+          fontSize:"0.83rem", 
+        }}>
+        Jump to Page:
+        </label>
+        <Select
+          value={page + 1}
+          onChange={(e) => changePage(Number(e.target.value) - 1)}
           sx={{
-            "& .MuiTablePagination-actions": {
-              marginLeft: "0px",
-            },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-              marginRight: "10px",
-            },
+            fontSize: "0.8rem",
+            padding: "4px",
+            height: "32px",
           }}
-        />
-
-        {/* Jump to Page */}
-        <div>
-          <label style={{
-            marginRight: "5px",
-            fontSize: "0.83rem",
-          }}>
-            Jump to Page:
-          </label>
-          <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
-            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-              <MenuItem key={i} value={i + 1}>
-                {i + 1}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-      </Box>
-    );
-  };
+        >
+          {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+            <MenuItem key={i} value={i + 1}>
+              {i + 1}
+            </MenuItem>
+          ))}
+        </Select>
+      </div>
+    </Box>
+  );
+};
 
   const options = {
     textLabels: {
@@ -285,10 +288,10 @@ const QueuedTasksDetails = (props) => {
     <div>
       {renderSnackBar()}
       {apiLoading && <Spinner />}
-      <Grid
+      <Grid 
         container
-        justifyContent="center"
-        sx={{
+        justifyContent="center"  
+        sx={{ 
           mb: 2,
           padding: "10px",
         }}>
@@ -300,12 +303,12 @@ const QueuedTasksDetails = (props) => {
           data={tableData}
           columns={columns}
           options={options}
-        /> :
-          <Box sx={{ display: 'flex', gap: '2em', alignItems: 'center', justifyContent: 'center' }}>
+        />:
+        <Box sx={{display: 'flex', gap: '2em', alignItems: 'center', justifyContent:'center'}}>
             {!apiLoading && <Typography>
               No Queued Tasks to Display
             </Typography>}
-          </Box>
+        </Box>
         }
       </ThemeProvider>
     </div>

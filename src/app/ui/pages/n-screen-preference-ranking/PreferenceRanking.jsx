@@ -67,6 +67,7 @@ const PreferenceRanking = ({
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
+  console.log("questions that were fetched: " + typeof questions);
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
@@ -102,6 +103,7 @@ const PreferenceRanking = ({
 
       setForms(forms.length > 0 ? forms : []);
       setIsFormsInitialized(forms.length > 0);
+      console.log("Parsed Forms:", forms, "jack", "1");
       return forms;
     }
     setForms([]);
@@ -111,6 +113,7 @@ const PreferenceRanking = ({
 
   useEffect(() => {
     setForms(parsedForms);
+    console.log("Forms updated:", parsedForms);
   }, [parsedForms, setForms]);
 
   const handleReset = () => {
@@ -137,12 +140,14 @@ const PreferenceRanking = ({
     } catch (error) {
       console.error("Error fetching interactions:", error);
     }
+    console.log("jack", "2");
   }, [taskId]);
 
   useEffect(() => {
     fetchInteractions();
   }, [fetchInteractions]);
   useEffect(() => {
+    console.log("kkk", interactions.length, forms?.length);
 
     if (forms?.length == 0 && interactions?.length > 0) {
       const initialForms = interactions?.map((interaction) => {
@@ -167,7 +172,10 @@ const PreferenceRanking = ({
           additional_note: interaction?.additional_note,
         };
       });
+
+      console.log("init forms: ", initialForms);
       setForms(initialForms);
+      console.log("jack", "3");
     }
   }, [forms, interactions, taskId]);
 
@@ -182,8 +190,10 @@ const PreferenceRanking = ({
       const currentForm = forms?.find(
         (form) => form?.prompt_output_pair_id == defaultFormId,
       );
+      console.log("forms", currentForm);
 
       if (currentForm) {
+        console.log("current form: " + JSON.stringify(currentForm));
         const modelResponses = currentForm?.model_responses_json?.map(
           (modelResponse) => {
             return {
@@ -210,8 +220,10 @@ const PreferenceRanking = ({
           additional_note: currentForm?.additional_note || "",
         };
         setCurrentInteraction(newState);
+        console.log(currentInteraction, "new");
       }
     }
+    console.log("jack", "4");
   }, [
     forms,
     setForms,
@@ -229,12 +241,19 @@ const PreferenceRanking = ({
         !form?.model_responses_json ||
         form.model_responses_json.length === 0
       ) {
+        console.log(
+          `Form #${formIndex + 1} has no model responses or is empty.`,
+        );
         return false;
       }
 
       const formAnswered = form.model_responses_json.every(
         (modelResponse, modelIndex) => {
-
+          console.log(
+            `Checking modelResponse #${modelIndex + 1} for model ${
+              modelResponse.model_name
+            } in Form #${formIndex + 1}`,
+          );
 
           const allMandatoryAnswered = questions.every(
             (question, questionIndex) => {
@@ -252,6 +271,11 @@ const PreferenceRanking = ({
                 );
 
               if (!responseForQuestion?.response) {
+                console.log(
+                  `Question #${questionIndex + 1} in model ${
+                    modelResponse.model_name
+                  } is unanswered or missing response`,
+                );
                 return false; // If the question is not answered, return false
               }
 
@@ -262,6 +286,11 @@ const PreferenceRanking = ({
                   (response) => response === "" || response === undefined,
                 );
                 if (!isCorrectLength || !hasNoEmptyResponse) {
+                  console.log(
+                    `Fill-in-the-blanks question #${
+                      questionIndex + 1
+                    } not fully answered in model ${modelResponse.model_name}`,
+                  );
                   return false;
                 }
                 return true;
@@ -273,19 +302,31 @@ const PreferenceRanking = ({
                   (response) => response === "" || response === undefined,
                 );
 
-
+              if (!hasValidResponse) {
+                console.log(
+                  `Question #${
+                    questionIndex + 1
+                  } has invalid response in model ${modelResponse.model_name}`,
+                );
+              }
 
               return hasValidResponse;
             },
           );
 
+          console.log(
+            `All mandatory questions answered for model ${modelResponse.model_name}: ${allMandatoryAnswered}`,
+          );
           return allMandatoryAnswered; // If any model response doesn't pass, this will be false
         },
       );
+
+      console.log(`Form #${formIndex + 1} fully answered: ${formAnswered}`);
       return formAnswered;
     });
 
     const allFormsAnswered = formStatuses.every((status) => status === true);
+    console.log("All forms answered:", allFormsAnswered);
 
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
@@ -370,6 +411,7 @@ const PreferenceRanking = ({
 
   const handleMCQ = (event, selectedOption, interactionIndex, outputIdx) => {
     const answerArray = [String(selectedOption)];
+    console.log(selectedOption);
 
     setCurrentInteraction((prev) => {
       const updatedModelResponses = prev?.model_responses_json?.map(
@@ -418,7 +460,9 @@ const PreferenceRanking = ({
     interactionIndex,
     outputIdx,
   ) => {
+    console.log("checked: " + isChecked);
     const selectedQuestion = questions[interactionIndex];
+    console.log(interactionIndex, selectedQuestion);
 
     setCurrentInteraction((prev) => {
       const updatedModelResponses = prev?.model_responses_json?.map(
@@ -465,6 +509,7 @@ const PreferenceRanking = ({
     });
   };
 
+  console.log(interactions);
   const handleOptionChange = (selectedIndex, answer) => {
     setCurrentInteraction((prev) => {
       const newAnswers = questions?.map((question, i) => {
@@ -495,6 +540,10 @@ const PreferenceRanking = ({
     });
   };
 
+  console.log(currentInteraction);
+  console.log(interactions);
+  console.log(forms);
+
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
     setCurrentInteraction((prev) => {
@@ -519,12 +568,15 @@ const PreferenceRanking = ({
     const markdownString = lines?.join("  \n");
     return markdownString;
   };
+  console.log(forms);
   const handleFormBtnClick = (e) => {
     setclickedPromptOutputPairId(e.target.id);
+    console.log(clickedPromptOutputPairId, forms);
     const currInteraction = forms?.find(
       (interaction) =>
         interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
+    console.log(currInteraction);
     const modelResponses = currInteraction?.model_responses_json?.map(
       (modelResponse) => {
         return {
@@ -554,7 +606,10 @@ const PreferenceRanking = ({
     }
   };
   const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
+    console.log(outputIdx);
+
     const { value } = e.target;
+
     setCurrentInteraction((prev) => {
       const updatedModelResponses = prev.model_responses_json.map(
         (modelResponse, modelIdx) => {
@@ -660,19 +715,19 @@ const PreferenceRanking = ({
                           {part}
                           {index <
                             question.input_question.split("<blank>").length -
-                            1 && (
-                              <span
-                                style={{
-                                  borderBottom: "1px solid black",
-                                  display: "inline-block",
-                                  width: "100px",
-                                  margin: "0 4px",
-                                  verticalAlign: "middle",
-                                }}
-                              >
-                                &nbsp;
-                              </span>
-                            )}
+                              1 && (
+                            <span
+                              style={{
+                                borderBottom: "1px solid black",
+                                display: "inline-block",
+                                width: "100px",
+                                margin: "0 4px",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              &nbsp;
+                            </span>
+                          )}
                         </span>
                       ))}
                     <span style={{ color: "#d93025", fontSize: "25px" }}>
@@ -777,15 +832,16 @@ const PreferenceRanking = ({
                             (_, index) => (
                               <Button
                                 key={index + 1}
-                                className={`${classes.numBtn} ${currentInteraction?.model_responses_json &&
+                                className={`${classes.numBtn} ${
+                                  currentInteraction?.model_responses_json &&
                                   currentInteraction?.model_responses_json[
                                     outputIdx
                                   ].questions_response[questionIdx]
                                     ?.response[0] ==
-                                  index + 1
-                                  ? classes.selected
-                                  : ""
-                                  }`}
+                                    index + 1
+                                    ? classes.selected
+                                    : ""
+                                }`}
                                 label={index + 1}
                                 onClick={() =>
                                   handleRating(
