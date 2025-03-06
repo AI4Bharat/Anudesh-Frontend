@@ -24,6 +24,20 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
           as="style"
         />
+          <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&display=swap"
+          as="style"
+        />
+         link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+
           <link rel="preload" href="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp" />
 
         </Head>
