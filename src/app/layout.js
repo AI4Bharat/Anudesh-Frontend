@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&display=swap"
           as="style"
         />
-         link
+         <link
           href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
           rel="stylesheet"
         />
