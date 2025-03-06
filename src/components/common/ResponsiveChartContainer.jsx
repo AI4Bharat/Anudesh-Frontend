@@ -1,7 +1,9 @@
 import React from 'react';
-import { useMediaQuery, useMediaQueries } from '@react-hook/media-query'
-import { ResponsiveContainer } from 'recharts';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Box } from '@mui/material';
+import dynamic from "next/dynamic";
+
+const ResponsiveContainer = dynamic(() => import("recharts").then(mod => mod.ResponsiveContainer), { ssr: false });
 
 const ResponsiveChartContainer = (props) => {
     const matches = useMediaQuery('only screen and (max-width: 700px)');

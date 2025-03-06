@@ -819,11 +819,12 @@ const Header = () => {
                   onClick={() => navigate("/")}
                 >
                   <Image
-                    src="https://i.imgur.com/56Ut9oz.png"
+                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                     alt="anudesh"
                     height="100"
                     width="100"
                     className={classes.headerLogo}
+                    priority
                   />
                   <Typography variant="h4" className={classes.headerTitle}>
                     Anudesh

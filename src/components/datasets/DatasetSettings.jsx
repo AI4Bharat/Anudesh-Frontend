@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Card, CircularProgress, Grid, Typography, Modal, Box,MenuItem, FormControl,Select} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { translate } from "@/config/localisation";
 import CustomButton from "@/components/common/Button";
 //import Modal from "@/components/common/Modal";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import MenuItems from "@/components/common/MenuItems";
 import { FileUploader } from "react-drag-drop-files";
 import Switch from "@mui/material/Switch";
 import DownloadDatasetButton from "./DownloadDataSetButton";

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, {  useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,10 +7,7 @@ import { ThemeProvider, Grid, Button, Box, Select, MenuItem, TablePagination } f
 import tableTheme from "../../../../themes/tableTheme";
 import Search from "../../../../components/common/Search";
 import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
-import APITransport from "../../../../Lib/apiTransport/apitransport";
-// import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
 import UserMappedByProjectStage from "../../../../utils/UserMappedByProjectStage";
-import GetWorkspacesProjectDetailsAPI from "../../../actions/api/workspace/GetWorkspaceProject";
 
 const ProjectTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */

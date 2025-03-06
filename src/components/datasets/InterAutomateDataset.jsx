@@ -5,7 +5,6 @@ import {
   MenuItem,
   Select,
   ThemeProvider,
-  InputLabel,
   Typography,
   Switch,
 } from "@mui/material";

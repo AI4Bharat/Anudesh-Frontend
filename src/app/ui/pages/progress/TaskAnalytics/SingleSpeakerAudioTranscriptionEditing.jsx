@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Grid, ThemeProvider, Box, Typography, Paper } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
 import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
 import React, { PureComponent } from "react";

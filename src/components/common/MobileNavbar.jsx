@@ -256,12 +256,13 @@ function MobileNavbar(props) {
             <Link href="/projects">
               <Image
                 onClick={() => navigate("/")}
-                src="https://i.imgur.com/56Ut9oz.png"
+                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                 alt="anudesh"
                 height="100"
                 width="100"
                 className={classes.headerLogo}
                 sx={{ marginTop: "5%" }}
+                priority
               />
             </Link>
             <Typography

@@ -276,10 +276,7 @@ if(isWorkspaceLevel && submit==true){
   var taskAnalyticsDataJson = useSelector((state) => state.getTaskAnalyticsData.originalData);
 
 }
-  const taskAnalyticsData1 = useSelector(
-    (state) => console.log(state)
-  );
- console.log(taskAnalyticsData);
+ 
 
   const [loading, setLoading] = useState(false);
   console.log(selectedType);
