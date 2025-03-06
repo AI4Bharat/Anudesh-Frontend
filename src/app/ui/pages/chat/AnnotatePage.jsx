@@ -46,7 +46,6 @@ const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
   /* eslint-disable react-hooks/exhaustive-deps */
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // let taskData = localStorage.getItem("TaskData");

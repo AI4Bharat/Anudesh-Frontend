@@ -97,7 +97,6 @@ const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
