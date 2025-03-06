@@ -1,4 +1,13 @@
-import { Grid, Select, MenuItem, InputLabel, FormControl,Box ,styled,Menu, FormControlLabel, Checkbox} from "@mui/material";
+import { styled} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import React from "react";
 import TaskAnalyticsDataAPI from "@/app/actions/api/Progress/TaskAnalytics";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,19 +16,15 @@ import Spinner from "@/components/common/Spinner";
 import LightTooltip from "@/components/common/Tooltip";
 import { translate } from "@/config/localisation";
 import InfoIcon from '@mui/icons-material/Info';
-import AudioTaskAnalyticsChart from "./AudioTaskAnalyticsChart";
 import TaskCountAnalyticsChart from "./TaskCountAnalyticsChart";
 import { MenuProps } from "@/utils/utils";
 import CustomButton from "@/components/common/Button";
-import APITransport from "@/Lib/apiTransport/apitransport";
 import { fetchTaskAnalyticsData } from "@/Lib/Features/Analytics/getTaskAnalyticsData";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { KeyboardArrowDown } from "@material-ui/icons";
 import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
-import { fetchwsMetaAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetMetaAnalytics";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
 const StyledMenu = styled((props) => (
   <Menu

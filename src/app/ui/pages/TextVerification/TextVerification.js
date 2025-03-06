@@ -4,19 +4,17 @@ import { useState, useEffect } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
-import {
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  TextareaAutosize,
-  Box,
-  IconButton,
-  Checkbox,
-  FormControl,
-  FormGroup,
-} from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import FormGroup from "@mui/material/FormGroup";
 import "./model_response_evaluation.css";
-import { Paper } from "@mui/material";
+import  Paper  from "@mui/material/Paper";
 import {
   Accordion,
   AccordionSummary,

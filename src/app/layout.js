@@ -13,18 +13,21 @@ import './index.css';
 export default function RootLayout({ children }) {
   return (
     <>
-     <html lang="en">
-      <Head>
+      <html lang="en">
+        <Head>
+          <title>Anudesh</title>
+          <meta name="description" content="An Initiative to source better data by AI4Bharat" />
 
-      </Head>
 
-      <body>
-        <Providers>
-          <ThemeProvider theme={themeDefault}>
-            {children}
-          </ThemeProvider>
-        </Providers>
-      </body>
+        </Head>
+
+        <body>
+          <Providers>
+            <ThemeProvider theme={themeDefault}>
+              {children}
+            </ThemeProvider>
+          </Providers>
+        </body>
       </html>
     </>
   );

@@ -1,4 +1,6 @@
-import { Tabs,Tab ,Box} from "@mui/material";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
 import {  ThemeProvider } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";

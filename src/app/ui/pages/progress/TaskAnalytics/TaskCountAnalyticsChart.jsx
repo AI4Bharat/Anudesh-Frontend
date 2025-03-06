@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
 import React from "react";
 import {
@@ -13,7 +13,6 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   Label,
 } from "recharts";
 import ResponsiveChartContainer from "@/components/common/ResponsiveChartContainer"
@@ -22,7 +21,6 @@ import ResponsiveChartContainer from "@/components/common/ResponsiveChartContain
 function TaskCountAnalyticsChart(props) {
   console.log(props);
   const classes = DatasetStyle();
-  const dispatch = useDispatch();
   const { analyticsData } = props;
 
   const [totalTaskCount, setTotalTaskCount] = useState();

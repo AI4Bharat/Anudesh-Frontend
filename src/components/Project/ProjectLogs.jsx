@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import {
-  Box,
-  Button,
-  Card,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TablePagination,
   ThemeProvider,
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import TablePagination from "@mui/material/TablePagination";
 import CustomizedSnackbars from "../common/Snackbar";
 import { addMonths, parse } from "date-fns";
 import { DateRangePicker } from "react-date-range";
@@ -25,7 +25,6 @@ import GetProjectLogsAPI from "@/app/actions/api/Projects/getProjectLogsAPI";
 
 const ProjectLogs = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
   const { id } = useParams();
   const [taskName, setTaskName] = useState(
     "projects.tasks.export_project_in_place",

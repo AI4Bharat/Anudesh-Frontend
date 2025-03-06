@@ -2,9 +2,15 @@ import React from 'react'
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import CustomButton from "@/components/common/Button";
-import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu} from "@mui/material";
-import MetaAnalyticsDataAPI from "@/app/actions/api/Progress/MetaAnalytics"
-import APITransport from "@/Lib/apiTransport/apitransport";
+import { styled} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+
 import AudioDurationChart from './AudioDurationMetaAnalyticsChart';
 import Spinner from "@/components/common/Spinner";
 import LightTooltip from '@/components/common/Tooltip';

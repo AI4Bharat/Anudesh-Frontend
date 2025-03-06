@@ -1,6 +1,6 @@
 import React from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Box } from '@mui/material';
+import  Box  from '@mui/material/Box';
 import dynamic from "next/dynamic";
 
 const ResponsiveContainer = dynamic(() => import("recharts").then(mod => mod.ResponsiveContainer), { ssr: false });

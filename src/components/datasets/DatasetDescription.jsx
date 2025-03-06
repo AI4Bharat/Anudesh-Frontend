@@ -1,12 +1,13 @@
 
 import DatasetStyle from "@/styles/dataset";
 import {
-    Grid,
-    Typography,
-    Card,
-    CardContent,
+
     ThemeProvider
 } from '@mui/material';
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import ImageArray from '@/utils/getModelIcons';
 import React from "react";
 import themeDefault from "@/themes/theme";

@@ -1,6 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Card, CircularProgress, Grid, Typography, Modal, Box,MenuItem, FormControl,Select} from "@mui/material";
+import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import { useDispatch, useSelector } from "react-redux";
 import { translate } from "@/config/localisation";
 import CustomButton from "@/components/common/Button";
