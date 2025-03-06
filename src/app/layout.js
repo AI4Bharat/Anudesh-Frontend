@@ -15,9 +15,16 @@ export default function RootLayout({ children }) {
     <>
       <html lang="en">
         <Head>
+
           <title>Anudesh</title>
           <meta name="description" content="An Initiative to source better data by AI4Bharat" />
-
+          <link rel="icon" href="/favicon.ico" />
+          <link
+          rel="preload"
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+          as="style"
+        />
+          <link rel="preload" href="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp" />
 
         </Head>
 
