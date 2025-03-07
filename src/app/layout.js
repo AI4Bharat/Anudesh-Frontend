@@ -18,12 +18,14 @@ export default function RootLayout({ children }) {
 
           <title>Anudesh</title>
           <meta name="description" content="An Initiative to source better data by AI4Bharat" />
+          <meta name="robots" content="index, follow" /> {/* ✅ Allow indexing */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
           <link rel="icon" href="/favicon.ico" />
           {/* ✅ Preconnect for faster Google Fonts loading */}
           <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
           {/* ✅ Preload both fonts in a single request */}
           <link
             rel="preload"

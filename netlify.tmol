@@ -2,8 +2,10 @@
   for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    X-Robots-Tag = "index, follow"
 
 [[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=3600, must-revalidate"
+    X-Robots-Tag = "index, follow"
