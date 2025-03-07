@@ -2,9 +2,15 @@ import React from 'react'
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import CustomButton from "@/components/common/Button";
-import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu} from "@mui/material";
-import MetaAnalyticsDataAPI from "@/app/actions/api/Progress/MetaAnalytics"
-import APITransport from "@/Lib/apiTransport/apitransport";
+import { styled} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+
 import AudioDurationChart from './AudioDurationMetaAnalyticsChart';
 import Spinner from "@/components/common/Spinner";
 import LightTooltip from '@/components/common/Tooltip';
@@ -12,7 +18,6 @@ import { translate } from "@/config/localisation";
 import InfoIcon from '@mui/icons-material/Info';
 import { MenuProps } from "@/utils/utils";
 import WordCountMetaAnalyticsChart from './WordCountMetaAnalyticsChart';
-import SentanceCountMetaAnalyticsChart from './SentanceCountMetaAnalyticsChart';
 import { fetchMetaAnalyticsData } from '@/Lib/Features/Analytics/getMetaAnalyticsData';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import exportFromJSON from 'export-from-json';
@@ -307,7 +312,6 @@ export default function MetaAnalytics(props) {
             ){
             return <Grid key={_index} style={{marginTop:"15px"}}>
             <WordCountMetaAnalyticsChart analyticsData={analyticsData}/>
-            {analyticsData[0].projectType.includes("Conversation") && <SentanceCountMetaAnalyticsChart analyticsData={analyticsData}/>}
           </Grid>}
           if (analyticsData.length && ocrProjectTypes.includes(analyticsData[0].projectType)){
             return (

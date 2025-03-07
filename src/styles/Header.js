@@ -41,6 +41,7 @@ const headerStyle = makeStyles({
     letterSpacing: "1px",
     fontSize: "28px",
     fontWeight: "bold",
+    fontDisplay: "swap", 
     fontFamily: 'Rowdies,"cursive", Roboto, sans-serif',
     "@media (min-width: 900px) and (max-width: 1400px)": {
       fontSize: "24px !important",

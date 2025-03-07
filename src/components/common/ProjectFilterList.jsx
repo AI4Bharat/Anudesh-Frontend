@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Divider,
-  Grid,
-  Typography,
-  Popover,
-  FormGroup,
-  Checkbox,
-  FormControlLabel,
-  Radio,
-  Autocomplete,
-  Box,
-  FormControl,
-  Select,
-  InputLabel,
-  MenuItem,
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Popover from "@mui/material/Popover";
+import FormGroup from "@mui/material/FormGroup";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import Autocomplete from "@mui/material/Autocomplete";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
 import { translate } from "../../config/localisation";
 import DatasetStyle from "../../styles/dataset";
 import { useDispatch, useSelector } from "react-redux";

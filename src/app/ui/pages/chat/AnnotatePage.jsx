@@ -1,45 +1,22 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef, memo } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
-import headerStyle from "@/styles/Header";
+import { useState, useRef, useEffect, memo } from "react";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-// import type ReactQuill from 'react-quill'
-
-// import ReactQuill, { Quill } from 'react-quill';
 import "./chat.css";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
-import Glossary from "./Glossary";
 import Spinner from "@/components/common/Spinner";
-import { ArrowDropDown } from "@material-ui/icons";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import LightTooltip from "@/components/common/Tooltip";
-import { ContactlessOutlined } from "@mui/icons-material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
@@ -51,8 +28,9 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
-import OutputSelection from "../dual-screen-preference-ranking/PreferenceRanking";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+
+
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
@@ -69,7 +47,6 @@ const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
   /* eslint-disable react-hooks/exhaustive-deps */
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // let taskData = localStorage.getItem("TaskData");
@@ -867,7 +844,7 @@ const AnnotatePage = () => {
             }}
           >
             <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}

@@ -5,25 +5,26 @@ import { Fragment, useEffect, useState } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import CustomButton from "../common/Button";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
-import {
-  Button,
-  Grid,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
-  Tooltip,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  ThemeProvider,
-  TablePagination,
+import Button from "@mui/material/Button";
+import { 
+ ThemeProvider
 } from "@mui/material";
+
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContentText from "@mui/material/DialogContentText";
+import TablePagination from "@mui/material/TablePagination";
 import { styled } from "@mui/material/styles";
 import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';

@@ -1,19 +1,16 @@
 "use client";
-import {
-  Box,
-  Card,
-  Grid,
-  Tab,
-  Tabs,
-  Button,
-  ThemeProvider,
-  Typography,
-  IconButton,
-  Tooltip,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import { useMediaQuery } from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { ThemeProvider, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +18,6 @@ import React, { useState, useEffect } from "react";
 import themeDefault from "../../../../themes/theme";
 import DatasetStyle from "../../../../styles/dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
 import componentType from "../../../../config/PageType";
 import ProjectTable from "./ProjectTable";
 import AnnotatorsTable from "../../../../components/Tabs/AnnotatorTable";
@@ -39,12 +35,10 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import AddUsersDialog from "../../../../components/common/AddUsersDialog";
 import addUserTypes from "../../../../Constants/addUserTypes";
 import GetWorkspacesDetailsAPI from "../../../actions/api/workspace/getWorkspaceDetails";
-import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import userRole from "@/utils/Role";
 import InviteUsersDialog from "@/components/Project/InviteUsersDialog";
 import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
 import getOrganizationUsers from "@/Lib/Features/getOrganizationUsers";
-import InviteManagerSuggestions from "@/app/actions/api/user/InviteManagerSuggestions";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 import TaskAnalytics from "../progress/Workspace/TaskAnalytics";
