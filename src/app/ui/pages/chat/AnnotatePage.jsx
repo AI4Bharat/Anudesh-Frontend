@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -16,7 +15,7 @@ import "./editor.css";
 import "quill/dist/quill.snow.css";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import Spinner from "@/components/common/Spinner";
-import { ArrowDropDown } from "@material-ui/icons";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import LightTooltip from "@/components/common/Tooltip";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
@@ -30,6 +29,8 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+
+
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
@@ -843,7 +844,7 @@ const AnnotatePage = () => {
             }}
           >
             <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
