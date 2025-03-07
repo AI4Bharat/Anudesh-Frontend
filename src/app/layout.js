@@ -19,29 +19,26 @@ export default function RootLayout({ children }) {
           <title>Anudesh</title>
           <meta name="description" content="An Initiative to source better data by AI4Bharat" />
           <link rel="icon" href="/favicon.ico" />
+          {/* ✅ Preconnect for faster Google Fonts loading */}
           <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
+          {/* ✅ Preload both fonts in a single request */}
+          <link
+            rel="preload"
+            as="style"
+            href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&family=Roboto:wght@400;700&display=swap"
+          />
 
+          {/* ✅ Load fonts asynchronously to prevent render blocking */}
           <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-          as="style"
-        />
-          <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&display=swap"
-          as="style"
-        />
-         <link
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
+            href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&family=Roboto:wght@400;700&display=swap"
+            rel="stylesheet"
+            media="print"
+            onLoad="this.onload=null;this.removeAttribute('media');"
+          />
+
 
           <link rel="preload" href="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp" />
 
