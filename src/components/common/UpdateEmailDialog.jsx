@@ -1,13 +1,11 @@
 import VerifyEmailAPI from "@/app/actions/api/user/VerifyEmailAPI";
-import {
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    Grid,
-    Typography,
-  } from "@mui/material";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
   import React, { useState } from "react";
   import CustomButton from "../common/Button";
   import OutlinedTextField from "../common/OutlinedTextField";

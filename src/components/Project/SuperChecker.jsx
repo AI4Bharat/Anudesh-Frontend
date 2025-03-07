@@ -1,8 +1,14 @@
 
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import TablePagination from "@mui/material/TablePagination";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
-import { ThemeProvider, Grid, Button, Box, TablePagination, Select, MenuItem } from "@mui/material";
+import { ThemeProvider} from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";

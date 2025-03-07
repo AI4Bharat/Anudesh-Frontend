@@ -1,17 +1,15 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import {
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  Card,
-  MenuItem,
-  DialogContent,
-  Dialog,
-  DialogContentText,
-  Typography,
-} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import Card from "@mui/material/Card";
+import MenuItem from "@mui/material/MenuItem";
+import DialogContent from "@mui/material/DialogContent";
+import Dialog from "@mui/material/Dialog";
+import DialogContentText from "@mui/material/DialogContentText";
+import Typography from "@mui/material/Typography";
 import CustomButton from "@/components/common/Button";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
 import { translate } from "@/config/localisation";
@@ -21,11 +19,9 @@ import getDomains from "../../../actions/api/Annotate/getDomain";
 import { setDomain } from "@/Lib/Features/actions/AddGlossary";
 
 import CustomizedSnackbars from "@/components/common/Snackbar";
-import SuggestAnEditAPI from "../../../actions/api/Annotate/SuggestAnEditAPI";
 import { MenuProps } from "@/utils/utils";
 import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
 import configs from "@/config/config";
-// import "@ai4bharat/indic-transliterate/dist/index.css";
 
 const SuggestAnEdit = ({
     openDialog,

@@ -6,13 +6,10 @@ import React, { PureComponent } from "react";
 import {
   BarChart,
   Bar,
-  Cell,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   Label,
 } from "recharts";
 import ResponsiveChartContainer from "@/components/common/ResponsiveChartContainer"

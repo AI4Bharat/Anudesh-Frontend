@@ -1,20 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  FormControlLabel,
-  ListItemText,
-  OutlinedInput,
-  Checkbox,
-  Grid,
-  Card,
-  ThemeProvider,
-  Typography,
-  Item,
-  Switch
-} from '@mui/material';
+import FormControl from "@mui/material/FormControl";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Switch from "@mui/material/Switch";
 import Spinner from "@/components/common/Spinner";
 import Snackbar from "@/components/common/Snackbar";
 import DatasetStyle from "@/styles/dataset";

@@ -9,11 +9,9 @@ import LightTooltip from '@/components/common/Tooltip';
 import { translate } from "@/config/localisation";
 import InfoIcon from '@mui/icons-material/Info';
 import { MenuProps } from "@/utils/utils";
-import { fetchMetaAnalyticsData } from '@/Lib/Features/Analytics/getMetaAnalyticsData';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchwsMetaAnalyticsData } from '@/Lib/Features/Analytics/Workspace/wsgetMetaAnalytics';
 import WordCountMetaAnalyticsChart from '../MetaAnalytics/WordCountMetaAnalyticsChart';
-import SentanceCountMetaAnalyticsChart from '../MetaAnalytics/SentanceCountMetaAnalyticsChart';
 import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
 import { KeyboardArrowDown } from "@material-ui/icons";
@@ -299,7 +297,6 @@ export default function MetaAnalytics(props) {
             ){
             return <Grid key={_index} style={{marginTop:"15px"}}>
             <WordCountMetaAnalyticsChart analyticsData={analyticsData}/>
-            {analyticsData[0].projectType.includes("Conversation") && <SentanceCountMetaAnalyticsChart analyticsData={analyticsData}/>}
           </Grid>}
           if (analyticsData.length && ocrProjectTypes.includes(analyticsData[0].projectType)){
             return (

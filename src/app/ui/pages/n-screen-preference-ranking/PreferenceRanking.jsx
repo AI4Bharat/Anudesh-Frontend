@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import Spinner from "@/components/common/Spinner";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
   FormControlLabel,
@@ -13,12 +11,9 @@ import {
   TextareaAutosize,
   Box,
   Typography,
-  Icon,
   IconButton,
-  Grid,
   Checkbox,
   FormControl,
-  FormLabel,
   FormGroup,
 } from "@mui/material";
 import "../model_response_evaluation/model_response_evaluation.css";
@@ -31,17 +26,11 @@ import {
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Resizable } from "re-resizable";
 import { translate } from "@/config/localisation";
-import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
-// import { questions } from "./config";
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
-import { current } from "@reduxjs/toolkit";
-import { output } from "../../../../../next.config";
-import { fontSize, width } from "@mui/system";
 
 // import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 

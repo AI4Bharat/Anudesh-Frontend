@@ -1,19 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import MUIDataTable from "mui-datatables";
+import { Link } from "react-router-dom";
+import dynamic from 'next/dynamic';
 import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
-import { ThemeProvider, Grid, Box, TablePagination, Select, MenuItem } from "@mui/material";
+import { ThemeProvider, Grid, Box, TablePagination, Select, MenuItem, Skeleton } from "@mui/material";
 import APITransport from "@/Lib/apiTransport/apitransport";
 import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
-// import Link from 'next/link';
-import { setWorkspace } from "@/Lib/Features/GetWorkspace";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 import Spinner from "@/components/common/Spinner";
 import { Tab } from "@material-ui/icons";
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
 
 const WorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -21,6 +38,7 @@ const WorkspaceTable = (props) => {
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
+  const [displayWidth, setDisplayWidth] = useState(0);
   const workspaceData = useSelector((state) => state.GetWorkspace.data);
   const SearchWorkspace = useSelector(
     (state) => state.searchProjectCard?.searchValue,
@@ -36,6 +54,23 @@ const WorkspaceTable = (props) => {
   const totalWorkspaceCount = useSelector(
     (state) => state.GetWorkspace.data.count,
   );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchWorkspaceData(currentPageNumber));
@@ -75,14 +110,14 @@ const WorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
             height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -93,14 +128,14 @@ const WorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
             height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -112,14 +147,14 @@ const WorkspaceTable = (props) => {
         sort: false,
         align: "center",
         display: showManager ? "true" : "exclude",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
             height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -131,14 +166,14 @@ const WorkspaceTable = (props) => {
         sort: false,
         align: "center",
         display: showCreatedBy ? "true" : "exclude",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
             height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -148,14 +183,14 @@ const WorkspaceTable = (props) => {
       options: {
         filter: false,
         sort: false,
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
             height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -164,24 +199,24 @@ const WorkspaceTable = (props) => {
   const data =
     workspaceData && workspaceData.length > 0
       ? pageSearch().map((el, i) => {
-          return [
-            el.id,
-            el.workspace_name,
-            el.managers
-              .map((manager, index) => {
-                return manager.username;
-              })
-              .join(", "),
-            el.created_by && el.created_by.username,
-            <Link
-              key={i}
-              to={`/workspaces/${el.id}`}
-              style={{ textDecoration: "none" }}
-            >
-              <CustomButton sx={{ borderRadius: 2 }} label="View" />
-            </Link>,
-          ];
-        })
+        return [
+          el.id,
+          el.workspace_name,
+          el.managers
+            .map((manager, index) => {
+              return manager.username;
+            })
+            .join(", "),
+          el.created_by && el.created_by.username,
+          <Link
+            key={i}
+            to={`/workspaces/${el.id}`}
+            style={{ textDecoration: "none" }}
+          >
+            <CustomButton sx={{ borderRadius: 2 }} label="View" />
+          </Link>,
+        ];
+      })
       : [];
   // console.log('DATA', data);
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
@@ -189,20 +224,20 @@ const WorkspaceTable = (props) => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -213,21 +248,21 @@ const WorkspaceTable = (props) => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -248,7 +283,7 @@ const WorkspaceTable = (props) => {
       </Box>
     );
   };
-  
+
 
   const options = {
     textLabels: {
@@ -291,7 +326,7 @@ const WorkspaceTable = (props) => {
   };
 
   return (
-    <div>
+    <>
       {apiLoading ? (
         <Spinner />
       ) : (
@@ -302,16 +337,20 @@ const WorkspaceTable = (props) => {
           {workspaceData && (
             <ThemeProvider theme={tableTheme}>
               <MUIDataTable
+                key={`table-${displayWidth}`}
                 title={""}
                 data={data}
                 columns={columns}
-                options={options}
+                options={{
+                  ...options,
+                  tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                }}
               />
             </ThemeProvider>
           )}
         </div>
       )}
-    </div>
+    </>
   );
 };
 export default WorkspaceTable;
