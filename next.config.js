@@ -20,6 +20,7 @@ const nextConfig = ({
       ...config.optimization,
       minimize: true,
       mergeDuplicateChunks: true,
+      moduleIds: "deterministic", 
       minimizer: [
         new TerserPlugin({
           terserOptions: {
@@ -28,6 +29,9 @@ const nextConfig = ({
               dead_code: true, // Removes unused code (Tree Shaking)
               reduce_vars: true, // Optimizes variable references
               passes: 3, // Applies multiple optimizations
+              unsafe: true, // Enables more aggressive optimizations
+              hoist_funs: true, // Moves function declarations to the top
+              hoist_vars: true, // Moves variable declarations to the top    
             },
             output: {
               comments: false, // Removes comments in production
@@ -45,8 +49,10 @@ const nextConfig = ({
       chunks: "all",
       minSize: 30 * 1024, // 30 KB minimum chunk size
       maxSize: 250 * 1024, // 250 KB max chunk size
-    };
-
+      maxInitialRequests: 10, // Allow more parallel requests
+    },
+{    runtimeChunk: "single", // Extract runtime for better caching
+}
     return config;
   },
 });

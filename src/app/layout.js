@@ -20,6 +20,8 @@ export default function RootLayout({ children }) {
           <meta name="description" content="An Initiative to source better data by AI4Bharat" />
           <meta name="robots" content="index, follow" /> {/* ✅ Allow indexing */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="Cache-Control" content="public, max-age=3600, must-revalidate"/>
+        <meta name="robots" content="index, follow"/>
 
           <link rel="icon" href="/favicon.ico" />
           {/* ✅ Preconnect for faster Google Fonts loading */}
