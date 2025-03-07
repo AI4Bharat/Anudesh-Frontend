@@ -19,8 +19,10 @@ export default function RootLayout({ children }) {
           <title>Anudesh</title>
           <meta name="description" content="An Initiative to source better data by AI4Bharat" />
           <link rel="icon" href="/favicon.ico" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+          <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
 
           <link
           rel="preload"
