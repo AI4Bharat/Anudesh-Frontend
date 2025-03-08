@@ -19,9 +19,10 @@ import { MenuProps } from "../../utils/utils";
 import CustomButton from "../common/Button";
 import FormControl from "@mui/material/FormControl";
 import tableTheme from "../../themes/tableTheme";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
+import Skeleton from "@mui/material/Skeleton";
 import ColumnList from "../common/ColumnList";
 import userRole from "../../utils/Role";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
@@ -30,6 +31,25 @@ import UpdateScheduledMailsAPI from "@/app/actions/api/user/UpdateScheduleMailsA
 import CreateScheduledMailsAPI from "@/app/actions/api/user/CreateScheduledMailsAPI";
 import DeleteScheduledMailsAPI from "@/app/actions/api/user/DeleteScheduledMailsAPI";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
 
 const ScheduleMails = () => {
   const { id } = useParams();
@@ -44,7 +64,7 @@ const ScheduleMails = () => {
     useState("AllAudioProjects");
   const [projectTypes, setProjectTypes] = useState();
   /* eslint-disable react-hooks/exhaustive-deps */
-
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [schedule, setSchedule] = useState("Daily");
   const [scheduleDay, setScheduleDay] = useState(1);
   const [workspaceId, setWorkspaceId] = useState(0);
@@ -72,6 +92,23 @@ const ScheduleMails = () => {
       setSelectedProjectType(types[3]);
     }
   }, [ProjectTypes]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   const getWorkspaceData = () => {
     dispatch(fetchWorkspaceData());
@@ -229,14 +266,14 @@ const ScheduleMails = () => {
               options: {
                 filter: false,
                 sort: true,
-                align: "center",setCellProps: () => ({ 
+                align: "center", setCellProps: () => ({
                   style: {
-                  whiteSpace: "normal", 
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",  
-                } 
+                    whiteSpace: "normal",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                  }
                 }),
-        
+
               },
             });
           }
@@ -250,12 +287,12 @@ const ScheduleMails = () => {
               filter: false,
               sort: true,
               align: "center",
-              setCellProps: () => ({ 
+              setCellProps: () => ({
                 style: {
-                whiteSpace: "normal", 
-                overflowWrap: "break-word",
-                wordBreak: "break-word",  
-              } 
+                  whiteSpace: "normal",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                }
               }),
             },
           });
@@ -264,13 +301,13 @@ const ScheduleMails = () => {
         updatedMail.Actions = (
           <>
             <CustomButton
-            sx={{m:1,p:1}}
+              sx={{ m: 1, p: 1 }}
               label={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
               onClick={() => updateScheduledMail(updatedMail)}
             />
             <CustomButton
               label="Delete"
-              sx={{ m:1,backgroundColor: "#EC0000" }}
+              sx={{ m: 1, backgroundColor: "#EC0000" }}
               onClick={() => deleteScheduledMail(updatedMail)}
             />
           </>
@@ -299,26 +336,26 @@ const ScheduleMails = () => {
       </Box>
     );
   };
-  
+
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -329,21 +366,21 @@ const ScheduleMails = () => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -364,7 +401,7 @@ const ScheduleMails = () => {
       </Box>
     );
   };
-  
+
 
   const tableOptions = {
     filterType: "checkbox",
@@ -376,16 +413,16 @@ const ScheduleMails = () => {
     viewColumns: false,
     jumpToPage: true,
     customToolbar: renderToolBar,
-          responsive: "vertical",
-      customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
-        <CustomFooter
-          count={count}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          changeRowsPerPage={changeRowsPerPage}
-          changePage={changePage}
-        />
-      ),
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
 
   };
 
@@ -429,8 +466,8 @@ const ScheduleMails = () => {
                 >
                   {(userRole.OrganizationOwner === userDetails?.role ||
                     userRole.Admin === userDetails?.role) && (
-                    <MenuItem value={1}>Organization</MenuItem>
-                  )}
+                      <MenuItem value={1}>Organization</MenuItem>
+                    )}
                   <MenuItem value={2}>Workspace</MenuItem>
                 </Select>
               </FormControl>
@@ -571,12 +608,16 @@ const ScheduleMails = () => {
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                   <ThemeProvider theme={tableTheme}>
                     <MUIDataTable
+                      key={`table-${displayWidth}`}
                       title={""}
                       data={tableData}
                       columns={columns.filter((col) =>
                         selectedColumns.includes(col.name),
                       )}
-                      options={tableOptions}
+                      options={{
+                        ...tableOptions,
+                        tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                      }}
                     />
                   </ThemeProvider>
                 </Grid>

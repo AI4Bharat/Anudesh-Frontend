@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
+import Skeleton from "@mui/material/Skeleton";
 import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { Grid, Tooltip, Button, Dialog, DialogTitle, DialogContent, TextField, FormHelperText, Typography, IconButton, InputAdornment, DialogActions, Box, TablePagination, Select, MenuItem } from "@mui/material";
 import APITransport from "@/Lib/apiTransport/apitransport";
@@ -20,6 +21,25 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ThemeProvider } from '@mui/material/styles';
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -27,6 +47,7 @@ const GuestWorkspaceTable = (props) => {
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
   const { id } = useParams();
+    const [displayWidth, setDisplayWidth] = useState(0);
   const workspaceData = useSelector((state) => state.GetWorkspace.data);
   const [filteredProjects, setFilteredProjects] = useState(null); 
   const [showPassword, setShowPassword] = useState(false);
@@ -53,6 +74,22 @@ const GuestWorkspaceTable = (props) => {
   );
   const combinedData = (filteredProjects?.included_projects && filteredProjects?.excluded_projects) ? filteredProjects?.excluded_projects.concat(filteredProjects?.included_projects).sort((a, b) => a.id - b.id) : filteredProjects
 
+    useEffect(() => {
+      const handleResize = () => {
+        setDisplayWidth(window.innerWidth);
+      };
+  
+      if (typeof window !== 'undefined') {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+      }
+  
+      return () => {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('resize', handleResize);
+        }
+      };
+    }, []);
 
   useEffect(() => {
     dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
@@ -436,10 +473,14 @@ const GuestWorkspaceTable = (props) => {
           {filteredProjects && (
             <ThemeProvider theme={tableTheme}>
               <MUIDataTable
+                key={`table-${displayWidth}`}
                 title={""}
                 data={data}
                 columns={columns}
-                options={options}
+                options={{
+                  ...options,
+                  tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                }}
               />
             </ThemeProvider>
           )}
