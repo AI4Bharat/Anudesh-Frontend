@@ -31,6 +31,11 @@ import UpdateScheduledMailsAPI from "@/app/actions/api/user/UpdateScheduleMailsA
 import CreateScheduledMailsAPI from "@/app/actions/api/user/CreateScheduledMailsAPI";
 import DeleteScheduledMailsAPI from "@/app/actions/api/user/DeleteScheduledMailsAPI";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Button from "@mui/material/Button";
+import Tooltip from '@mui/material/Tooltip';
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -271,6 +276,7 @@ const ScheduleMails = () => {
                     whiteSpace: "normal",
                     overflowWrap: "break-word",
                     wordBreak: "break-word",
+                    minWidth: "140px",
                   }
                 }),
 
@@ -300,16 +306,35 @@ const ScheduleMails = () => {
         tempSelected.push("Actions");
         updatedMail.Actions = (
           <>
-            <CustomButton
+            {/* <CustomButton
               sx={{ m: 1, p: 1 }}
               label={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
               onClick={() => updateScheduledMail(updatedMail)}
-            />
-            <CustomButton
+            /> 
+             <CustomButton
               label="Delete"
               sx={{ m: 1, backgroundColor: "#EC0000" }}
               onClick={() => deleteScheduledMail(updatedMail)}
-            />
+            /> */}
+            <Tooltip title={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}>
+              <Button
+                sx={{ m: 1, p: 1 }}
+                variant={"contained"}
+                color={"primary"}
+                onClick={() => updateScheduledMail(updatedMail)}
+              >
+                {updatedMail["Status"] === "Enabled" ? <PauseIcon /> : <PlayArrowIcon />}
+              </Button>
+            </Tooltip>
+            <Tooltip title={"Delete"}>
+              <Button
+                sx={{ m: 1, backgroundColor: "#EC0000" }}
+                variant={"contained"}
+                color={"primary"}
+                onClick={() => deleteScheduledMail(updatedMail)}>
+                {<DeleteIcon />}
+              </Button>
+            </Tooltip>
           </>
         );
         return updatedMail;
