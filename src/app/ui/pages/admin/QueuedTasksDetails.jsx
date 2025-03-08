@@ -3,14 +3,18 @@ import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import APITransport from "@/Lib/apiTransport/apitransport"
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider, Grid, IconButton, MenuItem, Select, TablePagination } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import TablePagination from "@mui/material/TablePagination";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import tableTheme from "@/themes/tableTheme";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import Search from "@/components/common/Search";
 import Spinner from "@/components/common/Spinner";
 import GetQueuedTaskDetailsAPI from "@/Lib/Features/getQueuedTaskDetails";
-import { Box } from "@mui/material";
-import { Typography } from "@mui/material";
 
 /* eslint-disable react-hooks/exhaustive-deps */
 const QueuedTasksDetails = (props) => {

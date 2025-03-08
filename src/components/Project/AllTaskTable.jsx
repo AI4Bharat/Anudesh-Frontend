@@ -5,16 +5,16 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "@/components/common/Spinner";
 import {
   ThemeProvider,
-  Grid,
-  Box,
-  Tooltip,
-  Button,
-  IconButton,
-  Typography,
-  Select,
-  MenuItem,
-  TablePagination,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "../../themes/tableTheme";
 import ColumnList from "../common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
@@ -195,8 +195,16 @@ const AllTaskTable = (props) => {
           },
         };
       });
+      if(cols.length == 6){
+        cols.splice(1,2);
+      }
       setColumns(cols);
       setSelectedColumns(colList);
+      data.forEach(ele => {
+        if(ele.length == 6){
+          ele.splice(1,2);
+        }
+      });
       setTasks(data);
     } else {
       setTasks([]);

@@ -1,6 +1,6 @@
 import "./textarea.css";
 import { useEffect, useState } from "react";
-import { styled, width } from "@mui/system";
+import { styled } from '@mui/material/styles';
 import { Grid } from "@mui/material";
 import { translate } from "@/config/localisation";
 import IconButton from "@mui/material/IconButton";

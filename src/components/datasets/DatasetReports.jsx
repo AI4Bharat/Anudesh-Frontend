@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import {
-  Box,
-  Button,
-  Grid,
-  TablePagination,
+
   ThemeProvider,
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "@/themes/tableTheme";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";

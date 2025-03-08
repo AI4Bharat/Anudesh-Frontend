@@ -2,33 +2,27 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams,useLocation } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
-// import GetAllTasksAPI from "../../../../redux/actions/api/Tasks/GetAllTasks";
-// import PullNewSuperCheckerBatchAPI from "../../../../redux/actions/api/Tasks/PullNewSuperCheckerBatch";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
-// import DeallocateSuperCheckerTasksAPI from "../../../../redux/actions/api/Tasks/DeAllocateSuperCheckerTasks";
-// import CustomizedSnackbars from "../../component/common/Snackbar";
-// import GetTasksByProjectIdAPI from "../../../../redux/actions/api/Tasks/GetTasksByProjectId";
-// import GetProjectDetailsAPI from "../../../../redux/actions/api/ProjectDetails/GetProjectDetails";
-// import Link from "next/navigation";
 import {
   ThemeProvider,
-  Grid,
-  Box,
-  Tooltip,
-  Button,
-  IconButton,
-  Typography,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  TablePagination,
+ 
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContentText from "@mui/material/DialogContentText";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import TablePagination from "@mui/material/TablePagination";
+
 import { styled } from "@mui/styles";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import InfoIcon from '@mui/icons-material/Info';

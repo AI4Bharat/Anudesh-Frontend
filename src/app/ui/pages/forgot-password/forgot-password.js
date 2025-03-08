@@ -1,16 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-// import CustomCard from "@/component/common/Card";
-import { Grid, Typography, Link, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 import Button from "@/components/common/Button";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
-// import { translate } from "@/config/localisation";
 import LoginStyle from "@/styles/loginStyle";
 import themeDefault from "@/themes/theme";
 import { useNavigate } from "react-router-dom";
 import AppInfo from "@/components/user/AppInfo";
 import ForgotPasswordAPI from "../../../actions/api/user/ForgotPasswordAPI";
-// import APITransport from "@/redux/actions/apitransport/apitransport";
 import { useDispatch } from "react-redux";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 

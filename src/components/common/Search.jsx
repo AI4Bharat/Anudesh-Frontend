@@ -1,4 +1,5 @@
-import { InputBase, ThemeProvider, Grid } from "@mui/material";
+import  InputBase from "@mui/material/InputBase";
+import  Grid from "@mui/material/Grid";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";

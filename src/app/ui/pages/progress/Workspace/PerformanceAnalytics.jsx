@@ -38,11 +38,7 @@ import {
 import { modifiedStaticRanges } from "@/utils/Date_Range/getDateRangeFormat";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import GetProjectDomainsAPI from "@/app/actions/api/ProjectDetails/GetProjectDomains";
-import FetchLanguagesAPI from "@/app/actions/api/UserManagement/FetchLanguages";
-import APITransport from "@/Lib/apiTransport/apitransport";
 import axios from "axios";
-import PerformanceAnalyticsAPI from "@/app/actions/api/Progress/PerformanceAnalytics";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import CustomizedSnackbars from "@/components/common/Snackbar";

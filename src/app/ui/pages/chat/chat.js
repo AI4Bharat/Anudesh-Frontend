@@ -253,11 +253,12 @@ const Chat = () => {
             <Image
               width={50}
               height={50}
-              src="https://i.imgur.com/56Ut9oz.png"
+              src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
               alt="Bot Avatar"
               style={{
                 marginRight: "1rem",
               }}
+              priority
             />
             <Box className="flex-col">
               {message.output.map((segment, index) =>
@@ -348,9 +349,10 @@ const Chat = () => {
         <Image
           onClick={() => navigate("/")}
           alt="Anudesh"
-          src="https://i.imgur.com/56Ut9oz.png"
+          src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
           width={90}
           height={90}
+          priority
         />
         <Box className="flex gap-6">
           <Link
@@ -389,10 +391,11 @@ const Chat = () => {
             >
               <Image
                 alt="Anudesh"
-                src="https://i.imgur.com/56Ut9oz.png"
+                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                 width={50}
                 height={50}
                 className="w-[8rem] h-[8rem]"
+                priority
               />
 
               <Box
