@@ -1,15 +1,18 @@
 import {
-  Box,
-  Card,
-  Grid,
-  Tab,
-  Tabs,
+
   ThemeProvider,
-  Typography,
-  MenuItem,
-  FormControl,
-  Select
+  
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";

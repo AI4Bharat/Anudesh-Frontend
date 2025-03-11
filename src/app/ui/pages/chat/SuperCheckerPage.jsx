@@ -1,18 +1,13 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -23,19 +18,9 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu, { MenuProps } from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
 import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
@@ -47,7 +32,6 @@ import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import CustomizedSnackbars from "@/components/common/Snackbar";
@@ -113,7 +97,6 @@ const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);

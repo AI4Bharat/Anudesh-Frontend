@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import UserInfo from "./UserInfo";
 import Spinner from "../../../../components/common/Spinner";
-import { el } from "date-fns/locale";
 import GetUserDetailUpdateAPI from "@/app/actions/api/Admin/EditProfile";
 import GetUserDetailAPI from "@/app/actions/api/Admin/UserDetail";
 

@@ -3,25 +3,18 @@
 import { useState, useEffect } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
-import {
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  TextareaAutosize,
-  Box,
-  Typography,
-  Icon,
-  IconButton,
-  Grid,
-  Checkbox,
-  FormControl,
-  FormLabel,
-  FormGroup,
-} from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import FormGroup from "@mui/material/FormGroup";
 import "./model_response_evaluation.css";
-import { Paper } from "@mui/material";
+import  Paper  from "@mui/material/Paper";
 import {
   Accordion,
   AccordionSummary,
@@ -34,10 +27,8 @@ import { translate } from "@/config/localisation";
 import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
-// import { questions } from "./config";
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
-// import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
 const TextVerification = ({
   currentInteraction,

@@ -1,16 +1,19 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, {  useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MUIDataTable from "mui-datatables";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider, Grid, Button, Box, Select, MenuItem, TablePagination } from "@mui/material";
+import { ThemeProvider} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "../../../../themes/tableTheme";
 import Search from "../../../../components/common/Search";
 import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
-import APITransport from "../../../../Lib/apiTransport/apitransport";
-// import getWorkspaceProject from "@/lib/Features/getWorkspaceProject";
 import UserMappedByProjectStage from "../../../../utils/UserMappedByProjectStage";
-import GetWorkspacesProjectDetailsAPI from "../../../actions/api/workspace/GetWorkspaceProject";
 
 const ProjectTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -314,7 +317,7 @@ const ProjectTable = (props) => {
     selectableRows: "none",
     search: false,
     jumpToPage: true,
-    responsive: "stacked",
+    responsive: "vertical",
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
       <CustomFooter
         count={count}

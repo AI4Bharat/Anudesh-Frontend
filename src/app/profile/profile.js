@@ -1,9 +1,16 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Avatar, Select, OutlinedInput, MenuItem, IconButton, Box, ThemeProvider, Card, CardContent, Chip, Grid, Typography, Switch, FormControlLabel, Tooltip, Paper, InputLabel, Container } from '@mui/material';
-import { Input, inputClasses } from '@mui/base/Input';
-import themeDefault from "../../themes/theme";
-import OutlinedTextField from "../../components/common/OutlinedTextField";
+import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Tooltip from '@mui/material/Tooltip';
+import Paper from '@mui/material/Paper';
+import { Input } from '@mui/base/Input';
 import CustomButton from "../../components/common/Button";
 import Spinner from "../../components/common/Spinner";
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -18,20 +25,14 @@ import GpsFixedOutlinedIcon from '@mui/icons-material/GpsFixedOutlined';
 import Filter1OutlinedIcon from '@mui/icons-material/Filter1Outlined';
 import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import Diversity2OutlinedIcon from '@mui/icons-material/Diversity2Outlined';
-import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import { participationType } from '../../config/dropDownValues';
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import userRole from "../../utils/Role";
-import ProfileDetails from "../../components/UserManagement/ProfileDetails"
 import ScheduleMails from '@/components/UserManagement/ScheduleMails';
 import { useNavigate, useParams } from 'react-router-dom';
-// import { useRouter } from 'next/navigation';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import UpdateProfileImageAPI from '../actions/api/user/UpdateProfileImageAPI'
 import { useDispatch, useSelector } from "react-redux";
-import APITransport from '@/Lib/apiTransport/apitransport';
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
-import { Person2Outlined, WidthFull } from '@mui/icons-material';
 import ReportBarGraph from '../../components/UserManagement/ProfileDetails';
 
 export default function ProfilePage() {

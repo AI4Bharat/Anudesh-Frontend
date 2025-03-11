@@ -1,49 +1,29 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
-import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
-import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
@@ -62,22 +42,14 @@ const ReactQuill = dynamic(
 const AllTaskPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
-  let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
-  const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
-  let loaded = useRef();
 
-  const userData = useSelector((state) => state.getLoggedInData?.data);
-  const [loadtime, setloadtime] = useState(new Date());
 
-  const load_time = useRef();
 
   let labellingMode = localStorage.getItem("labellingMode");
   const [snackbar, setSnackbarInfo] = useState({
@@ -86,19 +58,12 @@ const AllTaskPage = () => {
     variant: "success",
   });
   const [currentInteraction, setCurrentInteraction] = useState({});
-  const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
-  const [autoSave, setAutoSave] = useState(true);
-  const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
-  const [NextData, setNextData] = useState("");
 
   const [annotations, setAnnotations] = useState([]);
   const annotationNotesRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [disableButton, setDisableButton] = useState(false);
   const reviewNotesRef = useRef(null);
-  const [disableBtns, setDisableBtns] = useState(false);
-  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
@@ -107,7 +72,6 @@ const AllTaskPage = () => {
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [chatHistory, setChatHistory] = useState([]);
-  const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
@@ -117,9 +81,6 @@ const AllTaskPage = () => {
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
-  };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
   };
 
   const modules = {

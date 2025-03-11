@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import remarkBreaks from "remark-breaks";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {

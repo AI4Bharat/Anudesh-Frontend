@@ -1,28 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { parse } from "csv-parse/sync";
 import MUIDataTable from "mui-datatables";
 import { Parser } from "json2csv";
-
-import {
-  Box,
-  Chip,
-  Grid,
-  ThemeProvider,
-  Typography,
-  Card,
-  IconButton,
-  Select,
-  FormControl,
-  MenuItem,
-  InputAdornment,
-  Switch,
-  InputLabel,
-  TextField,
-  TablePagination,
-} from "@mui/material";
+import Chip from "@mui/material/Chip";
+import Grid from "@mui/material/Grid";
+import  Box  from "@mui/material/Box";
+import {ThemeProvider} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Card from "@mui/material/Card";
+import IconButton from "@mui/material/IconButton";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import MenuItem from "@mui/material/MenuItem";
+import InputAdornment from "@mui/material/InputAdornment";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import TablePagination from "@mui/material/TablePagination";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -51,7 +46,6 @@ import DatasetSearchPopup from "@/components/datasets/DatasetSearchPopup";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import UploadIcon from "@mui/icons-material/Upload";
 import sampleQuestion from "./sampleQue";
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -74,12 +68,10 @@ const CreateAnnotationsAutomatically = [
 const CreateProject = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
-  const router = useRouter();
   const dispatch = useDispatch();
   const { id } = useParams();
   //const { workspaceId } = useParams();
   const ProjectDomains = useSelector((state) => state.domains?.domains);
-  const ProjectDomains1 = useSelector((state) => console.log(state));
   const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
   // const DatasetFields = useSelector((state) => state.getDatasetFields.data);
   const LanguageChoices = useSelector(
@@ -95,7 +87,6 @@ const CreateProject = () => {
   const [datasetTypes, setDatasetTypes] = useState(null);
   const [instanceIds, setInstanceIds] = useState(null);
   const [columnFields, setColumnFields] = useState(null);
-  const [variableParameters, setVariableParameters] = useState(null);
   const [languageOptions, setLanguageOptions] = useState([]);
   const [searchedCol, setSearchedCol] = useState();
   const [title, setTitle] = useState("");
@@ -113,9 +104,6 @@ const CreateProject = () => {
   const [confirmed, setConfirmed] = useState(false);
   const [selectedAnnotatorsNum, setSelectedAnnotatorsNum] = useState(1);
   const [filterString, setFilterString] = useState(null);
-  const [selectedVariableParameters, setSelectedVariableParameters] = useState(
-    [],
-  );
   const filteredProjectStage =
     selectedAnnotatorsNum > 1
       ? projectStage.filter((stage) => stage.value !== 3)
@@ -125,7 +113,6 @@ const CreateProject = () => {
     (state) => state.getWorkspaceDetails.data,
   );
   const [taskReviews, setTaskReviews] = useState(1);
-  const [variable_Parameters_lang, setVariable_Parameters_lang] = useState("");
   //Table related state variables
   const [columns, setColumns] = useState(null);
   const [selectedColumns, setSelectedColumns] = useState([]);
@@ -491,19 +478,6 @@ const CreateProject = () => {
                 "input_dataset"
               ]["fields"];
           }
-          // let temp =
-          //   ProjectDomains[domain]["project_types"][project_type][
-          //   "output_dataset"
-          //   ]["fields"]["variable_parameters"];
-          // if (temp) {
-          //   tempVariableParameters[project_type] = {
-          //     variable_parameters: temp,
-          //     output_dataset:
-          //       ProjectDomains[domain]["project_types"][project_type][
-          //       "output_dataset"
-          //       ]["class"],
-          //   };
-          // }
         }
         tempTypes[domain] = tempTypesArr;
       }
