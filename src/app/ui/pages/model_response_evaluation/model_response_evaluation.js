@@ -878,7 +878,6 @@ const ModelInteractionEvaluation = ({
     };
 
     const Mywidth = window.innerWidth;
-    console.log(Mywidth, "mera width");
 
     return (
       <div
