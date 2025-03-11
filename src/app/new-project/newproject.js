@@ -6,6 +6,7 @@ import MUIDataTable from "mui-datatables";
 import { Parser } from "json2csv";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
+import  Box  from "@mui/material/Box";
 import {ThemeProvider} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
