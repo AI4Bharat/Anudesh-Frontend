@@ -1,4 +1,13 @@
-import { Grid, Select, MenuItem, InputLabel, FormControl,Box ,styled,Menu, FormControlLabel, Checkbox} from "@mui/material";
+import { styled} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import React from "react";
 import TaskAnalyticsDataAPI from "@/app/actions/api/Progress/TaskAnalytics";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,19 +16,15 @@ import Spinner from "@/components/common/Spinner";
 import LightTooltip from "@/components/common/Tooltip";
 import { translate } from "@/config/localisation";
 import InfoIcon from '@mui/icons-material/Info';
-import AudioTaskAnalyticsChart from "./AudioTaskAnalyticsChart";
 import TaskCountAnalyticsChart from "./TaskCountAnalyticsChart";
 import { MenuProps } from "@/utils/utils";
 import CustomButton from "@/components/common/Button";
-import APITransport from "@/Lib/apiTransport/apitransport";
 import { fetchTaskAnalyticsData } from "@/Lib/Features/Analytics/getTaskAnalyticsData";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { KeyboardArrowDown } from "@material-ui/icons";
 import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
-import { fetchwsMetaAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetMetaAnalytics";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
 const StyledMenu = styled((props) => (
   <Menu
@@ -276,10 +281,7 @@ if(isWorkspaceLevel && submit==true){
   var taskAnalyticsDataJson = useSelector((state) => state.getTaskAnalyticsData.originalData);
 
 }
-  const taskAnalyticsData1 = useSelector(
-    (state) => console.log(state)
-  );
- console.log(taskAnalyticsData);
+ 
 
   const [loading, setLoading] = useState(false);
   console.log(selectedType);
@@ -353,7 +355,7 @@ if(isWorkspaceLevel && submit==true){
   };
 
   useEffect(() => {
-    if(taskAnalyticsData.length >= 0){
+    if(taskAnalyticsData.length > 0){
       setLoading(false);
     }
   }, [taskAnalyticsData]);
@@ -432,159 +434,151 @@ if(isWorkspaceLevel && submit==true){
 
   return (
     <>
-    <Grid container columnSpacing={3} rowSpacing={2} mb={1} gap={3}>
-    {/* Project Type and Workspace Level */}
-    <Grid
-      container
-      item
-      xs={12}
-      sm={12}
-      md={12}
-      lg={4}
-      xl={4}
-      spacing={2}
-      alignItems="center"
-    >
-      {/* Project Type Dropdown */}
-      <Grid item xs={6}>
-        <FormControl size="small" fullWidth>
-          <InputLabel
-            id="demo-simple-select-label"
-            sx={{ fontSize: "16px", zIndex: 0 }}
-          >
-            Project Type{" "}
-            {
-              <LightTooltip
-                arrow
-                placement="top"
-                title={translate("tooltip.ProjectType")}
+      <Grid container columnSpacing={3} rowSpacing={2} mb={1} gap={{ xs: 0, sm: 3 }}>
+        <Grid
+          container
+          item
+          xs={12}
+          spacing={2}
+          alignItems="center"
+        >
+          {/* Project Type Dropdown */}
+          <Grid item xs={12} sm={4}>
+            <FormControl size="small" fullWidth>
+              <InputLabel
+                id="demo-simple-select-label"
+                sx={{ fontSize: "16px", zIndex: 0 }}
               >
-                <InfoIcon fontSize="medium" />
-              </LightTooltip>
-            }
-          </InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedType}
-            label="Project Type"
-            sx={{ padding: "1px" }}
-            onChange={(e) => setSelectedType(e.target.value)}
-            MenuProps={MenuProps}
-          >
-            {projectTypes.map((type, index) => (
-              <MenuItem value={type} key={index}>
-                {type}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
+                Project Type{" "}
+                {
+                  <LightTooltip
+                    arrow
+                    placement="top"
+                    title={translate("tooltip.ProjectType")}
+                  >
+                    <InfoIcon fontSize="medium" />
+                  </LightTooltip>
+                }
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={selectedType}
+                label="Project Type"
+                sx={{ padding: "1px" }}
+                onChange={(e) => setSelectedType(e.target.value)}
+                MenuProps={MenuProps}
+              >
+                {projectTypes.map((type, index) => (
+                  <MenuItem value={type} key={index}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
-      {/* Workspace Level Checkbox */}
-      <Grid item xs={6}>
-        <Box display="flex" alignItems="center" justifyContent="flex-end">
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isWorkspaceLevel}
-                onChange={(e) => setIsWorkspaceLevel(e.target.checked)}
+          {/* Workspace Level Checkbox */}
+          <Grid item xs={12} sm={3}>
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isWorkspaceLevel}
+                    onChange={(e) => setIsWorkspaceLevel(e.target.checked)}
+                  />
+                }
+                labelPlacement="end"
+                label="Workspace Level"
               />
-            }
-            labelPlacement="end"
-
-            label="Workspace Level"
-          />
-        </Box>
+            </Box>
+          </Grid>
+          
+          {isWorkspaceLevel && (
+          <Grid item xs={12} sm={12} md={4}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="workspace-dropdown-label">Workspace</InputLabel>
+              <Select
+                labelId="workspace-dropdown-label"
+                id="workspace-dropdown"
+                value={selectedWorkspace}
+                label="Workspace"
+                onChange={(e) => setSelectedWorkspace(e.target.value)}
+              >
+                {workspaces?.map((workspace, index) => (
+                  <MenuItem value={workspace?.id} key={index}>
+                    {workspace?.workspace_name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
+        </Grid>
       </Grid>
-    </Grid>
 
-    {/* Workspace Level Dropdown */}
-    {isWorkspaceLevel && (
-      <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-        <FormControl fullWidth size="small">
-          <InputLabel id="workspace-dropdown-label">Workspace</InputLabel>
-          <Select
-            labelId="workspace-dropdown-label"
-            id="workspace-dropdown"
-            value={selectedWorkspace}
-            label="Workspace"
-            onChange={(e) => setSelectedWorkspace(e.target.value)}
-          >
-            {workspaces?.map((workspace, index) => (
-              <MenuItem value={workspace?.id} key={index}>
-                {workspace?.workspace_name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <Grid
+        container
+        columnSpacing={3}
+        rowSpacing={2}
+        alignItems="center"
+        gap={2}
+      >
+        <Grid item xs={12} sm={12} md={6}>
+          <Box display="flex" gap={2} alignItems="center" flexDirection={{ xs: 'column', sm: 'row' }}>
+            <CustomButton
+              label="Submit"
+              sx={{ width: { xs: "100%", sm: "45%" }, height: "40px", mb: { xs: 2, sm: 0 } }}
+              onClick={handleSubmit}
+              size="small"
+            />
+
+            {/* Download Button */}
+            <Box display="flex" alignItems="center" sx={{ width: { xs: "100%", sm: "45%" } }}>
+              <CustomButton
+                onClick={handleClick}
+                disabled={loading}
+                sx={{ width: "100%", height: "40px" }}
+                endIcon={<KeyboardArrowDown />}
+                label="Download"
+              >
+                Download
+              </CustomButton>
+              <StyledMenu
+                id="demo-customized-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={downloadCSV}>CSV</MenuItem>
+                <MenuItem onClick={downloadPDF}>PDF</MenuItem>
+                <MenuItem onClick={downloadJSON}>JSON</MenuItem>
+              </StyledMenu>
+            </Box>
+          </Box>
+        </Grid>
       </Grid>
-    )}
-  </Grid>
-
-  <Grid
-    container
-    columnSpacing={3}
-    rowSpacing={2}
-    alignItems="center"
-    justifyContent="space-between"
-    gap={2}
-  >
-   <Grid item xs={12} sm={6} md={3} lg={3} xl={3}>
-    <Box display="flex" justifyContent="space-between" alignItems="center">
-      <CustomButton
-        label="Submit"
-        sx={{ width: "35%", height: "40px" }}
-        onClick={handleSubmit}
-        size="small"
-      />
-
-      {/* Download Button */}
-      <Box display="flex" alignItems="center" sx={{ width: "45%" }}>
-        <CustomButton
-          onClick={handleClick}
-          disabled={loading}
-          sx={{ width: "100%", height: "40px" }}
-          endIcon={<KeyboardArrowDown />}
-          label="Download"
-        >
-          Download
-        </CustomButton>
-        <StyledMenu
-          id="demo-customized-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-          <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-          <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-        </StyledMenu>
-      </Box>
-    </Box>
-
-    </Grid>
-  </Grid>
-
 
       {loading && <Spinner />}
-      {taskAnalyticsData.length ?
-        taskAnalyticsData.map((analyticsData,_index)=>{
-          
-          if(analyticsData.length){ 
-            return <Grid key={_index} style={{marginTop:"15px"}}>
-            <TaskCountAnalyticsChart analyticsData={analyticsData}/>
-          </Grid>}
-        })
-      :''}
+      {taskAnalyticsData.length
+        ? taskAnalyticsData.map((analyticsData, _index) => {
+            if (analyticsData.length) {
+              return (
+                <Grid key={_index} item xs={12} sm={6} md={4} style={{ marginTop: "15px" }}>
+                  <TaskCountAnalyticsChart analyticsData={analyticsData} />
+                </Grid>
+              );
+            }
+          })
+        : ""}
       <CustomizedSnackbars
         message={snackbarMessage}
         open={snackbarOpen}
         hide={2000}
         handleClose={closeSnackbar}
         anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
         variant="error"
       />

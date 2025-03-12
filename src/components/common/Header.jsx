@@ -1,32 +1,30 @@
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Button,
-  Checkbox,
-  Divider,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-  Popover,
-  Badge,
-  Stack,
-  Tabs,
-  Tab,
-  Switch,
-  Select,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Divider from "@mui/material/Divider";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import Popover from "@mui/material/Popover";
+import Badge from "@mui/material/Badge";
+import Stack from "@mui/material/Stack";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Switch from "@mui/material/Switch";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -841,11 +839,12 @@ const Header = () => {
                   onClick={() => navigate("/")}
                 >
                   <Image
-                    src="https://i.imgur.com/56Ut9oz.png"
+                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                     alt="anudesh"
                     height="100"
                     width="100"
                     className={classes.headerLogo}
+                    priority
                   />
                   <Typography variant="h4" className={classes.headerTitle}>
                     Anudesh

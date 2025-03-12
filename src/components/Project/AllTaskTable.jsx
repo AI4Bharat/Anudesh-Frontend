@@ -5,13 +5,16 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "@/components/common/Spinner";
 import {
   ThemeProvider,
-  Grid,
-  Box,
-  Tooltip,
-  Button,
-  IconButton,
-  Typography,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "../../themes/tableTheme";
 import ColumnList from "../common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
@@ -266,6 +269,72 @@ const AllTaskTable = (props) => {
       </Box>
     );
   };
+  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap", 
+          justifyContent: { 
+            xs: "space-between", 
+            md: "flex-end" 
+          }, 
+          alignItems: "center",
+          padding: "10px",
+          gap: { 
+            xs: "10px", 
+            md: "20px" 
+          }, 
+        }}
+      >
+  
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+            marginLeft: "0px",
+          },
+          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+            marginRight: "10px",
+          },
+          }}
+        />
+  
+        {/* Jump to Page */}
+        <div>
+          <label style={{ 
+            marginRight: "5px", 
+            fontSize:"0.83rem", 
+          }}>
+          Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
+  
+
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,
@@ -309,6 +378,17 @@ const AllTaskTable = (props) => {
     jumpToPage: true,
     serverSide: true,
     customToolbar: renderToolBar,
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
+
   };
 
   return (

@@ -4,11 +4,8 @@ import {
     Popover,
     Box,
     TextField,
-    Grid, Typography, Radio, Dialog, DialogActions, DialogContent, DialogContentText,
+    Grid, Typography,
 } from "@mui/material";
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
 import { translate } from "@/config/localisation";
 import DatasetStyle from "@/styles/dataset";
 import SuperCheckSettingsAPI from "@/app/actions/api/Dashboard/SuperCheckerSettingsAPI";

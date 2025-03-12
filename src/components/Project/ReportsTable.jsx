@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import MUIDataTable from "mui-datatables";
-import { Box, Button, Grid, CircularProgress, Card, Radio, Typography, ThemeProvider } from '@mui/material';
+import { Box, Button, Grid, CircularProgress, Card, Radio, Typography, ThemeProvider, TablePagination, Select, MenuItem } from '@mui/material';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -73,6 +73,14 @@ const ReportsTable = (props) => {
                     options: {
                         filter: false,
                         sort: false,
+                        setCellProps: () => ({ 
+                            style: {
+                             fontSize: "16px",
+                            whiteSpace: "normal", 
+                            overflowWrap: "break-word",
+                            wordBreak: "break-word",  
+                          } 
+                          }),
                     }
                 })
                 selected.push(key);
@@ -109,7 +117,71 @@ const ReportsTable = (props) => {
 
 
 
-
+    const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap", 
+              justifyContent: { 
+                xs: "space-between", 
+                md: "flex-end" 
+              }, 
+              alignItems: "center",
+              padding: "10px",
+              gap: { 
+                xs: "10px", 
+                md: "20px" 
+              }, 
+            }}
+          >
+      
+            {/* Pagination Controls */}
+            <TablePagination
+              component="div"
+              count={count}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={(_, newPage) => changePage(newPage)}
+              onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+              sx={{
+                "& .MuiTablePagination-actions": {
+                marginLeft: "0px",
+              },
+              "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+                marginRight: "10px",
+              },
+              }}
+            />
+      
+            {/* Jump to Page */}
+            <div>
+              <label style={{ 
+                marginRight: "5px", 
+                fontSize:"0.83rem", 
+              }}>
+              Jump to Page:
+              </label>
+              <Select
+                value={page + 1}
+                onChange={(e) => changePage(Number(e.target.value) - 1)}
+                sx={{
+                  fontSize: "0.8rem",
+                  padding: "4px",
+                  height: "32px",
+                }}
+              >
+                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+                  <MenuItem key={i} value={i + 1}>
+                    {i + 1}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+          </Box>
+        );
+      };
+    
     const options = {
         filterType: 'checkbox',
         selectableRows: "none",
@@ -125,7 +197,17 @@ const ReportsTable = (props) => {
                 noMatch: 'No Record Found!'
             },
         },
-
+        responsive: "vertical",
+        customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+          <CustomFooter
+            count={count}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            changeRowsPerPage={changeRowsPerPage}
+            changePage={changePage}
+          />
+        ),
+    
 
     };
 
@@ -210,7 +292,6 @@ const ReportsTable = (props) => {
                 </Grid >
                 <Grid item xs={12} sm={12} md={5} lg={5} xl={5}  >
                     <FormControl >
-
                         <RadioGroup
                             row
                             aria-labelledby="demo-row-radio-buttons-group-label"

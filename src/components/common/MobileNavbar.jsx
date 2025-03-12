@@ -1,24 +1,21 @@
 import React, { useState } from "react";
-import {
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-//   makeStyles,
-  Grid,
-  AppBar, 
-  Divider,
-  Avatar,
-  Typography,
-  Box,
-  FormControlLabel,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-} from "@mui/material";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Grid from "@mui/material/Grid";
+import AppBar from "@mui/material/AppBar";
+import Divider from "@mui/material/Divider";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu } from "@mui/icons-material";
@@ -289,12 +286,13 @@ function MobileNavbar(props) {
             <Link href="/projects">
               <Image
                 onClick={() => navigate("/")}
-                src="https://i.imgur.com/56Ut9oz.png"
+                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                 alt="anudesh"
                 height="100"
                 width="100"
                 className={classes.headerLogo}
                 sx={{ marginTop: "5%" }}
+                priority
               />
             </Link>
             <Typography

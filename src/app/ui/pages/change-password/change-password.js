@@ -1,21 +1,18 @@
-import {
-    Card,
-    Grid,
-    ThemeProvider,
-    Typography,
-    InputAdornment,
-  } from "@mui/material";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import Typography from "@mui/material/Typography";
+import InputAdornment from "@mui/material/InputAdornment";
   import React, { useEffect, useState } from "react";
   import themeDefault from "@/themes/theme";
   import { translate } from "@/config/localisation";
-  import { useNavigate, useParams } from "react-router-dom";
+  import { useNavigate } from "react-router-dom";
   import Button from "@/components/common/Button";
   import OutlinedTextField from "@/components/common/OutlinedTextField";
   import DatasetStyle from "@/styles/dataset";
   import { useDispatch, useSelector } from "react-redux";
   import Spinner from "@/components/common/Spinner";
   import CustomizedSnackbars from "@/components/common/Snackbar";
-  import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
   import IconButton from "@material-ui/core/IconButton";
   import Visibility from "@material-ui/icons/Visibility";
   import VisibilityOff from "@material-ui/icons/VisibilityOff";
@@ -27,7 +24,6 @@ import ChangePasswordAPI from "@/app/actions/api/user/ChangePasswordAPI";
 
     const navigate = useNavigate();
     const classes = DatasetStyle();
-    const dispatch = useDispatch();
     const [newPassword, setNewPassword] = useState("")
     const [currentPassword, setCurrentPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")

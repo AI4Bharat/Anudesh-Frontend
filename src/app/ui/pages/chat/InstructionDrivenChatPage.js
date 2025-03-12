@@ -1,17 +1,13 @@
 "use client";
 import "./chat.css";
-import {
-  Avatar,
-  Box,
-  Grid,
-  IconButton,
-  Button,
-  Modal,
-  Tooltip,
-  Typography,
-  TextareaAutosize,
-} from "@mui/material";
-import remarkBreaks from "remark-breaks";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import Modal from "@mui/material/Modal";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
@@ -22,14 +18,11 @@ import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
 import { useState, useEffect, useRef } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
-import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
-import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
-import { Block } from "@mui/icons-material";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@/libs/dist";
 import configs from "@/config/config";
@@ -560,11 +553,12 @@ const InstructionDrivenChatPage = ({
                 minWidth: "50px",
               }}
             >
-              <img
+              <Image
                 width={50}
                 height={50}
-                src="https://i.imgur.com/56Ut9oz.png"
+                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                 alt="Bot Avatar"
+                priority
               />
             </Grid>
 

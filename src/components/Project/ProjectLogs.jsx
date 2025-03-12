@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import {
-  Box,
-  Button,
-  Card,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
   ThemeProvider,
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import TablePagination from "@mui/material/TablePagination";
 import CustomizedSnackbars from "../common/Snackbar";
 import { addMonths, parse } from "date-fns";
 import { DateRangePicker } from "react-date-range";
@@ -24,7 +25,6 @@ import GetProjectLogsAPI from "@/app/actions/api/Projects/getProjectLogsAPI";
 
 const ProjectLogs = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
   const { id } = useParams();
   const [taskName, setTaskName] = useState(
     "projects.tasks.export_project_in_place",
@@ -120,6 +120,70 @@ const ProjectLogs = () => {
       setProjectLogs([]);
     }
   }, [allLogs]);
+  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap", 
+          justifyContent: { 
+            xs: "space-between", 
+            md: "flex-end" 
+          }, 
+          alignItems: "center",
+          padding: "10px",
+          gap: { 
+            xs: "10px", 
+            md: "20px" 
+          }, 
+        }}
+      >
+  
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+            marginLeft: "0px",
+          },
+          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+            marginRight: "10px",
+          },
+          }}
+        />
+  
+        {/* Jump to Page */}
+        <div>
+          <label style={{ 
+            marginRight: "5px", 
+            fontSize:"0.83rem", 
+          }}>
+          Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
 
   const options = {
     filterType: "checkbox",
@@ -130,7 +194,17 @@ const ProjectLogs = () => {
     search: false,
     viewColumns: true,
     jumpToPage: true,
-    responsive: "standard",
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
+
   };
   const renderSnackBar = () => {
     return (

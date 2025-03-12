@@ -1,7 +1,6 @@
-// MembersTable
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import CustomButton from "../common/Button";
 import { useNavigate, useParams } from "react-router-dom";
 import UserMappedByRole from "../../utils/UserMappedByRole";
@@ -18,6 +17,11 @@ import {
   DialogContent,
   DialogTitle,
   DialogContentText,
+  MenuItem,
+  Select,
+  TablePagination,
+  Box,
+  Skeleton
 } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
@@ -38,6 +42,25 @@ import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSug
 import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
 import APITransport from "@/Lib/apiTransport/apitransport";
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
 
 const columns = [
   {
@@ -98,9 +121,8 @@ const addLabel = {
 
 const MembersTable = (props) => {
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [displayWidth, setDisplayWidth] = useState(0);
   const { orgId, id } = useParams();
-  // const id=1;
-  // const orgId =1;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [userRole, setUserRole] = useState();
@@ -132,6 +154,23 @@ const MembersTable = (props) => {
   );
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
 
+  useEffect(() => {
+      const handleResize = () => {
+        setDisplayWidth(window.innerWidth);
+      };
+  
+      if (typeof window !== 'undefined') {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+      }
+  
+      return () => {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('resize', handleResize);
+        }
+      };
+    }, []);
+
   const columns = [
     {
       name: "Name",
@@ -151,6 +190,14 @@ const MembersTable = (props) => {
       options: {
         filter: false,
         sort: false,
+        setCellProps: () => ({ 
+          style: {
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
+        }),
       },
     },
     {
@@ -167,6 +214,11 @@ const MembersTable = (props) => {
       options: {
         filter: false,
         sort: false,
+        setCellProps: () => ({ 
+          style: {
+          padding: "16px",
+        } 
+        }),
       },
     },
   ];
@@ -416,10 +468,6 @@ const MembersTable = (props) => {
     }
   };
 
-  // console.log(userRoles,loggedInUserData?.role);
-  // useEffect(() => {
-  //   setLoading(apiLoading);
-  // }, [apiLoading]);
 
   const projectlist = (el) => {
     let temp = false;
@@ -443,7 +491,7 @@ const MembersTable = (props) => {
             <>
               {!hideViewButton && (
                 <CustomButton
-                  sx={{ p: 1, borderRadius: 2 }}
+                  sx={{ m: 1, borderRadius: 2 }}
                   onClick={() => {
                     navigate(`/profile/${el.id}`);
                   }}
@@ -521,7 +569,7 @@ const MembersTable = (props) => {
 
               {projectlist(el.id) && (
                 <CustomButton
-                  sx={{ borderRadius: 2 }}
+                  sx={{m:1, borderRadius: 2 }}
                   label="Add"
                   onClick={() => handleRemoveFrozenUsers(el.id)}
                   disabled={ProjectDetails.is_archived}
@@ -530,7 +578,7 @@ const MembersTable = (props) => {
 
               {reSendButton && (
                 <CustomButton
-                  sx={{ p: 1, m: 1, borderRadius: 2 }}
+                  sx={{m:1,  borderRadius: 2 }}
                   onClick={() => handleResendUser(el.email)}
                   label={"Resend"}
                 />
@@ -538,7 +586,7 @@ const MembersTable = (props) => {
 
               {approveButton && (
                 <CustomButton
-                  sx={{ p: 1, m: 1, borderRadius: 2 }}
+                  sx={{  m: 1, borderRadius: 2 }}
                   onClick={() => handleApproveUser(el.id)}
                   label={"Approve"}
                 />
@@ -546,7 +594,7 @@ const MembersTable = (props) => {
               {rejectButton && (
                 <CustomButton
                   sx={{
-                    p: 1,
+                    
                     m: 1,
                     borderRadius: 2,
                     backgroundColor: "#cf5959",
@@ -560,6 +608,73 @@ const MembersTable = (props) => {
           ];
         })
       : [];
+
+      const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap", 
+              justifyContent: { 
+                xs: "space-between", 
+                md: "flex-end" 
+              }, 
+              alignItems: "center",
+              padding: "10px",
+              gap: { 
+                xs: "10px", 
+                md: "20px" 
+              }, 
+            }}
+          >
+      
+            {/* Pagination Controls */}
+            <TablePagination
+              component="div"
+              count={count}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={(_, newPage) => changePage(newPage)}
+              onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+              sx={{
+                "& .MuiTablePagination-actions": {
+                marginLeft: "0px",
+              },
+              "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+                marginRight: "10px",
+              },
+              }}
+            />
+      
+            {/* Jump to Page */}
+            <div>
+              <label style={{ 
+                marginRight: "5px", 
+                fontSize:"0.83rem", 
+              }}>
+              Jump to Page:
+              </label>
+              <Select
+                value={page + 1}
+                onChange={(e) => changePage(Number(e.target.value) - 1)}
+                sx={{
+                  fontSize: "0.8rem",
+                  padding: "4px",
+                  height: "32px",
+                }}
+              >
+                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+                  <MenuItem key={i} value={i + 1}>
+                    {i + 1}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+          </Box>
+        );
+      };
+      
+    
   const options = {
     textLabels: {
       body: {
@@ -586,6 +701,18 @@ const MembersTable = (props) => {
     selectableRows: "none",
     search: false,
     jumpToPage: true,
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
+
+
   };
   const renderSnackBar = () => {
     return (
@@ -743,17 +870,20 @@ const MembersTable = (props) => {
         />
       )}
       {renderSnackBar()}
-      <Grid sx={{ mb: 1 }}>
+      <Grid sx={{ mt: 2,mb:2 }}>
         <Search />
       </Grid>
 
       <ThemeProvider theme={tableTheme} sx={{ marginTop: "20px" }}>
         <MUIDataTable
+        key={`table-${displayWidth}`}
           title={""}
           data={data}
           columns={columns}
-          options={options}
-          // filter={false}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
     </React.Fragment>
