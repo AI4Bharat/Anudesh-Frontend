@@ -12,49 +12,39 @@ import Box from "@mui/material/Box";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu } from "@mui/icons-material";
+import { Menu, Close } from "@mui/icons-material";
 import Logout from "@/Lib/Features/Logout";
 import headerStyle from "@/styles/Header";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-// const useStyles = makeStyles(() => ({
-//   Navlink: {
-//     textDecoration: "none",
-//     color: "blue",
-//     fontSize: "20px",
-//   },
-//   icon: {
-//     color: "white",
-//   },
-// }));
+import { useTheme } from "@mui/material/styles";
 
 const handleChangePassword = async (email) => {
-    let obj = new ForgotPasswordAPI({email: email});
-    const res = await fetch(obj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(obj.getBody()),
-        headers: obj.getHeaders().headers,
-    });
-    const resp = await res.json();
-  };
+  let obj = new ForgotPasswordAPI({email: email});
+  const res = await fetch(obj.apiEndPoint(), {
+    method: "POST",
+    body: JSON.stringify(obj.getBody()),
+    headers: obj.getHeaders().headers,
+  });
+  const resp = await res.json();
+};
 
 function MobileNavbar(props) {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const theme = useTheme();
   const { loggedInUserData, appSettings, userSettings, tabs } = props;
   const [openDrawer, setOpenDrawer] = useState(false);
   const classes = headerStyle();
 
   const onLogoutClick = () => {
     dispatch(Logout());
-    // ExpireSession();
     if (typeof window !== 'undefined') {
       localStorage.clear();
     }
     navigate("/");
   };
-
 
   return (
     <>
@@ -63,10 +53,16 @@ function MobileNavbar(props) {
         onClose={() => setOpenDrawer(false)}
         PaperProps={{
           sx: {
-            padding: 2,
-            width: { xs: "75%", sm: "50%", md: "30%" }, 
+            padding: 0,
+            width: { xs: "85%", sm: "60%", md: "35%" },
+            maxWidth: "100vw", // Prevent horizontal overflow
+            borderRadius: "0 10px 10px 0",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+            transition: "all 0.3s ease-in-out",
+            overflowX: "hidden", // Prevent horizontal overflow
           },
         }}
+        transitionDuration={{ enter: 400, exit: 300 }}
       >
         <Box
           sx={{
@@ -75,9 +71,28 @@ function MobileNavbar(props) {
             justifyContent: "space-between",
             height: "100%",
             pb: 2,
+            overflowX: "hidden", // Prevent horizontal overflow
           }}
         >
-          <Box>
+          <Box sx={{ position: "relative" }}>
+            <IconButton 
+              onClick={() => setOpenDrawer(false)}
+              sx={{ 
+                position: "absolute", 
+                right: 8, 
+                top: 8,
+                zIndex: 10,
+                color: "text.secondary",
+                transition: "all 0.2s ease",
+                "&:hover": { 
+                  color: "primary.main", 
+                  transform: "rotate(90deg)" 
+                }
+              }}
+            >
+              <Close />
+            </IconButton>
+            
             <Link
               href="/profile"
               onClick={() => setOpenDrawer(false)}
@@ -88,35 +103,73 @@ function MobileNavbar(props) {
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: 2,
-                  pb: 2,
+                  p: 3,
+                  pb: 3,
+                  backgroundColor: "#FEE0B3", // Updated background color
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
                 }}
               >
                 <Avatar
                   alt="user_profile_pic"
                   className="avatar"
-                  sx={{ bgcolor: "primary.main" }}
+                  sx={{ 
+                    bgcolor: "primary.main",
+                    width: 50,
+                    height: 50,
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                    transition: "transform 0.2s ease",
+                    "&:hover": {
+                      transform: "scale(1.05)"
+                    }
+                  }}
                 >
                   {loggedInUserData?.username?.[0]}
                 </Avatar>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    ml: 1,
-                    color: "text.primary",
-                    fontSize: { xs: "1rem", sm: "1.25rem" },
-                  }}
-                >
-                  {loggedInUserData.username}
-                </Typography>
+                <Box>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "text.primary",
+                      fontSize: { xs: "1.1rem", sm: "1.25rem" },
+                      fontWeight: 600,
+                    }}
+                  >
+                    {loggedInUserData.username}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                    }}
+                  >
+                    View Profile
+                  </Typography>
+                </Box>
               </Box>
             </Link>
-            <Divider />
           </Box>
 
-          <Box>
-            <List>
+          <Box sx={{ mt: 1, overflow: "auto", flexGrow: 1, overflowX: "hidden" }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ 
+                px: 3,
+                mt: 3,
+                color: "text.secondary",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase"
+              }}
+            >
+              Organization
+            </Typography>
+            <Divider sx={{ mx: 2 }} />
+            <List sx={{ px: 1 }}>
               {tabs.map((tab, i) => (
                 <ListItem
                   key={i}
@@ -124,7 +177,13 @@ function MobileNavbar(props) {
                     cursor: "pointer",
                     py: 1,
                     px: 2,
-                    "&:hover": { bgcolor: "action.hover" },
+                    borderRadius: "8px",
+                    mx: 1,
+                    transition: "all 0.2s ease",
+                    "&:hover": { 
+                      bgcolor: "action.hover",
+                      transform: "translateX(5px)"
+                    },
                   }}
                   onClick={() => setOpenDrawer(false)}
                 >
@@ -134,35 +193,52 @@ function MobileNavbar(props) {
             </List>
           </Box>
 
-          {/* App Settings Section */}
-          <Box>
+          <Box sx={{ mt: 1, overflowX: "hidden" }}>
             <Typography
-              variant="h6"
-              align="center"
-              sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, pb: 1 }}
+              variant="subtitle1"
+              sx={{ 
+                px: 3, 
+                py: 1, 
+                color: "text.secondary",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase"
+              }}
             >
               App Settings
             </Typography>
-            <Divider />
-            <List>
+            <Divider sx={{ mx: 2 }} />
+            <List sx={{ px: 1 }}>
               {appSettings.map((setting, index) => (
                 <ListItem
                   key={index}
                   sx={{
                     cursor: "pointer",
-                    py: 1,
+                    py: 1.5,
                     px: 2,
-                    "&:hover": { bgcolor: "action.hover" },
+                    borderRadius: "8px",
+                    mx: 1,
+                    mb: 0.5,
+                    transition: "all 0.2s ease",
+                    "&:hover": { 
+                      bgcolor: "action.hover",
+                      transform: "translateX(5px)"
+                    },
                   }}
                   onClick={setting.onclick}
                 >
                   {setting.control ? (
                     <FormControlLabel
                       control={setting.control}
-                      label={setting.name}
+                      label={
+                        <Typography sx={{ fontSize: "0.95rem" }}>
+                          {setting.name}
+                        </Typography>
+                      }
                     />
                   ) : (
-                    <Typography variant="body1" textAlign="center">
+                    <Typography variant="body1">
                       {setting.name}
                     </Typography>
                   )}
@@ -171,31 +247,45 @@ function MobileNavbar(props) {
             </List>
           </Box>
 
-          <Box>
+          <Box sx={{ mt: 1, overflowX: "hidden" }}>
             <Typography
-              variant="h6"
-              align="center"
-              sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, pb: 1 }}
+              variant="subtitle1"
+              sx={{ 
+                px: 3, 
+                py: 1, 
+                color: "text.secondary",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase"
+              }}
             >
               User Settings
             </Typography>
-            <Divider />
-            <List>
+            <Divider sx={{ mx: 2 }} />
+            <List sx={{ px: 1 }}>
               {userSettings.map((setting) => (
                 <ListItem
                   key={setting.name}
                   sx={{
                     cursor: "pointer",
-                    py: 1,
+                    py: 1.5,
                     px: 2,
-                    "&:hover": { bgcolor: "action.hover" },
+                    borderRadius: "8px",
+                    mx: 1,
+                    mb: 0.5,
+                    transition: "all 0.2s ease",
+                    "&:hover": { 
+                      bgcolor: "action.hover",
+                      transform: "translateX(5px)"
+                    },
                   }}
                   onClick={() => {
                     setting.onclick();
                     setOpenDrawer(false);
                   }}
                 >
-                  <Typography variant="body1" textAlign="center">
+                  <Typography variant="body1">
                     {setting.name}
                   </Typography>
                 </ListItem>
@@ -205,16 +295,23 @@ function MobileNavbar(props) {
                   key="change-password"
                   sx={{
                     cursor: "pointer",
-                    py: 1,
+                    py: 1.5,
                     px: 2,
-                    "&:hover": { bgcolor: "action.hover" },
+                    borderRadius: "8px",
+                    mx: 1,
+                    mb: 0.5,
+                    transition: "all 0.2s ease",
+                    "&:hover": { 
+                      bgcolor: "action.hover",
+                      transform: "translateX(5px)"
+                    },
                   }}
                   onClick={() => {
                     setOpenDrawer(false);
                     handleChangePassword(loggedInUserData.email);
                   }}
                 >
-                  <Typography variant="body1" textAlign="center">
+                  <Typography variant="body1">
                     Change Password
                   </Typography>
                 </ListItem>
@@ -223,13 +320,21 @@ function MobileNavbar(props) {
                 key="logout"
                 sx={{
                   cursor: "pointer",
-                  py: 1,
+                  py: 1.5,
                   px: 2,
-                  "&:hover": { bgcolor: "action.hover" },
+                  borderRadius: "8px",
+                  mx: 1,
+                  mb: 0.5,
+                  color: "error.main",
+                  transition: "all 0.2s ease",
+                  "&:hover": { 
+                    bgcolor: "error.light",
+                    transform: "translateX(5px)"
+                  },
                 }}
                 onClick={onLogoutClick}
               >
-                <Typography variant="body1" textAlign="center">
+                <Typography variant="body1" fontWeight={500}>
                   Logout
                 </Typography>
               </ListItem>
@@ -237,13 +342,26 @@ function MobileNavbar(props) {
           </Box>
         </Box>
       </Drawer>
-      <AppBar style={{ backgroundColor: "#ffffff", padding: "8px 0" }}>
+      <AppBar 
+        position="fixed" 
+        elevation={1}
+        sx={{ 
+          backgroundColor: "#ffffff", 
+          padding: "8px 0",
+          transition: "all 0.3s ease",
+          width: "100%", // Ensure it doesn't overflow
+          overflowX: "hidden" // Prevent horizontal overflow
+        }}
+      >
         <Grid
           container
           direction="row"
           justifyContent={"space-between"}
-          style={{
+          alignItems="center"
+          sx={{
             padding: "0 5%",
+            width: "100%", // Ensure it doesn't overflow
+            margin: 0
           }}
         >
           <Grid
@@ -264,18 +382,31 @@ function MobileNavbar(props) {
             </Link>
             <Typography
               className="headerTitle"
-              style={{
+              sx={{
                 fontSize: "28px",
                 fontWeight: "bold",
                 fontFamily: 'Rowdies,"Roboto,sans-serif',
                 color: "#000000",
+                transition: "color 0.3s ease",
+                "&:hover": {
+                  color: theme.palette.primary.main,
+                }
               }}
             >
               Anudesh
             </Typography>
           </Grid>
           <Grid item>
-            <IconButton onClick={() => setOpenDrawer(!openDrawer)}>
+            <IconButton 
+              onClick={() => setOpenDrawer(!openDrawer)}
+              sx={{ 
+                color: theme.palette.primary.main,
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "rotate(90deg)"
+                }
+              }}
+            >
               <Menu />
             </IconButton>
           </Grid>
