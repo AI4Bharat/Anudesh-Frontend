@@ -804,9 +804,6 @@ const Header = () => {
             appSettings={appSettings}
             appInfo={appInfo}
             loggedInUserData={loggedInUserData}
-            Notification={Notification}
-            handleMarkAllAsReadClick={handleMarkAllAsReadClick}
-            unseenNotifications={unseenNotifications}
           />
         ) : (
           <AppBar
