@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { parse } from "csv-parse/sync";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import { Parser } from "json2csv";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
-import  Box  from "@mui/material/Box";
-import {ThemeProvider} from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import IconButton from "@mui/material/IconButton";
@@ -24,7 +23,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { MenuProps } from "@/utils/utils";
 import { useParams } from "react-router-dom";
-
+import Skeleton from "@mui/material/Skeleton";
 import {
   createProject,
   setPasswordForProject,
@@ -65,12 +64,32 @@ const CreateAnnotationsAutomatically = [
   { name: "Supercheck", value: "supercheck" },
 ];
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
 const CreateProject = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
   const { id } = useParams();
   //const { workspaceId } = useParams();
+  const [displayWidth, setDisplayWidth] = useState(0);
   const ProjectDomains = useSelector((state) => state.domains?.domains);
   const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
   // const DatasetFields = useSelector((state) => state.getDatasetFields.data);
@@ -131,6 +150,23 @@ const CreateProject = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [jsonInput, setJsonInput] = useState(JSON.stringify(sampleQuestion));
   const [questionsJSON, setQuestionsJSON] = useState(sampleQuestion);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   const handleJsonInputChange = (event) => {
     const input = event.target.value;
@@ -403,14 +439,14 @@ const CreateProject = () => {
               filter: false,
               sort: false,
               align: "center",
-              setCellProps: () => ({ 
+              setCellProps: () => ({
                 style: {
                   height: "70px", fontSize: "16px",
-                padding: "16px",
-                whiteSpace: "normal", 
-                overflowWrap: "break-word",
-                wordBreak: "break-word",  
-              } 
+                  padding: "16px",
+                  whiteSpace: "normal",
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                }
               }),
               customHeadLabelRender: customColumnHead,
               customBodyRender: (value) => {
@@ -466,16 +502,16 @@ const CreateProject = () => {
           tempTypesArr.push(project_type);
           if (
             ProjectDomains[domain]["project_types"][project_type][
-              "input_dataset"
+            "input_dataset"
             ]
           ) {
             tempDatasetTypes[project_type] =
               ProjectDomains[domain]["project_types"][project_type][
-                "input_dataset"
+              "input_dataset"
               ]["class"];
             tempColumnFields[project_type] =
               ProjectDomains[domain]["project_types"][project_type][
-                "input_dataset"
+              "input_dataset"
               ]["fields"];
           }
         }
@@ -560,7 +596,7 @@ const CreateProject = () => {
       is_published: is_published,
       password: passwordForProjects,
       metadata_json: questionsJSON,
-      conceal:conceal
+      conceal: conceal
     };
     console.log(newProject);
 
@@ -596,7 +632,7 @@ const CreateProject = () => {
     is_published: is_published,
     password: passwordForProjects,
     metadata_json: questionsJSON,
-    conceal:conceal
+    conceal: conceal
   };
   console.log(newProject);
 
@@ -771,20 +807,20 @@ const CreateProject = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -795,21 +831,21 @@ const CreateProject = () => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -830,7 +866,7 @@ const CreateProject = () => {
       </Box>
     );
   };
-  
+
 
   const options = {
     count: totalDataitems,
@@ -1162,12 +1198,12 @@ const CreateProject = () => {
                                     confirmed
                                       ? undefined
                                       : () => {
-                                          setSelectedInstances(
-                                            selectedInstances.filter(
-                                              (instance) => instance !== key,
-                                            ),
-                                          );
-                                        }
+                                        setSelectedInstances(
+                                          selectedInstances.filter(
+                                            (instance) => instance !== key,
+                                          ),
+                                        );
+                                      }
                                   }
                                 />
                               ))}
@@ -1237,12 +1273,16 @@ const CreateProject = () => {
                 >
                   <ThemeProvider theme={tableTheme}>
                     <MUIDataTable
+                      key={`table-${displayWidth}`}
                       title={""}
                       data={tableData}
                       columns={columns.filter((column) =>
                         selectedColumns.includes(column.name),
                       )}
-                      options={options}
+                      options={{
+                        ...options,
+                        tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                      }}
                     />
                   </ThemeProvider>
                 </Grid>
@@ -1462,7 +1502,7 @@ const CreateProject = () => {
                   </FormControl>
                 </Grid>
                 {selectedType === "ModelInteractionEvaluation" ||
-                selectedType === "MultipleInteractionEvaluation" ? (
+                  selectedType === "MultipleInteractionEvaluation" ? (
                   <Grid
                     item
                     xs={12}
@@ -1568,19 +1608,19 @@ const CreateProject = () => {
                       sx={{ mt: 2, ml: 2, mb: 2 }}
                     />
                   </Grid>
-                ) :null
+                ) : null
                 }
-                            <Grid container direction="row" alignItems="center">
-                <Typography gutterBottom components="div">
-                  Hide Details :
-                </Typography>
-                <Switch
-                  checked={conceal}
-                  onChange={handleChangeconceal}
-                  inputProps={{ "aria-label": "controlled" }}
-                  sx={{ mt: 2, ml: 2, mb: 2 }}
-                />
-              </Grid>
+                <Grid container direction="row" alignItems="center">
+                  <Typography gutterBottom components="div">
+                    Hide Details :
+                  </Typography>
+                  <Switch
+                    checked={conceal}
+                    onChange={handleChangeconceal}
+                    inputProps={{ "aria-label": "controlled" }}
+                    sx={{ mt: 2, ml: 2, mb: 2 }}
+                  />
+                </Grid>
 
               </>
             )}
@@ -1614,15 +1654,15 @@ const CreateProject = () => {
                 onClick={handleCreateProject}
                 disabled={
                   title &&
-                  description &&
-                  selectedDomain &&
-                  selectedType &&
-                  selectedInstances &&
-                  domains &&
-                  samplingMode &&
-                  (selectedType === "ModelInteractionEvaluation"
-                    ? questionsJSON?.length > 0
-                    : true)
+                    description &&
+                    selectedDomain &&
+                    selectedType &&
+                    selectedInstances &&
+                    domains &&
+                    samplingMode &&
+                    (selectedType === "ModelInteractionEvaluation"
+                      ? questionsJSON?.length > 0
+                      : true)
                     ? false
                     : true
                 }

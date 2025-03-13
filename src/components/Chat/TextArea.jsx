@@ -57,12 +57,6 @@ export default function Textarea({
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
-
-      console.log(
-        globalTransliteration,
-        "lll",
-        localStorage.getItem("globalTransliteration"),
-      );
     }
   }, [text]);
 
@@ -94,6 +88,7 @@ export default function Textarea({
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       handleButtonClick();
+      setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
     }
@@ -150,7 +145,6 @@ export default function Textarea({
   if (!isMounted) {
     return null;
   }
-  console.log(text, "llm", inputValue);
 
   return (
     <Grid
@@ -235,6 +229,7 @@ export default function Textarea({
         size="large"
         onClick={() => {
           handleButtonClick();
+          setText("");
         }}
         disabled={!text?.trim()}
       >
