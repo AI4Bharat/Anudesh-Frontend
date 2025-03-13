@@ -9,16 +9,26 @@ import Divider from "@mui/material/Divider";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Modal from "@mui/material/Modal";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import GradingSharpIcon from "@mui/icons-material/GradingSharp";
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import Link from "next/link";
 import Image from "next/image";
+import Tooltip from "@mui/material/Tooltip";
 import { Menu, Close } from "@mui/icons-material";
+import NotificationAPI from "@/app/actions/api/Notification/Notification";
 import Logout from "@/Lib/Features/Logout";
 import headerStyle from "@/styles/Header";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
+import APITransport from "@/app/actions/apitransport/apitransport";
 
 const handleChangePassword = async (email) => {
   let obj = new ForgotPasswordAPI({ email: email });
@@ -30,13 +40,104 @@ const handleChangePassword = async (email) => {
   const resp = await res.json();
 };
 
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%", // Increased width to better fit tabs
+  bgcolor: "background.paper",
+  border: "1px solid #ddd",
+  borderRadius: "8px",
+  boxShadow: 24,
+  p: 4,
+};
+
 function MobileNavbar(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { loggedInUserData, appSettings, userSettings, tabs, appInfo} = props;
+  const { loggedInUserData, appSettings, userSettings, tabs, appInfo } = props;
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const classes = headerStyle();
+  const [activeTab, setActiveTab] = useState(0);
+  const [Notification, setnotification] = useState();
+  const [selectedNotificationId, setSelectedNotificationId] = useState(null);
+  const [unread, setunread] = useState(null);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
+  const fetchNotifications = () => {
+    let apiObj = new NotificationAPI();
+    const endpoint =
+      unread == null
+        ? apiObj.apiEndPoint()
+        : `${apiObj.apiEndPoint()}?seen=${unread}`;
+
+    fetch(endpoint, {
+      method: "get",
+      body: JSON.stringify(apiObj.getBody()),
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        if (response.ok) {
+          const data = await response?.json();
+          setnotification(data);
+        } else {
+          setnotification([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching notifications:", error);
+      });
+  };
+
+  const markAsRead = (notificationId) => {
+    const task = new NotificationPatchAPI(notificationId);
+    setSelectedNotificationId(notificationId);
+    dispatch(APITransport(task));
+    fetchNotifications();
+  };
+
+  const markAllAsRead = () => {
+    const notificationIds = Notification.map((notification) => notification.id);
+    const tasks = new NotificationPatchAPI(notificationIds);
+    setSelectedNotificationId(notificationIds);
+    dispatch(APITransport(tasks));
+    fetchNotifications();
+  };
+
+  const handleMarkAllAsReadClick = () => {
+    markAllAsRead();
+  };
+
+  const handleMarkAsRead = (notificationId) => {
+    markAsRead(notificationId);
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [unread, selectedNotificationId]);
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+    setOpenDrawer(false);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const unseenNotifications =
+    Notification?.length > 0 &&
+    Notification?.filter(
+      (notification) =>
+        notification?.seen_json == null ||
+        !notification?.seen_json[loggedInUserData.id],
+    );
 
   const onLogoutClick = () => {
     dispatch(Logout());
@@ -111,7 +212,7 @@ function MobileNavbar(props) {
                   pb: 3,
                   backgroundColor: "#FEE0B3",
                   borderBottom: "1px solid",
-                  borderColor: "divider",
+                  borderColor: "#FEE0B3",
                 }}
               >
                 <Avatar
@@ -225,38 +326,46 @@ function MobileNavbar(props) {
               </Typography>
               <Divider sx={{ mx: 2 }} />
               <List sx={{ px: 1 }}>
-                {appInfo.map((setting, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      cursor: "pointer",
-                      py: 1.5,
-                      px: 2,
-                      borderRadius: "8px",
-                      mx: 1,
-                      mb: 0.5,
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        bgcolor: "action.hover",
-                        transform: "translateX(5px)",
-                      },
-                    }}
-                    onClick={setting.onclick}
-                  >
-                    {setting.control ? (
-                      <FormControlLabel
-                        control={setting.control}
-                        label={
-                          <Typography sx={{ fontSize: "0.95rem" }}>
-                            {setting.name}
-                          </Typography>
+                {appInfo.map((setting, index) => {
+                  return (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        cursor: "pointer",
+                        py: 1.5,
+                        px: 2,
+                        borderRadius: "8px",
+                        mx: 1,
+                        mb: 0.5,
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                          transform: "translateX(5px)",
+                        },
+                      }}
+                      onClick={() => {
+                        if (setting.name === "Notifications") {
+                          handleOpenModal();
+                        } else {
+                          setting.onclick()
                         }
-                      />
-                    ) : (
-                      <Typography variant="body1">{setting.name}</Typography>
-                    )}
-                  </ListItem>
-                ))}
+                      }}
+                    >
+                      {setting.control ? (
+                        <FormControlLabel
+                          control={setting.control}
+                          label={
+                            <Typography sx={{ fontSize: "0.95rem" }}>
+                              {setting.name}
+                            </Typography>
+                          }
+                        />
+                      ) : (
+                        <Typography variant="body1">{setting.name}</Typography>
+                      )}
+                    </ListItem>
+                  );
+                })}
               </List>
             </Box>
 
@@ -474,6 +583,167 @@ function MobileNavbar(props) {
           </Grid>
         </Grid>
       </AppBar>
+
+      {/* Modal for Notification */}
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="notification-modal-title"
+        aria-describedby="notification-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography
+              id="notification-modal-title"
+              variant="h6"
+              component="h2"
+            >
+              Notifications
+            </Typography>
+            {Notification &&
+              Notification.length > 0 &&
+              unseenNotifications?.length > 0 && (
+                <Tooltip title="Mark all as read">
+                  <IconButton
+                    aria-label="More"
+                    onClick={handleMarkAllAsReadClick}
+                  >
+                    <GradingSharpIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+              )}
+          </Box>
+
+          <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 2 }}>
+            <Tab label="All" />
+            <Tab label="Unread" />
+          </Tabs>
+
+          {activeTab === 0 && (
+            <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+              {Notification && Notification.length > 0 ? (
+                Notification.map((notification, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      p: 2,
+                      mb: 1,
+                      borderRadius: "8px",
+                      backgroundColor:
+                        notification?.seen_json &&
+                        notification?.seen_json[loggedInUserData.id]
+                          ? "background.paper"
+                          : "#FFFDE6",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      position: "relative",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => {
+                      navigate(notification.on_click);
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={500}>
+                      {notification.title || "Notification"}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {notification.message || "No message content"}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mt: 1 }}
+                    >
+                      {new Date(notification.created_at).toLocaleString()}
+                    </Typography>
+
+                    {(!notification?.seen_json ||
+                      !notification?.seen_json[loggedInUserData.id]) && (
+                      <Tooltip title="Mark as read">
+                        <IconButton
+                          size="small"
+                          sx={{ position: "absolute", bottom: 8, right: 8 }}
+                          onClick={() => handleMarkAsRead(notification.id)}
+                        >
+                          <CheckCircleOutlineRoundedIcon color="primary" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2" sx={{ textAlign: "center", py: 3 }}>
+                  No notifications available
+                </Typography>
+              )}
+            </Box>
+          )}
+
+          {activeTab === 1 && (
+            <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+              {unseenNotifications && unseenNotifications.length > 0 ? (
+                unseenNotifications.map((notification, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      p: 2,
+                      mb: 1,
+                      borderRadius: "8px",
+                      backgroundColor: "#FFFDE6",
+                      border: "1px solid",
+                      borderColor: "#FEE0B3",
+                      position: "relative",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => {
+                      navigate(notification.on_click);
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={500}>
+                      {notification.title || "Notification"}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {notification.message || "No message content"}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mt: 1 }}
+                    >
+                      {new Date(notification.created_at).toLocaleString()}
+                    </Typography>
+
+                    <Tooltip title="Mark as read">
+                      <IconButton
+                        size="small"
+                        sx={{ position: "absolute", bottom: 8, right: 8 }}
+                        onClick={() => handleMarkAsRead(notification.id)}
+                      >
+                        <CheckCircleOutlineRoundedIcon color="primary" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                ))
+              ) : (
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 3 }}>
+                <NotificationsOffIcon sx={{ fontSize: 50, color: "gray" }} />
+                <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
+                  No unread notifications
+                </Typography>
+              </Box>
+
+              )}
+            </Box>
+          )}
+        </Box>
+      </Modal>
     </>
   );
 }

@@ -84,10 +84,6 @@ const Header = () => {
     setMoreHorizonAnchorEl(event.currentTarget);
   };
 
-  useEffect(() => {
-    console.log("head anchorElNotification", anchorElNotification)
-  }, [anchorElNotification])
-
   const handleMoreHorizonClose = () => {
     setMoreHorizonAnchorEl(null);
   };
@@ -219,15 +215,7 @@ const Header = () => {
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-
-  const handleAnalytics = (event) => {
-    console.log("Analytics clicked");
-  };
-
-  const handleLeaderboard = (event) => {
-    console.log("Leaderboard clicked");
-  };
-
+  
   const handleOpenHelpMenu = (event) => {
     setAnchorElHelp(event.currentTarget);
   };
@@ -249,7 +237,6 @@ const Header = () => {
   };
 
   const handleOpenNotification = (event) => {
-    console.log("open notif")
     setAnchorElNotification(event.currentTarget);
   };
 
@@ -327,10 +314,6 @@ const Header = () => {
     );
   };
   const unseenNotifications = Notification?.length > 0 && Notification?.filter(notification => notification?.seen_json ==null || !notification?.seen_json[loggedInUserData.id]);
-    
-  useEffect(() => {
-    console.log("unread notifs", unseenNotifications  )
-  }, [unseenNotifications])
 
   const renderTabs = () => {
     if (
@@ -769,11 +752,6 @@ const Header = () => {
 
     {
       name: "Notifications",
-      // onclick: (event) => {
-      //   handleOpenNotification(event);
-      //   setOpenDrawer(false);
-      // },
-      onclick: handleOpenNotification,
     },
   ];
 
@@ -826,6 +804,9 @@ const Header = () => {
             appSettings={appSettings}
             appInfo={appInfo}
             loggedInUserData={loggedInUserData}
+            Notification={Notification}
+            handleMarkAllAsReadClick={handleMarkAllAsReadClick}
+            unseenNotifications={unseenNotifications}
           />
         ) : (
           <AppBar
