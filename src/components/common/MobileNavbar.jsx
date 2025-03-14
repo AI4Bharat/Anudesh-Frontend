@@ -197,7 +197,7 @@ function MobileNavbar(props) {
             </IconButton>
 
             <Link
-              href="/profile"
+              href={`/profile/${loggedInUserData.id}`}
               onClick={() => setOpenDrawer(false)}
               style={{ textDecoration: "none" }}
             >
