@@ -154,6 +154,7 @@ export default function Login() {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
+                    type="submit"
                     onClick={handleClickShowPassword}
                     onMouseDown={handleMouseDownPassword}
                   >
