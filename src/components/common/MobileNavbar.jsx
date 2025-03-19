@@ -42,7 +42,7 @@ const modalStyle = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "80%", 
+  width: "80%", // Increased width to better fit tabs
   bgcolor: "background.paper",
   border: "1px solid #ddd",
   borderRadius: "8px",
@@ -171,7 +171,6 @@ function MobileNavbar(props) {
         variant: "error",
       });
     }
-
   };
 
   const onLogoutClick = () => {
@@ -204,12 +203,12 @@ function MobileNavbar(props) {
       >
         <Box
           sx={{
-            height: "100%",
+            // height: "100%",
             position: "sticky",
             top: 0,
             zIndex: 10,
             pb: 2,
-            overflowX: "hidden", // Prevent horizontal overflow
+            // overflowX: "hidden", // Prevent horizontal overflow
           }}
         >
           <Box sx={{ position: "sticky", top: 0, zIndex: 10 }}>
@@ -232,7 +231,7 @@ function MobileNavbar(props) {
             </IconButton>
 
             <Link
-              href="/profile"
+              href={`/profile/${loggedInUserData.id}`}
               onClick={() => setOpenDrawer(false)}
               style={{ textDecoration: "none" }}
             >
@@ -293,15 +292,15 @@ function MobileNavbar(props) {
 
           <Box
             sx={{
-              overflowY: "auto",
+              // overflowY: "auto",
               flexGrow: 1,
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-around",
-              height: "100%",
+              // height: "100%",
             }}
           >
-            <Box sx={{ mt: 1, overflow: "hidden" }}>
+            <Box sx={{ mt: 1 }}>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -344,7 +343,7 @@ function MobileNavbar(props) {
               </List>
             </Box>
 
-            <Box sx={{ mt: 1, overflowX: "hidden" }}>
+            <Box sx={{ mt: 1}}>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -404,7 +403,7 @@ function MobileNavbar(props) {
               </List>
             </Box>
 
-            <Box sx={{ mt: 1, overflowX: "hidden" }}>
+            <Box sx={{ mt: 1}}>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -456,7 +455,7 @@ function MobileNavbar(props) {
               </List>
             </Box>
 
-            <Box sx={{ mt: 1, overflowX: "hidden" }}>
+            <Box sx={{ mt: 1}}>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -513,10 +512,7 @@ function MobileNavbar(props) {
                         transform: "translateX(5px)",
                       },
                     }}
-                    onClick={() => {
-                      setOpenDrawer(false);
-                      handleChangePassword(loggedInUserData.email);
-                    }}
+                      onClick={handleOpenDialog}
                   >
                     <Typography variant="body1">Change Password</Typography>
                   </ListItem>
@@ -537,7 +533,7 @@ function MobileNavbar(props) {
                       transform: "translateX(5px)",
                     },
                   }}
-                  onClick={handleOpenDialog}
+                  onClick={onLogoutClick}
                 >
                   <Typography variant="body1" fontWeight={500}>
                     Logout
@@ -556,7 +552,7 @@ function MobileNavbar(props) {
           padding: "8px 0",
           transition: "all 0.3s ease",
           width: "100%", // Ensure it doesn't overflow
-          overflowX: "hidden", // Prevent horizontal overflow
+          // overflowX: "hidden", // Prevent horizontal overflow
         }}
       >
         <Grid
