@@ -2,7 +2,6 @@ import { React, useState, useEffect } from "react";
 // import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { ThemeProvider, styled } from '@mui/material/styles';
-// import MUIDataTable from "mui-datatables";
 import CustomButton from "../common/Button";
 import { Link, useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid";

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams,useLocation } from "react-router-dom";
-import MUIDataTable from "mui-datatables";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
 import {
   ThemeProvider,
- 
+
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -22,7 +22,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import TablePagination from "@mui/material/TablePagination";
-
+import Skeleton from "@mui/material/Skeleton";
 import { styled } from "@mui/styles";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import InfoIcon from '@mui/icons-material/Info';
@@ -48,6 +48,25 @@ import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
 const excludeCols = [
   "context",
   "input_language",
@@ -68,7 +87,9 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
+
 const excludeSearch = ["status", "actions"];
+
 const SuperCheckerTasks = (props) => {
   const dispatch = useDispatch();
   const classes = DatasetStyle();
@@ -82,6 +103,7 @@ const SuperCheckerTasks = (props) => {
     message: "",
     variant: "success",
   });
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [columns, setColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -106,20 +128,20 @@ const SuperCheckerTasks = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const filterData = {
-    Status: ["unvalidated","validated","validated_with_changes","skipped","draft","rejected"],
+    Status: ["unvalidated", "validated", "validated_with_changes", "skipped", "draft", "rejected"],
     SuperChecker:
       ProjectDetails?.review_supercheckers?.length > 0
         ? ProjectDetails?.review_supercheckers?.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
   };
 
   const [selectedFilters, setsSelectedFilters] = useState({
-    supercheck_status: filterData.Status[0] ,req_user: -1
+    supercheck_status: filterData.Status[0], req_user: -1
   });
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5
@@ -130,19 +152,38 @@ const SuperCheckerTasks = (props) => {
   );
   if (typeof window !== 'undefined') {
 
-  localStorage.setItem("projectData", JSON.stringify(ProjectDetails));
+    localStorage.setItem("projectData", JSON.stringify(ProjectDetails));
   }
   const getTaskListData = () => {
-    dispatch(fetchTasksByProjectId({id:id,
-      currentPageNumber:currentPageNumber,
-      currentRowPerPage:currentRowPerPage,
-      selectedFilters:selectedFilters,
-      taskType:props.type}));
+    dispatch(fetchTasksByProjectId({
+      id: id,
+      currentPageNumber: currentPageNumber,
+      currentRowPerPage: currentRowPerPage,
+      selectedFilters: selectedFilters,
+      taskType: props.type
+    }));
   };
 
   useEffect(() => {
     getTaskListData();
   }, [currentPageNumber, currentRowPerPage]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (
@@ -155,11 +196,11 @@ const SuperCheckerTasks = (props) => {
     } else if (deallocateDisabled === "No more tasks to deallocate") {
       setDeallocateDisabled("");
     }
-  }, [totalTaskCount, selectedFilters,ProjectDetails]);
+  }, [totalTaskCount, selectedFilters, ProjectDetails]);
 
   useEffect(() => {
     if (ProjectDetails) {
-      if (props.type === "superChecker" && ProjectDetails.reviewed_task_count === 0 ||  ProjectDetails.is_archived)
+      if (props.type === "superChecker" && ProjectDetails.reviewed_task_count === 0 || ProjectDetails.is_archived)
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
@@ -171,7 +212,7 @@ const SuperCheckerTasks = (props) => {
     if (ProjectDetails) {
       if (
         props.type === "superChecker" &&
-        ProjectDetails.reviewed_task_count === 0 
+        ProjectDetails.reviewed_task_count === 0
       )
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
@@ -196,28 +237,26 @@ const SuperCheckerTasks = (props) => {
     if (ProjectDetails?.project_type?.includes("Acoustic")) {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
-          `/projects/${id}/SuperCheckerAudioTranscriptionLandingPage/${
-            NextTask?.id
+          `/projects/${id}/SuperCheckerAudioTranscriptionLandingPage/${NextTask?.id
           }`
         );
       }
-    }else{
-    if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
-      navigate(
-        `/projects/${id}/SuperChecker/${
-          NextTask?.id
-        }`
-      );
+    } else {
+      if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
+        navigate(
+          `/projects/${id}/SuperChecker/${NextTask?.id
+          }`
+        );
+      }
     }
-  }
   }, [NextTask]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
 
-    localStorage.setItem("SuperCheckerStage", props.type);
+      localStorage.setItem("SuperCheckerStage", props.type);
     }
-  },[]);
+  }, []);
 
   useEffect(() => {
     dispatch(setTaskFilter(id, selectedFilters, props.type));
@@ -228,9 +267,9 @@ const SuperCheckerTasks = (props) => {
     }
     if (typeof window !== 'undefined') {
 
-    localStorage.setItem(
-      "labellingMode", selectedFilters.supercheck_status
-    );
+      localStorage.setItem(
+        "labellingMode", selectedFilters.supercheck_status
+      );
     }
   }, [selectedFilters]);
 
@@ -247,18 +286,21 @@ const SuperCheckerTasks = (props) => {
         row.push(
           <Link
             to={(ProjectDetails?.project_type?.includes("Acoustic"))
-            ? `SuperCheckerAudioTranscriptionLandingPage/${el.id}` : `SuperChecker/${el.id}`} className={classes.link}>
+              ? `SuperCheckerAudioTranscriptionLandingPage/${el.id}` : `SuperChecker/${el.id}`} className={classes.link}>
             <CustomButton
               disabled={ProjectDetails.is_archived}
-              onClick={() => { if (typeof window !== 'undefined') {
-                localStorage.removeItem("labelAll")}}}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem("labelAll")
+                }
+              }}
               sx={{ p: 1, borderRadius: 2 }}
               label={<Typography sx={{ color: "#FFFFFF" }} variant="body2">
                 Validate
-                </Typography>} />
+              </Typography>} />
           </Link>)
         return row;
-        
+
       });
       let colList = ["id"];
       colList.push(
@@ -277,14 +319,14 @@ const SuperCheckerTasks = (props) => {
             sort: false,
             align: "center",
             customHeadLabelRender: customColumnHead,
-            setCellProps: () => ({ 
+            setCellProps: () => ({
               style: {
                 height: "70px", fontSize: "16px",
-              padding: "16px",
-              whiteSpace: "normal", 
-              overflowWrap: "break-word",
-              wordBreak: "break-word",  
-            } 
+                padding: "16px",
+                whiteSpace: "normal",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+              }
             }),
           },
         };
@@ -317,160 +359,154 @@ const SuperCheckerTasks = (props) => {
   const handleShowSearch = (col, event) => {
     setSearchAnchor(event.currentTarget);
     setSearchedCol(col);
-  
-}
-const handleSearchClose = () => {
-  setSearchAnchor(null);
-}
 
-
-const unassignTasks = async () => {
-  setDeallocateDialog(false);
-  const deallocateObj = new DeallocateSuperCheckerTasksAPI(id, selectedFilters.supercheck_status);
-  const res = await fetch(deallocateObj.apiEndPoint(), {
-    method: "GET",
-    body: JSON.stringify(deallocateObj.getBody()),
-    headers: deallocateObj.getHeaders().headers,
-  });
-  const resp = await res.json();
-  if (res.ok) {
-    setSnackbarInfo({
-      open: true,
-      message: resp?.message,
-      variant: "success",
-    });
-    getTaskListData();
-  } else {
-    setSnackbarInfo({
-      open: true,
-      message: resp?.message,
-      variant: "error",
-    });
   }
-};
+  const handleSearchClose = () => {
+    setSearchAnchor(null);
+  }
 
 
-const fetchNewTasks = async () => {
-  const batchObj = new PullNewSuperCheckerBatchAPI(id, Math.round(pullSize))
-const res = await fetch(batchObj.apiEndPoint(), {
-  method: "POST",
-  body: JSON.stringify(batchObj.getBody()),
-  headers: batchObj.getHeaders().headers,
-});
-const resp = await res.json();
-if (res.ok) {
-  setSnackbarInfo({
-    open: true,
-    message: resp?.message,
-    variant: "success",
-  });
-  if (
-    ((props.type === "superChecker" &&
-      selectedFilters.supercheck_status === "unvalidated") 
-    ) &&
-    currentPageNumber === 1
-  ) {
-    getTaskListData();
-  } else {
-    setsSelectedFilters({
-      ...selectedFilters,
-      task_status: props.type === "superChecker" ? "unvalidated" : "",
+  const unassignTasks = async () => {
+    setDeallocateDialog(false);
+    const deallocateObj = new DeallocateSuperCheckerTasksAPI(id, selectedFilters.supercheck_status);
+    const res = await fetch(deallocateObj.apiEndPoint(), {
+      method: "GET",
+      body: JSON.stringify(deallocateObj.getBody()),
+      headers: deallocateObj.getHeaders().headers,
     });
-    setCurrentPageNumber(1);
+    const resp = await res.json();
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+      getTaskListData();
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+  };
+
+
+  const fetchNewTasks = async () => {
+    const batchObj = new PullNewSuperCheckerBatchAPI(id, Math.round(pullSize))
+    const res = await fetch(batchObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(batchObj.getBody()),
+      headers: batchObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "success",
+      });
+      if (
+        ((props.type === "superChecker" &&
+          selectedFilters.supercheck_status === "unvalidated")
+        ) &&
+        currentPageNumber === 1
+      ) {
+        getTaskListData();
+      } else {
+        setsSelectedFilters({
+          ...selectedFilters,
+          task_status: props.type === "superChecker" ? "unvalidated" : "",
+        });
+        setCurrentPageNumber(1);
+      }
+      dispatch(fetchProjectDetails(id));
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+
+  };
+
+  const labelAllTasks = () => {
+
+    let search_filters = Object?.keys(selectedFilters)
+      .filter((key) => key?.startsWith("search_"))
+      .reduce((acc, curr) => {
+        acc[curr] = selectedFilters[curr];
+        return acc;
+      }, {});
+    if (typeof window !== 'undefined') {
+
+      localStorage.setItem("searchFilters", JSON.stringify(search_filters));
+      localStorage.setItem("labelAll", true);
+    }
+    const datavalue = {
+      annotation_status: selectedFilters?.supercheck_status,
+      mode: "supercheck",
+
+    };
+    dispatch(fetchNextTask({ projectId: id, projectObj: datavalue, null: null, type: props.type }));
+    setLabellingStarted(true);
   }
-  dispatch(fetchProjectDetails(id));
-} else {
-  setSnackbarInfo({
-    open: true,
-    message: resp?.message,
-    variant: "error",
-  });
-}
- 
-};
-
-const labelAllTasks = () =>{
-
-  let search_filters = Object?.keys(selectedFilters)
-  .filter((key) => key?.startsWith("search_"))
-  .reduce((acc, curr) => {
-    acc[curr] = selectedFilters[curr];
-    return acc;
-  }, {});
-  if (typeof window !== 'undefined') {
-
-localStorage.setItem("searchFilters", JSON.stringify(search_filters));
-localStorage.setItem("labelAll", true);
-  }
-const datavalue = {
-  annotation_status: selectedFilters?.supercheck_status,
-    mode: "supercheck",
-  
-};
-dispatch(fetchNextTask({projectId:id, projectObj:datavalue, null:null, type:props.type}));
-setLabellingStarted(true);
-}
 
   const customColumnHead = (col) => {
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                columnGap: "5px",
-                flexGrow: "1",
-                alignItems: "center",
-            }}
-        >
-               {col.label}
-                {!excludeSearch.includes(col.name) && <IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
-                    <SearchIcon id={col.name + "_btn"} />
-                </IconButton>}
-        </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          columnGap: "5px",
+          flexGrow: "1",
+          alignItems: "center",
+        }}
+      >
+        {col.label}
+        {!excludeSearch.includes(col.name) && <IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
+          <SearchIcon id={col.name + "_btn"} />
+        </IconButton>}
+      </Box>
     );
-}
-
-const areFiltersApplied = (filters) => {
-  if (
-    (filters.supercheck_status && filters.supercheck_status === "unvalidated")
-  ) {
-    return false;
   }
 
-  return Object.values(filters).some((value) => value !== "");
-};
 
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
 
-const filtersApplied = areFiltersApplied(selectedFilters);
+  const filtersApplied = areFiltersApplied(selectedFilters);
 
-const CustomTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#e0e0e0",
-    color: "rgba(0, 0, 0, 0.87)",
-    maxWidth: 300,
-    fontSize: theme.typography.pxToRem(12),
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: "#e0e0e0",
-  },
-}));
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#e0e0e0",
+      color: "rgba(0, 0, 0, 0.87)",
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(12),
+    },
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#e0e0e0",
+    },
+  }));
 
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
 
-        { (roles?.WorkspaceManager === userDetails?.role || roles?.OrganizationOwner === userDetails?.role || roles?.Admin === userDetails?.role ) &&    !ProjectDetails.annotators?.some(
-            (annotator) => annotator.id === userDetails?.id
-          ) && !ProjectDetails.annotation_reviewers?.some(
-            (reviewer) => reviewer.id === userDetails?.id
-          ) && ! ProjectDetails?.review_supercheckers?.some(
-            (reviewer) => reviewer.id === userDetails?.id
-          ) && (
-        <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
+        {(roles?.WorkspaceManager === userDetails?.role || roles?.OrganizationOwner === userDetails?.role || roles?.Admin === userDetails?.role) && !ProjectDetails.annotators?.some(
+          (annotator) => annotator.id === userDetails?.id
+        ) && !ProjectDetails.annotation_reviewers?.some(
+          (reviewer) => reviewer.id === userDetails?.id
+        ) && !ProjectDetails?.review_supercheckers?.some(
+          (reviewer) => reviewer.id === userDetails?.id
+        ) && (
+            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
               <InputLabel
                 id="annotator-filter-label"
                 sx={{
@@ -537,20 +573,20 @@ const CustomTooltip = styled(({ className, ...props }) => (
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -561,21 +597,21 @@ const CustomTooltip = styled(({ className, ...props }) => (
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -604,19 +640,19 @@ const CustomTooltip = styled(({ className, ...props }) => (
     page: currentPageNumber - 1,
     rowsPerPageOptions: [10, 25, 50, 100],
     textLabels: {
-        pagination: {
-            next: "Next >",
-            previous: "< Previous",
-            rowsPerPage: "currentRowPerPage",
-            displayRows: "OF"
-        }
+      pagination: {
+        next: "Next >",
+        previous: "< Previous",
+        rowsPerPage: "currentRowPerPage",
+        displayRows: "OF"
+      }
     },
     onChangePage: (currentPage) => {
-        setCurrentPageNumber(currentPage + 1);
+      setCurrentPageNumber(currentPage + 1);
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
-        setCurrentPageNumber(1);
-        setCurrentRowPerPage(rowPerPageCount);
+      setCurrentPageNumber(1);
+      setCurrentRowPerPage(rowPerPageCount);
     },
     filterType: 'checkbox',
     selectableRows: "none",
@@ -626,17 +662,17 @@ const CustomTooltip = styled(({ className, ...props }) => (
     search: false,
     viewColumns: false,
     textLabels: {
-        body: {
-            noMatch: "No records ",
-        },
-        toolbar: {
-            search: "Search",
-            viewColumns: "View Column",
-        },
-        pagination: {
-            rowsPerPage: "Rows per page",
-        },
-        options: { sortDirection: "desc" },
+      body: {
+        noMatch: "No records ",
+      },
+      toolbar: {
+        search: "Search",
+        viewColumns: "View Column",
+      },
+      pagination: {
+        rowsPerPage: "Rows per page",
+      },
+      options: { sortDirection: "desc" },
     },
     jumpToPage: true,
     serverSide: true,
@@ -653,24 +689,24 @@ const CustomTooltip = styled(({ className, ...props }) => (
     ),
 
 
-};
-const renderSnackBar = () => {
-  return (
-    <CustomizedSnackbars
-      open={snackbar.open}
-      handleClose={() =>
-        setSnackbarInfo({ open: false, message: "", variant: "" })
-      }
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      variant={snackbar.variant}
-      message={snackbar.message}
-    />
-  );
-};
-if (typeof window !== 'undefined') {
+  };
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+  if (typeof window !== 'undefined') {
 
-  var emailId = localStorage.getItem("email_id");
-}
+    var emailId = localStorage.getItem("email_id");
+  }
   const [password, setPassword] = useState("");
   const handleConfirm = async () => {
     const apiObj = new LoginAPI(emailId, password);
@@ -682,28 +718,28 @@ if (typeof window !== 'undefined') {
     const rsp_data = await res.json();
     if (res.ok) {
       unassignTasks();
-    }else{
+    } else {
       window.alert("Invalid credentials, please try again");
     }
   };
 
   return (
     <div>
-        {(props.type === "superChecker"  &&
+      {(props.type === "superChecker" &&
         ProjectDetails?.review_supercheckers?.some(
           (supercheckers) => supercheckers.id === userDetails?.id
         )
-        ) 
+      )
         &&
         (ProjectDetails.is_published ? (
-            <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
-              {((props.type === "superChecker" &&
-                selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped" 
-              ) && (
+          <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
+            {((props.type === "superChecker" &&
+              selectedFilters.supercheck_status === "unvalidated") ||
+              selectedFilters.supercheck_status === "draft" ||
+              selectedFilters.supercheck_status === "skipped"
+            ) && (
                 <Grid item xs={12} sm={12} md={3}>
-                  <Tooltip title={deallocateDisabled }>
+                  <Tooltip title={deallocateDisabled}>
                     <Box>
                       <CustomButton
                         sx={{
@@ -714,185 +750,189 @@ if (typeof window !== 'undefined') {
                         }}
                         label={"De-allocate Tasks"}
                         onClick={() => setDeallocateDialog(true)}
-                        disabled={deallocateDisabled }
+                        disabled={deallocateDisabled}
                         color={"warning"}
                       />
                     </Box>
                   </Tooltip>
                 </Grid>
               )}
-              <Dialog
-                open={deallocateDialog}
-                onClose={() => setDeallocateDialog(false)}
-                aria-labelledby="deallocate-dialog-title"
-                aria-describedby="deallocate-dialog-description"
-              >
-                <DialogTitle id="deallocate-dialog-title">
-                  {"De-allocate Tasks?"}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-description">
-                    All{" "}
-                    <snap style={{ color: "#1DA3CE" }}>
-                      {selectedFilters.supercheck_status}{" "}
-                        tasks
-                    </snap>{" "}
-                    will be de-allocated from this project. Please be careful as
-                    this action cannot be undone.
-                  </DialogContentText>
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="password"
-                    label="Password"
-                    type="password"
-                    fullWidth
-                    variant="standard"
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    onClick={() => setDeallocateDialog(false)}
-                    variant="outlined"
-                    color="error"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleConfirm}
-                    variant="contained"
-                    color="error"
-                    autoFocus
-                  >
-                    Confirm
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              <Grid
-                item
-                xs={4}
-                sm={4}
-                md={
-                  (props.type === "superChecker" &&
-                    selectedFilters.supercheck_status === "unvalidated") ||
-                  selectedFilters.supercheck_status === "draft" ||
-                  selectedFilters.supercheck_status === "skipped" 
-                    ? 2
-                    : 3
-                }
-              >
-                <FormControl size="small" sx={{ width: "100%" }}>
-                  <InputLabel id="pull-select-label" sx={{ fontSize: "16px" }}>
-                    Pull Size
-                  </InputLabel>
-                  <Select
-                    labelId="pull-select-label"
-                    id="pull-select"
-                    value={pullSize}
-                    // defaultValue={5}
-                    label="Pull Size"
-                    onChange={(e) => setPullSize(e.target.value)}
-                    disabled={pullDisabled}
-                    sx={{ fontSize: "16px" }}
-                  >
-                    <MenuItem
-                      value={ProjectDetails?.tasks_pull_count_per_batch * 0.5}
-                    >
-                      {Math.round(
-                        ProjectDetails?.tasks_pull_count_per_batch * 0.5
-                      )}
-                    </MenuItem>
-                    <MenuItem
-                      value={ProjectDetails?.tasks_pull_count_per_batch}
-                    >
-                      {ProjectDetails?.tasks_pull_count_per_batch}
-                    </MenuItem>
-                    <MenuItem
-                      value={ProjectDetails?.tasks_pull_count_per_batch * 1.5}
-                    >
-                      {Math.round(
-                        ProjectDetails?.tasks_pull_count_per_batch * 1.5
-                      )}
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid
-                item
-                xs={8}
-                sm={8}
-                md={
-                  (props.type === "superChecker" &&
-                    selectedFilters.supercheck_status === "unvalidated") ||
-                  selectedFilters.supercheck_status === "draft" ||
-                  selectedFilters.supercheck_status === "skipped" 
-                    ? 3
-                    : 4
-                }
-              >
-                <Tooltip title={pullDisabled}>
-                  <Box>
-                    <CustomButton
-                      sx={{
-                        p: 1,
-                        width: "100%",
-                        borderRadius: 2,
-                        margin: "auto",
-                      }}
-                      label={"Pull New Batch"}
-                      disabled={pullDisabled}
-                      onClick={fetchNewTasks}
-                    />
-                  </Box>
-                </Tooltip>
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                md={
-                  (props.type === "superChecker" &&
-                    selectedFilters.supercheck_status === "unvalidated") ||
-                  selectedFilters.supercheck_status === "draft" ||
-                  selectedFilters.supercheck_status === "skipped" 
-                    ? 4
-                    : 5
-                }
-              >
-                <Tooltip
-                  title={
-                    totalTaskCount === 0
-                        ? "No more tasks to review"
-                      : ""
-                  }
+            <Dialog
+              open={deallocateDialog}
+              onClose={() => setDeallocateDialog(false)}
+              aria-labelledby="deallocate-dialog-title"
+              aria-describedby="deallocate-dialog-description"
+            >
+              <DialogTitle id="deallocate-dialog-title">
+                {"De-allocate Tasks?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  All{" "}
+                  <snap style={{ color: "#1DA3CE" }}>
+                    {selectedFilters.supercheck_status}{" "}
+                    tasks
+                  </snap>{" "}
+                  will be de-allocated from this project. Please be careful as
+                  this action cannot be undone.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="password"
+                  label="Password"
+                  type="password"
+                  fullWidth
+                  variant="standard"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={() => setDeallocateDialog(false)}
+                  variant="outlined"
+                  color="error"
                 >
-                  <Box>
-                    <CustomButton
-                      sx={{
-                        p: 1,
-                        borderRadius: 2,
-                        margin: "auto",
-                        width: "100%",
-                      }}
-                      label={ "Start validating now"}
-                      onClick={labelAllTasks}
-                      disabled={totalTaskCount === 0 ||  ProjectDetails.is_archived  }
-                    />
-                  </Box>
-                </Tooltip>
-              </Grid>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirm}
+                  variant="contained"
+                  color="error"
+                  autoFocus
+                >
+                  Confirm
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Grid
+              item
+              xs={4}
+              sm={4}
+              md={
+                (props.type === "superChecker" &&
+                  selectedFilters.supercheck_status === "unvalidated") ||
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
+                  ? 2
+                  : 3
+              }
+            >
+              <FormControl size="small" sx={{ width: "100%" }}>
+                <InputLabel id="pull-select-label" sx={{ fontSize: "16px" }}>
+                  Pull Size
+                </InputLabel>
+                <Select
+                  labelId="pull-select-label"
+                  id="pull-select"
+                  value={pullSize}
+                  // defaultValue={5}
+                  label="Pull Size"
+                  onChange={(e) => setPullSize(e.target.value)}
+                  disabled={pullDisabled}
+                  sx={{ fontSize: "16px" }}
+                >
+                  <MenuItem
+                    value={ProjectDetails?.tasks_pull_count_per_batch * 0.5}
+                  >
+                    {Math.round(
+                      ProjectDetails?.tasks_pull_count_per_batch * 0.5
+                    )}
+                  </MenuItem>
+                  <MenuItem
+                    value={ProjectDetails?.tasks_pull_count_per_batch}
+                  >
+                    {ProjectDetails?.tasks_pull_count_per_batch}
+                  </MenuItem>
+                  <MenuItem
+                    value={ProjectDetails?.tasks_pull_count_per_batch * 1.5}
+                  >
+                    {Math.round(
+                      ProjectDetails?.tasks_pull_count_per_batch * 1.5
+                    )}
+                  </MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
-          ) : (
-            <></>
-        ) )}
-      
+            <Grid
+              item
+              xs={8}
+              sm={8}
+              md={
+                (props.type === "superChecker" &&
+                  selectedFilters.supercheck_status === "unvalidated") ||
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
+                  ? 3
+                  : 4
+              }
+            >
+              <Tooltip title={pullDisabled}>
+                <Box>
+                  <CustomButton
+                    sx={{
+                      p: 1,
+                      width: "100%",
+                      borderRadius: 2,
+                      margin: "auto",
+                    }}
+                    label={"Pull New Batch"}
+                    disabled={pullDisabled}
+                    onClick={fetchNewTasks}
+                  />
+                </Box>
+              </Tooltip>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={
+                (props.type === "superChecker" &&
+                  selectedFilters.supercheck_status === "unvalidated") ||
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
+                  ? 4
+                  : 5
+              }
+            >
+              <Tooltip
+                title={
+                  totalTaskCount === 0
+                    ? "No more tasks to review"
+                    : ""
+                }
+              >
+                <Box>
+                  <CustomButton
+                    sx={{
+                      p: 1,
+                      borderRadius: 2,
+                      margin: "auto",
+                      width: "100%",
+                    }}
+                    label={"Start validating now"}
+                    onClick={labelAllTasks}
+                    disabled={totalTaskCount === 0 || ProjectDetails.is_archived}
+                  />
+                </Box>
+              </Tooltip>
+            </Grid>
+          </Grid>
+        ) : (
+          <></>
+        ))}
+
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
-          // title={""}
+          key={`table-${displayWidth}`}
+          title={""}
           data={tasks}
           columns={columns}
-          options={options}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
       {popoverOpen && (
@@ -907,17 +947,17 @@ if (typeof window !== 'undefined') {
           onchange={getTaskListData}
         />
       )}
-       {searchOpen && <AllTaskSearchPopup
-                    open={searchOpen}
-                    anchorEl={searchAnchor}
-                     handleClose={handleSearchClose}
-                    updateFilters={setsSelectedFilters}
-                    //filterStatusData={filterData}
-                    currentFilters={selectedFilters}
-                    searchedCol={searchedCol}
-                    onchange={getTaskListData}
-                />}
-              {renderSnackBar()}
+      {searchOpen && <AllTaskSearchPopup
+        open={searchOpen}
+        anchorEl={searchAnchor}
+        handleClose={handleSearchClose}
+        updateFilters={setsSelectedFilters}
+        //filterStatusData={filterData}
+        currentFilters={selectedFilters}
+        searchedCol={searchedCol}
+        onchange={getTaskListData}
+      />}
+      {renderSnackBar()}
     </div>
   );
 };

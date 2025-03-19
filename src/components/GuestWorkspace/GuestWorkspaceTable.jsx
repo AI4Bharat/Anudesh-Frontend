@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import { useNavigate } from "react-router-dom";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import {
   ThemeProvider,
 
@@ -11,15 +11,10 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import ListItemText from "@mui/material/ListItemText";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
-import Switch from "@mui/material/Switch";
 import InputAdornment from '@mui/material/InputAdornment';
+import Skeleton from "@mui/material/Skeleton";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import tableTheme from "../../themes/tableTheme";
@@ -44,12 +39,33 @@ const style = {
   p: 4,
 };
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
+
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
   const [open, setOpen] = useState(false);
+    const [displayWidth, setDisplayWidth] = useState(0);
   const [currentWorkspaceName, setCurrentWorkspaceName] = useState("");
   const [currentWorkspaceId, setWorkspaceCurrentId] = useState("");
   const [password, setPassword] = useState('');
@@ -88,6 +104,24 @@ const GuestWorkspaceTable = (props) => {
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
+
+
+    useEffect(() => {
+      const handleResize = () => {
+        setDisplayWidth(window.innerWidth);
+      };
+  
+      if (typeof window !== 'undefined') {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+      }
+  
+      return () => {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('resize', handleResize);
+        }
+      };
+    }, []);
 
   useEffect(() => {
     dispatch(fetchGuestWorkspaceData(currentPageNumber));
@@ -440,10 +474,14 @@ const GuestWorkspaceTable = (props) => {
 
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
+          key={`table-${displayWidth}`}
           title={""}
           data={data}
           columns={columns}
-          options={options}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
       

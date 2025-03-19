@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import Skeleton from "@mui/material/Skeleton";
 import { ThemeProvider, Grid, IconButton, TablePagination, MenuItem, Select, Box } from "@mui/material";
 import tableTheme from "../../../../themes/tableTheme";
 import CustomizedSnackbars from "@/components/common/Snackbar";
@@ -16,11 +17,32 @@ import GetUserDetailUpdateAPI from "@/app/actions/api/Admin/EditProfile";
 import GetUserDetailAPI from "@/app/actions/api/Admin/UserDetail";
 
 import { fetchUserDetails } from "@/Lib/Features/user/getUserDetails";
- 
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
+
 const UserDetail = (props) => {
-   /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [displayWidth, setDisplayWidth] = useState(0);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
@@ -30,7 +52,7 @@ const UserDetail = (props) => {
   });
   const [openDialog, setOpenDialog] = useState(false);
   const [id, setId] = useState("");
-  const [userName,setUserName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [active, setActive] = useState();
   const [guest_user, setguest_user] = useState();
@@ -40,7 +62,7 @@ const UserDetail = (props) => {
   const [participationType, setParticipationType] = useState("");
   const [Role, setRole] = useState("");
   const [organization, setorganization] = useState("");
-  
+
 
 
   const UserDetail = useSelector((state) => state.getUserDetails.data);
@@ -53,6 +75,23 @@ const UserDetail = (props) => {
     const UserObj = new GetUserDetailAPI();
     dispatch(fetchUserDetails(UserObj))
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     getUserDetail();
@@ -88,7 +127,7 @@ const UserDetail = (props) => {
     setRole(role);
     setActive(is_active);
     setguest_user(guest_user)
-    setorganization(organization?.id||organization)
+    setorganization(organization?.id || organization)
   };
 
   const handleCloseDialog = () => {
@@ -97,7 +136,7 @@ const UserDetail = (props) => {
 
   const handleUpdateEditProfile = async () => {
     const data = {
-      email:email,
+      email: email,
       username: userName,
       first_name: firstName,
       last_name: lastName,
@@ -105,11 +144,11 @@ const UserDetail = (props) => {
       participation_type: participationType,
       role: Role,
       is_active: active,
-      guest_user:guest_user,
-    ...(organization && { organization: organization }), 
+      guest_user: guest_user,
+      ...(organization && { organization: organization }),
 
     };
-  
+
     const UserObj = new GetUserDetailUpdateAPI(id, data);
     const res = await fetch(UserObj.apiEndPoint(), {
       method: "PATCH",
@@ -143,19 +182,19 @@ const UserDetail = (props) => {
         el.email?.toLowerCase().includes(SearchUserDetail?.toLowerCase())
       ) {
         return el;
-      }else if(
+      } else if (
         el.username?.toLowerCase().includes(SearchUserDetail?.toLowerCase())
-      ){
+      ) {
         return el;
       } else if (
         el.first_name?.toLowerCase().includes(SearchUserDetail?.toLowerCase())
       ) {
         return el;
-      }else if(
+      } else if (
         el.is_active?.toString()
-        ?.toLowerCase()
-        .includes(SearchUserDetail?.toLowerCase())
-      ){
+          ?.toLowerCase()
+          .includes(SearchUserDetail?.toLowerCase())
+      ) {
         return el;
       } else if (
         el.last_name?.toLowerCase().includes(SearchUserDetail?.toLowerCase())
@@ -196,14 +235,14 @@ const UserDetail = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({ 
-         style: {
-          padding: "16px",
-          minWidth: "170px",
-          whiteSpace: "normal",
-          overflowWrap: "break-word",
-          wordBreak: "break-word", 
-        }
+        setCellProps: () => ({
+          style: {
+            padding: "16px",
+            minWidth: "170px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -214,14 +253,14 @@ const UserDetail = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-          padding: "16px",
-          minWidth: "170px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            minWidth: "170px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -300,23 +339,23 @@ const UserDetail = (props) => {
   const data =
     UserDetail && UserDetail.length > 0
       ? pageSearch().map((el, i) => {
-          const userRoleFromList =
-            el.role && UserMappedByRole(el.role)?.element;
+        const userRoleFromList =
+          el.role && UserMappedByRole(el.role)?.element;
 
-          return [
-            el.id,
-            el.email,
-            el.username,
-            el.first_name,
-            el.last_name,
-            el.languages.join(", "),
-            el.participation_type,
-            userRoleFromList ? userRoleFromList : el.role,
-            el.is_active==true?"Active":"Not Active",
-            <>
-              <div style={{display:"flex", flexDirection:"row"}}>
+        return [
+          el.id,
+          el.email,
+          el.username,
+          el.first_name,
+          el.last_name,
+          el.languages.join(", "),
+          el.participation_type,
+          userRoleFromList ? userRoleFromList : el.role,
+          el.is_active == true ? "Active" : "Not Active",
+          <>
+            <div style={{ display: "flex", flexDirection: "row" }}>
               <IconButton size="small" color="primary">
-                <VisibilityIcon onClick={()=>navigate(`/profile/${el.id}`)} />
+                <VisibilityIcon onClick={() => navigate(`/profile/${el.id}`)} />
               </IconButton>
               <IconButton size="small" color="primary">
                 <EditOutlinedIcon
@@ -337,78 +376,78 @@ const UserDetail = (props) => {
                   }
                 />
               </IconButton>
-              </div>
-            </>,
-          ];
-        })
+            </div>
+          </>,
+        ];
+      })
       : [];
 
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexWrap: "wrap", 
-        justifyContent: { 
-          xs: "space-between", 
-          md: "flex-end" 
-        }, 
-        alignItems: "center",
-        padding: "10px",
-        gap: { 
-          xs: "10px", 
-          md: "20px" 
-        }, 
-      }}
-    >
-
-      {/* Pagination Controls */}
-      <TablePagination
-        component="div"
-        count={count}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={(_, newPage) => changePage(newPage)}
-        onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+    return (
+      <Box
         sx={{
-          "& .MuiTablePagination-actions": {
-          marginLeft: "0px",
-        },
-        "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-          marginRight: "10px",
-        },
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
+          alignItems: "center",
+          padding: "10px",
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
-      />
+      >
 
-      {/* Jump to Page */}
-      <div>
-        <label style={{ 
-          marginRight: "5px", 
-          fontSize:"0.83rem", 
-        }}>
-        Jump to Page:
-        </label>
-        <Select
-          value={page + 1}
-          onChange={(e) => changePage(Number(e.target.value) - 1)}
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
-            fontSize: "0.8rem",
-            padding: "4px",
-            height: "32px",
+            "& .MuiTablePagination-actions": {
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
-        >
-          {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-            <MenuItem key={i} value={i + 1}>
-              {i + 1}
-            </MenuItem>
-          ))}
-        </Select>
-      </div>
-    </Box>
-  );
-};
- 
-console.log(data);
+        />
+
+        {/* Jump to Page */}
+        <div>
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
+          }}>
+            Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
+
+  console.log(data);
   const options = {
     textLabels: {
       body: {
@@ -464,21 +503,25 @@ console.log(data);
     <div>
       {renderSnackBar()}
       {loading && <Spinner />}
-      <Grid 
+      <Grid
         container
-        justifyContent="center" 
-        sx={{ 
+        justifyContent="center"
+        sx={{
           mb: 2,
           padding: "10px",
-      }}>
+        }}>
         <Search />
       </Grid>
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
+          key={`table-${displayWidth}`}
           title="User Details"
           data={data}
           columns={columns}
-          options={options}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
 
@@ -489,7 +532,7 @@ console.log(data);
           submit={() => handleUpdateEditProfile()}
           Email={email}
           FirstName={firstName}
-          userName = {userName}
+          userName={userName}
           setUserName={setUserName}
           active={active}
           setActive={setActive}
