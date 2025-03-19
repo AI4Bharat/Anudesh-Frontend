@@ -27,3 +27,4 @@ npm-debug.log*
 
 # config files
 *.config.js
+*.layout.js
