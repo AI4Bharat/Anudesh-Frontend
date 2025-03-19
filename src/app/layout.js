@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta http-equiv="Cache-Control" content="public, max-age=3600, must-revalidate"/>
         <meta name="robots" content="index, follow"/>
-        <link rel="preconnect" href="https://backend.anudesh.ai4bharat.org" crossorigin="anonymous"/>
+        <link rel="preconnect" href="https://backend.dev.anudesh.ai4bharat.org" crossorigin="anonymous"/>
 
           <link rel="icon" href="/favicon.ico" />
           {/* ✅ Preconnect for faster Google Fonts loading */}

@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import { useDispatch } from "react-redux";
+import { useMediaQuery } from "@mui/material";
 import DatasetStyle from "@/styles/dataset";
 import React from "react";
 import {
@@ -22,6 +23,15 @@ function TaskCountAnalyticsChart(props) {
   console.log(props);
   const classes = DatasetStyle();
   const { analyticsData } = props;
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)'); 
+  const isMediumScreen = useMediaQuery('(max-width:960px)');
+
+  const getResponsiveFontSize = (baseSize) => {
+    if (isSmallScreen) return baseSize * 0.8;
+    if (isMediumScreen) return baseSize * 0.9;
+    return baseSize;
+  };
 
   const [totalTaskCount, setTotalTaskCount] = useState();
   const [totalAnnotationTasksCount, setTotalAnnotationTasksCount] = useState();
@@ -98,9 +108,13 @@ function TaskCountAnalyticsChart(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
-        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+        <Typography 
+          variant="h2" 
+          style={{ marginBottom: "35px", fontSize: getResponsiveFontSize(32), padding: "10px" }} 
+          className={classes.heading}
+        >
           {`Tasks Dashboard - ${analyticsData[0]?.projectType}`}
-          <Typography variant="body1">
+          <Typography variant="body1" style={{ fontSize: getResponsiveFontSize(16), padding: "5px" }}>
             Count of Annotated and Reviewed Data
           </Typography>
         </Typography>
@@ -109,39 +123,37 @@ function TaskCountAnalyticsChart(props) {
             <Box className={classes.topBarInnerBox}>
               <Typography
                 style={{
-                  fontSize: "1rem",
+                  fontSize: getResponsiveFontSize(16),
                   fontWeight: "600",
-                  padding: "16px 0",
+                  padding: "5px",
                 }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-              Total Annotated Tasks
-
+              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
+                Total Annotated Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }}>
                 {totalAnnotationTasksCount &&
                   new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-              Pending Review Tasks
-
+              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
+                Pending Review Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }}>
                 {difftotal &&
                   new Intl.NumberFormat("en").format(difftotal)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-              Review Completed Tasks
+              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
+                Review Completed Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "400", padding: "5px" }}>
                 {totalReviewTasksCount &&
                   new Intl.NumberFormat("en").format(totalReviewTasksCount)}
               </Typography>
@@ -176,7 +188,8 @@ function TaskCountAnalyticsChart(props) {
                   value="Language"
                   position="insideBottom"
                   fontWeight="bold"
-                  fontSize={16}
+                  fontSize={getResponsiveFontSize(16)}
+                  padding="5px"
                 ></Label>
               </XAxis>
               <YAxis
@@ -195,8 +208,9 @@ function TaskCountAnalyticsChart(props) {
                   angle={-90}
                   position="insideLeft"
                   fontWeight="bold"
-                  fontSize={16}
+                  fontSize={getResponsiveFontSize(16)}
                   offset={-15}
+                  padding="5px"
                 ></Label>
               </YAxis>
               {/* <Label value="Count" position="insideLeft" offset={15} /> */}

@@ -1,4 +1,4 @@
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
+import Skeleton from "@mui/material/Skeleton";
 import TablePagination from "@mui/material/TablePagination";
 import Select from "@mui/material/Select";
 import tableTheme from "@/themes/tableTheme";
@@ -18,7 +19,24 @@ import DatasetSearchPopup from './DatasetSearchPopup';
 import Spinner from "@/components/common/Spinner";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 
-
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
 
 const excludeKeys = [
   "parent_data_id",
@@ -45,7 +63,7 @@ const excludeKeys = [
 ];
 
 const DataitemsTable = () => {
-    /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const classes = DatasetStyle();
   const { datasetId } = useParams();
@@ -54,7 +72,7 @@ const DataitemsTable = () => {
   // const filterdataitemsList =useSelector((state) => state.datasetSearchPopup.data);
   const DatasetDetails = useSelector(state => state.getDatasetDetails.data);
   const apiLoading = useSelector(state => state.apiStatus.loading);
-
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -67,8 +85,8 @@ const DataitemsTable = () => {
   const searchOpen = Boolean(searchAnchor);
   const [searchedCol, setSearchedCol] = useState();
   localStorage.setItem("DataitemsList", JSON.stringify(columns));
-  localStorage.setItem("Dataitem",  JSON.stringify(dataitemsList));
-  
+  localStorage.setItem("Dataitem", JSON.stringify(dataitemsList));
+
   const getDataitems = () => {
     const dataObj = ({
       instanceIds: datasetId,
@@ -80,21 +98,38 @@ const DataitemsTable = () => {
     );
     dispatch(fetchDataitemsById(dataObj));
   };
- 
-useEffect(() => {
-  setLoading(apiLoading);
-}, [apiLoading]);
- 
 
-    useEffect(() => {
-      let fetchedItems =dataitemsList?.results;
-      setTotalDataitems(dataitemsList?.count);
-      fetchedItems = dataitemsList?.results;
-      setDataitems(fetchedItems);
+  useEffect(() => {
+    setLoading(apiLoading);
+  }, [apiLoading]);
 
-     
-   
-    
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
+
+  useEffect(() => {
+    let fetchedItems = dataitemsList?.results;
+    setTotalDataitems(dataitemsList?.count);
+    fetchedItems = dataitemsList?.results;
+    setDataitems(fetchedItems);
+
+
+
+
     let tempColumns = [];
     let tempSelected = [];
     if (fetchedItems?.length) {
@@ -109,14 +144,14 @@ useEffect(() => {
               align: "center",
               customHeadLabelRender: customColumnHead,
               customBodyRender: (value) => {
-                if ((key == "metadata_json" || key == "prediction_json"|| key == "ocr_prediction_json"|| key == "transcribed_json"|| key == "draft_data_json" || key == "ocr_transcribed_json") && value !== null ) {
-                 const data = JSON.stringify(value)
-                 const metadata = data.replace(/\\/g, "");
+                if ((key == "metadata_json" || key == "prediction_json" || key == "ocr_prediction_json" || key == "transcribed_json" || key == "draft_data_json" || key == "ocr_transcribed_json") && value !== null) {
+                  const data = JSON.stringify(value)
+                  const metadata = data.replace(/\\/g, "");
                   return metadata;
-                } else if(key=="eval_form_output_json"){
+                } else if (key == "eval_form_output_json") {
                   return JSON.stringify(value);
                 }
-                else{
+                else {
                   return value;
                 }
               },
@@ -129,53 +164,53 @@ useEffect(() => {
     setColumns(tempColumns);
     setSelectedColumns(tempSelected);
 
-     
-     }, [dataitemsList])
-   
+
+  }, [dataitemsList])
+
 
   useEffect(() => {
     getDataitems();
-  }, [currentPageNumber,currentRowPerPage,selectedFilters]);
+  }, [currentPageNumber, currentRowPerPage, selectedFilters]);
 
   useEffect(() => {
     const newCols = columns.map(col => {
-        col.options.display = selectedColumns.includes(col.name) ? "true" : "false";
-        return col;
+      col.options.display = selectedColumns.includes(col.name) ? "true" : "false";
+      return col;
     });
     setColumns(newCols);
-    
-}, [selectedColumns]);
- 
+
+  }, [selectedColumns]);
+
 
 
   const handleShowSearch = (col, event) => {
-     setSearchAnchor(event.currentTarget);
-     setSearchedCol(col);
-   
-}
-const handleSearchClose = () => {
-  setSearchAnchor(null);
-}
+    setSearchAnchor(event.currentTarget);
+    setSearchedCol(col);
+
+  }
+  const handleSearchClose = () => {
+    setSearchAnchor(null);
+  }
 
   const customColumnHead = (col) => {
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                columnGap: "5px",
-                flexGrow: "1",
-                alignItems: "center",
-            }}
-        >
-            {col.label}
-             <IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
-                <SearchIcon id={col.name + "_btn"} />
-            </IconButton>
-        </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          columnGap: "5px",
+          flexGrow: "1",
+          alignItems: "center",
+        }}
+      >
+        {col.label}
+        <IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
+          <SearchIcon id={col.name + "_btn"} />
+        </IconButton>
+      </Box>
     );
-}
+  }
 
   const renderToolBar = () => {
     return (
@@ -206,20 +241,20 @@ const handleSearchClose = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -230,21 +265,21 @@ const handleSearchClose = () => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -270,7 +305,7 @@ const handleSearchClose = () => {
     count: totalDataitems,
     rowsPerPage: currentRowPerPage,
     page: currentPageNumber - 1,
-    rowsPerPageOptions: [10, 25, 50, 100, 200 ,500, 1000, 2000,4000,8000],
+    rowsPerPageOptions: [10, 25, 50, 100, 200, 500, 1000, 2000, 4000, 8000],
     textLabels: {
       pagination: {
         next: "Next >",
@@ -294,17 +329,17 @@ const handleSearchClose = () => {
     viewColumns: false,
     textLabels: {
       body: {
-          noMatch: "No records ",
+        noMatch: "No records ",
       },
       toolbar: {
-          search: "Search",
-          viewColumns: "View Column",
+        search: "Search",
+        viewColumns: "View Column",
       },
       pagination: {
-          rowsPerPage: "Rows per page",
+        rowsPerPage: "Rows per page",
       },
       options: { sortDirection: "desc" },
-  },
+    },
     jumpToPage: true,
     serverSide: true,
     customToolbar: renderToolBar,
@@ -323,26 +358,30 @@ const handleSearchClose = () => {
   };
 
   return (
-   <>  
-       <ThemeProvider theme={tableTheme}>
+    <>
+      <ThemeProvider theme={tableTheme}>
         <MUIDataTable
+          key={`table-${displayWidth}`}
           title={""}
           data={dataitems}
           columns={columns}
-          options={options}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
-                  {searchOpen && <DatasetSearchPopup
-                    open={searchOpen}
-                    anchorEl={searchAnchor}
-                     handleClose={handleSearchClose}
-                    updateFilters={setsSelectedFilters}
-                    currentFilters={selectedFilters}
-                    searchedCol={searchedCol}
-                />}
-                {loading && <Spinner />}
-                </>
-    
+      {searchOpen && <DatasetSearchPopup
+        open={searchOpen}
+        anchorEl={searchAnchor}
+        handleClose={handleSearchClose}
+        updateFilters={setsSelectedFilters}
+        currentFilters={selectedFilters}
+        searchedCol={searchedCol}
+      />}
+      {loading && <Spinner />}
+    </>
+
   );
 };
 

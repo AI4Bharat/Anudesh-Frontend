@@ -282,8 +282,10 @@ const DatasetStyle = makeStyles({
     width: "25%",
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center",
     textAlign: "center",
     boxShadow: "3px 0 2px -2px #00000029",
+    height: "100px",
   },
   toolTip: {
     width: "200px",
