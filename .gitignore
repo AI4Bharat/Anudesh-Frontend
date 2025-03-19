@@ -26,4 +26,5 @@ npm-debug.log*
 .vercel
 
 # config files
-*.config.js
+src/config/config.js
+src/app/layout.js
