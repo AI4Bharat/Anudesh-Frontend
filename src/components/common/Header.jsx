@@ -1,8 +1,13 @@
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import Divider from "@mui/material/Divider";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -71,6 +76,8 @@ const Header = () => {
     variant: "success",
   });
   //const[checkClUI,setCheckClUI]=useState(null)
+  const [open, setOpen] = useState(false);
+  const [emailToChange, setEmailToChange] = useState("");
   const [moreHorizonAnchorEl, setMoreHorizonAnchorEl] = useState(null);
   const [Notification, setnotification] = useState();
   const [unread, setunread] = useState(null);
@@ -759,6 +766,21 @@ const Header = () => {
     setShowTransliterationModel(false);
   };
 
+  const handleClickOpen = (email) => {
+    setEmailToChange(email);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEmailToChange("");
+  };
+
+  const handleApply = async () => {
+    await handleChangePassword(emailToChange);
+    handleClose();
+  };
+
   const handleChangePassword = async (email) => {
     let obj = new ForgotPasswordAPI({ email: email });
     const res = await fetch(obj.apiEndPoint(), {
@@ -1106,7 +1128,8 @@ const Header = () => {
                       key={3}
                       onClick={() => {
                         handleCloseUserMenu();
-                        handleChangePassword(loggedInUserData.email);
+                        handleClickOpen(loggedInUserData.email);
+                        // handleChangePassword(loggedInUserData.email);
                       }}
                     >
                       <Typography variant="body2" textAlign="center">
@@ -1114,6 +1137,20 @@ const Header = () => {
                       </Typography>
                     </MenuItem>
                   )}
+                <Dialog open={open} onClose={handleClose}>
+                  <DialogTitle>Change Password:</DialogTitle>
+                  <DialogContent>
+                   Are you sure you want to change your password?
+                 </DialogContent>
+                 <DialogActions>
+                 <Button onClick={handleApply} color="primary" variant="contained">
+                   Confirm
+                  </Button>
+                  <Button onClick={handleClose} color="error" variant="contained">
+                   Cancel
+                  </Button>
+                 </DialogActions>
+                </Dialog>
                   <MenuItem
                     key={4}
                     onClick={() => onLogoutClick()}
