@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Divider,
-  Typography,
-  Popover,
-  Box,
-  TextField
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import Popover from "@mui/material/Popover";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
 import { translate } from "@/config/localisation";
 import  "../../styles/Dataset.css";
 // import DatasetSearchPopupAPI from "../../../../redux/actions/api/Dataset/DatasetSearchPopup";

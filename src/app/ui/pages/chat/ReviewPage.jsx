@@ -1,42 +1,25 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
 import MenuItem from "@mui/material/MenuItem";
-import Menu, { MenuProps } from "@mui/material/Menu";
+import Menu from "@mui/material/Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { styled, alpha } from "@mui/material/styles";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
 import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
@@ -47,7 +30,6 @@ import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
@@ -112,27 +94,20 @@ const StyledMenu = styled((props) => (
 const ReviewPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
-  let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const lsfRef = useRef();
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [chatHistory, setChatHistory] = useState([{}]);
   const [showNotes, setShowNotes] = useState(false);
-  const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
   const [currentInteraction, setCurrentInteraction] = useState({});
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
   const [answered, setAnswered] = useState(false);
-  let loaded = useRef();
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
   const [labellingMode, setLabellingMode] = useState(null);
-  const load_time = useRef();
   useEffect(() => {
     if (typeof window !== "undefined") {
       const mode = localStorage.getItem("labellingMode");
@@ -148,7 +123,6 @@ const ReviewPage = () => {
   const [disableSkip, setdisableSkip] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
-  const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
   const [annotations, setAnnotations] = useState([]);
   const annotationNotesRef = useRef(null);
@@ -156,7 +130,6 @@ const ReviewPage = () => {
   const [disableButton, setDisableButton] = useState(false);
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
-  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
@@ -168,8 +141,6 @@ const ReviewPage = () => {
 
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
-  const [showChatContainer, setShowChatContainer] = useState(false);
-  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
   const [supercheckertext, setsupercheckertext] = useState("");
@@ -178,11 +149,17 @@ const ReviewPage = () => {
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
   };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
-  };
 
   const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+
     response = String(response);
     const output = [];
     let count = 0;
@@ -684,7 +661,9 @@ const ReviewPage = () => {
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
-      } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+      } else if (
+        ProjectDetails.project_type == "MultipleInteractionEvaluation"
+      ) {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
           model_responses_json: form.model_responses_json.map((response) => ({
@@ -754,7 +733,15 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
+        if (
+          ![
+            "draft",
+            "skipped",
+            "delete",
+            "delete-pair",
+            "to_be_revised",
+          ].includes(value)
+        ) {
           console.log("answered variable: ");
           console.log(answered, "kelo");
 
@@ -772,8 +759,7 @@ const ReviewPage = () => {
             setLoading(false);
             setShowNotes(false);
             return;
-          }
-          else if(chatHistory.length==0){
+          } else if (chatHistory.length == 0) {
             setAutoSave(true);
             setSnackbarInfo({
               open: true,
@@ -881,7 +867,7 @@ const ReviewPage = () => {
   };
 
   const filterAnnotations = (annotations, user, taskData) => {
-    setLoading(true)
+    setLoading(true);
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
       return (
@@ -993,7 +979,7 @@ const ReviewPage = () => {
     setFilterMessage(filterMessage);
     setAnnotations(filteredAnnotations);
     setFilteredReady(false);
-    setLoading(false)
+    setLoading(false);
     return [
       filteredAnnotations,
       disable,
@@ -1071,9 +1057,11 @@ const ReviewPage = () => {
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1092,9 +1080,11 @@ const ReviewPage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1131,14 +1121,13 @@ const ReviewPage = () => {
   return (
     <>
       {loading && <Spinner />}
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
         <Grid item>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -1146,7 +1135,12 @@ const ReviewPage = () => {
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -1164,11 +1158,8 @@ const ReviewPage = () => {
         <Grid item xs={12}>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -1176,6 +1167,12 @@ const ReviewPage = () => {
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   annotationtext.trim().length === 0 &&
@@ -1226,21 +1223,20 @@ const ReviewPage = () => {
           <Grid
             container
             justifyContent="center"
-            spacing={3}
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "16px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              {/* title={assignedUsers ? assignedUsers : ""} */}
               <LightTooltip
                 title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -1251,9 +1247,12 @@ const ReviewPage = () => {
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }
@@ -1276,12 +1275,7 @@ const ReviewPage = () => {
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
+
             {!disableBtns && taskData?.review_user === userData?.id && (
               <Grid item>
                 <Tooltip title="Save task for later">
@@ -1292,16 +1286,16 @@ const ReviewPage = () => {
                     onClick={() =>
                       handleReviewClick("draft", review.id, review.lead_time)
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Draft
                   </Button>
@@ -1316,13 +1310,14 @@ const ReviewPage = () => {
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    pt: 2,
-                    pb: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1341,73 +1336,77 @@ const ReviewPage = () => {
                     onClick={() =>
                       handleReviewClick("skipped", review.id, review.lead_time)
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Skip
                   </Button>
                 </Tooltip>
               )}
             </Grid>
-            {ProjectDetails.project_type == "InstructionDrivenChat"?(<Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="clear the entire chat history">
-                  <Button
-                    value="Clear Chats"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Clear Chats
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>):((<Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="Reset the entire chat history">
-                  <Button
-                    value="Reset All"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Reset All
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>))}
+            {ProjectDetails.project_type == "InstructionDrivenChat" ? (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="clear the entire chat history">
+                    <Button
+                      value="Clear Chats"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
+                      style={{
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Clear Chats
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            ) : (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="Reset the entire chat history">
+                    <Button
+                      value="Reset All"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
+                      style={{
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Reset All
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            )}
             {!disableBtns &&
               !disableButton &&
               taskData?.review_user === userData?.id && (
@@ -1425,13 +1424,14 @@ const ReviewPage = () => {
                           review?.parent_annotation,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        pt: 2,
-                        pb: 2,
                         backgroundColor: "#ee6633",
                       }}
                     >
@@ -1450,13 +1450,14 @@ const ReviewPage = () => {
                     aria-controls={open ? "accept-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ee6633",
                     }}
                     onClick={handleClick}

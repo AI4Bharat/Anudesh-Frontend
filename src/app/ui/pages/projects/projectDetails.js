@@ -1,4 +1,5 @@
-'use client'
+"use client";
+
 import {
     Box,
     Button,
@@ -33,6 +34,7 @@ import {
   import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
   import SuperChecker from "../../../../components/Project/SuperChecker";
   import AllTaskTable from "@/components/Project/AllTaskTable";
+  import { setSelectedTab } from "@/Lib/Features/projects/ProjectTabs";
 
   const menuOptions = [
     { name: "Tasks", isChecked: false, component: () => null },
@@ -131,6 +133,7 @@ import {
     const loggedInUserData = useSelector(
       (state) => state.getLoggedInData?.data
     );
+    const selectedTab = useSelector((state) => state.getProjectTabs.selectedTab);
     const getProjectDetails = () => {
       dispatch(fetchProjectDetails(id))
     };
@@ -181,9 +184,10 @@ import {
     }
     }, [ProjectDetails.id]);
     const [annotationreviewertype, setAnnotationreviewertype] = useState();
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(selectedTab); // Initialize state with the value from Redux
     const handleChange = (event, newValue) => {
       setValue(newValue);
+      dispatch(setSelectedTab(newValue)); // Dispatch the action to update the selected tab in Redux
     };
     const apiLoading = useSelector((state) => state.getProjectDetails.status !== "succeeded");
     const isAnnotators =
@@ -374,6 +378,7 @@ import {
                 value={value}
                 onChange={handleChange}
                 aria-label="basic tabs example"
+                variant="scrollable"
               >
                 {filteredTabPanData.map((el, i) => {
                   return el.tabEle;
@@ -397,21 +402,26 @@ import {
       );
     };
   
-    return (
-      <ThemeProvider theme={themeDefault}>
-        {apiLoading ? <Spinner /> : 
+
+  return (
+    <ThemeProvider theme={themeDefault}>
+      {apiLoading ? (
+        <Spinner />
+      ) : (
         <Grid
           container
           direction="row"
           justifyContent="center"
           alignItems="center"
+          sx={{
+            padding: { xs: 2, sm: 3, md: 5 },
+          }}
         >
           <Card
             sx={{
               width: "100%",
               minHeight: 500,
               padding: { xs: 2, sm: 4, md: 5 },
-
             }}
           >
             <Grid
@@ -419,21 +429,47 @@ import {
               direction="row"
               justifyContent="center"
               alignItems="center"
-              sx={{ mb: 3 }}
+              sx={{ mb: { xs: 2, md: 3 } }}
             >
-  <Grid item xs={12} sm={12} md={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} lg={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12} xl={loggedInUserData?.role && (userRole.WorkspaceManager === loggedInUserData.role || userRole.OrganizationOwner === loggedInUserData.role || userRole.Admin === loggedInUserData.role) ? 10 : 12}>
-  <Typography variant="h3">{ProjectDetails.title}</Typography>
+              <Grid
+                item
+                xs={12}
+                md={
+                  loggedInUserData?.role &&
+                  (userRole.WorkspaceManager === loggedInUserData.role ||
+                    userRole.OrganizationOwner === loggedInUserData.role ||
+                    userRole.Admin === loggedInUserData.role)
+                    ? 10
+                    : 12
+                }
+                sx={{
+                  textAlign: { xs: "center", md: "left" },
+                  mb: { xs: 2, md: 0 },
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
+                >
+                  {ProjectDetails.title}
+                </Typography>
               </Grid>
 
               {(userRole.WorkspaceManager === loggedInUserData?.role ||
-              userRole.OrganizationOwner === loggedInUserData?.role ||
-              userRole.Admin === loggedInUserData?.role) && (
-                <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
+                userRole.OrganizationOwner === loggedInUserData?.role ||
+                userRole.Admin === loggedInUserData?.role) && (
+                <Grid
+                  item
+                  xs={12}
+                  md={2}
+                  sx={{
+                    display: "flex",
+                    justifyContent: { xs: "center", md: "flex-end" },
+                    mt: { xs: 2, md: 0 },
+                  }}
+                >
                   <Tooltip title={translate("label.showProjectSettings")}>
-                    <IconButton
-                      onClick={handleOpenSettings}
-                      sx={{ marginLeft: "140px" }}
-                    >
+                    <IconButton onClick={handleOpenSettings}>
                       <SettingsOutlinedIcon
                         color="primary.dark"
                         fontSize="large"
@@ -442,11 +478,18 @@ import {
                   </Tooltip>
                 </Grid>
               )}
-          </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ mb: 2 }}>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              sx={{
+                mb: { xs: 2, md: 3 },
+              }}
+            >
               <Grid container spacing={2}>
                 {projectFilterData?.map((des, i) => (
-                  <Grid key={i} item xs={isSuperChecker?3:4} sm={isSuperChecker?3:4} md={isSuperChecker?3:4} lg={isSuperChecker?3:4} xl={isSuperChecker?3:4}>
+                  <Grid key={i} item xs={12} sm={6} md={3} lg={3} xl={3}>
                     <ProjectDescription
                       name={des.name}
                       value={des.value}
@@ -459,9 +502,9 @@ import {
             {renderTabs()}
           </Card>
         </Grid>
-        }
-      </ThemeProvider>
-    );
-  };
-  
-  export default Projects;
+      )}
+    </ThemeProvider>
+  );
+};
+
+export default Projects;

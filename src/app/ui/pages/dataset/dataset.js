@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Radio, Box, Grid, Typography, ThemeProvider } from "@mui/material";
+import {  ThemeProvider } from "@mui/material";
+import Radio from "@mui/material/Radio";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import DatasetCardList from "./DatasetCardList";
 import DatasetCard from "./DatasetCard";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import CustomButton from "@/components/common/Button";
 import Spinner from "@/components/common/Spinner";
 import DatasetStyle from "@/styles/dataset";
@@ -26,9 +31,12 @@ export default function DatasetList() {
   const datasetList = useSelector((state) => state.GetDatasets.data);
   const apiLoading = useSelector((state) => state.GetDatasets.status == "loading" );
 
-  const [selectedFilters, setsSelectedFilters] = useState({
-    dataset_visibility: "",
-    dataset_type: "",
+  // Initialize selected filters from localStorage or set default values
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    const savedFilters = localStorage.getItem("datasetSelectedFilters");
+    return savedFilters
+      ? JSON.parse(savedFilters)
+      : { dataset_visibility: "", dataset_type: "" };
   });
   console.log(selectedFilters);
   const getDashboardprojectData = () => {
@@ -42,6 +50,14 @@ export default function DatasetList() {
 
   useEffect(() => {
     getDashboardprojectData();
+  }, [selectedFilters]);
+
+  // Save selected filters to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      "datasetSelectedFilters",
+      JSON.stringify(selectedFilters),
+    );
   }, [selectedFilters]);
 
   const handleProjectlist = () => {
@@ -69,8 +85,8 @@ export default function DatasetList() {
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? <Spinner /> : <> 
 
-      <Grid container className={classes.root}>
-        <Grid item style={{ flexGrow: "0" }}>
+      <Grid container  className={classes.root}>
+        <Grid item sx={{ml:2}} style={{ flexGrow: "0" }}>
           <Typography variant="h6" sx={{ paddingBottom: "8px" }}>
             View :{" "}
           </Typography>
@@ -98,20 +114,25 @@ export default function DatasetList() {
             </RadioGroup>
           </FormControl>
         </Grid>
-        <Grid xs={3} item className={classes.fixedWidthContainer}>
+        <Grid  item
+              xs={12}
+              sm={3}
+              className={classes.fixedWidthContainer}
+              sx={{ margin: { xs: 1, sm: 1 ,md:1,lg:1,xl:1} }}>
           <Search />
         </Grid>
       </Grid>
 
-      <Box>
+      <Box sx={{m:1}}>
         <CustomButton
           sx={{
             p: 2,
             borderRadius: 3,
-            mt: 2,
-            mb: 2,
+            m:1,
             justifyContent: "flex-end",
           }}
+          xs={3}
+          sm={6}
           onClick={handleCreateProject}
           label="Create New Dataset Instance"
         />
@@ -119,11 +140,11 @@ export default function DatasetList() {
           sx={{
             p: 2,
             borderRadius: 3,
-            mt: 2,
-            mb: 2,
-            ml: 2,
+            m:1,
             justifyContent: "flex-end",
           }}
+          xs={3}
+          sm={6}
           disabled = {userRole.Admin === loggedInUserData?.role? false : true}
           onClick={handleAutomateButton}
           label="Automate Datasets"

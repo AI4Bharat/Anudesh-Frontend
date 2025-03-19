@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback ,useMemo} from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import Spinner from "@/components/common/Spinner";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
   FormControlLabel,
@@ -13,12 +11,9 @@ import {
   TextareaAutosize,
   Box,
   Typography,
-  Icon,
   IconButton,
-  Grid,
   Checkbox,
   FormControl,
-  FormLabel,
   FormGroup,
 } from "@mui/material";
 import "../model_response_evaluation/model_response_evaluation.css";
@@ -31,17 +26,12 @@ import {
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Resizable } from "re-resizable";
 import { translate } from "@/config/localisation";
-import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
-// import { questions } from "./config";
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
-import { current } from "@reduxjs/toolkit";
-import { output } from "../../../../../next.config";
-import { fontSize } from "@mui/system";
+
 // import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
 const PreferenceRanking = ({
@@ -70,7 +60,7 @@ const PreferenceRanking = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
-  const [clickedPromptOutputPairId,setclickedPromptOutputPairId]=useState()
+  const [clickedPromptOutputPairId, setclickedPromptOutputPairId] = useState();
 
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
@@ -79,38 +69,41 @@ const PreferenceRanking = ({
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
       const result = annotation?.[0]?.result || [];
-      
+
       const forms = result?.map((currentForm) => ({
         prompt: currentForm.prompt || "",
-        model_responses_json: currentForm.model_responses_json?.map((modelResponse) => ({
-          ...modelResponse,
-          output: modelResponse.output || "",
-          model_name: modelResponse.model_name || "",
-          questions_response: modelResponse.questions_response?.map((questionResponse) => ({
-            ...questionResponse,
-            question: questionResponse?.question || {},
-            response: questionResponse?.response || [],
-          })),
-        })),
+        model_responses_json: currentForm.model_responses_json?.map(
+          (modelResponse) => ({
+            ...modelResponse,
+            output: modelResponse.output || "",
+            model_name: modelResponse.model_name || "",
+            questions_response: modelResponse.questions_response?.map(
+              (questionResponse) => ({
+                ...questionResponse,
+                question: questionResponse?.question || {},
+                response: questionResponse?.response || [],
+              }),
+            ),
+          }),
+        ),
         prompt_output_pair_id: currentForm?.prompt_output_pair_id || null,
         additional_note: currentForm?.additional_note || "",
       }));
-  
+
       setForms(forms.length > 0 ? forms : []);
       setIsFormsInitialized(forms.length > 0);
-      console.log("Parsed Forms:", forms,"jack","1");
+      console.log("Parsed Forms:", forms, "jack", "1");
       return forms;
     }
     setForms([]);
     setIsFormsInitialized(false);
     return [];
   }, [annotation, taskId]);
-  
+
   useEffect(() => {
     setForms(parsedForms);
     console.log("Forms updated:", parsedForms);
   }, [parsedForms, setForms]);
-
 
   const handleReset = () => {
     setCurrentInteraction((prev) => ({
@@ -124,8 +117,6 @@ const PreferenceRanking = ({
     }));
   };
 
-
-
   const fetchInteractions = useCallback(async () => {
     try {
       const taskDetailsObj = new GetTaskDetailsAPI(taskId);
@@ -138,15 +129,13 @@ const PreferenceRanking = ({
     } catch (error) {
       console.error("Error fetching interactions:", error);
     }
-    console.log("jack","2");
-
+    console.log("jack", "2");
   }, [taskId]);
 
   useEffect(() => {
     fetchInteractions();
-  }, [fetchInteractions]);  
+  }, [fetchInteractions]);
   useEffect(() => {
-
     console.log("kkk", interactions.length, forms?.length);
 
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -176,18 +165,15 @@ const PreferenceRanking = ({
       console.log("init forms: ", initialForms);
       setForms(initialForms);
       console.log("jack", "3");
-
     }
   }, [forms, interactions, taskId]);
 
   useEffect(() => {
-    
-    if (forms?.length > 0 && interactions?.length > 0 ) {
-      if(clickedPromptOutputPairId){
-        var defaultFormId = clickedPromptOutputPairId
-      }
-      else{
-        var defaultFormId = forms[0]?.prompt_output_pair_id
+    if (forms?.length > 0 && interactions?.length > 0) {
+      if (clickedPromptOutputPairId) {
+        var defaultFormId = clickedPromptOutputPairId;
+      } else {
+        var defaultFormId = forms[0]?.prompt_output_pair_id;
       }
 
       const currentForm = forms?.find(
@@ -227,8 +213,13 @@ const PreferenceRanking = ({
       }
     }
     console.log("jack", "4");
-
-  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
+  }, [
+    forms,
+    setForms,
+    clickedPromptOutputPairId,
+    interactions,
+    setCurrentInteraction,
+  ]);
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
@@ -329,6 +320,8 @@ const PreferenceRanking = ({
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
 
+  const isMobile = window.innerWidth <= 425;
+
   const styles = {
     responseContainer: {
       display: "flex",
@@ -337,7 +330,9 @@ const PreferenceRanking = ({
     },
     responseBox: {
       flex: "1 1 45%",
-      minWidth: "300px",
+      // minWidth: "300px",
+      width: "100%",
+      overflow: "auto",
       border: "1px solid #ccc",
       fontSize: "16px",
       padding: "10px",
@@ -347,7 +342,9 @@ const PreferenceRanking = ({
     },
     response1Box: {
       flex: "1 1 45%",
-      minWidth: "300px",
+      // minWidth: "300px",
+      width: "100%",
+      overflow: "auto",
       border: "1px solid #ccc",
       padding: "10px",
       fontSize: "17px",
@@ -660,10 +657,17 @@ const PreferenceRanking = ({
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "20px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            flexWrap: "wrap",
+          }}
+          className={classes.outputWrpr}
+        >
           {currentInteraction?.model_responses_json?.map(
             (response, outputIdx) => (
-              <div key={outputIdx} style={{ flex: 1 }}>
+              <div key={outputIdx} style={{ flex: 1, width: "100%" }}>
                 <div className={classes.heading} style={{ fontSize: "20px" }}>
                   {translate("modal.output")}-{`${outputIdx + 1}`}
                 </div>
@@ -836,9 +840,9 @@ const PreferenceRanking = ({
                                   )
                                 }
                                 style={{
-                                  marginRight: "1rem",
+                                  marginRight: isMobile ? "0.5rem" : "1rem",
                                   marginLeft: "0.9px",
-                                  marginBottom: "2rem",
+                                  marginBottom: isMobile ? "1rem" : "2rem",
                                   borderRadius: "1rem",
                                   width: "47px",
                                   padding: "13px",
@@ -1046,7 +1050,7 @@ const PreferenceRanking = ({
           defaultSize="50px"
           placeholder={translate("model_evaluation_notes_placeholder")}
           value={
-            currentInteraction?.additional_note!=""
+            currentInteraction?.additional_note != ""
               ? currentInteraction?.additional_note
               : ""
           }
@@ -1076,6 +1080,7 @@ const PreferenceRanking = ({
           flexDirection: "row",
           flexWrap: "wrap",
           gap: "1rem",
+          width: "calc(100% - 0.1rem)",
         }}
       >
         {pairs.map((pair, index) => {
@@ -1087,7 +1092,6 @@ const PreferenceRanking = ({
               className={classes.accordion}
               style={{
                 height: expanded[index] ? "auto" : "4rem",
-
                 borderRadius: expanded[index] ? "1rem" : null,
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -1095,6 +1099,7 @@ const PreferenceRanking = ({
                 borderBottom: "none",
                 border: "none",
                 margin: 2,
+                width: "inherit",
               }}
             >
               <AccordionSummary
@@ -1187,7 +1192,13 @@ const PreferenceRanking = ({
       //   // maxWidth={"70%"}
       //   enable={{ right: false, top: false, bottom: true, left: false }}
       // >
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+        }}
+      >
         <div
           className={classes.heading}
           style={{ fontSize: "20px", padding: "0", marginLeft: "2rem" }}
@@ -1218,38 +1229,39 @@ const PreferenceRanking = ({
 
   return (
     <>
-
-        <div
-          className={classes.container}
-          style={{
-            width: "100%",
-            maxwidth: "2300px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
-          }}
-        >
+      <div
+        className={classes.container}
+        style={{
+          width: "100%",
+          maxwidth: "2300px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ width: "100%", padding: "1rem 0rem 0rem 1.5rem" }}>
           <IconButton onClick={toggleLeftPanel}>
             <MenuIcon />
           </IconButton>
-          <div className={classes.leftPanel}>
-            {leftPanelVisible && <InteractionDisplay />}
-          </div>
-
-          {leftPanelVisible && (
-            <Divider
-              variant="middle"
-              style={{
-                width: "95%",
-                margin: "0 2rem 0 2rem",
-                backgroundColor: "black",
-              }}
-            />
-          )}
-
-          {EvaluationForm()}
         </div>
+        <div className={classes.leftPanel}>
+          {leftPanelVisible && <InteractionDisplay />}
+        </div>
+
+        {leftPanelVisible && (
+          <Divider
+            variant="middle"
+            style={{
+              width: "95%",
+              // padding: "0 2rem 0 2rem",
+              backgroundColor: "black",
+            }}
+          />
+        )}
+
+        {EvaluationForm()}
+      </div>
     </>
   );
 };

@@ -1,45 +1,22 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef,memo } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
-import headerStyle from "@/styles/Header";
+import { useState, useRef, useEffect, memo } from "react";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-// import type ReactQuill from 'react-quill'
-
-// import ReactQuill, { Quill } from 'react-quill';
 import "./chat.css";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
-import Glossary from "./Glossary";
 import Spinner from "@/components/common/Spinner";
-import { ArrowDropDown } from "@material-ui/icons";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import LightTooltip from "@/components/common/Tooltip";
-import { ContactlessOutlined } from "@mui/icons-material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
@@ -51,8 +28,9 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
-import OutputSelection from "../dual-screen-preference-ranking/PreferenceRanking";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+
+
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
@@ -69,7 +47,6 @@ const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
   /* eslint-disable react-hooks/exhaustive-deps */
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // let taskData = localStorage.getItem("TaskData");
@@ -161,8 +138,8 @@ const AnnotatePage = () => {
     "script",
   ];
 
-  const formatResponse = (response,isLast) => {
-    if (ProjectDetails?.metadata_json?.blank_response==true && isLast) {
+  const formatResponse = (response) => {
+    if (!response) {
       return [
         {
           type: "text",
@@ -170,12 +147,10 @@ const AnnotatePage = () => {
         },
       ];
     }
+
     response = String(response);
     const output = [];
     let count = 0;
-    
-  
-console.log(output,"kk");
 
     while (response) {
       response = response.trim();
@@ -444,14 +419,13 @@ console.log(output,"kk");
       clear_conversation: value === "delete",
     };
 
-
     if (
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
         console.log("answered variable: ");
         console.log(chatHistory.length);
-        
+
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -466,10 +440,12 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
-        }
-        else if(ProjectDetails.project_type == "InstructionDrivenChat"&&chatHistory.length==0) {
+        } else if (
+          ProjectDetails.project_type == "InstructionDrivenChat" &&
+          chatHistory.length == 0
+        ) {
           console.log(chatHistory);
-          
+
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
@@ -478,7 +454,6 @@ console.log(output,"kk");
           setLoading(false);
           setShowNotes(false);
           return;
-
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -512,13 +487,12 @@ console.log(output,"kk");
         }
         value === "delete"
           ? (setSnackbarInfo({
-            open: true,
-            message: "Chat history has been cleared successfully!",
-            variant: "success",
-          }),
-          await getAnnotationsTaskData(taskId),
-          await getTaskData(taskId)
-          )
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            }),
+            await getAnnotationsTaskData(taskId),
+            await getTaskData(taskId))
           : value === "delete-pair"
             ? setSnackbarInfo({
                 open: true,
@@ -530,7 +504,7 @@ console.log(output,"kk");
                 message: resp?.message,
                 variant: "success",
               });
-              setLoading(false);
+        setLoading(false);
       } else {
         setAutoSave(true);
         setSnackbarInfo({
@@ -579,7 +553,7 @@ console.log(output,"kk");
     };
   }, [taskId]);
   const filterAnnotations = (annotations, user) => {
-    setLoading(true)
+    setLoading(true);
     let disableSkip = false;
     let disableUpdate = false;
     let disableDraft = false;
@@ -675,7 +649,7 @@ console.log(output,"kk");
     setDisableUpdateButton(disableUpdate);
     setdisableSkipButton(disableSkip);
     setFilterMessage(Message);
-    setLoading(false)
+    setLoading(false);
 
     return [
       filteredAnnotations,
@@ -724,9 +698,12 @@ console.log(output,"kk");
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${
-          annotations?.[0]?.id || "default"
-        }`}          handleClick={handleAnnotationClick}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
           formatResponse={formatResponse}
@@ -745,9 +722,11 @@ console.log(output,"kk");
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -766,9 +745,11 @@ console.log(output,"kk");
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -823,14 +804,13 @@ console.log(output,"kk");
     <>
       {loading && <Spinner />}
       <div id="top" ref={topref}></div>
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
         <Grid item>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -838,7 +818,12 @@ console.log(output,"kk");
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -854,19 +839,22 @@ console.log(output,"kk");
         <Grid item xs={12}>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
-            {/* ( */}
             <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                // mt: 2,
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   reviewtext.trim().length === 0 ? "#bf360c" : "green",
@@ -922,24 +910,25 @@ console.log(output,"kk");
               }}
             >
               {/* <Glossary taskData={taskData} /> */}
-            {/* </div> */} 
+            {/* </div> */}
           </Box>
           <Grid
             container
             justifyContent="center"
-            spacing={3}
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "16px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              <LightTooltip                 title={
+              <LightTooltip
+                title={
                   <div>
                     <div>
-                      {Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -950,14 +939,16 @@ console.log(output,"kk");
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
-
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${annotations[0]?.id}`}
                     </div>
                   </div>
                 }
->
+              >
                 <Button
                   type="default"
                   className="lsf-button"
@@ -976,45 +967,12 @@ console.log(output,"kk");
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
 
             {!disableBtns &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="Save task for later">
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "draft",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip> */}
-
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1033,13 +991,14 @@ console.log(output,"kk");
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        paddingTop: 2,
-                        paddingBottom: 2,
                         backgroundColor: "#ffe0b2",
                       }}
                     >
@@ -1056,7 +1015,7 @@ console.log(output,"kk");
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   style={{
-                    minWidth: "150px",
+                    // minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
@@ -1080,13 +1039,14 @@ console.log(output,"kk");
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    paddingTop: 2,
-                    paddingBottom: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1112,7 +1072,7 @@ console.log(output,"kk");
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1128,7 +1088,7 @@ console.log(output,"kk");
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        skip to next task
+                        Skip to next task
                       </span>
                     }
                   >
@@ -1143,13 +1103,14 @@ console.log(output,"kk");
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        paddingTop: 2,
-                        paddingBottom: 2,
                         backgroundColor: "#ffe0b2",
                       }}
                     >
@@ -1176,7 +1137,7 @@ console.log(output,"kk");
                         )
                       }
                       style={{
-                        minWidth: "150px",
+                        // minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
@@ -1190,14 +1151,15 @@ console.log(output,"kk");
                     </Button>
                   </Tooltip> */}
 
-                  {ProjectDetails?.project_type=="InstructionDrivenChat"?(<Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        clear the entire chat history
-                      </span>
-                    }
-                  >
-                     <Button
+                  {ProjectDetails?.project_type == "InstructionDrivenChat" ? (
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          clear the entire chat history
+                        </span>
+                      }
+                    >
+                      <Button
                         value="Clear Chats"
                         type="default"
                         variant="outlined"
@@ -1208,25 +1170,34 @@ console.log(output,"kk");
                             Annotation.lead_time,
                           )
                         }
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                            md: "1rem",
+                          },
+                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        }}
                         style={{
-                          minWidth: "150px",
                           color: "black",
                           borderRadius: "5px",
                           border: "0px",
-                          paddingTop: 2,
-                          paddingBottom: 2,
                           backgroundColor: "#ffe0b2",
                         }}
                       >
                         Clear Chats
                       </Button>
-                  </Tooltip>):            (<Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        Reset the entire chat history
-                      </span>
-                    }
-                  >          <Button
+                    </Tooltip>
+                  ) : (
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          Reset the entire chat history
+                        </span>
+                      }
+                    >
+                      {" "}
+                      <Button
                         value="Reset All Forms"
                         type="default"
                         variant="outlined"
@@ -1237,21 +1208,28 @@ console.log(output,"kk");
                             Annotation.lead_time,
                           )
                         }
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                            md: "1rem",
+                          },
+                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        }}
                         style={{
-                          minWidth: "150px",
                           color: "black",
                           borderRadius: "5px",
                           border: "0px",
-                          paddingTop: 2,
-                          paddingBottom: 2,
                           backgroundColor: "#ffe0b2",
                         }}
                       >
                         {" "}
                         Reset All
                       </Button>
-</Tooltip>)}
-                </Grid>)}
+                    </Tooltip>
+                  )}
+                </Grid>
+              )}
             {!disableUpdateButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
@@ -1269,13 +1247,14 @@ console.log(output,"kk");
                           Annotation.lead_time,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        pt: 2,
-                        pb: 2,
                         backgroundColor: "#ee6633",
                       }}
                     >
@@ -1291,10 +1270,10 @@ console.log(output,"kk");
             </Alert>
           )}
         </Grid>
-          <Grid item container>
-            {" "}
-            {componentToRender}{" "}
-          </Grid>
+        <Grid item container sx={{ width: "100%" }}>
+          {" "}
+          {componentToRender}{" "}
+        </Grid>
       </Grid>
     </>
   );

@@ -1,4 +1,15 @@
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Switch, TextField, FormControl, InputLabel, Input, IconButton, FormHelperText, Typography, OutlinedInput } from '@mui/material'
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import React, { useState } from 'react'
 import CustomButton from '../../../../components/common/Button'
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,13 +18,11 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import GetWorkspaceAPI from '../../../actions/api/workspace/GetWorkspaceData';
-// import { fetchWorkspaceCreateData } from '@/Lib/Features/getWorkspaceData';
 import CustomizedSnackbars from '@/components/common/Snackbar';
-import AuthenticateToWorkspaceAPI from '@/app/actions/api/workspace/AuthenticateToWorkspaceAPI';
 import CreateGuestWorkspace from '@/app/actions/api/Projects/createWorkspace';
 import { useEffect } from 'react';
-// import { fetchWorkspaceDetails } from '@/Lib/Features/getWorkspaceDetails';
 import { fetchWorkspaceData } from '@/Lib/Features/GetWorkspace';
+import  IconButton  from "@mui/material/IconButton";
 
 const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
     const dispatch = useDispatch();

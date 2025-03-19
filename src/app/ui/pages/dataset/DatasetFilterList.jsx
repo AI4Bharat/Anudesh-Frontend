@@ -1,28 +1,22 @@
 
 
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Divider,
-  Grid,
-  Typography,
-  Popover,
-  FormGroup,
-  Checkbox,
-  FormControlLabel,
-  Radio,
-  Autocomplete,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import { translate } from "@/config/localisation";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Popover from "@mui/material/Popover";
+import FormGroup from "@mui/material/FormGroup";
+import Radio from "@mui/material/Radio";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";;
 import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
 import { snakeToTitleCase } from "@/utils/utils";
-import MenuItems from "@/components/common/MenuItems"
 import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";
 
 const datasetvisibility = ["all_public_datasets", "my_datasets"];

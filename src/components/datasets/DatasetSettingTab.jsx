@@ -1,4 +1,10 @@
-import { Box,Grid,Tab, Card,Tabs, Typography, Divider } from '@mui/material'
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Tab from "@mui/material/Tab";
+import Card from "@mui/material/Card";
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import React from 'react'
 import { useState } from 'react'
 import BasicDatasetSettings from './BasicDatasetSettings';
@@ -38,7 +44,10 @@ const DatasetSettingTabs = () => {
             // width: window.innerWidth * 0.8,
             width: "100%",
             minHeight: 500,
-            padding: 5
+            padding: 5,
+        '@media (max-width: 600px)': {
+            padding: 2, 
+        },
         }}
     >
       
@@ -50,20 +59,40 @@ const DatasetSettingTabs = () => {
                         md={12}
                         lg={12}
                         xl={12}
-                        sx={{mb:3,}}
+                        sx={{
+                            mb:3,
+                             textAlign: {
+                                xs: "center", 
+                                sm: "left", 
+                },
+                        }}
                     >
-                        <Typography variant="h3" gutterBottom component="div"sx={{fontWeight: '1.6875rem'}}>
+                        <Typography variant="h3" gutterBottom component="div"sx={{fontWeight: 900}}>
                             DataSet Settings
                         </Typography>
                     </Grid>
-            <Box sx={{mb:2,}} >
-                <Tabs value={tabValue} onChange={handleTabChange} aria-label="user-tabs">
-                    <Tab label="Basic " sx={{ fontSize: 17, fontWeight: '700', marginRight: '28px !important' }} />
+            <Box sx={{
+                mb:2
+                }} >
+                <Tabs 
+                    value={tabValue} 
+                    onChange={handleTabChange} 
+                    aria-label="user-tabs"
+                    sx={{
+                    '& .MuiTabs-flexContainer': {
+                        justifyContent: {
+                            xs: 'center',
+                            sm: 'flex-start'
+                        }
+                    }
+                }}
+                    >
+                    <Tab label="Basic " sx={{ fontSize: 17, fontWeight: '700',marginRight: {xs:4, sm:6}}} />
                     <Tab label=" Advanced " sx={{ fontSize: 17, fontWeight: '700' }} />
                 </Tabs>
             </Box>
             <Divider/>
-            <Box sx={{ p: 1 }}>
+            <Box>
                 <TabPanel value={tabValue} index={0}>
                     <BasicDatasetSettings />  
                 </TabPanel>

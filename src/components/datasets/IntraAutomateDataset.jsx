@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
-import { Card, FormControl, Grid, InputLabel, MenuItem, Radio, RadioGroup, Select, ThemeProvider, Typography } from '@mui/material';
+import { ThemeProvider} from '@mui/material';
+import Card from "@mui/material/Card";
+import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import Typography from "@mui/material/Typography";
+
 import DraftDataPopulation from "./DraftDataPopulation";
 import PopulateAiModel from "./PopulateAiModel";
 import { FormControlLabel } from "@mui/material";

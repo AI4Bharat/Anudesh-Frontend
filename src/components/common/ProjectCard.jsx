@@ -1,11 +1,6 @@
 import * as React from "react";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { Box, Chip, Divider, Grid, ThemeProvider } from "@mui/material";
+import  Grid from "@mui/material/Grid";
 import themeDefault from "../../themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import  "../../styles/Dataset.css";
@@ -38,7 +33,6 @@ const ProjectCard = (props) => {
 
   const userRole =projectObj.project_stage && UserMappedByProjectStage(projectObj.project_stage).name;
   return (
-    // <Link to={`/projects/${projectObj.id}`} style={{ textDecoration: "none" }}>
     <>
     <div onClick={() => handleCardClick(projectObj)}>
 

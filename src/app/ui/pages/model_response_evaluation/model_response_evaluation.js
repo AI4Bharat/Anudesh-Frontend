@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect,useCallback,useMemo,memo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import Button from "../../../../components/common/Button";
 import ReactMarkdown from "react-markdown";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import remarkBreaks from "remark-breaks";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import {
@@ -72,7 +71,7 @@ const ModelInteractionEvaluation = ({
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
-  const [clickedPromptOutputPairId,setclickedPromptOutputPairId]=useState()
+  const [clickedPromptOutputPairId, setclickedPromptOutputPairId] = useState();
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
@@ -88,7 +87,7 @@ const ModelInteractionEvaluation = ({
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
-      console.log("kek",annotation[0]);
+      console.log("kek", annotation[0]);
 
       const result = annotation[0].result;
       return Array.isArray(result)
@@ -109,9 +108,9 @@ const ModelInteractionEvaluation = ({
             },
           ];
     }
-    
+
     return [];
-  }, [annotation,taskId]);
+  }, [annotation, taskId]);
 
   useEffect(() => {
     setForms(parsedForms);
@@ -130,23 +129,21 @@ const ModelInteractionEvaluation = ({
     } catch (error) {
       console.error("Error fetching interactions:", error);
     }
-
-  }, [annotation,taskId]);
+  }, [annotation, taskId]);
 
   useEffect(() => {
     fetchInteractions();
   }, [fetchInteractions]);
 
   useEffect(() => {
-    if (forms?.length > 0 && interactions?.length > 0 ) {    
-      if(clickedPromptOutputPairId){
-        var defaultFormId = clickedPromptOutputPairId
-      }
-      else{
-        var defaultFormId = forms[0]?.prompt_output_pair_id
+    if (forms?.length > 0 && interactions?.length > 0) {
+      if (clickedPromptOutputPairId) {
+        var defaultFormId = clickedPromptOutputPairId;
+      } else {
+        var defaultFormId = forms[0]?.prompt_output_pair_id;
       }
       const currentForm = forms.find(
-        (form) => form?.prompt_output_pair_id == defaultFormId
+        (form) => form?.prompt_output_pair_id == defaultFormId,
       );
       if (currentForm) {
         const newState = {
@@ -162,11 +159,16 @@ const ModelInteractionEvaluation = ({
             Array(questions?.length).fill(null),
         };
         setCurrentInteraction(newState);
-        console.log("helo","2",forms);
+        console.log("helo", "2", forms);
       }
     }
-
-  }, [forms,setForms,clickedPromptOutputPairId,interactions,setCurrentInteraction]);
+  }, [
+    forms,
+    setForms,
+    clickedPromptOutputPairId,
+    interactions,
+    setCurrentInteraction,
+  ]);
 
   useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
@@ -180,16 +182,15 @@ const ModelInteractionEvaluation = ({
           response: [],
         })),
       }));
-      console.log("Init forms:", initialForms); 
-      setForms(initialForms); 
-      console.log("helo",forms,interactions);
-      }
-
+      console.log("Init forms:", initialForms);
+      setForms(initialForms);
+      console.log("helo", forms, interactions);
+    }
   }, [forms, interactions, taskId]);
   useEffect(() => {
     console.log("Forms updated:", forms);
   }, [forms]);
-  
+
   useEffect(() => {
     if (!forms || forms.length == 0) {
       setAnswered(false);
@@ -238,8 +239,7 @@ const ModelInteractionEvaluation = ({
   }, [forms, taskId]);
 
   const handleRating = (rating, interactionIndex) => {
-    
-    setCurrentInteraction((prev) => {      
+    setCurrentInteraction((prev) => {
       const selectedQuestion = questions[interactionIndex];
       const ratingArray = [String(rating)];
       // const ratingScaleList = selectedQuestion?.rating_scale_list;
@@ -266,7 +266,7 @@ const ModelInteractionEvaluation = ({
         ),
       );
       console.log(currentInteraction);
-      
+
       return updatedInteraction;
     });
   };
@@ -375,7 +375,6 @@ const ModelInteractionEvaluation = ({
     });
   };
 
-
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
     setCurrentInteraction((prev) => {
@@ -405,10 +404,10 @@ const ModelInteractionEvaluation = ({
   };
   const formatPrompt = (prompt) => {
     if (!prompt) return "";
-    const formattedText = prompt.replace(/(\r\n|\r|\n)/g, "  \n");  
+    const formattedText = prompt.replace(/(\r\n|\r|\n)/g, "  \n");
     return formattedText;
   };
-      console.log(forms);
+  console.log(forms);
   const handleFormBtnClick = (e) => {
     setclickedPromptOutputPairId(e.target.id);
     console.log("clicked id" + clickedPromptOutputPairId);
@@ -416,7 +415,7 @@ const ModelInteractionEvaluation = ({
       (interaction) =>
         interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
-    console.log(currInteraction,"cuur");
+    console.log(currInteraction, "cuur");
     if (currInteraction) {
       setCurrentInteraction({
         prompt: currInteraction?.prompt,
@@ -574,13 +573,13 @@ const ModelInteractionEvaluation = ({
       maxWidth: "100%",
       border: "1px solid #ccc",
       padding: "7px",
-      height:"auto",
+      height: "auto",
       fontSize: "17px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       backgroundColor: "white",
       wordWrap: "break-word",
-        },
+    },
   };
 
   const EvaluationForm = () => {
@@ -591,13 +590,14 @@ const ModelInteractionEvaluation = ({
             {translate("modal.prompt")}
           </div>
           <div style={styles.response1Box}>
-            <ReactMarkdown style={{ overflow: "hidden",height:"auto" }}
+            <ReactMarkdown
+              style={{ overflow: "hidden", height: "auto" }}
               remarkPlugins={[remarkBreaks]}
-
-              children={currentInteraction?.prompt?.replace(/\n/gi, "&nbsp; \n")}
-
-            >
-            </ReactMarkdown>
+              children={currentInteraction?.prompt?.replace(
+                /\n/gi,
+                "&nbsp; \n",
+              )}
+            ></ReactMarkdown>
           </div>
         </div>
         <div className={classes.heading} style={{ fontSize: "20px" }}>
@@ -609,11 +609,12 @@ const ModelInteractionEvaluation = ({
         >
           <div style={styles.response1Box}>
             <ReactMarkdown
-                          remarkPlugins={[remarkBreaks]}
-
-                          children={currentInteraction?.output?.replace(/\n/gi, "&nbsp; \n")}
->
-            </ReactMarkdown>
+              remarkPlugins={[remarkBreaks]}
+              children={currentInteraction?.output?.replace(
+                /\n/gi,
+                "&nbsp; \n",
+              )}
+            ></ReactMarkdown>
           </div>
         </div>
         {/* <div className={classes.ratingText}>
@@ -662,7 +663,7 @@ const ModelInteractionEvaluation = ({
                       {splitQuestion?.map((part, index) => (
                         <span
                           key={`${i}-${index}`}
-                          style={{fontSize:"16px"}}
+                          style={{ fontSize: "16px" }}
                         >
                           {part}
                           {index < splitQuestion.length - 1 && (
@@ -696,12 +697,12 @@ const ModelInteractionEvaluation = ({
                           )}
                         </span>
                       ))}
-                      { (
+                      {
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
-                      )}
+                      }
                     </p>
                   </div>
                 );
@@ -713,12 +714,12 @@ const ModelInteractionEvaluation = ({
                       <span style={{ fontSize: "16px" }}>
                         {i + 1}. {question.input_question}
                       </span>
-                      { (
+                      {
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
-                      )}
+                      }
                     </div>
                     <Box
                       sx={{
@@ -766,12 +767,12 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      { (
+                      {
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
-                      )}
+                      }
                     </div>
                     <FormControl component="fieldset">
                       <FormGroup>
@@ -808,17 +809,14 @@ const ModelInteractionEvaluation = ({
                       style={{ fontSize: "16px" }}
                     >
                       {i + 1}. {question.input_question}
-                      { (
+                      {
                         <span style={{ color: "#d93025", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
-                      )}
+                      }
                     </div>
-                    <FormControl
-                      component="fieldset"
-                      required={true}
-                    >
+                    <FormControl component="fieldset" required={true}>
                       <RadioGroup
                         value={
                           currentInteraction?.questions_response
@@ -879,6 +877,8 @@ const ModelInteractionEvaluation = ({
       });
     };
 
+    const Mywidth = window.innerWidth;
+
     return (
       <div
         style={{
@@ -886,6 +886,7 @@ const ModelInteractionEvaluation = ({
           flexDirection: "row",
           flexWrap: "wrap",
           gap: "1rem",
+          width: "100%",
         }}
       >
         {pairs?.map((pair, index) => {
@@ -897,7 +898,6 @@ const ModelInteractionEvaluation = ({
               className={classes.accordion}
               style={{
                 height: expanded[index] ? "auto" : "4rem",
-
                 borderRadius: expanded[index] ? "1rem" : null,
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
@@ -905,6 +905,7 @@ const ModelInteractionEvaluation = ({
                 borderBottom: "none",
                 border: "none",
                 margin: 2,
+                width: Mywidth > 784 ? "48%" : "100%",
               }}
             >
               <AccordionSummary
@@ -922,7 +923,6 @@ const ModelInteractionEvaluation = ({
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: expanded[index] ? "nowrap" : "nowrap",
-                    maxWidth: "200px",
                     maxHeight: "3.5rem",
                     display: "flex",
                     flexDirection: "row",
@@ -1025,7 +1025,7 @@ const ModelInteractionEvaluation = ({
       //   // maxWidth={"70%"}
       //   enable={{ right: true, top: false, bottom: false, left: false }}
       // >
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <div
           className={classes.heading}
           style={{ margin: "2rem 0 0.5rem 1.5rem", fontSize: "20px" }}
@@ -1039,6 +1039,7 @@ const ModelInteractionEvaluation = ({
             backgroundColor: "#F6F6F6",
             display: "flex",
             flexDirection: "row",
+            width: "100%",
           }}
         >
           {interactions && (

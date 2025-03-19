@@ -1,25 +1,23 @@
 "use client";
-import {
-  Box,
-  Card,
-  Grid,
-  Tab,
-  Tabs,
-  Button,
-  ThemeProvider,
-  Typography,
-  IconButton,
-  Tooltip,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { ThemeProvider, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
 import themeDefault from "../../../../themes/theme";
 import DatasetStyle from "../../../../styles/dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
 import componentType from "../../../../config/PageType";
 import ProjectTable from "./ProjectTable";
 import AnnotatorsTable from "../../../../components/Tabs/AnnotatorTable";
@@ -37,12 +35,10 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import AddUsersDialog from "../../../../components/common/AddUsersDialog";
 import addUserTypes from "../../../../Constants/addUserTypes";
 import GetWorkspacesDetailsAPI from "../../../actions/api/workspace/getWorkspaceDetails";
-import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import userRole from "@/utils/Role";
 import InviteUsersDialog from "@/components/Project/InviteUsersDialog";
 import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
 import getOrganizationUsers from "@/Lib/Features/getOrganizationUsers";
-import InviteManagerSuggestions from "@/app/actions/api/user/InviteManagerSuggestions";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 import TaskAnalytics from "../progress/Workspace/TaskAnalytics";
@@ -258,6 +254,10 @@ const DetailsViewPage = (props) => {
     setbtn(null);
     setUserType(Object.keys(UserRolesList)[0]);
   };
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <ThemeProvider theme={themeDefault}>
       {apiLoading ? (
@@ -270,13 +270,14 @@ const DetailsViewPage = (props) => {
           >
             {pageType === componentType.Type_Organization && (
               <Typography
-                variant="h2"
+                variant="h3"
                 gutterBottom
                 component="div"
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
                   textAlign: "center",
+                  fontSize: "1.5rem",
                 }}
               >
                 {title}
@@ -327,6 +328,7 @@ const DetailsViewPage = (props) => {
                 justifyContent: "center",
                 alignItems: "center",
                 textAlign: "center",
+                fontSize: "1rem",
               }}
             >
               Created by : {createdBy}
@@ -340,6 +342,7 @@ const DetailsViewPage = (props) => {
                 TabIndicatorProps={{
                   style: { display: "none" },
                 }}
+                orientation={isSmallScreen ? "vertical" : "horizontal"}
               >
                 {pageType === componentType.Type_Workspace && (
                   <Tab
@@ -349,6 +352,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -364,6 +368,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 0 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -380,6 +385,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 1 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -395,6 +401,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 1 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -411,6 +418,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 2 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -426,6 +434,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 2 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -442,6 +451,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 3 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -457,6 +467,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 3 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -484,6 +495,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 4 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",
@@ -500,6 +512,7 @@ const DetailsViewPage = (props) => {
                       fontWeight: "700",
                       bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
                       color: value === 4 ? "black" : "text.primary",
+                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
                         bgcolor: "#e0e0e0",

@@ -1,28 +1,33 @@
 // TaskTable
 
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import { Fragment, useEffect, useState } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import CustomButton from "../common/Button";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
+import Button from "@mui/material/Button";
 import {
-  Button,
-  Grid,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
-  Tooltip,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  ThemeProvider,
+  ThemeProvider
 } from "@mui/material";
+import Skeleton from "@mui/material/Skeleton";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContentText from "@mui/material/DialogContentText";
+import TablePagination from "@mui/material/TablePagination";
+import { styled } from "@mui/material/styles";
+import InfoIcon from '@mui/icons-material/Info';
+import { tooltipClasses } from '@mui/material/Tooltip';
 import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -55,6 +60,7 @@ const excludeSearch = ["status", "actions", "output_text"];
 // const excludeCols = ["context", "input_language", "output_language", "language",
 // "conversation_json", "source_conversation_json", "machine_translated_conversation_json", "speakers_json"
 //  ];
+
 const excludeCols = [
   "context",
   "input_language",
@@ -75,6 +81,26 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
 const TaskTable = (props) => {
   const classes = DatasetStyle();
   const { id } = useParams();
@@ -84,6 +110,7 @@ const TaskTable = (props) => {
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -122,41 +149,41 @@ const TaskTable = (props) => {
   const filterData = {
     Status:
       ProjectDetails.project_stage == 2 ||
-      ProjectDetails.project_stage == 3 ||
-      ProjectDetails?.annotation_reviewers?.some(
-        (reviewer) => reviewer.id === userDetails?.id,
-      )
+        ProjectDetails.project_stage == 3 ||
+        ProjectDetails?.annotation_reviewers?.some(
+          (reviewer) => reviewer.id === userDetails?.id,
+        )
         ? props.type === "annotation"
           ? ["unlabeled", "skipped", "draft", "labeled", "to_be_revised"]
           : [
-              "unreviewed",
-              "accepted",
-              "accepted_with_minor_changes",
-              "accepted_with_major_changes",
-              "to_be_revised",
-              "draft",
-              "skipped",
-              "rejected",
-            ]
+            "unreviewed",
+            "accepted",
+            "accepted_with_minor_changes",
+            "accepted_with_major_changes",
+            "to_be_revised",
+            "draft",
+            "skipped",
+            "rejected",
+          ]
         : ["unlabeled", "skipped", "labeled", "draft"],
     Annotators:
       ProjectDetails?.annotators?.length > 0
         ? ProjectDetails?.annotators?.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
 
     Reviewers:
       ProjectDetails?.annotation_reviewers?.length > 0
         ? ProjectDetails?.annotation_reviewers.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
   };
   const [pull, setpull] = useState(
@@ -233,6 +260,23 @@ const TaskTable = (props) => {
   useEffect(() => {
     getTaskListData();
   }, [currentPageNumber, currentRowPerPage]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   const fetchNewTasks = async () => {
     setLoading(true);
@@ -503,9 +547,9 @@ const TaskTable = (props) => {
                 label={
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     {props.type === "annotation" &&
-                    ProjectDetails?.annotators?.some(
-                      (a) => a.id === userDetails?.id,
-                    )
+                      ProjectDetails?.annotators?.some(
+                        (a) => a.id === userDetails?.id,
+                      )
                       ? "Annotate"
                       : "View"}
                   </Typography>
@@ -661,13 +705,12 @@ const TaskTable = (props) => {
           selectedFilters.review_status === "unreviewed")) &&
       totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
       Object.keys(selectedFilters).filter((key) => key.startsWith("search_")) ==
-        []
+      []
     ) {
       setPullDisabled(
-        `You have too many ${
-          props.type === "annotation"
-            ? selectedFilters.annotation_status
-            : selectedFilters.review_status
+        `You have too many ${props.type === "annotation"
+          ? selectedFilters.annotation_status
+          : selectedFilters.review_status
         } tasks`,
       );
     } else if (
@@ -701,18 +744,16 @@ const TaskTable = (props) => {
     if (ProjectDetails?.project_type?.includes("Acoustic")) {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
-          `/projects/${id}/${
-            props.type === "annotation"
-              ? "AudioTranscriptionLandingPage"
-              : "ReviewAudioTranscriptionLandingPage"
+          `/projects/${id}/${props.type === "annotation"
+            ? "AudioTranscriptionLandingPage"
+            : "ReviewAudioTranscriptionLandingPage"
           }/${NextTask?.id}`,
         );
       }
     } else {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
-          `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
-            NextTask?.id
+          `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${NextTask?.id
           }`,
         );
       }
@@ -721,6 +762,7 @@ const TaskTable = (props) => {
   }, [NextTask]);
 
   const handleShowFilter = (event) => {
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
@@ -735,6 +777,27 @@ const TaskTable = (props) => {
   const handleSearchClose = () => {
     setSearchAnchor(null);
   };
+
+  const areFiltersApplied = (filters) => {
+    return Object.values(filters).some((value) => value !== "");
+  };
+
+  const filtersApplied = areFiltersApplied(selectedFilters);
+
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: '#e0e0e0',
+      color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 300,
+      fontSize: theme.typography.pxToRem(12),
+    },
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#e0e0e0",
+    },
+  }));
+
 
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
@@ -908,17 +971,32 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <Tooltip
-          title={
-            <span style={{ fontFamily: "Roboto, sans-serif" }}>
-              Filter Table
-            </span>
-          }
-        >
-          <Button onClick={handleShowFilter}>
-            <FilterListIcon />
-          </Button>
-        </Tooltip>
+        <div style={{ display: "inline-block", position: "relative" }} onClick={handleShowFilter}>
+          {filtersApplied && (
+            <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />
+          )}
+
+          <CustomTooltip
+            title={
+              filtersApplied ? (
+                <Box sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display: "flex", flexDirection: "column", gap: "5px" }}>
+                  {selectedFilters.annotation_status && <div><strong>Annotation Status:</strong> {selectedFilters.annotation_status}</div>}
+                  {selectedFilters.review_status && <div><strong>Review Status:</strong> {selectedFilters.review_status}</div>}
+                  {selectedFilters.req_user !== -1 && <div><strong>Assigned User:</strong> {selectedFilters.req_user}</div>}
+                  {pull !== "All" && <div><strong>Pull Status:</strong> {pull}</div>}
+                  {rejected && <div><strong>Rejected:</strong> {rejected ? "Yes" : "No"}</div>}
+                </Box>
+              ) : (
+                <span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>
+              )
+            }
+            disableInteractive
+          >
+            <Button sx={{ position: "relative" }}>
+              <FilterListIcon sx={{ color: '#515A5A' }} />
+            </Button>
+          </CustomTooltip>
+        </div>
       </Box>
     );
   };
@@ -935,6 +1013,70 @@ const TaskTable = (props) => {
         message={snackbar.message}
         autoHideDuration={20000}
       />
+    );
+  };
+  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
+          alignItems: "center",
+          padding: "10px",
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
+        }}
+      >
+
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
+          }}
+        />
+
+        {/* Jump to Page */}
+        <div>
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
+          }}>
+            Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
     );
   };
 
@@ -981,6 +1123,17 @@ const TaskTable = (props) => {
     jumpToPage: true,
     serverSide: true,
     customToolbar: renderToolBar,
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
+
   };
 
   if (typeof window !== "undefined") {
@@ -1021,25 +1174,25 @@ const TaskTable = (props) => {
                 selectedFilters.review_status === "unreviewed") ||
               selectedFilters.review_status === "draft" ||
               selectedFilters.review_status === "skipped") && (
-              <Grid item xs={12} sm={12} md={3}>
-                <Tooltip title={deallocateDisabled}>
-                  <Box>
-                    <CustomButton
-                      sx={{
-                        p: 1,
-                        width: "100%",
-                        borderRadius: 2,
-                        margin: "auto",
-                      }}
-                      label={"De-allocate Tasks"}
-                      onClick={() => setDeallocateDialog(true)}
-                      disabled={deallocateDisabled}
-                      color={"warning"}
-                    />
-                  </Box>
-                </Tooltip>
-              </Grid>
-            )}
+                <Grid item xs={12} sm={12} md={3}>
+                  <Tooltip title={deallocateDisabled}>
+                    <Box>
+                      <CustomButton
+                        sx={{
+                          p: 1,
+                          width: "100%",
+                          borderRadius: 2,
+                          margin: "auto",
+                        }}
+                        label={"De-allocate Tasks"}
+                        onClick={() => setDeallocateDialog(true)}
+                        disabled={deallocateDisabled}
+                        color={"warning"}
+                      />
+                    </Box>
+                  </Tooltip>
+                </Grid>
+              )}
             <Dialog
               open={deallocateDialog}
               onClose={() => setDeallocateDialog(false)}
@@ -1097,12 +1250,12 @@ const TaskTable = (props) => {
               md={
                 (props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
-                selectedFilters.annotation_status === "draft" ||
-                selectedFilters.annotation_status === "skipped" ||
-                (props.type === "review" &&
-                  selectedFilters.review_status === "unreviewed") ||
-                selectedFilters.review_status === "draft" ||
-                selectedFilters.review_status === "skipped"
+                  selectedFilters.annotation_status === "draft" ||
+                  selectedFilters.annotation_status === "skipped" ||
+                  (props.type === "review" &&
+                    selectedFilters.review_status === "unreviewed") ||
+                  selectedFilters.review_status === "draft" ||
+                  selectedFilters.review_status === "skipped"
                   ? 2
                   : 3
               }
@@ -1151,12 +1304,12 @@ const TaskTable = (props) => {
               md={
                 (props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
-                selectedFilters.annotation_status === "draft" ||
-                selectedFilters.annotation_status === "skipped" ||
-                (props.type === "review" &&
-                  selectedFilters.review_status === "unreviewed") ||
-                selectedFilters.review_status === "draft" ||
-                selectedFilters.review_status === "skipped"
+                  selectedFilters.annotation_status === "draft" ||
+                  selectedFilters.annotation_status === "skipped" ||
+                  (props.type === "review" &&
+                    selectedFilters.review_status === "unreviewed") ||
+                  selectedFilters.review_status === "draft" ||
+                  selectedFilters.review_status === "skipped"
                   ? 3
                   : 4
               }
@@ -1184,12 +1337,12 @@ const TaskTable = (props) => {
               md={
                 (props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
-                selectedFilters.annotation_status === "draft" ||
-                selectedFilters.annotation_status === "skipped" ||
-                (props.type === "review" &&
-                  selectedFilters.review_status === "unreviewed") ||
-                selectedFilters.review_status === "draft" ||
-                selectedFilters.review_status === "skipped"
+                  selectedFilters.annotation_status === "draft" ||
+                  selectedFilters.annotation_status === "skipped" ||
+                  (props.type === "review" &&
+                    selectedFilters.review_status === "unreviewed") ||
+                  selectedFilters.review_status === "draft" ||
+                  selectedFilters.review_status === "skipped"
                   ? 4
                   : 5
               }
@@ -1230,11 +1383,15 @@ const TaskTable = (props) => {
         ))}
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
+          key={`table-${displayWidth}`}
           title={""}
           data={tasks}
           columns={columns}
-          options={options}
-          // filter={false}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
+        // filter={false}
         />
       </ThemeProvider>
       {searchOpen && (

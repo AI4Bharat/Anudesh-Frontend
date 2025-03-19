@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
-import {
-    Button,
-    Popover,
-    Box,
-    TextField,
-    Grid, Typography, Radio,Dialog, DialogActions, DialogContent, DialogContentText,DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Popover from "@mui/material/Popover";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Radio from "@mui/material/Radio";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -214,7 +226,7 @@ export default function DeleteDataItems() {
         <div >
             {renderSnackBar()}
             <Button
-                sx={{ width: "150px" }}
+                sx={{ width: "100%" }}
                 aria-describedby={id}
                 variant="contained"
                 color="error"

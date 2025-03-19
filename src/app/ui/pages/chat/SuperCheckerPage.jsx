@@ -1,18 +1,13 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -23,19 +18,9 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu, { MenuProps } from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
 import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
@@ -47,7 +32,6 @@ import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import CustomizedSnackbars from "@/components/common/Snackbar";
@@ -113,7 +97,6 @@ const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -351,6 +334,15 @@ const SuperCheckerPage = () => {
   };
 
   const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+
     response = String(response);
     const output = [];
     let count = 0;
@@ -601,7 +593,15 @@ const SuperCheckerPage = () => {
       ) ||
       ["validated", "validated_with_changes"].includes(value)
     ) {
-      if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
+      if (
+        ![
+          "draft",
+          "skipped",
+          "delete",
+          "delete-pair",
+          "to_be_revised",
+        ].includes(value)
+      ) {
         console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
@@ -617,8 +617,7 @@ const SuperCheckerPage = () => {
           setLoading(false);
           setShowNotes(false);
           return;
-        }
-        else if (chatHistory.length==0){
+        } else if (chatHistory.length == 0) {
           setAutoSave(true);
           setSnackbarInfo({
             open: true,
@@ -720,7 +719,7 @@ const SuperCheckerPage = () => {
   }, [taskId]);
 
   const filterAnnotations = (annotations, user) => {
-    setLoading(true)
+    setLoading(true);
     let disableSkip = false;
     let disableAutoSave = false;
     let filteredAnnotations = annotations;
@@ -761,7 +760,7 @@ const SuperCheckerPage = () => {
     }
     setAnnotations(filteredAnnotations);
     setdisableSkip(disableSkip);
-    setLoading(false)
+    setLoading(false);
     return [filteredAnnotations, disableSkip, disableAutoSave];
   };
 
@@ -813,68 +812,68 @@ const SuperCheckerPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-        key={`annotations-${annotations?.length}-${
-          annotations?.[0]?.id || "default"
-        }`}
-        handleClick={handleSuperCheckerClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={SuperChecker}
-        stage={"SuperChecker"}
-        notes={superCheckerNotesRef}
-      info={info}
-        disableUpdateButton={disableUpdateButton}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
-      case "ModelInteractionEvaluation":
-        componentToRender = (
-          <ModelInteractionEvaluation
-            key={`annotations-${annotations?.length}-${
-              annotations?.[0]?.id || "default"
-            }`}
-            setCurrentInteraction={setCurrentInteraction}
-            currentInteraction={currentInteraction}
-            interactions={interactions}
-            setInteractions={setInteractions}
-            forms={forms}
-            setForms={setForms}
-            stage={"SuperChecker"}
-            answered={answered}
-            setAnswered={setAnswered}
-            annotation={annotations}
-            setLoading={setLoading}
-            loading={loading}
-          />
-        );
-        break;
-      case "MultipleInteractionEvaluation":
-        componentToRender = (
-          <PreferenceRanking
-            key={`annotations-${annotations?.length}-${
-              annotations?.[0]?.id || "default"
-            }`}
-            setCurrentInteraction={setCurrentInteraction}
-            currentInteraction={currentInteraction}
-            interactions={interactions}
-            setInteractions={setInteractions}
-            forms={forms}
-            setForms={setForms}
-            stage={"SuperChecker"}
-            notes={superCheckerNotesRef}
-            answered={answered}
-            setAnswered={setAnswered}
-            annotation={annotations}
-            setLoading={setLoading}
-            loading={loading}
-          />
-        );
-        break;
+    case "ModelInteractionEvaluation":
+      componentToRender = (
+        <ModelInteractionEvaluation
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"SuperChecker"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
     default:
       componentToRender = null;
       break;
@@ -903,14 +902,13 @@ const SuperCheckerPage = () => {
   return (
     <>
       {loading && <Spinner />}
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
         <Grid item>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -918,7 +916,12 @@ const SuperCheckerPage = () => {
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
@@ -935,11 +938,8 @@ const SuperCheckerPage = () => {
         <Grid item xs={12}>
           <Box
             sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
+              paddingTop: { xs: 1.5, md: 3 },
+              paddingLeft: 1.5,
             }}
           >
             <Button
@@ -947,6 +947,13 @@ const SuperCheckerPage = () => {
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                // mt: 2,
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+              }}
               style={{
                 backgroundColor:
                   reviewtext.trim().length === 0 ? "#bf360c" : "green",
@@ -979,7 +986,7 @@ const SuperCheckerPage = () => {
                 placeholder="Superchecker Notes"
               ></ReactQuill>
             </div>
-            
+
             {ProjectDetails.revision_loop_count >
             taskData?.revision_loop_count?.super_check_count
               ? false
@@ -988,11 +995,22 @@ const SuperCheckerPage = () => {
                     style={{
                       textAlign: "left",
                       marginBottom: "5px",
-                      marginLeft: "40px",
+                      marginLeft: "8px",
                       marginTop: "5px",
                     }}
                   >
-                    <Typography variant="body" color="#f5222d">
+                    <Typography
+                      variant="body"
+                      color="#f5222d"
+                      sx={{
+                        fontSize: {
+                          xs: "14px",
+                          md: "16px",
+                          lg: "18px",
+                          xl: "20px",
+                        },
+                      }}
+                    >
                       Note: The 'Revision Loop Count' limit has been reached for
                       this task.
                     </Typography>
@@ -1005,11 +1023,22 @@ const SuperCheckerPage = () => {
               <div
                 style={{
                   textAlign: "left",
-                  marginLeft: "40px",
+                  marginLeft: "8px",
                   marginTop: "8px",
                 }}
               >
-                <Typography variant="body" color="#f5222d">
+                <Typography
+                  variant="body"
+                  color="#f5222d"
+                  sx={{
+                    fontSize: {
+                      xs: "14px",
+                      md: "16px",
+                      lg: "18px",
+                      xl: "20px",
+                    },
+                  }}
+                >
                   Note: This task can be rejected{" "}
                   {ProjectDetails.revision_loop_count -
                     taskData?.revision_loop_count?.super_check_count}{" "}
@@ -1021,16 +1050,40 @@ const SuperCheckerPage = () => {
           <Grid
             container
             justifyContent="center"
-            spacing={3}
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "16px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              <LightTooltip title={assignedUsers ? assignedUsers : ""}>
+              <LightTooltip
+                title={
+                  <div>
+                    <div>
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
+                        ? assignedUsers.join(", ")
+                        : assignedUsers || "No assigned users"}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: "4px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${review?.id}`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${annotations[0]?.id}`}
+                    </div>
+                  </div>
+                }
+              >
                 <Button
                   type="default"
                   className="lsf-button"
@@ -1070,16 +1123,16 @@ const SuperCheckerPage = () => {
                         SuperChecker.lead_time,
                       )
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Draft
                   </Button>
@@ -1093,13 +1146,14 @@ const SuperCheckerPage = () => {
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    pt: 2,
-                    pb: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1122,16 +1176,16 @@ const SuperCheckerPage = () => {
                         SuperChecker.lead_time,
                       )
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Skip
                   </Button>
@@ -1152,16 +1206,16 @@ const SuperCheckerPage = () => {
                         SuperChecker.lead_time,
                       )
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Clear Chats
                   </Button>
@@ -1189,13 +1243,14 @@ const SuperCheckerPage = () => {
                         ? false
                         : true
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ee6633",
                     }}
                   >
@@ -1214,13 +1269,14 @@ const SuperCheckerPage = () => {
                     aria-controls={open ? "accept-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ee6633",
                     }}
                     onClick={handleClick}

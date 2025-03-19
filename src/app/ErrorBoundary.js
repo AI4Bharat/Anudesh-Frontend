@@ -2,7 +2,7 @@
 import Error from "./error"
 
  
-import React,{ useEffect,useState } from 'react'
+import React from 'react'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

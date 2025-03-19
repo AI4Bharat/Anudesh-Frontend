@@ -1,8 +1,8 @@
 // OrganizationReports
 
 import React, { useState, useEffect } from "react";
-import MUIDataTable from "mui-datatables";
-import { Box, Button, Grid, ThemeProvider, Card, Radio, Typography, FormGroup, Checkbox, ListItemText, ListItemIcon, Paper } from "@mui/material";
+import dynamic from 'next/dynamic';
+import { Box, Button, Grid, ThemeProvider, Card, Radio, Typography, FormGroup, Checkbox, ListItemText, ListItemIcon, Paper, TablePagination } from "@mui/material";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import tableTheme from "../../themes/tableTheme";
@@ -12,7 +12,8 @@ import FormControl from "@mui/material/FormControl";
 import ColumnList from "../common/ColumnList";
 import Select from "@mui/material/Select";
 import { useParams } from 'react-router-dom';
-import  "../../styles/Dataset.css";
+import Skeleton from "@mui/material/Skeleton";
+import "../../styles/Dataset.css";
 import DatasetStyle from "@/styles/dataset";
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
@@ -22,7 +23,7 @@ import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { styled } from '@mui/material/styles';
 import { addDays } from 'date-fns';
 import { isSameDay, format } from 'date-fns';
-import {useDispatch,useSelector} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import CustomizedSnackbars from "../common/Snackbar";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
@@ -30,7 +31,7 @@ import { fetchOrganizationUserReports } from "@/Lib/Features/projects/GetOrganiz
 import { fetchOrganizationProjectReports } from "@/Lib/Features/projects/GetOrganizationProjectReports";
 import { fetchOrganizationDetailedProjectReports } from "@/Lib/Features/projects/GetOrganizationDetailedProjectReports";
 import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
-import {CircularProgress} from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 const ProgressType = ["Annotation Stage", "Review Stage", "Super Check Stage", "All Stage"]
 const ITEM_HEIGHT = 38;
@@ -60,6 +61,25 @@ const participationTypesOptions = [
   { value: 4, label: "Contract-Basis" }
 ];
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
 
 const OrganizationReports = () => {
   const OrganizationDetails = useSelector(state => state.getLoggedInData?.data.organization);
@@ -69,6 +89,7 @@ const OrganizationReports = () => {
     endDate: new Date(),
     key: "selection"
   }]);
+  const [displayWidth, setDisplayWidth] = useState(0);
   // const [rangeValue, setRangeValue] = useState([format(Date.parse(OrganizationDetails?.created_at, 'yyyy-MM-ddTHH:mm:ss.SSSZ'), 'yyyy-MM-dd'), Date.now()]);
   const [showPicker, setShowPicker] = useState(false);
   const [projectTypes, setProjectTypes] = useState([]);
@@ -94,7 +115,7 @@ const OrganizationReports = () => {
     variant: "success",
   });
 
-  
+
   const { orgId } = useParams();
   const dispatch = useDispatch();
   const classes = DatasetStyle();
@@ -107,12 +128,30 @@ const OrganizationReports = () => {
   let ProgressTypeValue = "Annotation Stage"
   const filterdata = ProgressType.filter(item => item !== ProgressTypeValue)
   const FilterProgressType = reportTypes === "Reviewer" ? filterdata : ProgressType
-/* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   useEffect(() => {
     dispatch(fetchProjectDomains());
     dispatch(fetchLanguages());
   }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
 
   useEffect(() => {
     if (ProjectTypes) {
@@ -134,7 +173,7 @@ const OrganizationReports = () => {
   //      "InstructionDrivenChat",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
-      
+
   //   } 
   // }, [ProjectTypes, radiobutton]);
 
@@ -147,10 +186,10 @@ const OrganizationReports = () => {
   //      "MultipleInteractionEvaluation",
   //     ]);
   //     setSelectedType("InstructionDrivenChat");
-      
+
   //   } 
   // }, [ProjectTypes, radiobutton]);
- 
+
 
   useEffect(() => {
     if (reportRequested && UserReports?.length) {
@@ -164,6 +203,15 @@ const OrganizationReports = () => {
             filter: false,
             sort: true,
             align: "center",
+            setCellProps: () => ({
+              style: {
+                padding: "16px",
+                minWidth: "170px",
+                whiteSpace: "normal",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+              }
+            }),
           },
         });
         tempSelected.push(key);
@@ -172,14 +220,14 @@ const OrganizationReports = () => {
       setReportData(UserReports);
       setSelectedColumns(tempSelected);
     } else {
-      if(emailRequested){
-          setSnackbarInfo({
-            open: true,
-            message: UserReports.message,
-            variant: "success",
-          })
-          setEmailRequested(false);
-        }
+      if (emailRequested) {
+        setSnackbarInfo({
+          open: true,
+          message: UserReports.message,
+          variant: "success",
+        })
+        setEmailRequested(false);
+      }
       setColumns([]);
       setReportData([]);
       setSelectedColumns([]);
@@ -199,6 +247,15 @@ const OrganizationReports = () => {
             filter: false,
             sort: true,
             align: "center",
+            setCellProps: () => ({
+              style: {
+                padding: "16px",
+                minWidth: "170px",
+                whiteSpace: "normal",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+              }
+            }),
           },
         });
         tempSelected.push(key);
@@ -207,7 +264,7 @@ const OrganizationReports = () => {
       setReportData(ProjectReports);
       setSelectedColumns(tempSelected);
     } else {
-      if(emailRequested){
+      if (emailRequested) {
         setSnackbarInfo({
           open: true,
           message: ProjectReports.message,
@@ -248,7 +305,7 @@ const OrganizationReports = () => {
   //   }
   //   setShowSpinner(false);
   // }, [SuperCheck]);
-  
+
   const renderToolBar = () => {
     return (
       <Box
@@ -263,6 +320,71 @@ const OrganizationReports = () => {
       </Box>
     )
   }
+  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
+          alignItems: "center",
+          padding: "10px",
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
+        }}
+      >
+
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
+          }}
+        />
+
+        {/* Jump to Page */}
+        <div>
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
+          }}>
+            Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
+
 
 
   const options = {
@@ -275,6 +397,17 @@ const OrganizationReports = () => {
     viewColumns: false,
     jumpToPage: true,
     customToolbar: renderToolBar,
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
+
   };
 
 
@@ -289,16 +422,18 @@ const OrganizationReports = () => {
   const handleSubmit = (sendMail) => {
     setLoading(true);
     setTimeout(() => {
-      setLoading(false); 
-    },1000)
+      setLoading(false);
+    }, 1000)
     if (radiobutton === "PaymentReports") {
-    
-      dispatch(fetchSendOrganizationUserReports({orgId:orgId,
-        userId:UserDetails.id,
-        projectType:selectedType,
-        participationTypes:participationTypes,
-        fromDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
-        toDate:format(selectRange[0].endDate, 'yyyy-MM-dd')}));
+
+      dispatch(fetchSendOrganizationUserReports({
+        orgId: orgId,
+        userId: UserDetails.id,
+        projectType: selectedType,
+        participationTypes: participationTypes,
+        fromDate: format(selectRange[0].startDate, 'yyyy-MM-dd'),
+        toDate: format(selectRange[0].endDate, 'yyyy-MM-dd')
+      }));
       setSnackbarInfo({
         open: true,
         message: "Payment Reports will be e-mailed to you shortly",
@@ -306,10 +441,10 @@ const OrganizationReports = () => {
       })
     }
     else {
-      if(sendMail){
+      if (sendMail) {
         setReportRequested(false);
         setEmailRequested(true);
-      }else{
+      } else {
         setReportRequested(true);
       }
       setShowSpinner(true);
@@ -324,61 +459,69 @@ const OrganizationReports = () => {
           variant: "error",
         })
       }
-      let ReviewData ;
+      let ReviewData;
 
       if ((reportTypes === "Annotator" || reportTypes === "Reviewer") && reportfilter != "" && radiobutton === "UsersReports") {
 
         if (reportfilter.toString() == "Annotation Stage") {
-          ReviewData=1
+          ReviewData = 1
         } else if (reportfilter.toString() == "Review Stage") {
-          ReviewData=2
+          ReviewData = 2
         } else if (reportfilter.toString() == "Super Check Stage") {
-          ReviewData=3
+          ReviewData = 3
         }
-        dispatch(fetchOrganizationUserReports({orgId:orgId,
-          projectType:selectedType,
-          startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
-          endDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),
-          reportsType:reportTypes === "Annotator" ? "annotation" : reportTypes === "Reviewer" ? "review" : "supercheck",
-          targetLanguage:targetLanguage,
-          sendMail:sendMail,
-          onlyReviewProjects:ReviewData}));
+        dispatch(fetchOrganizationUserReports({
+          orgId: orgId,
+          projectType: selectedType,
+          startDate: format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          endDate: format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          reportsType: reportTypes === "Annotator" ? "annotation" : reportTypes === "Reviewer" ? "review" : "supercheck",
+          targetLanguage: targetLanguage,
+          sendMail: sendMail,
+          onlyReviewProjects: ReviewData
+        }));
       } else if ((reportTypes === "SuperCheck" || reportfilter === "All Stage" && radiobutton === "UsersReports")) {
-        const supercheckObj = ({orgId:orgId,
-          projectType:selectedType,
-          startDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
-          endDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),
-          reportsType:"supercheck",
-          targetLanguage:targetLanguage,
-          sendMail:sendMail});
+        const supercheckObj = ({
+          orgId: orgId,
+          projectType: selectedType,
+          startDate: format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          endDate: format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          reportsType: "supercheck",
+          targetLanguage: targetLanguage,
+          sendMail: sendMail
+        });
         dispatch(fetchOrganizationUserReports(supercheckObj));
       }
       else if (radiobutton === "ProjectReports") {
-        if(projectReportType === 1){
-        dispatch(fetchOrganizationProjectReports({orgId:orgId,
-          projectType:selectedType,
-          targetLanguage:targetLanguage,
-          userId:userId,
-          sendMail:sendMail}));
-        if(sendMail){
-        setSnackbarInfo({
-          open: true,
-          message: "Project Report will be e-mailed to you shortly",
-          variant: "success",
-        })
-      };
-      }else if(projectReportType === 2){
-        dispatch(fetchOrganizationDetailedProjectReports( {orgId:Number(orgId),
-          projectType:selectedType,
-          userId:userId,
-          statistics:statisticsType}));
-        setSnackbarInfo({
-          open: true,
-          message: "Report will be e-mailed to you shortly",
-          variant: "success",
-        })
+        if (projectReportType === 1) {
+          dispatch(fetchOrganizationProjectReports({
+            orgId: orgId,
+            projectType: selectedType,
+            targetLanguage: targetLanguage,
+            userId: userId,
+            sendMail: sendMail
+          }));
+          if (sendMail) {
+            setSnackbarInfo({
+              open: true,
+              message: "Project Report will be e-mailed to you shortly",
+              variant: "success",
+            })
+          };
+        } else if (projectReportType === 2) {
+          dispatch(fetchOrganizationDetailedProjectReports({
+            orgId: Number(orgId),
+            projectType: selectedType,
+            userId: userId,
+            statistics: statisticsType
+          }));
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          })
+        }
       }
-    }
     }
   };
 
@@ -455,26 +598,26 @@ const OrganizationReports = () => {
         </Grid>
 
         {radiobutton === "ProjectReports" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small" variant="outlined">
-      <InputLabel
-        id="project-report-type-label"
-        sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-      >Type</InputLabel>
-      <Select
-      style={{ zIndex: "0", minWidth: "auto" }}
-      inputProps={{ "aria-label": "Without label" }}
-      MenuProps={MenuProps}
-        labelId="project-report-type-label"
-        id="project-report-type-select"
-        value={projectReportType}
-        label="Type"
-        onChange={(e) => setProjectReportType(e.target.value)}
-        fullWidth
-      >
-        <MenuItem value={1}>High-Level Reports</MenuItem>
-        <MenuItem value={2}>Detailed Reports</MenuItem>
-      </Select>
-    </FormControl>
+          <FormControl fullWidth size="small" variant="outlined">
+            <InputLabel
+              id="project-report-type-label"
+              sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+            >Type</InputLabel>
+            <Select
+              style={{ zIndex: "0", minWidth: "auto" }}
+              inputProps={{ "aria-label": "Without label" }}
+              MenuProps={MenuProps}
+              labelId="project-report-type-label"
+              id="project-report-type-select"
+              value={projectReportType}
+              label="Type"
+              onChange={(e) => setProjectReportType(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value={1}>High-Level Reports</MenuItem>
+              <MenuItem value={2}>Detailed Reports</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>}
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small" >
@@ -497,67 +640,67 @@ const OrganizationReports = () => {
             </Select>
           </FormControl>
         </Grid>
-        {(radiobutton === "ProjectReports" && projectReportType === 1) &&  <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small">
-          <InputLabel id="language-label" sx={{ fontSize: "19px" }}>Target Language</InputLabel>
-          <Select
-            labelId="language-label"
-            id="language-select"
-            value={targetLanguage}
-            label="Target Language"
-            onChange={(e) => setTargetLanguage(e.target.value)}
-            MenuProps={MenuProps}
-          >
-            <MenuItem value={"all"}>All languages</MenuItem>
-            {LanguageChoices?.language?.map((lang) => (
-              <MenuItem value={lang} key={lang}>
-                {lang}
-              </MenuItem>))}
-          </Select>
-        </FormControl>
-      </Grid>}
-      {(radiobutton === "ProjectReports" && projectReportType === 2) &&  <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small">
-          <InputLabel id="statistics-label" sx={{ fontSize: "16px" }}>Statistics</InputLabel>
-          <Select
-            labelId="statistics-label"
-            id="statistics-select"
-            value={statisticsType}
-            label="Statistics"
-            onChange={(e) => setStatisticsType(e.target.value)}
-            MenuProps={MenuProps}
-          >
-          <MenuItem value={1}>Annotation Statistics</MenuItem>
-          <MenuItem value={2}>Meta-Info Statistics</MenuItem>
-          <MenuItem value={3}>Complete Statistics</MenuItem>
-        </Select>
-        </FormControl>
-      </Grid>}
+        {(radiobutton === "ProjectReports" && projectReportType === 1) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+          <FormControl fullWidth size="small">
+            <InputLabel id="language-label" sx={{ fontSize: "19px" }}>Target Language</InputLabel>
+            <Select
+              labelId="language-label"
+              id="language-select"
+              value={targetLanguage}
+              label="Target Language"
+              onChange={(e) => setTargetLanguage(e.target.value)}
+              MenuProps={MenuProps}
+            >
+              <MenuItem value={"all"}>All languages</MenuItem>
+              {LanguageChoices?.language?.map((lang) => (
+                <MenuItem value={lang} key={lang}>
+                  {lang}
+                </MenuItem>))}
+            </Select>
+          </FormControl>
+        </Grid>}
+        {(radiobutton === "ProjectReports" && projectReportType === 2) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+          <FormControl fullWidth size="small">
+            <InputLabel id="statistics-label" sx={{ fontSize: "16px" }}>Statistics</InputLabel>
+            <Select
+              labelId="statistics-label"
+              id="statistics-select"
+              value={statisticsType}
+              label="Statistics"
+              onChange={(e) => setStatisticsType(e.target.value)}
+              MenuProps={MenuProps}
+            >
+              <MenuItem value={1}>Annotation Statistics</MenuItem>
+              <MenuItem value={2}>Meta-Info Statistics</MenuItem>
+              <MenuItem value={3}>Complete Statistics</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>}
         {radiobutton === "PaymentReports" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small">
-      <InputLabel id="participation-type-label" sx={{ fontSize: "19px" }}>Participation Types</InputLabel>
-      <Select
-        style={{ zIndex: "0" }}
-        inputProps={{ "aria-label": "Without label" }}
-        MenuProps={MenuProps}
-        labelId="participation-type-label"
-        id="participation-select"
-        value={participationTypes}
-        label="Participation Type"
-        onChange={handleChange}
-        multiple
-        renderValue={(selected) => selected.map(value => participationTypesOptions.find(option => option.value === value).label).join(', ')}
-      >
-        {participationTypesOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            <ListItemIcon>
-              <Checkbox checked={participationTypes.indexOf(option.value) > -1} />
-            </ListItemIcon>
-            <ListItemText primary={option.label} />
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+          <FormControl fullWidth size="small">
+            <InputLabel id="participation-type-label" sx={{ fontSize: "19px" }}>Participation Types</InputLabel>
+            <Select
+              style={{ zIndex: "0" }}
+              inputProps={{ "aria-label": "Without label" }}
+              MenuProps={MenuProps}
+              labelId="participation-type-label"
+              id="participation-select"
+              value={participationTypes}
+              label="Participation Type"
+              onChange={handleChange}
+              multiple
+              renderValue={(selected) => selected.map(value => participationTypesOptions.find(option => option.value === value).label).join(', ')}
+            >
+              {participationTypesOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  <ListItemIcon>
+                    <Checkbox checked={participationTypes.indexOf(option.value) > -1} />
+                  </ListItemIcon>
+                  <ListItemText primary={option.label} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>}
         {radiobutton === "UsersReports" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
@@ -599,26 +742,26 @@ const OrganizationReports = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small">
-          <InputLabel id="language-label" sx={{ fontSize: "19px" }}>Target Language</InputLabel>
-          <Select
-            labelId="language-label"
-            id="language-select"
-            value={targetLanguage}
-            label="Target Language"
-            onChange={(e) => setTargetLanguage(e.target.value)}
-            MenuProps={MenuProps}
-          >
-            <MenuItem value={"all"}>All languages</MenuItem>
-            {LanguageChoices?.language?.map((lang) => (
-              <MenuItem value={lang} key={lang}>
-                {lang}
-              </MenuItem>))}
-          </Select>
-        </FormControl>
-      </Grid>
-      </>}
+          <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="language-label" sx={{ fontSize: "19px" }}>Target Language</InputLabel>
+              <Select
+                labelId="language-label"
+                id="language-select"
+                value={targetLanguage}
+                label="Target Language"
+                onChange={(e) => setTargetLanguage(e.target.value)}
+                MenuProps={MenuProps}
+              >
+                <MenuItem value={"all"}>All languages</MenuItem>
+                {LanguageChoices?.language?.map((lang) => (
+                  <MenuItem value={lang} key={lang}>
+                    {lang}
+                  </MenuItem>))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </>}
 
         {["UsersReports", "PaymentReports"].includes(radiobutton) &&
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
@@ -634,8 +777,8 @@ const OrganizationReports = () => {
           </Grid>
         }
 
-        {(radiobutton==="UsersReports"|| (radiobutton==="ProjectReports" && projectReportType === 1)) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <Button
+        {(radiobutton === "UsersReports" || (radiobutton === "ProjectReports" && projectReportType === 1)) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+          <Button
             fullWidth
             variant="contained"
             onClick={() => handleSubmit(false)}
@@ -644,7 +787,7 @@ const OrganizationReports = () => {
             Submit
           </Button>
         </Grid>}
-      <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+        <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <Button
             fullWidth
             variant="contained"
@@ -686,27 +829,21 @@ const OrganizationReports = () => {
           />
         </Card>
       </Box>}
-      {loading ? <CircularProgress style={{marginLeft: "50%"}} /> : reportRequested && (
-        
+      {loading ? <CircularProgress style={{ marginLeft: "50%" }} /> : reportRequested && (
+
         <ThemeProvider theme={tableTheme}>
           <MUIDataTable
+            key={`table-${displayWidth}`}
             title={ProjectReports?.length > 0 ? "Reports" : ""}
             data={reportData}
             columns={columns.filter((col) => selectedColumns.includes(col.name))}
-            options={options}
+            options={{
+              ...options,
+              tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+            }}
           />
         </ThemeProvider>)
       }
-      {/*<Grid
-          container
-          justifyContent="center"
-        >
-          <Grid item sx={{mt:"10%"}}>
-            {showSpinner ? <div></div> : (
-              !reportData?.length && submitted && <>No results</>
-            )}
-          </Grid>
-        </Grid> */}
     </React.Fragment>
   );
 };

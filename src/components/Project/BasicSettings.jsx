@@ -1,5 +1,9 @@
 
-import { Grid, ThemeProvider, Typography, Autocomplete, TextField } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 import React, { useEffect, useState } from "react";
 import themeDefault from '@/themes/theme'
 import { useNavigate, useParams } from 'react-router-dom';
@@ -228,8 +232,7 @@ const BasicSettings = (props) => {
                         <OutlinedTextField
                             fullWidth
                             name="title"
-                            InputProps={{ style: { fontSize: "14px", width: "500px" } }}
-                            // value={ProjectDetails.title}
+                            InputProps={{ style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                             value={newDetails?.title}
                             onChange={handleProjectName} />
                     </Grid>
@@ -268,7 +271,7 @@ const BasicSettings = (props) => {
                         <OutlinedTextField
                             fullWidth
                             name="description"
-                            InputProps={{ style: { fontSize: "14px", width: "500px" } }}
+                            InputProps={{ style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                             value={newDetails?.description}
                             onChange={handleProjectName}
                         />
@@ -311,7 +314,7 @@ const BasicSettings = (props) => {
                                         onChange={(e, newVal) => setSourceLanguage(newVal)}
                                         options={languageOptions}
                                         value={sourceLanguage}
-                                        style={{ fontSize: "14px", width: "500px" }}
+                                        style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
@@ -357,7 +360,7 @@ const BasicSettings = (props) => {
                                     onChange={(e, newVal) => setTargetLanguage(newVal)}
                                     options={languageOptions}
                                     value={targetLanguage}
-                                    style={{ fontSize: "14px", width: "500px" }}
+                                    style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -400,7 +403,7 @@ const BasicSettings = (props) => {
                                 <OutlinedTextField
                                     fullWidth
                                     name="max_pending_tasks_per_user"
-                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: "500px" } }}
+                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                                     value={newDetails?.max_pending_tasks_per_user}
                                     onChange={handleProjectName} />
                             </Grid>
@@ -436,7 +439,7 @@ const BasicSettings = (props) => {
                                 <OutlinedTextField
                                     fullWidth
                                     name="tasks_pull_count_per_batch"
-                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: "500px" } }}
+                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                                     value={newDetails?.tasks_pull_count_per_batch}
                                     onChange={handleProjectName} />
                             </Grid>
@@ -473,7 +476,7 @@ const BasicSettings = (props) => {
                                 <OutlinedTextField
                                     fullWidth
                                     name="max_tasks_per_user"
-                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: "500px" }, readOnly: !isManager }}
+                                    InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" }, readOnly: !isManager } }}
                                     
                                     value={newDetails?.max_tasks_per_user}
                                     onChange={handleProjectName} />
@@ -488,16 +491,19 @@ const BasicSettings = (props) => {
                     xl={12}
                     sm={12}
                     sx={{
-                        m: 7,
                         // justifyContent: "center",
+                        mt:5,
+                        display: 'flex',
+                        justifyContent: { xs: 'center', sm: 'flex-start' },
+                        gap: 2
 
                     }}
                 >
-                    <CustomButton sx={{ inlineSize: "max-content", marginRight: "10px", width: "80px" }}
+                    <CustomButton sx={{ inlineSize: "max-content", width: { xs: "100%", sm: "200px" } }}
                         onClick={() => navigate(-1)}
                         // onClick={handleCancel}
                         label="Cancel" />
-                    <CustomButton sx={{ inlineSize: "max-content", width: "80px" }}
+                    <CustomButton sx={{ inlineSize: "max-content", width: { xs: "100%", sm: "200px" } }}
                         onClick={handleSave}
                         label="Save" />
                 </Grid>

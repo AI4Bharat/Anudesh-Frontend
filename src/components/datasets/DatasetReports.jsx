@@ -1,16 +1,19 @@
 // DatasetReports
 
 import React, { useState, useEffect } from "react";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import {
-  Box,
-  Button,
-  Grid,
+
   ThemeProvider,
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "@/themes/tableTheme";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import Skeleton from "@mui/material/Skeleton";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,18 +23,38 @@ import ColumnList from "../common/ColumnList";
 import { MenuProps } from "@/utils/utils";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
-import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import { fetchDatasetProjectReports } from "@/Lib/Features/datasets/getDatasetProjectReports";
 import { fetchDatasetDetailedReports } from "@/Lib/Features/datasets/GetDatasetDetailedReports";
-import {CircularProgress} from "@mui/material";
+import { CircularProgress } from "@mui/material";
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
 
 const DatasetReports = () => {
-    /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
   const [language, setLanguage] = useState("all");
   const [columns, setColumns] = useState([]);
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [showSpinner, setShowSpinner] = useState(false);
   const [reportData, setReportData] = useState([]);
@@ -51,6 +74,24 @@ const DatasetReports = () => {
     message: "",
     variant: "success",
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
 
   useEffect(() => {
 
@@ -82,6 +123,15 @@ const DatasetReports = () => {
             filter: false,
             sort: true,
             align: "center",
+            setCellProps: () => ({
+              style: {
+                height: "70px", fontSize: "16px",
+                padding: "16px",
+                whiteSpace: "normal",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+              }
+            }),
           },
         });
         tempSelected.push(key);
@@ -99,7 +149,7 @@ const DatasetReports = () => {
 
   const renderToolBar = () => {
     return (
-      <Box 
+      <Box
         className={classes.ToolbarContainer}
       >
         <ColumnList
@@ -107,6 +157,70 @@ const DatasetReports = () => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
+      </Box>
+    );
+  };
+  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
+          alignItems: "center",
+          padding: "10px",
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
+        }}
+      >
+
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
+          }}
+        />
+
+        {/* Jump to Page */}
+        <div>
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
+          }}>
+            Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
       </Box>
     );
   };
@@ -121,6 +235,16 @@ const DatasetReports = () => {
     viewColumns: false,
     jumpToPage: true,
     customToolbar: renderToolBar,
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
     textLabels: {
       body: {
         noMatch: "No Record Found",
@@ -135,21 +259,21 @@ const DatasetReports = () => {
     setTimeout(() => {
       setLoading(false)
     }, 1000);
-    if(projectReportType === 1){
+    if (projectReportType === 1) {
       setReportRequested(true);
       const projectReportObj = ({
-        datasetId:datasetId,
-        projectType:selectedType,
-        language:language
+        datasetId: datasetId,
+        projectType: selectedType,
+        language: language
       })
       dispatch(fetchDatasetProjectReports(projectReportObj));
       setShowSpinner(true);
-    }else if(projectReportType === 2){
+    } else if (projectReportType === 2) {
       const projectReportObj = ({
-        dataId:Number(datasetId),
-        projectType:selectedType,
-        userId:userId,
-        statistics:statisticsType
+        dataId: Number(datasetId),
+        projectType: selectedType,
+        userId: userId,
+        statistics: statisticsType
       });
       dispatch(fetchDatasetDetailedReports(projectReportObj));
       setSnackbarInfo({
@@ -186,28 +310,28 @@ const DatasetReports = () => {
         }}
       >
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small" variant="outlined">
-      <InputLabel
-        id="project-report-type-label"
-        sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-      >
-        Type
-      </InputLabel>
-      <Select
-      style={{ zIndex: "0", minWidth: "auto" }}
-      inputProps={{ "aria-label": "Without label" }}
-      MenuProps={MenuProps}
-        labelId="project-report-type-label"
-        id="project-report-type-select"
-        value={projectReportType}
-        label="Type"
-        onChange={(e) => setProjectReportType(e.target.value)}
-        fullWidth
-      >
-        <MenuItem value={1}>High-Level Reports</MenuItem>
-        <MenuItem value={2}>Detailed Reports</MenuItem>
-      </Select>
-    </FormControl>
+          <FormControl fullWidth size="small" variant="outlined">
+            <InputLabel
+              id="project-report-type-label"
+              sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+            >
+              Type
+            </InputLabel>
+            <Select
+              style={{ zIndex: "0", minWidth: "auto" }}
+              inputProps={{ "aria-label": "Without label" }}
+              MenuProps={MenuProps}
+              labelId="project-report-type-label"
+              id="project-report-type-select"
+              value={projectReportType}
+              label="Type"
+              onChange={(e) => setProjectReportType(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value={1}>High-Level Reports</MenuItem>
+              <MenuItem value={2}>Detailed Reports</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>
         <Grid
           item
@@ -259,7 +383,7 @@ const DatasetReports = () => {
             </Select>
           </FormControl>
         </Grid>}
-        {projectReportType===2 && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+        {projectReportType === 2 && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
             <InputLabel id="statistics-label" sx={{ fontSize: "16px", zIndex: 0 }}>Statistics</InputLabel>
             <Select
@@ -270,10 +394,10 @@ const DatasetReports = () => {
               onChange={(e) => setStatisticsType(e.target.value)}
               MenuProps={MenuProps}
             >
-            <MenuItem value={1}>Annotation Statistics</MenuItem>
-            <MenuItem value={2}>Meta-Info Statistics</MenuItem>
-            <MenuItem value={3}>Complete Statistics</MenuItem>
-          </Select>
+              <MenuItem value={1}>Annotation Statistics</MenuItem>
+              <MenuItem value={2}>Meta-Info Statistics</MenuItem>
+              <MenuItem value={3}>Complete Statistics</MenuItem>
+            </Select>
           </FormControl>
         </Grid>}
         <Grid item xs={12} sm={12} md={1} lg={1} xl={1}>
@@ -281,7 +405,7 @@ const DatasetReports = () => {
             fullWidth
             variant="contained"
             onClick={handleSubmit}
-            sx={{width:"130px"}}
+            sx={{ width: "130px" }}
           >
             Submit
           </Button>
@@ -289,14 +413,18 @@ const DatasetReports = () => {
       </Grid>
       {showSpinner ? <div></div> : reportRequested && (
         <ThemeProvider theme={tableTheme}>
-        {loading? <CircularProgress style={{marginLeft: "50%"}}/>: 
-          <MUIDataTable
-            title={DatasetReports.length > 0 ? "Reports" : ""}
-            data={reportData}
-            columns={columns.filter((col) => selectedColumns.includes(col.name))}
-            options={options}
-          />
-        }
+          {loading ? <CircularProgress style={{ marginLeft: "50%" }} /> :
+            <MUIDataTable
+              key={`table-${displayWidth}`}
+              title={DatasetReports.length > 0 ? "Reports" : ""}
+              data={reportData}
+              columns={columns.filter((col) => selectedColumns.includes(col.name))}
+              options={{
+                ...options,
+                tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+              }}
+            />
+          }
         </ThemeProvider>)
       }
     </React.Fragment>
