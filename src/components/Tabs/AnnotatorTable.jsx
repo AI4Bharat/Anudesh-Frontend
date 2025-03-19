@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 // import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
-import { ThemeProvider, Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText, Box, TablePagination, Select, MenuItem } from "@mui/material";
+import { ThemeProvider, Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText, Box, TablePagination, Select, MenuItem ,Skeleton} from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import RemoveWorkspaceMemberAPI from "@/app/actions/api/workspace/RemoveWorkspaceMemberAPI";
 import Search from "../common/Search";
