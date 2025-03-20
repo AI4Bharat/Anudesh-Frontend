@@ -1,10 +1,12 @@
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { styled } from "@mui/material/styles";
 import { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Skeleton from "@mui/material/Skeleton";
@@ -14,29 +16,44 @@ import tableTheme from "@/themes/tableTheme";
 import DatasetStyle from "@/styles/dataset";
 import { snakeToTitleCase } from "@/utils/utils";
 import ColumnList from "../common/ColumnList";
-import SearchIcon from '@mui/icons-material/Search';
-import DatasetSearchPopup from './DatasetSearchPopup';
+import SearchIcon from "@mui/icons-material/Search";
+import DatasetSearchPopup from "./DatasetSearchPopup";
 import Spinner from "@/components/common/Spinner";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 
-const MUIDataTable = dynamic(
-  () => import('mui-datatables'),
-  {
-    ssr: false,
-    loading: () => (
-      <Skeleton
-        variant="rectangular"
-        height={400}
-        sx={{
-          mx: 2,
-          my: 3,
-          borderRadius: '4px',
-          transform: 'none'
-        }}
-      />
-    )
-  }
-);
+// Styled component for the cell content with truncation
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+// Row container with transition
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
+
+const MUIDataTable = dynamic(() => import("mui-datatables"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton
+      variant="rectangular"
+      height={400}
+      sx={{
+        mx: 2,
+        my: 3,
+        borderRadius: "4px",
+        transform: "none",
+      }}
+    />
+  ),
+});
 
 const excludeKeys = [
   "parent_data_id",
@@ -70,8 +87,8 @@ const DataitemsTable = () => {
   const dispatch = useDispatch();
   const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
   // const filterdataitemsList =useSelector((state) => state.datasetSearchPopup.data);
-  const DatasetDetails = useSelector(state => state.getDatasetDetails.data);
-  const apiLoading = useSelector(state => state.apiStatus.loading);
+  const DatasetDetails = useSelector((state) => state.getDatasetDetails.data);
+  const apiLoading = useSelector((state) => state.apiStatus.loading);
   const [displayWidth, setDisplayWidth] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedFilters, setsSelectedFilters] = useState({});
@@ -86,16 +103,16 @@ const DataitemsTable = () => {
   const [searchedCol, setSearchedCol] = useState();
   localStorage.setItem("DataitemsList", JSON.stringify(columns));
   localStorage.setItem("Dataitem", JSON.stringify(dataitemsList));
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const getDataitems = () => {
-    const dataObj = ({
+    const dataObj = {
       instanceIds: datasetId,
       datasetType: DatasetDetails.dataset_type,
       selectedFilters: selectedFilters,
       pageNo: currentPageNumber,
-      countPerPage: currentRowPerPage
-    }
-    );
+      countPerPage: currentRowPerPage,
+    };
     dispatch(fetchDataitemsById(dataObj));
   };
 
@@ -108,89 +125,127 @@ const DataitemsTable = () => {
       setDisplayWidth(window.innerWidth);
     };
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       handleResize();
-      window.addEventListener('resize', handleResize);
+      window.addEventListener("resize", handleResize);
     }
 
     return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', handleResize);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
       }
     };
   }, []);
 
+  // Define your default columns
+  const defaultSelectedColumns = [
+    "id",
+    "meta_info_model",
+    "meta_info_intent",
+    "meta_info_domain",
+    "instruction_data",
+    "examples",
+    "hint",
+  ];
 
+  // In your useEffect where you're creating columns
   useEffect(() => {
     let fetchedItems = dataitemsList?.results;
     setTotalDataitems(dataitemsList?.count);
     fetchedItems = dataitemsList?.results;
     setDataitems(fetchedItems);
 
-
-
-
     let tempColumns = [];
     let tempSelected = [];
+
     if (fetchedItems?.length) {
       Object.keys(fetchedItems[0]).forEach((key) => {
         if (!excludeKeys.includes(key)) {
+          const isDefaultColumn = defaultSelectedColumns.includes(key);
+
           tempColumns.push({
             name: key,
             label: snakeToTitleCase(key),
             options: {
               filter: false,
               sort: false,
+              display: isDefaultColumn ? "true" : "false",
+              viewColumns: true,
               align: "center",
               customHeadLabelRender: customColumnHead,
-              customBodyRender: (value) => {
-                if ((key == "metadata_json" || key == "prediction_json" || key == "ocr_prediction_json" || key == "transcribed_json" || key == "draft_data_json" || key == "ocr_transcribed_json") && value !== null) {
-                  const data = JSON.stringify(value)
+              customBodyRender: (value, tableMeta) => {
+                const rowIndex = tableMeta.rowIndex;
+                const isExpanded = expandedRow === rowIndex;
+
+                let displayValue = value;
+                if (
+                  (key == "metadata_json" ||
+                    key == "prediction_json" ||
+                    key == "ocr_prediction_json" ||
+                    key == "transcribed_json" ||
+                    key == "draft_data_json" ||
+                    key == "ocr_transcribed_json") &&
+                  value !== null
+                ) {
+                  const data = JSON.stringify(value);
                   const metadata = data.replace(/\\/g, "");
-                  return metadata;
+                  displayValue = metadata;
                 } else if (key == "eval_form_output_json") {
-                  return JSON.stringify(value);
+                  displayValue = JSON.stringify(value);
+                } else {
+                  displayValue = value;
                 }
-                else {
-                  return value;
-                }
+
+                return (
+                  <RowContainer
+                    expanded={isExpanded}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedRow((prevExpanded) =>
+                        prevExpanded === rowIndex ? null : rowIndex,
+                      );
+                    }}
+                  >
+                    <TruncatedContent expanded={isExpanded}>
+                      {displayValue}
+                    </TruncatedContent>
+                  </RowContainer>
+                );
               },
             },
           });
-          tempSelected.push(key);
+
+          if (isDefaultColumn) {
+            tempSelected.push(key);
+          }
         }
       });
     }
     setColumns(tempColumns);
     setSelectedColumns(tempSelected);
-
-
-  }, [dataitemsList])
-
+  }, [dataitemsList, expandedRow]);
 
   useEffect(() => {
     getDataitems();
   }, [currentPageNumber, currentRowPerPage, selectedFilters]);
 
   useEffect(() => {
-    const newCols = columns.map(col => {
-      col.options.display = selectedColumns.includes(col.name) ? "true" : "false";
+    const newCols = columns.map((col) => {
+      col.options.display = selectedColumns.includes(col.name)
+        ? "true"
+        : "false";
       return col;
     });
     setColumns(newCols);
-
   }, [selectedColumns]);
-
-
 
   const handleShowSearch = (col, event) => {
     setSearchAnchor(event.currentTarget);
     setSearchedCol(col);
-
-  }
+  };
   const handleSearchClose = () => {
     setSearchAnchor(null);
-  }
+  };
 
   const customColumnHead = (col) => {
     return (
@@ -205,12 +260,15 @@ const DataitemsTable = () => {
         }}
       >
         {col.label}
-        <IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
+        <IconButton
+          sx={{ borderRadius: "100%" }}
+          onClick={(e) => handleShowSearch(col.name, e)}
+        >
           <SearchIcon id={col.name + "_btn"} />
         </IconButton>
       </Box>
     );
-  }
+  };
 
   const renderToolBar = () => {
     return (
@@ -236,7 +294,13 @@ const DataitemsTable = () => {
     );
   };
 
-  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+  const CustomFooter = ({
+    count,
+    page,
+    rowsPerPage,
+    changeRowsPerPage,
+    changePage,
+  }) => {
     return (
       <Box
         sx={{
@@ -244,17 +308,16 @@ const DataitemsTable = () => {
           flexWrap: "wrap",
           justifyContent: {
             xs: "space-between",
-            md: "flex-end"
+            md: "flex-end",
           },
           alignItems: "center",
           padding: "10px",
           gap: {
             xs: "10px",
-            md: "20px"
+            md: "20px",
           },
         }}
       >
-
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -267,18 +330,21 @@ const DataitemsTable = () => {
             "& .MuiTablePagination-actions": {
               marginLeft: "0px",
             },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-              marginRight: "10px",
-            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
+              {
+                marginRight: "10px",
+              },
           }}
         />
 
         {/* Jump to Page */}
         <div>
-          <label style={{
-            marginRight: "5px",
-            fontSize: "0.83rem",
-          }}>
+          <label
+            style={{
+              marginRight: "5px",
+              fontSize: "0.83rem",
+            }}
+          >
             Jump to Page:
           </label>
           <Select
@@ -353,8 +419,8 @@ const DataitemsTable = () => {
         changePage={changePage}
       />
     ),
-
-
+    rowHover: false, // Disable default row hover as we handle it in our custom component
+    onRowClick: null,
   };
 
   return (
@@ -367,21 +433,24 @@ const DataitemsTable = () => {
           columns={columns}
           options={{
             ...options,
-            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+            tableBodyHeight: `${
+              typeof window !== "undefined" ? window.innerHeight - 200 : 400
+            }px`,
           }}
         />
       </ThemeProvider>
-      {searchOpen && <DatasetSearchPopup
-        open={searchOpen}
-        anchorEl={searchAnchor}
-        handleClose={handleSearchClose}
-        updateFilters={setsSelectedFilters}
-        currentFilters={selectedFilters}
-        searchedCol={searchedCol}
-      />}
+      {searchOpen && (
+        <DatasetSearchPopup
+          open={searchOpen}
+          anchorEl={searchAnchor}
+          handleClose={handleSearchClose}
+          updateFilters={setsSelectedFilters}
+          currentFilters={selectedFilters}
+          searchedCol={searchedCol}
+        />
+      )}
       {loading && <Spinner />}
     </>
-
   );
 };
 
