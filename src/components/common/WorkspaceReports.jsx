@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import {
 
   ThemeProvider,
@@ -16,9 +16,10 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import Skeleton from "@mui/material/Skeleton";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import  "../../styles/Dataset.css";
+import "../../styles/Dataset.css";
 import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "../../styles/dataset";
 import ColumnList from "../common/ColumnList";
@@ -30,7 +31,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { MenuProps } from "../../utils/utils";
 import CustomizedSnackbars from "./Snackbar";
-import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
+import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import { useParams } from "react-router-dom";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 import { fetchWorkspaceUserReports } from "@/Lib/Features/projects/WorkspaceUserReports";
@@ -40,9 +41,28 @@ import { fetchSendWorkspaceUserReports } from "@/Lib/Features/projects/SendWorks
 
 const ProgressType = [{ name: "Annotation Stage", value: 1 }, { name: "Review Stage", value: 2 }, { name: "Super Check Stage", value: 3 }, { name: "All Stage", value: "AllStage" }]
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
 const WorkspaceReports = () => {
-   /* eslint-disable react-hooks/exhaustive-deps */
-   const { id } = useParams();
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const { id } = useParams();
 
   const WorkspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails.data
@@ -54,6 +74,7 @@ const WorkspaceReports = () => {
     key: "selection"
   }]);
   const [showPicker, setShowPicker] = useState(false);
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
   const [participationTypes, setParticipationTypes] = useState([1, 2, 4]);
@@ -70,7 +91,7 @@ const WorkspaceReports = () => {
   const [projectReportType, setProjectReportType] = useState(1);
   const [statisticsType, setStatisticsType] = useState(1);
 
-  
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -98,7 +119,26 @@ const WorkspaceReports = () => {
   }, [dispatch]);
 
   useEffect(() => {
-     if (ProjectTypes) {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
+
+
+  useEffect(() => {
+    if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
         let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
@@ -112,25 +152,25 @@ const WorkspaceReports = () => {
   useEffect(() => {
     if (radioButton === "project") {
       setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluation",
-       "InstructionDrivenChat",
+        "ModelOutputEvaluvation",
+        "ModelInteractionEvaluation",
+        "InstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");
-      
-    } 
+
+    }
   }, [ProjectTypes, radioButton]);
 
   useEffect(() => {
     if (radioButton === "user") {
       setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluation",
-       "InstructionDrivenChat",
+        "ModelOutputEvaluvation",
+        "ModelInteractionEvaluation",
+        "InstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");
-      
-    } 
+
+    }
   }, [ProjectTypes, radioButton]);
 
   useEffect(() => {
@@ -153,7 +193,7 @@ const WorkspaceReports = () => {
       setReportData(UserReports);
       setSelectedColumns(tempSelected);
     } else {
-      if(emailRequested){
+      if (emailRequested) {
         setSnackbarInfo({
           open: true,
           message: UserReports.message,
@@ -166,7 +206,7 @@ const WorkspaceReports = () => {
       setSelectedColumns([]);
     }
     setShowSpinner(false);
-  }, [UserReports,emailRequested, reportRequested]);
+  }, [UserReports, emailRequested, reportRequested]);
 
   useEffect(() => {
     if (reportRequested && ProjectReports?.length) {
@@ -180,14 +220,14 @@ const WorkspaceReports = () => {
             filter: false,
             sort: true,
             align: "center",
-            setCellProps: () => ({ 
+            setCellProps: () => ({
               style: {
                 height: "70px", fontSize: "16px",
-              padding: "16px",
-              whiteSpace: "normal", 
-              overflowWrap: "break-word",
-              wordBreak: "break-word",  
-            } 
+                padding: "16px",
+                whiteSpace: "normal",
+                overflowWrap: "break-word",
+                wordBreak: "break-word",
+              }
             }),
           },
         });
@@ -197,7 +237,7 @@ const WorkspaceReports = () => {
       setReportData(ProjectReports);
       setSelectedColumns(tempSelected);
     } else {
-      if(emailRequested){
+      if (emailRequested) {
         setSnackbarInfo({
           open: true,
           message: ProjectReports.message,
@@ -210,7 +250,7 @@ const WorkspaceReports = () => {
       setSelectedColumns([]);
     }
     setShowSpinner(false);
-  }, [ProjectReports,emailRequested, reportRequested]);
+  }, [ProjectReports, emailRequested, reportRequested]);
 
 
   const renderToolBar = () => {
@@ -233,20 +273,20 @@ const WorkspaceReports = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -257,21 +297,21 @@ const WorkspaceReports = () => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -310,7 +350,7 @@ const WorkspaceReports = () => {
         noMatch: "No Record Found!",
       },
     },
-    responsive: "stacked",
+    responsive: "vertical",
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
       <CustomFooter
         count={count}
@@ -334,13 +374,14 @@ const WorkspaceReports = () => {
   };
   const handleDateSubmit = (sendMail) => {
     if (radioButton === "payment") {
- 
-      dispatch(fetchSendWorkspaceUserReports({orgId:id,
-        userId:UserDetails.id,
-        projectType:selectedType,
-        participationTypes:participationTypes,
-        fromDate:format(selectRange[0]?.startDate, 'yyyy-MM-dd'),
-        toDate:format(selectRange[0]?.endDate, 'yyyy-MM-dd')
+
+      dispatch(fetchSendWorkspaceUserReports({
+        orgId: id,
+        userId: UserDetails.id,
+        projectType: selectedType,
+        participationTypes: participationTypes,
+        fromDate: format(selectRange[0]?.startDate, 'yyyy-MM-dd'),
+        toDate: format(selectRange[0]?.endDate, 'yyyy-MM-dd')
       }));
       setSnackbarInfo({
         open: true,
@@ -349,44 +390,44 @@ const WorkspaceReports = () => {
       })
     }
     else {
-      if(sendMail){
+      if (sendMail) {
         setReportRequested(false);
         setEmailRequested(true);
-      }else{
+      } else {
         setReportRequested(true);
       }
       setShowSpinner(true);
       setShowPicker(false);
       if (radioButton === "user") {
         const userReportObj = ({
-          workspaceId:id,
-          projectType:selectedType,
-          fromDate:format(selectRange[0].startDate, 'yyyy-MM-dd'),
-          toDate:format(selectRange[0].endDate, 'yyyy-MM-dd'),
-          language:language,
-          sendMail:sendMail,
-          reportsType:projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
-          reportfilter:reportfilter,
+          workspaceId: id,
+          projectType: selectedType,
+          fromDate: format(selectRange[0].startDate, 'yyyy-MM-dd'),
+          toDate: format(selectRange[0].endDate, 'yyyy-MM-dd'),
+          language: language,
+          sendMail: sendMail,
+          reportsType: projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
+          reportfilter: reportfilter,
         });
         dispatch(fetchWorkspaceUserReports(userReportObj));
       } else if (radioButton === "project") {
-        if(projectReportType === 1){
-        const projectReportObj = ({
-          workspaceId:id,
-          projectType:selectedType,
-
-          language:language,
-          sendMail:sendMail,
-          reportsType:projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
-        });
-        dispatch(fetchWorkspaceProjectReport(projectReportObj));
-        }else if(projectReportType === 2){
+        if (projectReportType === 1) {
           const projectReportObj = ({
-            workId:Number(id),
-            projectType:selectedType,
-            userId:userId,
-            statistics:statisticsType,
-            language:language,
+            workspaceId: id,
+            projectType: selectedType,
+
+            language: language,
+            sendMail: sendMail,
+            reportsType: projectType === "AnnotatationReports" ? "annotation" : projectType === "ReviewerReports" ? "review" : "supercheck",
+          });
+          dispatch(fetchWorkspaceProjectReport(projectReportObj));
+        } else if (projectReportType === 2) {
+          const projectReportObj = ({
+            workId: Number(id),
+            projectType: selectedType,
+            userId: userId,
+            statistics: statisticsType,
+            language: language,
           });
           dispatch(fetchWorkspaceDetailedProjectReports(projectReportObj));
           setSnackbarInfo({
@@ -437,7 +478,7 @@ const WorkspaceReports = () => {
         >
 
           <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
-            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", zIndex: 0}}>
+            <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", zIndex: 0 }}>
               Select Report Type :
             </Typography>
           </Grid >
@@ -461,24 +502,24 @@ const WorkspaceReports = () => {
           </Grid >
         </Grid >
         {radioButton === "project" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-        <FormControl fullWidth size="small" variant="outlined">
-      <InputLabel id="project-report-type-label" sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-      >Type</InputLabel>
-      <Select
-      style={{ zIndex: "0", minWidth: "auto" }}
-      inputProps={{ "aria-label": "Without label" }}
-      MenuProps={MenuProps}
-        labelId="project-report-type-type-label"
-        id="project-report-type-select"
-        value={projectReportType}
-        label="Type"
-        onChange={(e) => setProjectReportType(e.target.value)}
-        fullWidth
-      >
-        <MenuItem value={1}>High-Level Reports</MenuItem>
-        <MenuItem value={2}>Detailed Reports</MenuItem>
-      </Select>
-    </FormControl>
+          <FormControl fullWidth size="small" variant="outlined">
+            <InputLabel id="project-report-type-label" sx={{ fontSize: "19px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+            >Type</InputLabel>
+            <Select
+              style={{ zIndex: "0", minWidth: "auto" }}
+              inputProps={{ "aria-label": "Without label" }}
+              MenuProps={MenuProps}
+              labelId="project-report-type-type-label"
+              id="project-report-type-select"
+              value={projectReportType}
+              label="Type"
+              onChange={(e) => setProjectReportType(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value={1}>High-Level Reports</MenuItem>
+              <MenuItem value={2}>Detailed Reports</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>}
 
         {(radioButton !== "project") && <Grid
@@ -516,7 +557,7 @@ const WorkspaceReports = () => {
           xl={3}
         >
           <FormControl fullWidth size="small">
-            <InputLabel id="project-type-label" sx={{ fontSize: "19px",zIndex: 0 }}>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px", zIndex: 0 }}>
               Project Type
             </InputLabel>
             <Select
@@ -537,7 +578,7 @@ const WorkspaceReports = () => {
         </Grid>
         {radioButton === "user" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small" disabled={projectType === "SuperCheckerReports"} >
-            <InputLabel id="project-type-label" sx={{ fontSize: "19px",zIndex: 0 }}>Projects Filter</InputLabel>
+            <InputLabel id="project-type-label" sx={{ fontSize: "19px", zIndex: 0 }}>Projects Filter</InputLabel>
             <Select
               style={{ zIndex: "0" }}
               inputProps={{ "aria-label": "Without label" }}
@@ -578,7 +619,7 @@ const WorkspaceReports = () => {
             </Select>
           </FormControl>
         </Grid>}
-        {(radioButton === "project" && projectReportType === 2) &&  <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+        {(radioButton === "project" && projectReportType === 2) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <FormControl fullWidth size="small">
             <InputLabel id="statistics-label" sx={{ fontSize: "16px", zIndex: 0 }}>Statistics</InputLabel>
             <Select
@@ -589,10 +630,10 @@ const WorkspaceReports = () => {
               onChange={(e) => setStatisticsType(e.target.value)}
               MenuProps={MenuProps}
             >
-            <MenuItem value={1}>Annotation Statistics</MenuItem>
-            <MenuItem value={2}>Meta-Info Statistics</MenuItem>
-            <MenuItem value={3}>Complete Statistics</MenuItem>
-          </Select>
+              <MenuItem value={1}>Annotation Statistics</MenuItem>
+              <MenuItem value={2}>Meta-Info Statistics</MenuItem>
+              <MenuItem value={3}>Complete Statistics</MenuItem>
+            </Select>
           </FormControl>
         </Grid>}
         {radioButton === "payment" && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
@@ -629,7 +670,7 @@ const WorkspaceReports = () => {
           </Grid>
         }
 
-        {(radioButton==="user" || (radioButton==="project" && projectReportType === 1)) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+        {(radioButton === "user" || (radioButton === "project" && projectReportType === 1)) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
           <Button
             fullWidth
             variant="contained"
@@ -684,23 +725,17 @@ const WorkspaceReports = () => {
       {showSpinner ? <div></div> : reportRequested && (
         <ThemeProvider theme={tableTheme}>
           <MUIDataTable
+            key={`table-${displayWidth}`}
             title={ProjectReports.length > 0 ? "Reports" : ""}
             data={reportData}
             columns={columns.filter((col) => selectedColumns.includes(col.name))}
-            options={options}
+            options={{
+              ...options,
+              tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+            }}
           />
         </ThemeProvider>)
       }
-      {/* <Grid
-          container
-          justifyContent="center"
-        >
-          <Grid item sx={{mt:"10%"}}>
-            {showSpinner ? <div></div> : (
-              !reportData?.length && submitted && <>No results</>
-            )}
-          </Grid>
-        </Grid> */}
     </React.Fragment>
   );
 };

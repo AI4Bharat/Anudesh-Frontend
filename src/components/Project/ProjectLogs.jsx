@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import {
   ThemeProvider,
 } from "@mui/material";
@@ -11,6 +11,7 @@ import Grid from "@mui/material/Grid";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Skeleton from "@mui/material/Skeleton";
 import TablePagination from "@mui/material/TablePagination";
 import CustomizedSnackbars from "../common/Snackbar";
 import { addMonths, parse } from "date-fns";
@@ -23,12 +24,34 @@ import tableTheme from "@/themes/tableTheme";
 import Spinner from "@/components/common/Spinner";
 import GetProjectLogsAPI from "@/app/actions/api/Projects/getProjectLogsAPI";
 
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
+
 const ProjectLogs = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const { id } = useParams();
   const [taskName, setTaskName] = useState(
     "projects.tasks.export_project_in_place",
   );
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [columns, setColumns] = useState([]);
   const [projectLogs, setProjectLogs] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
@@ -63,6 +86,24 @@ const ProjectLogs = () => {
   };
 
   useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
+
+  useEffect(() => {
     getProjectLogs();
     setSelectRange([
       {
@@ -82,14 +123,14 @@ const ProjectLogs = () => {
     })
       .then(async (res) => {
         setLoading(false);
-        if (res.status==204) {
+        if (res.status == 204) {
           setSnackbarInfo({
             open: true,
             message: "No content Available",
             variant: "error",
           })
           return [];
-      }else{
+        } else {
           return await res.json()
         };
       })
@@ -125,20 +166,20 @@ const ProjectLogs = () => {
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
         }}
       >
-  
+
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -149,21 +190,21 @@ const ProjectLogs = () => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
           }}>
-          Jump to Page:
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -223,7 +264,7 @@ const ProjectLogs = () => {
 
   return (
     <React.Fragment>
-            {renderSnackBar()}
+      {renderSnackBar()}
 
       <Grid
         container
@@ -300,10 +341,14 @@ const ProjectLogs = () => {
       ) : (
         <ThemeProvider theme={tableTheme}>
           <MUIDataTable
+            key={`table-${displayWidth}`}
             title={""}
             data={projectLogs}
             columns={columns}
-            options={options}
+            options={{
+              ...options,
+              tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+            }}
           />
         </ThemeProvider>
       )}
