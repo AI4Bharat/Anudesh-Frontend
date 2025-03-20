@@ -25,6 +25,8 @@ export default function ProjectList({ data }) {
   console.log(data);
   const theme = useTheme();
 
+  console.log("My Test");
+
   // const [loading, setLoading] = useState(true);
   // Initialize selected filters from localStorage or set default values
   const [selectedFilters, setsSelectedFilters] = useState(() => {
@@ -120,7 +122,7 @@ export default function ProjectList({ data }) {
               </FormControl>
             </Grid>
 
-            <Grid item sx={{mt:1,mb:1,mr:2,ml:2}}>
+            <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
               <Search />
             </Grid>
           </Grid>
