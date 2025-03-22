@@ -20,6 +20,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import DatasetSearchPopup from "./DatasetSearchPopup";
 import Spinner from "@/components/common/Spinner";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
+import ReactJson from "react-json-view";
 
 // Styled component for the cell content with truncation
 const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
@@ -78,6 +79,104 @@ const excludeKeys = [
   "annotation_labels",
   "annotation_transcripts",
 ];
+
+const JSONViewer = ({ data, initiallyExpanded = false }) => {
+  const [expanded, setExpanded] = useState(initiallyExpanded);
+
+  // Parse JSON if it's a string
+  let jsonData;
+  try {
+    jsonData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+    return <Box sx={{ p: 1 }}>Invalid JSON</Box>;
+  }
+
+  // Check if JSON is empty or null
+  if (
+    !jsonData ||
+    (typeof jsonData === "object" && Object.keys(jsonData).length === 0)
+  ) {
+    return <Box sx={{ p: 1, color: "text.secondary" }}>Empty data</Box>;
+  }
+
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        borderRadius: "4px",
+        overflow: "hidden",
+        transition: "all 0.3s ease",
+      }}
+    >
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          setExpanded(!expanded);
+        }}
+        sx={{
+          position: "absolute",
+          top: "2px",
+          right: "2px",
+          zIndex: 2,
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+          },
+        }}
+      >
+        {expanded ? (
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"
+            />
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        )}
+      </IconButton>
+      <Box
+        sx={{
+          padding: "8px",
+          maxHeight: expanded ? "none" : "100px",
+          overflow: "hidden",
+          position: "relative",
+          "&::after": expanded
+            ? {}
+            : {
+                content: '""',
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "40px",
+                background:
+                  "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9))",
+              },
+        }}
+      >
+        <ReactJson
+          src={jsonData}
+          theme="bright:inverted"
+          collapsed={expanded ? 1 : 2}
+          displayDataTypes={false}
+          enableClipboard={true}
+          name={false}
+          style={{
+            fontSize: "0.85rem",
+            fontFamily: "'Roboto Mono', monospace",
+          }}
+        />
+      </Box>
+    </Box>
+  );
+};
 
 const DataitemsTable = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -140,12 +239,25 @@ const DataitemsTable = () => {
   // Define your default columns
   const defaultSelectedColumns = [
     "id",
+    "prompt",
+    "model",
+    "output",
     "meta_info_model",
+    "meta_info_language",
+    "eval_form_output_json",
+    "eval_time_taken",
+    "interaction_id",
+    "no_of_turns",
+    "language",
+    "time_taken",
     "meta_info_intent",
     "meta_info_domain",
+    "meta_info_language",
+    "meta_info_structure",
     "instruction_data",
-    "examples",
-    "hint",
+    "no_of_models",
+    "datetime",
+    "parent_data",
   ];
 
   // In your useEffect where you're creating columns
@@ -157,63 +269,88 @@ const DataitemsTable = () => {
 
     let tempColumns = [];
     let tempSelected = [];
-
     if (fetchedItems?.length) {
       Object.keys(fetchedItems[0]).forEach((key) => {
         if (!excludeKeys.includes(key)) {
           const isDefaultColumn = defaultSelectedColumns.includes(key);
 
-          tempColumns.push({
-            name: key,
-            label: snakeToTitleCase(key),
-            options: {
-              filter: false,
-              sort: false,
-              display: isDefaultColumn ? "true" : "false",
-              viewColumns: true,
-              align: "center",
-              customHeadLabelRender: customColumnHead,
-              customBodyRender: (value, tableMeta) => {
-                const rowIndex = tableMeta.rowIndex;
-                const isExpanded = expandedRow === rowIndex;
+          // Check if the column contains JSON data
+          const isJsonColumn =
+            key === "eval_form_output_json" ||
+            key === "metadata_json" ||
+            key === "prediction_json" ||
+            key === "ocr_prediction_json" ||
+            key === "transcribed_json" ||
+            key === "draft_data_json" ||
+            key === "ocr_transcribed_json";
 
-                let displayValue = value;
-                if (
-                  (key == "metadata_json" ||
-                    key == "prediction_json" ||
-                    key == "ocr_prediction_json" ||
-                    key == "transcribed_json" ||
-                    key == "draft_data_json" ||
-                    key == "ocr_transcribed_json") &&
-                  value !== null
-                ) {
-                  const data = JSON.stringify(value);
-                  const metadata = data.replace(/\\/g, "");
-                  displayValue = metadata;
-                } else if (key == "eval_form_output_json") {
-                  displayValue = JSON.stringify(value);
-                } else {
-                  displayValue = value;
-                }
+          if (isJsonColumn) {
+            tempColumns.push({
+              name: key,
+              label: snakeToTitleCase(key),
+              options: {
+                filter: false,
+                sort: false,
+                display: isDefaultColumn ? "true" : "false",
+                viewColumns: true,
+                align: "center",
+                customHeadLabelRender: customColumnHead,
+                customBodyRender: (value) => {
+                  if (!value) return null;
 
-                return (
-                  <RowContainer
-                    expanded={isExpanded}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setExpandedRow((prevExpanded) =>
-                        prevExpanded === rowIndex ? null : rowIndex,
-                      );
-                    }}
-                  >
-                    <TruncatedContent expanded={isExpanded}>
-                      {displayValue}
-                    </TruncatedContent>
-                  </RowContainer>
-                );
+                  return (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        minWidth: "250px",
+                        maxWidth: "500px",
+                        m: 1,
+                        border: "1px solid rgba(224, 224, 224, 1)",
+                        borderRadius: "4px",
+                        backgroundColor: "rgba(250, 250, 250, 0.9)",
+                      }}
+                    >
+                      <JSONViewer data={value} />
+                    </Box>
+                  );
+                },
               },
-            },
-          });
+            });
+          } else {
+            // Keep the original code for non-JSON columns
+            tempColumns.push({
+              name: key,
+              label: snakeToTitleCase(key),
+              options: {
+                filter: false,
+                sort: false,
+                display: isDefaultColumn ? "true" : "false",
+                viewColumns: true,
+                align: "center",
+                customHeadLabelRender: customColumnHead,
+                customBodyRender: (value, tableMeta) => {
+                  const rowIndex = tableMeta.rowIndex;
+                  const isExpanded = expandedRow === rowIndex;
+
+                  return (
+                    <RowContainer
+                      expanded={isExpanded}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedRow((prevExpanded) =>
+                          prevExpanded === rowIndex ? null : rowIndex,
+                        );
+                      }}
+                    >
+                      <TruncatedContent expanded={isExpanded}>
+                        {value}
+                      </TruncatedContent>
+                    </RowContainer>
+                  );
+                },
+              },
+            });
+          }
 
           if (isDefaultColumn) {
             tempSelected.push(key);
@@ -223,7 +360,99 @@ const DataitemsTable = () => {
     }
     setColumns(tempColumns);
     setSelectedColumns(tempSelected);
-  }, [dataitemsList, expandedRow]);
+  }, [dataitemsList]);
+
+  useEffect(() => {
+    let fetchedItems = dataitemsList?.results;
+    let tempColumns = [];
+
+    if (fetchedItems?.length) {
+      Object.keys(fetchedItems[0]).forEach((key) => {
+        if (!excludeKeys.includes(key)) {
+          const isSelectedColumn = selectedColumns.includes(key);
+
+          // Check if the column contains JSON data
+          const isJsonColumn =
+            key === "eval_form_output_json" ||
+            key === "metadata_json" ||
+            key === "prediction_json" ||
+            key === "ocr_prediction_json" ||
+            key === "transcribed_json" ||
+            key === "draft_data_json" ||
+            key === "ocr_transcribed_json";
+
+          if (isJsonColumn) {
+            tempColumns.push({
+              name: key,
+              label: snakeToTitleCase(key),
+              options: {
+                filter: false,
+                sort: false,
+                display: isSelectedColumn ? "true" : "false",
+                viewColumns: true,
+                align: "center",
+                customHeadLabelRender: customColumnHead,
+                customBodyRender: (value) => {
+                  if (!value) return null;
+
+                  return (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        minWidth: "250px",
+                        maxWidth: "500px",
+                        m: 1,
+                        border: "1px solid rgba(224, 224, 224, 1)",
+                        borderRadius: "4px",
+                        backgroundColor: "rgba(250, 250, 250, 0.9)",
+                      }}
+                    >
+                      <JSONViewer data={value} />
+                    </Box>
+                  );
+                },
+              },
+            });
+          } else {
+            // Keep the original code for non-JSON columns
+            tempColumns.push({
+              name: key,
+              label: snakeToTitleCase(key),
+              options: {
+                filter: false,
+                sort: false,
+                display: isSelectedColumn ? "true" : "false",
+                viewColumns: true,
+                align: "center",
+                customHeadLabelRender: customColumnHead,
+                customBodyRender: (value, tableMeta) => {
+                  const rowIndex = tableMeta.rowIndex;
+                  const isExpanded = expandedRow === rowIndex;
+
+                  return (
+                    <RowContainer
+                      expanded={isExpanded}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedRow((prevExpanded) =>
+                          prevExpanded === rowIndex ? null : rowIndex,
+                        );
+                      }}
+                    >
+                      <TruncatedContent expanded={isExpanded}>
+                        {value}
+                      </TruncatedContent>
+                    </RowContainer>
+                  );
+                },
+              },
+            });
+          }
+        }
+      });
+    }
+    setColumns(tempColumns);
+  }, [expandedRow]);
 
   useEffect(() => {
     getDataitems();
