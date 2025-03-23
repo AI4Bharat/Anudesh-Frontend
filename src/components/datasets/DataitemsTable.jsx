@@ -21,6 +21,7 @@ import DatasetSearchPopup from "./DatasetSearchPopup";
 import Spinner from "@/components/common/Spinner";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import ReactJson from "react-json-view";
+import { CircularProgress } from "@mui/material/CircularProgress";
 
 // Styled component for the cell content with truncation
 const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
@@ -203,6 +204,7 @@ const DataitemsTable = () => {
   localStorage.setItem("DataitemsList", JSON.stringify(columns));
   localStorage.setItem("Dataitem", JSON.stringify(dataitemsList));
   const [expandedRow, setExpandedRow] = useState(null);
+  const [showSpinner, setShowSpinner] = useState(true);
 
   const getDataitems = () => {
     const dataObj = {
@@ -213,6 +215,7 @@ const DataitemsTable = () => {
       countPerPage: currentRowPerPage,
     };
     dispatch(fetchDataitemsById(dataObj));
+    setShowSpinner(false);
   };
 
   useEffect(() => {
@@ -260,7 +263,6 @@ const DataitemsTable = () => {
     "parent_data",
   ];
 
-  // In your useEffect where you're creating columns
   useEffect(() => {
     let fetchedItems = dataitemsList?.results;
     setTotalDataitems(dataitemsList?.count);
@@ -272,7 +274,7 @@ const DataitemsTable = () => {
     if (fetchedItems?.length) {
       Object.keys(fetchedItems[0]).forEach((key) => {
         if (!excludeKeys.includes(key)) {
-          const isDefaultColumn = defaultSelectedColumns.includes(key);
+          const isDefaultColumn = selectedColumns.length > 0 ? selectedColumns.includes(key) : defaultSelectedColumns.includes(key);
 
           // Check if the column contains JSON data
           const isJsonColumn =
@@ -297,7 +299,6 @@ const DataitemsTable = () => {
                 customHeadLabelRender: customColumnHead,
                 customBodyRender: (value) => {
                   if (!value) return null;
-
                   return (
                     <Box
                       sx={{
@@ -455,6 +456,7 @@ const DataitemsTable = () => {
   }, [expandedRow]);
 
   useEffect(() => {
+    setShowSpinner(true);
     getDataitems();
   }, [currentPageNumber, currentRowPerPage, selectedFilters]);
 
