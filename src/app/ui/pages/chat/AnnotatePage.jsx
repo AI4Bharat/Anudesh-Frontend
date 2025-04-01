@@ -30,7 +30,6 @@ import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 
-
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
@@ -228,7 +227,16 @@ const AnnotatePage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor && 
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor && 
+        annotationNotesRef.current.getEditor()
+      ) {
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
         reviewNotesRef.current.value =
@@ -355,11 +363,9 @@ const AnnotatePage = () => {
     }
     // }
   };
-  console.log(interactions[0]);
   const handleAnnotationClick = async (value, id, lead_time) => {
     // if (typeof window !== "undefined") {
     let resultValue;
-    console.log(forms);
 
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -377,7 +383,6 @@ const AnnotatePage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -387,7 +392,6 @@ const AnnotatePage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
-      console.log("resval: " + resultValue);
     }
 
     setLoading(true);
@@ -423,8 +427,6 @@ const AnnotatePage = () => {
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
-        console.log("answered variable: ");
-        console.log(chatHistory.length);
 
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
@@ -444,8 +446,6 @@ const AnnotatePage = () => {
           ProjectDetails.project_type == "InstructionDrivenChat" &&
           chatHistory.length == 0
         ) {
-          console.log(chatHistory);
-
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
