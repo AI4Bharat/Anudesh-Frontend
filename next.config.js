@@ -5,11 +5,9 @@
 const CompressionPlugin = require("compression-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
-});
-
-module.exports = withBundleAnalyzer({});
+// const withBundleAnalyzer = require("@next/bundle-analyzer")({
+//   enabled: process.env.ANALYZE === "true",
+// });
 
 const nextConfig = {
   output: "export",
@@ -61,5 +59,7 @@ const nextConfig = {
     return config;
   },
 };
+
+// module.exports = withBundleAnalyzer(nextConfig);
 
 module.exports = nextConfig;
