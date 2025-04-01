@@ -228,6 +228,7 @@ const AnnotatePage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
+      console.log(reviewNotesRef.current.getEditor,annotationNotesRef.current.getEditor,"notes" )
       if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
