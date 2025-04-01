@@ -12,7 +12,7 @@ import {
 import { format } from "date-fns";
 import { useDispatch } from "react-redux";
 import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
-import { CircularProgress } from "@mui/material";
+import {  LinearProgress } from "@mui/material";
 
 const ReportBarGraphs = ({ id }) => {
   const [selectRange, setSelectRange] = useState([
@@ -145,7 +145,7 @@ const ReportBarGraphs = ({ id }) => {
         <div style={{ width: "100%", height: "50%px" }}>
           {" "}
           {/* Explicit height for the progress bar */}
-          <CircularProgress />
+          <LinearProgress />
         </div>
       )}
     </div>
