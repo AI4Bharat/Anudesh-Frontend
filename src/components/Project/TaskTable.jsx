@@ -1,15 +1,13 @@
 // TaskTable
 
-import MUIDataTable from "mui-datatables";
+import dynamic from "next/dynamic";
 import { Fragment, useEffect, useState } from "react";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import CustomButton from "../common/Button";
 // import APITransport from "../../../../redux/actions/apitransport/apitransport";
 import Button from "@mui/material/Button";
-import { 
- ThemeProvider
-} from "@mui/material";
-
+import { ThemeProvider } from "@mui/material";
+import Skeleton from "@mui/material/Skeleton";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
@@ -26,8 +24,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import TablePagination from "@mui/material/TablePagination";
 import { styled } from "@mui/material/styles";
-import InfoIcon from '@mui/icons-material/Info';
-import { tooltipClasses } from '@mui/material/Tooltip';
+import InfoIcon from "@mui/icons-material/Info";
+import { tooltipClasses } from "@mui/material/Tooltip";
 import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -54,12 +52,28 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
-// import LoginAPI from "../../../../redux/actions/api/UserManagement/Login";
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
 
 const excludeSearch = ["status", "actions", "output_text"];
 // const excludeCols = ["context", "input_language", "output_language", "language",
 // "conversation_json", "source_conversation_json", "machine_translated_conversation_json", "speakers_json"
 //  ];
+
 const excludeCols = [
   "context",
   "input_language",
@@ -80,6 +94,23 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
+
+const MUIDataTable = dynamic(() => import("mui-datatables"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton
+      variant="rectangular"
+      height={400}
+      sx={{
+        mx: 2,
+        my: 3,
+        borderRadius: "4px",
+        transform: "none",
+      }}
+    />
+  ),
+});
+
 const TaskTable = (props) => {
   const classes = DatasetStyle();
   const { id } = useParams();
@@ -89,6 +120,7 @@ const TaskTable = (props) => {
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -220,6 +252,7 @@ const TaskTable = (props) => {
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(true);
   /* eslint-disable react-hooks/exhaustive-deps */
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const getTaskListData = () => {
     const taskobj = {
@@ -238,6 +271,23 @@ const TaskTable = (props) => {
   useEffect(() => {
     getTaskListData();
   }, [currentPageNumber, currentRowPerPage]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== "undefined") {
+      handleResize();
+      window.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
+  }, []);
 
   const fetchNewTasks = async () => {
     setLoading(true);
@@ -460,8 +510,6 @@ const TaskTable = (props) => {
   }, [selectedFilters, pull, rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
-      console.log(taskList);
-
       const data = taskList.map((el) => {
         const email = props.type === "review" ? el.annotator_mail : "";
         let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
@@ -531,8 +579,6 @@ const TaskTable = (props) => {
               <CustomButton
                 disabled={ProjectDetails.is_archived}
                 onClick={() => {
-                  console.log(el);
-
                   localStorage.setItem("Task", JSON.stringify(el));
                   localStorage.removeItem("labelAll");
                 }}
@@ -554,7 +600,6 @@ const TaskTable = (props) => {
       const email =
         props.type === "review" && annotatorEmail ? "Annotator Email" : "";
       let colList = ["id", ...(!!email ? [email] : [])];
-      console.log(colList, taskList[0]);
       colList.push(
         ...Object.keys(taskList[0].data).filter(
           (el) => !excludeCols.includes(el),
@@ -592,6 +637,26 @@ const TaskTable = (props) => {
             sort: false,
             align: "center",
             customHeadLabelRender: customColumnHead,
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the table's onRowClick
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );                    
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         };
       });
@@ -603,11 +668,10 @@ const TaskTable = (props) => {
           : colList,
       );
       setTasks(data);
-      console.log(data);
     } else {
       setTasks([]);
     }
-  }, [taskList, ProjectDetails]);
+  }, [taskList, ProjectDetails, expandedRow]);
 
   useEffect(() => {
     const newCols = columns.map((col) => {
@@ -747,13 +811,13 @@ const TaskTable = (props) => {
   };
 
   const filtersApplied = areFiltersApplied(selectedFilters);
-  
+
   const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#e0e0e0',
-      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: "#e0e0e0",
+      color: "rgba(0, 0, 0, 0.87)",
       maxWidth: 300,
       fontSize: theme.typography.pxToRem(12),
     },
@@ -761,7 +825,6 @@ const TaskTable = (props) => {
       color: "#e0e0e0",
     },
   }));
-  
 
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
@@ -935,32 +998,72 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <div style={{ display: "inline-block", position: "relative" }} onClick={handleShowFilter}>
-        {filtersApplied && (
-          <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />
-        )}
+        <div
+          style={{ display: "inline-block", position: "relative" }}
+          onClick={handleShowFilter}
+        >
+          {filtersApplied && (
+            <InfoIcon
+              color="primary"
+              fontSize="small"
+              sx={{ position: "absolute", top: -4, right: -4 }}
+            />
+          )}
 
-         <CustomTooltip
-        title={
-          filtersApplied ? (
-            <Box sx={{ padding: '5px', maxWidth: '300px', fontSize: '12px', display: "flex", flexDirection: "column", gap: "5px" }}>
-              {selectedFilters.annotation_status && <div><strong>Annotation Status:</strong> {selectedFilters.annotation_status}</div>}
-              {selectedFilters.review_status && <div><strong>Review Status:</strong> {selectedFilters.review_status}</div>}
-              {selectedFilters.req_user !== -1 && <div><strong>Assigned User:</strong> {selectedFilters.req_user}</div>}
-              {pull !== "All" && <div><strong>Pull Status:</strong> {pull}</div>}
-              {rejected && <div><strong>Rejected:</strong> {rejected ? "Yes" : "No"}</div>}
-            </Box>
-          ) : (
-            <span style={{ fontFamily: 'Roboto, sans-serif' }}>Filter Table</span>
-          )
-        }
-        disableInteractive
-      >
-        <Button sx={{ position: "relative" }}>
-          <FilterListIcon sx={{ color: '#515A5A' }} />
-        </Button>
-      </CustomTooltip>
-      </div>
+          <CustomTooltip
+            title={
+              filtersApplied ? (
+                <Box
+                  sx={{
+                    padding: "5px",
+                    maxWidth: "300px",
+                    fontSize: "12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "5px",
+                  }}
+                >
+                  {selectedFilters.annotation_status && (
+                    <div>
+                      <strong>Annotation Status:</strong>{" "}
+                      {selectedFilters.annotation_status}
+                    </div>
+                  )}
+                  {selectedFilters.review_status && (
+                    <div>
+                      <strong>Review Status:</strong>{" "}
+                      {selectedFilters.review_status}
+                    </div>
+                  )}
+                  {selectedFilters.req_user !== -1 && (
+                    <div>
+                      <strong>Assigned User:</strong> {selectedFilters.req_user}
+                    </div>
+                  )}
+                  {pull !== "All" && (
+                    <div>
+                      <strong>Pull Status:</strong> {pull}
+                    </div>
+                  )}
+                  {rejected && (
+                    <div>
+                      <strong>Rejected:</strong> {rejected ? "Yes" : "No"}
+                    </div>
+                  )}
+                </Box>
+              ) : (
+                <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                  Filter Table
+                </span>
+              )
+            }
+            disableInteractive
+          >
+            <Button sx={{ position: "relative" }}>
+              <FilterListIcon sx={{ color: "#515A5A" }} />
+            </Button>
+          </CustomTooltip>
+        </div>
       </Box>
     );
   };
@@ -979,25 +1082,30 @@ const TaskTable = (props) => {
       />
     );
   };
-  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+  const CustomFooter = ({
+    count,
+    page,
+    rowsPerPage,
+    changeRowsPerPage,
+    changePage,
+  }) => {
     return (
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap", 
-          justifyContent: { 
-            xs: "space-between", 
-            md: "flex-end" 
-          }, 
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end",
+          },
           alignItems: "center",
           padding: "10px",
-          gap: { 
-            xs: "10px", 
-            md: "20px" 
-          }, 
+          gap: {
+            xs: "10px",
+            md: "20px",
+          },
         }}
       >
-  
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -1008,21 +1116,24 @@ const TaskTable = (props) => {
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
             "& .MuiTablePagination-actions": {
-            marginLeft: "0px",
-          },
-          "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-            marginRight: "10px",
-          },
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
+              {
+                marginRight: "10px",
+              },
           }}
         />
-  
+
         {/* Jump to Page */}
         <div>
-          <label style={{ 
-            marginRight: "5px", 
-            fontSize:"0.83rem", 
-          }}>
-          Jump to Page:
+          <label
+            style={{
+              marginRight: "5px",
+              fontSize: "0.83rem",
+            }}
+          >
+            Jump to Page:
           </label>
           <Select
             value={page + 1}
@@ -1043,7 +1154,10 @@ const TaskTable = (props) => {
       </Box>
     );
   };
-  
+  const handleRowClick = (rowIndex) => {
+    setExpandedRow(expandedRow === rowIndex ? null : rowIndex);
+  };
+
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,
@@ -1097,7 +1211,8 @@ const TaskTable = (props) => {
         changePage={changePage}
       />
     ),
-
+    rowHover: false, // Disable default row hover
+    onRowClick: null,
   };
 
   if (typeof window !== "undefined") {
@@ -1118,6 +1233,7 @@ const TaskTable = (props) => {
       window.alert("Invalid credentials, please try again");
     }
   };
+
   return (
     <div>
       {((props.type === "annotation" &&
@@ -1347,10 +1463,16 @@ const TaskTable = (props) => {
         ))}
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
+          key={`table-${displayWidth}`}
           title={""}
           data={tasks}
           columns={columns}
-          options={options}
+          options={{
+            ...options,
+            tableBodyHeight: `${
+              typeof window !== "undefined" ? window.innerHeight - 200 : 400
+            }px`,
+          }}
           // filter={false}
         />
       </ThemeProvider>
