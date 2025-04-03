@@ -18,12 +18,6 @@ import {
 } from "@mui/material";
 import "../model_response_evaluation/model_response_evaluation.css";
 import { Paper } from "@mui/material";
-import Divider from "@mui/material/Divider";
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MenuIcon from "@mui/icons-material/Menu";
 import { translate } from "@/config/localisation";
@@ -31,8 +25,32 @@ import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
+import Drawer from "@mui/material/Drawer";
 
-// import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import List from "@mui/material/List";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import { styled, useTheme } from "@mui/material/styles";
+import Slide from "@mui/material/Slide";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+
+const drawerWidth = 477;
+
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(({
+  theme,
+  open,
+}) => {
+  return {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: open ? `${drawerWidth}px` : 0,
+  };
+});
 
 const PreferenceRanking = ({
   key,
@@ -56,7 +74,6 @@ const PreferenceRanking = ({
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
-  console.log("questions that were fetched: " + typeof questions);
   const toggleLeftPanel = () => {
     setLeftPanelVisible(!leftPanelVisible);
   };
@@ -65,6 +82,27 @@ const PreferenceRanking = ({
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
+  const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const [drawerPosition, setDrawerPosition] = useState({ top: 0, left: 0 });
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const toggleDrawer = (newOpen) => (event) => {
+    // Get menu icon's position
+    const menuIconElement = event.currentTarget.getBoundingClientRect();
+    setDrawerPosition({
+      top: menuIconElement.top + window.scrollY + 20,
+      left: menuIconElement.left + window.scrollX,
+    });
+    setOpen(newOpen);
+  };
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
@@ -92,7 +130,6 @@ const PreferenceRanking = ({
 
       setForms(forms.length > 0 ? forms : []);
       setIsFormsInitialized(forms.length > 0);
-      console.log("Parsed Forms:", forms, "jack", "1");
       return forms;
     }
     setForms([]);
@@ -102,7 +139,6 @@ const PreferenceRanking = ({
 
   useEffect(() => {
     setForms(parsedForms);
-    console.log("Forms updated:", parsedForms);
   }, [parsedForms, setForms]);
 
   const handleReset = () => {
@@ -129,15 +165,13 @@ const PreferenceRanking = ({
     } catch (error) {
       console.error("Error fetching interactions:", error);
     }
-    console.log("jack", "2");
   }, [taskId]);
 
   useEffect(() => {
     fetchInteractions();
   }, [fetchInteractions]);
-  useEffect(() => {
-    console.log("kkk", interactions.length, forms?.length);
 
+  useEffect(() => {
     if (forms?.length == 0 && interactions?.length > 0) {
       const initialForms = interactions?.map((interaction) => {
         const modelResponses = interaction?.model_responses_json
@@ -161,10 +195,7 @@ const PreferenceRanking = ({
           additional_note: interaction?.additional_note,
         };
       });
-
-      console.log("init forms: ", initialForms);
       setForms(initialForms);
-      console.log("jack", "3");
     }
   }, [forms, interactions, taskId]);
 
@@ -179,10 +210,8 @@ const PreferenceRanking = ({
       const currentForm = forms?.find(
         (form) => form?.prompt_output_pair_id == defaultFormId,
       );
-      console.log("forms", currentForm);
 
       if (currentForm) {
-        console.log("current form: " + JSON.stringify(currentForm));
         const modelResponses = currentForm?.model_responses_json?.map(
           (modelResponse) => {
             return {
@@ -209,10 +238,8 @@ const PreferenceRanking = ({
           additional_note: currentForm?.additional_note || "",
         };
         setCurrentInteraction(newState);
-        console.log(currentInteraction, "new");
       }
     }
-    console.log("jack", "4");
   }, [
     forms,
     setForms,
@@ -230,20 +257,11 @@ const PreferenceRanking = ({
         !form?.model_responses_json ||
         form.model_responses_json.length === 0
       ) {
-        console.log(
-          `Form #${formIndex + 1} has no model responses or is empty.`,
-        );
         return false;
       }
 
       const formAnswered = form.model_responses_json.every(
         (modelResponse, modelIndex) => {
-          console.log(
-            `Checking modelResponse #${modelIndex + 1} for model ${
-              modelResponse.model_name
-            } in Form #${formIndex + 1}`,
-          );
-
           const allMandatoryAnswered = questions.every(
             (question, questionIndex) => {
               let expectedParts = 0;
@@ -260,11 +278,6 @@ const PreferenceRanking = ({
                 );
 
               if (!responseForQuestion?.response) {
-                console.log(
-                  `Question #${questionIndex + 1} in model ${
-                    modelResponse.model_name
-                  } is unanswered or missing response`,
-                );
                 return false; // If the question is not answered, return false
               }
 
@@ -275,11 +288,6 @@ const PreferenceRanking = ({
                   (response) => response === "" || response === undefined,
                 );
                 if (!isCorrectLength || !hasNoEmptyResponse) {
-                  console.log(
-                    `Fill-in-the-blanks question #${
-                      questionIndex + 1
-                    } not fully answered in model ${modelResponse.model_name}`,
-                  );
                   return false;
                 }
                 return true;
@@ -290,32 +298,16 @@ const PreferenceRanking = ({
                 !responseForQuestion.response.some(
                   (response) => response === "" || response === undefined,
                 );
-
-              if (!hasValidResponse) {
-                console.log(
-                  `Question #${
-                    questionIndex + 1
-                  } has invalid response in model ${modelResponse.model_name}`,
-                );
-              }
-
               return hasValidResponse;
             },
-          );
-
-          console.log(
-            `All mandatory questions answered for model ${modelResponse.model_name}: ${allMandatoryAnswered}`,
           );
           return allMandatoryAnswered; // If any model response doesn't pass, this will be false
         },
       );
-
-      console.log(`Form #${formIndex + 1} fully answered: ${formAnswered}`);
       return formAnswered;
     });
 
     const allFormsAnswered = formStatuses.every((status) => status === true);
-    console.log("All forms answered:", allFormsAnswered);
 
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
@@ -330,7 +322,6 @@ const PreferenceRanking = ({
     },
     responseBox: {
       flex: "1 1 45%",
-      // minWidth: "300px",
       width: "100%",
       overflow: "auto",
       border: "1px solid #ccc",
@@ -342,9 +333,10 @@ const PreferenceRanking = ({
     },
     response1Box: {
       flex: "1 1 45%",
-      // minWidth: "300px",
       width: "100%",
-      overflow: "auto",
+      whiteSpace: "normal",
+      wordWrap: "break-word",
+      overflowY: "hidden",
       border: "1px solid #ccc",
       padding: "10px",
       fontSize: "17px",
@@ -400,7 +392,6 @@ const PreferenceRanking = ({
 
   const handleMCQ = (event, selectedOption, interactionIndex, outputIdx) => {
     const answerArray = [String(selectedOption)];
-    console.log(selectedOption);
 
     setCurrentInteraction((prev) => {
       const updatedModelResponses = prev?.model_responses_json?.map(
@@ -449,9 +440,7 @@ const PreferenceRanking = ({
     interactionIndex,
     outputIdx,
   ) => {
-    console.log("checked: " + isChecked);
     const selectedQuestion = questions[interactionIndex];
-    console.log(interactionIndex, selectedQuestion);
 
     setCurrentInteraction((prev) => {
       const updatedModelResponses = prev?.model_responses_json?.map(
@@ -498,7 +487,6 @@ const PreferenceRanking = ({
     });
   };
 
-  console.log(interactions);
   const handleOptionChange = (selectedIndex, answer) => {
     setCurrentInteraction((prev) => {
       const newAnswers = questions?.map((question, i) => {
@@ -529,10 +517,6 @@ const PreferenceRanking = ({
     });
   };
 
-  console.log(currentInteraction);
-  console.log(interactions);
-  console.log(forms);
-
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
     setCurrentInteraction((prev) => {
@@ -557,15 +541,13 @@ const PreferenceRanking = ({
     const markdownString = lines?.join("  \n");
     return markdownString;
   };
-  console.log(forms);
+
   const handleFormBtnClick = (e) => {
     setclickedPromptOutputPairId(e.target.id);
-    console.log(clickedPromptOutputPairId, forms);
     const currInteraction = forms?.find(
       (interaction) =>
         interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
-    console.log(currInteraction);
     const modelResponses = currInteraction?.model_responses_json?.map(
       (modelResponse) => {
         return {
@@ -594,9 +576,8 @@ const PreferenceRanking = ({
       });
     }
   };
-  const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
-    console.log(outputIdx);
 
+  const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
     const { value } = e.target;
 
     setCurrentInteraction((prev) => {
@@ -643,45 +624,60 @@ const PreferenceRanking = ({
       return updatedInteraction;
     });
   };
+
   const EvaluationForm = () => {
     return (
       <div className={classes.rightPanel}>
-        <div className={classes.promptContainer} style={{ overflowY: "auto" }}>
-          <div className={classes.heading} style={{ fontSize: "20px" }}>
-            {translate("modal.prompt")}
-          </div>
-          <div style={styles.response1Box}>
-            <ReactMarkdown>
-              {formatPrompt(currentInteraction?.prompt)}
-            </ReactMarkdown>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-            flexWrap: "wrap",
-          }}
-          className={classes.outputWrpr}
-        >
-          {currentInteraction?.model_responses_json?.map(
-            (response, outputIdx) => (
-              <div key={outputIdx} style={{ flex: 1, width: "100%" }}>
-                <div className={classes.heading} style={{ fontSize: "20px" }}>
-                  {translate("modal.output")}-{`${outputIdx + 1}`}
-                </div>
-                <div style={styles.responseBox}>
-                  {/* {Object.keys(response).map((key) => ( */}
-                  <div>
-                    <h3 style={{ fontWeight: "700" }}>{response.model_name}</h3>
-                    <p>{response?.output}</p>
-                  </div>
-                </div>
+        <Accordion defaultExpanded>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1-content"
+            id="panel1-header"
+          >
+            <div className={classes.promptContainer}>
+              <div className={classes.heading} style={{ fontSize: "20px" }}>
+                {translate("modal.prompt")}
               </div>
-            ),
-          )}
-        </div>
+              <div style={styles.response1Box}>
+                <ReactMarkdown>
+                  {formatPrompt(currentInteraction?.prompt)}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div
+              style={{
+                display: "flex",
+                gap: "20px",
+                flexWrap: "wrap",
+              }}
+              className={classes.outputWrpr}
+            >
+              {currentInteraction?.model_responses_json?.map(
+                (response, outputIdx) => (
+                  <div key={outputIdx} style={{ flex: 1, width: "100%" }}>
+                    <div
+                      className={classes.heading}
+                      style={{ fontSize: "20px" }}
+                    >
+                      {translate("modal.output")}-{`${outputIdx + 1}`}
+                    </div>
+                    <div style={styles.responseBox}>
+                      <div>
+                        <h3 style={{ fontWeight: "700" }}>
+                          {response.model_name}
+                        </h3>
+                        <p>{response?.output}</p>
+                      </div>
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          </AccordionDetails>
+        </Accordion>
+
         <hr
           style={{
             width: "100%",
@@ -1116,18 +1112,17 @@ const PreferenceRanking = ({
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "nowrap" : "nowrap",
+                    whiteSpace: expanded[index] ? "normal" : "nowrap", // Allow wrapping when expanded
                     maxWidth: "200px",
                     maxHeight: "3.5rem",
-                    display: "flex",
-                    flexDirection: "row",
+                    display: "block", // Change from flex to block for ellipsis to work
                     position: "relative",
                     border: "none",
                   }}
                   className={classes.promptTile}
                 >
                   {pair?.prompt}
-                  {expanded[index] && (
+                  {
                     <Tooltip title={pair.prompt} placement="bottom">
                       <span
                         style={{
@@ -1142,7 +1137,7 @@ const PreferenceRanking = ({
                         {pair.text}
                       </span>
                     </Tooltip>
-                  )}
+                  }
                 </Box>
               </AccordionSummary>
               <AccordionDetails style={{ display: "block", cursor: "pointer" }}>
@@ -1185,31 +1180,19 @@ const PreferenceRanking = ({
 
   const InteractionDisplay = () => {
     return (
-      // <Resizable
-      //   defaultSize={{
-      //     width: "100%",
-      //   }}
-      //   // maxWidth={"70%"}
-      //   enable={{ right: false, top: false, bottom: true, left: false }}
-      // >
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
+          minHeight: "60%",
         }}
       >
-        <div
-          className={classes.heading}
-          style={{ fontSize: "20px", padding: "0", marginLeft: "2rem" }}
-        >
-          {translate("modal.interact")}
-        </div>
         <Paper
           className={classes.interactionWindow}
           style={{
             border: "none",
-            backgroundColor: "#F6F6F6",
+            // backgroundColor: "#F6F6F6",
             display: "flex",
             flexDirection: "row",
           }}
@@ -1218,12 +1201,7 @@ const PreferenceRanking = ({
             <PairAccordion pairs={interactions} classes={classes} />
           )}
         </Paper>
-        {/* <div className={classes.heading} style={{ margin: "1.5rem 0 0.5rem 1.5rem", fontSize: "20px" }}>
-          {translate("modal.quelist")}
-        </div>
-        <QuestionList questions={questions} /> */}
       </div>
-      // </Resizable>
     );
   };
 
@@ -1240,27 +1218,78 @@ const PreferenceRanking = ({
           alignItems: "center",
         }}
       >
-        <div style={{ width: "100%", padding: "1rem 0rem 0rem 1.5rem" }}>
-          <IconButton onClick={toggleLeftPanel}>
+        <div style={{ width: "100%" }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                mr: 2,
+              },
+              open && { display: "none" },
+            ]}
+          >
             <MenuIcon />
           </IconButton>
+          <Slide
+            direction="right"
+            in={open}
+            mountOnEnter
+            unmountOnExit
+            timeout={{ enter: 300, exit: 200 }}
+          >
+            <Drawer
+              sx={{
+                width: "50%",
+                flexShrink: 0,
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                },
+                position: "absolute",
+              }}
+              variant="persistent"
+              anchor="left"
+              transitionDuration={0}
+              open={open}
+              onClose={toggleDrawer(false)}
+              ModalProps={{
+                keepMounted: true,
+              }}
+              PaperProps={{
+                style: {
+                  position: "absolute",
+                  top: drawerPosition.top,
+                  left: drawerPosition.left,
+                  width: "50%",
+                  height: "auto",
+                  maxHeight: "80vh",
+                  overflow: "auto",
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "20px 1rem",
+                }}
+              >
+                <Typography className={classes.heading}>
+                  {translate("modal.interact")}
+                </Typography>
+                <ChevronLeftIcon onClick={handleDrawerClose} />
+              </Box>
+              <List>
+                <InteractionDisplay />
+              </List>
+            </Drawer>
+          </Slide>
         </div>
-        <div className={classes.leftPanel}>
-          {leftPanelVisible && <InteractionDisplay />}
-        </div>
-
-        {leftPanelVisible && (
-          <Divider
-            variant="middle"
-            style={{
-              width: "95%",
-              // padding: "0 2rem 0 2rem",
-              backgroundColor: "black",
-            }}
-          />
-        )}
-
-        {EvaluationForm()}
+        <Main open={open}>{EvaluationForm()}</Main>
       </div>
     </>
   );
