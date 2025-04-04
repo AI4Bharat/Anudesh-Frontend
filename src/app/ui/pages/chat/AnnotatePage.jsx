@@ -223,10 +223,11 @@ const AnnotatePage = () => {
 
   useEffect(() => {
     if (
-      typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
+      console.log(annotationNotesRef.current,reviewNotesRef.current,AnnotationsTaskDetails,"notes");
+
       if (
         AnnotationsTaskDetails &&
         AnnotationsTaskDetails.length > 0 &&
@@ -237,6 +238,7 @@ const AnnotatePage = () => {
         annotationNotesRef.current.getEditor && 
         annotationNotesRef.current.getEditor()
       ) {
+        
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
         reviewNotesRef.current.value =
@@ -273,7 +275,6 @@ const AnnotatePage = () => {
   }, [AnnotationsTaskDetails]);
   const resetNotes = () => {
     if (
-      typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
