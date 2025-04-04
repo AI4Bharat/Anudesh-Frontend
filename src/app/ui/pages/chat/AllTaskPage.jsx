@@ -30,7 +30,7 @@ import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking"
 
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
