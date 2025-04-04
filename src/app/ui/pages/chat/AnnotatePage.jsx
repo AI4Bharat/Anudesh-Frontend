@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, memo } from "react";
+import { useState, useRef, useEffect, memo  } from "react";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
@@ -31,16 +31,15 @@ import ModelInteractionEvaluation from "../model_response_evaluation/model_respo
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 
 // eslint-disable-next-line react/display-name
-const ReactQuill = dynamic(
+const ReactQuill =  dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
   {
     ssr: false,
-  },
-);
+  })
 
 const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
@@ -227,6 +226,7 @@ const AnnotatePage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
+
       if (
         AnnotationsTaskDetails &&
         AnnotationsTaskDetails.length > 0 &&
