@@ -34,8 +34,22 @@ import Slide from "@mui/material/Slide";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import Rating from "@mui/material/Rating";
+import StarIcon from "@mui/icons-material/Star";
+import Slider from "@mui/material/Slider";
+const labels = {
+  1: "Poor",
+  2: "Fair",
+  3: "Good",
+  4: "Very Good",
+  5: "Excellent",
+};
 
-const drawerWidth = 477;
+function getLabelText(value) {
+  return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
+}
+
+const drawerWidth = 300;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(({
   theme,
@@ -85,6 +99,14 @@ const PreferenceRanking = ({
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState({ top: 0, left: 0 });
+  const [hover, setHover] = useState({}); // Changed from -1 to object
+
+  const handleHover = (newHover, outputIdx) => {
+    setHover((prev) => ({
+      ...prev,
+      [outputIdx]: newHover,
+    }));
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -247,6 +269,7 @@ const PreferenceRanking = ({
     interactions,
     setCurrentInteraction,
   ]);
+
   useEffect(() => {
     if (!forms || forms.length === 0) {
       setAnswered(false);
@@ -315,21 +338,15 @@ const PreferenceRanking = ({
   const isMobile = window.innerWidth <= 425;
 
   const styles = {
-    responseContainer: {
-      display: "flex",
-      gap: "20px",
-      flexWrap: "wrap",
-    },
     responseBox: {
       flex: "1 1 45%",
       width: "100%",
       overflow: "auto",
-      border: "1px solid #ccc",
       fontSize: "16px",
-      padding: "10px",
+      padding: "20px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      backgroundColor: "white",
+      backgroundColor: "#FFF1EF",
     },
     response1Box: {
       flex: "1 1 45%",
@@ -337,12 +354,11 @@ const PreferenceRanking = ({
       whiteSpace: "normal",
       wordWrap: "break-word",
       overflowY: "hidden",
-      border: "1px solid #ccc",
-      padding: "10px",
+      padding: "20px",
       fontSize: "17px",
       borderRadius: "8px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      backgroundColor: "white",
+      backgroundColor: "#FFF1EF",
     },
   };
 
@@ -577,9 +593,60 @@ const PreferenceRanking = ({
     }
   };
 
-  const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
-    const { value } = e.target;
+  // const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
+  //   const { value } = e.target;
 
+  //   setCurrentInteraction((prev) => {
+  //     const updatedModelResponses = prev.model_responses_json.map(
+  //       (modelResponse, modelIdx) => {
+  //         if (modelIdx === outputIdx) {
+  //           const updatedQuestionsResponse =
+  //             modelResponse.questions_response.map((q, index) => {
+  //               if (index === interactionIndex) {
+  //                 const updatedBlankAnswers = q?.response
+  //                   ? [...q.response]
+  //                   : [];
+  //                 updatedBlankAnswers[blankIndex] = value;
+  //                 return {
+  //                   ...q,
+  //                   response: updatedBlankAnswers,
+  //                 };
+  //               }
+  //               return q;
+  //             });
+
+  //           return {
+  //             ...modelResponse,
+  //             questions_response: updatedQuestionsResponse,
+  //           };
+  //         }
+  //         return modelResponse;
+  //       },
+  //     );
+
+  //     const updatedInteraction = {
+  //       ...prev,
+  //       model_responses_json: updatedModelResponses,
+  //     };
+
+  //     setForms((prevForms) =>
+  //       prevForms.map((form) =>
+  //         form.prompt_output_pair_id === prev.prompt_output_pair_id
+  //           ? { ...form, model_responses_json: updatedModelResponses }
+  //           : form,
+  //       ),
+  //     );
+
+  //     return updatedInteraction;
+  //   });
+  // };
+
+  const handleSliderChange = (
+    newValue,
+    interactionIndex,
+    blankIndex,
+    outputIdx,
+  ) => {
     setCurrentInteraction((prev) => {
       const updatedModelResponses = prev.model_responses_json.map(
         (modelResponse, modelIdx) => {
@@ -590,7 +657,7 @@ const PreferenceRanking = ({
                   const updatedBlankAnswers = q?.response
                     ? [...q.response]
                     : [];
-                  updatedBlankAnswers[blankIndex] = value;
+                  updatedBlankAnswers[blankIndex] = newValue; // Use newValue directly from slider
                   return {
                     ...q,
                     response: updatedBlankAnswers,
@@ -613,6 +680,7 @@ const PreferenceRanking = ({
         model_responses_json: updatedModelResponses,
       };
 
+      // Update forms state to maintain sync
       setForms((prevForms) =>
         prevForms.map((form) =>
           form.prompt_output_pair_id === prev.prompt_output_pair_id
@@ -628,7 +696,14 @@ const PreferenceRanking = ({
   const EvaluationForm = () => {
     return (
       <div className={classes.rightPanel}>
-        <Accordion defaultExpanded>
+        <Accordion
+          defaultExpanded
+          sx={{
+            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+            borderRadius: "20px",
+            marginBottom: "2rem",
+          }}
+        >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
@@ -678,14 +753,6 @@ const PreferenceRanking = ({
           </AccordionDetails>
         </Accordion>
 
-        <hr
-          style={{
-            width: "100%",
-            marginTop: "1rem",
-            border: "1px solid #ccc",
-            marginBottom: "1rem",
-          }}
-        />
         {questions?.map((question, questionIdx) => (
           <div key={questionIdx}>
             <div style={{ overflowY: "auto", maxHeight: "90vh" }}>
@@ -745,40 +812,70 @@ const PreferenceRanking = ({
                           .split("<blank>")
                           .slice(0, -1)
                           .map((_, index) => (
-                            <input
+                            // <input
+                            // key={`${outputIdx}-${index}`}
+                            // type="text"
+                            // value={
+                            // (currentInteraction?.model_responses_json &&
+                            // currentInteraction?.model_responses_json[
+                            // outputIdx
+                            // ]?.questions_response[questionIdx]
+                            // ?.response?.[index]) ||
+                            // ""
+                            // }
+                            // onChange={(e) =>
+                            // handleInputChange(
+                            // e,
+                            // questionIdx,
+                            // index,
+                            // outputIdx,
+                            // )
+                            // }
+                            // style={{
+                            // border: "1px solid #ccc",
+                            // borderRadius: "4px",
+                            // padding: "4px",
+                            // fontSize: "14px",
+                            // lineHeight: "1.5",
+                            // width: "100%",
+                            // maxWidth: "200px",
+                            // margin: "4px 0",
+                            // boxSizing: "border-box",
+                            // backgroundColor: "white",
+                            // fontWeight: "normal",
+                            // marginRight: "5px",
+                            // }}
+                            // required
+                            // />
+                            <Slider
+                              color="warning"
+                              valueLabelDisplay="auto"
                               key={`${outputIdx}-${index}`}
-                              type="text"
                               value={
                                 (currentInteraction?.model_responses_json &&
                                   currentInteraction?.model_responses_json[
                                     outputIdx
                                   ]?.questions_response[questionIdx]
                                     ?.response?.[index]) ||
-                                ""
+                                0 // Default value for the slider
                               }
-                              onChange={(e) =>
-                                handleInputChange(
-                                  e,
+                              onChange={(e, newValue) =>
+                                handleSliderChange(
+                                  newValue,
                                   questionIdx,
                                   index,
                                   outputIdx,
                                 )
                               }
+                              aria-labelledby={`slider-${outputIdx}-${index}`}
+                              min={0} // Minimum slider value
+                              max={100} // Maximum slider value (adjust as per your use case)
+                              step={1} // Step size for slider movement
                               style={{
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                padding: "4px",
-                                fontSize: "14px",
-                                lineHeight: "1.5",
-                                width: "100%",
-                                maxWidth: "200px",
                                 margin: "4px 0",
-                                boxSizing: "border-box",
-                                backgroundColor: "white",
-                                fontWeight: "normal",
+                                width: "200px", // Adjust width as needed
                                 marginRight: "5px",
                               }}
-                              required
                             />
                           ))}
                       </div>
@@ -812,7 +909,7 @@ const PreferenceRanking = ({
                           >
                             {response?.model_name}
                           </Typography>
-                          {Array.from(
+                          {/* {Array.from(
                             { length: question.rating_scale_list.length },
                             (_, index) => (
                               <Button
@@ -846,7 +943,55 @@ const PreferenceRanking = ({
                                 required
                               />
                             ),
-                          )}
+                          )} */}
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            {/* MUI Rating Component */}
+                            <Rating
+                              name={`rating-${outputIdx}`}
+                              value={
+                                currentInteraction?.model_responses_json &&
+                                currentInteraction?.model_responses_json[
+                                  outputIdx
+                                ].questions_response[questionIdx]?.response[0]
+                              }
+                              getLabelText={getLabelText}
+                              onChange={(event, newValue) => {
+                                handleRating(newValue, questionIdx, outputIdx);
+                              }}
+                              onChangeActive={(event, newHover) => {
+                                handleHover(newHover, outputIdx);
+                              }}
+                              sx={{
+                                color: "#ee6633",
+                                "& .MuiRating-iconFilled": {
+                                  color: "#ee6633",
+                                },
+                                "& .MuiRating-iconHover": {
+                                  color: "#ee6633",
+                                },
+                              }}
+                              emptyIcon={
+                                <StarIcon
+                                  style={{ opacity: 0.55, color: "#EE6633" }}
+                                  fontSize="inherit"
+                                />
+                              }
+                            />
+                            {/* Display label for hover or selected value */}
+                            <Box sx={{ ml: 2, color: "#EE6633", fontWeight: "bold" }}>
+                              {
+                                labels[
+                                  hover[outputIdx] !== undefined
+                                    ? hover[outputIdx]
+                                    : currentInteraction?.model_responses_json &&
+                                      currentInteraction?.model_responses_json[
+                                        outputIdx
+                                      ].questions_response[questionIdx]
+                                        ?.response[0]
+                                ]
+                              }
+                            </Box>
+                          </Box>
                         </Box>
                       </div>
                     ),
@@ -1163,11 +1308,10 @@ const PreferenceRanking = ({
                   <Button
                     label="Reset"
                     buttonVariant={"outlined"}
-                    style={{
-                      marginLeft: "1.5rem",
-                      marginTop: "1rem",
-                    }}
                     onClick={handleReset}
+                    style={{
+                      marginTop: "1rem"
+                    }}
                   />
                 </Box>
               </AccordionDetails>
@@ -1238,17 +1382,17 @@ const PreferenceRanking = ({
             in={open}
             mountOnEnter
             unmountOnExit
-            timeout={{ enter: 300, exit: 200 }}
+            timeout={{ enter: 700, exit: 500 }}
           >
             <Drawer
               sx={{
-                width: "50%",
+                width: "30%",
                 flexShrink: 0,
                 "& .MuiDrawer-paper": {
                   width: drawerWidth,
                   boxSizing: "border-box",
                 },
-                position: "absolute",
+                position: "fixed",
               }}
               variant="persistent"
               anchor="left"
