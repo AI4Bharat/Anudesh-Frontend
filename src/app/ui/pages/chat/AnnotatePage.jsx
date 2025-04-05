@@ -1,6 +1,6 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, memo  } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
@@ -28,10 +28,11 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
 
 // eslint-disable-next-line react/display-name
-const ReactQuill =  dynamic(
+const ReactQuill = dynamic(
   async () => {
     const { default: RQ } = await import("react-quill-new");
 
@@ -39,7 +40,8 @@ const ReactQuill =  dynamic(
   },
   {
     ssr: false,
-  })
+  },
+);
 
 const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
@@ -226,15 +228,14 @@ const AnnotatePage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-
       if (
         AnnotationsTaskDetails &&
         AnnotationsTaskDetails.length > 0 &&
         reviewNotesRef.current &&
-        reviewNotesRef.current.getEditor && 
+        reviewNotesRef.current.getEditor &&
         reviewNotesRef.current.getEditor() &&
         annotationNotesRef.current &&
-        annotationNotesRef.current.getEditor && 
+        annotationNotesRef.current.getEditor &&
         annotationNotesRef.current.getEditor()
       ) {
         annotationNotesRef.current.value =
@@ -392,6 +393,20 @@ const AnnotatePage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
+    } else if (
+      ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+    ) {
+      resultValue = forms.map((form) => ({
+        prompt: form.prompt,
+        model_responses_json: form.model_responses_json.map((response) => ({
+          model_name: response.model_name,
+          output: response.output,
+          questions_response: response.questions_response,
+          preferred_output: response.preferred_output,
+        })),
+        prompt_output_pair_id: form.prompt_output_pair_id,
+        additional_note: form.additional_note,
+      }));
     }
 
     setLoading(true);
@@ -427,7 +442,6 @@ const AnnotatePage = () => {
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
-
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -444,6 +458,18 @@ const AnnotatePage = () => {
           return;
         } else if (
           ProjectDetails.project_type == "InstructionDrivenChat" &&
+          chatHistory.length == 0
+        ) {
+          setSnackbarInfo({
+            open: true,
+            message: "Please enter prompt",
+            variant: "error",
+          });
+          setLoading(false);
+          setShowNotes(false);
+          return;
+        } else if (
+          ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat" &&
           chatHistory.length == 0
         ) {
           setSnackbarInfo({
@@ -719,6 +745,30 @@ const AnnotatePage = () => {
         />
       );
       break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          // handleClick={handleAnnotationClick}
+          // chatHistory={chatHistory}
+          // setChatHistory={setChatHistory}
+          // formatResponse={formatResponse}
+          // formatPrompt={formatPrompt}
+          // id={Annotation}
+          // stage={"Annotation"}
+          // notes={annotationNotesRef}
+          // info={info}
+          // disableUpdateButton={disableUpdateButton}
+          // annotation={annotations}
+          // setLoading={setLoading}
+          // loading={loading}
+        />
+      );
+      break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
@@ -744,21 +794,40 @@ const AnnotatePage = () => {
       break;
     case "MultipleInteractionEvaluation":
       componentToRender = (
-        <PreferenceRanking
+        // <PreferenceRanking
+        <MultipleLLMInstructionDrivenChat
+          // key={
+          //   annotations?.length > 0
+          //     ? `annotations-${annotations[0]?.id}`
+          //     : "annotations-default"
+          // }
+          // setCurrentInteraction={setCurrentInteraction}
+          // currentInteraction={currentInteraction}
+          // interactions={interactions}
+          // setInteractions={setInteractions}
+          // forms={forms}
+          // setForms={setForms}
+          // stage={"Annotation"}
+          // answered={answered}
+          // setAnswered={setAnswered}
+          // annotation={annotations}
+          // setLoading={setLoading}
+          // loading={loading}
           key={
             annotations?.length > 0
               ? `annotations-${annotations[0]?.id}`
               : "annotations-default"
           }
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
           stage={"Annotation"}
-          answered={answered}
-          setAnswered={setAnswered}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
@@ -1151,7 +1220,9 @@ const AnnotatePage = () => {
                     </Button>
                   </Tooltip> */}
 
-                  {ProjectDetails?.project_type == "InstructionDrivenChat" ? (
+                  {ProjectDetails?.project_type == "InstructionDrivenChat" ||
+                  ProjectDetails?.project_type ==
+                    "MultipleLLMInstructionDrivenChat" ? (
                     <Tooltip
                       title={
                         <span style={{ fontFamily: "Roboto, sans-serif" }}>

@@ -26,6 +26,7 @@ import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
@@ -1054,6 +1055,27 @@ const ReviewPage = () => {
         />
       );
       break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          // handleClick={handleReviewClick}
+          // chatHistory={chatHistory}
+          // setChatHistory={setChatHistory}
+          // formatResponse={formatResponse}
+          // formatPrompt={formatPrompt}
+          // id={review}
+          // stage={"Review"}
+          // notes={reviewNotesRef}
+          // info={info}
+          // annotation={annotations}
+          // setLoading={setLoading}
+          // loading={loading}
+        />
+      );
+      break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
@@ -1079,21 +1101,37 @@ const ReviewPage = () => {
       break;
     case "MultipleInteractionEvaluation":
       componentToRender = (
-        <PreferenceRanking
-          key={
-            annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
-              : "annotations-default"
-          }
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
-          stage={"Annotation"}
-          answered={answered}
-          setAnswered={setAnswered}
+        // <PreferenceRanking
+        <MultipleLLMInstructionDrivenChat
+        // key={
+        //   annotations?.length > 0
+        //     ? `annotations-${annotations[0]?.id}`
+        //     : "annotations-default"
+        // }
+        //   setCurrentInteraction={setCurrentInteraction}
+        //   currentInteraction={currentInteraction}
+        //   interactions={interactions}
+        //   setInteractions={setInteractions}
+        //   forms={forms}
+        //   setForms={setForms}
+        //   stage={"Annotation"}
+        //   answered={answered}
+        //   setAnswered={setAnswered}
+        //   annotation={annotations}
+        //   setLoading={setLoading}
+        //   loading={loading}
+        key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleReviewClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={review}
+          stage={"Review"}
+          notes={reviewNotesRef}
+          info={info}
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
