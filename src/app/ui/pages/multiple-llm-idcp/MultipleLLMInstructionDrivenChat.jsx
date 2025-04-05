@@ -81,12 +81,8 @@ const viewFullResponseModalStyle = {
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
-  // border: "1px solid #EE6633",
   borderRadius: "20px",
   padding: "2.4rem",
-  // backgroundColor: "#FEF0EF",
-  overflowY: "scroll",
-  maxHeight: "60vh",
 };
 
 const MultipleLLMInstructionDrivenChat = ({
@@ -463,6 +459,7 @@ const MultipleLLMInstructionDrivenChat = ({
             borderRadius: "0.5rem",
             position: "relative",
             width: "100%",
+            marginBottom: "1.5rem"
           }}
         >
           <Grid container alignItems="center" spacing={2}>
@@ -565,7 +562,6 @@ const MultipleLLMInstructionDrivenChat = ({
             width: "100%",
             padding: "1.5rem",
             borderRadius: "0.5rem",
-            paddingTop: "3rem",
           }}
         >
           <Grid container alignItems="start" spacing={2}>
@@ -586,7 +582,6 @@ const MultipleLLMInstructionDrivenChat = ({
                 display: "flex",
                 justifyContent: "space-between",
                 minWidth: `90%`,
-                paddingBottom: "3rem",
               }}
             >
               {/* {message?.output.map((segment, index) =>
@@ -722,6 +717,8 @@ const MultipleLLMInstructionDrivenChat = ({
                       <Typography
                         sx={{
                           fontSize: "1.2rem",
+                          maxHeight: "60vh",
+                          overflowY: "scroll"
                         }}
                       >
                         {message.response.output1}
@@ -757,7 +754,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 sx={{
                   border: "1px solid #ccc",
                   width: "60%",
-                  marginLeft: "10px",
+                  marginLeft: "2rem",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
@@ -821,6 +818,8 @@ const MultipleLLMInstructionDrivenChat = ({
                       <Typography
                         sx={{
                           fontSize: "1.2rem",
+                          maxHeight: "60vh",
+                          overflowY: "scroll"
                         }}
                       >
                         {message.response.output2}
@@ -871,14 +870,14 @@ const MultipleLLMInstructionDrivenChat = ({
               alignItems: "center",
             }}
           >
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <span>Which response do you like better?</span>
               <Button
                 variant="contained"
                 onClick={() => handleOptionClick("Model A")}
                 sx={{
                   backgroundColor:
-                    selectedOption === "Model A" ? "#EE6633" : "#F3F6F9", // Highlight selected button
+                    selectedOption === "Model A" ? "#EE6633" : "#FFFFFF", // Highlight selected button
                   color: selectedOption === "Model A" ? "#FFF" : "#000", // Adjust text color
                   borderRadius: "8px",
                   padding: "0.5rem 1rem",
@@ -896,7 +895,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 onClick={() => handleOptionClick("Model B")}
                 sx={{
                   backgroundColor:
-                    selectedOption === "Model B" ? "#EE6633" : "#F3F6F9", // Highlight selected button
+                    selectedOption === "Model B" ? "#EE6633" : "#FFFFFF", // Highlight selected button
                   color: selectedOption === "Model B" ? "#FFF" : "#000", // Adjust text color
                   borderRadius: "8px",
                   padding: "0.5rem 1rem",
@@ -1136,7 +1135,6 @@ const MultipleLLMInstructionDrivenChat = ({
                     lg: "2rem", // Extra-large screens (desktops)
                   },
                   fontWeight: "800",
-                  // marginRight: "0.5rem",
                 }}
               >
                 {translate("typography.instructions")}
@@ -1167,7 +1165,6 @@ const MultipleLLMInstructionDrivenChat = ({
                 height: "auto",
                 display: "flex",
                 alignItems: "center",
-                // alignItems: "flex-start",
                 justifyContent: "center",
               }}
             >
@@ -1216,7 +1213,6 @@ const MultipleLLMInstructionDrivenChat = ({
               <Textarea
                 // handleButtonClick={handleButtonClick}
                 handleOnchange={handleOnchange}
-                // grid_size={"100vw"}
                 size={12}
                 sx={{
                   width: "100vw",
