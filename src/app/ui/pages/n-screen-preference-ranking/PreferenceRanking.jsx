@@ -30,7 +30,6 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { styled, useTheme } from "@mui/material/styles";
-import Slide from "@mui/material/Slide";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -49,7 +48,7 @@ function getLabelText(value) {
   return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
 }
 
-const drawerWidth = 300;
+const drawerWidth = 10;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(({
   theme,
@@ -978,18 +977,33 @@ const PreferenceRanking = ({
                               }
                             />
                             {/* Display label for hover or selected value */}
-                            <Box sx={{ ml: 2, color: "#EE6633", fontWeight: "bold" }}>
-                              {
-                                labels[
-                                  hover[outputIdx] !== undefined
-                                    ? hover[outputIdx]
-                                    : currentInteraction?.model_responses_json &&
-                                      currentInteraction?.model_responses_json[
-                                        outputIdx
-                                      ].questions_response[questionIdx]
-                                        ?.response[0]
-                                ]
-                              }
+                            <Box
+                              sx={{
+                                ml: 2,
+                                color: "#EE6633",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {(() => {
+                                const hoverValue = hover[outputIdx];
+                                const fallbackValue =
+                                  currentInteraction?.model_responses_json?.[
+                                    outputIdx
+                                  ]?.questions_response?.[questionIdx]
+                                    ?.response?.[0];
+
+                                // Render label only if either hoverValue or fallbackValue is valid
+                                if (hoverValue !== undefined) {
+                                  return labels[hoverValue];
+                                } else if (
+                                  fallbackValue !== undefined &&
+                                  hoverValue === undefined
+                                ) {
+                                  return labels[fallbackValue];
+                                } else {
+                                  return null; // Render nothing if both are invalid
+                                }
+                              })()}
                             </Box>
                           </Box>
                         </Box>
@@ -1257,10 +1271,10 @@ const PreferenceRanking = ({
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "normal" : "nowrap", // Allow wrapping when expanded
+                    whiteSpace: expanded[index] ? "normal" : "normal",
                     maxWidth: "200px",
                     maxHeight: "3.5rem",
-                    display: "block", // Change from flex to block for ellipsis to work
+                    display: "block",
                     position: "relative",
                     border: "none",
                   }}
@@ -1310,7 +1324,7 @@ const PreferenceRanking = ({
                     buttonVariant={"outlined"}
                     onClick={handleReset}
                     style={{
-                      marginTop: "1rem"
+                      marginTop: "1rem",
                     }}
                   />
                 </Box>
@@ -1336,7 +1350,6 @@ const PreferenceRanking = ({
           className={classes.interactionWindow}
           style={{
             border: "none",
-            // backgroundColor: "#F6F6F6",
             display: "flex",
             flexDirection: "row",
           }}
@@ -1357,12 +1370,11 @@ const PreferenceRanking = ({
           width: "100%",
           maxwidth: "2300px",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "flex-start",
-          alignItems: "center",
+          alignItems: "start",
         }}
       >
-        <div style={{ width: "100%" }}>
+        <div style={{ width: "50% !important" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -1377,61 +1389,34 @@ const PreferenceRanking = ({
           >
             <MenuIcon />
           </IconButton>
-          <Slide
-            direction="right"
-            in={open}
-            mountOnEnter
-            unmountOnExit
-            timeout={{ enter: 700, exit: 500 }}
-          >
-            <Drawer
-              sx={{
-                width: "30%",
-                flexShrink: 0,
-                "& .MuiDrawer-paper": {
-                  width: drawerWidth,
-                  boxSizing: "border-box",
-                },
-                position: "fixed",
-              }}
-              variant="persistent"
-              anchor="left"
-              transitionDuration={0}
-              open={open}
-              onClose={toggleDrawer(false)}
-              ModalProps={{
-                keepMounted: true,
-              }}
-              PaperProps={{
-                style: {
-                  position: "absolute",
-                  top: drawerPosition.top,
-                  left: drawerPosition.left,
-                  width: "50%",
-                  height: "auto",
-                  maxHeight: "80vh",
-                  overflow: "auto",
-                },
-              }}
-            >
+          {open && (
+            <>
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "20px 1rem",
+                  border: "1px solid #E1E1E0",
+                  width: "100% !important",
+                  minWidth: "100% !important",
                 }}
               >
-                <Typography className={classes.heading}>
-                  {translate("modal.interact")}
-                </Typography>
-                <ChevronLeftIcon onClick={handleDrawerClose} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "20px 1rem",
+                  }}
+                >
+                  <Typography className={classes.heading}>
+                    {translate("modal.interact")}
+                  </Typography>
+                  <ChevronLeftIcon onClick={handleDrawerClose} />
+                </Box>
+                <List>
+                  <InteractionDisplay />
+                </List>
               </Box>
-              <List>
-                <InteractionDisplay />
-              </List>
-            </Drawer>
-          </Slide>
+            </>
+          )}
         </div>
         <Main open={open}>{EvaluationForm()}</Main>
       </div>
