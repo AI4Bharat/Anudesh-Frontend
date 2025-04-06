@@ -35,6 +35,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Rating from "@mui/material/Rating";
 import StarIcon from "@mui/icons-material/Star";
 import Slider from "@mui/material/Slider";
+
 const labels = {
   1: "Poor",
   2: "Fair",
@@ -96,7 +97,6 @@ const PreferenceRanking = ({
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-  const [drawerPosition, setDrawerPosition] = useState({ top: 0, left: 0 });
   const [hover, setHover] = useState({});
   const [selectedRatings, setSelectedRatings] = useState({});
 
@@ -117,15 +117,6 @@ const PreferenceRanking = ({
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-  // const toggleDrawer = (newOpen) => (event) => {
-  //   const menuIconElement = event.currentTarget.getBoundingClientRect();
-  //   setDrawerPosition({
-  //     top: menuIconElement.top + window.scrollY + 20,
-  //     left: menuIconElement.left + window.scrollX,
-  //   });
-  //   setOpen(newOpen);
-  // };
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
@@ -335,8 +326,6 @@ const PreferenceRanking = ({
 
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
-
-  const isMobile = window.innerWidth <= 425;
 
   const styles = {
     responseBox: {
@@ -869,12 +858,12 @@ const PreferenceRanking = ({
                                 )
                               }
                               aria-labelledby={`slider-${outputIdx}-${index}`}
-                              min={0} // Minimum slider value
-                              max={100} // Maximum slider value (adjust as per your use case)
-                              step={1} // Step size for slider movement
+                              min={0} 
+                              max={100}
+                              step={1}
                               style={{
                                 margin: "4px 0",
-                                width: "200px", // Adjust width as needed
+                                width: "200px",
                                 marginRight: "5px",
                               }}
                             />
@@ -989,7 +978,6 @@ const PreferenceRanking = ({
                                   />
                                 }
                               />
-                              {/* Display label for hover or selected value */}
                               <Box
                                 sx={{
                                   ml: 2,
@@ -1279,11 +1267,6 @@ const PreferenceRanking = ({
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: expanded[index] ? "normal" : "no-wrap",
-                    // maxWidth: "200px",
-                    // maxHeight: "3.5rem",
-                    // display: "block",
-                    // position: "relative",
-                    // border: "none",
                   }}
                 >
                   {pair?.prompt}
@@ -1307,7 +1290,6 @@ const PreferenceRanking = ({
               </AccordionSummary>
               <AccordionDetails
                 sx={{
-                  // display: "block",
                   cursor: "pointer",
                 }}
               >
@@ -1350,14 +1332,6 @@ const PreferenceRanking = ({
 
   const InteractionDisplay = () => {
     return (
-      // <div
-      //   style={{
-      //     display: "flex",
-      //     flexDirection: "column",
-      //     width: "100%",
-      //     minHeight: "60%",
-      //   }}
-      // >
       <Paper
         className={classes.interactionWindow}
         style={{
@@ -1370,7 +1344,6 @@ const PreferenceRanking = ({
           <PairAccordion pairs={interactions} classes={classes} />
         )}
       </Paper>
-      // </div>
     );
   };
 
@@ -1386,56 +1359,10 @@ const PreferenceRanking = ({
           alignItems: "start",
         }}
       >
-        {/* <div style={{ width: "50% !important" }}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-              open && { display: "none" },
-            ]}
-          >
-            <MenuIcon />
-          </IconButton>
-          {open && (
-            <>
-              <Box
-                sx={{
-                  border: "1px solid #E1E1E0",
-                  width: "100% !important",
-                  minWidth: "100% !important",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "20px 1rem",
-                  }}
-                >
-                  <Typography className={classes.heading}>
-                    {translate("modal.interact")}
-                  </Typography>
-                  <ChevronLeftIcon onClick={handleDrawerClose} />
-                </Box>
-                <List>
-                  <InteractionDisplay />
-                </List>
-              </Box>
-            </>
-          )}
-        </div>
-        <Main open={open}>{EvaluationForm()}</Main> */}
         <Box
           sx={{
             width: open ? "30%" : "10%",
             minWidth: open ? "30%" : "10%",
-            minHeight: "20vh",
             paddingTop: "24px",
           }}
         >
@@ -1482,7 +1409,6 @@ const PreferenceRanking = ({
           sx={{
             width: open ? "70%" : "90%",
             minWidth: open ? "70%" : "90%",
-            minHeight: "20vh",
           }}
         >
           <Main open={open}>{EvaluationForm()}</Main>
