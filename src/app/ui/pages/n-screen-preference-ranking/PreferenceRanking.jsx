@@ -25,7 +25,6 @@ import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { useParams } from "react-router-dom";
 import Tooltip from "@mui/material/Tooltip";
 import { useSelector } from "react-redux";
-import Drawer from "@mui/material/Drawer";
 
 import List from "@mui/material/List";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -98,13 +97,17 @@ const PreferenceRanking = ({
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState({ top: 0, left: 0 });
-  const [hover, setHover] = useState({}); // Changed from -1 to object
+  const [hover, setHover] = useState({});
+  const [selectedRatings, setSelectedRatings] = useState({});
 
   const handleHover = (newHover, outputIdx) => {
-    setHover((prev) => ({
-      ...prev,
-      [outputIdx]: newHover,
-    }));
+    setHover((prev) => {
+      const updated = {
+        ...prev,
+        [outputIdx]: newHover,
+      };
+      return updated;
+    });
   };
 
   const handleDrawerOpen = () => {
@@ -115,15 +118,14 @@ const PreferenceRanking = ({
     setOpen(false);
   };
 
-  const toggleDrawer = (newOpen) => (event) => {
-    // Get menu icon's position
-    const menuIconElement = event.currentTarget.getBoundingClientRect();
-    setDrawerPosition({
-      top: menuIconElement.top + window.scrollY + 20,
-      left: menuIconElement.left + window.scrollX,
-    });
-    setOpen(newOpen);
-  };
+  // const toggleDrawer = (newOpen) => (event) => {
+  //   const menuIconElement = event.currentTarget.getBoundingClientRect();
+  //   setDrawerPosition({
+  //     top: menuIconElement.top + window.scrollY + 20,
+  //     left: menuIconElement.left + window.scrollX,
+  //   });
+  //   setOpen(newOpen);
+  // };
 
   const parsedForms = useMemo(() => {
     if (annotation && annotation[0]?.result) {
@@ -895,20 +897,21 @@ const PreferenceRanking = ({
                     </span>
                   </div>
                   {currentInteraction?.model_responses_json?.map(
-                    (response, outputIdx) => (
-                      <div key={outputIdx}>
-                        <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              marginRight: "15px",
-                              marginTop: "0.5rem",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {response?.model_name}
-                          </Typography>
-                          {/* {Array.from(
+                    (response, outputIdx) => {
+                      return (
+                        <div key={outputIdx}>
+                          <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                marginRight: "15px",
+                                marginTop: "0.5rem",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {response?.model_name}
+                            </Typography>
+                            {/* {Array.from(
                             { length: question.rating_scale_list.length },
                             (_, index) => (
                               <Button
@@ -943,72 +946,76 @@ const PreferenceRanking = ({
                               />
                             ),
                           )} */}
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            {/* MUI Rating Component */}
-                            <Rating
-                              name={`rating-${outputIdx}`}
-                              value={
-                                currentInteraction?.model_responses_json &&
-                                currentInteraction?.model_responses_json[
-                                  outputIdx
-                                ].questions_response[questionIdx]?.response[0]
-                              }
-                              getLabelText={getLabelText}
-                              onChange={(event, newValue) => {
-                                handleRating(newValue, questionIdx, outputIdx);
-                              }}
-                              onChangeActive={(event, newHover) => {
-                                handleHover(newHover, outputIdx);
-                              }}
-                              sx={{
-                                color: "#ee6633",
-                                "& .MuiRating-iconFilled": {
-                                  color: "#ee6633",
-                                },
-                                "& .MuiRating-iconHover": {
-                                  color: "#ee6633",
-                                },
-                              }}
-                              emptyIcon={
-                                <StarIcon
-                                  style={{ opacity: 0.55, color: "#EE6633" }}
-                                  fontSize="inherit"
-                                />
-                              }
-                            />
-                            {/* Display label for hover or selected value */}
                             <Box
-                              sx={{
-                                ml: 2,
-                                color: "#EE6633",
-                                fontWeight: "bold",
-                              }}
+                              sx={{ display: "flex", alignItems: "center" }}
+                              onMouseLeave={() => handleHover(null, outputIdx)}
                             >
-                              {(() => {
-                                const hoverValue = hover[outputIdx];
-                                const fallbackValue =
-                                  currentInteraction?.model_responses_json?.[
+                              <Rating
+                                name={`rating-${outputIdx}`}
+                                value={
+                                  currentInteraction?.model_responses_json &&
+                                  currentInteraction?.model_responses_json[
                                     outputIdx
-                                  ]?.questions_response?.[questionIdx]
-                                    ?.response?.[0];
-
-                                // Render label only if either hoverValue or fallbackValue is valid
-                                if (hoverValue !== undefined) {
-                                  return labels[hoverValue];
-                                } else if (
-                                  fallbackValue !== undefined &&
-                                  hoverValue === undefined
-                                ) {
-                                  return labels[fallbackValue];
-                                } else {
-                                  return null; // Render nothing if both are invalid
+                                  ].questions_response[questionIdx]?.response[0]
                                 }
-                              })()}
+                                getLabelText={getLabelText}
+                                onChange={(event, newValue) => {
+                                  handleRating(
+                                    newValue,
+                                    questionIdx,
+                                    outputIdx,
+                                  );
+                                  setSelectedRatings((prev) => ({
+                                    ...prev,
+                                    [`${outputIdx}-${questionIdx}`]: newValue,
+                                  }));
+                                }}
+                                onChangeActive={(event, newHover) => {
+                                  handleHover(newHover, outputIdx);
+                                }}
+                                sx={{
+                                  color: "#ee6633",
+                                  "& .MuiRating-iconFilled": {
+                                    color: "#ee6633",
+                                  },
+                                  "& .MuiRating-iconHover": {
+                                    color: "#ee6633",
+                                  },
+                                }}
+                                emptyIcon={
+                                  <StarIcon
+                                    style={{ opacity: 0.55, color: "#EE6633" }}
+                                    fontSize="inherit"
+                                  />
+                                }
+                              />
+                              {/* Display label for hover or selected value */}
+                              <Box
+                                sx={{
+                                  ml: 2,
+                                  color: "#EE6633",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {(() => {
+                                  const currentHover = hover[outputIdx];
+                                  const currentSelection =
+                                    selectedRatings[
+                                      `${outputIdx}-${questionIdx}`
+                                    ];
+
+                                  return currentHover !== null
+                                    ? labels[currentHover]
+                                    : currentSelection
+                                      ? labels[currentSelection]
+                                      : "";
+                                })()}
+                              </Box>
                             </Box>
                           </Box>
-                        </Box>
-                      </div>
-                    ),
+                        </div>
+                      );
+                    },
                   )}
                 </div>
               )}
