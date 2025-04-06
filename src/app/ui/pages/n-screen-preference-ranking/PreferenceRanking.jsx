@@ -1236,8 +1236,8 @@ const PreferenceRanking = ({
     };
 
     return (
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",
@@ -1278,14 +1278,13 @@ const PreferenceRanking = ({
                     width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "normal" : "normal",
-                    maxWidth: "200px",
-                    maxHeight: "3.5rem",
-                    display: "block",
-                    position: "relative",
-                    border: "none",
+                    whiteSpace: expanded[index] ? "normal" : "no-wrap",
+                    // maxWidth: "200px",
+                    // maxHeight: "3.5rem",
+                    // display: "block",
+                    // position: "relative",
+                    // border: "none",
                   }}
-                  className={classes.promptTile}
                 >
                   {pair?.prompt}
                   {
@@ -1306,7 +1305,12 @@ const PreferenceRanking = ({
                   }
                 </Box>
               </AccordionSummary>
-              <AccordionDetails style={{ display: "block", cursor: "pointer" }}>
+              <AccordionDetails
+                sx={{
+                  // display: "block",
+                  cursor: "pointer",
+                }}
+              >
                 <Box
                   sx={{
                     display: "flex",
@@ -1318,9 +1322,9 @@ const PreferenceRanking = ({
                   <Button
                     label={translate("model_evaluation_btn")}
                     buttonVariant={"outlined"}
-                    style={{
+                    sx={{
                       marginTop: "1rem",
-
+                      marginLeft: "1rem",
                       padding: "0.5rem",
                     }}
                     onClick={handleFormBtnClick}
@@ -1330,8 +1334,9 @@ const PreferenceRanking = ({
                     label="Reset"
                     buttonVariant={"outlined"}
                     onClick={handleReset}
-                    style={{
+                    sx={{
                       marginTop: "1rem",
+                      marginLeft: "1rem",
                     }}
                   />
                 </Box>
@@ -1339,49 +1344,49 @@ const PreferenceRanking = ({
             </Accordion>
           );
         })}
-      </div>
+      </Box>
     );
   };
 
   const InteractionDisplay = () => {
     return (
-      <div
+      // <div
+      //   style={{
+      //     display: "flex",
+      //     flexDirection: "column",
+      //     width: "100%",
+      //     minHeight: "60%",
+      //   }}
+      // >
+      <Paper
+        className={classes.interactionWindow}
         style={{
+          border: "none",
           display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          minHeight: "60%",
+          flexDirection: "row",
         }}
       >
-        <Paper
-          className={classes.interactionWindow}
-          style={{
-            border: "none",
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          {interactions && (
-            <PairAccordion pairs={interactions} classes={classes} />
-          )}
-        </Paper>
-      </div>
+        {interactions && (
+          <PairAccordion pairs={interactions} classes={classes} />
+        )}
+      </Paper>
+      // </div>
     );
   };
 
   return (
     <>
-      <div
+      <Box
         className={classes.container}
-        style={{
+        sx={{
           width: "100%",
-          maxwidth: "2300px",
+          // maxwidth: "2300px",
           display: "flex",
           justifyContent: "flex-start",
           alignItems: "start",
         }}
       >
-        <div style={{ width: "50% !important" }}>
+        {/* <div style={{ width: "50% !important" }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -1425,8 +1430,64 @@ const PreferenceRanking = ({
             </>
           )}
         </div>
-        <Main open={open}>{EvaluationForm()}</Main>
-      </div>
+        <Main open={open}>{EvaluationForm()}</Main> */}
+        <Box
+          sx={{
+            width: open ? "30%" : "10%",
+            minWidth: open ? "30%" : "10%",
+            minHeight: "20vh",
+            paddingTop: "24px",
+          }}
+        >
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                ml: 8,
+              },
+              open && { display: "none" },
+            ]}
+          >
+            <MenuIcon />
+          </IconButton>
+          {open && (
+            <Box
+              sx={{
+                border: "1px solid #E1E1E0",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "20px 1rem",
+                }}
+              >
+                <Typography className={classes.heading}>
+                  {translate("modal.interact")}
+                </Typography>
+                <ChevronLeftIcon onClick={handleDrawerClose} />
+              </Box>
+              <List>
+                <InteractionDisplay />
+              </List>
+            </Box>
+          )}
+        </Box>
+        <Box
+          sx={{
+            width: open ? "70%" : "90%",
+            minWidth: open ? "70%" : "90%",
+            minHeight: "20vh",
+          }}
+        >
+          <Main open={open}>{EvaluationForm()}</Main>
+        </Box>
+      </Box>
     </>
   );
 };

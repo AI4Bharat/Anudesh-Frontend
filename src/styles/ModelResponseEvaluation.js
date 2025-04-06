@@ -42,7 +42,7 @@ const ModelResponseEvaluationStyle = makeStyles({
     width: "100%",
     // maxHeight: '1000vh',
     height: "auto",
-    overflowY: "auto",
+    overflowY: "scroll",
     display: "flex",
     flexDirection: "column",
     scrollBehavior: "smooth",
@@ -119,7 +119,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   interactionWindow: {
-    width: "100%",
+    // width: "100%",
     padding: "0rem 1rem 1rem 1rem",
     color: "#6C5F5B",
     // borderRadius: "2rem 0px 0px 1rem",
