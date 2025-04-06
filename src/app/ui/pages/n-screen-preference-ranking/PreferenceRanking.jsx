@@ -82,14 +82,10 @@ const PreferenceRanking = ({
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
-  const [leftPanelVisible, setLeftPanelVisible] = useState(true);
 
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
-  const toggleLeftPanel = () => {
-    setLeftPanelVisible(!leftPanelVisible);
-  };
   const [clickedPromptOutputPairId, setclickedPromptOutputPairId] = useState();
 
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
@@ -493,36 +489,6 @@ const PreferenceRanking = ({
     });
   };
 
-  const handleOptionChange = (selectedIndex, answer) => {
-    setCurrentInteraction((prev) => {
-      const newAnswers = questions?.map((question, i) => {
-        if (questions[selectedIndex] === question) {
-          return { question, answer: answer || null };
-        } else {
-          return (
-            prev.questions_response?.find(
-              (response) => response?.question === question,
-            ) || { question, answer: null }
-          );
-        }
-      });
-
-      const updatedInteraction = {
-        ...prev,
-        questions_response: newAnswers,
-      };
-      setForms((prevForms) =>
-        prevForms.map((form) =>
-          form?.prompt_output_pair_id === prev.prompt_output_pair_id
-            ? updatedInteraction
-            : form,
-        ),
-      );
-
-      return updatedInteraction;
-    });
-  };
-
   const handleNoteChange = (event) => {
     const newNote = event.target.value;
     setCurrentInteraction((prev) => {
@@ -542,6 +508,7 @@ const PreferenceRanking = ({
       return updatedInteraction;
     });
   };
+
   const formatPrompt = (prompt) => {
     const lines = prompt?.split("\n");
     const markdownString = lines?.join("  \n");
@@ -582,54 +549,6 @@ const PreferenceRanking = ({
       });
     }
   };
-
-  // const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
-  //   const { value } = e.target;
-
-  //   setCurrentInteraction((prev) => {
-  //     const updatedModelResponses = prev.model_responses_json.map(
-  //       (modelResponse, modelIdx) => {
-  //         if (modelIdx === outputIdx) {
-  //           const updatedQuestionsResponse =
-  //             modelResponse.questions_response.map((q, index) => {
-  //               if (index === interactionIndex) {
-  //                 const updatedBlankAnswers = q?.response
-  //                   ? [...q.response]
-  //                   : [];
-  //                 updatedBlankAnswers[blankIndex] = value;
-  //                 return {
-  //                   ...q,
-  //                   response: updatedBlankAnswers,
-  //                 };
-  //               }
-  //               return q;
-  //             });
-
-  //           return {
-  //             ...modelResponse,
-  //             questions_response: updatedQuestionsResponse,
-  //           };
-  //         }
-  //         return modelResponse;
-  //       },
-  //     );
-
-  //     const updatedInteraction = {
-  //       ...prev,
-  //       model_responses_json: updatedModelResponses,
-  //     };
-
-  //     setForms((prevForms) =>
-  //       prevForms.map((form) =>
-  //         form.prompt_output_pair_id === prev.prompt_output_pair_id
-  //           ? { ...form, model_responses_json: updatedModelResponses }
-  //           : form,
-  //       ),
-  //     );
-
-  //     return updatedInteraction;
-  //   });
-  // };
 
   const handleSliderChange = (
     newValue,
@@ -900,41 +819,6 @@ const PreferenceRanking = ({
                             >
                               {response?.model_name}
                             </Typography>
-                            {/* {Array.from(
-                            { length: question.rating_scale_list.length },
-                            (_, index) => (
-                              <Button
-                                key={index + 1}
-                                className={`${classes.numBtn} ${
-                                  currentInteraction?.model_responses_json &&
-                                  currentInteraction?.model_responses_json[
-                                    outputIdx
-                                  ].questions_response[questionIdx]
-                                    ?.response[0] ==
-                                    index + 1
-                                    ? classes.selected
-                                    : ""
-                                }`}
-                                label={index + 1}
-                                onClick={() =>
-                                  handleRating(
-                                    index + 1,
-                                    questionIdx,
-                                    outputIdx,
-                                  )
-                                }
-                                style={{
-                                  marginRight: isMobile ? "0.5rem" : "1rem",
-                                  marginLeft: "0.9px",
-                                  marginBottom: isMobile ? "1rem" : "2rem",
-                                  borderRadius: "1rem",
-                                  width: "47px",
-                                  padding: "13px",
-                                }}
-                                required
-                              />
-                            ),
-                          )} */}
                             <Box
                               sx={{ display: "flex", alignItems: "center" }}
                               onMouseLeave={() => handleHover(null, outputIdx)}
