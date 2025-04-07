@@ -126,6 +126,7 @@ const PreferenceRanking = ({
       (interaction) =>
         interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
+    console.log("currInteraction", currInteraction);
     const modelResponses = currInteraction?.model_responses_json?.map(
       (modelResponse) => {
         return {
@@ -708,7 +709,7 @@ const PreferenceRanking = ({
                     }}
                     id={pair?.prompt_output_pair_id}
                   />
-                  <Button
+                  {clickedPromptOutputPairId === pair.prompt_output_pair_id && <Button
                     label="Reset"
                     buttonVariant={"outlined"}
                     onClick={(event) => {
@@ -720,7 +721,7 @@ const PreferenceRanking = ({
                       marginTop: "1rem",
                       marginLeft: "1rem",
                     }}
-                  />
+                  />}
                 </Box>
               </AccordionDetails>
             </Accordion>
@@ -768,7 +769,7 @@ const PreferenceRanking = ({
             >
               {currentInteraction?.model_responses_json?.map(
                 (response, outputIdx) => (
-                  <div key={outputIdx} style={{ flex: 1}}>
+                  <div key={outputIdx} style={{ flex: 1 }}>
                     <div
                       className={classes.heading}
                       style={{ fontSize: "20px" }}
@@ -944,11 +945,12 @@ const PreferenceRanking = ({
                                 <Rating
                                   name={`rating-${outputIdx}`}
                                   value={
-                                    currentInteraction?.model_responses_json &&
-                                    currentInteraction?.model_responses_json[
-                                      outputIdx
-                                    ].questions_response[questionIdx]
-                                      ?.response[0]
+                                    (currentInteraction?.model_responses_json &&
+                                      currentInteraction?.model_responses_json[
+                                        outputIdx
+                                      ].questions_response[questionIdx]
+                                        ?.response[0]) ||
+                                    0
                                   }
                                   getLabelText={getLabelText}
                                   onChange={(event, newValue) => {
@@ -997,12 +999,24 @@ const PreferenceRanking = ({
                                       selectedRatings[
                                         `${outputIdx}-${questionIdx}`
                                       ];
+                                    const initialResponse =
+                                      currentInteraction?.model_responses_json &&
+                                      currentInteraction?.model_responses_json[
+                                        outputIdx
+                                      ].questions_response[questionIdx]
+                                        ?.response[0];
 
+                                    console.log(initialResponse);
                                     return currentHover !== null
                                       ? labels[currentHover]
-                                      : currentSelection
-                                        ? labels[currentSelection]
-                                        : "";
+                                      : initialResponse > 0
+                                        ? labels[initialResponse]
+                                        : (initialResponse === undefined ||
+                                            initialResponse === null)
+                                          ? ""
+                                          : currentSelection
+                                            ? labels[currentSelection]
+                                            : "";
                                   })()}
                                 </Box>
                               </Box>
