@@ -126,7 +126,6 @@ const PreferenceRanking = ({
       (interaction) =>
         interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
     );
-    console.log("currInteraction", currInteraction);
     const modelResponses = currInteraction?.model_responses_json?.map(
       (modelResponse) => {
         return {
@@ -1005,8 +1004,6 @@ const PreferenceRanking = ({
                                         outputIdx
                                       ].questions_response[questionIdx]
                                         ?.response[0];
-
-                                    console.log(initialResponse);
                                     return currentHover !== null
                                       ? labels[currentHover]
                                       : initialResponse > 0
