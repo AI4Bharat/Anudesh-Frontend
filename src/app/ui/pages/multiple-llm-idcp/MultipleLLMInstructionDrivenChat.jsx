@@ -23,7 +23,7 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
@@ -340,8 +340,8 @@ const MultipleLLMInstructionDrivenChat = ({
   };
 
   const handleEditResponse = () => {
-    console.log("edit response")
-  }
+    console.log("edit response");
+  };
 
   const [text, setText] = useState("");
   const [targetLang, setTargetLang] = useState("");
@@ -459,7 +459,7 @@ const MultipleLLMInstructionDrivenChat = ({
             borderRadius: "0.5rem",
             position: "relative",
             width: "100%",
-            marginBottom: "1.5rem"
+            marginBottom: "1.5rem",
           }}
         >
           <Grid container alignItems="center" spacing={2}>
@@ -718,7 +718,7 @@ const MultipleLLMInstructionDrivenChat = ({
                         sx={{
                           fontSize: "1.2rem",
                           maxHeight: "60vh",
-                          overflowY: "scroll"
+                          overflowY: "scroll",
                         }}
                       >
                         {message.response.output1}
@@ -819,7 +819,7 @@ const MultipleLLMInstructionDrivenChat = ({
                         sx={{
                           fontSize: "1.2rem",
                           maxHeight: "60vh",
-                          overflowY: "scroll"
+                          overflowY: "scroll",
                         }}
                       >
                         {message.response.output2}
@@ -909,54 +909,10 @@ const MultipleLLMInstructionDrivenChat = ({
                 Model B
               </Button>
             </Box>
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              sx={{
-                border: "1.5px solid #EE6633",
-                color: "#EE6633",
-                backgroundColor: "#FFF",
-                borderRadius: "8px",
-                padding: "0.5rem 1.5rem",
-                "&:hover": {
-                  backgroundColor: "#EE6633",
-                  color: "#FFF",
-                },
-              }}
-            >
-              Submit
-            </Button>
-          </Typography>
-        </Grid>
-
-        <Grid
-          item
-          sx={{
-            padding: "1.5rem",
-            position: "relative",
-            width: "85%",
-            borderRadius: "10px",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            marginTop: "2rem"
-          }}
-        >
-          <Typography
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography sx={{ display: "flex" }}>
-              <span>
-                The model you found better in your last visit was:{" "}
-                <span style={{ fontWeight: 800 }}>Model A</span>{" "}
-              </span>
-            </Typography>
             <Box>
               <Button
                 variant="contained"
-                onClick={handleEditResponse}
+                onClick={handleSubmit}
                 sx={{
                   border: "1.5px solid #EE6633",
                   color: "#EE6633",
@@ -969,13 +925,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   },
                 }}
               >
-                <Tooltip title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    Edit your response
-                  </span>
-                }>
-                  <EditIcon />
-                </Tooltip>
+                Submit
               </Button>
               <Button
                 variant="contained"
@@ -990,7 +940,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     backgroundColor: "#EE6633",
                     color: "#FFF",
                   },
-                  marginLeft: "1.2rem"
+                  marginLeft: "1.2rem",
                 }}
               >
                 <CloseIcon />
