@@ -34,7 +34,6 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Rating from "@mui/material/Rating";
 import StarIcon from "@mui/icons-material/Star";
-import Slider from "@mui/material/Slider";
 
 const labels = {
   1: "Poor",
@@ -82,7 +81,6 @@ const PreferenceRanking = ({
 
   const { taskId } = useParams();
   const classes = ModelResponseEvaluationStyle();
-
   const [blank, setBlank] = useState("");
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
@@ -150,18 +148,6 @@ const PreferenceRanking = ({
   useEffect(() => {
     setForms(parsedForms);
   }, [parsedForms, setForms]);
-
-  const handleReset = () => {
-    setCurrentInteraction((prev) => ({
-      ...prev,
-      model_responses_json: prev.model_responses_json.map((response) => ({
-        ...response,
-        questions_response: Array(
-          response.questions_response?.length || 0,
-        ).fill(null),
-      })),
-    }));
-  };
 
   const fetchInteractions = useCallback(async () => {
     try {
@@ -322,6 +308,12 @@ const PreferenceRanking = ({
 
     setAnswered(allFormsAnswered);
   }, [forms, taskId]);
+
+  useEffect(() => {
+    if (!clickedPromptOutputPairId && forms?.length > 0) {
+      setclickedPromptOutputPairId(forms[0].prompt_output_pair_id);
+    }
+  }, [forms]);
 
   const styles = {
     responseBox: {
@@ -515,7 +507,69 @@ const PreferenceRanking = ({
     return markdownString;
   };
 
+  const handleInputChange = (e, interactionIndex, blankIndex, outputIdx) => {
+    const { value } = e.target;
+
+    setCurrentInteraction((prev) => {
+      const updatedModelResponses = prev.model_responses_json.map(
+        (modelResponse, modelIdx) => {
+          if (modelIdx === outputIdx) {
+            const updatedQuestionsResponse =
+              modelResponse.questions_response.map((q, index) => {
+                if (index === interactionIndex) {
+                  const updatedBlankAnswers = q?.response
+                    ? [...q.response]
+                    : [];
+                  updatedBlankAnswers[blankIndex] = value;
+                  return {
+                    ...q,
+                    response: updatedBlankAnswers,
+                  };
+                }
+                return q;
+              });
+
+            return {
+              ...modelResponse,
+              questions_response: updatedQuestionsResponse,
+            };
+          }
+          return modelResponse;
+        },
+      );
+
+      const updatedInteraction = {
+        ...prev,
+        model_responses_json: updatedModelResponses,
+      };
+
+      setForms((prevForms) =>
+        prevForms.map((form) =>
+          form.prompt_output_pair_id === prev.prompt_output_pair_id
+            ? { ...form, model_responses_json: updatedModelResponses }
+            : form,
+        ),
+      );
+
+      return updatedInteraction;
+    });
+  };
+
+  const handleReset = (e) => {
+    e.stopPropagation();
+    setCurrentInteraction((prev) => ({
+      ...prev,
+      model_responses_json: prev.model_responses_json.map((response) => ({
+        ...response,
+        questions_response: Array(
+          response.questions_response?.length || 0,
+        ).fill(null),
+      })),
+    }));
+  };
+
   const handleFormBtnClick = (e) => {
+    e.stopPropagation();
     setclickedPromptOutputPairId(e.target.id);
     const currInteraction = forms?.find(
       (interaction) =>
@@ -550,56 +604,130 @@ const PreferenceRanking = ({
     }
   };
 
-  const handleSliderChange = (
-    newValue,
-    interactionIndex,
-    blankIndex,
-    outputIdx,
-  ) => {
-    setCurrentInteraction((prev) => {
-      const updatedModelResponses = prev.model_responses_json.map(
-        (modelResponse, modelIdx) => {
-          if (modelIdx === outputIdx) {
-            const updatedQuestionsResponse =
-              modelResponse.questions_response.map((q, index) => {
-                if (index === interactionIndex) {
-                  const updatedBlankAnswers = q?.response
-                    ? [...q.response]
-                    : [];
-                  updatedBlankAnswers[blankIndex] = newValue; // Use newValue directly from slider
-                  return {
-                    ...q,
-                    response: updatedBlankAnswers,
-                  };
-                }
-                return q;
-              });
+  const PairAccordion = ({ pairs, classes }) => {
+    const [expanded, setExpanded] = useState(Array(pairs.length).fill(false));
 
-            return {
-              ...modelResponse,
-              questions_response: updatedQuestionsResponse,
-            };
-          }
-          return modelResponse;
-        },
-      );
+    const handleAccordionChange = (index) => (event, isExpanded) => {
+      setExpanded((prevExpanded) => {
+        const newExpanded = [...prevExpanded];
+        newExpanded[index] = isExpanded;
+        return newExpanded;
+      });
+    };
 
-      const updatedInteraction = {
-        ...prev,
-        model_responses_json: updatedModelResponses,
-      };
-
-      // Update forms state to maintain sync
-      setForms((prevForms) =>
-        prevForms.map((form) =>
-          form.prompt_output_pair_id === prev.prompt_output_pair_id
-            ? { ...form, model_responses_json: updatedModelResponses }
-            : form,
-        ),
-      );
-
-      return updatedInteraction;
-    });
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: "1rem",
+          width: "calc(100% - 0.1rem)",
+        }}
+      >
+        {pairs.map((pair, index) => {
+          return (
+            <Accordion
+              key={index}
+              expanded={expanded[index]}
+              onChange={handleAccordionChange(index)}
+              className={classes.accordion}
+              style={{
+                height: expanded[index] ? "auto" : "4rem",
+                borderRadius: expanded[index] ? "1rem" : null,
+                boxShadow: expanded[index]
+                  ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
+                  : null,
+                borderBottom: "none",
+                border: "none",
+                margin: 2,
+                width: "inherit",
+                backgroundColor:
+                  clickedPromptOutputPairId === pair.prompt_output_pair_id
+                    ? "#FEF0EE"
+                    : "transparent",
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel${index}a-content`}
+                id={`panel${index}a-header`}
+                classes={{
+                  content: "MuiAccordionSummary-content",
+                  expanded: "Mui-expanded",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: expanded[index] ? "normal" : "no-wrap",
+                  }}
+                >
+                  {pair?.prompt}
+                  {
+                    <Tooltip title={pair.prompt} placement="bottom">
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {pair.text}
+                      </span>
+                    </Tooltip>
+                  }
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{
+                  cursor: "pointer",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Button
+                    label={translate("model_evaluation_btn")}
+                    buttonVariant={"outlined"}
+                    sx={{
+                      marginTop: "1rem",
+                      marginLeft: "1rem",
+                      padding: "0.5rem",
+                    }}
+                    onClick={(event) => {
+                      handleFormBtnClick(event);
+                    }}
+                    id={pair?.prompt_output_pair_id}
+                  />
+                  <Button
+                    label="Reset"
+                    buttonVariant={"outlined"}
+                    onClick={(event) => {
+                      handleReset(event);
+                    }}
+                    sx={{
+                      marginTop: "1rem",
+                      marginLeft: "1rem",
+                    }}
+                  />
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
+      </Box>
+    );
   };
 
   const EvaluationForm = () => {
@@ -666,7 +794,11 @@ const PreferenceRanking = ({
           <div key={questionIdx}>
             <div style={{ overflowY: "auto", maxHeight: "90vh" }}>
               {question.question_type === "fill_in_blanks" && (
-                <div>
+                <div
+                  style={{
+                    marginBottom: "20px",
+                  }}
+                >
                   <p className={classes.inputQuestion}>
                     {questionIdx + 1}.{" "}
                     {question.input_question
@@ -697,104 +829,84 @@ const PreferenceRanking = ({
                     </span>
                   </p>
 
-                  {currentInteraction?.model_responses_json?.map(
-                    (response, outputIdx) => (
-                      <div
-                        key={outputIdx}
-                        style={{
-                          marginBottom: "10px",
-                          display: "flex",
-                          flexDirection: "row",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: "bold",
-                            marginRight: "15px",
-                            marginTop: "0.7rem",
+                  <div
+                    style={{
+                      marginLeft: "20px",
+                    }}
+                  >
+                    {currentInteraction?.model_responses_json?.map(
+                      (response, outputIdx) => (
+                        <div
+                          key={outputIdx}
+                          style={{
+                            marginBottom: "10px",
+                            display: "flex",
+                            flexDirection: "row",
                           }}
                         >
-                          {response?.model_name}
-                        </Typography>
-                        {question.input_question
-                          .split("<blank>")
-                          .slice(0, -1)
-                          .map((_, index) => (
-                            // <input
-                            // key={`${outputIdx}-${index}`}
-                            // type="text"
-                            // value={
-                            // (currentInteraction?.model_responses_json &&
-                            // currentInteraction?.model_responses_json[
-                            // outputIdx
-                            // ]?.questions_response[questionIdx]
-                            // ?.response?.[index]) ||
-                            // ""
-                            // }
-                            // onChange={(e) =>
-                            // handleInputChange(
-                            // e,
-                            // questionIdx,
-                            // index,
-                            // outputIdx,
-                            // )
-                            // }
-                            // style={{
-                            // border: "1px solid #ccc",
-                            // borderRadius: "4px",
-                            // padding: "4px",
-                            // fontSize: "14px",
-                            // lineHeight: "1.5",
-                            // width: "100%",
-                            // maxWidth: "200px",
-                            // margin: "4px 0",
-                            // boxSizing: "border-box",
-                            // backgroundColor: "white",
-                            // fontWeight: "normal",
-                            // marginRight: "5px",
-                            // }}
-                            // required
-                            // />
-                            <Slider
-                              color="warning"
-                              valueLabelDisplay="auto"
-                              key={`${outputIdx}-${index}`}
-                              value={
-                                (currentInteraction?.model_responses_json &&
-                                  currentInteraction?.model_responses_json[
-                                    outputIdx
-                                  ]?.questions_response[questionIdx]
-                                    ?.response?.[index]) ||
-                                0 // Default value for the slider
-                              }
-                              onChange={(e, newValue) =>
-                                handleSliderChange(
-                                  newValue,
-                                  questionIdx,
-                                  index,
-                                  outputIdx,
-                                )
-                              }
-                              aria-labelledby={`slider-${outputIdx}-${index}`}
-                              min={0} 
-                              max={100}
-                              step={1}
-                              style={{
-                                margin: "4px 0",
-                                width: "200px",
-                                marginRight: "5px",
-                              }}
-                            />
-                          ))}
-                      </div>
-                    ),
-                  )}
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: "bold",
+                              marginRight: "15px",
+                              marginTop: "0.7rem",
+                            }}
+                          >
+                            {response?.model_name}
+                          </Typography>
+                          {question.input_question
+                            .split("<blank>")
+                            .slice(0, -1)
+                            .map((_, index) => (
+                              <input
+                                key={`${outputIdx}-${index}`}
+                                type="text"
+                                value={
+                                  (currentInteraction?.model_responses_json &&
+                                    currentInteraction?.model_responses_json[
+                                      outputIdx
+                                    ]?.questions_response[questionIdx]
+                                      ?.response?.[index]) ||
+                                  ""
+                                }
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    e,
+                                    questionIdx,
+                                    index,
+                                    outputIdx,
+                                  )
+                                }
+                                style={{
+                                  border: "1px solid #ccc",
+                                  borderRadius: "4px",
+                                  padding: "4px",
+                                  fontSize: "14px",
+                                  lineHeight: "1.5",
+                                  width: "100%",
+                                  maxWidth: "200px",
+                                  margin: "4px 0",
+                                  boxSizing: "border-box",
+                                  backgroundColor: "white",
+                                  fontWeight: "normal",
+                                  marginRight: "5px",
+                                }}
+                                required
+                              />
+                            ))}
+                        </div>
+                      ),
+                    )}
+                  </div>
                 </div>
               )}
 
               {question.question_type === "rating" && (
-                <div>
+                <div
+                  style={{
+                    marginBottom: "20px",
+                  }}
+                >
                   <div className={classes.inputQuestion}>
                     <span>
                       {questionIdx + 1}. {question.input_question}
@@ -804,96 +916,112 @@ const PreferenceRanking = ({
                       *
                     </span>
                   </div>
-                  {currentInteraction?.model_responses_json?.map(
-                    (response, outputIdx) => {
-                      return (
-                        <div key={outputIdx}>
-                          <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                            <Typography
-                              variant="subtitle2"
-                              sx={{
-                                marginRight: "15px",
-                                marginTop: "0.5rem",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              {response?.model_name}
-                            </Typography>
-                            <Box
-                              sx={{ display: "flex", alignItems: "center" }}
-                              onMouseLeave={() => handleHover(null, outputIdx)}
-                            >
-                              <Rating
-                                name={`rating-${outputIdx}`}
-                                value={
-                                  currentInteraction?.model_responses_json &&
-                                  currentInteraction?.model_responses_json[
-                                    outputIdx
-                                  ].questions_response[questionIdx]?.response[0]
-                                }
-                                getLabelText={getLabelText}
-                                onChange={(event, newValue) => {
-                                  handleRating(
-                                    newValue,
-                                    questionIdx,
-                                    outputIdx,
-                                  );
-                                  setSelectedRatings((prev) => ({
-                                    ...prev,
-                                    [`${outputIdx}-${questionIdx}`]: newValue,
-                                  }));
-                                }}
-                                onChangeActive={(event, newHover) => {
-                                  handleHover(newHover, outputIdx);
-                                }}
+                  <div
+                    style={{
+                      marginLeft: "20px",
+                    }}
+                  >
+                    {currentInteraction?.model_responses_json?.map(
+                      (response, outputIdx) => {
+                        return (
+                          <div key={outputIdx}>
+                            <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                              <Typography
+                                variant="subtitle2"
                                 sx={{
-                                  color: "#ee6633",
-                                  "& .MuiRating-iconFilled": {
-                                    color: "#ee6633",
-                                  },
-                                  "& .MuiRating-iconHover": {
-                                    color: "#ee6633",
-                                  },
-                                }}
-                                emptyIcon={
-                                  <StarIcon
-                                    style={{ opacity: 0.55, color: "#EE6633" }}
-                                    fontSize="inherit"
-                                  />
-                                }
-                              />
-                              <Box
-                                sx={{
-                                  ml: 2,
-                                  color: "#EE6633",
+                                  marginRight: "15px",
+                                  marginTop: "0.5rem",
                                   fontWeight: "bold",
                                 }}
                               >
-                                {(() => {
-                                  const currentHover = hover[outputIdx];
-                                  const currentSelection =
-                                    selectedRatings[
-                                      `${outputIdx}-${questionIdx}`
-                                    ];
+                                {response?.model_name}
+                              </Typography>
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                                onMouseLeave={() =>
+                                  handleHover(null, outputIdx)
+                                }
+                              >
+                                <Rating
+                                  name={`rating-${outputIdx}`}
+                                  value={
+                                    currentInteraction?.model_responses_json &&
+                                    currentInteraction?.model_responses_json[
+                                      outputIdx
+                                    ].questions_response[questionIdx]
+                                      ?.response[0]
+                                  }
+                                  getLabelText={getLabelText}
+                                  onChange={(event, newValue) => {
+                                    handleRating(
+                                      newValue,
+                                      questionIdx,
+                                      outputIdx,
+                                    );
+                                    setSelectedRatings((prev) => ({
+                                      ...prev,
+                                      [`${outputIdx}-${questionIdx}`]: newValue,
+                                    }));
+                                  }}
+                                  onChangeActive={(event, newHover) => {
+                                    handleHover(newHover, outputIdx);
+                                  }}
+                                  sx={{
+                                    color: "#ee6633",
+                                    "& .MuiRating-iconFilled": {
+                                      color: "#ee6633",
+                                    },
+                                    "& .MuiRating-iconHover": {
+                                      color: "#ee6633",
+                                    },
+                                  }}
+                                  emptyIcon={
+                                    <StarIcon
+                                      style={{
+                                        opacity: 0.55,
+                                        color: "#EE6633",
+                                      }}
+                                      fontSize="inherit"
+                                    />
+                                  }
+                                />
+                                <Box
+                                  sx={{
+                                    ml: 2,
+                                    color: "#EE6633",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {(() => {
+                                    const currentHover = hover[outputIdx];
+                                    const currentSelection =
+                                      selectedRatings[
+                                        `${outputIdx}-${questionIdx}`
+                                      ];
 
-                                  return currentHover !== null
-                                    ? labels[currentHover]
-                                    : currentSelection
-                                      ? labels[currentSelection]
-                                      : "";
-                                })()}
+                                    return currentHover !== null
+                                      ? labels[currentHover]
+                                      : currentSelection
+                                        ? labels[currentSelection]
+                                        : "";
+                                  })()}
+                                </Box>
                               </Box>
                             </Box>
-                          </Box>
-                        </div>
-                      );
-                    },
-                  )}
+                          </div>
+                        );
+                      },
+                    )}
+                  </div>
                 </div>
               )}
 
               {question.question_type === "multi_select_options" && (
-                <div>
+                <div
+                  style={{
+                    marginBottom: "20px",
+                  }}
+                >
                   <div className={classes.inputQuestion}>
                     {questionIdx + 1}. {question.input_question}
                     <span style={{ color: "#d93025", fontSize: "25px" }}>
@@ -903,7 +1031,7 @@ const PreferenceRanking = ({
                   </div>
                   <div
                     style={{
-                      marginBottom: "10px",
+                      marginLeft: "20px",
                     }}
                   >
                     {question?.input_selections_list?.map(
@@ -911,7 +1039,6 @@ const PreferenceRanking = ({
                         <div
                           key={optionIdx}
                           style={{
-                            marginBottom: "10px",
                             display: "flex",
                             flexDirection: "row",
                             alignItems: "center",
@@ -984,7 +1111,11 @@ const PreferenceRanking = ({
               )}
 
               {question.question_type === "mcq" && (
-                <div>
+                <div
+                  style={{
+                    marginBottom: "20px",
+                  }}
+                >
                   <div className={classes.inputQuestion}>
                     {questionIdx + 1}. {question.input_question}
                     <span style={{ color: "#d93025", fontSize: "25px" }}>
@@ -993,13 +1124,16 @@ const PreferenceRanking = ({
                     </span>
                   </div>
 
-                  <div style={{ marginBottom: "10px" }}>
+                  <div
+                    style={{
+                      marginLeft: "20px",
+                    }}
+                  >
                     {question?.input_selections_list?.map(
                       (option, optionIdx) => (
                         <div
                           key={optionIdx}
                           style={{
-                            marginBottom: "10px",
                             display: "flex",
                             alignItems: "center",
                             flexDirection: "row",
@@ -1093,124 +1227,6 @@ const PreferenceRanking = ({
           className={classes.notesTextarea}
         />
       </div>
-    );
-  };
-
-  const PairAccordion = ({ pairs, classes }) => {
-    const [expanded, setExpanded] = useState(Array(pairs.length).fill(false));
-
-    const handleAccordionChange = (index) => (event, isExpanded) => {
-      setExpanded((prevExpanded) => {
-        const newExpanded = [...prevExpanded];
-        newExpanded[index] = isExpanded;
-        return newExpanded;
-      });
-    };
-
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: "1rem",
-          width: "calc(100% - 0.1rem)",
-        }}
-      >
-        {pairs.map((pair, index) => {
-          return (
-            <Accordion
-              key={index}
-              expanded={expanded[index]}
-              onChange={handleAccordionChange(index)}
-              className={classes.accordion}
-              style={{
-                height: expanded[index] ? "auto" : "4rem",
-                borderRadius: expanded[index] ? "1rem" : null,
-                boxShadow: expanded[index]
-                  ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
-                  : null,
-                borderBottom: "none",
-                border: "none",
-                margin: 2,
-                width: "inherit",
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index}a-content`}
-                id={`panel${index}a-header`}
-                classes={{
-                  content: "MuiAccordionSummary-content",
-                  expanded: "Mui-expanded",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "normal" : "no-wrap",
-                  }}
-                >
-                  {pair?.prompt}
-                  {
-                    <Tooltip title={pair.prompt} placement="bottom">
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: "100%",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {pair.text}
-                      </span>
-                    </Tooltip>
-                  }
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails
-                sx={{
-                  cursor: "pointer",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    justifyContent: "flex-start",
-                  }}
-                >
-                  <Button
-                    label={translate("model_evaluation_btn")}
-                    buttonVariant={"outlined"}
-                    sx={{
-                      marginTop: "1rem",
-                      marginLeft: "1rem",
-                      padding: "0.5rem",
-                    }}
-                    onClick={handleFormBtnClick}
-                    id={pair?.prompt_output_pair_id}
-                  />
-                  <Button
-                    label="Reset"
-                    buttonVariant={"outlined"}
-                    onClick={handleReset}
-                    sx={{
-                      marginTop: "1rem",
-                      marginLeft: "1rem",
-                    }}
-                  />
-                </Box>
-              </AccordionDetails>
-            </Accordion>
-          );
-        })}
-      </Box>
     );
   };
 

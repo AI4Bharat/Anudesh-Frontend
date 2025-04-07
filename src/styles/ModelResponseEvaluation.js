@@ -72,12 +72,10 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   inputQuestion: {
     fontWeight: "bold",
-    marginBottom: "0.5rem",
     color: "#6C5F5B",
   },
   heading: {
     fontWeight: "bold",
-    // marginBottom: "1rem",
     color: "#6C5F5B",
   },
   ratingButton: {
