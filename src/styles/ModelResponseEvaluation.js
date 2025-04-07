@@ -23,7 +23,6 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   container: {
     display: "flex",
-    // backgroundColor: "#F6F6F6",
     marginBottom: "30px",
   },
 
@@ -32,17 +31,13 @@ const ModelResponseEvaluationStyle = makeStyles({
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
-    // backgroundColor: "#F6F6F6",
-    width: "100%",
   },
 
   rightPanel: {
-    // backgroundColor: "#F6F6F6",
     flex: "1",
-    width: "100%",
-    // maxHeight: '1000vh',
     height: "auto",
     overflowY: "scroll",
+    overflowX: "hidden",
     display: "flex",
     flexDirection: "column",
     scrollBehavior: "smooth",
@@ -64,7 +59,6 @@ const ModelResponseEvaluationStyle = makeStyles({
     fontWeight: "bold",
     marginBottom: "1rem",
     color: "#6C5F5B",
-    width: "100%",
   },
   outputContainer: {
     marginBottom: "1rem",
@@ -109,7 +103,6 @@ const ModelResponseEvaluationStyle = makeStyles({
     maxHeight: "5rem",
   },
   notesTextarea: {
-    width: "100%",
     marginTop: "1.2rem",
     border: "2px solid #6C5F5B",
     borderRadius: "2px",
@@ -117,12 +110,9 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   interactionWindow: {
-    // width: "100%",
     padding: "0rem 1rem 1rem 1rem",
     color: "#6C5F5B",
-    // borderRadius: "2rem 0px 0px 1rem",
     flexDirection: "row",
-    // marginTop:"1.5rem"
   },
 
   answerTile: {

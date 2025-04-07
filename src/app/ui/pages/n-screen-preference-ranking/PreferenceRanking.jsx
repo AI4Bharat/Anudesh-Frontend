@@ -93,6 +93,67 @@ const PreferenceRanking = ({
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState({});
   const [selectedRatings, setSelectedRatings] = useState({});
+  const [expanded, setExpanded] = useState(
+    Array(interactions.length).fill(false),
+  );
+
+  const handleAccordionChange = (index) => (event, isExpanded) => {
+    setExpanded((prevExpanded) => {
+      const newExpanded = [...prevExpanded];
+      newExpanded[index] = isExpanded;
+
+      return newExpanded;
+    });
+  };
+
+  const handleReset = (e) => {
+    e.stopPropagation();
+    setCurrentInteraction((prev) => ({
+      ...prev,
+      model_responses_json: prev.model_responses_json.map((response) => ({
+        ...response,
+        questions_response: Array(
+          response.questions_response?.length || 0,
+        ).fill(null),
+      })),
+    }));
+  };
+
+  const handleFormBtnClick = (e) => {
+    e.stopPropagation();
+    setclickedPromptOutputPairId(e.target.id);
+    const currInteraction = forms?.find(
+      (interaction) =>
+        interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
+    );
+    const modelResponses = currInteraction?.model_responses_json?.map(
+      (modelResponse) => {
+        return {
+          ...modelResponse,
+          output: Array.isArray(modelResponse.output)
+            ? modelResponse.output.map((item) => item.value).join(", ")
+            : modelResponse.output,
+          questions_response:
+            modelResponse?.questions_response?.map(
+              (questionResponse, index) => ({
+                ...questionResponse,
+                question: questions[index],
+                response: questionResponse?.response || [],
+              }),
+            ) || [],
+        };
+      },
+    );
+
+    if (currInteraction) {
+      setCurrentInteraction({
+        prompt: currInteraction?.prompt,
+        model_responses_json: modelResponses,
+        prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
+        additional_note: currInteraction?.additional_note || "",
+      });
+    }
+  };
 
   const handleHover = (newHover, outputIdx) => {
     setHover((prev) => {
@@ -318,8 +379,6 @@ const PreferenceRanking = ({
   const styles = {
     responseBox: {
       flex: "1 1 45%",
-      width: "100%",
-      overflow: "auto",
       fontSize: "16px",
       padding: "20px",
       borderRadius: "8px",
@@ -328,10 +387,8 @@ const PreferenceRanking = ({
     },
     response1Box: {
       flex: "1 1 45%",
-      width: "100%",
       whiteSpace: "normal",
       wordWrap: "break-word",
-      overflowY: "hidden",
       padding: "20px",
       fontSize: "17px",
       borderRadius: "8px",
@@ -555,66 +612,7 @@ const PreferenceRanking = ({
     });
   };
 
-  const handleReset = (e) => {
-    e.stopPropagation();
-    setCurrentInteraction((prev) => ({
-      ...prev,
-      model_responses_json: prev.model_responses_json.map((response) => ({
-        ...response,
-        questions_response: Array(
-          response.questions_response?.length || 0,
-        ).fill(null),
-      })),
-    }));
-  };
-
-  const handleFormBtnClick = (e) => {
-    e.stopPropagation();
-    setclickedPromptOutputPairId(e.target.id);
-    const currInteraction = forms?.find(
-      (interaction) =>
-        interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
-    );
-    const modelResponses = currInteraction?.model_responses_json?.map(
-      (modelResponse) => {
-        return {
-          ...modelResponse,
-          output: Array.isArray(modelResponse.output)
-            ? modelResponse.output.map((item) => item.value).join(", ")
-            : modelResponse.output,
-          questions_response:
-            modelResponse?.questions_response?.map(
-              (questionResponse, index) => ({
-                ...questionResponse,
-                question: questions[index],
-                response: questionResponse?.response || [],
-              }),
-            ) || [],
-        };
-      },
-    );
-
-    if (currInteraction) {
-      setCurrentInteraction({
-        prompt: currInteraction?.prompt,
-        model_responses_json: modelResponses,
-        prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
-        additional_note: currInteraction?.additional_note || "",
-      });
-    }
-  };
-
   const PairAccordion = ({ pairs, classes }) => {
-    const [expanded, setExpanded] = useState(Array(pairs.length).fill(false));
-
-    const handleAccordionChange = (index) => (event, isExpanded) => {
-      setExpanded((prevExpanded) => {
-        const newExpanded = [...prevExpanded];
-        newExpanded[index] = isExpanded;
-        return newExpanded;
-      });
-    };
-
     return (
       <Box
         sx={{
@@ -659,7 +657,6 @@ const PreferenceRanking = ({
               >
                 <Box
                   sx={{
-                    width: "100%",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: expanded[index] ? "normal" : "no-wrap",
@@ -673,7 +670,6 @@ const PreferenceRanking = ({
                           position: "absolute",
                           top: 0,
                           left: 0,
-                          width: "100%",
                           height: "100%",
                           cursor: "pointer",
                         }}
@@ -706,6 +702,8 @@ const PreferenceRanking = ({
                       padding: "0.5rem",
                     }}
                     onClick={(event) => {
+                      event.stopPropagation();
+                      event.preventDefault();
                       handleFormBtnClick(event);
                     }}
                     id={pair?.prompt_output_pair_id}
@@ -714,6 +712,8 @@ const PreferenceRanking = ({
                     label="Reset"
                     buttonVariant={"outlined"}
                     onClick={(event) => {
+                      event.stopPropagation();
+                      event.preventDefault();
                       handleReset(event);
                     }}
                     sx={{
@@ -768,7 +768,7 @@ const PreferenceRanking = ({
             >
               {currentInteraction?.model_responses_json?.map(
                 (response, outputIdx) => (
-                  <div key={outputIdx} style={{ flex: 1, width: "100%" }}>
+                  <div key={outputIdx} style={{ flex: 1}}>
                     <div
                       className={classes.heading}
                       style={{ fontSize: "20px" }}
@@ -792,7 +792,7 @@ const PreferenceRanking = ({
 
         {questions?.map((question, questionIdx) => (
           <div key={questionIdx}>
-            <div style={{ overflowY: "auto", maxHeight: "90vh" }}>
+            <div>
               {question.question_type === "fill_in_blanks" && (
                 <div
                   style={{
@@ -831,7 +831,7 @@ const PreferenceRanking = ({
 
                   <div
                     style={{
-                      marginLeft: "20px",
+                      paddingLeft: "20px",
                     }}
                   >
                     {currentInteraction?.model_responses_json?.map(
@@ -883,7 +883,6 @@ const PreferenceRanking = ({
                                   padding: "4px",
                                   fontSize: "14px",
                                   lineHeight: "1.5",
-                                  width: "100%",
                                   maxWidth: "200px",
                                   margin: "4px 0",
                                   boxSizing: "border-box",
@@ -918,7 +917,7 @@ const PreferenceRanking = ({
                   </div>
                   <div
                     style={{
-                      marginLeft: "20px",
+                      paddingLeft: "20px",
                     }}
                   >
                     {currentInteraction?.model_responses_json?.map(
@@ -1031,7 +1030,7 @@ const PreferenceRanking = ({
                   </div>
                   <div
                     style={{
-                      marginLeft: "20px",
+                      paddingLeft: "20px",
                     }}
                   >
                     {question?.input_selections_list?.map(
@@ -1042,7 +1041,7 @@ const PreferenceRanking = ({
                             display: "flex",
                             flexDirection: "row",
                             alignItems: "center",
-                            flexWrap: "wrap",
+                            justifyContent: "space-between",
                           }}
                         >
                           <span>{option} :</span>{" "}
@@ -1126,7 +1125,7 @@ const PreferenceRanking = ({
 
                   <div
                     style={{
-                      marginLeft: "20px",
+                      paddingLeft: "20px",
                     }}
                   >
                     {question?.input_selections_list?.map(
@@ -1136,8 +1135,8 @@ const PreferenceRanking = ({
                           style={{
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "space-between",
                             flexDirection: "row",
-                            flexWrap: "wrap",
                           }}
                         >
                           <span>{option} :</span>{" "}
@@ -1252,8 +1251,6 @@ const PreferenceRanking = ({
       <Box
         className={classes.container}
         sx={{
-          width: "100%",
-          // maxwidth: "2300px",
           display: "flex",
           justifyContent: "flex-start",
           alignItems: "start",
