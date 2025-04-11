@@ -623,6 +623,28 @@ const PreferenceRanking = ({
           width: "calc(100% - 0.1rem)",
         }}
       >
+        {pairs?.length == 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "#C8C7C6",
+            }}
+          >
+            <Typography
+              variant="h2"
+              sx={{
+                fontSize: "3rem",
+              }}
+            >
+              {" "}
+              \(^Д^)/
+            </Typography>
+            <Typography>Nothing to display here!</Typography>
+          </Box>
+        )}
         {pairs.map((pair, index) => {
           return (
             <Accordion
@@ -636,7 +658,6 @@ const PreferenceRanking = ({
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
                   : null,
-                borderBottom: "none",
                 border: "none",
                 margin: 2,
                 width: "inherit",
@@ -657,27 +678,14 @@ const PreferenceRanking = ({
               >
                 <Box
                   sx={{
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 3,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: expanded[index] ? "normal" : "no-wrap",
                   }}
                 >
                   {pair?.prompt}
-                  {
-                    <Tooltip title={pair.prompt} placement="bottom">
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          height: "100%",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {pair.text}
-                      </span>
-                    </Tooltip>
-                  }
                 </Box>
               </AccordionSummary>
               <AccordionDetails
@@ -708,19 +716,21 @@ const PreferenceRanking = ({
                     }}
                     id={pair?.prompt_output_pair_id}
                   />
-                  {clickedPromptOutputPairId === pair.prompt_output_pair_id && <Button
-                    label="Reset"
-                    buttonVariant={"outlined"}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      handleReset(event);
-                    }}
-                    sx={{
-                      marginTop: "1rem",
-                      marginLeft: "1rem",
-                    }}
-                  />}
+                  {clickedPromptOutputPairId === pair.prompt_output_pair_id && (
+                    <Button
+                      label="Reset"
+                      buttonVariant={"outlined"}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        handleReset(event);
+                      }}
+                      sx={{
+                        marginTop: "1rem",
+                        marginLeft: "1rem",
+                      }}
+                    />
+                  )}
                 </Box>
               </AccordionDetails>
             </Accordion>
@@ -1008,8 +1018,8 @@ const PreferenceRanking = ({
                                       ? labels[currentHover]
                                       : initialResponse > 0
                                         ? labels[initialResponse]
-                                        : (initialResponse === undefined ||
-                                            initialResponse === null)
+                                        : initialResponse === undefined ||
+                                            initialResponse === null
                                           ? ""
                                           : currentSelection
                                             ? labels[currentSelection]
