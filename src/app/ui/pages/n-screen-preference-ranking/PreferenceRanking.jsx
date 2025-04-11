@@ -96,6 +96,8 @@ const PreferenceRanking = ({
   const [expanded, setExpanded] = useState(
     Array(interactions.length).fill(false),
   );
+  const [expandedCurrentFormAccordion, setExpandedCurrentFormAccordion] =
+    useState(false);
 
   const handleAccordionChange = (index) => (event, isExpanded) => {
     setExpanded((prevExpanded) => {
@@ -117,6 +119,8 @@ const PreferenceRanking = ({
         ).fill(null),
       })),
     }));
+    setHover({});
+    setSelectedRatings({});
   };
 
   const handleFormBtnClick = (e) => {
@@ -623,6 +627,28 @@ const PreferenceRanking = ({
           width: "calc(100% - 0.1rem)",
         }}
       >
+        {pairs?.length == 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "#C8C7C6",
+            }}
+          >
+            <Typography
+              variant="h2"
+              sx={{
+                fontSize: "3rem",
+              }}
+            >
+              {" "}
+              \(^Д^)/
+            </Typography>
+            <Typography>Nothing to display here!</Typography>
+          </Box>
+        )}
         {pairs.map((pair, index) => {
           return (
             <Accordion
@@ -636,7 +662,6 @@ const PreferenceRanking = ({
                 boxShadow: expanded[index]
                   ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
                   : null,
-                borderBottom: "none",
                 border: "none",
                 margin: 2,
                 width: "inherit",
@@ -663,21 +688,6 @@ const PreferenceRanking = ({
                   }}
                 >
                   {pair?.prompt}
-                  {
-                    <Tooltip title={pair.prompt} placement="bottom">
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          height: "100%",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {pair.text}
-                      </span>
-                    </Tooltip>
-                  }
                 </Box>
               </AccordionSummary>
               <AccordionDetails
@@ -708,19 +718,21 @@ const PreferenceRanking = ({
                     }}
                     id={pair?.prompt_output_pair_id}
                   />
-                  {clickedPromptOutputPairId === pair.prompt_output_pair_id && <Button
-                    label="Reset"
-                    buttonVariant={"outlined"}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      handleReset(event);
-                    }}
-                    sx={{
-                      marginTop: "1rem",
-                      marginLeft: "1rem",
-                    }}
-                  />}
+                  {clickedPromptOutputPairId === pair.prompt_output_pair_id && (
+                    <Button
+                      label="Reset"
+                      buttonVariant={"outlined"}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        handleReset(event);
+                      }}
+                      sx={{
+                        marginTop: "1rem",
+                        marginLeft: "1rem",
+                      }}
+                    />
+                  )}
                 </Box>
               </AccordionDetails>
             </Accordion>
@@ -735,6 +747,10 @@ const PreferenceRanking = ({
       <div className={classes.rightPanel}>
         <Accordion
           defaultExpanded
+          expanded={expandedCurrentFormAccordion}
+          onChange={() => {
+            setExpandedCurrentFormAccordion((prev) => !prev);
+          }}
           sx={{
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             borderRadius: "20px",
@@ -750,7 +766,24 @@ const PreferenceRanking = ({
               <div className={classes.heading} style={{ fontSize: "20px" }}>
                 {translate("modal.prompt")}
               </div>
-              <div style={styles.response1Box}>
+              <div
+                style={{
+                  whiteSpace: "normal",
+                  wordWrap: "break-word",
+                  backgroundColor: "#FFF1EF",
+                  padding: "20px",
+                  borderRadius: "8px",
+                  ...(expandedCurrentFormAccordion
+                    ? {}
+                    : {
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 3,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }),
+                }}
+              >
                 <ReactMarkdown>
                   {formatPrompt(currentInteraction?.prompt)}
                 </ReactMarkdown>
@@ -1008,8 +1041,8 @@ const PreferenceRanking = ({
                                       ? labels[currentHover]
                                       : initialResponse > 0
                                         ? labels[initialResponse]
-                                        : (initialResponse === undefined ||
-                                            initialResponse === null)
+                                        : initialResponse === undefined ||
+                                            initialResponse === null
                                           ? ""
                                           : currentSelection
                                             ? labels[currentSelection]
