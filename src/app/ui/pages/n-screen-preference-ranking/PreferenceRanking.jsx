@@ -96,6 +96,8 @@ const PreferenceRanking = ({
   const [expanded, setExpanded] = useState(
     Array(interactions.length).fill(false),
   );
+  const [expandedCurrentFormAccordion, setExpandedCurrentFormAccordion] =
+    useState(false);
 
   const handleAccordionChange = (index) => (event, isExpanded) => {
     setExpanded((prevExpanded) => {
@@ -117,6 +119,8 @@ const PreferenceRanking = ({
         ).fill(null),
       })),
     }));
+    setHover({});
+    setSelectedRatings({});
   };
 
   const handleFormBtnClick = (e) => {
@@ -678,11 +682,9 @@ const PreferenceRanking = ({
               >
                 <Box
                   sx={{
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
+                    whiteSpace: expanded[index] ? "normal" : "no-wrap",
                   }}
                 >
                   {pair?.prompt}
@@ -745,6 +747,10 @@ const PreferenceRanking = ({
       <div className={classes.rightPanel}>
         <Accordion
           defaultExpanded
+          expanded={expandedCurrentFormAccordion}
+          onChange={() => {
+            setExpandedCurrentFormAccordion((prev) => !prev);
+          }}
           sx={{
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             borderRadius: "20px",
@@ -760,7 +766,24 @@ const PreferenceRanking = ({
               <div className={classes.heading} style={{ fontSize: "20px" }}>
                 {translate("modal.prompt")}
               </div>
-              <div style={styles.response1Box}>
+              <div
+                style={{
+                  whiteSpace: "normal",
+                  wordWrap: "break-word",
+                  backgroundColor: "#FFF1EF",
+                  padding: "20px",
+                  borderRadius: "8px",
+                  ...(expandedCurrentFormAccordion
+                    ? {}
+                    : {
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 3,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }),
+                }}
+              >
                 <ReactMarkdown>
                   {formatPrompt(currentInteraction?.prompt)}
                 </ReactMarkdown>
