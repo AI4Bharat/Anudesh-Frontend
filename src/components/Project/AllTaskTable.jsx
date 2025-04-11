@@ -446,7 +446,7 @@ const AllTaskTable = (props) => {
             <MUIDataTable
               key={`table-${displayWidth}`}
               title={""}
-              data={data}
+              data={tasks}
               columns={columns}
               options={{
                 ...options,
