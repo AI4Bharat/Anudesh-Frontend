@@ -348,6 +348,35 @@ const DatasetCardList = (props) => {
 
 
   };
+  const isXLarge = useMediaQuery("(min-width: 1280px)");
+  const isLarge = useMediaQuery("(min-width: 769px) and (max-width: 1279px)");
+  const isMedium = useMediaQuery("(min-width: 481px) and (max-width: 768px)");
+  const isSmall = useMediaQuery("(max-width: 480px)");
+
+  // Adjust columns based on screen size
+  const responsiveColumns = React.useMemo(() => {
+    return columns;
+    if (isXLarge) {
+      return columns; // Full set of columns
+    }
+    if (isLarge) {
+      return columns.slice(0, Math.max(columns.length - 1, 2)); // Slightly reduced
+    }
+    if (isMedium) {
+      return columns.slice(0, 2); // Limited columns
+    }
+    if (isSmall) {
+      return columns.slice(0, 1); // Minimal columns
+    }
+    return columns; // Default
+  }, [isXLarge, isLarge, isMedium, isSmall, columns]);
+
+  // Adjust options based on screen size
+  const responsiveOptions = {
+    ...options,
+    rowsPerPage: isSmall ? 5 : 10,
+    rowsPerPageOptions: isSmall ? [5] : [10, 25, 50],
+  };
 
   return (
     <>
