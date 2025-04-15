@@ -56,7 +56,6 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   promptContainer: {
-    fontWeight: "bold",
     marginBottom: "1rem",
     color: "#6C5F5B",
   },
@@ -80,7 +79,7 @@ const ModelResponseEvaluationStyle = makeStyles({
 
   hr: {
     border: "1px solid #d8d8d8",
-    marginBottom: "1rem",
+    margin: "1rem 0",
   },
   questionContainer: {
     display: "flex",
