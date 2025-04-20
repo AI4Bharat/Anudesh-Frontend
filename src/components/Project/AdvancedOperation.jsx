@@ -747,20 +747,22 @@ const AdvancedOperation = (props) => {
               }
             />
           </Grid>
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <FormControlLabel
-              control={<Switch color="primary" />}
-              label="Blank Response"
-              labelPlacement="start"
-              checked={blankResponse}
-              onChange={handleMetadata}
-              disabled={
-                userRole.WorkspaceManager === loggedInUserData?.role
-                  ? true
-                  : false
-              }
-            />
-          </Grid>
+          {ProjectDetails?.project_type === "InstructionDrivenChat" && (
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <FormControlLabel
+                control={<Switch color="primary" />}
+                label="Blank Response"
+                labelPlacement="start"
+                checked={blankResponse}
+                onChange={handleMetadata}
+                disabled={
+                  userRole.WorkspaceManager === loggedInUserData?.role
+                    ? true
+                    : false
+                }
+              />
+            </Grid>
+          )}
         </Grid>
         </Grid>
 
