@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import CustomButton from "@/components/common/Button";
 import CustomizedSnackbars from "@/components/common/Snackbar"
@@ -10,7 +10,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import Stack from "@mui/material/Stack";
 import TablePagination from "@mui/material/TablePagination";
 import Skeleton from "@mui/material/Skeleton";
 import { ThemeProvider } from "@mui/material";
@@ -274,11 +273,6 @@ export default function DatasetProjectsTable({ datasetId }) {
 
 				return el;
 			}
-			//   } else if (
-			//     el.email?.toLowerCase().includes(SearchWorkspaceMembers?.toLowerCase())
-			//   ) {
-			//     return el;
-			//   }
 		});
 	};
 
@@ -286,7 +280,6 @@ export default function DatasetProjectsTable({ datasetId }) {
 
 	const getPullNewDataAPI = async (project) => {
 		const projectObj = new GetPullNewDataAPI(project.id);
-		//dispatch(APITransport(projectObj));
 		const res = await fetch(projectObj.apiEndPoint(), {
 			method: "POST",
 			body: JSON.stringify(projectObj.getBody()),
@@ -337,8 +330,6 @@ export default function DatasetProjectsTable({ datasetId }) {
 			</>
 		),
 	})) : []
-	// )
-	console.log(data);
 	return (
 		<>
 			<ThemeProvider theme={tableTheme}>

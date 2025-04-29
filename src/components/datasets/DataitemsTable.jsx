@@ -1,12 +1,11 @@
 import dynamic from "next/dynamic";
 import { styled } from "@mui/material/styles";
-import { Fragment, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import {  useEffect, useState } from "react";
+import {  useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ThemeProvider } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Skeleton from "@mui/material/Skeleton";
@@ -21,9 +20,7 @@ import DatasetSearchPopup from "./DatasetSearchPopup";
 import Spinner from "@/components/common/Spinner";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import ReactJson from "react-json-view";
-import { CircularProgress } from "@mui/material/CircularProgress";
 
-// Styled component for the cell content with truncation
 const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
@@ -35,7 +32,6 @@ const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
   transition: "max-height 1.8s ease-in-out",
 }));
 
-// Row container with transition
 const RowContainer = styled(Box)(({ theme, expanded }) => ({
   cursor: "pointer",
   transition: "all 1.8s ease-in-out",
@@ -59,16 +55,12 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 
 const excludeKeys = [
   "parent_data_id",
-  // "metadata_json",
   "instance_id_id",
   "datasetbase_ptr_id",
   "key",
   "instance_id",
   "speakers_json",
-  // "conversation_json",
-  // "transcribed_json",
   "machine_transcribed_json",
-  // "prediction_json",
   "conversation_json",
   "machine_translated_conversation_json",
   "speakers_json",
@@ -81,10 +73,32 @@ const excludeKeys = [
   "annotation_transcripts",
 ];
 
+const defaultSelectedColumns = [
+  "id",
+  "prompt",
+  "model",
+  "output",
+  "meta_info_model",
+  "meta_info_language",
+  "eval_form_output_json",
+  "eval_time_taken",
+  "interaction_id",
+  "no_of_turns",
+  "language",
+  "time_taken",
+  "meta_info_intent",
+  "meta_info_domain",
+  "meta_info_language",
+  "meta_info_structure",
+  "instruction_data",
+  "no_of_models",
+  "datetime",
+  "parent_data",
+];
+
 const JSONViewer = ({ data, initiallyExpanded = false }) => {
   const [expanded, setExpanded] = useState(initiallyExpanded);
 
-  // Parse JSON if it's a string
   let jsonData;
   try {
     jsonData = typeof data === "string" ? JSON.parse(data) : data;
@@ -92,7 +106,6 @@ const JSONViewer = ({ data, initiallyExpanded = false }) => {
     return <Box sx={{ p: 1 }}>Invalid JSON</Box>;
   }
 
-  // Check if JSON is empty or null
   if (
     !jsonData ||
     (typeof jsonData === "object" && Object.keys(jsonData).length === 0)
@@ -186,7 +199,6 @@ const DataitemsTable = () => {
   const { datasetId } = useParams();
   const dispatch = useDispatch();
   const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
-  // const filterdataitemsList =useSelector((state) => state.datasetSearchPopup.data);
   const DatasetDetails = useSelector((state) => state.getDatasetDetails.data);
   const apiLoading = useSelector((state) => state.apiStatus.loading);
   const [displayWidth, setDisplayWidth] = useState(0);
@@ -239,43 +251,20 @@ const DataitemsTable = () => {
     };
   }, []);
 
-  // Define your default columns
-  const defaultSelectedColumns = [
-    "id",
-    "prompt",
-    "model",
-    "output",
-    "meta_info_model",
-    "meta_info_language",
-    "eval_form_output_json",
-    "eval_time_taken",
-    "interaction_id",
-    "no_of_turns",
-    "language",
-    "time_taken",
-    "meta_info_intent",
-    "meta_info_domain",
-    "meta_info_language",
-    "meta_info_structure",
-    "instruction_data",
-    "no_of_models",
-    "datetime",
-    "parent_data",
-  ];
-
   useEffect(() => {
     let fetchedItems = dataitemsList?.results;
     setTotalDataitems(dataitemsList?.count);
-    fetchedItems = dataitemsList?.results;
     setDataitems(fetchedItems);
 
     let tempColumns = [];
-    let tempSelected = [];
+    if(selectedColumns.length === 0) {
+      columns.length === 0 ? setSelectedColumns(defaultSelectedColumns) : setSelectedColumns(columns);
+    }
+    
     if (fetchedItems?.length) {
       Object.keys(fetchedItems[0]).forEach((key) => {
         if (!excludeKeys.includes(key)) {
-          const isDefaultColumn = selectedColumns.length > 0 ? selectedColumns.includes(key) : defaultSelectedColumns.includes(key);
-
+          const isSelectedColumn = selectedColumns.includes(key)
           // Check if the column contains JSON data
           const isJsonColumn =
             key === "eval_form_output_json" ||
@@ -293,7 +282,7 @@ const DataitemsTable = () => {
               options: {
                 filter: false,
                 sort: false,
-                display: isDefaultColumn ? "true" : "false",
+                display: isSelectedColumn ? "true" : "false",
                 viewColumns: true,
                 align: "center",
                 customHeadLabelRender: customColumnHead,
@@ -325,7 +314,7 @@ const DataitemsTable = () => {
               options: {
                 filter: false,
                 sort: false,
-                display: isDefaultColumn ? "true" : "false",
+                display: isSelectedColumn ? "true" : "false",
                 viewColumns: true,
                 align: "center",
                 customHeadLabelRender: customColumnHead,
@@ -352,123 +341,31 @@ const DataitemsTable = () => {
               },
             });
           }
-
-          if (isDefaultColumn) {
-            tempSelected.push(key);
-          }
         }
       });
     }
     setColumns(tempColumns);
-    setSelectedColumns(tempSelected);
-  }, [dataitemsList]);
+  }, [dataitemsList, expandedRow]);
 
   useEffect(() => {
-    let fetchedItems = dataitemsList?.results;
-    let tempColumns = [];
-
-    if (fetchedItems?.length) {
-      Object.keys(fetchedItems[0]).forEach((key) => {
-        if (!excludeKeys.includes(key)) {
-          const isSelectedColumn = selectedColumns.includes(key);
-
-          // Check if the column contains JSON data
-          const isJsonColumn =
-            key === "eval_form_output_json" ||
-            key === "metadata_json" ||
-            key === "prediction_json" ||
-            key === "ocr_prediction_json" ||
-            key === "transcribed_json" ||
-            key === "draft_data_json" ||
-            key === "ocr_transcribed_json";
-
-          if (isJsonColumn) {
-            tempColumns.push({
-              name: key,
-              label: snakeToTitleCase(key),
-              options: {
-                filter: false,
-                sort: false,
-                display: isSelectedColumn ? "true" : "false",
-                viewColumns: true,
-                align: "center",
-                customHeadLabelRender: customColumnHead,
-                customBodyRender: (value) => {
-                  if (!value) return null;
-
-                  return (
-                    <Box
-                      sx={{
-                        width: "100%",
-                        minWidth: "250px",
-                        maxWidth: "500px",
-                        m: 1,
-                        border: "1px solid rgba(224, 224, 224, 1)",
-                        borderRadius: "4px",
-                        backgroundColor: "rgba(250, 250, 250, 0.9)",
-                      }}
-                    >
-                      <JSONViewer data={value} />
-                    </Box>
-                  );
-                },
-              },
-            });
-          } else {
-            // Keep the original code for non-JSON columns
-            tempColumns.push({
-              name: key,
-              label: snakeToTitleCase(key),
-              options: {
-                filter: false,
-                sort: false,
-                display: isSelectedColumn ? "true" : "false",
-                viewColumns: true,
-                align: "center",
-                customHeadLabelRender: customColumnHead,
-                customBodyRender: (value, tableMeta) => {
-                  const rowIndex = tableMeta.rowIndex;
-                  const isExpanded = expandedRow === rowIndex;
-
-                  return (
-                    <RowContainer
-                      expanded={isExpanded}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedRow((prevExpanded) =>
-                          prevExpanded === rowIndex ? null : rowIndex,
-                        );
-                      }}
-                    >
-                      <TruncatedContent expanded={isExpanded}>
-                        {value}
-                      </TruncatedContent>
-                    </RowContainer>
-                  );
-                },
-              },
-            });
-          }
-        }
-      });
+    if (columns.length > 0 && selectedColumns.length > 0) {
+      const newCols = columns.map((col) => ({
+        ...col,
+        options: {
+          ...col.options,
+          display: selectedColumns.includes(col.name) ? "true" : "false",
+        },
+      }));
+      if (JSON.stringify(newCols) !== JSON.stringify(columns)) {
+        setColumns(newCols);
+      }
     }
-    setColumns(tempColumns);
-  }, [expandedRow]);
+  }, [selectedColumns, columns]);
 
   useEffect(() => {
     setShowSpinner(true);
     getDataitems();
   }, [currentPageNumber, currentRowPerPage, selectedFilters]);
-
-  useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-  }, [selectedColumns]);
 
   const handleShowSearch = (col, event) => {
     setSearchAnchor(event.currentTarget);
@@ -650,7 +547,6 @@ const DataitemsTable = () => {
         changePage={changePage}
       />
     ),
-    rowHover: false, // Disable default row hover as we handle it in our custom component
     onRowClick: null,
   };
 

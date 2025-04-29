@@ -23,7 +23,24 @@ import { snakeToTitleCase } from "@/utils/utils";
 import tableTheme from "@/themes/tableTheme";
 import Spinner from "@/components/common/Spinner";
 import GetProjectLogsAPI from "@/app/actions/api/Projects/getProjectLogsAPI";
+import { styled } from "@mui/material/styles";
 
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -61,7 +78,7 @@ const ProjectLogs = () => {
     message: "",
     variant: "success",
   });
-
+  const [expandedRow, setExpandedRow] = useState(null);
   const [selectRange, setSelectRange] = useState([
     {
       startDate: addMonths(new Date(), -3),
@@ -151,6 +168,26 @@ const ProjectLogs = () => {
             filter: key === "status",
             sort: false,
             align: "center",
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         });
       });
@@ -160,7 +197,7 @@ const ProjectLogs = () => {
       setColumns([]);
       setProjectLogs([]);
     }
-  }, [allLogs]);
+  }, [allLogs, expandedRow]);
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
       <Box

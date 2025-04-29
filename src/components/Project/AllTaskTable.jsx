@@ -24,8 +24,9 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import AllTasksFilterList from "./AllTasksFilterList";
 import CustomButton from "../common/Button";
 import SearchIcon from "@mui/icons-material/Search";
-import AllTaskSearchPopup from "./AllTasksSearchpopup";
+import SearchPopup from "./SearchPopup"
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
+import { styled } from "@mui/material/styles";
 
 const excludeCols = [
   "avg_rating",
@@ -50,6 +51,22 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -83,7 +100,6 @@ const AllTaskTable = (props) => {
     variant: "success",
   });
   const [columns, setColumns] = useState([]);
-  const [selectedColumns, setSelectedColumns] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchAnchor, setSearchAnchor] = useState(null);
@@ -103,7 +119,6 @@ const AllTaskTable = (props) => {
     (state) => state.getAllTaskData.data.total_count,
   );
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const userDetails = useSelector((state) => state.getLoggedInData.data);
   const filterData = {
     Status: [
       "incomplete",
@@ -229,6 +244,26 @@ const AllTaskTable = (props) => {
             sort: false,
             align: "center",
             customHeadLabelRender: customColumnHead,
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         };
       });
@@ -236,7 +271,6 @@ const AllTaskTable = (props) => {
         cols.splice(1, 2);
       }
       setColumns(cols);
-      setSelectedColumns(colList);
       data.forEach(ele => {
         if (ele.length == 6) {
           ele.splice(1, 2);
@@ -246,17 +280,7 @@ const AllTaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [AllTaskData, ProjectDetails]);
-
-  useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-  }, [selectedColumns]);
+  }, [AllTaskData, ProjectDetails, expandedRow]);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -298,14 +322,8 @@ const AllTaskTable = (props) => {
   };
 
   const renderToolBar = () => {
-    // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
-        {/* <ColumnList
-                columns={columns}
-                setColumns={setSelectedColumns}
-                selectedColumns={selectedColumns}
-            /> */}
         <Tooltip title="Filter Table">
           <Button onClick={handleShowFilter}>
             <FilterListIcon />
@@ -467,15 +485,13 @@ const AllTaskTable = (props) => {
             />
           )}
           {searchOpen && (
-            <AllTaskSearchPopup
+            <SearchPopup
               open={searchOpen}
               anchorEl={searchAnchor}
               handleClose={handleSearchClose}
               updateFilters={setSelectedFilters}
-              //filterStatusData={filterData}
               currentFilters={selectedFilters}
               searchedCol={searchedCol}
-              onchange={GetAllTasksdata}
             />
           )}
         </div>
