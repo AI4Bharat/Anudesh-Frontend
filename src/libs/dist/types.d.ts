@@ -82,6 +82,8 @@ export interface IndicTransliterateProps extends React.HTMLProps<HTMLInputElemen
     horizontalView?: boolean;
     customApiURL?: string;
     apiKey?: string;
+    enableASR?: boolean;
+    asrApiUrl?: string;
 }
 type LangObject = {
     Author: string;
@@ -106,6 +108,6 @@ type Config = {
 };
 export const getTransliterateSuggestions: (word: string, customApiURL: string, apiKey: string, config?: Config | undefined) => Promise<string[] | undefined>;
 export const getTransliterationLanguages: () => Promise<LangObject[] | undefined>;
-export const IndicTransliterate: ({ renderComponent, lang, offsetX, offsetY, onChange, onChangeText, onBlur, value, onKeyDown, containerClassName, containerStyles, activeItemStyles, maxOptions, hideSuggestionBoxOnMobileDevices, hideSuggestionBoxBreakpoint, triggerKeys, insertCurrentSelectionOnBlur, showCurrentWordAsLastSuggestion, enabled, horizontalView, customApiURL, apiKey, ...rest }: IndicTransliterateProps) => JSX.Element;
+export const IndicTransliterate: ({ renderComponent, lang, offsetX, offsetY, onChange, onChangeText, onBlur, value, onKeyDown, containerClassName, containerStyles, activeItemStyles, maxOptions, hideSuggestionBoxOnMobileDevices, hideSuggestionBoxBreakpoint, triggerKeys, insertCurrentSelectionOnBlur, showCurrentWordAsLastSuggestion, enabled, horizontalView, customApiURL, apiKey, enableASR, asrApiUrl, ...rest }: IndicTransliterateProps) => JSX.Element;
 
 //# sourceMappingURL=types.d.ts.map

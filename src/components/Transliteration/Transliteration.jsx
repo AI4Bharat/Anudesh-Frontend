@@ -132,6 +132,8 @@ const Transliteration = (props) => {
           setText(val);
         }}
         renderComponent={(props) => renderTextarea(props)}
+        enableASR={true}
+        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api`}
       />
       <Grid
         container

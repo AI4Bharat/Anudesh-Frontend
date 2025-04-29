@@ -472,6 +472,8 @@ const InstructionDrivenChatPage = ({
                       handleTextChange(e, null, message, "prompt")
                     }
                     lang={targetLang}
+                    enableASR={true}
+                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api`}
                   />
                 ) : (
                   <textarea
@@ -587,6 +589,8 @@ const InstructionDrivenChatPage = ({
                           // resize: "none",
                           width: "100%",
                         }}
+                        enableASR={true}
+                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api`}
                       />
                     ) : (
                       <textarea

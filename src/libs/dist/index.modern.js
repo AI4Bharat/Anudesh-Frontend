@@ -1,28 +1,15 @@
-var $dWhh5$reactjsxruntime = require("react/jsx-runtime");
-var $dWhh5$react = require("react");
-var $dWhh5$textareacaret = require("textarea-caret");
+import {jsx as $eSIqy$jsx, jsxs as $eSIqy$jsxs} from "react/jsx-runtime";
+import {useState as $eSIqy$useState, useRef as $eSIqy$useRef, useMemo as $eSIqy$useMemo, useEffect as $eSIqy$useEffect} from "react";
+import $eSIqy$textareacaret from "textarea-caret";
 
 
-function $parcel$interopDefault(a) {
-  return a && a.__esModule ? a.default : a;
-}
 
-function $parcel$export(e, n, v, s) {
-  Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
-}
-
-$parcel$export(module.exports, "IndicTransliterate", () => $3f93eb6d5bf69cb7$export$a62758b764e9e41d);
-$parcel$export(module.exports, "TriggerKeys", () => $9090cd5fdacb9284$export$24b0ea3375909d37);
-$parcel$export(module.exports, "getTransliterateSuggestions", () => $ad7f01abe8daa1b6$export$27f30d10c00bcc6c);
-$parcel$export(module.exports, "getTransliterationLanguages", () => $bb5a013037ca2153$export$58f2e270169de9d3);
-
-
-function $6a2317d46b969b19$export$e27e3030245d4c9b() {
+function $19eb910254214610$export$e27e3030245d4c9b() {
     return "ontouchstart" in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 }
 
 
-function $94c75e1d9a9e24f0$export$8a4ff65f970d59a5(el) {
+function $2f5cf912a7dc4b84$export$8a4ff65f970d59a5(el) {
     const start = 0;
     const end = 0;
     if (!el) return {
@@ -38,7 +25,7 @@ function $94c75e1d9a9e24f0$export$8a4ff65f970d59a5(el) {
         end: end
     };
 }
-function $94c75e1d9a9e24f0$export$97ab23b40042f8af(elem, caretPos) {
+function $2f5cf912a7dc4b84$export$97ab23b40042f8af(elem, caretPos) {
     if (elem) {
         if (elem.selectionStart) {
             elem.focus();
@@ -51,7 +38,7 @@ function $94c75e1d9a9e24f0$export$97ab23b40042f8af(elem, caretPos) {
 
 
 
-const $9090cd5fdacb9284$export$24b0ea3375909d37 = {
+const $5ac81081e5c28bfa$export$24b0ea3375909d37 = {
     KEY_RETURN: "Enter",
     KEY_ENTER: "Enter",
     KEY_TAB: "Tab",
@@ -59,19 +46,19 @@ const $9090cd5fdacb9284$export$24b0ea3375909d37 = {
 };
 
 
-const $ad7f01abe8daa1b6$var$MAX_CACHE_SIZE = 10000;
-const $ad7f01abe8daa1b6$var$SAVE_THRESHOLD = 20;
-const $ad7f01abe8daa1b6$var$CACHE_KEY = 'transliterationCache';
-const $ad7f01abe8daa1b6$var$cache = $ad7f01abe8daa1b6$var$loadCacheFromLocalStorage();
-let $ad7f01abe8daa1b6$var$newEntriesCount = 0;
-function $ad7f01abe8daa1b6$var$loadCacheFromLocalStorage() {
-    const cachedData = localStorage.getItem($ad7f01abe8daa1b6$var$CACHE_KEY);
+const $69c8f257da8dc8b1$var$MAX_CACHE_SIZE = 10000;
+const $69c8f257da8dc8b1$var$SAVE_THRESHOLD = 20;
+const $69c8f257da8dc8b1$var$CACHE_KEY = 'transliterationCache';
+const $69c8f257da8dc8b1$var$cache = $69c8f257da8dc8b1$var$loadCacheFromLocalStorage();
+let $69c8f257da8dc8b1$var$newEntriesCount = 0;
+function $69c8f257da8dc8b1$var$loadCacheFromLocalStorage() {
+    const cachedData = localStorage.getItem($69c8f257da8dc8b1$var$CACHE_KEY);
     return cachedData ? JSON.parse(cachedData) : {};
 }
-function $ad7f01abe8daa1b6$var$saveCacheToLocalStorage() {
-    localStorage.setItem($ad7f01abe8daa1b6$var$CACHE_KEY, JSON.stringify($ad7f01abe8daa1b6$var$cache));
+function $69c8f257da8dc8b1$var$saveCacheToLocalStorage() {
+    localStorage.setItem($69c8f257da8dc8b1$var$CACHE_KEY, JSON.stringify($69c8f257da8dc8b1$var$cache));
 }
-const $ad7f01abe8daa1b6$var$getWordWithLowestFrequency = (dictionary)=>{
+const $69c8f257da8dc8b1$var$getWordWithLowestFrequency = (dictionary)=>{
     let lowestFreqWord = null;
     let lowestFreq = Infinity;
     for(const word in dictionary)if (dictionary[word].frequency < lowestFreq) {
@@ -80,17 +67,17 @@ const $ad7f01abe8daa1b6$var$getWordWithLowestFrequency = (dictionary)=>{
     }
     return lowestFreqWord;
 };
-const $ad7f01abe8daa1b6$export$27f30d10c00bcc6c = async (word, customApiURL, apiKey, config)=>{
+const $69c8f257da8dc8b1$export$27f30d10c00bcc6c = async (word, customApiURL, apiKey, config)=>{
     const { showCurrentWordAsLastSuggestion: // numOptions = 5,
     showCurrentWordAsLastSuggestion = true, lang: lang = "hi" } = config || {};
     // fetch suggestion from api
     // const url = `https://www.google.com/inputtools/request?ime=transliteration_en_${lang}&num=5&cp=0&cs=0&ie=utf-8&oe=utf-8&app=jsapi&text=${word}`;
     // let myHeaders = new Headers();
     // myHeaders.append("Content-Type", "application/json");
-    if (!$ad7f01abe8daa1b6$var$cache[lang]) $ad7f01abe8daa1b6$var$cache[lang] = {};
-    if ($ad7f01abe8daa1b6$var$cache[lang][word.toLowerCase()]) {
-        $ad7f01abe8daa1b6$var$cache[lang][word.toLowerCase()].frequency += 1;
-        return $ad7f01abe8daa1b6$var$cache[lang][word.toLowerCase()].suggestions;
+    if (!$69c8f257da8dc8b1$var$cache[lang]) $69c8f257da8dc8b1$var$cache[lang] = {};
+    if ($69c8f257da8dc8b1$var$cache[lang][word.toLowerCase()]) {
+        $69c8f257da8dc8b1$var$cache[lang][word.toLowerCase()].frequency += 1;
+        return $69c8f257da8dc8b1$var$cache[lang][word.toLowerCase()].suggestions;
     }
     const requestOptions = {
         method: "GET",
@@ -108,18 +95,18 @@ const $ad7f01abe8daa1b6$export$27f30d10c00bcc6c = async (word, customApiURL, api
                 ...data.result,
                 word
             ] : data.result;
-            if (Object.keys($ad7f01abe8daa1b6$var$cache[lang]).length >= $ad7f01abe8daa1b6$var$MAX_CACHE_SIZE) {
-                const lowestFreqWord = $ad7f01abe8daa1b6$var$getWordWithLowestFrequency($ad7f01abe8daa1b6$var$cache[lang]);
-                if (lowestFreqWord) delete $ad7f01abe8daa1b6$var$cache[lang][lowestFreqWord];
+            if (Object.keys($69c8f257da8dc8b1$var$cache[lang]).length >= $69c8f257da8dc8b1$var$MAX_CACHE_SIZE) {
+                const lowestFreqWord = $69c8f257da8dc8b1$var$getWordWithLowestFrequency($69c8f257da8dc8b1$var$cache[lang]);
+                if (lowestFreqWord) delete $69c8f257da8dc8b1$var$cache[lang][lowestFreqWord];
             }
-            $ad7f01abe8daa1b6$var$cache[lang][word.toLowerCase()] = {
+            $69c8f257da8dc8b1$var$cache[lang][word.toLowerCase()] = {
                 suggestions: found,
                 frequency: 1
             };
-            $ad7f01abe8daa1b6$var$newEntriesCount += 1;
-            if ($ad7f01abe8daa1b6$var$newEntriesCount >= $ad7f01abe8daa1b6$var$SAVE_THRESHOLD) {
-                $ad7f01abe8daa1b6$var$saveCacheToLocalStorage();
-                $ad7f01abe8daa1b6$var$newEntriesCount = 0;
+            $69c8f257da8dc8b1$var$newEntriesCount += 1;
+            if ($69c8f257da8dc8b1$var$newEntriesCount >= $69c8f257da8dc8b1$var$SAVE_THRESHOLD) {
+                $69c8f257da8dc8b1$var$saveCacheToLocalStorage();
+                $69c8f257da8dc8b1$var$newEntriesCount = 0;
             }
             return found;
         } else {
@@ -137,17 +124,17 @@ const $ad7f01abe8daa1b6$export$27f30d10c00bcc6c = async (word, customApiURL, api
         return [];
     }
 };
-window.addEventListener('beforeunload', $ad7f01abe8daa1b6$var$saveCacheToLocalStorage);
+window.addEventListener('beforeunload', $69c8f257da8dc8b1$var$saveCacheToLocalStorage);
 
 
-const $905ee54827307cc1$export$ca6dda5263526f75 = "https://xlit-api.ai4bharat.org/";
-const $905ee54827307cc1$export$a238c5e20ae27fe7 = "https://xlit-api.ai4bharat.org/tl/";
+const $b9b628447857a10a$export$ca6dda5263526f75 = "https://xlit-api.ai4bharat.org/";
+const $b9b628447857a10a$export$a238c5e20ae27fe7 = "https://xlit-api.ai4bharat.org/tl/";
 
 
-const $bb5a013037ca2153$export$58f2e270169de9d3 = async ()=>{
+const $d8161b358c525845$export$58f2e270169de9d3 = async ()=>{
     if (sessionStorage.getItem("indic_transliterate__supported_languages")) return JSON.parse(sessionStorage.getItem("indic_transliterate__supported_languages") || "");
     else {
-        const apiURL = `${(0, $905ee54827307cc1$export$ca6dda5263526f75)}languages`;
+        const apiURL = `${(0, $b9b628447857a10a$export$ca6dda5263526f75)}languages`;
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         const requestOptions = {
@@ -167,41 +154,41 @@ const $bb5a013037ca2153$export$58f2e270169de9d3 = async ()=>{
 
 
 
-const $3f93eb6d5bf69cb7$var$KEY_UP = "ArrowUp";
-const $3f93eb6d5bf69cb7$var$KEY_DOWN = "ArrowDown";
-const $3f93eb6d5bf69cb7$var$KEY_LEFT = "ArrowLeft";
-const $3f93eb6d5bf69cb7$var$KEY_RIGHT = "ArrowRight";
-const $3f93eb6d5bf69cb7$var$KEY_ESCAPE = "Escape";
-const $3f93eb6d5bf69cb7$var$OPTION_LIST_Y_OFFSET = 10;
-const $3f93eb6d5bf69cb7$var$OPTION_LIST_MIN_WIDTH = 100;
-const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComponent = (props)=>/*#__PURE__*/ (0, $dWhh5$reactjsxruntime.jsx)("input", {
+const $41d49c8a6078fe3c$var$KEY_UP = "ArrowUp";
+const $41d49c8a6078fe3c$var$KEY_DOWN = "ArrowDown";
+const $41d49c8a6078fe3c$var$KEY_LEFT = "ArrowLeft";
+const $41d49c8a6078fe3c$var$KEY_RIGHT = "ArrowRight";
+const $41d49c8a6078fe3c$var$KEY_ESCAPE = "Escape";
+const $41d49c8a6078fe3c$var$OPTION_LIST_Y_OFFSET = 10;
+const $41d49c8a6078fe3c$var$OPTION_LIST_MIN_WIDTH = 100;
+const $41d49c8a6078fe3c$export$a62758b764e9e41d = ({ renderComponent: renderComponent = (props)=>/*#__PURE__*/ (0, $eSIqy$jsx)("input", {
         ...props
     }), lang: lang = "hi", offsetX: offsetX = 0, offsetY: offsetY = 10, onChange: onChange, onChangeText: onChangeText, onBlur: onBlur, value: value, onKeyDown: onKeyDown, containerClassName: containerClassName = "", containerStyles: containerStyles = {}, activeItemStyles: activeItemStyles = {}, maxOptions: maxOptions = 5, hideSuggestionBoxOnMobileDevices: hideSuggestionBoxOnMobileDevices = false, hideSuggestionBoxBreakpoint: hideSuggestionBoxBreakpoint = 450, triggerKeys: triggerKeys = [
-    (0, $9090cd5fdacb9284$export$24b0ea3375909d37).KEY_SPACE,
-    (0, $9090cd5fdacb9284$export$24b0ea3375909d37).KEY_ENTER,
-    (0, $9090cd5fdacb9284$export$24b0ea3375909d37).KEY_RETURN,
-    (0, $9090cd5fdacb9284$export$24b0ea3375909d37).KEY_TAB
-], insertCurrentSelectionOnBlur: insertCurrentSelectionOnBlur = true, showCurrentWordAsLastSuggestion: showCurrentWordAsLastSuggestion = true, enabled: enabled = true, horizontalView: horizontalView = false, customApiURL: customApiURL = (0, $905ee54827307cc1$export$a238c5e20ae27fe7), apiKey: apiKey = "", enableASR: enableASR = false, asrApiUrl: asrApiUrl = "", ...rest })=>{
-    const [left, setLeft] = (0, $dWhh5$react.useState)(0);
-    const [top, setTop] = (0, $dWhh5$react.useState)(0);
-    const [selection, setSelection] = (0, $dWhh5$react.useState)(0);
-    const [matchStart, setMatchStart] = (0, $dWhh5$react.useState)(-1);
-    const [matchEnd, setMatchEnd] = (0, $dWhh5$react.useState)(-1);
-    const inputRef = (0, $dWhh5$react.useRef)(null);
-    const [windowSize, setWindowSize] = (0, $dWhh5$react.useState)({
+    (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_SPACE,
+    (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_ENTER,
+    (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_RETURN,
+    (0, $5ac81081e5c28bfa$export$24b0ea3375909d37).KEY_TAB
+], insertCurrentSelectionOnBlur: insertCurrentSelectionOnBlur = true, showCurrentWordAsLastSuggestion: showCurrentWordAsLastSuggestion = true, enabled: enabled = true, horizontalView: horizontalView = false, customApiURL: customApiURL = (0, $b9b628447857a10a$export$a238c5e20ae27fe7), apiKey: apiKey = "", enableASR: enableASR = false, asrApiUrl: asrApiUrl = "", ...rest })=>{
+    const [left, setLeft] = (0, $eSIqy$useState)(0);
+    const [top, setTop] = (0, $eSIqy$useState)(0);
+    const [selection, setSelection] = (0, $eSIqy$useState)(0);
+    const [matchStart, setMatchStart] = (0, $eSIqy$useState)(-1);
+    const [matchEnd, setMatchEnd] = (0, $eSIqy$useState)(-1);
+    const inputRef = (0, $eSIqy$useRef)(null);
+    const [windowSize, setWindowSize] = (0, $eSIqy$useState)({
         width: 0,
         height: 0
     });
-    const [direction, setDirection] = (0, $dWhh5$react.useState)("ltr");
-    const [googleFont, setGoogleFont] = (0, $dWhh5$react.useState)(null);
-    const [options, setOptions] = (0, $dWhh5$react.useState)([]);
-    const [logJsonArray, setLogJsonArray] = (0, $dWhh5$react.useState)([]);
-    const [numSpaces, setNumSpaces] = (0, $dWhh5$react.useState)(0);
-    const [parentUuid, setParentUuid] = (0, $dWhh5$react.useState)("0");
-    const [uuid, setUuid] = (0, $dWhh5$react.useState)(Math.random().toString(36).substr(2, 9));
-    const [subStrLength, setSubStrLength] = (0, $dWhh5$react.useState)(0);
-    const [restart, setRestart] = (0, $dWhh5$react.useState)(true);
-    const shouldRenderSuggestions = (0, $dWhh5$react.useMemo)(()=>hideSuggestionBoxOnMobileDevices ? windowSize.width > hideSuggestionBoxBreakpoint : true, [
+    const [direction, setDirection] = (0, $eSIqy$useState)("ltr");
+    const [googleFont, setGoogleFont] = (0, $eSIqy$useState)(null);
+    const [options, setOptions] = (0, $eSIqy$useState)([]);
+    const [logJsonArray, setLogJsonArray] = (0, $eSIqy$useState)([]);
+    const [numSpaces, setNumSpaces] = (0, $eSIqy$useState)(0);
+    const [parentUuid, setParentUuid] = (0, $eSIqy$useState)("0");
+    const [uuid, setUuid] = (0, $eSIqy$useState)(Math.random().toString(36).substr(2, 9));
+    const [subStrLength, setSubStrLength] = (0, $eSIqy$useState)(0);
+    const [restart, setRestart] = (0, $eSIqy$useState)(true);
+    const shouldRenderSuggestions = (0, $eSIqy$useMemo)(()=>hideSuggestionBoxOnMobileDevices ? windowSize.width > hideSuggestionBoxBreakpoint : true, [
         windowSize,
         hideSuggestionBoxBreakpoint,
         hideSuggestionBoxOnMobileDevices
@@ -235,7 +222,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
         // set the position of the caret (cursor) one character after the
         // the position of the new word
         setTimeout(()=>{
-            (0, $94c75e1d9a9e24f0$export$97ab23b40042f8af)(// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            (0, $2f5cf912a7dc4b84$export$97ab23b40042f8af)(// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             inputRef.current, matchStart + options[index].length + 1);
         }, 1);
         // bubble up event to the parent component
@@ -256,7 +243,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
         // const numOptions = showCurrentWordAsLastSuggestion
         //   ? maxOptions - 1
         //   : maxOptions;
-        const data = await (0, $ad7f01abe8daa1b6$export$27f30d10c00bcc6c)(lastWord, customApiURL, apiKey, {
+        const data = await (0, $69c8f257da8dc8b1$export$27f30d10c00bcc6c)(lastWord, customApiURL, apiKey, {
             showCurrentWordAsLastSuggestion: // numOptions,
             showCurrentWordAsLastSuggestion,
             lang: lang
@@ -280,7 +267,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
         ]);
     };
     const getDirectionAndFont = async (lang)=>{
-        const langList = await (0, $bb5a013037ca2153$export$58f2e270169de9d3)();
+        const langList = await (0, $d8161b358c525845$export$58f2e270169de9d3)();
         const langObj = langList === null || langList === void 0 ? void 0 : langList.find((l)=>l.LangCode === lang);
         var _langObj_Direction;
         return [
@@ -327,10 +314,10 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
         onChangeText(value);
         if (!shouldRenderSuggestions) return;
         // get the current index of the cursor
-        const caret = (0, $94c75e1d9a9e24f0$export$8a4ff65f970d59a5)(e.target).end;
+        const caret = (0, $2f5cf912a7dc4b84$export$8a4ff65f970d59a5)(e.target).end;
         const input = inputRef.current;
         if (!input) return;
-        const caretPos = (0, ($parcel$interopDefault($dWhh5$textareacaret)))(input, caret);
+        const caretPos = (0, $eSIqy$textareacaret)(input, caret);
         // search for the last occurence of the space character from
         // the cursor
         const indexOfLastSpace = value.lastIndexOf(" ", caret - 1) < value.lastIndexOf("\n", caret - 1) ? value.lastIndexOf("\n", caret - 1) : value.lastIndexOf(" ", caret - 1);
@@ -352,10 +339,10 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
             // calculate new left and top of the suggestion list
             // minimum of the caret position in the text input and the
             // width of the text input
-            const left = Math.min(caretPos.left, rect.width - $3f93eb6d5bf69cb7$var$OPTION_LIST_MIN_WIDTH / 2);
+            const left = Math.min(caretPos.left, rect.width - $41d49c8a6078fe3c$var$OPTION_LIST_MIN_WIDTH / 2);
             // minimum of the caret position from the top of the input
             // and the height of the input
-            const top = Math.min(caretPos.top + $3f93eb6d5bf69cb7$var$OPTION_LIST_Y_OFFSET, rect.height);
+            const top = Math.min(caretPos.top + $41d49c8a6078fe3c$var$OPTION_LIST_Y_OFFSET, rect.height);
             setTop(top);
             setLeft(left);
         } else reset();
@@ -367,23 +354,23 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
                 event.preventDefault();
                 handleSelection(selection);
             } else switch(event.key){
-                case $3f93eb6d5bf69cb7$var$KEY_ESCAPE:
+                case $41d49c8a6078fe3c$var$KEY_ESCAPE:
                     event.preventDefault();
                     reset();
                     break;
-                case $3f93eb6d5bf69cb7$var$KEY_UP:
+                case $41d49c8a6078fe3c$var$KEY_UP:
                     event.preventDefault();
                     setSelection((options.length + selection - 1) % options.length);
                     break;
-                case $3f93eb6d5bf69cb7$var$KEY_DOWN:
+                case $41d49c8a6078fe3c$var$KEY_DOWN:
                     event.preventDefault();
                     setSelection((selection + 1) % options.length);
                     break;
-                case $3f93eb6d5bf69cb7$var$KEY_LEFT:
+                case $41d49c8a6078fe3c$var$KEY_LEFT:
                     event.preventDefault();
                     setSelection((options.length + selection - 1) % options.length);
                     break;
-                case $3f93eb6d5bf69cb7$var$KEY_RIGHT:
+                case $41d49c8a6078fe3c$var$KEY_RIGHT:
                     event.preventDefault();
                     setSelection((selection + 1) % options.length);
                     break;
@@ -394,7 +381,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
         } else onKeyDown && onKeyDown(event);
     };
     const handleBlur = (event)=>{
-        if (!(0, $6a2317d46b969b19$export$e27e3030245d4c9b)()) {
+        if (!(0, $19eb910254214610$export$e27e3030245d4c9b)()) {
             if (insertCurrentSelectionOnBlur && options[selection]) handleSelection(selection);
             else reset();
         }
@@ -410,7 +397,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
             height: height
         });
     };
-    (0, $dWhh5$react.useEffect)(()=>{
+    (0, $eSIqy$useEffect)(()=>{
         window.addEventListener("resize", handleResize);
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -422,7 +409,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
             window.removeEventListener("resize", handleResize);
         };
     }, []);
-    (0, $dWhh5$react.useEffect)(()=>{
+    (0, $eSIqy$useEffect)(()=>{
         getDirectionAndFont(lang).then(([direction, googleFont, fallbackFont])=>{
             setDirection(direction);
             // import google font if not already imported
@@ -526,12 +513,12 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
             return "";
         }
     }
-    (0, $dWhh5$react.useEffect)(()=>{
+    (0, $eSIqy$useEffect)(()=>{
         if (enableASR) enableVoiceTyping();
     }, [
         enableASR
     ]);
-    return /*#__PURE__*/ (0, $dWhh5$reactjsxruntime.jsxs)("div", {
+    return /*#__PURE__*/ (0, $eSIqy$jsxs)("div", {
         // position relative is required to show the component
         // in the correct position
         style: {
@@ -556,7 +543,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
                 },
                 ...rest
             }),
-            shouldRenderSuggestions && options.length > 0 && /*#__PURE__*/ (0, $dWhh5$reactjsxruntime.jsx)("ul", {
+            shouldRenderSuggestions && options.length > 0 && /*#__PURE__*/ (0, $eSIqy$jsx)("ul", {
                 style: {
                     backgroundClip: "padding-box",
                     backgroundColor: "#fff",
@@ -578,7 +565,7 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
                 },
                 "data-testid": "rt-suggestions-list",
                 lang: lang,
-                children: Array.from(new Set(options)).map((item, index)=>/*#__PURE__*/ (0, $dWhh5$reactjsxruntime.jsx)("li", {
+                children: Array.from(new Set(options)).map((item, index)=>/*#__PURE__*/ (0, $eSIqy$jsx)("li", {
                         style: index === selection ? {
                             cursor: "pointer",
                             padding: "10px",
@@ -603,4 +590,5 @@ const $3f93eb6d5bf69cb7$export$a62758b764e9e41d = ({ renderComponent: renderComp
 };
 
 
-//# sourceMappingURL=index.js.map
+export {$41d49c8a6078fe3c$export$a62758b764e9e41d as IndicTransliterate, $5ac81081e5c28bfa$export$24b0ea3375909d37 as TriggerKeys, $69c8f257da8dc8b1$export$27f30d10c00bcc6c as getTransliterateSuggestions, $d8161b358c525845$export$58f2e270169de9d3 as getTransliterationLanguages};
+//# sourceMappingURL=index.modern.js.map
