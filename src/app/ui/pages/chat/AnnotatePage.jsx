@@ -89,11 +89,11 @@ const AnnotatePage = () => {
   const [answered, setAnswered] = useState(false);
   const [annotations, setAnnotations] = useState([]);
 
-  const annotationNotesRef = useRef(false);
+  const annotationNotesRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
-  const reviewNotesRef = useRef(false);
+  const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
@@ -219,13 +219,12 @@ const AnnotatePage = () => {
       });
     }
   }, [taskData]);
+ 
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      annotationNotesRef.current &&
-      reviewNotesRef.current
-    ) {
+    let timeoutId;
+
+    const init = (annotationNotesRef,reviewNotesRef) => {
 
       if (
         AnnotationsTaskDetails &&
@@ -237,6 +236,7 @@ const AnnotatePage = () => {
         annotationNotesRef.current.getEditor && 
         annotationNotesRef.current.getEditor()
       ) {
+        
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
         reviewNotesRef.current.value =
@@ -270,10 +270,22 @@ const AnnotatePage = () => {
         setreviewtext(reviewNotesRef.current.getEditor().getText());
       }
     }
-  }, [AnnotationsTaskDetails]);
+    const check = () => {
+      if (annotationNotesRef.current&&reviewNotesRef.current) {
+        init(annotationNotesRef,reviewNotesRef);
+        clearTimeout(timeoutId); 
+
+        return;
+      }
+      timeoutId = setTimeout(check, 100);
+    };
+    
+
+    check();
+
+  }, [AnnotationsTaskDetails,annotationNotesRef,reviewNotesRef]);
   const resetNotes = () => {
     if (
-      typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
