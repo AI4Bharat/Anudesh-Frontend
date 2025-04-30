@@ -539,6 +539,16 @@ const CreateProject = () => {
       e.target.value ? { fraction: parseFloat(e.target.value / 100) } : null,
     );
   };
+  useEffect(() => {
+    if (batchSize && batchNumber) {
+      setSamplingParameters({
+        batch_size: batchSize,
+        batch_number: new Function("return [" + [batchNumber] + "]")(),
+      });
+    } else {
+      setSamplingParameters(null);
+    }
+  }, [batchSize, batchNumber]);
 
   const handleTogglenewpasswordVisibility = () => {
     setShowNewPassword(!shownewpassword);
