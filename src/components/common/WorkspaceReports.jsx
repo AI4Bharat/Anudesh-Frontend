@@ -1,10 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
-import {
-
-  ThemeProvider,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Card from "@mui/material/Card";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";

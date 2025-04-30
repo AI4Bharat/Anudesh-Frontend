@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import CustomButton from "@/components/common/Button";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";

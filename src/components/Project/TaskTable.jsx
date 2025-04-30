@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";

@@ -12,7 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import TablePagination from "@mui/material/TablePagination";
 import Skeleton from "@mui/material/Skeleton";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import tableTheme from "@/themes/tableTheme";
 import { fetchDatasetProjects } from "@/Lib/Features/datasets/GetDatasetProjects";
 import GetExportProjectButtonAPI from "@/app/actions/api/Projects/GetExportProjectButtonAPI";

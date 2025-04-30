@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 import {  useEffect, useState } from "react";
 import {  useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";

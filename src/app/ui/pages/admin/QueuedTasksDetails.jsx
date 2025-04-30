@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
 import APITransport from "@/Lib/apiTransport/apitransport"
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";

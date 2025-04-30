@@ -3,7 +3,7 @@ import React, { useState,useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
