@@ -88,7 +88,6 @@ const defaultSelectedColumns = [
   "time_taken",
   "meta_info_intent",
   "meta_info_domain",
-  "meta_info_language",
   "meta_info_structure",
   "instruction_data",
   "no_of_models",

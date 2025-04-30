@@ -42,6 +42,7 @@ import PullNewSuperCheckerBatchAPI from "@/app/actions/api/Projects/PullNewSuper
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
+import ChatLang from "@/utils/Chatlang";
 
 const defaultColumns = [
   "id",
@@ -302,7 +303,12 @@ const SuperCheckerTasks = (props) => {
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key]),
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            }),
         );
         taskList[0].supercheck_status && row.push(el.supercheck_status);
         row.push(

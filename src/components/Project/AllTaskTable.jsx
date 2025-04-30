@@ -27,6 +27,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup"
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 import { styled } from "@mui/material/styles";
+import ChatLang from "@/utils/Chatlang";
 
 const excludeCols = [
   "avg_rating",
@@ -94,6 +95,7 @@ const AllTaskTable = (props) => {
   const [displayWidth, setDisplayWidth] = useState(0);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
+  const [expandedRow, setExpandedRow] = useState(null);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -185,7 +187,12 @@ const AllTaskTable = (props) => {
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key]),
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            }),
         );
         AllTaskData[0].task_status && row.push(el.task_status);
         if (
