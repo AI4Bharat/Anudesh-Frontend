@@ -15,6 +15,7 @@ import WorkspaceSettingTabs from "./ui/pages/workspace/workspacesetting/setting"
 import SignUp from "./ui/pages/invite/invite";
 import ForgotPassword from "./ui/pages/forgot-password/forgot-password";
 import Dashboard from "./ui/pages/admin/Dashboard"
+import WorkSpaces from "./ui/pages/guest-workspaces/workspaceList";
 import ProgressPage from "./progress/progress";
 import ProfilePage from "./profile/profile";
 import EditProfile from "./ui/pages/edit-profile/edit-profile"
@@ -73,7 +74,7 @@ export default function Root() {
             <Route
               path="projects/:id"
               element={ProtectedRouteWrapper(
-                <Layout component={<Projects />} Backbutton={true} backPressNavigationPath={"/projects"} />
+                <Layout component={<Projects />} Backbutton={true} />
               )}
             />
              <Route
@@ -88,6 +89,12 @@ export default function Root() {
                 <Layout component={<PreferenceRanking />} Backbutton={true} backPressNavigationPath={"/projects"} />
               )}
             />
+            <Route
+            path="workspaces"
+            element={ProtectedRouteWrapper(
+              <Layout component={<WorkSpaces />} />
+            )}
+          />
             <Route
               path="datasets/:datasetId/datasetsetting"
               element={ProtectedRouteWrapper(
