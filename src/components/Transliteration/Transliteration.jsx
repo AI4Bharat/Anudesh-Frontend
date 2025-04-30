@@ -1,7 +1,7 @@
 import React, { useEffect, useState ,useRef} from "react";
 import { TextField } from "@mui/material";
 import { Autocomplete, Box, Button, Card, Grid, Typography } from "@mui/material";
-import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
+import { IndicTransliterate, getTransliterationLanguages } from "@ai4bharat/indic-transliterate-transcribe";
 import "../../IndicTransliterate/index.css"
 import GlobalStyles from "@/styles/LayoutStyles";
 import CustomizedSnackbars from "../common/Snackbar";
@@ -125,6 +125,8 @@ const Transliteration = (props) => {
 
       <IndicTransliterate
         customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+        enableASR={true}
+        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
         apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
         lang={selectedLang.LangCode ? selectedLang.LangCode : (data.length > 0 && (params.taskId || params.id) ? data[0]?.LangCode : "hi")}
         value={text}
@@ -132,8 +134,6 @@ const Transliteration = (props) => {
           setText(val);
         }}
         renderComponent={(props) => renderTextarea(props)}
-        enableASR={true}
-        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api`}
       />
       <Grid
         container

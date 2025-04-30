@@ -20,7 +20,7 @@ import { setDomain } from "@/Lib/Features/actions/AddGlossary";
 
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { MenuProps } from "@/utils/utils";
-import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
+import { IndicTransliterate, getTransliterationLanguages } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 
 const SuggestAnEdit = ({

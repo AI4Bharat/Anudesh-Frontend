@@ -24,7 +24,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import ChatLang from "@/utils/Chatlang";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 
 const useStyles = makeStyles((theme) => ({
@@ -473,7 +473,7 @@ const InstructionDrivenChatPage = ({
                     }
                     lang={targetLang}
                     enableASR={true}
-                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api`}
+                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                   />
                 ) : (
                   <textarea
@@ -590,7 +590,7 @@ const InstructionDrivenChatPage = ({
                           width: "100%",
                         }}
                         enableASR={true}
-                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api`}
+                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                       />
                     ) : (
                       <textarea

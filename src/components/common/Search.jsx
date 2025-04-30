@@ -7,7 +7,7 @@ import themeDefault from "../../themes/theme";
 import "../../styles/Dataset.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 
 const Search = (props) => {
