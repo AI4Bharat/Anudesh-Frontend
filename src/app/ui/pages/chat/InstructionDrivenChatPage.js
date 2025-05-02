@@ -444,9 +444,9 @@ const InstructionDrivenChatPage = ({
                 globalTransliteration ? (
                   <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                    apiKey={`JWT ${localStorage.getItem(
-                      "anudesh_access_token",
-                    )}`}
+                    enableASR={true}
+                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                    apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     renderComponent={(props) => (
                       <textarea
                         maxRows={10}
@@ -472,8 +472,6 @@ const InstructionDrivenChatPage = ({
                       handleTextChange(e, null, message, "prompt")
                     }
                     lang={targetLang}
-                    enableASR={true}
-                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                   />
                 ) : (
                   <textarea
@@ -589,8 +587,10 @@ const InstructionDrivenChatPage = ({
                           // resize: "none",
                           width: "100%",
                         }}
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                         enableASR={true}
                         asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}ApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                       />
                     ) : (
                       <textarea
