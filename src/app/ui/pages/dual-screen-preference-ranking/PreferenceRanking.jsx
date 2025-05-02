@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import classNames from "classnames";
 import { Box, FormControlLabel, Typography } from "@mui/material";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 
 import "./styles.css";
 import { CheckBox } from "@mui/icons-material";
