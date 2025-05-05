@@ -1,9 +1,9 @@
 "use client";
 import React, { useState,useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
@@ -55,13 +55,8 @@ const ProjectTable = (props) => {
     </Button>
   );
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { id } = useParams();
-
-  // const getWorkspace = () => {
-  //   dispatch(fetchWorkspaceProjectData(1));
-  // };
 
   useEffect(() => {
     dispatch(fetchWorkspaceProjectData(id));
@@ -340,16 +335,13 @@ const ProjectTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,
@@ -376,7 +368,6 @@ const ProjectTable = (props) => {
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           key={`table-${displayWidth}`}
-          // title={""}
           data={data}
           columns={columns}
           options={{

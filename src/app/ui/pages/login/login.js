@@ -134,6 +134,7 @@ export default function Login() {
       <Grid container spacing={2} style={{ marginTop: "2px" }}>
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
           <OutlinedTextField
+            className="input-email"
             fullWidth
             name="email"
             onChange={handleFieldChange}
@@ -143,6 +144,7 @@ export default function Login() {
         </Grid>
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
           <OutlinedTextField
+            className="input-password"
             fullWidth
             name="password"
             type={values.showPassword ? "text" : "password"}

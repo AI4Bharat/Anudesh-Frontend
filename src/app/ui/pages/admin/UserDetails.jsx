@@ -9,7 +9,6 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import Search from "../../../../components/common/Search";
 import UserMappedByRole from "../../../../utils/UserMappedByRole";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useRouter } from "next/navigation";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import UserInfo from "./UserInfo";
 import Spinner from "../../../../components/common/Spinner";
@@ -43,7 +42,6 @@ const UserDetail = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [displayWidth, setDisplayWidth] = useState(0);
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -460,16 +458,13 @@ const UserDetail = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,

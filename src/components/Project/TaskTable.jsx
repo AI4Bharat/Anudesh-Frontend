@@ -1,12 +1,9 @@
-// TaskTable
-
 import dynamic from "next/dynamic";
-import { Fragment, useEffect, useState } from "react";
-import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
-// import APITransport from "../../../../redux/actions/apitransport/apitransport";
 import Button from "@mui/material/Button";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -37,7 +34,6 @@ import { snakeToTitleCase } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import ColumnList from "../common/ColumnList";
 import Spinner from "../../components/common/Spinner";
-import OutlinedTextField from "../common/OutlinedTextField";
 import roles from "../../utils/Role";
 import TextField from "@mui/material/TextField";
 import { fetchTasksByProjectId } from "@/Lib/Features/projects/GetTasksByProjectId";
@@ -52,6 +48,14 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
+
+const defaultColumns = [
+  "id",
+  "instruction_data",
+  "meta_info_language",
+  "status",
+  "actions",
+];
 
 const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
   overflow: "hidden",
@@ -70,9 +74,6 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
 }));
 
 const excludeSearch = ["status", "actions", "output_text"];
-// const excludeCols = ["context", "input_language", "output_language", "language",
-// "conversation_json", "source_conversation_json", "machine_translated_conversation_json", "speakers_json"
-//  ];
 
 const excludeCols = [
   "context",
@@ -116,7 +117,6 @@ const TaskTable = (props) => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // let location = useLocation();
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
@@ -141,20 +141,6 @@ const TaskTable = (props) => {
   const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
-  const savedFilters = JSON.parse(localStorage.getItem("filters"));
-  const columnsCheck = [
-    { name: "id", label: "ID", defaultChecked: true },
-    {
-      name: "instructionData",
-      label: "Instruction Data",
-      defaultChecked: true,
-    },
-    { name: "language", label: "Language", defaultChecked: true },
-    { name: "status", label: "Status", defaultChecked: true },
-    { name: "otherColumn1", label: "Other Column 1", defaultChecked: false },
-    { name: "otherColumn2", label: "Other Column 2", defaultChecked: false },
-    // Add other columns as needed
-  ];
 
   const filterData = {
     Status:
@@ -361,9 +347,7 @@ const TaskTable = (props) => {
         variant: "success",
       });
       getTaskListData();
-      setTimeout(() => {
-        //window.location.reload();
-      }, 1000);
+      setTimeout(() => {}, 1000);
     } else {
       setSnackbarInfo({
         open: true,
@@ -410,11 +394,6 @@ const TaskTable = (props) => {
     setSearchAnchor(event.currentTarget);
     setSearchedCol(col);
   };
-
-  const handleOpenFindAndReplace = () => {
-    setOpenFindAndReplaceDialog(true);
-  };
-
   const handleSubmitFindAndReplace = async () => {
     const ReplaceData = {
       user_id: userDetails.id,
@@ -508,6 +487,7 @@ const TaskTable = (props) => {
       );
     }
   }, [selectedFilters, pull, rejected]);
+
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -523,79 +503,50 @@ const TaskTable = (props) => {
               return el.data[key];
             }),
         );
-        props.type === "annotation" &&
-          taskList[0].annotation_status &&
+        if (props.type === "annotation" && taskList[0].annotation_status) {
           row.push(el.annotation_status);
-        props.type === "review" &&
-          taskList[0].review_status &&
+        } else if (props.type === "review" && taskList[0].review_status) {
           row.push(el.review_status);
+        }
         if (
           ProjectDetails?.required_annotators_per_task > 1 &&
           taskList[0].input_data_id
         ) {
           row.push(el.input_data_id);
         }
-        props.type === "annotation" &&
-          row.push(
-            <Link
-              to={
-                ProjectDetails?.project_type?.includes("Acoustic")
-                  ? `AudioTranscriptionLandingPage/${el.id}`
-                  : `task/${el.id}`
+
+        const actionLink =
+          props.type === "annotation"
+            ? ProjectDetails?.project_type?.includes("Acoustic")
+              ? `AudioTranscriptionLandingPage/${el.id}`
+              : `task/${el.id}`
+            : ProjectDetails?.project_type?.includes("Acoustic")
+              ? `ReviewAudioTranscriptionLandingPage/${el.id}`
+              : `review/${el.id}`;
+
+        const actionLabel =
+          props.type === "annotation"
+            ? ProjectDetails?.annotators?.some((a) => a.id === userDetails?.id)
+              ? "Annotate"
+              : "View"
+            : "Review";
+
+        row.push(
+          <Link to={actionLink} className={classes.link}>
+            <CustomButton
+              onClick={() => localStorage.removeItem("labelAll")}
+              disabled={ProjectDetails.is_archived}
+              sx={{ p: 1, borderRadius: 2 }}
+              label={
+                <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                  {actionLabel}
+                </Typography>
               }
-              className={classes.link}
-            >
-              <CustomButton
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    localStorage.removeItem("labelAll");
-                  }
-                }}
-                disabled={ProjectDetails.is_archived}
-                sx={{ p: 1, borderRadius: 2 }}
-                label={
-                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
-                    {props.type === "annotation" &&
-                    ProjectDetails?.annotators?.some(
-                      (a) => a.id === userDetails?.id,
-                    )
-                      ? "Annotate"
-                      : "View"}
-                  </Typography>
-                }
-              />
-            </Link>,
-          );
-        props.type === "review" &&
-          row.push(
-            <Link
-              to={
-                ProjectDetails?.project_type?.includes("Acoustic")
-                  ? `ReviewAudioTranscriptionLandingPage/${el.id}`
-                  : `review/${el.id}`
-              }
-              className={classes.link}
-            >
-              <CustomButton
-                disabled={ProjectDetails.is_archived}
-                onClick={() => {
-                  localStorage.setItem("Task", JSON.stringify(el));
-                  localStorage.removeItem("labelAll");
-                }}
-                sx={{ p: 1, borderRadius: 2 }}
-                label={
-                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
-                    Review
-                  </Typography>
-                }
-              />
-            </Link>,
-          );
+            />
+          </Link>,
+        );
         return row;
       });
-      // let colList = ["id"];
-      // colList.push(...Object.keys(taskList[0].data).filter(el => !excludeCols.includes(el) && !el.includes("_json")));
-
       const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail");
       const email =
         props.type === "review" && annotatorEmail ? "Annotator Email" : "";
@@ -612,30 +563,27 @@ const TaskTable = (props) => {
         }
       }
       colList.push("actions");
-      var defaultCheckedCols = [
-        "id",
-        "instruction_data",
-        "meta_info_language",
-        "status",
-        "actions",
-      ];
 
+      if (selectedColumns.length === 0) {
+        columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+      }
       const metaInfoMapping = {
         meta_info_language: "language",
         meta_info_domain: "domain",
         meta_info_intent: "intent",
       };
       const cols = colList.map((col) => {
+        const isSelectedColumn = selectedColumns.includes(col);
         return {
           name: col,
           label: metaInfoMapping[col]
             ? snakeToTitleCase(metaInfoMapping[col])
             : snakeToTitleCase(col),
-          defaultChecked: defaultCheckedCols.includes(col),
           options: {
             filter: false,
             sort: false,
             align: "center",
+            display: isSelectedColumn ? "true" : "false",
             customHeadLabelRender: customColumnHead,
             customBodyRender: (value, tableMeta) => {
               const rowIndex = tableMeta.rowIndex;
@@ -645,10 +593,10 @@ const TaskTable = (props) => {
                 <RowContainer
                   expanded={isExpanded}
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering the table's onRowClick
+                    e.stopPropagation();
                     setExpandedRow((prevExpanded) =>
                       prevExpanded === rowIndex ? null : rowIndex,
-                    );                    
+                    );
                   }}
                 >
                   <TruncatedContent expanded={isExpanded}>
@@ -661,12 +609,6 @@ const TaskTable = (props) => {
         };
       });
       setColumns(cols);
-
-      setSelectedColumns(
-        ProjectDetails?.project_type == "InstructionDrivenChat"
-          ? colList.filter((col) => defaultCheckedCols.includes(col))
-          : colList,
-      );
       setTasks(data);
     } else {
       setTasks([]);
@@ -674,14 +616,19 @@ const TaskTable = (props) => {
   }, [taskList, ProjectDetails, expandedRow]);
 
   useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-  }, [selectedColumns]);
+    if (columns.length > 0 && selectedColumns.length > 0) {
+      const newCols = columns.map((col) => ({
+        ...col,
+        options: {
+          ...col.options,
+          display: selectedColumns.includes(col.name) ? "true" : "false",
+        },
+      }));
+      if (JSON.stringify(newCols) !== JSON.stringify(columns)) {
+        setColumns(newCols);
+      }
+    }
+  }, [selectedColumns, columns]);
 
   useEffect(() => {
     if (ProjectDetails) {
@@ -786,7 +733,6 @@ const TaskTable = (props) => {
         );
       }
     }
-    //TODO: display no more tasks message
   }, [NextTask]);
 
   const handleShowFilter = (event) => {
@@ -827,78 +773,8 @@ const TaskTable = (props) => {
   }));
 
   const renderToolBar = () => {
-    // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
-        {/* {props.ProjectDetails?.project_type ===
-          "ContextualTranslationEditing" && (
-          <>
-            {(props.type === "annotation" || props.type === "review") &&
-              ((props.type === "annotation" &&
-                selectedFilters.annotation_status === "labeled") ||
-                selectedFilters.review_status === "accepted" ||
-                selectedFilters.accepted_with_changes ===
-                  "accepted_with_changes") && (
-                <Grid container justifyContent="start" alignItems="center">
-                  <Grid>
-                    <Typography
-                      variant="body2"
-                      fontWeight="700"
-                      label="Required"
-                    >
-                      Find :
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <OutlinedTextField
-                      size="small"
-                      name="find"
-                      InputProps={{
-                        style: { fontSize: "14px", width: "150px" },
-                      }}
-                      value={find}
-                      onChange={(e) => setFind(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid>
-                    <Typography
-                      variant="body2"
-                      fontWeight="700"
-                      label="Required"
-                    >
-                      Replace :
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <OutlinedTextField
-                      size="small"
-                      name="replace"
-                      InputProps={{
-                        style: { fontSize: "14px", width: "150px" },
-                      }}
-                      value={replace}
-                      onChange={(e) => setReplace(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid>
-                    <CustomButton
-                      sx={{
-                        inlineSize: "max-content",
-                        width: "50px",
-                        borderRadius: "20px",
-                        
-                      }}
-                      onClick={handleOpenFindAndReplace}
-                      label="Submit"
-                      disabled={find && replace  ? false : true}
-
-                    />
-                  </Grid>
-                </Grid>
-              )}
-          </>
-        )} */}
-
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
@@ -1154,10 +1030,6 @@ const TaskTable = (props) => {
       </Box>
     );
   };
-  const handleRowClick = (rowIndex) => {
-    setExpandedRow(expandedRow === rowIndex ? null : rowIndex);
-  };
-
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,
@@ -1211,7 +1083,7 @@ const TaskTable = (props) => {
         changePage={changePage}
       />
     ),
-    rowHover: false, // Disable default row hover
+    rowHover: false,
     onRowClick: null,
   };
 
@@ -1351,7 +1223,6 @@ const TaskTable = (props) => {
                   labelId="pull-select-label"
                   id="pull-select"
                   value={pullSize}
-                  // defaultValue={5}
                   label="Pull Size"
                   onChange={(e) => setPullSize(e.target.value)}
                   disabled={pullDisabled}
@@ -1473,7 +1344,6 @@ const TaskTable = (props) => {
               typeof window !== "undefined" ? window.innerHeight - 200 : 400
             }px`,
           }}
-          // filter={false}
         />
       </ThemeProvider>
       {searchOpen && (
@@ -1501,7 +1371,6 @@ const TaskTable = (props) => {
           setRejected={setRejected}
           selectedStatus={selectedStatus}
           setSelectedStatus={setSelectedStatus}
-          // rejValue = {rejValue}
           pullvalue={pullvalue}
         />
       )}

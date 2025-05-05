@@ -1,6 +1,4 @@
-import {
-  ThemeProvider,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";

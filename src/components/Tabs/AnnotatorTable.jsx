@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import dynamic from 'next/dynamic';
-// import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
-// import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
 import UserMappedByRole from "../../utils/UserMappedByRole";
 import CustomButton from "../common/Button";
 import { ThemeProvider, Grid, Dialog, DialogActions, Button, DialogTitle, DialogContent, DialogContentText, Box, TablePagination, Select, MenuItem ,Skeleton} from "@mui/material";
@@ -113,7 +111,6 @@ const AnnotatorsTable = (props) => {
       headers: projectObj.getHeaders().headers,
     });
     const resp = await res.json();
-    // setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,
@@ -236,8 +233,6 @@ const AnnotatorsTable = (props) => {
       el.username,
       el.email,
       userRole ? userRole : el.role,
-      // userRole ? userRole : el.role,
-      // el.role,
       <>
         <Link to={`/profile/${el.id}`} style={{ textDecoration: "none" }}>
           <CustomButton
@@ -339,16 +334,13 @@ const AnnotatorsTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,

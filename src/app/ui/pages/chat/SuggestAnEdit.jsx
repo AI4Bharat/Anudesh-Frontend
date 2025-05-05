@@ -20,7 +20,7 @@ import { setDomain } from "@/Lib/Features/actions/AddGlossary";
 
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { MenuProps } from "@/utils/utils";
-import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
+import { IndicTransliterate, getTransliterationLanguages } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 
 const SuggestAnEdit = ({
@@ -145,6 +145,8 @@ const SuggestAnEdit = ({
                   { targetData.length > 0 && targetlang !== "en" ? (
                    <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                    enableASR={true}
+                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                     apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     lang={Targetlanguage.LangCode ? Targetlanguage.LangCode : (targetData.length > 0  ?  targetData[0]?.LangCode : "en" )}
                     value={targetText}

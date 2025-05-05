@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import tableTheme from "../../themes/tableTheme";
 import Skeleton from "@mui/material/Skeleton";
-// import Link from 'next/link';
 import { useRouter } from 'next/navigation'
 import RemoveWorkspaceManagerAPI from "@/app/actions/api/workspace/RemoveWorkspaceManagerAPI";
 import CustomizedSnackbars from "../../components/common/Snackbar";
@@ -58,7 +57,6 @@ const ManagersTable = (props) => {
   });
   const router = useRouter()
   const { id } = useParams();
-  // const orgId = useSelector(state=>state.getWorkspacesProjectData?.data?.[0]?.organization_id);
   const getWorkspaceManagersData = () => {
 
     dispatch(fetchWorkspacesManagersData(id));
@@ -174,10 +172,6 @@ const ManagersTable = (props) => {
       }
     }];
 
-  // const data = [
-  //     ["Shoonya User", "user123@tarento.com", 0, ]
-  // ];
-
   const data = workspaceManagers && workspaceManagers.length > 0 ? pageSearch().map((el, i) => {
     return [
       el.username,
@@ -187,10 +181,7 @@ const ManagersTable = (props) => {
           <CustomButton
             sx={{ borderRadius: 2, marginRight: 2 }}
             label="View"
-          // onClick={()=>{router.push(`/profile/`)}}
-
           />
-
         </Link>
         <CustomButton
           sx={{ borderRadius: 2, backgroundColor: "#cf5959" }}
@@ -278,16 +269,13 @@ const ManagersTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,

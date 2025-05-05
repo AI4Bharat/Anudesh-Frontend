@@ -8,21 +8,20 @@ import { PersonAddAlt } from "@mui/icons-material";
 import addUserTypes from "../../Constants/addUserTypes/index";
 import AddUsersDialog from "../common/AddUsersDialog";
 import InviteUsersDialog from "../Project/InviteUsersDialog";
-import {
-  ThemeProvider,
-  Grid,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  DialogContentText,
-  MenuItem,
-  Select,
-  TablePagination,
-  Box,
-  Skeleton
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContentText from '@mui/material/DialogContentText';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import TablePagination from '@mui/material/TablePagination';
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
+
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Search from "../common/Search";
@@ -31,9 +30,7 @@ import userRoles from "@/utils/UserMappedByRole/Roles";
 import TextField from "@mui/material/TextField";
 import { fetchRemoveProjectMember } from "@/Lib/Features/projects/RemoveProjectMember";
 import RemoveProjectReviewerAPI from "@/app/actions/api/Projects/RemoveProjectReviewerAPI";
-import ResendUserInviteAPI, {
-  fetchResendUserInvite,
-} from "@/app/actions/api/Projects/ResendUserInvite";
+import ResendUserInviteAPI from "@/app/actions/api/Projects/ResendUserInvite";
 import InviteUsersToOrgAPI from "@/app/actions/api/user/InviteUsersToOrgAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
 import LoginAPI from "@/app/actions/api/user/Login";
@@ -61,45 +58,6 @@ const MUIDataTable = dynamic(
     )
   }
 );
-
-const columns = [
-  {
-    name: "Name",
-    label: "Name",
-    options: {
-      filter: false,
-      sort: false,
-      align: "center",
-      setCellHeaderProps: (sort) => ({
-        style: { height: "70px", padding: "16px" },
-      }),
-    },
-  },
-  {
-    name: "Email",
-    label: "Email",
-    options: {
-      filter: false,
-      sort: false,
-    },
-  },
-  {
-    name: "Role",
-    label: "Role",
-    options: {
-      filter: false,
-      sort: false,
-    },
-  },
-  {
-    name: "Actions",
-    label: "Actions",
-    options: {
-      filter: false,
-      sort: false,
-    },
-  },
-];
 
 const options = {
   filterType: "checkbox",
@@ -354,7 +312,6 @@ const MembersTable = (props) => {
         props.type,
       );
     }
-    // dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -444,7 +401,6 @@ const MembersTable = (props) => {
   };
   const handleRemoveFrozenUsers = async (FrozenUserId) => {
     const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
-    //dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -687,16 +643,13 @@ const MembersTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,
@@ -743,7 +696,6 @@ const MembersTable = (props) => {
         body: JSON.stringify(apiObj.getBody()),
         headers: apiObj.getHeaders().headers,
       });
-      const rsp_data = await res.json();
       if (res.ok) {
         if (memberOrReviewer === "member") {
           handleProjectMember(elId);

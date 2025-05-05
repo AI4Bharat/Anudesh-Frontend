@@ -55,7 +55,6 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 
 const ScheduleMails = () => {
   const { id } = useParams();
-  // const id = 1;
   const [snackbarState, setSnackbarState] = useState({
     open: false,
     message: "",
@@ -83,11 +82,6 @@ const ScheduleMails = () => {
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   showSpinner;
 
-  useEffect(() => {
-    console.log("showSpinner", showSpinner);
-  });
-
-  //const [requested, setRequested] = useState({ get: false, create: false, update: false, delete: false });
   useEffect(() => {
     if (ProjectTypes) {
       let types = [];
@@ -308,16 +302,6 @@ const ScheduleMails = () => {
         tempSelected.push("Actions");
         updatedMail.Actions = (
           <>
-            {/* <CustomButton
-              sx={{ m: 1, p: 1 }}
-              label={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
-              onClick={() => updateScheduledMail(updatedMail)}
-            /> 
-             <CustomButton
-              label="Delete"
-              sx={{ m: 1, backgroundColor: "#EC0000" }}
-              onClick={() => deleteScheduledMail(updatedMail)}
-            /> */}
             <Tooltip
               title={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
             >
@@ -664,32 +648,6 @@ const ScheduleMails = () => {
             <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
               <CustomButton label="+ Add" onClick={createScheduledMail} />
             </Grid>
-            {/* {showSpinner ? (
-              <Spinner />
-            ) : (
-              tableData && (
-                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                  <ThemeProvider theme={tableTheme}>
-                    <MUIDataTable
-                      key={`table-${displayWidth}`}
-                      title={""}
-                      data={tableData}
-                      columns={columns.filter((col) =>
-                        selectedColumns.includes(col.name),
-                      )}
-                      options={{
-                        ...tableOptions,
-                        tableBodyHeight: `${
-                          typeof window !== "undefined"
-                            ? window.innerHeight - 200
-                            : 400
-                        }px`,
-                      }}
-                    />
-                  </ThemeProvider>
-                </Grid>
-              )
-            )} */}
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <ThemeProvider theme={tableTheme}>
                 {tableData && tableData.length > 0 ? (

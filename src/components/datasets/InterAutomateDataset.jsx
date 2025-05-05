@@ -1,7 +1,4 @@
-import {
-
-  ThemeProvider,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Card from "@mui/material/Card";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";

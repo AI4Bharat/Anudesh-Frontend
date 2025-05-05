@@ -24,7 +24,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import ChatLang from "@/utils/Chatlang";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 
 const useStyles = makeStyles((theme) => ({
@@ -444,9 +444,9 @@ const InstructionDrivenChatPage = ({
                 globalTransliteration ? (
                   <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                    apiKey={`JWT ${localStorage.getItem(
-                      "anudesh_access_token",
-                    )}`}
+                    enableASR={true}
+                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                    apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     renderComponent={(props) => (
                       <textarea
                         maxRows={10}
@@ -587,6 +587,10 @@ const InstructionDrivenChatPage = ({
                           // resize: "none",
                           width: "100%",
                         }}
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                        enableASR={true}
+                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}ApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                       />
                     ) : (
                       <textarea

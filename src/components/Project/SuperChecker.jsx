@@ -6,7 +6,7 @@ import TablePagination from "@mui/material/TablePagination";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Skeleton from "@mui/material/Skeleton";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";

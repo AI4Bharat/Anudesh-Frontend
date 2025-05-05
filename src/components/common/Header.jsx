@@ -702,29 +702,6 @@ const Header = () => {
         />
       ),
     },
-    /* {
-      name: "Use Chitralekha Transcription Flow",
-      control: (
-        <Checkbox
-          onChange={handleTranscriptionFlowChange}
-          checked={checkClUI} 
-        />
-      ),
-    }, */
-    // {
-    //   name: "Enable Tags Dropdown",
-    //   control: (
-    //     <Checkbox
-    //       onChange={handleTagsChange}
-    //       defaultChecked={localStorage.getItem("enableTags") === "true"}
-    //     />
-    //   ),
-    // },
-
-    // {
-    //   name: "Help",
-    //   onclick: () => {},
-    // },
   ];
   const helpMenu = [
     {
@@ -734,11 +711,6 @@ const Header = () => {
         window.open(url, "_blank");
       },
     },
-
-    // {
-    //   name: "Feedback",
-    //   onclick: () => {},
-    // },
   ];
 
   const appInfo = [

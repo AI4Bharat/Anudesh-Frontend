@@ -21,7 +21,7 @@ import Skeleton from "@mui/material/Skeleton";
 import SearchIcon from "@mui/icons-material/Search";
 import { translate } from "../../config/localisation";
 import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
-import AllTaskSearchPopup from "../Project/AllTasksSearchpopup";
+import SearchPopup from "../../components/Project/SearchPopup"
 
 const TASK_TYPES = ["annotation", "review", "supercheck"]
 
@@ -47,19 +47,15 @@ const MUIDataTable = dynamic(
 
 const RecentTasks = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
-  // const { id } = useParams();
   const id = 2
   const dispatch = useDispatch();
   const [displayWidth, setDisplayWidth] = useState(0);
   const [taskType, setTaskType] = useState(TASK_TYPES[0]);
-  const [text, settext] = useState("")
   const [columns, setColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
-  const filterId = popoverOpen ? "simple-popover" : undefined;
 
   const [searchAnchor, setSearchAnchor] = useState(null);
   const searchOpen = Boolean(searchAnchor);
@@ -68,13 +64,9 @@ const RecentTasks = () => {
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
 
   const RecentTasks = useSelector((state) => state.getRecentTasks.data)
-  const filterData = {
-    Status: ["incomplete", "annotated", "reviewed", "super_checked", "exported"],
-  };
   const [selectedFilters, setsSelectedFilters] = useState({});
 
   const GetAllTasksdata = () => {
-    // id,task_type, pageNo, filter,countPerPage
     dispatch(fetchRecentTasks({ id: id, task_type: taskType, pageNo: currentPageNumber, filter: selectedFilters, countPerPage: currentRowPerPage }));
     console.log("step 1");
   };
@@ -341,12 +333,11 @@ const RecentTasks = () => {
         />
       </ThemeProvider>
 
-      {searchOpen && <AllTaskSearchPopup
+      {searchOpen && <SearchPopup
         open={searchOpen}
         anchorEl={searchAnchor}
         handleClose={handleSearchClose}
         updateFilters={setsSelectedFilters}
-        //filterStatusData={filterData}
         currentFilters={selectedFilters}
         searchedCol={searchedCol}
         onchange={GetAllTasksdata}
