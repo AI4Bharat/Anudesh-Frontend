@@ -138,23 +138,12 @@ const TaskTable = (props) => {
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
   );
-  const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
+  const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
+  const TaskFilter = AllTaskFilters.find(
+    (filter) => filter.id === id && filter.type === props.type,
+  )
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
-  const savedFilters = JSON.parse(localStorage.getItem("filters"));
-  const columnsCheck = [
-    { name: "id", label: "ID", defaultChecked: true },
-    {
-      name: "instructionData",
-      label: "Instruction Data",
-      defaultChecked: true,
-    },
-    { name: "language", label: "Language", defaultChecked: true },
-    { name: "status", label: "Status", defaultChecked: true },
-    { name: "otherColumn1", label: "Other Column 1", defaultChecked: false },
-    { name: "otherColumn2", label: "Other Column 2", defaultChecked: false },
-    // Add other columns as needed
-  ];
 
   const filterData = {
     Status:
@@ -223,6 +212,7 @@ const TaskTable = (props) => {
         ? TaskFilter.selectedFilters
         : { review_status: filterData.Status[0], req_user: -1 },
   );
+
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
   const [pullSize, setPullSize] = useState(
@@ -506,6 +496,15 @@ const TaskTable = (props) => {
           ? selectedFilters.annotation_status
           : selectedFilters.review_status,
       );
+
+      localStorage.setItem(
+        "filters",
+        JSON.stringify({
+          selectedStatus,
+          pull,
+          rejected,
+        }),
+      );
     }
   }, [selectedFilters, pull, rejected]);
   useEffect(() => {
@@ -648,7 +647,7 @@ const TaskTable = (props) => {
                     e.stopPropagation(); // Prevent triggering the table's onRowClick
                     setExpandedRow((prevExpanded) =>
                       prevExpanded === rowIndex ? null : rowIndex,
-                    );                    
+                    );
                   }}
                 >
                   <TruncatedContent expanded={isExpanded}>
@@ -830,74 +829,6 @@ const TaskTable = (props) => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
-        {/* {props.ProjectDetails?.project_type ===
-          "ContextualTranslationEditing" && (
-          <>
-            {(props.type === "annotation" || props.type === "review") &&
-              ((props.type === "annotation" &&
-                selectedFilters.annotation_status === "labeled") ||
-                selectedFilters.review_status === "accepted" ||
-                selectedFilters.accepted_with_changes ===
-                  "accepted_with_changes") && (
-                <Grid container justifyContent="start" alignItems="center">
-                  <Grid>
-                    <Typography
-                      variant="body2"
-                      fontWeight="700"
-                      label="Required"
-                    >
-                      Find :
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <OutlinedTextField
-                      size="small"
-                      name="find"
-                      InputProps={{
-                        style: { fontSize: "14px", width: "150px" },
-                      }}
-                      value={find}
-                      onChange={(e) => setFind(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid>
-                    <Typography
-                      variant="body2"
-                      fontWeight="700"
-                      label="Required"
-                    >
-                      Replace :
-                    </Typography>
-                  </Grid>
-                  <Grid>
-                    <OutlinedTextField
-                      size="small"
-                      name="replace"
-                      InputProps={{
-                        style: { fontSize: "14px", width: "150px" },
-                      }}
-                      value={replace}
-                      onChange={(e) => setReplace(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid>
-                    <CustomButton
-                      sx={{
-                        inlineSize: "max-content",
-                        width: "50px",
-                        borderRadius: "20px",
-                        
-                      }}
-                      onClick={handleOpenFindAndReplace}
-                      label="Submit"
-                      disabled={find && replace  ? false : true}
-
-                    />
-                  </Grid>
-                </Grid>
-              )}
-          </>
-        )} */}
 
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role ||

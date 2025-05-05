@@ -13,7 +13,9 @@ const getTaskFilter = createSlice({
   reducers: {
     setTaskFilter : (state, action) => {
       state.status = 'succeeded';
-      state.data = action.payload;
+      // state.data = action.payload;
+      state.data = state.data.filter(task => task.id !== action.payload.id);
+      state.data.push(action.payload);
     },
   },
 });
