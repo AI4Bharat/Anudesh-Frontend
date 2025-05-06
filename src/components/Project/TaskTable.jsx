@@ -142,6 +142,7 @@ const TaskTable = (props) => {
   const TaskFilter = AllTaskFilters.find(
     (filter) => filter.id === id && filter.type === props.type,
   )
+
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
 

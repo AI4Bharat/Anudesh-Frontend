@@ -259,7 +259,14 @@ const SuperCheckerTasks = (props) => {
   }, []);
 
   useEffect(() => {
-    dispatch(setTaskFilter(id, selectedFilters, props.type));
+    const payload = {
+      id,
+      selectedFilters,
+      type: props.type,
+      pull:"",
+      rejected:"",
+    };
+    dispatch(setTaskFilter(payload));
     if (currentPageNumber !== 1) {
       setCurrentPageNumber(1);
     } else {
