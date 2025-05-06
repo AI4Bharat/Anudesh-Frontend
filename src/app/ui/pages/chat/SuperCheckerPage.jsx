@@ -28,6 +28,7 @@ import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
@@ -42,7 +43,7 @@ import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking"
 
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -831,6 +832,28 @@ const SuperCheckerPage = () => {
         />
       );
       break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          // handleClick={handleSuperCheckerClick}
+          // chatHistory={chatHistory}
+          // setChatHistory={setChatHistory}
+          // formatResponse={formatResponse}
+          // formatPrompt={formatPrompt}
+          // id={SuperChecker}
+          // stage={"SuperChecker"}
+          // notes={superCheckerNotesRef}
+          // info={info}
+          // disableUpdateButton={disableUpdateButton}
+          // annotation={annotations}
+          // setLoading={setLoading}
+          // loading={loading}
+        />
+      );
+      break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
@@ -854,20 +877,37 @@ const SuperCheckerPage = () => {
       break;
     case "MultipleInteractionEvaluation":
       componentToRender = (
-        <PreferenceRanking
+        // <PreferenceRanking
+        <MultipleLLMInstructionDrivenChat
+          // key={`annotations-${annotations?.length}-${
+          //   annotations?.[0]?.id || "default"
+          // }`}
+          // setCurrentInteraction={setCurrentInteraction}
+          // currentInteraction={currentInteraction}
+          // interactions={interactions}
+          // setInteractions={setInteractions}
+          // forms={forms}
+          // setForms={setForms}
+          // stage={"SuperChecker"}
+          // notes={superCheckerNotesRef}
+          // answered={answered}
+          // setAnswered={setAnswered}
+          // annotation={annotations}
+          // setLoading={setLoading}
+          // loading={loading}
           key={`annotations-${annotations?.length}-${
             annotations?.[0]?.id || "default"
           }`}
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
           stage={"SuperChecker"}
           notes={superCheckerNotesRef}
-          answered={answered}
-          setAnswered={setAnswered}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
