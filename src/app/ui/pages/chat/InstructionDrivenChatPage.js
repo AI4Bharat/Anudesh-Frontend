@@ -103,7 +103,6 @@ const InstructionDrivenChatPage = ({
   const handleOpen = () => {
     setOpen(true);
   };
-  console.log(disableUpdateButton);
   const handleClose = () => {
     setOpen(false);
   };
@@ -225,7 +224,6 @@ const InstructionDrivenChatPage = ({
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
   const handleButtonClick = async () => {
-    console.log(inputValue);
 
     if (inputValue) {
       setLoading(true);
@@ -237,7 +235,6 @@ const InstructionDrivenChatPage = ({
         auto_save: true,
         task_id: taskId,
       };
-      console.log(id, stage);
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
@@ -301,11 +298,9 @@ const InstructionDrivenChatPage = ({
     }, 1000);
     setShowChatContainer(true);
   };
-  console.log(chatHistory, ProjectDetails?.metadata_json);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
-    console.log(inputValue, chatHistory);
   };
   const [text, setText] = useState("");
   const [targetLang, setTargetLang] = useState("");
@@ -327,12 +322,6 @@ const InstructionDrivenChatPage = ({
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
-
-      console.log(
-        globalTransliteration,
-        "lll",
-        localStorage.getItem("globalTransliteration"),
-      );
     }
   }, [chatHistory]);
 

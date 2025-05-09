@@ -550,6 +550,20 @@ const SuperCheckerPage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
+    } else if (
+      ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+    ) {
+      resultValue = forms.map((form) => ({
+        prompt: form.prompt,
+        model_responses_json: form.model_responses_json.map((response) => ({
+          model_name: response.model_name,
+          output: response.output,
+          questions_response: response.questions_response,
+          preferred_output: response.preferred_output,
+        })),
+        prompt_output_pair_id: form.prompt_output_pair_id,
+        additional_note: form.additional_note,
+      }));
     }
 
     setLoading(true);
@@ -838,19 +852,19 @@ const SuperCheckerPage = () => {
           key={`annotations-${annotations?.length}-${
             annotations?.[0]?.id || "default"
           }`}
-          // handleClick={handleSuperCheckerClick}
-          // chatHistory={chatHistory}
-          // setChatHistory={setChatHistory}
-          // formatResponse={formatResponse}
-          // formatPrompt={formatPrompt}
-          // id={SuperChecker}
-          // stage={"SuperChecker"}
-          // notes={superCheckerNotesRef}
-          // info={info}
-          // disableUpdateButton={disableUpdateButton}
-          // annotation={annotations}
-          // setLoading={setLoading}
-          // loading={loading}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
         />
       );
       break;
@@ -877,37 +891,20 @@ const SuperCheckerPage = () => {
       break;
     case "MultipleInteractionEvaluation":
       componentToRender = (
-        // <PreferenceRanking
-        <MultipleLLMInstructionDrivenChat
-          // key={`annotations-${annotations?.length}-${
-          //   annotations?.[0]?.id || "default"
-          // }`}
-          // setCurrentInteraction={setCurrentInteraction}
-          // currentInteraction={currentInteraction}
-          // interactions={interactions}
-          // setInteractions={setInteractions}
-          // forms={forms}
-          // setForms={setForms}
-          // stage={"SuperChecker"}
-          // notes={superCheckerNotesRef}
-          // answered={answered}
-          // setAnswered={setAnswered}
-          // annotation={annotations}
-          // setLoading={setLoading}
-          // loading={loading}
+        <PreferenceRanking
           key={`annotations-${annotations?.length}-${
             annotations?.[0]?.id || "default"
           }`}
-          handleClick={handleSuperCheckerClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={SuperChecker}
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
           stage={"SuperChecker"}
           notes={superCheckerNotesRef}
-          info={info}
-          disableUpdateButton={disableUpdateButton}
+          answered={answered}
+          setAnswered={setAnswered}
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}

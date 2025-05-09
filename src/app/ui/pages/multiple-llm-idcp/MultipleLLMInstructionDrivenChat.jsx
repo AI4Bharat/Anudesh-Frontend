@@ -20,20 +20,22 @@ import { useState, useEffect, useRef } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@/libs/dist";
 import configs from "@/config/config";
-
-import { info } from "./config";
-import { chatHistory } from "./config";
+import ErrorIcon from "@mui/icons-material/Error";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+// import { chatHistory } from "./config";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import { format } from "path";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -83,10 +85,11 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
+  backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
 };
 
 const MultipleLLMInstructionDrivenChat = ({
-  // chatHistory,
+  chatHistory,
   setChatHistory,
   handleClick,
   formatResponse,
@@ -94,7 +97,7 @@ const MultipleLLMInstructionDrivenChat = ({
   id,
   stage,
   notes,
-  // info,
+  info,
   disableUpdateButton,
   annotation,
 }) => {
@@ -111,23 +114,29 @@ const MultipleLLMInstructionDrivenChat = ({
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
-  const [viewFullResponse, setViewFullResponse] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [activeModalIndex1, setActiveModalIndex1] = useState(null); // For Model 1 responses
+  const [activeModalIndex2, setActiveModalIndex2] = useState(null); // For Model 2 responses
+  const [preferredSelections, setPreferredSelections] = useState({});
 
-  const handleOptionClick = (option) => {
-    setSelectedOption(option);
+  const handlePreferredResponse = (index) => (event) => {
+    setPreferredSelections((prev) => ({
+      ...prev,
+      [index]: event.target.value,
+    }));
   };
 
-  const handleSubmit = () => {
-    if (selectedOption) {
-      alert(`You selected: ${selectedOption}`);
-    } else {
-      alert("Please select an option before submitting.");
-    }
+  const handleOpenViewFullResponse1 = (index) => {
+    setActiveModalIndex1(index);
   };
-
-  const handleOpenViewFullResponse = () => setViewFullResponse(true);
-  const handleCloseViewFullResponse = () => setViewFullResponse(false);
+  const handleCloseViewFullResponse1 = () => {
+    setActiveModalIndex1(null);
+  };
+  const handleOpenViewFullResponse2 = (index) => {
+    setActiveModalIndex2(index);
+  };
+  const handleCloseViewFullResponse2 = () => {
+    setActiveModalIndex2(null);
+  };
 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -189,26 +198,86 @@ const MultipleLLMInstructionDrivenChat = ({
     }
   };
 
-  // useEffect(() => {
-  //   let modifiedChatHistory = [];
-  //   if (
-  //     annotation &&
-  //     Array.isArray(annotation[0]?.result) &&
-  //     annotation[0]?.result.length > 0
-  //   ) {
-  //     modifiedChatHistory = annotation[0]?.result.map((interaction, index) => {
-  //       return {
-  //         ...interaction,
-  //         output: formatResponse(interaction.output),
-  //       };
-  //     });
-  //     setChatHistory(modifiedChatHistory);
-  //   } else {
-  //     setChatHistory([]);
-  //   }
-  //   setAnnotationId(annotation[0]?.id);
-  //   setShowChatContainer(!!annotation[0]?.result);
-  // }, [annotation]);
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+
+  useEffect(() => {
+    let modifiedChatHistory = [];
+    if (
+      annotation &&
+      Array.isArray(annotation[0]?.result) &&
+      annotation[0]?.id &&
+      annotation[0]?.result.length > 0
+    ) {
+      const interactions_length =
+        annotation[0]?.result[0]?.interaction_json?.length;
+
+      for (let i = 0; i < interactions_length; i++) {
+        const prompt = annotation[0]?.result[0]?.interaction_json[i]?.prompt;
+        const response_valid_1 = isString(
+          annotation[0]?.result[0].interaction_json[i]?.output,
+        );
+        const response_valid_2 = isString(
+          annotation[0]?.result[1].interaction_json[i]?.output,
+        );
+        modifiedChatHistory?.push({
+          prompt: prompt,
+          output: [
+            {
+              model_name: annotation[0]?.result[0].model_name,
+              output: response_valid_1
+                ? formatResponse(
+                    annotation[0]?.result[0].interaction_json[i]?.output,
+                  )
+                : formatResponse(
+                    `${annotation[0]?.result[0].model_name} failed to generate a response`,
+                  ),
+              status: response_valid_1 ? "success" : "error",
+              preferred_response:
+                annotation[0]?.result[0]?.interaction_json[i]
+                  ?.preferred_response,
+              prompt_output_pair_id:
+                annotation[0]?.result[0]?.interaction_json[i]
+                  ?.prompt_output_pair_id,
+              output_error: response_valid_1
+                ? null
+                : JSON.stringify(
+                    annotation[0]?.result[0].interaction_json[i]?.output,
+                  ),
+            },
+            {
+              model_name: annotation[0]?.result[1].model_name,
+              output: response_valid_2
+                ? formatResponse(
+                    annotation[0]?.result[1].interaction_json[i]?.output,
+                  )
+                : formatResponse(
+                    `${annotation[0]?.result[1].model_name} failed to generate a response`,
+                  ),
+              status: response_valid_2 ? "success" : "error",
+              preferred_response:
+                annotation[0]?.result[1]?.interaction_json[i]
+                  ?.preferred_response,
+              prompt_output_pair_id:
+                annotation[0]?.result[1]?.interaction_json[i]
+                  ?.prompt_output_pair_id,
+              output_error: response_valid_2
+                ? null
+                : JSON.stringify(
+                    annotation[0]?.result[1].interaction_json[i]?.output,
+                  ),
+            },
+          ],
+        });
+      }
+      setChatHistory(modifiedChatHistory);
+    } else {
+      setChatHistory([]);
+    }
+    setAnnotationId(annotation[0]?.id);
+    setShowChatContainer(!!annotation[0]?.result);
+  }, [annotation]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -260,87 +329,133 @@ const MultipleLLMInstructionDrivenChat = ({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-  // const handleButtonClick = async () => {
-  //   if (inputValue) {
-  //     setLoading(true);
-  //     const body = {
-  //       result: inputValue,
-  //       lead_time:
-  //         (new Date() - loadtime) / 1000 +
-  //         Number(id?.lead_time?.lead_time ?? 0),
-  //       auto_save: true,
-  //       task_id: taskId,
-  //     };
-  //     if (stage === "Alltask") {
-  //       body.annotation_status = id?.annotation_status;
-  //     } else {
-  //       body.annotation_status = localStorage.getItem("labellingMode");
-  //     }
-  //     if (stage === "Review") {
-  //       body.review_notes = JSON.stringify(
-  //         notes?.current?.getEditor().getContents(),
-  //       );
-  //     } else if (stage === "SuperChecker") {
-  //       body.superchecker_notes = JSON.stringify(
-  //         notes?.current?.getEditor().getContents(),
-  //       );
-  //     } else {
-  //       body.annotation_notes = JSON.stringify(
-  //         notes?.current?.getEditor().getContents(),
-  //       );
-  //     }
-  //     if (stage === "Review" || stage === "SuperChecker") {
-  //       body.parentannotation = id?.parent_annotation;
-  //     }
-  //     const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-  //     const res = await fetch(AnnotationObj.apiEndPoint(), {
-  //       method: "PATCH",
-  //       body: JSON.stringify(AnnotationObj.getBody()),
-  //       headers: AnnotationObj.getHeaders().headers,
-  //     });
-  //     const data = await res.json();
-  //     let modifiedChatHistory;
-  //     setChatHistory((prevChatHistory) => {
-  //       data && data.result && setLoading(false);
-  //       if (data && data.result) {
-  //         modifiedChatHistory = data.result.map((interaction, index) => {
-  //           const isLastInteraction = index === data?.result?.length - 1;
-  //           return {
-  //             ...interaction,
-  //             output: formatResponse(interaction.output, isLastInteraction),
-  //           };
-  //         });
-  //       } else {
-  //         setLoading(false);
-  //         setSnackbarInfo({
-  //           open: true,
-  //           message: data?.message,
-  //           variant: "error",
-  //         });
-  //       }
-  //       return data && data.result
-  //         ? [...modifiedChatHistory]
-  //         : [...prevChatHistory];
-  //     });
-  //   } else {
-  //     setSnackbarInfo({
-  //       open: true,
-  //       message: "Please provide a prompt",
-  //       variant: "error",
-  //     });
-  //   }
-  //   setTimeout(() => {
-  //     bottomRef.current.scrollIntoView({ behavior: "smooth" });
-  //   }, 1000);
-  //   setShowChatContainer(true);
-  // };
+  const handleButtonClick = async (index, preferred_response) => {
+    if (inputValue) {
+      setLoading(true);
+      const body = {
+        result: inputValue,
+        lead_time:
+          (new Date() - loadtime) / 1000 +
+          Number(id?.lead_time?.lead_time ?? 0),
+        auto_save: true,
+        task_id: taskId,
+        prompt_output_pair_id: index,
+        preferred_response: preferred_response || "",
+      };
+      if (stage === "Alltask") {
+        body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
+      }
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else {
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id?.parent_annotation;
+      }
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+      const res = await fetch(AnnotationObj.apiEndPoint(), {
+        method: "PATCH",
+        body: JSON.stringify(AnnotationObj.getBody()),
+        headers: AnnotationObj.getHeaders().headers,
+      });
+      const data = await res.json();
+      let modifiedChatHistory = [];
+      setChatHistory((prevChatHistory) => {
+        data && data.result && setLoading(false);
+        if (data && data.result) {
+          const interactions_length = data?.result[0]?.interaction_json?.length;
+          for (let i = 0; i < interactions_length; i++) {
+            const prompt = data?.result[0]?.interaction_json[i]?.prompt;
+            const response_valid_1 = isString(
+              data?.result[0]?.interaction_json[i]?.output,
+            );
+            const response_valid_2 = isString(
+              data?.result[1]?.interaction_json[i]?.output,
+            );
+            modifiedChatHistory.push({
+              prompt: prompt,
+              output: [
+                {
+                  model_name: data?.result[0].model_name,
+                  output: response_valid_1
+                    ? formatResponse(
+                        data?.result[0].interaction_json[i]?.output,
+                      )
+                    : `${data?.result[0].model_name} failed to generate a response`,
+                  status: response_valid_1 ? "success" : "error",
+                  preferred_response:
+                    data?.result[0]?.interaction_json[i]?.preferred_response,
+                  prompt_output_pair_id:
+                    data?.result[0]?.interaction_json[i]?.prompt_output_pair_id,
+                  output_error: response_valid_1
+                    ? null
+                    : JSON.stringify(
+                        data?.result[0].interaction_json[i]?.output,
+                      ),
+                },
+                {
+                  model_name: data?.result[1].model_name,
+                  output: response_valid_2
+                    ? formatResponse(
+                        data?.result[1].interaction_json[i]?.output,
+                      )
+                    : `${data?.result[1].model_name} failed to generate a response`,
+                  status: response_valid_2 ? "success" : "error",
+                  preferred_response:
+                    data?.result[1]?.interaction_json[i]?.preferred_response,
+                  prompt_output_pair_id:
+                    data?.result[1]?.interaction_json[i]?.prompt_output_pair_id,
+                  output_error: response_valid_2
+                    ? null
+                    : JSON.stringify(
+                        data?.result[1].interaction_json[i]?.output,
+                      ),
+                },
+              ],
+            });
+          }
+        } else {
+          setLoading(false);
+          setSnackbarInfo({
+            open: true,
+            message: data?.message,
+            variant: "error",
+          });
+        }
+        return data && data.result
+          ? [...modifiedChatHistory]
+          : [...prevChatHistory];
+      });
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: "Please provide a prompt",
+        variant: "error",
+      });
+    }
+    setTimeout(() => {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }, 1000);
+    setShowChatContainer(true);
+  };
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
 
   const handleEditResponse = () => {
-    console.log("edit response");
+    // console.log("edit response");
   };
 
   const [text, setText] = useState("");
@@ -393,7 +508,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      // handleButtonClick();
+      handleButtonClick();
       setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
@@ -441,180 +556,77 @@ const MultipleLLMInstructionDrivenChat = ({
   };
 
   const renderChatHistory = () => {
-    const chatElements = chatHistory?.map((message, index) => (
-      <Grid
-        container
-        spacing={2}
-        key={index}
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ padding: "1.5rem", margin: "auto" }}
-      >
-        <Grid
-          item
-          sx={{
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            padding: "1.5rem",
-            borderRadius: "0.5rem",
-            position: "relative",
-            width: "100%",
-            marginBottom: "1.5rem",
-          }}
-        >
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item>
-              <Avatar
-                alt="user_profile_pic"
-                src={loggedInUserData?.profile_photo || ""}
-                sx={{ marginRight: "1rem" }}
-              />
-            </Grid>
-            <Grid item xs className="w-full">
-              {ProjectDetails?.metadata_json?.editable_prompt ? (
-                globalTransliteration ? (
-                  <IndicTransliterate
-                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                    apiKey={`JWT ${localStorage.getItem(
-                      "anudesh_access_token",
-                    )}`}
-                    renderComponent={(props) => (
-                      <textarea
-                        maxRows={10}
-                        placeholder={translate("chat_placeholder")}
-                        {...props}
-                        className=""
-                        style={{
-                          fontSize: "1rem",
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          resize: "none",
-                        }}
-                      />
-                    )}
-                    value={message.prompt}
-                    onChangeText={(e) =>
-                      handleTextChange(e, null, message, "prompt")
-                    }
-                    lang={targetLang}
-                  />
-                ) : (
-                  <textarea
-                    value={message.prompt}
-                    onChange={(e) =>
-                      handleTextChange(e, null, message, "prompt")
-                    }
-                    style={{
-                      fontSize: "1rem",
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "12px 12px 0 12px",
-                      color: grey[900],
-                      background: "#ffffff",
-                      border: `1px solid ${grey[200]}`,
-                      boxShadow: `0px 2px 2px ${grey[50]}`,
-                      minHeight: "5rem",
-                      resize: "none",
-                    }}
-                    rows={1}
-                  />
-                )
-              ) : (
-                <ReactMarkdown
-                  className="flex-col"
-                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
-                />
-              )}
-            </Grid>
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    sx={{ color: "#EE6633", fontSize: "1.2rem" }}
-                  />
-                </IconButton>
-              )}
-          </Grid>
-        </Grid>
-
-        <Grid
-          item
-          sx={{
-            textAlign: "left",
-            position: "relative",
-            width: "100%",
-            padding: "1.5rem",
-            borderRadius: "0.5rem",
-          }}
-        >
-          <Grid container alignItems="start" spacing={2}>
-            <Grid item>
-              <Image
-                width={50}
-                height={50}
-                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
-                alt="Bot Avatar"
-                priority
-              />
-            </Grid>
-
+    const chatElements = chatHistory?.map(
+      (message, index) => (
+        console.log("message", message),
+        (
+          <Grid
+            container
+            spacing={2}
+            key={index}
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ padding: "1.5rem", margin: "auto" }}
+          >
             <Grid
               item
-              xs={6}
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                minWidth: `90%`,
+                backgroundColor: "rgba(247, 184, 171, 0.2)",
+                padding: "1.5rem",
+                borderRadius: "0.5rem",
+                position: "relative",
+                width: "100%",
+                marginBottom: "1.5rem",
               }}
             >
-              {/* {message?.output.map((segment, index) =>
-                segment.type === "text" ? (
-                  ProjectDetails?.metadata_json?.editable_response ||
-                  segment.value == "" ? (
+              <Grid container alignItems="center" spacing={2}>
+                <Grid item>
+                  <Avatar
+                    alt="user_profile_pic"
+                    src={loggedInUserData?.profile_photo || ""}
+                    sx={{ marginRight: "1rem" }}
+                  />
+                </Grid>
+                <Grid item xs className="w-full">
+                  {ProjectDetails?.metadata_json?.editable_prompt ? (
                     globalTransliteration ? (
                       <IndicTransliterate
-                        key={index}
-                        value={segment.value}
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                        apiKey={`JWT ${localStorage.getItem(
+                          "anudesh_access_token",
+                        )}`}
+                        renderComponent={(props) => (
+                          <textarea
+                            maxRows={10}
+                            placeholder={translate("chat_placeholder")}
+                            {...props}
+                            className=""
+                            style={{
+                              fontSize: "1rem",
+                              width: "100%",
+                              padding: "12px",
+                              borderRadius: "12px 12px 0 12px",
+                              color: grey[900],
+                              background: "#ffffff",
+                              border: `1px solid ${grey[200]}`,
+                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                              minHeight: "5rem",
+                              resize: "none",
+                            }}
+                          />
+                        )}
+                        value={message.prompt}
                         onChangeText={(e) =>
-                          handleTextChange(e, index, message, "output")
+                          handleTextChange(e, null, message, "prompt")
                         }
                         lang={targetLang}
-                        style={{
-                          fontSize: "1rem",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          // resize: "none",
-                          width: "100%",
-                        }}
                       />
                     ) : (
                       <textarea
-                        key={index}
-                        value={segment.value}
+                        value={message.prompt}
                         onChange={(e) =>
-                          handleTextChange(e, index, message, "output")
+                          handleTextChange(e, null, message, "prompt")
                         }
                         style={{
                           fontSize: "1rem",
@@ -633,323 +645,738 @@ const MultipleLLMInstructionDrivenChat = ({
                     )
                   ) : (
                     <ReactMarkdown
-                      key={index}
-                      children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                      className="flex-col"
+                      children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
                     />
-                  )
-                ) : (
-                  <SyntaxHighlighter
-                    key={index}
-                    language={segment.language}
-                    style={gruvboxDark}
-                    customStyle={{ padding: "1rem", borderRadius: "5px" }}
-                  >
-                    {segment.value}
-                  </SyntaxHighlighter>
-                ),
-              )} */}
-
-              {/* Output 1 Section */}
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  width: "60%",
-                  marginLeft: "10px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  alignItems: "flex-end",
-                  borderRadius: "10px",
-                }}
-              >
-                <Tooltip
-                  title={
-                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      Expand to view full response
-                    </span>
-                  }
-                >
-                  <IconButton onClick={handleOpenViewFullResponse}>
-                    <OpenInFullIcon
+                  )}
+                </Grid>
+                {index === chatHistory.length - 1 &&
+                  stage !== "Alltask" &&
+                  !disableUpdateButton && (
+                    <IconButton
+                      size="large"
                       sx={{
-                        padding: "10px 10px 0 0",
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        marginTop: "1rem",
+                        borderRadius: "50%",
+                      }}
+                      onClick={() =>
+                        handleClick(
+                          "delete-pair",
+                          id?.id,
+                          0.0,
+                          "MultipleLLMInstructionDrivenChat",
+                        )
+                      }
+                    >
+                      <DeleteOutlinedIcon
+                        sx={{ color: "#EE6633", fontSize: "1.2rem" }}
+                      />
+                    </IconButton>
+                  )}
+              </Grid>
+            </Grid>
+
+            <Grid
+              item
+              sx={{
+                textAlign: "left",
+                position: "relative",
+                width: "100%",
+                padding: "1.5rem",
+                borderRadius: "0.5rem",
+              }}
+            >
+              <Grid container alignItems="start" spacing={2}>
+                <Grid item>
+                  <Image
+                    width={50}
+                    height={50}
+                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                    alt="Bot Avatar"
+                    priority
+                  />
+                </Grid>
+
+                <Grid
+                  item
+                  xs={6}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    minWidth: `90%`,
+                  }}
+                >
+                  {/* Output 1 Section */}
+                  {message?.output[0]?.status === "error" ? (
+                    <Box
+                      sx={{
+                        border: "1px solid #ccc",
+                        width: "60%",
+                        marginLeft: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        alignItems: "flex-end",
+                        borderRadius: "10px",
+                        color: "red",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {" "}
+                      <Typography>
+                        {message?.output[0]?.model_name} failed to load the
+                        response!
+                      </Typography>{" "}
+                    </Box>
+                  ) : (
+                    <>
+                      <Box
+                        sx={{
+                          border: "1px solid #ccc",
+                          width: "60%",
+                          marginLeft: "10px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          alignItems: "flex-end",
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <Tooltip
+                          title={
+                            <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                              Expand to view full response
+                            </span>
+                          }
+                        >
+                          <IconButton
+                            onClick={() => handleOpenViewFullResponse1(index)}
+                          >
+                            <OpenInFullIcon
+                              sx={{
+                                padding: "10px 10px 0 0",
+                                color: "#EE6633",
+                              }}
+                            />
+                          </IconButton>
+                        </Tooltip>
+                        <Modal
+                          open={activeModalIndex1 === index}
+                          onClose={handleCloseViewFullResponse1}
+                          closeAfterTransition
+                          BackdropComponent={Backdrop}
+                          BackdropProps={{
+                            timeout: 500,
+                            sx: {
+                              backdropFilter: "blur(2px)", // Apply blur effect
+                              backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
+                            },
+                          }}
+                        >
+                          <Fade in={activeModalIndex1 === index}>
+                            <Box sx={viewFullResponseModalStyle}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: "#EE6633",
+                                    fontSize: "1.25rem",
+                                  }}
+                                >
+                                  {message?.output[0]?.model_name}
+                                </Typography>
+                                <IconButton
+                                  onClick={handleCloseViewFullResponse1}
+                                >
+                                  <CloseIcon sx={{ color: "#EE6633" }} />
+                                </IconButton>
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: "1.2rem",
+                                  maxHeight: "60vh",
+                                  overflowY: "scroll",
+                                }}
+                              >
+                                {message?.output[0]?.output?.map(
+                                  (segment, index) =>
+                                    segment.type === "text" ? (
+                                      ProjectDetails?.metadata_json
+                                        ?.editable_response ||
+                                      segment.value == "" ? (
+                                        globalTransliteration ? (
+                                          <IndicTransliterate
+                                            key={index}
+                                            value={segment.value}
+                                            onChangeText={(e) =>
+                                              handleTextChange(
+                                                e,
+                                                index,
+                                                message,
+                                                "output",
+                                              )
+                                            }
+                                            lang={targetLang}
+                                            style={{
+                                              fontSize: "1rem",
+                                              padding: "12px",
+                                              borderRadius: "12px 12px 0 12px",
+                                              color: grey[900],
+                                              background: "#ffffff",
+                                              border: `1px solid ${grey[200]}`,
+                                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                                              minHeight: "5rem",
+                                              // resize: "none",
+                                              width: "100%",
+                                            }}
+                                          />
+                                        ) : (
+                                          <textarea
+                                            key={index}
+                                            value={segment.value}
+                                            onChange={(e) =>
+                                              handleTextChange(
+                                                e,
+                                                index,
+                                                message,
+                                                "output",
+                                              )
+                                            }
+                                            style={{
+                                              fontSize: "1rem",
+                                              width: "100%",
+                                              padding: "12px",
+                                              borderRadius: "12px 12px 0 12px",
+                                              color: grey[900],
+                                              background: "#ffffff",
+                                              border: `1px solid ${grey[200]}`,
+                                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                                              minHeight: "5rem",
+                                              resize: "none",
+                                            }}
+                                            rows={1}
+                                          />
+                                        )
+                                      ) : (
+                                        <ReactMarkdown
+                                          key={index}
+                                          children={segment?.value?.replace(
+                                            /\n/gi,
+                                            "&nbsp; \n",
+                                          )}
+                                        />
+                                      )
+                                    ) : (
+                                      <SyntaxHighlighter
+                                        key={index}
+                                        language={segment.language}
+                                        style={gruvboxDark}
+                                        customStyle={{
+                                          padding: "1rem",
+                                          borderRadius: "5px",
+                                        }}
+                                      >
+                                        {segment.value}
+                                      </SyntaxHighlighter>
+                                    ),
+                                )}
+                              </Typography>
+                            </Box>
+                          </Fade>
+                        </Modal>
+                        <Box
+                          sx={{
+                            overflowY: "auto",
+                            maxHeight: "400px",
+                            padding: "20px 50px",
+                          }}
+                        >
+                          {message?.output[0]?.output?.map((segment, index) =>
+                            segment.type === "text" ? (
+                              ProjectDetails?.metadata_json
+                                ?.editable_response || segment.value == "" ? (
+                                globalTransliteration ? (
+                                  <IndicTransliterate
+                                    key={index}
+                                    value={segment.value}
+                                    onChangeText={(e) =>
+                                      handleTextChange(
+                                        e,
+                                        index,
+                                        message,
+                                        "output",
+                                      )
+                                    }
+                                    lang={targetLang}
+                                    style={{
+                                      fontSize: "1rem",
+                                      padding: "12px",
+                                      borderRadius: "12px 12px 0 12px",
+                                      color: grey[900],
+                                      background: "#ffffff",
+                                      border: `1px solid ${grey[200]}`,
+                                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                                      minHeight: "5rem",
+                                      // resize: "none",
+                                      width: "100%",
+                                    }}
+                                  />
+                                ) : (
+                                  <textarea
+                                    key={index}
+                                    value={segment.value}
+                                    onChange={(e) =>
+                                      handleTextChange(
+                                        e,
+                                        index,
+                                        message,
+                                        "output",
+                                      )
+                                    }
+                                    style={{
+                                      fontSize: "1rem",
+                                      width: "100%",
+                                      padding: "12px",
+                                      borderRadius: "12px 12px 0 12px",
+                                      color: grey[900],
+                                      background: "#ffffff",
+                                      border: `1px solid ${grey[200]}`,
+                                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                                      minHeight: "5rem",
+                                      resize: "none",
+                                    }}
+                                    rows={1}
+                                  />
+                                )
+                              ) : (
+                                <ReactMarkdown
+                                  key={index}
+                                  children={segment?.value?.replace(
+                                    /\n/gi,
+                                    "&nbsp; \n",
+                                  )}
+                                />
+                              )
+                            ) : (
+                              <SyntaxHighlighter
+                                key={index}
+                                language={segment.language}
+                                style={gruvboxDark}
+                                customStyle={{
+                                  padding: "1rem",
+                                  borderRadius: "5px",
+                                }}
+                              >
+                                {segment.value}
+                              </SyntaxHighlighter>
+                            ),
+                          )}
+                        </Box>
+                        <Box>
+                          <Typography
+                            sx={{
+                              backgroundColor: "#E8E6E6",
+                              padding: "10px",
+                              borderRadius: "10px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            {message?.output[0]?.model_name}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+
+                  {/* Output 2 Section */}
+                  {message?.output[1]?.status === "error" ? (
+                    <Box
+                      sx={{
+                        border: "1px solid red",
+                        width: "60%",
+                        marginLeft: "10px",
+                        height: "10vh",
+                        padding: "10px",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: "10px",
+                        color: "red",
+                        fontWeight: "bold",
+                        backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+                      }}
+                    >
+                      <ErrorIcon
+                        sx={{
+                          marginRight: "10px",
+                        }}
+                      />
+                      <Typography>
+                        {message?.output[1]?.model_name} failed to load the
+                        response!
+                      </Typography>{" "}
+                    </Box>
+                  ) : (
+                    <>
+                      <Box
+                        sx={{
+                          border: "1px solid #ccc",
+                          width: "60%",
+                          marginLeft: "2rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          alignItems: "flex-end",
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <Tooltip
+                          title={
+                            <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                              Expand to view full response
+                            </span>
+                          }
+                        >
+                          <IconButton
+                            onClick={() => handleOpenViewFullResponse2(index)}
+                          >
+                            <OpenInFullIcon
+                              sx={{
+                                padding: "10px 10px 0 0",
+                                color: "#EE6633",
+                              }}
+                            />
+                          </IconButton>
+                        </Tooltip>
+                        <Modal
+                          open={activeModalIndex2 === index}
+                          onClose={handleCloseViewFullResponse2}
+                          closeAfterTransition
+                          BackdropComponent={Backdrop}
+                          BackdropProps={{
+                            timeout: 500,
+                            sx: {
+                              backdropFilter: "blur(2px)", // Apply blur effect
+                              backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
+                            },
+                          }}
+                        >
+                          <Fade in={activeModalIndex2 === index}>
+                            <Box sx={viewFullResponseModalStyle}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  paddingBottom: "1.5rem",
+                                }}
+                              >
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: "#EE6633",
+                                    fontSize: "1.25rem",
+                                  }}
+                                >
+                                  {message?.output[1]?.model_name}
+                                </Typography>
+                                <IconButton
+                                  onClick={handleCloseViewFullResponse2}
+                                >
+                                  <CloseIcon sx={{ color: "#EE6633" }} />
+                                </IconButton>
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: "1.2rem",
+                                  maxHeight: "60vh",
+                                  overflowY: "scroll",
+                                }}
+                              >
+                                {message?.output[1]?.output?.map(
+                                  (segment, index) =>
+                                    segment.type === "text" ? (
+                                      ProjectDetails?.metadata_json
+                                        ?.editable_response ||
+                                      segment.value == "" ? (
+                                        globalTransliteration ? (
+                                          <IndicTransliterate
+                                            key={index}
+                                            value={segment.value}
+                                            onChangeText={(e) =>
+                                              handleTextChange(
+                                                e,
+                                                index,
+                                                message,
+                                                "output",
+                                              )
+                                            }
+                                            lang={targetLang}
+                                            style={{
+                                              fontSize: "1rem",
+                                              padding: "12px",
+                                              borderRadius: "12px 12px 0 12px",
+                                              color: grey[900],
+                                              background: "#ffffff",
+                                              border: `1px solid ${grey[200]}`,
+                                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                                              minHeight: "5rem",
+                                              // resize: "none",
+                                              width: "100%",
+                                            }}
+                                          />
+                                        ) : (
+                                          <textarea
+                                            key={index}
+                                            value={segment.value}
+                                            onChange={(e) =>
+                                              handleTextChange(
+                                                e,
+                                                index,
+                                                message,
+                                                "output",
+                                              )
+                                            }
+                                            style={{
+                                              fontSize: "1rem",
+                                              width: "100%",
+                                              padding: "12px",
+                                              borderRadius: "12px 12px 0 12px",
+                                              color: grey[900],
+                                              background: "#ffffff",
+                                              border: `1px solid ${grey[200]}`,
+                                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                                              minHeight: "5rem",
+                                              resize: "none",
+                                            }}
+                                            rows={1}
+                                          />
+                                        )
+                                      ) : (
+                                        <ReactMarkdown
+                                          key={index}
+                                          children={segment?.value?.replace(
+                                            /\n/gi,
+                                            "&nbsp; \n",
+                                          )}
+                                        />
+                                      )
+                                    ) : (
+                                      <SyntaxHighlighter
+                                        key={index}
+                                        language={segment.language}
+                                        style={gruvboxDark}
+                                        customStyle={{
+                                          padding: "1rem",
+                                          borderRadius: "5px",
+                                        }}
+                                      >
+                                        {segment.value}
+                                      </SyntaxHighlighter>
+                                    ),
+                                )}
+                              </Typography>
+                            </Box>
+                          </Fade>
+                        </Modal>
+                        <Box
+                          sx={{
+                            overflowY: "auto",
+                            maxHeight: "400px",
+                            padding: "20px 50px",
+                          }}
+                        >
+                          {message?.output[1]?.output?.map((segment, index) =>
+                            segment.type === "text" ? (
+                              ProjectDetails?.metadata_json
+                                ?.editable_response || segment.value == "" ? (
+                                globalTransliteration ? (
+                                  <IndicTransliterate
+                                    key={index}
+                                    value={segment.value}
+                                    onChangeText={(e) =>
+                                      handleTextChange(
+                                        e,
+                                        index,
+                                        message,
+                                        "output",
+                                      )
+                                    }
+                                    lang={targetLang}
+                                    style={{
+                                      fontSize: "1rem",
+                                      padding: "12px",
+                                      borderRadius: "12px 12px 0 12px",
+                                      color: grey[900],
+                                      background: "#ffffff",
+                                      border: `1px solid ${grey[200]}`,
+                                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                                      minHeight: "5rem",
+                                      // resize: "none",
+                                      width: "100%",
+                                    }}
+                                  />
+                                ) : (
+                                  <textarea
+                                    key={index}
+                                    value={segment.value}
+                                    onChange={(e) =>
+                                      handleTextChange(
+                                        e,
+                                        index,
+                                        message,
+                                        "output",
+                                      )
+                                    }
+                                    style={{
+                                      fontSize: "1rem",
+                                      width: "100%",
+                                      padding: "12px",
+                                      borderRadius: "12px 12px 0 12px",
+                                      color: grey[900],
+                                      background: "#ffffff",
+                                      border: `1px solid ${grey[200]}`,
+                                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                                      minHeight: "5rem",
+                                      resize: "none",
+                                    }}
+                                    rows={1}
+                                  />
+                                )
+                              ) : (
+                                <ReactMarkdown
+                                  key={index}
+                                  children={segment?.value?.replace(
+                                    /\n/gi,
+                                    "&nbsp; \n",
+                                  )}
+                                />
+                              )
+                            ) : (
+                              <SyntaxHighlighter
+                                key={index}
+                                language={segment.language}
+                                style={gruvboxDark}
+                                customStyle={{
+                                  padding: "1rem",
+                                  borderRadius: "5px",
+                                }}
+                              >
+                                {segment.value}
+                              </SyntaxHighlighter>
+                            ),
+                          )}
+                        </Box>
+                        <Box>
+                          <Typography
+                            sx={{
+                              backgroundColor: "#E8E6E6",
+                              padding: "10px",
+                              borderRadius: "10px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            {message?.output[1]?.model_name}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid
+              item
+              sx={{
+                padding: "1.5rem",
+                position: "relative",
+                width: "85%",
+                backgroundColor: "rgba(247, 184, 171, 0.2)",
+                borderRadius: "10px",
+              }}
+            >
+              <Box>
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <IconButton>
+                    <CloseIcon
+                      sx={{
                         color: "#EE6633",
                       }}
                     />
                   </IconButton>
-                </Tooltip>
-                <Modal
-                  open={viewFullResponse}
-                  onClose={handleCloseViewFullResponse}
-                  closeAfterTransition
-                  BackdropComponent={Backdrop}
-                  BackdropProps={{
-                    timeout: 500,
-                    sx: {
-                      backdropFilter: "blur(2px)", // Apply blur effect
-                      backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
-                    },
-                  }}
-                >
-                  <Fade in={viewFullResponse}>
-                    <Box sx={viewFullResponseModalStyle}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: "bold",
-                            color: "#EE6633",
-                            fontSize: "1.25rem",
-                          }}
-                        >
-                          Claude 3.7 Sonnet
-                        </Typography>
-                        <IconButton onClick={handleCloseViewFullResponse}>
-                          <CloseIcon sx={{ color: "#EE6633" }} />
-                        </IconButton>
-                      </Box>
-                      <Typography
-                        sx={{
-                          fontSize: "1.2rem",
-                          maxHeight: "60vh",
-                          overflowY: "scroll",
-                        }}
-                      >
-                        {message.response.output1}
-                      </Typography>
-                    </Box>
-                  </Fade>
-                </Modal>
+                </Box>
                 <Box
                   sx={{
-                    overflowY: "auto",
-                    maxHeight: "400px",
-                    padding: "20px 50px",
+                    display: "flex",
+                    justifyContent: "space-around",
+                    alignItems: "center",
                   }}
                 >
-                  {message.response.output1}
-                </Box>
-                <Box>
-                  <Typography
+                  <Box>
+                    <Typography>Which response do you like better?</Typography>
+                  </Box>
+                  <Box>
+                    <RadioGroup
+                      row
+                      aria-labelledby="demo-form-control-label-placement"
+                      name="position"
+                      onChange={handlePreferredResponse(index)}
+                      defaultValue={
+                        message?.output[0]?.preferred_response === true
+                          ? message?.output[0]?.model_name
+                          : message?.output[1]?.preferred_response === true
+                            ? message?.output[1]?.model_name
+                            : ""
+                      }
+                    >
+                      <FormControlLabel
+                        value={message?.output[0]?.model_name}
+                        control={<Radio />}
+                        label={message?.output[0]?.model_name}
+                      />
+                      <FormControlLabel
+                        value={message?.output[1]?.model_name}
+                        control={<Radio />}
+                        label={message?.output[1]?.model_name}
+                      />
+                    </RadioGroup>
+                  </Box>
+                  <Button
+                    variant="contained"
                     sx={{
-                      backgroundColor: "#E8E6E6",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      fontSize: "1rem",
+                      border: "1.5px solid #EE6633",
+                      color: "#EE6633",
+                      backgroundColor: "#FFF",
+                      borderRadius: "8px",
+                      padding: "0.5rem 1.5rem",
+                      "&:hover": {
+                        backgroundColor: "#EE6633",
+                        color: "#FFF",
+                      },
                     }}
                   >
-                    Claude 3.7 Sonnet
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* Output 2 Section */}
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  width: "60%",
-                  marginLeft: "2rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  alignItems: "flex-end",
-                  borderRadius: "10px",
-                }}
-              >
-                <Tooltip
-                  title={
-                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      Expand to view full response
-                    </span>
-                  }
-                >
-                  <IconButton onClick={handleOpenViewFullResponse}>
-                    <OpenInFullIcon
-                      sx={{
-                        padding: "10px 10px 0 0",
-                        color: "#EE6633",
-                      }}
-                    />
-                  </IconButton>
-                </Tooltip>
-                <Modal
-                  open={viewFullResponse}
-                  onClose={handleCloseViewFullResponse}
-                  closeAfterTransition
-                  BackdropComponent={Backdrop}
-                  BackdropProps={{
-                    timeout: 500,
-                    sx: {
-                      backdropFilter: "blur(2px)", // Apply blur effect
-                      backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
-                    },
-                  }}
-                >
-                  <Fade in={viewFullResponse}>
-                    <Box sx={viewFullResponseModalStyle}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          paddingBottom: "1.5rem",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: "bold",
-                            color: "#EE6633",
-                            fontSize: "1.25rem",
-                          }}
-                        >
-                          Claude 3.7 Sonnet
-                        </Typography>
-                        <IconButton onClick={handleCloseViewFullResponse}>
-                          <CloseIcon sx={{ color: "#EE6633" }} />
-                        </IconButton>
-                      </Box>
-                      <Typography
-                        sx={{
-                          fontSize: "1.2rem",
-                          maxHeight: "60vh",
-                          overflowY: "scroll",
-                        }}
-                      >
-                        {message.response.output2}
-                      </Typography>
-                    </Box>
-                  </Fade>
-                </Modal>
-                <Box
-                  sx={{
-                    overflowY: "auto",
-                    maxHeight: "400px",
-                    padding: "20px 50px",
-                  }}
-                >
-                  {message.response.output2}
-                </Box>
-                <Box>
-                  <Typography
-                    sx={{
-                      backgroundColor: "#E8E6E6",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      fontSize: "1rem",
-                    }}
-                  >
-                    Claude 3.7 Sonnet
-                  </Typography>
+                  {/* onClick={handleButtonClick(index, preferredSelections[index])} */}
+                    Submit
+                  </Button>
                 </Box>
               </Box>
             </Grid>
           </Grid>
-        </Grid>
-
-        <Grid
-          item
-          sx={{
-            padding: "1.5rem",
-            position: "relative",
-            width: "85%",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            borderRadius: "10px",
-          }}
-        >
-          <Typography
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <span>Which response do you like better?</span>
-              <Button
-                variant="contained"
-                onClick={() => handleOptionClick("Model A")}
-                sx={{
-                  backgroundColor:
-                    selectedOption === "Model A" ? "#EE6633" : "#FFFFFF", // Highlight selected button
-                  color: selectedOption === "Model A" ? "#FFF" : "#000", // Adjust text color
-                  borderRadius: "8px",
-                  padding: "0.5rem 1rem",
-                  "&:hover": {
-                    backgroundColor:
-                      selectedOption === "Model A" ? "#EE6633" : "#DAE2ED", // Hover effect
-                  },
-                  marginLeft: "1.2rem",
-                }}
-              >
-                Model A
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => handleOptionClick("Model B")}
-                sx={{
-                  backgroundColor:
-                    selectedOption === "Model B" ? "#EE6633" : "#FFFFFF", // Highlight selected button
-                  color: selectedOption === "Model B" ? "#FFF" : "#000", // Adjust text color
-                  borderRadius: "8px",
-                  padding: "0.5rem 1rem",
-                  "&:hover": {
-                    backgroundColor:
-                      selectedOption === "Model B" ? "#EE6633" : "#DAE2ED", // Hover effect
-                  },
-                  marginLeft: "1.2rem",
-                }}
-              >
-                Model B
-              </Button>
-            </Box>
-            <Box>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                sx={{
-                  border: "1.5px solid #EE6633",
-                  color: "#EE6633",
-                  backgroundColor: "#FFF",
-                  borderRadius: "8px",
-                  padding: "0.5rem 1.5rem",
-                  "&:hover": {
-                    backgroundColor: "#EE6633",
-                    color: "#FFF",
-                  },
-                }}
-              >
-                Submit
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                sx={{
-                  border: "1.5px solid #EE6633",
-                  color: "#EE6633",
-                  backgroundColor: "#FFF",
-                  borderRadius: "8px",
-                  padding: "0.5rem 1.5rem",
-                  "&:hover": {
-                    backgroundColor: "#EE6633",
-                    color: "#FFF",
-                  },
-                  marginLeft: "1.2rem",
-                }}
-              >
-                <CloseIcon />
-              </Button>
-            </Box>
-          </Typography>
-        </Grid>
-      </Grid>
-    ));
+        )
+      ),
+    );
 
     return chatElements;
   };
@@ -1161,7 +1588,7 @@ const MultipleLLMInstructionDrivenChat = ({
               }}
             >
               <Textarea
-                // handleButtonClick={handleButtonClick}
+                handleButtonClick={handleButtonClick}
                 handleOnchange={handleOnchange}
                 size={12}
                 sx={{

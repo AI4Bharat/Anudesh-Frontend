@@ -27,6 +27,7 @@ import { ArrowDropDown } from "@material-ui/icons";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 
 const ReactQuill = dynamic(
   async () => {
@@ -353,6 +354,24 @@ console.log(annotations);
         />
       );
       break;
+      case "MultipleLLMInstructionDrivenChat":
+        componentToRender = (
+          <MultipleLLMInstructionDrivenChat
+            key={`annotations-${annotations?.length}-${
+              annotations?.[0]?.id || "default"
+            }`}
+            chatHistory={chatHistory}
+            setChatHistory={setChatHistory}
+            formatResponse={formatResponse}
+            formatPrompt={formatPrompt}
+            id={AnnotationsTaskDetails[0]}
+            stage={"Alltask"}
+            notes={annotationNotesRef}
+            info={info}
+            annotation={annotations}
+          />
+        );
+        break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation

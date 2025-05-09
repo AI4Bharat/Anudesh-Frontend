@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "@/components/common/Spinner";
 import {
   ThemeProvider,
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import Tooltip from "@mui/material/Tooltip";
@@ -17,7 +16,6 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "../../themes/tableTheme";
-import ColumnList from "../common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -26,6 +24,7 @@ import CustomButton from "../common/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import AllTaskSearchPopup from "./AllTasksSearchpopup";
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
+import { styled } from "@mui/material/styles";
 
 const excludeCols = [
   "avg_rating",
@@ -50,6 +49,22 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -95,15 +110,15 @@ const AllTaskTable = (props) => {
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-  const AllTaskData = useSelector((state) => state.getAllTaskData.data.result);
+  const AllTaskData = useSelector((state) => state.getAllTaskData?.data.result);
   const apiLoading = useSelector(
     (state) => state.getAllTaskData.status !== "succeeded",
   );
   const totalTaskCount = useSelector(
-    (state) => state.getAllTaskData.data.total_count,
+    (state) => state.getAllTaskData?.data.total_count,
   );
-  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  const userDetails = useSelector((state) => state.getLoggedInData?.data);
   const filterData = {
     Status: [
       "incomplete",
@@ -119,6 +134,7 @@ const AllTaskTable = (props) => {
     return savedFilters ? JSON.parse(savedFilters) :
       { task_status: [filterData.Status[0]] };
   });
+  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -168,9 +184,9 @@ const AllTaskTable = (props) => {
       const data = AllTaskData.map((el) => {
         let row = [el.id];
         row.push(
-          ...Object.keys(el.data)
+          ...Object.keys(el?.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key]),
+            .map((key) => el?.data[key]),
         );
         AllTaskData[0].task_status && row.push(el.task_status);
         if (
@@ -208,7 +224,7 @@ const AllTaskTable = (props) => {
       let colList = ["id"];
 
       colList.push(
-        ...Object.keys(AllTaskData[0].data).filter(
+        ...Object.keys(AllTaskData[0]?.data).filter(
           (el) => !excludeCols.includes(el),
         ),
       );
@@ -229,6 +245,26 @@ const AllTaskTable = (props) => {
             sort: false,
             align: "center",
             customHeadLabelRender: customColumnHead,
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the table's onRowClick
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         };
       });
@@ -246,7 +282,7 @@ const AllTaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [AllTaskData, ProjectDetails]);
+  }, [AllTaskData, ProjectDetails, expandedRow]);
 
   useEffect(() => {
     const newCols = columns.map((col) => {
@@ -446,7 +482,7 @@ const AllTaskTable = (props) => {
             <MUIDataTable
               key={`table-${displayWidth}`}
               title={""}
-              data={data}
+              data={tasks}
               columns={columns}
               options={{
                 ...options,

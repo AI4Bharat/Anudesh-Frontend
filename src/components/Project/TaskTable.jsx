@@ -593,9 +593,6 @@ const TaskTable = (props) => {
           );
         return row;
       });
-      // let colList = ["id"];
-      // colList.push(...Object.keys(taskList[0].data).filter(el => !excludeCols.includes(el) && !el.includes("_json")));
-
       const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail");
       const email =
         props.type === "review" && annotatorEmail ? "Annotator Email" : "";
@@ -1086,10 +1083,7 @@ const TaskTable = (props) => {
       </Box>
     );
   };
-  const handleRowClick = (rowIndex) => {
-    setExpandedRow(expandedRow === rowIndex ? null : rowIndex);
-  };
-
+  
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,
