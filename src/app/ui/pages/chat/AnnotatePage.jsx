@@ -368,6 +368,10 @@ const AnnotatePage = () => {
     }
     // }
   };
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
     // if (typeof window !== "undefined") {
     let resultValue;
@@ -460,7 +464,6 @@ const AnnotatePage = () => {
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
       clear_conversation: value === "delete",
-      // preferred_response: "GPT4OMini",
     };
 
     if (
@@ -569,7 +572,6 @@ const AnnotatePage = () => {
               ],
             });
           }
-          console.log("modifiedChatHistory", modifiedChatHistory);
           setChatHistory([...modifiedChatHistory]);
         } else {
           let modifiedChatHistory = resp?.result.map((interaction) => {
