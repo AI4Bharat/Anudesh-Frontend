@@ -331,7 +331,7 @@ const InstructionDrivenChatPage = ({
       const lc = LanguageCode.languages.find(
         (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
       );
-      setTargetLang(lc);
+      setTargetLang(lc.code);
 
       // console.log(
       //   globalTransliteration,
