@@ -3,9 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "@/components/common/Spinner";
-import {
-  ThemeProvider,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import Tooltip from "@mui/material/Tooltip";
@@ -22,9 +21,10 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import AllTasksFilterList from "./AllTasksFilterList";
 import CustomButton from "../common/Button";
 import SearchIcon from "@mui/icons-material/Search";
-import AllTaskSearchPopup from "./AllTasksSearchpopup";
+import SearchPopup from "./SearchPopup"
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 import { styled } from "@mui/material/styles";
+import ChatLang from "@/utils/Chatlang";
 
 const excludeCols = [
   "avg_rating",
@@ -92,13 +92,13 @@ const AllTaskTable = (props) => {
   const [displayWidth, setDisplayWidth] = useState(0);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
+  const [expandedRow, setExpandedRow] = useState(null);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
   const [columns, setColumns] = useState([]);
-  const [selectedColumns, setSelectedColumns] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchAnchor, setSearchAnchor] = useState(null);
@@ -134,7 +134,6 @@ const AllTaskTable = (props) => {
     return savedFilters ? JSON.parse(savedFilters) :
       { task_status: [filterData.Status[0]] };
   });
-  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -186,7 +185,12 @@ const AllTaskTable = (props) => {
         row.push(
           ...Object.keys(el?.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el?.data[key]),
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            }),
         );
         AllTaskData[0].task_status && row.push(el.task_status);
         if (
@@ -253,7 +257,7 @@ const AllTaskTable = (props) => {
                 <RowContainer
                   expanded={isExpanded}
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering the table's onRowClick
+                    e.stopPropagation();
                     setExpandedRow((prevExpanded) =>
                       prevExpanded === rowIndex ? null : rowIndex,
                     );
@@ -272,7 +276,6 @@ const AllTaskTable = (props) => {
         cols.splice(1, 2);
       }
       setColumns(cols);
-      setSelectedColumns(colList);
       data.forEach(ele => {
         if (ele.length == 6) {
           ele.splice(1, 2);
@@ -283,16 +286,6 @@ const AllTaskTable = (props) => {
       setTasks([]);
     }
   }, [AllTaskData, ProjectDetails, expandedRow]);
-
-  useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-  }, [selectedColumns]);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -334,14 +327,8 @@ const AllTaskTable = (props) => {
   };
 
   const renderToolBar = () => {
-    // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
-        {/* <ColumnList
-                columns={columns}
-                setColumns={setSelectedColumns}
-                selectedColumns={selectedColumns}
-            /> */}
         <Tooltip title="Filter Table">
           <Button onClick={handleShowFilter}>
             <FilterListIcon />
@@ -503,15 +490,13 @@ const AllTaskTable = (props) => {
             />
           )}
           {searchOpen && (
-            <AllTaskSearchPopup
+            <SearchPopup
               open={searchOpen}
               anchorEl={searchAnchor}
               handleClose={handleSearchClose}
               updateFilters={setSelectedFilters}
-              //filterStatusData={filterData}
               currentFilters={selectedFilters}
               searchedCol={searchedCol}
-              onchange={GetAllTasksdata}
             />
           )}
         </div>

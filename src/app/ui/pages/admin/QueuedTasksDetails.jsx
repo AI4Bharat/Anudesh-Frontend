@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
-import { useNavigate } from "react-router-dom";
 import APITransport from "@/Lib/apiTransport/apitransport"
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
@@ -39,7 +38,6 @@ const MUIDataTable = dynamic(
 /* eslint-disable react-hooks/exhaustive-deps */
 const QueuedTasksDetails = (props) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [displayWidth, setDisplayWidth] = useState(0);
   // const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbarInfo] = useState({
@@ -69,7 +67,6 @@ const QueuedTasksDetails = (props) => {
     (state) => state.SearchProjectCards?.data
   );
   const getUserDetail = () => {
-    // setLoading(true);
     const UserObj = new GetQueuedTaskDetailsAPI();
     // console.log(UserObj)
     dispatch(APITransport(UserObj));
@@ -86,13 +83,9 @@ const QueuedTasksDetails = (props) => {
 
 
   useEffect(() => {
-    // const formatedQueuedTaskData=Object.keys(UserDetail).map((key) => UserDetail[key]);
     let formatedQueuedTaskData = [];
     if (UserDetail) {
       formatedQueuedTaskData = Object.keys(UserDetail).map((key) => UserDetail[key]);
-    }
-    if (formatedQueuedTaskData.length > 0) {
-      // setLoading(false);
     }
     const data = formatedQueuedTaskData && formatedQueuedTaskData.length > 0
       ? formatedQueuedTaskData.map((el, i) => {
@@ -272,16 +265,13 @@ const QueuedTasksDetails = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,

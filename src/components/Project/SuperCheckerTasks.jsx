@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
@@ -29,10 +29,9 @@ import ColumnList from "../../components/common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import AllTasksFilterList from "../../components/Project/AllTasksFilterList";
 import CustomButton from "../../components/common/Button";
 import SearchIcon from "@mui/icons-material/Search";
-import AllTaskSearchPopup from "../../components/Project/AllTasksSearchpopup";
+import SearchPopup from "./SearchPopup";
 import SuperCheckerFilter from "../Project/SuperCheckerFilter";
 import roles from "../../utils/Role";
 import TextField from "@mui/material/TextField";
@@ -43,22 +42,33 @@ import PullNewSuperCheckerBatchAPI from "@/app/actions/api/Projects/PullNewSuper
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
+import ChatLang from "@/utils/Chatlang";
 
-const MUIDataTable = dynamic(() => import("mui-datatables"), {
-  ssr: false,
-  loading: () => (
-    <Skeleton
-      variant="rectangular"
-      height={400}
-      sx={{
-        mx: 2,
-        my: 3,
-        borderRadius: "4px",
-        transform: "none",
-      }}
-    />
-  ),
-});
+const defaultColumns = [
+  "id",
+  "instruction_data",
+  "meta_info_language",
+  "status",
+  "actions",
+];
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
+
+const excludeSearch = ["status", "actions", "output_text"];
 
 const excludeCols = [
   "context",
@@ -81,13 +91,26 @@ const excludeCols = [
   "ocr_prediction_json",
 ];
 
-const excludeSearch = ["status", "actions"];
+const MUIDataTable = dynamic(() => import("mui-datatables"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton
+      variant="rectangular"
+      height={400}
+      sx={{
+        mx: 2,
+        my: 3,
+        borderRadius: "4px",
+        transform: "none",
+      }}
+    />
+  ),
+});
 
 const SuperCheckerTasks = (props) => {
   const dispatch = useDispatch();
   const classes = DatasetStyle();
   const navigate = useNavigate();
-  let location = useLocation();
 
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
@@ -114,7 +137,8 @@ const SuperCheckerTasks = (props) => {
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
   const TaskFilter = AllTaskFilters.find(
     (filter) => filter.id === id && filter.type === props.type,
-  );
+  ); 
+  const [expandedRow, setExpandedRow] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
@@ -290,7 +314,12 @@ const SuperCheckerTasks = (props) => {
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key]),
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            }),
         );
         taskList[0].supercheck_status && row.push(el.supercheck_status);
         row.push(
@@ -328,7 +357,15 @@ const SuperCheckerTasks = (props) => {
       );
       taskList[0].task_status && colList.push("status");
       colList.push("actions");
+
+      if (selectedColumns.length === 0) {
+        columns.length === 0
+          ? setSelectedColumns(defaultColumns)
+          : setSelectedColumns(columns);
+      }
+
       const cols = colList.map((col) => {
+        const isSelectedColumn = selectedColumns.includes(col);
         return {
           name: col,
           label: snakeToTitleCase(col),
@@ -336,6 +373,7 @@ const SuperCheckerTasks = (props) => {
             filter: false,
             sort: false,
             align: "center",
+            display: isSelectedColumn ? "true" : "false",
             customHeadLabelRender: customColumnHead,
             setCellProps: () => ({
               style: {
@@ -347,26 +385,50 @@ const SuperCheckerTasks = (props) => {
                 wordBreak: "break-word",
               },
             }),
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         };
       });
       setColumns(cols);
-      setSelectedColumns(colList);
       setTasks(data);
     } else {
       setTasks([]);
     }
-  }, [taskList]);
+  }, [taskList, ProjectDetails, expandedRow]);
 
   useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-  }, [selectedColumns]);
+    if (columns.length > 0 && selectedColumns.length > 0) {
+      const newCols = columns.map((col) => ({
+        ...col,
+        options: {
+          ...col.options,
+          display: selectedColumns.includes(col.name) ? "true" : "false",
+        },
+      }));
+      if (JSON.stringify(newCols) !== JSON.stringify(columns)) {
+        setColumns(newCols);
+      }
+    }
+  }, [selectedColumns, columns]);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -1004,7 +1066,7 @@ const SuperCheckerTasks = (props) => {
         />
       )}
       {searchOpen && (
-        <AllTaskSearchPopup
+        <SearchPopup
           open={searchOpen}
           anchorEl={searchAnchor}
           handleClose={handleSearchClose}
@@ -1012,7 +1074,7 @@ const SuperCheckerTasks = (props) => {
           //filterStatusData={filterData}
           currentFilters={selectedFilters}
           searchedCol={searchedCol}
-          onchange={getTaskListData}
+          // onchange={getTaskListData}
         />
       )}
       {renderSnackBar()}

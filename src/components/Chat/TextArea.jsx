@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import { TextareaAutosize } from "@material-ui/core";
 import configs from "@/config/config";
 
@@ -33,6 +33,7 @@ export default function Textarea({
   class_name,
   loading,
   inputValue,
+  defaultLang = null,
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -160,9 +161,11 @@ export default function Textarea({
       className={class_name}
       sx={{ width: "100%" }}
     >
-      {globalTransliteration ? (
+      {(globalTransliteration || defaultLang!==null)? (
         <IndicTransliterate
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+          enableASR={true}
+          asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
           apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
           renderComponent={(props) => (
             <textarea
@@ -185,7 +188,7 @@ export default function Textarea({
             setText(text);
           }}
           onKeyDown={handleKeyDown}
-          lang={targetLang}
+          lang={defaultLang!==null ? defaultLang : targetLang}
           style={{
             resize: "none",
             fontSize: "1rem",
@@ -202,6 +205,7 @@ export default function Textarea({
             boxShadow: `0px 2px 2px ${grey[50]}`,
           }}
           horizontalView={true}
+          disabled={defaultLang!==null ? defaultLang === "en" ? true : false : false}
         />
       ) : (
         <TextareaAutosize

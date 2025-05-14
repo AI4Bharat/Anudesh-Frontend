@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import classNames from "classnames";
 import { Box, FormControlLabel, Typography } from "@mui/material";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 
 import "./styles.css";
 import { CheckBox } from "@mui/icons-material";
@@ -352,6 +352,8 @@ const OutputSelection = () => {
         {globalTransliteration ? (
           <IndicTransliterate
             customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+            enableASR={true}
+            asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
             apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
             renderComponent={(props) => (
               <textarea
