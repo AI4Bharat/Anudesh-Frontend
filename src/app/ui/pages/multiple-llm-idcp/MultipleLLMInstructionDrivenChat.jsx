@@ -337,22 +337,26 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (prompt_output_pair_id, preferred_response) => {
-    console.log("info", prompt_output_pair_id, preferred_response);
-    if (inputValue || (preferred_response && prompt_output_pair_id>=0)) {
+  const handleButtonClick = async (
+    prompt_output_pair_id,
+    preferred_response,
+  ) => {
+    if (inputValue || (preferred_response && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
-        result: (preferred_response && prompt_output_pair_id >=0 ) ? "" : inputValue,
+        result:
+          preferred_response && prompt_output_pair_id >= 0 ? "" : inputValue,
         lead_time:
           (new Date() - loadtime) / 1000 +
           Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
         prompt_output_pair_id:
-          preferred_response && prompt_output_pair_id>=0
+          preferred_response && prompt_output_pair_id >= 0
             ? prompt_output_pair_id
             : generateUniquePromptOutputPairId(),
-        ...(preferred_response && prompt_output_pair_id>=0 && { preferred_response }),
+        ...(preferred_response &&
+          prompt_output_pair_id >= 0 && { preferred_response }),
       };
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -382,9 +386,8 @@ const MultipleLLMInstructionDrivenChat = ({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
-      console.log("data", data, prompt_output_pair_id, preferred_response, inputValue);
-      if(!inputValue && preferred_response && prompt_output_pair_id>=0){
-        if(data.message === "Success") {
+      if (!inputValue && preferred_response && prompt_output_pair_id >= 0) {
+        if (data.message === "Success") {
           setSnackbarInfo({
             open: true,
             message: "Preferred response saved successfully!",
@@ -397,7 +400,6 @@ const MultipleLLMInstructionDrivenChat = ({
             variant: "error",
           });
         }
-        
       }
       let modifiedChatHistory = [];
       setChatHistory((prevChatHistory) => {
@@ -477,7 +479,7 @@ const MultipleLLMInstructionDrivenChat = ({
         variant: "error",
       });
     }
-    inputValue &&
+    inputValue !== "" &&
       setTimeout(() => {
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }, 1000);
@@ -1383,7 +1385,10 @@ const MultipleLLMInstructionDrivenChat = ({
                     },
                   }}
                   onClick={() =>
-                    handleButtonClick(message.output[0].prompt_output_pair_id, preferredSelections[index])
+                    handleButtonClick(
+                      message.output[0].prompt_output_pair_id,
+                      preferredSelections[index],
+                    )
                   }
                 >
                   Submit
