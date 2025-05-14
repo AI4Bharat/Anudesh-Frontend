@@ -27,7 +27,7 @@ import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
 import ChatLang from "@/utils/Chatlang";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 import ErrorIcon from "@mui/icons-material/Error";
 import Radio from "@mui/material/Radio";
