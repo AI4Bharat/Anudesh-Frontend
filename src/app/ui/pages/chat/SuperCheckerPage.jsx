@@ -8,7 +8,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
@@ -514,6 +514,10 @@ const SuperCheckerPage = () => {
     }
     // }
   };
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
   const handleSuperCheckerClick = async (
     value,
     id,

@@ -1458,7 +1458,9 @@ const ReviewPage = () => {
                 </Tooltip>
               )}
             </Grid>
-            {ProjectDetails.project_type == "InstructionDrivenChat" ? (
+            {ProjectDetails.project_type == "InstructionDrivenChat" ||
+            ProjectDetails?.project_type ==
+              "MultipleLLMInstructionDrivenChat" ? (
               <Grid item>
                 {!disableSkip && taskData?.review_user === userData?.id && (
                   <Tooltip title="clear the entire chat history">
