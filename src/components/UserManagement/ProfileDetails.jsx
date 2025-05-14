@@ -219,6 +219,51 @@ return (
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Experience"
+                value={newDetails?.experience || ''}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Job Type"
+                value={newDetails?.job_type || ''}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Native State"
+                value={newDetails?.native_state || ''}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Native District"
+                value={newDetails?.native_district || ''}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+              <OutlinedTextField
+                disabled
+                fullWidth
+                label="Area Type"
+                value={newDetails?.area || ''}
+                InputLabelProps={{ shrink: true }}
+              ></OutlinedTextField>
+            </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
             <OutlinedTextField
               disabled
               fullWidth
@@ -310,7 +355,6 @@ return (
                   ))}
                 </Box>
               )}
-              
             ></OutlinedTextField>
           </Grid>
           <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
