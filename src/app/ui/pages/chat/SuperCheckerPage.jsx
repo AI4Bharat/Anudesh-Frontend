@@ -3,19 +3,17 @@ import "./chat.css";
 import { useState, useRef, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
 import MenuItem from "@mui/material/MenuItem";
-import Menu, { MenuProps } from "@mui/material/Menu";
+import Menu from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -522,6 +520,7 @@ const SuperCheckerPage = () => {
     lead_time,
     parentannotation,
     reviewNotesValue,
+    type
   ) => {
     let resultValue;
     if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -553,17 +552,32 @@ const SuperCheckerPage = () => {
     } else if (
       ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
     ) {
-      resultValue = forms.map((form) => ({
-        prompt: form.prompt,
-        model_responses_json: form.model_responses_json.map((response) => ({
-          model_name: response.model_name,
-          output: response.output,
-          questions_response: response.questions_response,
-          preferred_output: response.preferred_output,
-        })),
-        prompt_output_pair_id: form.prompt_output_pair_id,
-        additional_note: form.additional_note,
-      }));
+      const modelMap = {};
+      chatHistory.forEach((entry) => {
+        entry.output.forEach((modelResp) => {
+          const model = modelResp.model_name;
+          const has_invalid_resp = modelResp.output_error;
+          if (!modelMap[model]) {
+            modelMap[model] = [];
+          }
+          const interaction = {
+            prompt: entry.prompt,
+            output: has_invalid_resp
+              ? JSON.parse(modelResp.output_error)
+              : reverseFormatResponse(modelResp.output),
+          };
+          modelMap[model].push(interaction);
+        });
+      });
+
+      resultValue = Object.entries(modelMap).map(
+        ([model_name, interaction_json]) => {
+          return {
+            model_name,
+            interaction_json,
+          };
+        },
+      );
     }
 
     setLoading(true);
@@ -590,6 +604,12 @@ const SuperCheckerPage = () => {
       result:
         value === "delete"
           ? []
+          : value === "delete-pair" &&
+              type === "MultipleLLMInstructionDrivenChat"
+            ? resultValue.map((model) => ({
+                ...model,
+                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
+              }))
           : value === "delete-pair"
             ? resultValue.slice(0, resultValue.length - 1)
             : resultValue,
@@ -657,13 +677,65 @@ const SuperCheckerPage = () => {
         res.ok &&
         resp.result
       ) {
-        let modifiedChatHistory = resp?.result.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
-        setChatHistory([...modifiedChatHistory]);
+        if (type === "MultipleLLMInstructionDrivenChat") {
+          const interactions_length = resp?.result[0]?.interaction_json?.length;
+          let modifiedChatHistory = [];
+          for (let i = 0; i < interactions_length; i++) {
+            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
+            const response_valid_1 = isString(
+              resp?.result[0].interaction_json[i]?.output,
+            );
+            const response_valid_2 = isString(
+              resp?.result[1].interaction_json[i]?.output,
+            );
+            modifiedChatHistory?.push({
+              prompt: prompt,
+              output: [
+                {
+                  model_name: resp?.result[0].model_name,
+                  output: response_valid_1
+                    ? formatResponse(
+                        resp?.result[0].interaction_json[i]?.output,
+                      )
+                    : formatResponse(
+                        `${resp?.result[0].model_name} failed to generate a response`,
+                      ),
+                  status: response_valid_1 ? "success" : "error",
+                  output_error: response_valid_1
+                    ? null
+                    : JSON.stringify(
+                        resp?.result[0].interaction_json[i]?.output,
+                      ),
+                },
+                {
+                  model_name: resp?.result[1].model_name,
+                  output: response_valid_2
+                    ? formatResponse(
+                        resp?.result[1].interaction_json[i]?.output,
+                      )
+                    : formatResponse(
+                        `${resp?.result[1].model_name} failed to generate a response`,
+                      ),
+                  status: response_valid_2 ? "success" : "error",
+                  output_error: response_valid_2
+                    ? null
+                    : JSON.stringify(
+                        resp?.result[1].interaction_json[i]?.output,
+                      ),
+                },
+              ],
+            });
+          }
+          setChatHistory([...modifiedChatHistory]);
+        } else {
+          let modifiedChatHistory = resp?.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        }
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {

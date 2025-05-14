@@ -109,10 +109,6 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   }, [chatHistory]);
 
-  useEffect(() => {
-    console.log("visibleMessages", visibleMessages);
-  }, [visibleMessages]);
-
   const handleClosePreferredResponseModal = (index) => {
     setVisibleMessages((prev) => ({
       ...prev,
@@ -218,22 +214,22 @@ const MultipleLLMInstructionDrivenChat = ({
       for (let i = 0; i < interactions_length; i++) {
         const prompt = annotation[0]?.result[0]?.interaction_json[i]?.prompt;
         const response_valid_1 = isString(
-          annotation[0]?.result[0].interaction_json[i]?.output,
+          annotation[0]?.result[0]?.interaction_json[i]?.output,
         );
         const response_valid_2 = isString(
-          annotation[0]?.result[1].interaction_json[i]?.output,
+          annotation[0]?.result[1]?.interaction_json[i]?.output,
         );
         modifiedChatHistory?.push({
           prompt: prompt,
           output: [
             {
-              model_name: annotation[0]?.result[0].model_name,
+              model_name: annotation[0]?.result[0]?.model_name,
               output: response_valid_1
                 ? formatResponse(
-                    annotation[0]?.result[0].interaction_json[i]?.output,
+                    annotation[0]?.result[0]?.interaction_json[i]?.output,
                   )
                 : formatResponse(
-                    `${annotation[0]?.result[0].model_name} failed to generate a response`,
+                    `${annotation[0]?.result[0]?.model_name} failed to generate a response`,
                   ),
               status: response_valid_1 ? "success" : "error",
               preferred_response:
@@ -245,17 +241,17 @@ const MultipleLLMInstructionDrivenChat = ({
               output_error: response_valid_1
                 ? null
                 : JSON.stringify(
-                    annotation[0]?.result[0].interaction_json[i]?.output,
+                    annotation[0]?.result[0]?.interaction_json[i]?.output,
                   ),
             },
             {
-              model_name: annotation[0]?.result[1].model_name,
+              model_name: annotation[0]?.result[1]?.model_name,
               output: response_valid_2
                 ? formatResponse(
-                    annotation[0]?.result[1].interaction_json[i]?.output,
+                    annotation[0]?.result[1]?.interaction_json[i]?.output,
                   )
                 : formatResponse(
-                    `${annotation[0]?.result[1].model_name} failed to generate a response`,
+                    `${annotation[0]?.result[1]?.model_name} failed to generate a response`,
                   ),
               status: response_valid_2 ? "success" : "error",
               preferred_response:
@@ -267,7 +263,7 @@ const MultipleLLMInstructionDrivenChat = ({
               output_error: response_valid_2
                 ? null
                 : JSON.stringify(
-                    annotation[0]?.result[1].interaction_json[i]?.output,
+                    annotation[0]?.result[1]?.interaction_json[i]?.output,
                   ),
             },
           ],
@@ -341,18 +337,22 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (preferred_response) => {
-    if (inputValue || preferred_response) {
+  const handleButtonClick = async (prompt_output_pair_id, preferred_response) => {
+    console.log("info", prompt_output_pair_id, preferred_response);
+    if (inputValue || (preferred_response && prompt_output_pair_id>=0)) {
       setLoading(true);
       const body = {
-        result: preferred_response ? "" : inputValue,
+        result: (preferred_response && prompt_output_pair_id >=0 ) ? "" : inputValue,
         lead_time:
           (new Date() - loadtime) / 1000 +
           Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
-        prompt_output_pair_id: generateUniquePromptOutputPairId(),
-        ...(preferred_response && { preferred_response }),
+        prompt_output_pair_id:
+          preferred_response && prompt_output_pair_id>=0
+            ? prompt_output_pair_id
+            : generateUniquePromptOutputPairId(),
+        ...(preferred_response && prompt_output_pair_id>=0 && { preferred_response }),
       };
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -382,6 +382,23 @@ const MultipleLLMInstructionDrivenChat = ({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
+      console.log("data", data, prompt_output_pair_id, preferred_response, inputValue);
+      if(!inputValue && preferred_response && prompt_output_pair_id>=0){
+        if(data.message === "Success") {
+          setSnackbarInfo({
+            open: true,
+            message: "Preferred response saved successfully!",
+            variant: "success",
+          });
+        } else {
+          setSnackbarInfo({
+            open: true,
+            message: "Saving preferred response failed! Try again later.",
+            variant: "error",
+          });
+        }
+        
+      }
       let modifiedChatHistory = [];
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
@@ -399,12 +416,12 @@ const MultipleLLMInstructionDrivenChat = ({
               prompt: prompt,
               output: [
                 {
-                  model_name: data?.result[0].model_name,
+                  model_name: data?.result[0]?.model_name,
                   output: response_valid_1
                     ? formatResponse(
-                        data?.result[0].interaction_json[i]?.output,
+                        data?.result[0]?.interaction_json[i]?.output,
                       )
-                    : `${data?.result[0].model_name} failed to generate a response`,
+                    : `${data?.result[0]?.model_name} failed to generate a response`,
                   status: response_valid_1 ? "success" : "error",
                   preferred_response:
                     data?.result[0]?.interaction_json[i]?.preferred_response,
@@ -413,16 +430,16 @@ const MultipleLLMInstructionDrivenChat = ({
                   output_error: response_valid_1
                     ? null
                     : JSON.stringify(
-                        data?.result[0].interaction_json[i]?.output,
+                        data?.result[0]?.interaction_json[i]?.output,
                       ),
                 },
                 {
-                  model_name: data?.result[1].model_name,
+                  model_name: data?.result[1]?.model_name,
                   output: response_valid_2
                     ? formatResponse(
-                        data?.result[1].interaction_json[i]?.output,
+                        data?.result[1]?.interaction_json[i]?.output,
                       )
-                    : `${data?.result[1].model_name} failed to generate a response`,
+                    : `${data?.result[1]?.model_name} failed to generate a response`,
                   status: response_valid_2 ? "success" : "error",
                   preferred_response:
                     data?.result[1]?.interaction_json[i]?.preferred_response,
@@ -431,7 +448,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   output_error: response_valid_2
                     ? null
                     : JSON.stringify(
-                        data?.result[1].interaction_json[i]?.output,
+                        data?.result[1]?.interaction_json[i]?.output,
                       ),
                 },
               ],
@@ -460,7 +477,7 @@ const MultipleLLMInstructionDrivenChat = ({
         variant: "error",
       });
     }
-    preferred_response &&
+    inputValue &&
       setTimeout(() => {
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }, 1000);
@@ -1365,7 +1382,9 @@ const MultipleLLMInstructionDrivenChat = ({
                       color: "#FFF",
                     },
                   }}
-                  onClick={() => handleButtonClick(preferredSelections[index])}
+                  onClick={() =>
+                    handleButtonClick(message.output[0].prompt_output_pair_id, preferredSelections[index])
+                  }
                 >
                   Submit
                 </Button>

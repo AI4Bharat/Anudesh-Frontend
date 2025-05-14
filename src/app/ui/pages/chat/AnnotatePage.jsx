@@ -200,11 +200,6 @@ const AnnotatePage = () => {
     return response;
   };
 
-  const reverseFormatPrompt = (formattedPrompt) => {
-    if (!formattedPrompt) return "";
-    return formattedPrompt.split("  \n").join("\n");
-  };
-
   const formatPrompt = (prompt) => {
     const lines = prompt?.split("\n");
     const markdownString = lines?.join("  \n");
@@ -485,19 +480,9 @@ const AnnotatePage = () => {
           setShowNotes(false);
           return;
         } else if (
-          ProjectDetails.project_type == "InstructionDrivenChat" &&
-          chatHistory.length == 0
-        ) {
-          setSnackbarInfo({
-            open: true,
-            message: "Please enter prompt",
-            variant: "error",
-          });
-          setLoading(false);
-          setShowNotes(false);
-          return;
-        } else if (
-          ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat" &&
+          (ProjectDetails.project_type == "InstructionDrivenChat" ||
+            ProjectDetails.project_type ==
+              "MultipleLLMInstructionDrivenChat") &&
           chatHistory.length == 0
         ) {
           setSnackbarInfo({

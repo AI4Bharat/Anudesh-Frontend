@@ -653,8 +653,10 @@ const ReviewPage = () => {
       }
     }
   };
-
-  const handleReviewClick = async (value, id, lead_time, parentannotation) => {
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+  const handleReviewClick = async (value, id, lead_time, parentannotation, type="") => {
     if (typeof window !== "undefined") {
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -685,21 +687,35 @@ const ReviewPage = () => {
           questions_response: form.questions_response,
           prompt_output_pair_id: form.prompt_output_pair_id,
         }));
-      }
-      else if (
+      } else if (
         ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
       ) {
-        resultValue = forms.map((form) => ({
-          prompt: form.prompt,
-          model_responses_json: form.model_responses_json.map((response) => ({
-            model_name: response.model_name,
-            output: response.output,
-            questions_response: response.questions_response,
-            preferred_output: response.preferred_output,
-          })),
-          prompt_output_pair_id: form.prompt_output_pair_id,
-          additional_note: form.additional_note,
-        }));
+        const modelMap = {};
+        chatHistory.forEach((entry) => {
+          entry.output.forEach((modelResp) => {
+            const model = modelResp.model_name;
+            const has_invalid_resp = modelResp.output_error;
+            if (!modelMap[model]) {
+              modelMap[model] = [];
+            }
+            const interaction = {
+              prompt: entry.prompt,
+              output: has_invalid_resp
+                ? JSON.parse(modelResp.output_error)
+                : reverseFormatResponse(modelResp.output),
+            };
+            modelMap[model].push(interaction);
+          });
+        });
+
+        resultValue = Object.entries(modelMap).map(
+          ([model_name, interaction_json]) => {
+            return {
+              model_name,
+              interaction_json,
+            };
+          },
+        );
       }
 
       setLoading(true);
@@ -725,9 +741,15 @@ const ReviewPage = () => {
         result:
           value === "delete"
             ? []
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+            : value === "delete-pair" &&
+                type === "MultipleLLMInstructionDrivenChat"
+              ? resultValue.map((model) => ({
+                  ...model,
+                  interaction_json: model.interaction_json.slice(0, -1), // remove last pair
+                }))
+              : value === "delete-pair"
+                ? resultValue.slice(0, resultValue.length - 1)
+                : resultValue,
         task_id: taskId,
         auto_save:
           value === "delete" || value === "delete-pair" || value === "rejected"
@@ -736,9 +758,6 @@ const ReviewPage = () => {
         interaction_llm: value === "delete" || value === "delete-pair",
         clear_conversation: value === "delete" || value === "rejected",
       };
-
-      console.log("hello");
-
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
           value,
@@ -758,9 +777,6 @@ const ReviewPage = () => {
             "to_be_revised",
           ].includes(value)
         ) {
-          console.log("answered variable: ");
-          console.log(answered, "kelo");
-
           if (
             (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
               ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -800,13 +816,66 @@ const ReviewPage = () => {
           res.ok &&
           resp.result
         ) {
-          let modifiedChatHistory = resp?.result.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
-          setChatHistory([...modifiedChatHistory]);
+          if (type === "MultipleLLMInstructionDrivenChat") {
+            const interactions_length =
+              resp?.result[0]?.interaction_json?.length;
+            let modifiedChatHistory = [];
+            for (let i = 0; i < interactions_length; i++) {
+              const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
+              const response_valid_1 = isString(
+                resp?.result[0].interaction_json[i]?.output,
+              );
+              const response_valid_2 = isString(
+                resp?.result[1].interaction_json[i]?.output,
+              );
+              modifiedChatHistory?.push({
+                prompt: prompt,
+                output: [
+                  {
+                    model_name: resp?.result[0].model_name,
+                    output: response_valid_1
+                      ? formatResponse(
+                          resp?.result[0].interaction_json[i]?.output,
+                        )
+                      : formatResponse(
+                          `${resp?.result[0].model_name} failed to generate a response`,
+                        ),
+                    status: response_valid_1 ? "success" : "error",
+                    output_error: response_valid_1
+                      ? null
+                      : JSON.stringify(
+                          resp?.result[0].interaction_json[i]?.output,
+                        ),
+                  },
+                  {
+                    model_name: resp?.result[1].model_name,
+                    output: response_valid_2
+                      ? formatResponse(
+                          resp?.result[1].interaction_json[i]?.output,
+                        )
+                      : formatResponse(
+                          `${resp?.result[1].model_name} failed to generate a response`,
+                        ),
+                    status: response_valid_2 ? "success" : "error",
+                    output_error: response_valid_2
+                      ? null
+                      : JSON.stringify(
+                          resp?.result[1].interaction_json[i]?.output,
+                        ),
+                  },
+                ],
+              });
+            }
+            setChatHistory([...modifiedChatHistory]);
+          } else {
+            let modifiedChatHistory = resp?.result.map((interaction) => {
+              return {
+                ...interaction,
+                output: formatResponse(interaction.output),
+              };
+            });
+            setChatHistory([...modifiedChatHistory]);
+          }
         }
         if (res.ok) {
           if ((value === "delete" || value === "delete-pair") === false) {
@@ -1117,11 +1186,11 @@ const ReviewPage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}

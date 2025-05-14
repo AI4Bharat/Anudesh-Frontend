@@ -300,7 +300,6 @@ const AllTaskPage = () => {
     const markdownString = lines.join("  \n");
     return markdownString;
   };
-console.log(annotations);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
