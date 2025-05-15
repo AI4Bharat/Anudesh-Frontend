@@ -114,10 +114,8 @@ const AllTaskTable = (props) => {
     ],
   };
 
-  const [selectedFilters, setSelectedFilters] = useState(() => {
-    const savedFilters = localStorage.getItem('selectedFilters');
-    return savedFilters ? JSON.parse(savedFilters) :
-      { task_status: [filterData.Status[0]] };
+  const [selectedFilters, setSelectedFilters] = useState({
+    task_status: [filterData.Status[0]],
   });
 
   useEffect(() => {
@@ -137,9 +135,6 @@ const AllTaskTable = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
-  }, [selectedFilters]);
 
 
   if (ProjectDetails?.required_annotators_per_task > 1) {
