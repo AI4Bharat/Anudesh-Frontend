@@ -205,7 +205,7 @@ export default function Textarea({
             boxShadow: `0px 2px 2px ${grey[50]}`,
           }}
           horizontalView={true}
-          disabled={defaultLang!==null ? defaultLang === "en" ? true : false : false}
+          // disabled={defaultLang!==null ? defaultLang === "en" ? true : false : false}
         />
       ) : (
         <TextareaAutosize

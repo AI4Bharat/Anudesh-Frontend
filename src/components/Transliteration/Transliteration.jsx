@@ -1,7 +1,7 @@
 import React, { useEffect, useState ,useRef} from "react";
 import { TextField } from "@mui/material";
 import { Autocomplete, Box, Button, Card, Grid, Typography } from "@mui/material";
-import { IndicTransliterate, getTransliterationLanguages } from "@ai4bharat/indic-transliterate-transcribe";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import "../../IndicTransliterate/index.css"
 import GlobalStyles from "@/styles/LayoutStyles";
 import CustomizedSnackbars from "../common/Snackbar";
@@ -9,6 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import configs from "@/config/config";
+import { languages } from "./languages";
   /* eslint-disable react-hooks/exhaustive-deps */
 
 const Transliteration = (props) => {
@@ -18,7 +19,7 @@ const Transliteration = (props) => {
   const params = useParams();
   const classes = GlobalStyles();
   const [text, setText] = useState("");
-  const [languageList, setLanguageList] = useState([{ DisplayName: "data" }]);
+  const languageList = languages;
   const [selectedLang, setSelectedLang] = useState("");
   const [showSnackBar, setShowSnackBar] = useState({
     message: "",
@@ -51,15 +52,6 @@ const Transliteration = (props) => {
       />
     );
   };
-  useEffect(() => {
-    getTransliterationLanguages()
-      .then(langs => {
-        setLanguageList(langs);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  }, []);
 
   const handleLanguageChange = (event, val) => {
     setSelectedLang(val);
