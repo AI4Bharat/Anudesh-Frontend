@@ -412,6 +412,8 @@ const AnnotatePage = () => {
             output: has_invalid_resp
               ? JSON.parse(modelResp.output_error)
               : reverseFormatResponse(modelResp.output),
+            preferred_response: modelResp.preferred_response,
+            prompt_output_pair_id: modelResp.prompt_output_pair_id,
           };
           modelMap[model].push(interaction);
         });

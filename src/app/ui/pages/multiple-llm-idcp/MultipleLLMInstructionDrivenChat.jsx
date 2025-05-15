@@ -71,7 +71,6 @@ const MultipleLLMInstructionDrivenChat = ({
   setChatHistory,
   handleClick,
   formatResponse,
-  formatPrompt,
   id,
   stage,
   notes,
@@ -80,18 +79,14 @@ const MultipleLLMInstructionDrivenChat = ({
   annotation,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
-  const classes = headerStyle();
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
   const bottomRef = useRef(null);
-  const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
-  const load_time = useRef();
   const [activeModalIndex1, setActiveModalIndex1] = useState(null); // For Model 1 responses
   const [activeModalIndex2, setActiveModalIndex2] = useState(null); // For Model 2 responses
   const [preferredSelections, setPreferredSelections] = useState({});
@@ -479,7 +474,7 @@ const MultipleLLMInstructionDrivenChat = ({
         variant: "error",
       });
     }
-    inputValue !== "" &&
+    !(preferred_response && prompt_output_pair_id >= 0) &&
       setTimeout(() => {
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }, 1000);
@@ -1312,91 +1307,92 @@ const MultipleLLMInstructionDrivenChat = ({
           </Grid>
         </Grid>
 
-        {visibleMessages[index] && (
-          <Grid
-            item
-            sx={{
-              padding: "1.5rem",
-              position: "relative",
-              width: "85%",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              borderRadius: "10px",
-            }}
-          >
-            <Box>
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <IconButton
-                  onClick={() => handleClosePreferredResponseModal(index)}
-                >
-                  <CloseIcon
-                    sx={{
-                      color: "#EE6633",
-                    }}
-                  />
-                </IconButton>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  alignItems: "center",
-                }}
-              >
-                <Box>
-                  <Typography>Which response do you like better?</Typography>
+        {ProjectDetails?.metadata_json?.enable_preferrence_selection &&
+          visibleMessages[index] && (
+            <Grid
+              item
+              sx={{
+                padding: "1.5rem",
+                position: "relative",
+                width: "85%",
+                backgroundColor: "rgba(247, 184, 171, 0.2)",
+                borderRadius: "10px",
+              }}
+            >
+              <Box>
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <IconButton
+                    onClick={() => handleClosePreferredResponseModal(index)}
+                  >
+                    <CloseIcon
+                      sx={{
+                        color: "#EE6633",
+                      }}
+                    />
+                  </IconButton>
                 </Box>
-                <Box>
-                  <RadioGroup
-                    row
-                    aria-labelledby="demo-form-control-label-placement"
-                    name="position"
-                    onChange={handlePreferredResponse(index)}
-                    defaultValue={
-                      message?.output[0]?.preferred_response === true
-                        ? message?.output[0]?.model_name
-                        : message?.output[1]?.preferred_response === true
-                          ? message?.output[1]?.model_name
-                          : ""
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-around",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Typography>Which response do you like better?</Typography>
+                  </Box>
+                  <Box>
+                    <RadioGroup
+                      row
+                      aria-labelledby="demo-form-control-label-placement"
+                      name="position"
+                      onChange={handlePreferredResponse(index)}
+                      defaultValue={
+                        message?.output[0]?.preferred_response === true
+                          ? message?.output[0]?.model_name
+                          : message?.output[1]?.preferred_response === true
+                            ? message?.output[1]?.model_name
+                            : ""
+                      }
+                    >
+                      <FormControlLabel
+                        value={message?.output[0]?.model_name}
+                        control={<Radio />}
+                        label={message?.output[0]?.model_name}
+                      />
+                      <FormControlLabel
+                        value={message?.output[1]?.model_name}
+                        control={<Radio />}
+                        label={message?.output[1]?.model_name}
+                      />
+                    </RadioGroup>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      border: "1.5px solid #EE6633",
+                      color: "#EE6633",
+                      backgroundColor: "#FFF",
+                      borderRadius: "8px",
+                      padding: "0.5rem 1.5rem",
+                      "&:hover": {
+                        backgroundColor: "#EE6633",
+                        color: "#FFF",
+                      },
+                    }}
+                    onClick={() =>
+                      handleButtonClick(
+                        message.output[0].prompt_output_pair_id,
+                        preferredSelections[index],
+                      )
                     }
                   >
-                    <FormControlLabel
-                      value={message?.output[0]?.model_name}
-                      control={<Radio />}
-                      label={message?.output[0]?.model_name}
-                    />
-                    <FormControlLabel
-                      value={message?.output[1]?.model_name}
-                      control={<Radio />}
-                      label={message?.output[1]?.model_name}
-                    />
-                  </RadioGroup>
+                    Submit
+                  </Button>
                 </Box>
-                <Button
-                  variant="contained"
-                  sx={{
-                    border: "1.5px solid #EE6633",
-                    color: "#EE6633",
-                    backgroundColor: "#FFF",
-                    borderRadius: "8px",
-                    padding: "0.5rem 1.5rem",
-                    "&:hover": {
-                      backgroundColor: "#EE6633",
-                      color: "#FFF",
-                    },
-                  }}
-                  onClick={() =>
-                    handleButtonClick(
-                      message.output[0].prompt_output_pair_id,
-                      preferredSelections[index],
-                    )
-                  }
-                >
-                  Submit
-                </Button>
               </Box>
-            </Box>
-          </Grid>
-        )}
+            </Grid>
+          )}
       </Grid>
     ));
 

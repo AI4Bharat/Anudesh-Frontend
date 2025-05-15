@@ -288,7 +288,6 @@ const SuperCheckerPage = () => {
                 (annotation) =>
                   annotation.parent_annotation === reviewerAnnotations[0]?.id,
               );
-              console.log(reviewerAnnotations, superCheckerAnnotation);
               reviewNotesRef.current.value =
                 reviewerAnnotations[0]?.review_notes ?? "";
               if (superCheckerAnnotation) {
@@ -522,9 +521,9 @@ const SuperCheckerPage = () => {
     value,
     id,
     lead_time,
+    type,
     parentannotation,
     reviewNotesValue,
-    type
   ) => {
     let resultValue;
     if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -543,7 +542,6 @@ const SuperCheckerPage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -569,6 +567,8 @@ const SuperCheckerPage = () => {
             output: has_invalid_resp
               ? JSON.parse(modelResp.output_error)
               : reverseFormatResponse(modelResp.output),
+            preferred_response: modelResp.preferred_response,
+            prompt_output_pair_id: modelResp.prompt_output_pair_id,
           };
           modelMap[model].push(interaction);
         });
@@ -614,9 +614,9 @@ const SuperCheckerPage = () => {
                 ...model,
                 interaction_json: model.interaction_json.slice(0, -1), // remove last pair
               }))
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+            : value === "delete-pair"
+              ? resultValue.slice(0, resultValue.length - 1)
+              : resultValue,
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" || value === "rejected"
@@ -641,7 +641,6 @@ const SuperCheckerPage = () => {
           "to_be_revised",
         ].includes(value)
       ) {
-        console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -1188,7 +1187,7 @@ const SuperCheckerPage = () => {
                       }}
                     >
                       {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${review?.id}`}
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
                       {annotations[0]?.annotation_type == 2 &&
                         `REVIEW ID: ${annotations[0]?.id}`}
                       {annotations[0]?.annotation_type == 3 &&
@@ -1347,6 +1346,7 @@ const SuperCheckerPage = () => {
                         "rejected",
                         SuperChecker.id,
                         SuperChecker.lead_time,
+                        "",
                         SuperChecker.parent_annotation,
                       )
                     }
@@ -1414,6 +1414,7 @@ const SuperCheckerPage = () => {
                       "validated",
                       SuperChecker.id,
                       SuperChecker.lead_time,
+                      "",
                       SuperChecker.parent_annotation,
                     )
                   }
@@ -1427,6 +1428,7 @@ const SuperCheckerPage = () => {
                       "validated_with_changes",
                       SuperChecker.id,
                       SuperChecker.lead_time,
+                      "",
                       SuperChecker.parent_annotation,
                     )
                   }

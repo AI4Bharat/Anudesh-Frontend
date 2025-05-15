@@ -139,7 +139,6 @@ const ReviewPage = () => {
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
-
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [annotationtext, setannotationtext] = useState("");
@@ -543,50 +542,7 @@ const ReviewPage = () => {
 
     const isMaxIdAnnotation =
       maxIdAnnotation?.id === task.correct_annotation_id;
-    console.log(isMaxIdAnnotation, "llove");
 
-    // if (ProjectDetails.required_annotators_per_task > 1 && !isMaxIdAnnotation) {
-    //   const nextAPIData = {
-    //     id: projectId,
-    //     current_task_id: taskId,
-    //     mode: "review",
-    //     annotation_status: labellingMode,
-    //     current_annotation_id: task.correct_annotation_id,
-    //   };
-
-    //   let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
-    //   var rsp_data = [];
-    //   fetch(apiObj.apiEndPoint(), {
-    //     method: "post",
-    //     body: JSON.stringify(apiObj.getBody()),
-    //     headers: apiObj.getHeaders().headers,
-    //   })
-    //     .then(async (response) => {
-    //       rsp_data = await response.json();
-    //       setLoading(false);
-    //       if (response.ok) {
-    //         localStorage.setItem("Task", JSON.stringify(rsp_data));
-    //         setNextData(rsp_data);
-    //         tasksComplete(rsp_data?.id || null);
-    //         getAnnotationsTaskData(rsp_data.id);
-    //         getTaskData(rsp_data.id);
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       setSnackbarInfo({
-    //         open: true,
-    //         message: "No more tasks to label",
-    //         variant: "info",
-    //       });
-    //       setTimeout(() => {
-    //         if (typeof window !== "undefined") {
-    //           localStorage.removeItem("labelAll");
-    //         }
-
-    //         window.location.replace(`/#/projects/${projectId}`);
-    //       }, 1000);
-    //     });
-    // } else {
     const nextAPIData = {
       id: projectId,
       current_task_id: taskId,
@@ -656,7 +612,13 @@ const ReviewPage = () => {
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
-  const handleReviewClick = async (value, id, lead_time, parentannotation, type="") => {
+  const handleReviewClick = async (
+    value,
+    id,
+    lead_time,
+    type = "",
+    parentannotation,
+  ) => {
     if (typeof window !== "undefined") {
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -677,7 +639,6 @@ const ReviewPage = () => {
           prompt_output_pair_id: form.prompt_output_pair_id,
           additional_note: form.additional_note,
         }));
-        console.log("resval: " + resultValue);
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
@@ -703,6 +664,8 @@ const ReviewPage = () => {
               output: has_invalid_resp
                 ? JSON.parse(modelResp.output_error)
                 : reverseFormatResponse(modelResp.output),
+              preferred_response: modelResp.preferred_response,
+              prompt_output_pair_id: modelResp.prompt_output_pair_id,
             };
             modelMap[model].push(interaction);
           });
@@ -717,7 +680,6 @@ const ReviewPage = () => {
           },
         );
       }
-
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
@@ -841,10 +803,15 @@ const ReviewPage = () => {
                           `${resp?.result[0].model_name} failed to generate a response`,
                         ),
                     status: response_valid_1 ? "success" : "error",
+                    preferred_response:
+                      resp?.result[0]?.interaction_json[i]?.preferred_response,
+                    prompt_output_pair_id:
+                      resp?.result[0]?.interaction_json[i]
+                        ?.prompt_output_pair_id,
                     output_error: response_valid_1
                       ? null
                       : JSON.stringify(
-                          resp?.result[0].interaction_json[i]?.output,
+                          resp?.result[0]?.interaction_json[i]?.output,
                         ),
                   },
                   {
@@ -857,10 +824,15 @@ const ReviewPage = () => {
                           `${resp?.result[1].model_name} failed to generate a response`,
                         ),
                     status: response_valid_2 ? "success" : "error",
+                    preferred_response:
+                      resp?.result[1]?.interaction_json[i]?.preferred_response,
+                    prompt_output_pair_id:
+                      resp?.result[1]?.interaction_json[i]
+                        ?.prompt_output_pair_id,
                     output_error: response_valid_2
                       ? null
                       : JSON.stringify(
-                          resp?.result[1].interaction_json[i]?.output,
+                          resp?.result[1]?.interaction_json[i]?.output,
                         ),
                   },
                 ],
@@ -1529,6 +1501,7 @@ const ReviewPage = () => {
                           "to_be_revised",
                           review?.id,
                           review?.lead_time,
+                          ProjectDetails?.project_type,
                           review?.parent_annotation,
                         )
                       }
@@ -1590,6 +1563,7 @@ const ReviewPage = () => {
                       "accepted",
                       review.id,
                       AnnotationsTaskDetails[1]?.lead_time,
+                      ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
                   }
@@ -1603,6 +1577,7 @@ const ReviewPage = () => {
                       "accepted_with_minor_changes",
                       review.id,
                       review.lead_time,
+                      ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
                   }
@@ -1616,6 +1591,7 @@ const ReviewPage = () => {
                       "accepted_with_major_changes",
                       review.id,
                       review.lead_time,
+                      ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
                   }

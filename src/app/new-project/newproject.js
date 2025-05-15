@@ -7,7 +7,7 @@ import { Parser } from "json2csv";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import IconButton from "@mui/material/IconButton";
@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MenuProps } from "@/utils/utils";
 import { useParams } from "react-router-dom";
 import Skeleton from "@mui/material/Skeleton";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import {
   createProject,
   setPasswordForProject,
@@ -120,6 +121,7 @@ const CreateProject = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("");
+
   const [selectedType, setSelectedType] = useState("");
   const [sourceLanguage, setSourceLanguage] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("");
@@ -157,7 +159,7 @@ const CreateProject = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [jsonInput, setJsonInput] = useState(JSON.stringify(sampleQuestion));
   const [questionsJSON, setQuestionsJSON] = useState(sampleQuestion);
-
+  const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -284,7 +286,8 @@ const CreateProject = () => {
     if (selectedColumns?.length === 0) {
       columns?.length > 0
         ? setSelectedColumns(columns)
-        : fetchedItems?.length > 0 && setSelectedColumns(Object.keys(fetchedItems[0]));
+        : fetchedItems?.length > 0 &&
+          setSelectedColumns(Object.keys(fetchedItems[0]));
     }
 
     if (fetchedItems?.length > 0) {
@@ -485,42 +488,16 @@ const CreateProject = () => {
       automatic_annotation_creation_mode: createannotationsAutomatically,
       is_published: is_published,
       password: passwordForProjects,
-      metadata_json: questionsJSON,
+      metadata_json:
+        selectedType === "MultipleLLMInstructionDrivenChat"
+          ? { enable_preferrence_selection: isModelSelectionEnabled }
+          : questionsJSON,
       conceal: conceal,
     };
 
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
-
     dispatch(createProject(newProject));
-  };
-
-  const newProject = {
-    title: title,
-    description: description,
-    created_by: UserData?.id,
-    is_archived: false,
-    is_published: false,
-    users: [UserData?.id],
-    workspace_id: id,
-    organization_id: UserData?.organization?.id,
-    project_type: selectedType,
-    src_language: sourceLanguage,
-    tgt_language: targetLanguage,
-    dataset_id: selectedInstances,
-    label_config: "string",
-    sampling_mode: samplingMode,
-    sampling_parameters_json: samplingParameters,
-    batch_size: batchSize,
-    batch_number: batchNumber,
-    filter_string: filterString,
-    project_stage: taskReviews,
-    required_annotators_per_task: selectedAnnotatorsNum,
-    automatic_annotation_creation_mode: createannotationsAutomatically,
-    is_published: is_published,
-    password: passwordForProjects,
-    metadata_json: questionsJSON,
-    conceal: conceal,
   };
 
   const setPasswordForNewProject = async (projectId) => {
@@ -914,6 +891,28 @@ const CreateProject = () => {
                 </Grid>
               </>
             )}
+            {selectedType === "MultipleLLMInstructionDrivenChat" &&
+            selectedDomain === "Chat" ? (
+              <Grid
+                container
+                direction="row"
+                alignItems="center"
+                sx={{
+                  paddingTop: "10px",
+                }}
+              >
+                <Typography>
+                  Enable Model Selection(Allow Users to Pick a preferred AI
+                  Model)<span style={{ color: "#d93025" }}>*</span> :
+                </Typography>
+                <FormControlLabel
+                  checked={isModelSelectionEnabled}
+                  onChange={(e) => setIsModelSelectionEnabled(e.target.checked)}
+                  color="warning"
+                  control={<Switch />}
+                />
+              </Grid>
+            ) : null}
             {selectedDomain && (
               <>
                 <Grid
@@ -1464,6 +1463,7 @@ const CreateProject = () => {
                 </Grid>
               </>
             )}
+
             <Grid
               item
               className="projectsettingGrid"
