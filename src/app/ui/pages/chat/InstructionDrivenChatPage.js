@@ -331,7 +331,12 @@ const InstructionDrivenChatPage = ({
       const lc = LanguageCode.languages.find(
         (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
       );
-      setTargetLang(lc.code);
+
+      if (Number(info.meta_info_language) < 3){
+        setTargetLang(lc.code);
+      }else{
+        setTargetLang("en");
+      }
 
       // console.log(
       //   globalTransliteration,
@@ -477,7 +482,7 @@ const InstructionDrivenChatPage = ({
                       handleTextChange(e, null, message, "prompt")
                     }
                     lang={targetLang}
-                    disabled={targetLang === "en" ? true : false}
+                    // disabled={targetLang === "en" ? true : false}
                   />
                 // ) : (
                 //   <textarea
@@ -597,7 +602,7 @@ const InstructionDrivenChatPage = ({
                         enableASR={true}
                         asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                         apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-                        disabled={targetLang === "en" ? true : false}
+                        // disabled={targetLang === "en" ? true : false}
                       />
                     // ) : (
                     //   <textarea
