@@ -130,7 +130,7 @@ const AllTaskTable = (props) => {
   };
 
   const [selectedFilters, setSelectedFilters] = useState({
-    task_status: [filterData.Status[0]],})
+    task_status: [filterData.Status[0]]})
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
