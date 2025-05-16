@@ -243,9 +243,21 @@ const Header = () => {
   const handleCloseNotification = () => {
     setAnchorElNotification(null);
   };
+const [isRtl, setIsRtl] = useState(false);
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    setIsRtl(localStorage.getItem("rtl") === "true");
+  }
+}, []);
+
+
 
   const handleRTLChange = (event) => {
     if (typeof window !== "undefined") {
+        const value = event.target.checked;
+  setIsRtl(value);
+
       let style;
       if (event.target.checked) {
         localStorage.setItem("rtl", true);
@@ -694,11 +706,7 @@ const Header = () => {
       control: (
         <Checkbox
           onChange={handleRTLChange}
-          defaultChecked={() => {
-            if (typeof window !== "undefined") {
-              localStorage.getItem("rtl") === "true";
-            }
-          }}
+          checked={isRtl}
         />
       ),
     },
