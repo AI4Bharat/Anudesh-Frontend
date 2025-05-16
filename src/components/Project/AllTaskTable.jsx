@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "@/components/common/Spinner";
@@ -15,7 +15,6 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "../../themes/tableTheme";
-import ColumnList from "../common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -112,14 +111,15 @@ const AllTaskTable = (props) => {
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-  const AllTaskData = useSelector((state) => state.getAllTaskData.data.result);
+  const AllTaskData = useSelector((state) => state.getAllTaskData?.data.result);
   const apiLoading = useSelector(
     (state) => state.getAllTaskData.status !== "succeeded",
   );
   const totalTaskCount = useSelector(
-    (state) => state.getAllTaskData.data.total_count,
+    (state) => state.getAllTaskData?.data.total_count,
   );
-  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  const userDetails = useSelector((state) => state.getLoggedInData?.data);
   const filterData = {
     Status: [
       "incomplete",
@@ -178,7 +178,7 @@ const AllTaskTable = (props) => {
       const data = AllTaskData.map((el) => {
         let row = [el.id];
         row.push(
-          ...Object.keys(el.data)
+          ...Object.keys(el?.data)
             .filter((key) => !excludeCols.includes(key))
             .map((key) => {
               if (key === "meta_info_language") {
@@ -223,7 +223,7 @@ const AllTaskTable = (props) => {
       let colList = ["id"];
 
       colList.push(
-        ...Object.keys(AllTaskData[0].data).filter(
+        ...Object.keys(AllTaskData[0]?.data).filter(
           (el) => !excludeCols.includes(el),
         ),
       );

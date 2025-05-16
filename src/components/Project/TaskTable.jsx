@@ -138,7 +138,11 @@ const TaskTable = (props) => {
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
   );
-  const TaskFilter = useSelector((state) => state.getTaskFilter?.data);
+  const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
+  const TaskFilter = AllTaskFilters.find(
+    (filter) => filter.id === id && filter.type === props.type,
+  )
+
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
 
@@ -209,6 +213,7 @@ const TaskTable = (props) => {
         ? TaskFilter.selectedFilters
         : { review_status: filterData.Status[0], req_user: -1 },
   );
+
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
   const [pullSize, setPullSize] = useState(
@@ -484,6 +489,15 @@ const TaskTable = (props) => {
         props.type === "annotation"
           ? selectedFilters.annotation_status
           : selectedFilters.review_status,
+      );
+
+      localStorage.setItem(
+        "filters",
+        JSON.stringify({
+          selectedStatus,
+          pull,
+          rejected,
+        }),
       );
     }
   }, [selectedFilters, pull, rejected]);
@@ -775,6 +789,7 @@ const TaskTable = (props) => {
   const renderToolBar = () => {
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
+
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
@@ -1030,6 +1045,7 @@ const TaskTable = (props) => {
       </Box>
     );
   };
+  
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,

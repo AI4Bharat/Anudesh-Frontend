@@ -17,6 +17,7 @@ export const fetchAnnotationsTask = createAsyncThunk(
   }
 );
 
+
 const getAnnotationsTask = createSlice({
   name: 'getAnnotationsTask',
   initialState,

@@ -134,6 +134,10 @@ const SuperCheckerTasks = (props) => {
   const [pullDisabled, setPullDisabled] = useState("");
   const [labellingStarted, setLabellingStarted] = useState(false);
 
+  const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
+  const TaskFilter = AllTaskFilters.find(
+    (filter) => filter.id === id && filter.type === props.type,
+  ); 
   const [expandedRow, setExpandedRow] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -165,11 +169,11 @@ const SuperCheckerTasks = (props) => {
         : [],
   };
 
-  const [selectedFilters, setsSelectedFilters] = useState({
-    supercheck_status: filterData.Status[0],
-    req_user: -1,
-  });
-
+  const [selectedFilters, setsSelectedFilters] = useState(
+    TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.selectedFilters
+      : { supercheck_status: filterData.Status[0], req_user: -1 },
+  );
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5,
   );
@@ -285,7 +289,14 @@ const SuperCheckerTasks = (props) => {
   }, []);
 
   useEffect(() => {
-    dispatch(setTaskFilter(id, selectedFilters, props.type));
+    const payload = {
+      id,
+      selectedFilters,
+      type: props.type,
+      pull: "",
+      rejected: "",
+    };
+    dispatch(setTaskFilter(payload));
     if (currentPageNumber !== 1) {
       setCurrentPageNumber(1);
     } else {
