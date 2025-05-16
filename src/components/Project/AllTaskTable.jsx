@@ -131,7 +131,7 @@ const AllTaskTable = (props) => {
         window.removeEventListener('resize', handleResize);
       }
     };
-  }, []);
+  }, [])
 
 
 
