@@ -145,6 +145,8 @@ const SuggestAnEdit = ({
                   { targetData.length > 0 && targetlang !== "en" ? (
                    <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                    // enableASR={true}
+                    // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                     apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     lang={Targetlanguage.LangCode ? Targetlanguage.LangCode : (targetData.length > 0  ?  targetData[0]?.LangCode : "en" )}
                     value={targetText}
