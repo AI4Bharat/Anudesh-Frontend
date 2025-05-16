@@ -25,6 +25,7 @@ import SearchPopup from "./SearchPopup"
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 import { styled } from "@mui/material/styles";
 import ChatLang from "@/utils/Chatlang";
+import AllTaskSearchPopup from "./AllTasksSearchpopup";
 
 const excludeCols = [
   "avg_rating",
@@ -129,12 +130,8 @@ const AllTaskTable = (props) => {
     ],
   };
 
-  const [selectedFilters, setSelectedFilters] = useState(() => {
-    const savedFilters = localStorage.getItem('selectedFilters');
-    return savedFilters ? JSON.parse(savedFilters) :
-      { task_status: [filterData.Status[0]] };
-  });
-
+  const [selectedFilters, setSelectedFilters] = useState({
+    task_status: [filterData.Status[0]]})
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -152,9 +149,7 @@ const AllTaskTable = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
-  }, [selectedFilters]);
+
 
 
   if (ProjectDetails?.required_annotators_per_task > 1) {
@@ -490,14 +485,16 @@ const AllTaskTable = (props) => {
             />
           )}
           {searchOpen && (
-            <SearchPopup
-              open={searchOpen}
-              anchorEl={searchAnchor}
-              handleClose={handleSearchClose}
-              updateFilters={setSelectedFilters}
-              currentFilters={selectedFilters}
-              searchedCol={searchedCol}
-            />
+            <AllTaskSearchPopup
+                    open={searchOpen}
+                    anchorEl={searchAnchor}
+                     handleClose={handleSearchClose}
+                    updateFilters={setSelectedFilters}
+                    //filterStatusData={filterData}
+                    currentFilters={selectedFilters}
+                    searchedCol={searchedCol}
+                    onchange={GetAllTasksdata}
+                />
           )}
         </div>
       )}
