@@ -1055,16 +1055,16 @@ const SuperCheckerTasks = (props) => {
         />
       )}
       {searchOpen && (
-        <SearchPopup
-          open={searchOpen}
-          anchorEl={searchAnchor}
-          handleClose={handleSearchClose}
-          updateFilters={setsSelectedFilters}
-          //filterStatusData={filterData}
-          currentFilters={selectedFilters}
-          searchedCol={searchedCol}
-          // onchange={getTaskListData}
-        />
+ <AllTaskSearchPopup
+                    open={searchOpen}
+                    anchorEl={searchAnchor}
+                     handleClose={handleSearchClose}
+                    updateFilters={setsSelectedFilters}
+                    //filterStatusData={filterData}
+                    currentFilters={selectedFilters}
+                    searchedCol={searchedCol}
+                    onchange={getTaskListData}
+                />
       )}
       {renderSnackBar()}
     </div>

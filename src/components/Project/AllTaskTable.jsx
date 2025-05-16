@@ -26,6 +26,7 @@ import SearchPopup from "./SearchPopup"
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
 import { styled } from "@mui/material/styles";
 import ChatLang from "@/utils/Chatlang";
+import AllTaskSearchPopup from "./AllTasksSearchpopup";
 
 const excludeCols = [
   "avg_rating",
@@ -484,14 +485,16 @@ const AllTaskTable = (props) => {
             />
           )}
           {searchOpen && (
-            <SearchPopup
-              open={searchOpen}
-              anchorEl={searchAnchor}
-              handleClose={handleSearchClose}
-              updateFilters={setSelectedFilters}
-              currentFilters={selectedFilters}
-              searchedCol={searchedCol}
-            />
+            <AllTaskSearchPopup
+                    open={searchOpen}
+                    anchorEl={searchAnchor}
+                     handleClose={handleSearchClose}
+                    updateFilters={setSelectedFilters}
+                    //filterStatusData={filterData}
+                    currentFilters={selectedFilters}
+                    searchedCol={searchedCol}
+                    onchange={GetAllTasksdata}
+                />
           )}
         </div>
       )}

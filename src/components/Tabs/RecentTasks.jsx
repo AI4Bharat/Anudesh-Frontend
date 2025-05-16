@@ -22,6 +22,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { translate } from "../../config/localisation";
 import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
 import SearchPopup from "../../components/Project/SearchPopup"
+import AllTaskSearchPopup from "../Project/AllTasksSearchpopup";
 
 const TASK_TYPES = ["annotation", "review", "supercheck"]
 
@@ -333,15 +334,16 @@ const RecentTasks = () => {
         />
       </ThemeProvider>
 
-      {searchOpen && <SearchPopup
-        open={searchOpen}
-        anchorEl={searchAnchor}
-        handleClose={handleSearchClose}
-        updateFilters={setsSelectedFilters}
-        currentFilters={selectedFilters}
-        searchedCol={searchedCol}
-        onchange={GetAllTasksdata}
-      />}
+      {searchOpen &&        <AllTaskSearchPopup
+          open={searchOpen}
+          anchorEl={searchAnchor}
+          handleClose={handleSearchClose}
+          updateFilters={setsSelectedFilters}
+          //filterStatusData={filterData}
+          currentFilters={selectedFilters}
+          searchedCol={searchedCol}
+          onchange={GetAllTasksdata}
+        />}
     </ThemeProvider>
   )
 }
