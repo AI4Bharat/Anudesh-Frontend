@@ -29,6 +29,7 @@ import DeleteProjectTasks from "./DeleteProjectTasks";
 import { snakeToTitleCase } from "@/utils/utils";
 import ExportProjectDialog from "./ExportProjectDialog";
 import DeallocationAnnotatorsAndReviewers from "./DeallocationAnnotatorsAndReviewers";
+import AllocateTasksDialog from "./manualtaskassign";
 import SuperCheckSettings from "./SuperCheckSettings";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import TextField from "@mui/material/TextField";
@@ -618,6 +619,9 @@ const AdvancedOperation = (props) => {
               SetTask={setTaskStatus}
               downloadMetadataToggle={downloadMetadataToggle}
             />
+          </Grid>
+           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <AllocateTasksDialog />
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <DeleteProjectTasks />
