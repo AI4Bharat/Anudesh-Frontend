@@ -1,27 +1,25 @@
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-  Popover,
-  Badge,
-  Stack,
-  Tabs,
-  Tab,
-  Switch,
-  Select,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
+import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Checkbox from "@mui/material/Checkbox";
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import Popover from "@mui/material/Popover";
+import Badge from "@mui/material/Badge";
+import Stack from "@mui/material/Stack";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Switch from "@mui/material/Switch";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -91,7 +89,6 @@ const Header = () => {
   };
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
-
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -218,15 +215,7 @@ const Header = () => {
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-
-  const handleAnalytics = (event) => {
-    console.log("Analytics clicked");
-  };
-
-  const handleLeaderboard = (event) => {
-    console.log("Leaderboard clicked");
-  };
-
+  
   const handleOpenHelpMenu = (event) => {
     setAnchorElHelp(event.currentTarget);
   };
@@ -254,9 +243,21 @@ const Header = () => {
   const handleCloseNotification = () => {
     setAnchorElNotification(null);
   };
+const [isRtl, setIsRtl] = useState(false);
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    setIsRtl(localStorage.getItem("rtl") === "true");
+  }
+}, []);
+
+
 
   const handleRTLChange = (event) => {
     if (typeof window !== "undefined") {
+        const value = event.target.checked;
+  setIsRtl(value);
+
       let style;
       if (event.target.checked) {
         localStorage.setItem("rtl", true);
@@ -324,14 +325,7 @@ const Header = () => {
       />
     );
   };
-  const unseenNotifications =
-    Notification?.length > 0 &&
-    Notification?.filter(
-      (notification) =>
-        notification?.seen_json == true ||
-        (notification?.seen_json &&
-          !notification?.seen_json[loggedInUserData.id]),
-    );
+  const unseenNotifications = Notification?.length > 0 && Notification?.filter(notification => notification?.seen_json ==null || !notification?.seen_json[loggedInUserData.id]);
 
   const renderTabs = () => {
     if (
@@ -566,8 +560,12 @@ const Header = () => {
   };
 
   const tabs = [
-    loggedInUserData?.guest_user ? (
-      <Typography variant="body1">
+    // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
+    loggedInUserData?.guest_user && 
+    (userRole.Annotator === loggedInUserData?.role ||
+     userRole.Reviewer === loggedInUserData?.role ||
+     userRole.SuperChecker === loggedInUserData?.role) ? (
+      <Typography key="guest" variant="body1">
         <NavLink
           to="/guest_workspaces"
           className={({ isActive }) =>
@@ -579,40 +577,44 @@ const Header = () => {
         </NavLink>
       </Typography>
     ) : null,
-    <Typography key={1} variant="body1">
-      <NavLink
-        hidden={
-          userRole.Annotator === loggedInUserData?.role ||
-          userRole.Reviewer === loggedInUserData?.role ||
-          userRole.SuperChecker === loggedInUserData?.role ||
-          userRole.WorkspaceManager === loggedInUserData?.role
-        }
-        to={
-          loggedInUserData && loggedInUserData?.organization
-            ? `/organizations/${loggedInUserData?.organization.id}`
-            : `/organizations/1`
-        }
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Organization
-      </NavLink>
-    </Typography>,
-    <Typography variant="body1" key={2}>
-      <NavLink
-        hidden={userRole.WorkspaceManager !== loggedInUserData?.role}
-        to="/workspaces"
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Workspaces
-      </NavLink>
-    </Typography>,
-    <Typography key={3} variant="body1">
+  
+    // Organization tab - only shown for Organization Owners and Admins
+    (userRole.OrganizationOwner === loggedInUserData?.role ||
+     userRole.Admin === loggedInUserData?.role) ? (
+      <Typography key="organization" variant="body1">
+        <NavLink
+          to={
+            loggedInUserData && loggedInUserData?.organization
+              ? `/organizations/${loggedInUserData?.organization.id}`
+              : `/organizations/1`
+          }
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Organization
+        </NavLink>
+      </Typography>
+    ) : null,
+  
+    // Workspaces tab - only shown for Workspace Managers
+    (userRole.WorkspaceManager === loggedInUserData?.role) ? (
+      <Typography key="workspaces" variant="body1">
+        <NavLink
+          to="/workspaces"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Workspaces
+        </NavLink>
+      </Typography>
+    ) : null,
+  
+    // Projects tab - shown for all roles
+    <Typography key="projects" variant="body1">
       <NavLink
         to="/projects"
         className={({ isActive }) =>
@@ -623,23 +625,26 @@ const Header = () => {
         Projects
       </NavLink>
     </Typography>,
-    <Typography key={4} variant="body1">
-      <NavLink
-        hidden={
-          userRole.Annotator === loggedInUserData?.role ||
-          userRole.Reviewer === loggedInUserData?.role ||
-          userRole.SuperChecker === loggedInUserData?.role
-        }
-        to="/datasets"
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Datasets
-      </NavLink>
-    </Typography>,
-    <Typography key={5} variant="body1">
+  
+    // Datasets tab - only shown for Workspace Managers, Organization Owners, and Admins
+    (userRole.WorkspaceManager === loggedInUserData?.role ||
+     userRole.OrganizationOwner === loggedInUserData?.role ||
+     userRole.Admin === loggedInUserData?.role) ? (
+      <Typography key="datasets" variant="body1">
+        <NavLink
+          to="/datasets"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Datasets
+        </NavLink>
+      </Typography>
+    ) : null,
+  
+    // Analytics tab - shown for all roles
+    <Typography key="analytics" variant="body1">
       <NavLink
         to="/analytics"
         className={({ isActive }) =>
@@ -650,20 +655,26 @@ const Header = () => {
         Analytics
       </NavLink>
     </Typography>,
-    <Typography key={6} variant="body1">
-      <NavLink
-        to="/admin"
-        hidden={userRole.Admin !== loggedInUserData?.role}
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Admin
-      </NavLink>
-    </Typography>,
+  
+    // Admin tab - only shown for Admins
+    (userRole.Admin === loggedInUserData?.role) ? (
+      <Typography key="admin" variant="body1">
+        <NavLink
+          to="/admin"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Admin
+        </NavLink>
+      </Typography>
+    ) : null,
   ];
-
+  
+  // Filter out null values
+  const filteredTabs = tabs.filter(tab => tab !== null);
+  
   const userSettings = [
     {
       name: "My Profile",
@@ -695,37 +706,10 @@ const Header = () => {
       control: (
         <Checkbox
           onChange={handleRTLChange}
-          defaultChecked={() => {
-            if (typeof window !== "undefined") {
-              localStorage.getItem("rtl") === "true";
-            }
-          }}
+          checked={isRtl}
         />
       ),
     },
-    /* {
-      name: "Use Chitralekha Transcription Flow",
-      control: (
-        <Checkbox
-          onChange={handleTranscriptionFlowChange}
-          checked={checkClUI} 
-        />
-      ),
-    }, */
-    // {
-    //   name: "Enable Tags Dropdown",
-    //   control: (
-    //     <Checkbox
-    //       onChange={handleTagsChange}
-    //       defaultChecked={localStorage.getItem("enableTags") === "true"}
-    //     />
-    //   ),
-    // },
-
-    // {
-    //   name: "Help",
-    //   onclick: () => {},
-    // },
   ];
   const helpMenu = [
     {
@@ -735,11 +719,20 @@ const Header = () => {
         window.open(url, "_blank");
       },
     },
+  ];
 
-    // {
-    //   name: "Feedback",
-    //   onclick: () => {},
-    // },
+  const appInfo = [
+    {
+      name: "Help",
+      onclick: () => {
+        const url = "https://github.com/AI4Bharat/Anudesh/wiki";
+        window.open(url, "_blank");
+      },
+    },
+
+    {
+      name: "Notifications",
+    },
   ];
 
   const handleTransliterationModelClose = () => {
@@ -786,9 +779,10 @@ const Header = () => {
       <Box className={classes.parentContainer}>
         {isMobile ? (
           <MobileNavbar
-            tabs={tabs}
+            tabs={filteredTabs}
             userSettings={userSettings}
             appSettings={appSettings}
+            appInfo={appInfo}
             loggedInUserData={loggedInUserData}
           />
         ) : (
@@ -819,11 +813,12 @@ const Header = () => {
                   onClick={() => navigate("/")}
                 >
                   <Image
-                    src="https://i.imgur.com/56Ut9oz.png"
+                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                     alt="anudesh"
                     height="100"
                     width="100"
                     className={classes.headerLogo}
+                    priority
                   />
                   <Typography variant="h4" className={classes.headerTitle}>
                     Anudesh
@@ -879,7 +874,7 @@ const Header = () => {
                         >
                           <NotificationsIcon
                             color="primary.dark"
-                            fontSize="36px"
+                            fontSize="large"
                           />
                         </Badge>
                       </IconButton>
@@ -964,7 +959,7 @@ const Header = () => {
                               sm: "block",
                               md: "none",
                               lg: "block",
-                            }, // Fixed
+                            }, 
                           }}
                         >
                           {loggedInUserData?.username}

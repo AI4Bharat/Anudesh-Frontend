@@ -1,4 +1,3 @@
-import { AddIcon } from "@mui/icons-material";
 import AddAnnotatorsToWorkspaceAPI from "@/app/actions/api/workspace/AddAnnotatorsToWorkspaceAPI";
 import AddMembersToProjectAPI from "@/app/actions/api/workspace/AddMembersToProjectAPI";
 import AddProjectReviewersAPI from "@/app/actions/api/workspace/AddProjectReviewersAPI";

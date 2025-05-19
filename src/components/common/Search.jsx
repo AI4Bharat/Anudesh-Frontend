@@ -1,4 +1,5 @@
-import { InputBase, ThemeProvider, Grid } from "@mui/material";
+import  InputBase from "@mui/material/InputBase";
+import  Grid from "@mui/material/Grid";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
@@ -6,7 +7,7 @@ import themeDefault from "../../themes/theme";
 import "../../styles/Dataset.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 
 const Search = (props) => {
@@ -70,6 +71,8 @@ const Search = (props) => {
         {globalTransliteration == "true" ? (
           <IndicTransliterate
             customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+            // enableASR={true}
+            // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
             apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
             renderComponent={(props) => (
               <textarea

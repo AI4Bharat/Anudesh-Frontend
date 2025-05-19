@@ -2,22 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import { useNavigate } from "react-router-dom";
-import MUIDataTable from "mui-datatables";
+import dynamic from 'next/dynamic';
 import {
   ThemeProvider,
-  Grid,
-  Modal,
-  Fade,
-  FormControl,
-  FormHelperText,
-  Input,
-  InputLabel,
-  Box,
-  Backdrop,
-  Typography,
-  IconButton,
+
 } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 import InputAdornment from '@mui/material/InputAdornment';
+import Skeleton from "@mui/material/Skeleton";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import tableTheme from "../../themes/tableTheme";
@@ -26,10 +23,9 @@ import {
   fetchGuestWorkspaceData,
   addAuthenticatedWorkspace,
 } from "@/Lib/Features/getGuestWorkspaces";
-import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
-import { store } from "@/Lib/Store";
+
 import ProjectList from "@/app/ui/pages/projects/project";
 const style = {
   position: "absolute",
@@ -42,12 +38,33 @@ const style = {
   p: 4,
 };
 
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => (
+      <Skeleton
+        variant="rectangular"
+        height={400}
+        sx={{
+          mx: 2,
+          my: 3,
+          borderRadius: '4px',
+          transform: 'none'
+        }}
+      />
+    )
+  }
+);
+
+
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
   const [open, setOpen] = useState(false);
+    const [displayWidth, setDisplayWidth] = useState(0);
   const [currentWorkspaceName, setCurrentWorkspaceName] = useState("");
   const [currentWorkspaceId, setWorkspaceCurrentId] = useState("");
   const [password, setPassword] = useState('');
@@ -59,11 +76,7 @@ const GuestWorkspaceTable = (props) => {
   });
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
-  const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
-  const [totalWorkspaces, setTotalWorkspaces] = useState(10);
-  const [filteredProjects, setFilteredProjects] = useState(null); // Added state for filtered projects
-
-  // const totalWorkspaceCount = useSelector(state => state.getGuestWorkspace.data.count);
+  const [filteredProjects, setFilteredProjects] = useState(null);
 
   const guestWorkspaceData = useSelector(
     (state) => state.getGuestWorkspaces?.data
@@ -75,10 +88,6 @@ const GuestWorkspaceTable = (props) => {
     (state) => state.getGuestWorkspaces?.authenticatedWorkspaces
   );
 
-  const authenticatedWorkspaces1 = useSelector(
-    (state) => console.log(state)
-    
-  );
   const handleOpen = (workspace_name, workspace_id) => {
     setPassword("");
     setWorkspaceCurrentId(workspace_id);
@@ -86,6 +95,23 @@ const GuestWorkspaceTable = (props) => {
     setOpen(true);
   };
   const handleClose = () => setOpen(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchGuestWorkspaceData(currentPageNumber));
@@ -116,7 +142,6 @@ const GuestWorkspaceTable = (props) => {
         headers: AuthenticationObj.getHeaders().headers,
     }
     );
-    const resData = await res.json();
     if(!res.ok) {
       handleClose();
       setSnackbarInfo({
@@ -136,30 +161,6 @@ const GuestWorkspaceTable = (props) => {
     const handleViewWorkspace = (workspaceId) => {
     navigate(`/guest_workspaces/${workspaceId}`);
   };
-
-
-  // const handleViewWorkspace = (workspaceId) => {
-  //   dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
-  //     const state = store.getState().getProjects.data || {};
-  //     const includedProjects = state.included_projects || [];
-  //     const excludedProjects = state.excluded_projects || [];
-  
-  //     const filteredIncludedProjects = includedProjects.filter(
-  //       (project) => project.workspace_id === workspaceId
-  //     );
-  //     const filteredExcludedProjects = excludedProjects.filter(
-  //       (project) => project.workspace_id === workspaceId
-  //     );
-  
-  //     const filteredProjects = {
-  //       included_projects: filteredIncludedProjects,
-  //       excluded_projects: filteredExcludedProjects,
-  //     };
-  
-  //     setFilteredProjects(filteredProjects);
-  //     console.log(filteredProjects,"hello",workspaceId);
-  //   });
-  // };
   
   const renderSnackBar = () => {
     return (
@@ -203,8 +204,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -215,8 +222,14 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -228,8 +241,14 @@ const GuestWorkspaceTable = (props) => {
         sort: false,
         align: "center",
         display: showManager ? "true" : "exclude",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -241,8 +260,14 @@ const GuestWorkspaceTable = (props) => {
         sort: false,
         align: "center",
         display: showCreatedBy ? "true" : "exclude",
-        setCellHeaderProps: (sort) => ({
-          style: { height: "70px", padding: "16px" },
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
         }),
       },
     },
@@ -252,6 +277,15 @@ const GuestWorkspaceTable = (props) => {
       options: {
         filter: false,
         sort: false,
+        setCellProps: () => ({ 
+          style: {
+            height: "70px", fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal", 
+          overflowWrap: "break-word",
+          wordBreak: "break-word",  
+        } 
+        }),
       },
     },
   ];
@@ -274,13 +308,7 @@ const GuestWorkspaceTable = (props) => {
             key={i}
             sx={{ borderRadius: 2 }}
             label={isAuthenticated ? "View" : "Authenticate"}
-            // label={
-            //   authenticatedWorkspaces.includes(el.id)
-            //     ? "View"
-            //     : "Authenticate"
-            // }
             onClick={
-              // authenticatedWorkspaces.includes(el.id)
               isAuthenticated
                 ? () => handleViewWorkspace(el.id)
                 : () => handleOpen(el.workspace_name, el.id)
@@ -289,7 +317,71 @@ const GuestWorkspaceTable = (props) => {
           ];
         })
       : [];
-
+      const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap", 
+              justifyContent: { 
+                xs: "space-between", 
+                md: "flex-end" 
+              }, 
+              alignItems: "center",
+              padding: "10px",
+              gap: { 
+                xs: "10px", 
+                md: "20px" 
+              }, 
+            }}
+          >
+      
+            {/* Pagination Controls */}
+            <TablePagination
+              component="div"
+              count={count}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={(_, newPage) => changePage(newPage)}
+              onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+              sx={{
+                "& .MuiTablePagination-actions": {
+                marginLeft: "0px",
+              },
+              "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+                marginRight: "10px",
+              },
+              }}
+            />
+      
+            {/* Jump to Page */}
+            <div>
+              <label style={{ 
+                marginRight: "5px", 
+                fontSize:"0.83rem", 
+              }}>
+              Jump to Page:
+              </label>
+              <Select
+                value={page + 1}
+                onChange={(e) => changePage(Number(e.target.value) - 1)}
+                sx={{
+                  fontSize: "0.8rem",
+                  padding: "4px",
+                  height: "32px",
+                }}
+              >
+                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+                  <MenuItem key={i} value={i + 1}>
+                    {i + 1}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+          </Box>
+        );
+      };
+    
   const options = {
     textLabels: {
       body: {
@@ -302,20 +394,27 @@ const GuestWorkspaceTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,
     jumpToPage: true,
+    responsive: "vertical",
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+      <CustomFooter
+        count={count}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        changeRowsPerPage={changeRowsPerPage}
+        changePage={changePage}
+      />
+    ),
   };
 
   return (
@@ -331,10 +430,14 @@ const GuestWorkspaceTable = (props) => {
 
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
+          key={`table-${displayWidth}`}
           title={""}
           data={data}
           columns={columns}
-          options={options}
+          options={{
+            ...options,
+            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+          }}
         />
       </ThemeProvider>
       

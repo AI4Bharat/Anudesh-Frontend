@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import {
-    Button,
-    Popover,
-    Box,
-    TextField,
-    Grid, Typography,Radio, Dialog, DialogActions, DialogContent, DialogContentText,
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Popover from "@mui/material/Popover";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Radio from "@mui/material/Radio";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
@@ -164,10 +168,8 @@ export default function DeleteProjectTasks() {
             <Button
                 sx={{
                     inlineSize: "max-content",
-                    p: 2,
                     borderRadius: 3,
-                    ml: 2,
-                    width: "300px"
+                    width: "100%"
                 }}
                 aria-describedby={Id}
                 variant="contained"

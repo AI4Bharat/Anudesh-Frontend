@@ -1,4 +1,10 @@
-import { Box,Grid,Tab, Card,Tabs, Typography, Divider } from '@mui/material'
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Tab from "@mui/material/Tab";
+import Card from "@mui/material/Card";
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 import React from 'react'
 import { useState ,useEffect} from 'react'
 import BasicSettings from './BasicSettings';
@@ -8,8 +14,6 @@ import ProjectLogs from './ProjectLogs';
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from 'react-router-dom';
 import { fetchProjectDetails } from '@/Lib/Features/projects/getProjectDetails';
-// import GetProjectDetailsAPI from "@/redux/actions/api/ProjectDetails/GetProjectDetails";
-// import APITransport from '../../../../redux/actions/apitransport/apitransport';
 
 
 function TabPanel(props) {
@@ -79,7 +83,7 @@ const ProjectSetting = () => {
                 gutterBottom
                 component="div"
                 sx={{
-                    fontWeight: 500,
+                    fontWeight: 900,
                     fontSize: {
                         xs: "1.5rem", 
                         sm: "1.6875rem", 
@@ -96,10 +100,18 @@ const ProjectSetting = () => {
                 aria-label="user-tabs"
                 variant="scrollable" 
                 scrollButtons="auto"
+                sx={{
+                    '& .MuiTabs-flexContainer': {
+                        justifyContent: {
+                            xs: 'center',
+                            sm: 'flex-start'
+                        }
+                    }
+                }}
             >
-                <Tab label="Basic" sx={{ fontSize: 15, fontWeight: 700, marginRight: 1 }} />
-                <Tab label="Advanced" sx={{ fontSize: 15, fontWeight: 700, marginRight: 1 }} />
-                <Tab label="Read-only" sx={{ fontSize: 15, fontWeight: 700, marginRight: 1 }} />
+                <Tab label="Basic" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6} }} />
+                <Tab label="Advanced" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6} }} />
+                <Tab label="Read-only" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6} }} />
                 <Tab label="Logs" sx={{ fontSize: 15, fontWeight: 700 }} />
             </Tabs>
         </Box>

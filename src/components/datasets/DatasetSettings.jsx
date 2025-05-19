@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card, CircularProgress, Grid, Typography, Modal, Box,MenuItem, FormControl,Select} from "@mui/material";
+import { useParams } from "react-router-dom";
+import Card from "@mui/material/Card";
+import CircularProgress from "@mui/material/CircularProgress";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import { useDispatch, useSelector } from "react-redux";
 import { translate } from "@/config/localisation";
 import CustomButton from "@/components/common/Button";
 //import Modal from "@/components/common/Modal";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import MenuItems from "@/components/common/MenuItems";
 import { FileUploader } from "react-drag-drop-files";
 import Switch from "@mui/material/Switch";
 import DownloadDatasetButton from "./DownloadDataSetButton";
@@ -147,20 +152,26 @@ export default function DatasetSettings() {
   };
 
   return (
-    <Grid container direction="row" justifyContent="center" alignItems="center">
+    <Grid container>
       {renderSnackBar()}
       <Card
         sx={{
           width: "100%",
-          padding: 4,
+          padding:2
         }}
       >
-        <Grid container direction="row" columnSpacing={1} rowSpacing={2} justifyContent="center" alignItems="center">
+        <Grid container gap={2} justifyContent="space-between" alignItems="center">
           {loading ? (
             <CircularProgress />
           ) : (
             <>
-              <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+              <Grid
+              container
+              columns={16}
+              sx={{gap:{xs:2,lg:1}}}
+              justifyContent="space-evenly"
+              >
+              <Grid item xs={12} sm={6} lg={3}>
                 {/* <CustomButton
 								label={translate("button.downloadDataset")}
 								onClick={handleClick}
@@ -168,21 +179,20 @@ export default function DatasetSettings() {
 
                 <DownloadDatasetButton />
               </Grid>
-              <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <CustomButton
-                  sx={{ width: "150px" }}
+                  sx={{ width: "100%" }}
                   label={translate("button.uploadData")}
                   onClick={handleUpload}
                 />
               </Grid>
-
-              <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <DeleteDataItems />
               </Grid>
-              <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <DeduplicateDataItems />
               </Grid>
-
+              </Grid>
               <div>
                 <Modal
                   open={modal}
@@ -280,7 +290,7 @@ export default function DatasetSettings() {
                           mt: 3,
                         }}
                       >
-                        <Grid item xs={4} sm={4} md={4} lg={4} xl={4}>
+                        <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                           <Typography
                             variant="subtitle1"
                             gutterBottom
@@ -289,7 +299,7 @@ export default function DatasetSettings() {
                             Delete Duplicate Records :
                           </Typography>
                         </Grid>
-                        <Grid item xs={6} md={8} lg={8} xl={8} sm={6}>
+                        <Grid item xs={12} md={8} lg={8} xl={8} sm={12}>
                           <Switch
                             {...label}
                             defaultChecked

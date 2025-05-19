@@ -1,12 +1,13 @@
-import { Box, Grid ,Button,Tooltip } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import React, {  useState } from "react";
 import DatasetCard from "@/components/common/DatasetCard";
 import DatasetStyle from "@/styles/dataset";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import TablePagination from "@mui/material/TablePagination";
 import TablePaginationActions from "@/components/common/TablePaginationActions";
-// import Spinner from "../../component/common/Spinner";
-import { useNavigate } from "react-router-dom";
 import DatasetFilterList from "./DatasetFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import InfoIcon from '@mui/icons-material/Info';
@@ -20,7 +21,6 @@ const DatasetCards = (props) => {
   const { datasetList,selectedFilters,setsSelectedFilters } = props;
   const classes = DatasetStyle();
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(9);
   // const apiLoading = useSelector(state => state.apiStatus.loading);
   const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);

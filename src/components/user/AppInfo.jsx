@@ -19,7 +19,7 @@ export default function AppInfo() {
       {/* <Hidden only="xs"> */}
       <Image
         src={AnudeshLogo}
-        alt="anudesh-logo"
+        alt="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
         style={{
           width: "150px",
 

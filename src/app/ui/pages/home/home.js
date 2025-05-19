@@ -144,10 +144,13 @@ const Home = () => {
       {/* {header and first page} */}
       <div className="pb-40 bg-gradient-to-tl from-orange-light to-orange-dark-100 h-full flex   flex-col">
         <div className="py-8 flex justify-between px-10 top-0 lg:px-20">
-          <img
+          <Image
             alt="Anudesh"
-            src="https://i.imgur.com/56Ut9oz.png"
+            src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
             className="w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24"
+            priority
+            width={400}
+          height={400}
           />
 
           <div className="flex gap-4 md:gap-6 lg:gap-8">
@@ -201,11 +204,14 @@ const Home = () => {
             </div>
           </div>
           <div className="flex items-center justify-center md:w-2/5">
-            <img
+            <Image
               alt="Anudesh"
-              src="https://i.imgur.com/56Ut9oz.png"
+              src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+              width={400}
+              height={400}
               className="w-[150px] h-[150px] md:w-full md:h-full lg:w-full lg:h-full" // had to use custom, bcz tailwind directly jumps after 24 to 28
-            ></img>
+              priority
+            ></Image>
           </div>
         </div>
       </div>
@@ -217,6 +223,8 @@ const Home = () => {
           src={Svg}
           width={400}
           height={400}
+          loading="lazy"
+          priority={false}
         ></Image>
         <div className="w-full lg:w-3/5">
           <div className="text-orange-600 text-2xl font-semibold md:text-4xl md:font-bold lg:text-5xl">

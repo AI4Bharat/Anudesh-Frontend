@@ -4,9 +4,8 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { CSVDownload, CSVLink } from "react-csv";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {  useParams } from 'react-router-dom';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import { fetchDownloadCSVProject } from "@/Lib/Features/projects/DownloadProjectCsv";
@@ -191,7 +190,7 @@ function DownloadProjectButton(props) {
     <div>
       {renderSnackBar()}
       <Button
-        sx={{ inlineSize: "max-content", p: 2, borderRadius: 3, ml: 2,width:"300px" }}
+        sx={{ inlineSize: "max-content", borderRadius: 3, width: "100%" }}
         id="demo-customized-button"
         // aria-controls={open ? 'demo-customized-menu' : undefined}
         // aria-haspopup="true"

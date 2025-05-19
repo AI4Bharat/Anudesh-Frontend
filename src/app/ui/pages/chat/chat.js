@@ -2,7 +2,7 @@
 import "./chat.css";
 import Link from "next/link";
 import Image from "next/image";
-import { welcomeText, card1, card2, card3 } from "./config";
+import { welcomeText, cardData } from "./config";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
@@ -18,6 +18,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { makeStyles } from '@mui/styles';
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import { motion } from "framer-motion";
+// import bgChat from "./chat_bg.jpg";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -30,6 +32,16 @@ const codeStyle = {
   width: "45vw",
   overflowX: "scroll",
   fontSize: "1.1rem",
+};
+
+// Motion Variants for staggered animation
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.3, duration: 0.5, ease: "easeOut" },
+  }),
 };
 
 const Chat = () => {
@@ -46,6 +58,7 @@ const Chat = () => {
   const [showChatContainer, setShowChatContainer] = useState(
     chatHistory.length > 0 ? true : false,
   );
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -54,23 +67,18 @@ const Chat = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
 
   useEffect(() => {
-    const storedHistory = sessionStorage.getItem("interaction_json");
-    if (storedHistory) {
-      console.log("Stored History found in sessionStorage:", storedHistory);
+    const storedHistory = JSON.parse(sessionStorage.getItem("interaction_json"));
+    if (storedHistory && storedHistory.length > 0) {
       setChatHistory(JSON.parse(storedHistory));
       setShowChatContainer(true);
-    } else {
-      console.log("No stored history found in sessionStorage.");
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
-    console.log("chatHistory updated:", chatHistory);
     if (chatHistory.length > 0) {
       sessionStorage.setItem("interaction_json", JSON.stringify(chatHistory));
-      console.log("sessionStorage updated with new chat history");
     }
-  }, [chatHistory]); 
+  }, [chatHistory]);
 
 
   const formatResponse = (response) => {
@@ -155,6 +163,7 @@ const Chat = () => {
     } else {
       alert("Please provide a prompt.");
     }
+    setInputValue("");
     setShowChatContainer(true);
   };
 
@@ -230,7 +239,7 @@ const Chat = () => {
             />
             <ReactMarkdown className="flex-col">{formatPrompt(message.prompt)}</ReactMarkdown>
           </Box>
-          
+
           <Box
             sx={{
               width: "50vw",
@@ -244,11 +253,12 @@ const Chat = () => {
             <Image
               width={50}
               height={50}
-              src="https://i.imgur.com/56Ut9oz.png"
+              src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
               alt="Bot Avatar"
               style={{
                 marginRight: "1rem",
               }}
+              priority
             />
             <Box className="flex-col">
               {message.output.map((segment, index) =>
@@ -339,9 +349,10 @@ const Chat = () => {
         <Image
           onClick={() => navigate("/")}
           alt="Anudesh"
-          src="https://i.imgur.com/56Ut9oz.png"
+          src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
           width={90}
           height={90}
+          priority
         />
         <Box className="flex gap-6">
           <Link
@@ -380,10 +391,11 @@ const Chat = () => {
             >
               <Image
                 alt="Anudesh"
-                src="https://i.imgur.com/56Ut9oz.png"
+                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                 width={50}
                 height={50}
                 className="w-[8rem] h-[8rem]"
+                priority
               />
 
               <Box
@@ -453,6 +465,12 @@ const Chat = () => {
               alignItems: "center",
               width: "100% !important",
               padding: "1rem 0 4rem",
+              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              backgroundAttachment: "fixed",
+              minHeight: "58vh",
             }}
           >
             {showChatContainer ? (
@@ -461,91 +479,43 @@ const Chat = () => {
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "evenly",
+                  justifyContent: "center",
+                  gap: 3,
                   width: "100%",
+                  flexWrap: "wrap",
+                  padding: "20px",
                 }}
               >
-                <Box
-                  sx={{
-                    marginX: "10px",
-                    width: "33%",
-                    borderRadius: "20px",
-                    backgroundColor: "rgba(247, 184, 171, 0.2)",
-                    padding: "2.5rem",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#E95923",
-                      fontWeight: "600",
+                {cardData.map((card, index) => (
+                  <motion.div
+                    key={index}
+                    custom={index} // Pass index for staggered delay
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0,0,0,0.1)" }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{
+                      width: "300px",
+                      padding: "2rem",
+                      borderRadius: "20px",
+                      backgroundColor: "rgba(247, 184, 171, 0.2)",
                       textAlign: "center",
                     }}
                   >
-                    {card1.heading}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        color: "#E95923",
+                        fontWeight: "600",
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      {card.heading}
+                    </Typography>
 
-                  <Typography
-                    sx={{
-                      paddingTop: "0.8rem",
-                    }}
-                  >
-                    {card1.content}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    marginX: "10px",
-                    width: "33%",
-                    borderRadius: "20px",
-                    backgroundColor: "rgba(247, 184, 171, 0.2)",
-                    padding: "2.5rem",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#E95923",
-                      fontWeight: "600",
-                      textAlign: "center",
-                    }}
-                  >
-                    {card2.heading}
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      paddingTop: "0.8rem",
-                    }}
-                  >
-                    {card2.content}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    marginX: "10px",
-                    width: "33%",
-                    borderRadius: "20px",
-                    backgroundColor: "rgba(247, 184, 171, 0.2)",
-                    padding: "2.5rem",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#E95923",
-                      fontWeight: "600",
-                      textAlign: "center",
-                    }}
-                  >
-                    {card3.heading}
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      paddingTop: "0.8rem",
-                    }}
-                  >
-                    {card3.content}
-                  </Typography>
-                </Box>
+                    <Typography sx={{ paddingTop: "0.8rem" }}>{card.content}</Typography>
+                  </motion.div>
+                ))}
               </Box>
             )}
           </Box>
