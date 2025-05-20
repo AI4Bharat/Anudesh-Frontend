@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import CustomButton from "@/components/common/Button";
-import {
-  Button, Popover,Box,Grid,Typography,Radio,Select,MenuItem,Dialog, DialogActions, DialogContent, DialogContentText,  Checkbox,
-  ListItemText,
-  ListItemIcon,
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Popover from "@mui/material/Popover";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import Radio from "@mui/material/Radio";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import ListItemText from "@mui/material/ListItemText";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
@@ -221,11 +229,8 @@ const renderSnackBar = () => {
       <CustomButton
         sx={{
           inlineSize: "max-content",
-          p: 2,
           borderRadius: 3,
-          ml: 2,
-          width: "300px",
-          mb: 2,
+          width: "100%"
         }}
         onClick={handleClickOpen}
         label="Deallocate User Tasks"

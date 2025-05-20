@@ -1,45 +1,22 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef, memo } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
-import headerStyle from "@/styles/Header";
+import { useState, useRef, useEffect, memo } from "react";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-// import type ReactQuill from 'react-quill'
-
-// import ReactQuill, { Quill } from 'react-quill';
 import "./chat.css";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
-import Glossary from "./Glossary";
 import Spinner from "@/components/common/Spinner";
-import { ArrowDropDown } from "@material-ui/icons";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import LightTooltip from "@/components/common/Tooltip";
-import { ContactlessOutlined } from "@mui/icons-material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
@@ -51,12 +28,13 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
-import OutputSelection from "../dual-screen-preference-ranking/PreferenceRanking";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -69,7 +47,6 @@ const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
   /* eslint-disable react-hooks/exhaustive-deps */
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // let taskData = localStorage.getItem("TaskData");
@@ -125,7 +102,6 @@ const AnnotatePage = () => {
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
   );
-
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [showChatContainer, setShowChatContainer] = useState(false);
@@ -179,7 +155,7 @@ const AnnotatePage = () => {
       response = response.trim();
       let index = response.indexOf("```");
       if (index == -1) {
-        output.push({
+        output?.push({
           type: "text",
           value: response,
         });
@@ -187,7 +163,7 @@ const AnnotatePage = () => {
       } else {
         count++;
         if (count % 2 !== 0) {
-          output.push({
+          output?.push({
             type: "text",
             value: response.substring(0, index),
           });
@@ -198,7 +174,7 @@ const AnnotatePage = () => {
           response = response.slice(next_space + 1);
           let new_index = response.indexOf("```");
           let value = response.substring(0, new_index);
-          output.push({
+          output?.push({
             type: "code",
             value: value,
             language: language,
@@ -226,7 +202,7 @@ const AnnotatePage = () => {
 
   const formatPrompt = (prompt) => {
     const lines = prompt?.split("\n");
-    const markdownString = lines.join("  \n");
+    const markdownString = lines?.join("  \n");
     return markdownString;
   };
 
@@ -251,7 +227,16 @@ const AnnotatePage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
         reviewNotesRef.current.value =
@@ -378,11 +363,13 @@ const AnnotatePage = () => {
     }
     // }
   };
-  console.log(interactions[0]);
-  const handleAnnotationClick = async (value, id, lead_time) => {
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+  const handleAnnotationClick = async (value, id, lead_time, type = "") => {
     // if (typeof window !== "undefined") {
     let resultValue;
-    console.log(forms);
 
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -400,7 +387,6 @@ const AnnotatePage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -410,9 +396,38 @@ const AnnotatePage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
-      console.log("resval: " + resultValue);
-    }
+    } else if (
+      ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+    ) {
+      const modelMap = {};
+      chatHistory.forEach((entry) => {
+        entry.output.forEach((modelResp) => {
+          const model = modelResp.model_name;
+          const has_invalid_resp = modelResp.output_error;
+          if (!modelMap[model]) {
+            modelMap[model] = [];
+          }
+          const interaction = {
+            prompt: entry.prompt,
+            output: has_invalid_resp
+              ? JSON.parse(modelResp.output_error)
+              : reverseFormatResponse(modelResp.output),
+            preferred_response: modelResp.preferred_response,
+            prompt_output_pair_id: modelResp.prompt_output_pair_id,
+          };
+          modelMap[model].push(interaction);
+        });
+      });
 
+      resultValue = Object.entries(modelMap).map(
+        ([model_name, interaction_json]) => {
+          return {
+            model_name,
+            interaction_json,
+          };
+        },
+      );
+    }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -433,9 +448,15 @@ const AnnotatePage = () => {
       result:
         value === "delete"
           ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+          : value === "delete-pair" &&
+              type === "MultipleLLMInstructionDrivenChat"
+            ? resultValue.map((model) => ({
+                ...model,
+                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
+              }))
+            : value === "delete-pair"
+              ? resultValue.slice(0, resultValue.length - 1)
+              : resultValue,
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
@@ -446,9 +467,6 @@ const AnnotatePage = () => {
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
-        console.log("answered variable: ");
-        console.log(chatHistory.length);
-
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -464,11 +482,11 @@ const AnnotatePage = () => {
           setShowNotes(false);
           return;
         } else if (
-          ProjectDetails.project_type == "InstructionDrivenChat" &&
+          (ProjectDetails.project_type == "InstructionDrivenChat" ||
+            ProjectDetails.project_type ==
+              "MultipleLLMInstructionDrivenChat") &&
           chatHistory.length == 0
         ) {
-          console.log(chatHistory);
-
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
@@ -492,13 +510,65 @@ const AnnotatePage = () => {
         res.ok &&
         resp.result
       ) {
-        let modifiedChatHistory = resp?.result.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
-        setChatHistory([...modifiedChatHistory]);
+        if (type === "MultipleLLMInstructionDrivenChat") {
+          const interactions_length = resp?.result[0]?.interaction_json?.length;
+          let modifiedChatHistory = [];
+          for (let i = 0; i < interactions_length; i++) {
+            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
+            const response_valid_1 = isString(
+              resp?.result[0].interaction_json[i]?.output,
+            );
+            const response_valid_2 = isString(
+              resp?.result[1].interaction_json[i]?.output,
+            );
+            modifiedChatHistory?.push({
+              prompt: prompt,
+              output: [
+                {
+                  model_name: resp?.result[0].model_name,
+                  output: response_valid_1
+                    ? formatResponse(
+                        resp?.result[0].interaction_json[i]?.output,
+                      )
+                    : formatResponse(
+                        `${resp?.result[0].model_name} failed to generate a response`,
+                      ),
+                  status: response_valid_1 ? "success" : "error",
+                  output_error: response_valid_1
+                    ? null
+                    : JSON.stringify(
+                        resp?.result[0].interaction_json[i]?.output,
+                      ),
+                },
+                {
+                  model_name: resp?.result[1].model_name,
+                  output: response_valid_2
+                    ? formatResponse(
+                        resp?.result[1].interaction_json[i]?.output,
+                      )
+                    : formatResponse(
+                        `${resp?.result[1].model_name} failed to generate a response`,
+                      ),
+                  status: response_valid_2 ? "success" : "error",
+                  output_error: response_valid_2
+                    ? null
+                    : JSON.stringify(
+                        resp?.result[1].interaction_json[i]?.output,
+                      ),
+                },
+              ],
+            });
+          }
+          setChatHistory([...modifiedChatHistory]);
+        } else {
+          let modifiedChatHistory = resp?.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        }
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
@@ -742,6 +812,30 @@ const AnnotatePage = () => {
         />
       );
       break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
@@ -785,6 +879,15 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
         />
       );
       break;
@@ -867,12 +970,11 @@ const AnnotatePage = () => {
             }}
           >
             <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
               sx={{
-                // mt: 2,
                 px: { xs: 2, sm: 3, md: 4 },
                 py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
@@ -888,7 +990,6 @@ const AnnotatePage = () => {
             {/* )} */}
 
             <div
-              // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
@@ -911,29 +1012,6 @@ const AnnotatePage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-            {/* <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            {/* </div> */}
           </Box>
           <Grid
             container
@@ -1032,25 +1110,6 @@ const AnnotatePage = () => {
                 </Grid>
               )}
             <Grid item>
-              {/* <Tooltip title="Go to next task">
-                <Button
-                  value="Next"
-                  type="default"
-                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  style={{
-                    // minWidth: "150px",
-                    color: "black",
-                    borderRadius: "5px",
-                    border: "0px",
-                    pt: 2,
-                    pb: 2,
-                    backgroundColor: "#ffe0b2",
-                  }}
-                >
-                  Next
-                </Button>
-              </Tooltip> */}
-
               <Tooltip
                 title={
                   <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1082,32 +1141,6 @@ const AnnotatePage = () => {
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="skip to next task">
-                    <Button
-                      value="Skip"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "skipped",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Skip
-                    </Button>
-                  </Tooltip> */}
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1147,34 +1180,9 @@ const AnnotatePage = () => {
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="clear the entire chat history">
-                    <Button
-                      value="Clear Chats"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "delete",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Clear Chats
-                    </Button>
-                  </Tooltip> */}
-
-                  {ProjectDetails?.project_type == "InstructionDrivenChat" ? (
+                  {ProjectDetails?.project_type == "InstructionDrivenChat" ||
+                  ProjectDetails?.project_type ==
+                    "MultipleLLMInstructionDrivenChat" ? (
                     <Tooltip
                       title={
                         <span style={{ fontFamily: "Roboto, sans-serif" }}>

@@ -1,41 +1,24 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
-import headerStyle from "@/styles/Header";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
 import MenuItem from "@mui/material/MenuItem";
-import Menu, { MenuProps } from "@mui/material/Menu";
+import Menu from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
 import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
@@ -43,11 +26,11 @@ import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import CustomizedSnackbars from "@/components/common/Snackbar";
@@ -58,7 +41,7 @@ import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking"
 
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -113,7 +96,6 @@ const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -306,7 +288,6 @@ const SuperCheckerPage = () => {
                 (annotation) =>
                   annotation.parent_annotation === reviewerAnnotations[0]?.id,
               );
-              console.log(reviewerAnnotations, superCheckerAnnotation);
               reviewNotesRef.current.value =
                 reviewerAnnotations[0]?.review_notes ?? "";
               if (superCheckerAnnotation) {
@@ -532,10 +513,15 @@ const SuperCheckerPage = () => {
     }
     // }
   };
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
   const handleSuperCheckerClick = async (
     value,
     id,
     lead_time,
+    type,
     parentannotation,
     reviewNotesValue,
   ) => {
@@ -556,7 +542,6 @@ const SuperCheckerPage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -566,6 +551,37 @@ const SuperCheckerPage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
+    } else if (
+      ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+    ) {
+      const modelMap = {};
+      chatHistory.forEach((entry) => {
+        entry.output.forEach((modelResp) => {
+          const model = modelResp.model_name;
+          const has_invalid_resp = modelResp.output_error;
+          if (!modelMap[model]) {
+            modelMap[model] = [];
+          }
+          const interaction = {
+            prompt: entry.prompt,
+            output: has_invalid_resp
+              ? JSON.parse(modelResp.output_error)
+              : reverseFormatResponse(modelResp.output),
+            preferred_response: modelResp.preferred_response,
+            prompt_output_pair_id: modelResp.prompt_output_pair_id,
+          };
+          modelMap[model].push(interaction);
+        });
+      });
+
+      resultValue = Object.entries(modelMap).map(
+        ([model_name, interaction_json]) => {
+          return {
+            model_name,
+            interaction_json,
+          };
+        },
+      );
     }
 
     setLoading(true);
@@ -592,9 +608,15 @@ const SuperCheckerPage = () => {
       result:
         value === "delete"
           ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+          : value === "delete-pair" &&
+              type === "MultipleLLMInstructionDrivenChat"
+            ? resultValue.map((model) => ({
+                ...model,
+                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
+              }))
+            : value === "delete-pair"
+              ? resultValue.slice(0, resultValue.length - 1)
+              : resultValue,
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" || value === "rejected"
@@ -619,7 +641,6 @@ const SuperCheckerPage = () => {
           "to_be_revised",
         ].includes(value)
       ) {
-        console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -659,13 +680,65 @@ const SuperCheckerPage = () => {
         res.ok &&
         resp.result
       ) {
-        let modifiedChatHistory = resp?.result.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
-        setChatHistory([...modifiedChatHistory]);
+        if (type === "MultipleLLMInstructionDrivenChat") {
+          const interactions_length = resp?.result[0]?.interaction_json?.length;
+          let modifiedChatHistory = [];
+          for (let i = 0; i < interactions_length; i++) {
+            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
+            const response_valid_1 = isString(
+              resp?.result[0].interaction_json[i]?.output,
+            );
+            const response_valid_2 = isString(
+              resp?.result[1].interaction_json[i]?.output,
+            );
+            modifiedChatHistory?.push({
+              prompt: prompt,
+              output: [
+                {
+                  model_name: resp?.result[0].model_name,
+                  output: response_valid_1
+                    ? formatResponse(
+                        resp?.result[0].interaction_json[i]?.output,
+                      )
+                    : formatResponse(
+                        `${resp?.result[0].model_name} failed to generate a response`,
+                      ),
+                  status: response_valid_1 ? "success" : "error",
+                  output_error: response_valid_1
+                    ? null
+                    : JSON.stringify(
+                        resp?.result[0].interaction_json[i]?.output,
+                      ),
+                },
+                {
+                  model_name: resp?.result[1].model_name,
+                  output: response_valid_2
+                    ? formatResponse(
+                        resp?.result[1].interaction_json[i]?.output,
+                      )
+                    : formatResponse(
+                        `${resp?.result[1].model_name} failed to generate a response`,
+                      ),
+                  status: response_valid_2 ? "success" : "error",
+                  output_error: response_valid_2
+                    ? null
+                    : JSON.stringify(
+                        resp?.result[1].interaction_json[i]?.output,
+                      ),
+                },
+              ],
+            });
+          }
+          setChatHistory([...modifiedChatHistory]);
+        } else {
+          let modifiedChatHistory = resp?.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        }
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
@@ -829,6 +902,28 @@ const SuperCheckerPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
           key={`annotations-${annotations?.length}-${
             annotations?.[0]?.id || "default"
           }`}
@@ -1092,7 +1187,7 @@ const SuperCheckerPage = () => {
                       }}
                     >
                       {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${review?.id}`}
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
                       {annotations[0]?.annotation_type == 2 &&
                         `REVIEW ID: ${annotations[0]?.id}`}
                       {annotations[0]?.annotation_type == 3 &&
@@ -1251,6 +1346,7 @@ const SuperCheckerPage = () => {
                         "rejected",
                         SuperChecker.id,
                         SuperChecker.lead_time,
+                        "",
                         SuperChecker.parent_annotation,
                       )
                     }
@@ -1318,6 +1414,7 @@ const SuperCheckerPage = () => {
                       "validated",
                       SuperChecker.id,
                       SuperChecker.lead_time,
+                      "",
                       SuperChecker.parent_annotation,
                     )
                   }
@@ -1331,6 +1428,7 @@ const SuperCheckerPage = () => {
                       "validated_with_changes",
                       SuperChecker.id,
                       SuperChecker.lead_time,
+                      "",
                       SuperChecker.parent_annotation,
                     )
                   }

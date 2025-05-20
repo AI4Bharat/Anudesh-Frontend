@@ -1,22 +1,17 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Divider,
-  Grid,
-  Typography,
-  Popover,
-  FormGroup,
-  Checkbox,
-  FormControlLabel,
-  Radio,
-  Autocomplete,
-  Box
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import Popover from "@mui/material/Popover";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import Box from "@mui/material/Box";
 import { translate } from "../../config/localisation";
 import  "../../styles/Dataset.css";
 import { snakeToTitleCase } from "@/utils/utils";
-// import { snakeToTitleCase } from "../../../utils/utils";
-// import { translate } from "../../../../assets/localisation";
+
+
 
 const SuperCheckerFilter = (props) => {
   

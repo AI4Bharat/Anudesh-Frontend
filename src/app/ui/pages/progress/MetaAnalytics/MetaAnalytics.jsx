@@ -2,9 +2,15 @@ import React from 'react'
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import CustomButton from "@/components/common/Button";
-import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu} from "@mui/material";
-import MetaAnalyticsDataAPI from "@/app/actions/api/Progress/MetaAnalytics"
-import APITransport from "@/Lib/apiTransport/apitransport";
+import { styled} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import Menu from "@mui/material/Menu";
+
 import AudioDurationChart from './AudioDurationMetaAnalyticsChart';
 import Spinner from "@/components/common/Spinner";
 import LightTooltip from '@/components/common/Tooltip';
@@ -12,7 +18,6 @@ import { translate } from "@/config/localisation";
 import InfoIcon from '@mui/icons-material/Info';
 import { MenuProps } from "@/utils/utils";
 import WordCountMetaAnalyticsChart from './WordCountMetaAnalyticsChart';
-import SentanceCountMetaAnalyticsChart from './SentanceCountMetaAnalyticsChart';
 import { fetchMetaAnalyticsData } from '@/Lib/Features/Analytics/getMetaAnalyticsData';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import exportFromJSON from 'export-from-json';
@@ -205,65 +210,91 @@ export default function MetaAnalytics(props) {
 
   return (
     <div>
-      <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={3}>
-      <Grid item xs={6} sm={6} md={6} lg={6} xl={6} display={"flex"} justifyContent="space-between" >
-      <FormControl  size="small">
-            <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
-              Project Type {" "}
-              {
-                <LightTooltip
-                  arrow
-                  placement="top"
-                  title={translate("tooltip.ProjectType")}>
-                  <InfoIcon
-                    fontSize="medium"
-                  />
-                </LightTooltip>
-              }
-            </InputLabel>
-
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={selectedType}
-              label="Project Type"
-              sx={{padding:"1px"}}
-              onChange={(e) => setSelectedType(e.target.value)}
-              MenuProps={MenuProps}
-            >
-              {projectTypes.map((type, index) => (
-                <MenuItem value={type} key={index}>
-                  {type}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <CustomButton label="Submit" sx={{ width: { xs: "100px", md: "120px" }, height: "40px" }} onClick={handleSubmit}  />
-          <Box display="flex"   sx={{ width: { xs: "100px", md: "120px" }, height: "40px", marginRight: 1 }}alignItems="center">
-            <CustomButton           
-              onClick={handleClick}
-              disabled={loading}
-              sx={{ marginRight: 1 }}
-              endIcon={<KeyboardArrowDown />}
-              label="Download"
-            >
-              Download
-            </CustomButton>
-            <StyledMenu
-              id="demo-customized-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-              <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-              <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-            </StyledMenu>
-          </Box>
-        {/* </Grid> */}
+      <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={1}>
+      <Grid
+      container
+      item
+      xs={12}
+      sm={12}
+      md={12}
+      lg={4}
+      xl={4}
+      spacing={1}
+      alignItems="center"
+    >
+      {/* Project Type Dropdown */}
+      <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+        <FormControl size="small" fullWidth>
+          <InputLabel
+            id="demo-simple-select-label"
+            sx={{ fontSize: "16px", zIndex: 0 }}
+          >
+            Project Type{" "}
+            {
+              <LightTooltip
+                arrow
+                placement="top"
+                title={translate("tooltip.ProjectType")}
+              >
+                <InfoIcon fontSize="medium" />
+              </LightTooltip>
+            }
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={selectedType}
+            label="Project Type"
+            sx={{ padding: "1px" }}
+            onChange={(e) => setSelectedType(e.target.value)}
+            MenuProps={MenuProps}
+          >
+            {projectTypes.map((type, index) => (
+              <MenuItem value={type} key={index}>
+                {type}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Grid>
-        </Grid>
-      
+      </Grid>
+   <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+    <Box display="flex" justifyContent="space-between" alignItems="center">
+      <CustomButton
+        label="Submit"
+        sx={{ width: "35%", height: "40px" }}
+        onClick={handleSubmit}
+        size="small"
+      />
+
+      {/* Download Button */}
+      <Box display="flex" alignItems="center" sx={{ width: "45%" }}>
+        <CustomButton
+          onClick={handleClick}
+          disabled={loading}
+          sx={{ width: "100%", height: "40px" }}
+          endIcon={<KeyboardArrowDown />}
+          label="Download"
+        >
+          Download
+        </CustomButton>
+        <StyledMenu
+          id="demo-customized-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+        >
+          <MenuItem onClick={downloadCSV}>CSV</MenuItem>
+          <MenuItem onClick={downloadPDF}>PDF</MenuItem>
+          <MenuItem onClick={downloadJSON}>JSON</MenuItem>
+        </StyledMenu>
+      </Box>
+    </Box>
+
+    </Grid>
+  </Grid>
+
+
       {loading && <Spinner />}
 
       {metaAnalyticsData.length ?
@@ -281,7 +312,6 @@ export default function MetaAnalytics(props) {
             ){
             return <Grid key={_index} style={{marginTop:"15px"}}>
             <WordCountMetaAnalyticsChart analyticsData={analyticsData}/>
-            {analyticsData[0].projectType.includes("Conversation") && <SentanceCountMetaAnalyticsChart analyticsData={analyticsData}/>}
           </Grid>}
           if (analyticsData.length && ocrProjectTypes.includes(analyticsData[0].projectType)){
             return (

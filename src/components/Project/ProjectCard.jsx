@@ -1,4 +1,15 @@
-import { Box, Grid,Button,Tooltip,Typography, Dialog, DialogTitle, TextField, FormHelperText, InputAdornment, IconButton, DialogActions } from "@mui/material";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
+import FormHelperText from "@mui/material/FormHelperText";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import DialogActions from "@mui/material/DialogActions";
 import React, { useEffect, useState } from "react";
 import ProjectCard from "../common/ProjectCard";
 import { Link, useNavigate } from "react-router-dom";
@@ -9,8 +20,6 @@ import TablePagination from "@mui/material/TablePagination";
 import TablePaginationActions from "../common/TablePaginationActions";
 import Spinner from "../common/Spinner";
 import Search from "../common/Search";
-// import searchProjectCard from "../../../../redux/actions/api/ProjectDetails/searchProjectCard";
-// import Record from "../../../../assets/no-record.svg";
 import ProjectFilterList from "../common/ProjectFilterList";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
@@ -240,7 +249,7 @@ const Projectcard = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
-            <Dialog open={openAuthDialog} onClose={handleAuthClose}>
+      <Dialog open={openAuthDialog} onClose={handleAuthClose}>
         <DialogTitle>Enter Password</DialogTitle>
         <DialogContent>
           <TextField

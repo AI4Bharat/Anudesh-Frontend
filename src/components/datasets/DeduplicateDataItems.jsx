@@ -1,26 +1,20 @@
 import React, { useState ,useEffect} from "react";
-import {
-  Button,
-  Popover,
-  Box,
-  TextField,
-  Grid,
-  Typography,
-  ListItemIcon,
-  ListItemText,
-  Checkbox,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-  Radio,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  FormControlLabel,
-  FormGroup,
-} from "@mui/material";
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Popover from '@mui/material/Popover'
+import Checkbox from "@mui/material/Checkbox";
+import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
 import { translate } from "@/config/localisation";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
@@ -198,7 +192,7 @@ const renderSnackBar = () => {
     <div>
          {renderSnackBar()}
       <Button
-        sx={{ width: "200px" }}
+        sx={{ width: "100%" }}
         aria-describedby={id}
         variant="contained"
         color="error"

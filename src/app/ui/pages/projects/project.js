@@ -120,7 +120,7 @@ export default function ProjectList({ data }) {
               </FormControl>
             </Grid>
 
-            <Grid item>
+            <Grid item sx={{mt:1,mb:1,mr:2,ml:2}}>
               <Search />
             </Grid>
           </Grid>

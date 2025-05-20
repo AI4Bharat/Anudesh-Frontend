@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, TextField, Button, Tab, Tabs, Box, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { JSONTree } from 'react-json-tree';
 import { Link } from 'react-router-dom';
 import { snakeToTitleCase } from '../../../../utils/utils';
-import {CircularProgress} from '@mui/material';
 import CustomizedSnackbars from '@/components/common/Snackbar';
 import FetchUserByIdAPI from '../../../actions/api/user/FetchUserByIDAPI.js';
 import GetTaskAnnotationsAPI from '../../../actions/api/Dashboard/GetTaskAnnotationsAPI.js';
@@ -184,6 +190,7 @@ function TaskDetails() {
                 borderLeft: '2px solid #ccc',
                 marginLeft: '1.375em',
                 paddingLeft: '2em',
+                wordBreak: 'normal'
             },
         }),
         nestedNode: ({ style }, nodeType, keyPath) => ({
@@ -192,6 +199,7 @@ function TaskDetails() {
                 borderLeft: '2px solid #ccc',
                 marginLeft: keyPath.length > 1 ? '1.375em' : 0,
                 textIndent: '-0.375em',
+                wordBreak: 'normal'
             },
             
         }),
@@ -201,6 +209,7 @@ function TaskDetails() {
                 paddingRight: '1.375rem',
                 textIndent: '0rem',
                 backgroundColor: 'white',
+                wordBreak: 'normal'
             },
         }),
       };
@@ -238,18 +247,33 @@ function TaskDetails() {
     }
 
     return (
-        <Grid container spacing={2}>
+        <Grid container>
             {renderSnackBar()}
             <Grid item xs={12}>
-                <Box sx={{display: 'flex', gap: '2em', alignItems: 'center'}}>
+                <Box sx={{
+                    display: 'flex', 
+                    flexDirection:{xs:"column",sm:"row"},
+                    gap: '1em', 
+                    padding:"10px",
+                    alignItems: 'center'
+                    }}>
                     <TextField
                         id="task-id"
                         label="Task ID"
                         variant="outlined"
                         value={taskId}
                         onChange={(event) => setTaskId(event.target.value)}
+                        sx={{
+                            width:{xs:"100%",sm:"400px"}
+                        }}
                     />
-                    <Button variant="contained" onClick={fetchTaskDetails}>
+                    <Button 
+                    variant="contained" 
+                    onClick={fetchTaskDetails}
+                    sx={{
+                        width:{xs:"100%",sm:"200px"}
+                    }}
+                    >
                         Fetch Task Details
                     </Button>
                 </Box>
@@ -269,6 +293,14 @@ function TaskDetails() {
 
                 <Grid item xs={12}>
                     <TabPanel value={tabValue} index={0}>
+                        <Box
+                        sx={{
+                            fontSize:{xs:".75rem", sm:"1rem"},
+                            display:"flex",
+                            flexDirection:"column",
+                            gap:"1em"
+                        }}
+                        >
                         <JSONTree
                             data={taskDetails}
                             hideRoot={true}
@@ -282,8 +314,14 @@ function TaskDetails() {
                                 <Button variant="contained">Project Page</Button>
                             </Link>
                         )}
+                        </Box>
                     </TabPanel>
                     <TabPanel value={tabValue} index={1}>
+                        <Box
+                            sx={{
+                                fontSize:{xs:".75rem", sm:"1rem"},
+                            }}
+                        >
                         <JSONTree
                             data={annotations}
                             hideRoot={true}
@@ -292,6 +330,7 @@ function TaskDetails() {
                             valueRenderer={(raw) => <span>{typeof raw === "string" && raw.match(/^"(.*)"$/) ? raw.slice(1, -1) :  raw}</span>}
                             theme={theme}
                         />
+                        </Box>
                     </TabPanel>
                 </Grid>
             </>}
