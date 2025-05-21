@@ -13,21 +13,16 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => {
-  const { projectID } = useParams();
+  const { id } = useParams();
+
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    projectID: '',
+    project_id: id || '',  // ✅ directly initialized here
     taskIDs: '',
     userID: '',
     allocation_type: '',
   });
   const [responseMessage, setResponseMessage] = useState('');
-
-  useEffect(() => {
-    if (projectID) {
-      setFormData((prev) => ({ ...prev, projectID }));
-    }
-  }, [projectID]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -49,7 +44,7 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
         allocation_type: parseInt(formData.allocation_type),
       };
 
-      const response = await axios.post('/manual_task_assignment', payload);
+      const response = await axios.post('/projects/allocate_tasks', payload);
       setResponseMessage(response.data.message || 'Tasks allocated successfully');
       handleClose();
     } catch (error) {
@@ -87,15 +82,15 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
         <DialogTitle>Allocate Tasks</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit}>
-            <TextField
+            {/* <TextField
               fullWidth
-              name="projectID"
+              name="project_id"
               label="Project ID"
               variant="outlined"
               margin="dense"
-              value={formData.projectID || projectID}
+              value={formData.id || id}
               disabled
-            />
+            /> */}
             <TextField
               fullWidth
               name="taskIDs"
