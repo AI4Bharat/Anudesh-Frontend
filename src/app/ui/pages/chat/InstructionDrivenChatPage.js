@@ -482,7 +482,7 @@ const InstructionDrivenChatPage = ({
                       handleTextChange(e, null, message, "prompt")
                     }
                     lang={targetLang}
-                    // disabled={targetLang === "en" ? true : false}
+                    enabled={targetLang === "en" ? false : true}
                   />
                 // ) : (
                 //   <textarea
@@ -602,7 +602,7 @@ const InstructionDrivenChatPage = ({
                         enableASR={true}
                         asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                         apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-                        // disabled={targetLang === "en" ? true : false}
+                        enabled={targetLang === "en" ? false : true}
                       />
                     // ) : (
                     //   <textarea

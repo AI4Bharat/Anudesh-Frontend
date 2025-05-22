@@ -117,8 +117,8 @@ const Transliteration = (props) => {
 
       <IndicTransliterate
         customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-        enableASR={true}
-        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+        // enableASR={true}
+        // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
         apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
         lang={selectedLang.LangCode ? selectedLang.LangCode : (data.length > 0 && (params.taskId || params.id) ? data[0]?.LangCode : "hi")}
         value={text}
@@ -126,7 +126,7 @@ const Transliteration = (props) => {
           setText(val);
         }}
         renderComponent={(props) => renderTextarea(props)}
-      />
+              />
       <Grid
         container
         direction="row"
