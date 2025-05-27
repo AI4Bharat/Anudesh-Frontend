@@ -44,7 +44,7 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
         allocation_type: parseInt(formData.allocation_type),
       };
 
-      const response = await axios.post('/projects/allocate_tasks', payload);
+      const response = await axios.post('/projects/allocate_tasks_to_user', payload);
       setResponseMessage(response.data.message || 'Tasks allocated successfully');
       handleClose();
     } catch (error) {
@@ -62,12 +62,10 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
               backgroundColor: '#ee6633',
               color: '#fff',
               p: 2,
-              borderRadius: 2,
-              ml: 2,
-              width: '300px',
+              borderRadius: 3,
+              width: "100%",
               textTransform: 'none',
               fontWeight: 'bold',
-              mb: 2,
               '&:hover': {
                 backgroundColor: '#ee6633',
               },
