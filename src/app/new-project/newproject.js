@@ -45,7 +45,7 @@ import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import sampleQuestion from "./sampleQue";
+import { sampleQuestion, sampleMultipleLLMIDCPQuestion } from "./sampleQue";
 import { styled } from "@mui/styles";
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -157,9 +157,20 @@ const CreateProject = () => {
   const [passwordForProjects, setPasswordForProjects] = useState("");
   const [shownewpassword, setShowNewPassword] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
-  const [jsonInput, setJsonInput] = useState(JSON.stringify(sampleQuestion));
-  const [questionsJSON, setQuestionsJSON] = useState(sampleQuestion);
+  const [jsonInput, setJsonInput] = useState();
+  const [questionsJSON, setQuestionsJSON] = useState();
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
+
+  useEffect(() => {
+    if (selectedType === "MultipleLLMInstructionDrivenChat") {
+      setJsonInput(JSON.stringify(sampleMultipleLLMIDCPQuestion, null, 2));
+      setQuestionsJSON(sampleMultipleLLMIDCPQuestion);
+    } else {
+      setJsonInput(JSON.stringify(sampleQuestion, null, 2));
+      setQuestionsJSON(sampleQuestion);
+    }
+  }, [selectedType]);
+
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -490,11 +501,13 @@ const CreateProject = () => {
       password: passwordForProjects,
       metadata_json:
         selectedType === "MultipleLLMInstructionDrivenChat"
-          ? { enable_preferrence_selection: isModelSelectionEnabled }
+          ? {
+              enable_preference_selection: isModelSelectionEnabled,
+              questions_json: questionsJSON,
+            }
           : questionsJSON,
       conceal: conceal,
     };
-
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
     dispatch(createProject(newProject));
@@ -1344,7 +1357,8 @@ const CreateProject = () => {
                   </FormControl>
                 </Grid>
                 {selectedType === "ModelInteractionEvaluation" ||
-                selectedType === "MultipleInteractionEvaluation" ? (
+                selectedType === "MultipleInteractionEvaluation" ||
+                selectedType === "MultipleLLMInstructionDrivenChat" ? (
                   <Grid
                     item
                     xs={12}

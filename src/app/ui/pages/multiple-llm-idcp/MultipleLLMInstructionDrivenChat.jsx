@@ -22,6 +22,7 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
 import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
@@ -34,6 +35,27 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
+import Rating from "@mui/material/Rating";
+import StarIcon from "@mui/icons-material/Star";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import FormGroup from "@mui/material/FormGroup";
+
+const orange = {
+  200: "pink",
+  400: "#EE6633",
+  600: "#EE663366",
+};
+
+const grey = {
+  50: "#F3F6F9",
+  200: "#DAE2ED",
+  300: "#C7D0DD",
+  700: "#434D5B",
+  900: "#1C2025",
+};
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -77,6 +99,11 @@ const MultipleLLMInstructionDrivenChat = ({
   info,
   disableUpdateButton,
   annotation,
+  preferredSelections,
+  setPreferredSelections,
+  handlePreferredResponse,
+  chatForms,
+  setChatForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
@@ -89,8 +116,47 @@ const MultipleLLMInstructionDrivenChat = ({
   const [loadtime, setloadtime] = useState(new Date());
   const [activeModalIndex1, setActiveModalIndex1] = useState(null); // For Model 1 responses
   const [activeModalIndex2, setActiveModalIndex2] = useState(null); // For Model 2 responses
-  const [preferredSelections, setPreferredSelections] = useState({});
   const [visibleMessages, setVisibleMessages] = useState({});
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  useEffect(() => {
+    console.log("ProjectDetails", ProjectDetails);
+  }, [ProjectDetails]);
+  const classes = ModelResponseEvaluationStyle();
+  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
+  const [snackbar, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "success",
+  });
+  const [text, setText] = useState("");
+  const [targetLang, setTargetLang] = useState("");
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (typeof window !== "undefined") {
+      const storedGlobalTransliteration = localStorage.getItem(
+        "globalTransliteration",
+      );
+      const storedLanguage = localStorage.getItem("language");
+
+      if (storedGlobalTransliteration !== null) {
+        setGlobalTransliteration(storedGlobalTransliteration === "true");
+      }
+      if (storedLanguage !== null) {
+        setTargetLang(storedLanguage);
+      }
+    }
+  }, [chatHistory]);
+
+  useEffect(() => {
+    if (text !== "") {
+      handleOnchange(text);
+    }
+  }, [text]);
 
   useEffect(() => {
     setVisibleMessages((prev) => {
@@ -103,97 +169,6 @@ const MultipleLLMInstructionDrivenChat = ({
       return updated;
     });
   }, [chatHistory]);
-
-  const handleClosePreferredResponseModal = (index) => {
-    setVisibleMessages((prev) => ({
-      ...prev,
-      [index]: false,
-    }));
-  };
-
-  const handlePreferredResponse = (index) => (event) => {
-    setPreferredSelections((prev) => ({
-      ...prev,
-      [index]: event.target.value,
-    }));
-  };
-
-  const handleOpenViewFullResponse1 = (index) => {
-    setActiveModalIndex1(index);
-  };
-  const handleCloseViewFullResponse1 = () => {
-    setActiveModalIndex1(null);
-  };
-  const handleOpenViewFullResponse2 = (index) => {
-    setActiveModalIndex2(index);
-  };
-  const handleCloseViewFullResponse2 = () => {
-    setActiveModalIndex2(null);
-  };
-
-  const [snackbar, setSnackbarInfo] = useState({
-    open: false,
-    message: "",
-    variant: "success",
-  });
-  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-
-  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const renderSnackBar = () => {
-    return (
-      <CustomizedSnackbars
-        open={snackbar.open}
-        handleClose={() =>
-          setSnackbarInfo({ open: false, message: "", variant: "" })
-        }
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        variant={snackbar.variant}
-        message={snackbar.message}
-      />
-    );
-  };
-
-  const orange = {
-    200: "pink",
-    400: "#EE6633",
-    600: "#EE663366",
-  };
-
-  const grey = {
-    50: "#F3F6F9",
-    200: "#DAE2ED",
-    300: "#C7D0DD",
-    700: "#434D5B",
-    900: "#1C2025",
-  };
-
-  const copyToClipboard = async (code) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setSnackbarInfo({
-        open: true,
-        message: "Copied to clipboard!",
-        variant: "success",
-      });
-    } catch (error) {
-      setSnackbarInfo({
-        open: true,
-        message: "Failed to copy to clipboard!",
-        variant: "error",
-      });
-    }
-  };
-
-  function isString(value) {
-    return typeof value === "string" || value instanceof String;
-  }
 
   useEffect(() => {
     let modifiedChatHistory = [];
@@ -272,6 +247,72 @@ const MultipleLLMInstructionDrivenChat = ({
     setShowChatContainer(!!annotation[0]?.result);
   }, [annotation]);
 
+  const handleClosePreferredResponseModal = (index) => {
+    setVisibleMessages((prev) => ({
+      ...prev,
+      [index]: false,
+    }));
+  };
+
+  const handleOpenViewFullResponse1 = (index) => {
+    setActiveModalIndex1(index);
+  };
+
+  const handleCloseViewFullResponse1 = () => {
+    setActiveModalIndex1(null);
+  };
+
+  const handleOpenViewFullResponse2 = (index) => {
+    setActiveModalIndex2(index);
+  };
+
+  const handleCloseViewFullResponse2 = () => {
+    setActiveModalIndex2(null);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+
+  const copyToClipboard = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setSnackbarInfo({
+        open: true,
+        message: "Copied to clipboard!",
+        variant: "success",
+      });
+    } catch (error) {
+      setSnackbarInfo({
+        open: true,
+        message: "Failed to copy to clipboard!",
+        variant: "error",
+      });
+    }
+  };
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
 
@@ -332,26 +373,25 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (
-    prompt_output_pair_id,
-    preferred_response,
-  ) => {
-    if (inputValue || (preferred_response && prompt_output_pair_id >= 0)) {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses) => {
+    console.log('responses form the eval form', modelResponses);
+    if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
-        result:
-          preferred_response && prompt_output_pair_id >= 0 ? "" : inputValue,
+        result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
         lead_time:
           (new Date() - loadtime) / 1000 +
           Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
         prompt_output_pair_id:
-          preferred_response && prompt_output_pair_id >= 0
+          modelResponses && prompt_output_pair_id >= 0
             ? prompt_output_pair_id
             : generateUniquePromptOutputPairId(),
-        ...(preferred_response &&
-          prompt_output_pair_id >= 0 && { preferred_response }),
+        ...(modelResponses &&
+          prompt_output_pair_id >= 0 && {
+            model_responses_json: modelResponses,
+          }),
       };
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -381,7 +421,7 @@ const MultipleLLMInstructionDrivenChat = ({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
-      if (!inputValue && preferred_response && prompt_output_pair_id >= 0) {
+      if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
         if (data.message === "Success") {
           setSnackbarInfo({
             open: true,
@@ -479,6 +519,7 @@ const MultipleLLMInstructionDrivenChat = ({
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }, 1000);
     setShowChatContainer(true);
+    setInputValue("");
   };
 
   const handleOnchange = (prompt) => {
@@ -488,35 +529,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const handleEditResponse = () => {
     // console.log("edit response");
   };
-
-  const [text, setText] = useState("");
-  const [targetLang, setTargetLang] = useState("");
-  const [globalTransliteration, setGlobalTransliteration] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-
-    if (typeof window !== "undefined") {
-      const storedGlobalTransliteration = localStorage.getItem(
-        "globalTransliteration",
-      );
-      const storedLanguage = localStorage.getItem("language");
-
-      if (storedGlobalTransliteration !== null) {
-        setGlobalTransliteration(storedGlobalTransliteration === "true");
-      }
-      if (storedLanguage !== null) {
-        setTargetLang(storedLanguage);
-      }
-    }
-  }, [chatHistory]);
-
-  useEffect(() => {
-    if (text !== "") {
-      handleOnchange(text);
-    }
-  }, [text]);
 
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
@@ -561,9 +573,6 @@ const MultipleLLMInstructionDrivenChat = ({
     transition: "border-color 0.2s, box-shadow 0.2s",
   };
 
-  if (!isMounted) {
-    return null;
-  }
   const handleTextChange = (e, index, message, fieldType) => {
     if (globalTransliteration) {
       var updatedValue = e;
@@ -585,6 +594,224 @@ const MultipleLLMInstructionDrivenChat = ({
       setChatHistory(updatedChatHistory);
     }
   };
+
+  const handleInputChange = (e, message, index, questionIdx, model_idx) => {
+    const value = e.target.value;
+    const blankIndex = parseInt(e.target.dataset.blankIndex) || 0; // Add data-blank-index to your input
+    setEvalFormResponse((prev) => {
+      const newResponse = { ...prev };
+
+      // Initialize structure if it doesn't exist
+      if (!newResponse[index]) {
+        newResponse[index] = {
+          model_responses_json: [],
+        };
+      }
+
+      // Find or create model response
+      let modelResponse = newResponse[index].model_responses_json.find(
+        (r) => r.model_name === message?.output?.[model_idx]?.model_name,
+      );
+      if (!modelResponse) {
+        modelResponse = {
+          model_name: message?.output?.[model_idx]?.model_name,
+          questions_response: [],
+        };
+        newResponse[index].model_responses_json.push(modelResponse);
+      }
+
+      // Find or create question response
+      let questionResponse = modelResponse.questions_response.find(
+        (q) =>
+          q.question.input_question ===
+          ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+            ?.input_question,
+      );
+      if (!questionResponse) {
+        questionResponse = {
+          question: ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+          response: [],
+        };
+        modelResponse.questions_response.push(questionResponse);
+      }
+
+      // Update the specific blank response
+      questionResponse.response[blankIndex] = value;
+
+      return newResponse;
+    });
+  };
+
+  const handleRating = (newValue, message, index, questionIdx, model_idx) => {
+    setEvalFormResponse((prev) => {
+      const newResponse = { ...prev };
+
+      if (!newResponse[index]) {
+        newResponse[index] = {
+          model_responses_json: [],
+        };
+      }
+
+      let modelResponse = newResponse[index].model_responses_json.find(
+        (r) => r.model_name === message?.output?.[model_idx]?.model_name,
+      );
+      if (!modelResponse) {
+        modelResponse = {
+          model_name: message?.output?.[model_idx]?.model_name,
+          questions_response: [],
+        };
+        newResponse[index].model_responses_json.push(modelResponse);
+      }
+
+      let questionResponse = modelResponse.questions_response.find(
+        (q) =>
+          q.question.input_question ===
+          ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+            ?.input_question,
+      );
+      if (!questionResponse) {
+        questionResponse = {
+          question: ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+          response: [],
+        };
+        modelResponse.questions_response.push(questionResponse);
+      }
+
+      questionResponse.response = [newValue];
+
+      return newResponse;
+    });
+  };
+
+  const handleMultiSelect = (
+    index,
+    message,
+    option,
+    questionIdx,
+    model_idx,
+  ) => {
+    setEvalFormResponse((prev) => {
+      const newResponse = { ...prev };
+
+      if (!newResponse[index]) {
+        newResponse[index] = {
+          model_responses_json: [],
+        };
+      }
+
+      // Create a new model_responses_json array
+      const newResponsesJson = [...newResponse[index].model_responses_json];
+
+      let modelResponseIndex = newResponsesJson.findIndex(
+        (r) => r.model_name === message?.output?.[model_idx]?.model_name,
+      );
+      let modelResponse;
+
+      if (modelResponseIndex === -1) {
+        modelResponse = {
+          model_name: message?.output?.[model_idx]?.model_name,
+          questions_response: [],
+        };
+        newResponsesJson.push(modelResponse);
+        modelResponseIndex = newResponsesJson.length - 1;
+      } else {
+        // Create a new model response object
+        modelResponse = {
+          ...newResponsesJson[modelResponseIndex],
+          questions_response: [
+            ...newResponsesJson[modelResponseIndex].questions_response,
+          ],
+        };
+        newResponsesJson[modelResponseIndex] = modelResponse;
+      }
+
+      let questionResponseIndex = modelResponse.questions_response.findIndex(
+        (q) =>
+          q.question.input_question ===
+          ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+            ?.input_question,
+      );
+      let questionResponse;
+
+      if (questionResponseIndex === -1) {
+        questionResponse = {
+          question: ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+          response: [],
+        };
+        modelResponse.questions_response.push(questionResponse);
+      } else {
+        // Create a new question response object
+        questionResponse = {
+          ...modelResponse.questions_response[questionResponseIndex],
+        };
+        modelResponse.questions_response[questionResponseIndex] =
+          questionResponse;
+      }
+
+      // Toggle option in array - create new array
+      const currentResponses = questionResponse.response || [];
+      if (currentResponses.includes(option)) {
+        questionResponse.response = currentResponses.filter(
+          (item) => item !== option,
+        );
+      } else {
+        questionResponse.response = [...currentResponses, option];
+      }
+
+      // Update the main response object
+      newResponse[index] = {
+        ...newResponse[index],
+        model_responses_json: newResponsesJson,
+      };
+
+      return newResponse;
+    });
+  };
+
+  const handleMCQ = (index, message, option, questionIdx, model_idx) => {
+    setEvalFormResponse((prev) => {
+      const newResponse = { ...prev };
+
+      if (!newResponse[index]) {
+        newResponse[index] = {
+          model_responses_json: [],
+        };
+      }
+
+      const modelName = message?.output?.[model_idx]?.model_name;
+      let modelResponse = newResponse[index].model_responses_json.find(
+        (r) => r.model_name === modelName,
+      );
+
+      if (!modelResponse) {
+        modelResponse = {
+          model_name: modelName,
+          questions_response: [],
+        };
+        newResponse[index].model_responses_json.push(modelResponse);
+      }
+
+      const targetQuestion =
+        ProjectDetails?.metadata_json?.questions_json?.[questionIdx];
+      let questionResponse = modelResponse.questions_response.find(
+        (q) => q.question.input_question === targetQuestion?.input_question,
+      );
+
+      if (!questionResponse) {
+        questionResponse = {
+          question: targetQuestion,
+          response: [],
+        };
+        modelResponse.questions_response.push(questionResponse);
+      }
+
+      // Update the response for this specific question
+      questionResponse.response = [option];
+
+      return newResponse;
+    });
+  };
+  
 
   const renderChatHistory = () => {
     const chatElements = chatHistory?.map((message, index) => (
@@ -703,6 +930,18 @@ const MultipleLLMInstructionDrivenChat = ({
                       0.0,
                       "MultipleLLMInstructionDrivenChat",
                     );
+
+                    // Remove the last item from preferredSelections
+                    setPreferredSelections((prev) => {
+                      const keys = Object.keys(prev).map(Number); // Sort numerically
+                      if (keys.length > 0) {
+                        const lastKey = keys[keys.length - 1];
+                        const newSelections = { ...prev };
+                        delete newSelections[lastKey];
+                        return newSelections;
+                      }
+                      return prev;
+                    });
                   }}
                 >
                   <DeleteOutlinedIcon
@@ -1307,7 +1546,7 @@ const MultipleLLMInstructionDrivenChat = ({
           </Grid>
         </Grid>
 
-        {ProjectDetails?.metadata_json?.enable_preferrence_selection &&
+        {ProjectDetails?.metadata_json?.enable_preference_selection &&
           visibleMessages[index] && (
             <Grid
               item
@@ -1319,7 +1558,11 @@ const MultipleLLMInstructionDrivenChat = ({
                 borderRadius: "10px",
               }}
             >
-              <Box>
+              <Box
+                sx={{
+                  maxHeight: "16rem",
+                }}
+              >
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   <IconButton
                     onClick={() => handleClosePreferredResponseModal(index)}
@@ -1334,61 +1577,515 @@ const MultipleLLMInstructionDrivenChat = ({
                 <Box
                   sx={{
                     display: "flex",
+                    flexDirection: "column",
                     justifyContent: "space-around",
-                    alignItems: "center",
+                    maxHeight: "15rem",
+                    overflowY: "scroll",
                   }}
                 >
-                  <Box>
-                    <Typography>Which response do you like better?</Typography>
-                  </Box>
-                  <Box>
-                    <RadioGroup
-                      row
-                      aria-labelledby="demo-form-control-label-placement"
-                      name="position"
-                      onChange={handlePreferredResponse(index)}
-                      defaultValue={
-                        message?.output[0]?.preferred_response === true
-                          ? message?.output[0]?.model_name
-                          : message?.output[1]?.preferred_response === true
-                            ? message?.output[1]?.model_name
-                            : ""
-                      }
-                    >
-                      <FormControlLabel
-                        value={message?.output[0]?.model_name}
-                        control={<Radio />}
-                        label={message?.output[0]?.model_name}
-                      />
-                      <FormControlLabel
-                        value={message?.output[1]?.model_name}
-                        control={<Radio />}
-                        label={message?.output[1]?.model_name}
-                      />
-                    </RadioGroup>
-                  </Box>
-                  <Button
-                    variant="contained"
+                  {ProjectDetails?.metadata_json?.questions_json?.map(
+                    (question, questionIdx) => (
+                      <div key={questionIdx}>
+                        {question.question_type === "fill_in_blanks" && (
+                          <div
+                            style={{
+                              marginBottom: "20px",
+                            }}
+                          >
+                            <p className={classes.inputQuestion}>
+                              {questionIdx + 1}.{" "}
+                              {question.input_question
+                                .split("<blank>")
+                                .map((part, index) => (
+                                  <span key={`${questionIdx}-${index}`}>
+                                    {part}
+                                    {index <
+                                      question.input_question.split("<blank>")
+                                        .length -
+                                        1 && (
+                                      <span
+                                        style={{
+                                          borderBottom: "1px solid black",
+                                          display: "inline-block",
+                                          width: "100px",
+                                          margin: "0 4px",
+                                          verticalAlign: "middle",
+                                        }}
+                                      >
+                                        &nbsp;
+                                      </span>
+                                    )}
+                                  </span>
+                                ))}
+                              <span
+                                style={{
+                                  color: "#d93025",
+                                  fontSize: "25px",
+                                }}
+                              >
+                                {" "}
+                                *
+                              </span>
+                            </p>
+
+                            <div
+                              style={{
+                                padding: "10px 0 0 20px",
+                                maxWidth: "80%",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              {message?.output?.map((response, outputIdx) => (
+                                <div
+                                  key={outputIdx}
+                                  style={{
+                                    marginBottom: "10px",
+                                    display: "flex",
+                                    flexDirection: "row",
+                                  }}
+                                >
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                      fontWeight: "bold",
+                                      color: "#6C5F5B",
+                                      marginRight: "15px",
+                                      marginTop: "0.7rem",
+                                    }}
+                                  >
+                                    {response?.model_name}
+                                  </Typography>
+                                  {question.input_question
+                                    .split("<blank>")
+                                    .slice(0, -1)
+                                    .map((_, idx) => (
+                                      <input
+                                        key={`${outputIdx}-${idx}`}
+                                        type="text"
+                                        // value={
+                                        //   (currentInteraction?.model_responses_json &&
+                                        //     currentInteraction
+                                        //       ?.model_responses_json[
+                                        //       outputIdx
+                                        //     ]?.questions_response[
+                                        //       questionIdx
+                                        //     ]?.response?.[index]) ||
+                                        //   ""
+                                        // }
+                                        onChange={(e) =>
+                                          handleInputChange(
+                                            e,
+                                            message,
+                                            index, // chat index
+                                            questionIdx, // question no.
+                                            outputIdx, // the (i)th model
+                                          )
+                                        }
+                                        style={{
+                                          border: "1px solid #ccc",
+                                          borderRadius: "4px",
+                                          maxWidth: "200px",
+                                        }}
+                                        required
+                                      />
+                                    ))}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {question.question_type === "rating" && (
+                          <div
+                            style={{
+                              marginBottom: "20px",
+                            }}
+                          >
+                            <div className={classes.inputQuestion}>
+                              <span>
+                                {questionIdx + 1}. {question.input_question}
+                              </span>
+                              <span
+                                style={{
+                                  color: "#d93025",
+                                  fontSize: "25px",
+                                }}
+                              >
+                                {" "}
+                                *
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                padding: "10px 0 0 20px",
+                                maxWidth: "70%",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              {message?.output?.map((response, outputIdx) => {
+                                return (
+                                  <div key={outputIdx}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                          marginRight: "15px",
+                                          marginTop: "0.5rem",
+                                          fontWeight: "bold",
+                                          color: "#6C5F5B",
+                                        }}
+                                      >
+                                        {response?.model_name}
+                                      </Typography>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <Rating
+                                          name={`rating-${outputIdx}`}
+                                          // value={
+                                          //   (currentInteraction?.model_responses_json &&
+                                          //     currentInteraction
+                                          //       ?.model_responses_json[
+                                          //       outputIdx
+                                          //     ].questions_response[
+                                          //       questionIdx
+                                          //     ]?.response[0]) ||
+                                          //   0
+                                          // }
+                                          onChange={(event, newValue) => {
+                                            handleRating(
+                                              newValue,
+                                              message,
+                                              index,
+                                              questionIdx,
+                                              outputIdx,
+                                            );
+                                          }}
+                                          sx={{
+                                            color: "#ee6633",
+                                            "& .MuiRating-iconFilled": {
+                                              color: "#ee6633",
+                                            },
+                                            "& .MuiRating-iconHover": {
+                                              color: "#ee6633",
+                                            },
+                                          }}
+                                          emptyIcon={
+                                            <StarIcon
+                                              style={{
+                                                opacity: 0.55,
+                                                color: "#EE6633",
+                                              }}
+                                              fontSize="inherit"
+                                            />
+                                          }
+                                        />
+                                      </Box>
+                                    </Box>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {question.question_type === "multi_select_options" && (
+                          <div
+                            style={{
+                              marginBottom: "20px",
+                            }}
+                          >
+                            <div className={classes.inputQuestion}>
+                              {questionIdx + 1}. {question.input_question}
+                              <span
+                                style={{
+                                  color: "#d93025",
+                                  fontSize: "25px",
+                                }}
+                              >
+                                {" "}
+                                *
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                paddingLeft: "20px",
+                              }}
+                            >
+                              {question?.input_selections_list?.map(
+                                (option, optionIdx) => (
+                                  <div
+                                    key={optionIdx}
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                    }}
+                                  >
+                                    <span>{option} :</span>{" "}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        flexWrap: "wrap",
+                                      }}
+                                    >
+                                      {message?.output?.map(
+                                        (response, outputIdx) => (
+                                          <div
+                                            key={`${optionIdx}-${outputIdx}`}
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              paddingRight: "2rem",
+                                            }}
+                                          >
+                                            <FormControl component="fieldset">
+                                              <FormGroup>
+                                                <FormControlLabel
+                                                  key={optionIdx}
+                                                  control={
+                                                    <Checkbox
+                                                      onChange={(e) =>
+                                                        handleMultiSelect(
+                                                          index,
+                                                          message,
+                                                          option,
+                                                          questionIdx,
+                                                          outputIdx,
+                                                        )
+                                                      }
+                                                      // checked={
+                                                      //   currentInteraction?.model_responses_json?.[
+                                                      //     outputIdx
+                                                      //   ]?.questions_response?.[
+                                                      //     questionIdx
+                                                      //   ]?.response?.includes(
+                                                      //     option,
+                                                      //   ) ?? false
+                                                      // }
+                                                    />
+                                                  }
+                                                  labelPlacement="start"
+                                                  label={
+                                                    <Typography
+                                                      variant="subtitle2"
+                                                      sx={{
+                                                        fontWeight: "bold",
+                                                        color: "#6C5F5B",
+                                                      }}
+                                                    >
+                                                      {response?.model_name}
+                                                    </Typography>
+                                                  }
+                                                />{" "}
+                                              </FormGroup>
+                                            </FormControl>
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {question.question_type === "mcq" && (
+                          <div
+                            style={{
+                              marginBottom: "20px",
+                            }}
+                          >
+                            <div className={classes.inputQuestion}>
+                              {questionIdx + 1}. {question.input_question}
+                              <span
+                                style={{
+                                  color: "#d93025",
+                                  fontSize: "25px",
+                                }}
+                              >
+                                {" "}
+                                *
+                              </span>
+                            </div>
+
+                            <div
+                              style={{
+                                paddingLeft: "20px",
+                              }}
+                            >
+                              {question?.input_selections_list?.map(
+                                (option, optionIdx) => (
+                                  <div
+                                    key={optionIdx}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                      flexDirection: "row",
+                                    }}
+                                  >
+                                    <span>{option} :</span>{" "}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        flexDirection: "row",
+                                        flexWrap: "wrap",
+                                      }}
+                                    >
+                                      {message?.output?.map(
+                                        (response, outputIdx) => (
+                                          <div
+                                            key={`${optionIdx}-${outputIdx}`}
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              paddingRight: "2rem",
+                                            }}
+                                          >
+                                            <FormControl
+                                              component="fieldset"
+                                              key={outputIdx}
+                                            >
+                                              <RadioGroup
+                                                name={`question-${questionIdx}-model-${outputIdx}`}
+                                                // value={
+                                                //   currentInteraction
+                                                //     ?.model_responses_json?.[
+                                                //     outputIdx
+                                                //   ]?.questions_response?.[
+                                                //     questionIdx
+                                                //   ]?.response?.[0] || ""
+                                                // }
+                                                onChange={(e) =>
+                                                  handleMCQ(
+                                                    index,
+                                                    message,
+                                                    option,
+                                                    questionIdx,
+                                                    outputIdx,
+                                                  )
+                                                }
+                                              >
+                                                <FormControlLabel
+                                                  key={optionIdx}
+                                                  value={option}
+                                                  control={<Radio />}
+                                                  labelPlacement="start"
+                                                  label={
+                                                    <Typography
+                                                      variant="subtitle2"
+                                                      sx={{
+                                                        fontWeight: "bold",
+                                                        color: "#6C5F5B",
+                                                      }}
+                                                    >
+                                                      {response?.model_name}
+                                                    </Typography>
+                                                  }
+                                                />
+                                              </RadioGroup>
+                                            </FormControl>
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  )}
+                  <Box
                     sx={{
-                      border: "1.5px solid #EE6633",
-                      color: "#EE6633",
-                      backgroundColor: "#FFF",
-                      borderRadius: "8px",
-                      padding: "0.5rem 1.5rem",
-                      "&:hover": {
-                        backgroundColor: "#EE6633",
-                        color: "#FFF",
-                      },
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      width: "100%",
                     }}
-                    onClick={() =>
-                      handleButtonClick(
-                        message.output[0].prompt_output_pair_id,
-                        preferredSelections[index],
-                      )
-                    }
                   >
-                    Submit
-                  </Button>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        border: "1.5px solid #EE6633",
+                        color: "#EE6633",
+                        backgroundColor: "#FFF",
+                        borderRadius: "8px",
+                        padding: "0.5rem 0.5rem",
+                        "&:hover": {
+                          backgroundColor: "#EE6633",
+                          color: "#FFF",
+                        },
+                        maxWidth: "fit-content",
+                        marginBottom: "20px",
+                        marginRight: "20px",
+                      }}
+                      onClick={() => {
+                        const modelResponses =
+                          evalFormResponse?.[0]?.model_responses_json;
+
+                        const isValid =
+                          modelResponses &&
+                          Object.values(modelResponses).every(
+                            (responseItem) => {
+                              const questionsResponse =
+                                responseItem?.questions_response;
+                              if (
+                                !Array.isArray(questionsResponse) ||
+                                questionsResponse.length !== ProjectDetails?.metadata_json?.questions_json?.length
+                              ) {
+                                return false;
+                              }
+
+                              // Each of the 4 items must have a non-empty 'response' array
+                              return questionsResponse.every(
+                                (q) =>
+                                  Array.isArray(q.response) &&
+                                  q.response.length > 0,
+                              );
+                            },
+                          );
+
+                        if (isValid) {
+                          handleButtonClick(
+                            message.output[0].prompt_output_pair_id,
+                            modelResponses,
+                          );
+                        } else {
+                          setSnackbarInfo({
+                            open: true,
+                            message:
+                              "Please ensure that all the fields in the form is filled before saving the evaluation!",
+                            variant: "error",
+                          });
+                        }
+                      }}
+                    >
+                      Save Evaluations
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             </Grid>
@@ -1473,6 +2170,7 @@ const MultipleLLMInstructionDrivenChat = ({
       </>
     );
   };
+
   if (!isMounted) {
     return null;
   }
