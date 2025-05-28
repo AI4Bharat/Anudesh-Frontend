@@ -35,7 +35,6 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ModelResponseEvaluationStyle from "@/styles/ModelResponseEvaluation";
 import Rating from "@mui/material/Rating";
 import StarIcon from "@mui/icons-material/Star";
@@ -56,12 +55,6 @@ const grey = {
   700: "#434D5B",
   900: "#1C2025",
 };
-
-const useStyles = makeStyles((theme) => ({
-  tooltip: {
-    fontSize: "1rem !important", // Adjust the font size as needed
-  },
-}));
 
 const style = {
   position: "absolute",
@@ -106,6 +99,7 @@ const MultipleLLMInstructionDrivenChat = ({
   setChatForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  // console.log("annotation", annotation);
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -118,9 +112,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const [activeModalIndex2, setActiveModalIndex2] = useState(null); // For Model 2 responses
   const [visibleMessages, setVisibleMessages] = useState({});
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  useEffect(() => {
-    console.log("ProjectDetails", ProjectDetails);
-  }, [ProjectDetails]);
   const classes = ModelResponseEvaluationStyle();
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [snackbar, setSnackbarInfo] = useState({
@@ -133,7 +124,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [evalFormResponse, setEvalFormResponse] = useState();
-  
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -153,12 +144,6 @@ const MultipleLLMInstructionDrivenChat = ({
   }, [chatHistory]);
 
   useEffect(() => {
-    if (text !== "") {
-      handleOnchange(text);
-    }
-  }, [text]);
-
-  useEffect(() => {
     setVisibleMessages((prev) => {
       const updated = { ...prev };
       chatHistory.forEach((chat, index) => {
@@ -168,83 +153,92 @@ const MultipleLLMInstructionDrivenChat = ({
       });
       return updated;
     });
+    console.log("chatHistory", chatHistory);
   }, [chatHistory]);
 
   useEffect(() => {
     let modifiedChatHistory = [];
     if (
       annotation &&
-      Array.isArray(annotation[0]?.result) &&
-      annotation[0]?.id &&
-      annotation[0]?.result.length > 0
+      Array.isArray(annotation?.[0]?.result) &&
+      annotation?.[0]?.id &&
+      annotation?.[0]?.result.length > 0
     ) {
       const interactions_length =
-        annotation[0]?.result[0]?.interaction_json?.length;
+        annotation?.[0]?.result?.[0]?.model_interactions?.[0]?.interaction_json
+          ?.length;
 
       for (let i = 0; i < interactions_length; i++) {
-        const prompt = annotation[0]?.result[0]?.interaction_json[i]?.prompt;
-        const response_valid_1 = isString(
-          annotation[0]?.result[0]?.interaction_json[i]?.output,
-        );
-        const response_valid_2 = isString(
-          annotation[0]?.result[1]?.interaction_json[i]?.output,
-        );
+        const prompt =
+          annotation?.[0]?.result?.[0]?.model_interactions?.[0]
+            ?.interaction_json[i]?.prompt;
+
+        // Get responses from both models
+        const model1_interaction =
+          annotation?.[0]?.result?.[0]?.model_interactions?.[0]
+            ?.interaction_json?.[i];
+        const model2_interaction =
+          annotation?.[0]?.result?.[0]?.model_interactions?.[1]
+            ?.interaction_json?.[i];
+
+        const response_valid_1 = isString(model1_interaction?.output);
+        const response_valid_2 = isString(model2_interaction?.output);
+
+        const eval_form = annotation?.[0]?.result?.[0]?.eval_form?.find(
+          (item) =>
+            item.prompt_output_pair_id ===
+            model1_interaction?.prompt_output_pair_id,
+        )?.model_responses_json;
+
+        setEvalFormResponse((prev) => ({
+          ...prev,
+          [model1_interaction?.prompt_output_pair_id]: eval_form,
+        }));
+
         modifiedChatHistory?.push({
           prompt: prompt,
           output: [
             {
-              model_name: annotation[0]?.result[0]?.model_name,
+              model_name:
+                annotation?.[0]?.result?.[0]?.model_interactions?.[0]
+                  ?.model_name,
               output: response_valid_1
-                ? formatResponse(
-                    annotation[0]?.result[0]?.interaction_json[i]?.output,
-                  )
+                ? formatResponse(model1_interaction?.output)
                 : formatResponse(
-                    `${annotation[0]?.result[0]?.model_name} failed to generate a response`,
+                    `${annotation?.[0]?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
                   ),
               status: response_valid_1 ? "success" : "error",
-              preferred_response:
-                annotation[0]?.result[0]?.interaction_json[i]
-                  ?.preferred_response,
-              prompt_output_pair_id:
-                annotation[0]?.result[0]?.interaction_json[i]
-                  ?.prompt_output_pair_id,
+              prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
               output_error: response_valid_1
                 ? null
-                : JSON.stringify(
-                    annotation[0]?.result[0]?.interaction_json[i]?.output,
-                  ),
+                : JSON.stringify(model1_interaction?.output),
             },
             {
-              model_name: annotation[0]?.result[1]?.model_name,
+              model_name:
+                annotation?.[0]?.result?.[0]?.model_interactions?.[1]
+                  ?.model_name,
               output: response_valid_2
-                ? formatResponse(
-                    annotation[0]?.result[1]?.interaction_json[i]?.output,
-                  )
+                ? formatResponse(model2_interaction?.output)
                 : formatResponse(
-                    `${annotation[0]?.result[1]?.model_name} failed to generate a response`,
+                    `${annotation?.[0]?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
                   ),
               status: response_valid_2 ? "success" : "error",
-              preferred_response:
-                annotation[0]?.result[1]?.interaction_json[i]
-                  ?.preferred_response,
-              prompt_output_pair_id:
-                annotation[0]?.result[1]?.interaction_json[i]
-                  ?.prompt_output_pair_id,
+              preferred_response: model2_interaction?.preferred_response,
+              prompt_output_pair_id: model2_interaction?.prompt_output_pair_id,
               output_error: response_valid_2
                 ? null
-                : JSON.stringify(
-                    annotation[0]?.result[1]?.interaction_json[i]?.output,
-                  ),
+                : JSON.stringify(model2_interaction?.output),
             },
           ],
+          prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
         });
       }
       setChatHistory(modifiedChatHistory);
     } else {
       setChatHistory([]);
     }
-    setAnnotationId(annotation[0]?.id);
-    setShowChatContainer(!!annotation[0]?.result);
+    setAnnotationId(annotation?.[0]?.id);
+    setShowChatContainer(!!annotation?.[0]?.result);
   }, [annotation]);
 
   const handleClosePreferredResponseModal = (index) => {
@@ -292,76 +286,9 @@ const MultipleLLMInstructionDrivenChat = ({
     );
   };
 
-  const copyToClipboard = async (code) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setSnackbarInfo({
-        open: true,
-        message: "Copied to clipboard!",
-        variant: "success",
-      });
-    } catch (error) {
-      setSnackbarInfo({
-        open: true,
-        message: "Failed to copy to clipboard!",
-        variant: "error",
-      });
-    }
-  };
-
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
-
-  const cleanMetaInfo = (value) =>
-    value.replace(/\(for example:.*?\)/gi, "").trim();
-
-  const escapeRegExp = (string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  };
-
-  const formatTextWithTooltips = (text, info) => {
-    // Ensure text is a string
-    text = String(text);
-
-    // Clean the meta info values
-    const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
-    const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
-    const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
-
-    let formattedText = text;
-
-    const placeholders = [
-      {
-        key: "meta_info_intent",
-        value: metaInfoIntent,
-        tooltip: "Intent of the instruction",
-      },
-      {
-        key: "meta_info_language",
-        value: metaInfoLanguage,
-        tooltip: "Language used",
-      },
-      {
-        key: "meta_info_domain",
-        value: metaInfoDomain,
-        tooltip: "Domain of the content",
-      },
-    ];
-
-    placeholders.forEach(({ value, tooltip }) => {
-      if (value !== "None") {
-        const escapedValue = escapeRegExp(value);
-        const regex = new RegExp(`(${escapedValue})`, "gi");
-        text = text.replace(regex, (match) => {
-          return `<Tooltip title="${tooltip}"><strong>${match}</strong></Tooltip>`;
-        });
-      }
-    });
-
-    return text;
-  };
-  const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
   const generateUniquePromptOutputPairId = () => {
     const time = Date.now();
@@ -373,8 +300,11 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses) => {
-    console.log('responses form the eval form', modelResponses);
+  const handleButtonClick = async (
+    prompt_output_pair_id,
+    modelResponses,
+    index,
+  ) => {
     if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
@@ -428,6 +358,11 @@ const MultipleLLMInstructionDrivenChat = ({
             message: "Preferred response saved successfully!",
             variant: "success",
           });
+          setEvalFormResponse((prev) => {
+            const newResponse = { ...prev };
+            delete newResponse[index]; // remove the key by index
+            return newResponse;
+          });
         } else {
           setSnackbarInfo({
             open: true,
@@ -439,54 +374,68 @@ const MultipleLLMInstructionDrivenChat = ({
       let modifiedChatHistory = [];
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
-        if (data && data.result) {
-          const interactions_length = data?.result[0]?.interaction_json?.length;
+
+        // Initialize modifiedChatHistory inside the function
+        let modifiedChatHistory = [];
+
+        if (data && data.result && data.result.length > 0) {
+          const interactions_length =
+            data?.result?.[0]?.model_interactions?.[0]?.interaction_json
+              ?.length;
+
           for (let i = 0; i < interactions_length; i++) {
-            const prompt = data?.result[0]?.interaction_json[i]?.prompt;
-            const response_valid_1 = isString(
-              data?.result[0]?.interaction_json[i]?.output,
-            );
-            const response_valid_2 = isString(
-              data?.result[1]?.interaction_json[i]?.output,
-            );
+            const prompt =
+              data?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
+                ?.prompt;
+
+            // Get interactions from both models
+            const model1_interaction =
+              data?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[i];
+            const model2_interaction =
+              data?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[i];
+
+            const response_valid_1 = isString(model1_interaction?.output);
+            const response_valid_2 = isString(model2_interaction?.output);
+
+            const eval_form = data?.result?.[0]?.eval_form?.find(
+              (item) =>
+                item.prompt_output_pair_id ===
+                model1_interaction?.prompt_output_pair_id,
+            )?.model_responses_json;
+
+            setEvalFormResponse((prev) => ({
+              ...prev,
+              [model1_interaction?.prompt_output_pair_id]: eval_form,
+            }));
+
             modifiedChatHistory.push({
               prompt: prompt,
               output: [
                 {
-                  model_name: data?.result[0]?.model_name,
+                  model_name:
+                    data?.result?.[0]?.model_interactions?.[0]?.model_name,
                   output: response_valid_1
-                    ? formatResponse(
-                        data?.result[0]?.interaction_json[i]?.output,
-                      )
-                    : `${data?.result[0]?.model_name} failed to generate a response`,
+                    ? formatResponse(model1_interaction?.output)
+                    : `${data?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
                   status: response_valid_1 ? "success" : "error",
-                  preferred_response:
-                    data?.result[0]?.interaction_json[i]?.preferred_response,
                   prompt_output_pair_id:
-                    data?.result[0]?.interaction_json[i]?.prompt_output_pair_id,
+                    model1_interaction?.prompt_output_pair_id,
                   output_error: response_valid_1
                     ? null
-                    : JSON.stringify(
-                        data?.result[0]?.interaction_json[i]?.output,
-                      ),
+                    : JSON.stringify(model1_interaction?.output),
                 },
                 {
-                  model_name: data?.result[1]?.model_name,
+                  model_name:
+                    data?.result?.[0]?.model_interactions?.[1]?.model_name,
                   output: response_valid_2
-                    ? formatResponse(
-                        data?.result[1]?.interaction_json[i]?.output,
-                      )
-                    : `${data?.result[1]?.model_name} failed to generate a response`,
+                    ? formatResponse(model2_interaction?.output)
+                    : `${data?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
                   status: response_valid_2 ? "success" : "error",
-                  preferred_response:
-                    data?.result[1]?.interaction_json[i]?.preferred_response,
                   prompt_output_pair_id:
-                    data?.result[1]?.interaction_json[i]?.prompt_output_pair_id,
+                    model2_interaction?.prompt_output_pair_id,
                   output_error: response_valid_2
                     ? null
-                    : JSON.stringify(
-                        data?.result[1]?.interaction_json[i]?.output,
-                      ),
+                    : JSON.stringify(model2_interaction?.output),
                 },
               ],
             });
@@ -499,10 +448,12 @@ const MultipleLLMInstructionDrivenChat = ({
             variant: "error",
           });
         }
-        return data && data.result
+
+        return data && data.result && data.result.length > 0
           ? [...modifiedChatHistory]
           : [...prevChatHistory];
       });
+
       setVisibleMessages((prev) => ({
         ...prev,
         [chatHistory.length]: true,
@@ -514,7 +465,7 @@ const MultipleLLMInstructionDrivenChat = ({
         variant: "error",
       });
     }
-    !(preferred_response && prompt_output_pair_id >= 0) &&
+    !(modelResponses && prompt_output_pair_id >= 0) &&
       setTimeout(() => {
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }, 1000);
@@ -524,53 +475,6 @@ const MultipleLLMInstructionDrivenChat = ({
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
-  };
-
-  const handleEditResponse = () => {
-    // console.log("edit response");
-  };
-
-  const handleMouseEnter = (event) => {
-    event.target.style.borderColor = orange[400];
-  };
-
-  const handleMouseLeave = (event) => {
-    event.target.style.borderColor = grey[200];
-  };
-
-  const handleFocus = (event) => {
-    event.target.style.outline = "0px";
-    event.target.style.borderColor = orange[400];
-    event.target.style.boxShadow = `0 0 0 3px ${orange[200]}`;
-  };
-
-  const handleBlur = (event) => {
-    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleButtonClick();
-      setText("");
-    } else if (event.key === "Enter" && event.shiftKey) {
-      setText((prevText) => prevText + "\n");
-    }
-  };
-  const textareaStyle = {
-    resize: "none",
-    fontSize: "1rem",
-    width: "60%",
-    fontWeight: "400",
-    lineHeight: "1.5",
-    padding: "12px",
-    borderRadius: "12px 12px 0 12px",
-    color: grey[900],
-    background: "#ffffff",
-    border: `1px solid ${grey[200]}`,
-    boxShadow: `0px 2px 2px ${grey[50]}`,
-    outline: 0,
-    transition: "border-color 0.2s, box-shadow 0.2s",
   };
 
   const handleTextChange = (e, index, message, fieldType) => {
@@ -609,7 +513,7 @@ const MultipleLLMInstructionDrivenChat = ({
       }
 
       // Find or create model response
-      let modelResponse = newResponse[index].model_responses_json.find(
+      let modelResponse = newResponse[index].model_responses_json?.find(
         (r) => r.model_name === message?.output?.[model_idx]?.model_name,
       );
       if (!modelResponse) {
@@ -621,7 +525,7 @@ const MultipleLLMInstructionDrivenChat = ({
       }
 
       // Find or create question response
-      let questionResponse = modelResponse.questions_response.find(
+      let questionResponse = modelResponse.questions_response?.find(
         (q) =>
           q.question.input_question ===
           ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
@@ -629,7 +533,8 @@ const MultipleLLMInstructionDrivenChat = ({
       );
       if (!questionResponse) {
         questionResponse = {
-          question: ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+          question:
+            ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
           response: [],
         };
         modelResponse.questions_response.push(questionResponse);
@@ -652,7 +557,7 @@ const MultipleLLMInstructionDrivenChat = ({
         };
       }
 
-      let modelResponse = newResponse[index].model_responses_json.find(
+      let modelResponse = newResponse[index].model_responses_json?.find(
         (r) => r.model_name === message?.output?.[model_idx]?.model_name,
       );
       if (!modelResponse) {
@@ -663,7 +568,7 @@ const MultipleLLMInstructionDrivenChat = ({
         newResponse[index].model_responses_json.push(modelResponse);
       }
 
-      let questionResponse = modelResponse.questions_response.find(
+      let questionResponse = modelResponse.questions_response?.find(
         (q) =>
           q.question.input_question ===
           ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
@@ -671,7 +576,8 @@ const MultipleLLMInstructionDrivenChat = ({
       );
       if (!questionResponse) {
         questionResponse = {
-          question: ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+          question:
+            ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
           response: [],
         };
         modelResponse.questions_response.push(questionResponse);
@@ -735,7 +641,8 @@ const MultipleLLMInstructionDrivenChat = ({
 
       if (questionResponseIndex === -1) {
         questionResponse = {
-          question: ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+          question:
+            ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
           response: [],
         };
         modelResponse.questions_response.push(questionResponse);
@@ -779,7 +686,7 @@ const MultipleLLMInstructionDrivenChat = ({
       }
 
       const modelName = message?.output?.[model_idx]?.model_name;
-      let modelResponse = newResponse[index].model_responses_json.find(
+      let modelResponse = newResponse[index].model_responses_json?.find(
         (r) => r.model_name === modelName,
       );
 
@@ -793,7 +700,7 @@ const MultipleLLMInstructionDrivenChat = ({
 
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx];
-      let questionResponse = modelResponse.questions_response.find(
+      let questionResponse = modelResponse.questions_response?.find(
         (q) => q.question.input_question === targetQuestion?.input_question,
       );
 
@@ -811,201 +718,181 @@ const MultipleLLMInstructionDrivenChat = ({
       return newResponse;
     });
   };
-  
 
   const renderChatHistory = () => {
-    const chatElements = chatHistory?.map((message, index) => (
-      <Grid
-        container
-        spacing={2}
-        key={index}
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ padding: "1.5rem", margin: "auto" }}
-      >
+    const chatElements = chatHistory?.map((message, index) => {
+      const evalForm = evalFormResponse?.[message?.prompt_output_pair_id];
+      console.log("message-evalForm", message, evalForm);
+      return (
         <Grid
-          item
-          sx={{
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            padding: "1.5rem",
-            borderRadius: "0.5rem",
-            position: "relative",
-            width: "100%",
-            marginBottom: "1.5rem",
-          }}
+          container
+          spacing={2}
+          key={index}
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          sx={{ padding: "1.5rem", margin: "auto" }}
         >
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item>
-              <Avatar
-                alt="user_profile_pic"
-                src={loggedInUserData?.profile_photo || ""}
-                sx={{ marginRight: "1rem" }}
-              />
-            </Grid>
-            <Grid item xs className="w-full">
-              {ProjectDetails?.metadata_json?.editable_prompt ? (
-                globalTransliteration ? (
-                  <IndicTransliterate
-                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                    apiKey={`JWT ${localStorage.getItem(
-                      "anudesh_access_token",
-                    )}`}
-                    renderComponent={(props) => (
-                      <textarea
-                        maxRows={10}
-                        placeholder={translate("chat_placeholder")}
-                        {...props}
-                        className=""
-                        style={{
-                          fontSize: "1rem",
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          resize: "none",
-                        }}
-                      />
-                    )}
-                    value={message.prompt}
-                    onChangeText={(e) =>
-                      handleTextChange(e, null, message, "prompt")
-                    }
-                    lang={targetLang}
-                  />
-                ) : (
-                  <textarea
-                    value={message.prompt}
-                    onChange={(e) =>
-                      handleTextChange(e, null, message, "prompt")
-                    }
-                    style={{
-                      fontSize: "1rem",
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "12px 12px 0 12px",
-                      color: grey[900],
-                      background: "#ffffff",
-                      border: `1px solid ${grey[200]}`,
-                      boxShadow: `0px 2px 2px ${grey[50]}`,
-                      minHeight: "5rem",
-                      resize: "none",
-                    }}
-                    rows={1}
-                  />
-                )
-              ) : (
-                <ReactMarkdown
-                  className="flex-col"
-                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+          <Grid
+            item
+            sx={{
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              padding: "1.5rem",
+              borderRadius: "0.5rem",
+              position: "relative",
+              width: "100%",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item>
+                <Avatar
+                  alt="user_profile_pic"
+                  src={loggedInUserData?.profile_photo || ""}
+                  sx={{ marginRight: "1rem" }}
                 />
-              )}
-            </Grid>
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => {
-                    setVisibleMessages((prev) => {
-                      const keys = Object.keys(prev);
-                      delete prev[keys[keys.length - 1]];
-                      return { ...prev };
-                    });
-
-                    handleClick(
-                      "delete-pair",
-                      id?.id,
-                      0.0,
-                      "MultipleLLMInstructionDrivenChat",
-                    );
-
-                    // Remove the last item from preferredSelections
-                    setPreferredSelections((prev) => {
-                      const keys = Object.keys(prev).map(Number); // Sort numerically
-                      if (keys.length > 0) {
-                        const lastKey = keys[keys.length - 1];
-                        const newSelections = { ...prev };
-                        delete newSelections[lastKey];
-                        return newSelections;
+              </Grid>
+              <Grid item xs className="w-full">
+                {ProjectDetails?.metadata_json?.editable_prompt ? (
+                  globalTransliteration ? (
+                    <IndicTransliterate
+                      customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                      apiKey={`JWT ${localStorage.getItem(
+                        "anudesh_access_token",
+                      )}`}
+                      renderComponent={(props) => (
+                        <textarea
+                          maxRows={10}
+                          placeholder={translate("chat_placeholder")}
+                          {...props}
+                          className=""
+                          style={{
+                            fontSize: "1rem",
+                            width: "100%",
+                            padding: "12px",
+                            borderRadius: "12px 12px 0 12px",
+                            color: grey[900],
+                            background: "#ffffff",
+                            border: `1px solid ${grey[200]}`,
+                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                            minHeight: "5rem",
+                            resize: "none",
+                          }}
+                        />
+                      )}
+                      value={message.prompt}
+                      onChangeText={(e) =>
+                        handleTextChange(e, null, message, "prompt")
                       }
-                      return prev;
-                    });
-                  }}
-                >
-                  <DeleteOutlinedIcon
-                    sx={{ color: "#EE6633", fontSize: "1.2rem" }}
+                      lang={targetLang}
+                    />
+                  ) : (
+                    <textarea
+                      value={message.prompt}
+                      onChange={(e) =>
+                        handleTextChange(e, null, message, "prompt")
+                      }
+                      style={{
+                        fontSize: "1rem",
+                        width: "100%",
+                        padding: "12px",
+                        borderRadius: "12px 12px 0 12px",
+                        color: grey[900],
+                        background: "#ffffff",
+                        border: `1px solid ${grey[200]}`,
+                        boxShadow: `0px 2px 2px ${grey[50]}`,
+                        minHeight: "5rem",
+                        resize: "none",
+                      }}
+                      rows={1}
+                    />
+                  )
+                ) : (
+                  <ReactMarkdown
+                    className="flex-col"
+                    children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
                   />
-                </IconButton>
-              )}
-          </Grid>
-        </Grid>
+                )}
+              </Grid>
+              {index === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="large"
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      marginTop: "1rem",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => {
+                      setVisibleMessages((prev) => {
+                        const keys = Object.keys(prev);
+                        delete prev[keys[keys.length - 1]];
+                        return { ...prev };
+                      });
 
-        <Grid
-          item
-          sx={{
-            textAlign: "left",
-            position: "relative",
-            width: "100%",
-            padding: "1.5rem",
-            borderRadius: "0.5rem",
-          }}
-        >
-          <Grid container alignItems="start" spacing={2}>
-            <Grid item>
-              <Image
-                width={50}
-                height={50}
-                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
-                alt="Bot Avatar"
-                priority
-              />
+                      handleClick(
+                        "delete-pair",
+                        id?.id,
+                        0.0,
+                        "MultipleLLMInstructionDrivenChat",
+                      );
+
+                      // Remove the last item from preferredSelections
+                      setPreferredSelections((prev) => {
+                        const keys = Object.keys(prev).map(Number); // Sort numerically
+                        if (keys.length > 0) {
+                          const lastKey = keys[keys.length - 1];
+                          const newSelections = { ...prev };
+                          delete newSelections[lastKey];
+                          return newSelections;
+                        }
+                        return prev;
+                      });
+                    }}
+                  >
+                    <DeleteOutlinedIcon
+                      sx={{ color: orange[400], fontSize: "1.2rem" }}
+                    />
+                  </IconButton>
+                )}
             </Grid>
+          </Grid>
 
-            <Grid
-              item
-              xs={6}
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                minWidth: `90%`,
-              }}
-            >
-              {/* Output 1 Section */}
-              {message?.output[0]?.status === "error" ? (
-                <Box
-                  sx={{
-                    border: "1px solid #ccc",
-                    width: "60%",
-                    marginLeft: "10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    alignItems: "flex-end",
-                    borderRadius: "10px",
-                    color: "red",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {" "}
-                  <Typography>
-                    {message?.output[0]?.model_name} failed to load the
-                    response!
-                  </Typography>{" "}
-                </Box>
-              ) : (
-                <>
+          <Grid
+            item
+            sx={{
+              textAlign: "left",
+              position: "relative",
+              width: "100%",
+              padding: "1.5rem",
+              borderRadius: "0.5rem",
+            }}
+          >
+            <Grid container alignItems="start" spacing={2}>
+              <Grid item>
+                <Image
+                  width={50}
+                  height={50}
+                  src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                  alt="Bot Avatar"
+                  priority
+                />
+              </Grid>
+
+              <Grid
+                item
+                xs={6}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  minWidth: `90%`,
+                }}
+              >
+                {/* Output 1 Section */}
+                {message?.output?.[0]?.status === "error" ? (
                   <Box
                     sx={{
                       border: "1px solid #ccc",
@@ -1016,1082 +903,1129 @@ const MultipleLLMInstructionDrivenChat = ({
                       justifyContent: "space-between",
                       alignItems: "flex-end",
                       borderRadius: "10px",
+                      color: "red",
+                      fontWeight: "bold",
                     }}
                   >
-                    <Tooltip
-                      title={
-                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                          Expand to view full response
-                        </span>
-                      }
-                    >
-                      <IconButton
-                        onClick={() => handleOpenViewFullResponse1(index)}
-                      >
-                        <OpenInFullIcon
-                          sx={{
-                            padding: "10px 10px 0 0",
-                            color: "#EE6633",
-                          }}
-                        />
-                      </IconButton>
-                    </Tooltip>
-                    <Modal
-                      open={activeModalIndex1 === index}
-                      onClose={handleCloseViewFullResponse1}
-                      closeAfterTransition
-                      BackdropComponent={Backdrop}
-                      BackdropProps={{
-                        timeout: 500,
-                        sx: {
-                          backdropFilter: "blur(2px)", // Apply blur effect
-                          backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
-                        },
-                      }}
-                    >
-                      <Fade in={activeModalIndex1 === index}>
-                        <Box sx={viewFullResponseModalStyle}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <Typography
-                              variant="subtitle2"
-                              sx={{
-                                fontWeight: "bold",
-                                color: "#EE6633",
-                                fontSize: "1.25rem",
-                              }}
-                            >
-                              {message?.output[0]?.model_name}
-                            </Typography>
-                            <IconButton onClick={handleCloseViewFullResponse1}>
-                              <CloseIcon sx={{ color: "#EE6633" }} />
-                            </IconButton>
-                          </Box>
-                          <Typography
-                            sx={{
-                              fontSize: "1.2rem",
-                              maxHeight: "60vh",
-                              overflowY: "scroll",
-                            }}
-                          >
-                            {message?.output[0]?.output?.map(
-                              (segment, index) =>
-                                segment.type === "text" ? (
-                                  ProjectDetails?.metadata_json
-                                    ?.editable_response ||
-                                  segment.value == "" ? (
-                                    globalTransliteration ? (
-                                      <IndicTransliterate
-                                        key={index}
-                                        value={segment.value}
-                                        onChangeText={(e) =>
-                                          handleTextChange(
-                                            e,
-                                            index,
-                                            message,
-                                            "output",
-                                          )
-                                        }
-                                        lang={targetLang}
-                                        style={{
-                                          fontSize: "1rem",
-                                          padding: "12px",
-                                          borderRadius: "12px 12px 0 12px",
-                                          color: grey[900],
-                                          background: "#ffffff",
-                                          border: `1px solid ${grey[200]}`,
-                                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                                          minHeight: "5rem",
-                                          // resize: "none",
-                                          width: "100%",
-                                        }}
-                                      />
-                                    ) : (
-                                      <textarea
-                                        key={index}
-                                        value={segment.value}
-                                        onChange={(e) =>
-                                          handleTextChange(
-                                            e,
-                                            index,
-                                            message,
-                                            "output",
-                                          )
-                                        }
-                                        style={{
-                                          fontSize: "1rem",
-                                          width: "100%",
-                                          padding: "12px",
-                                          borderRadius: "12px 12px 0 12px",
-                                          color: grey[900],
-                                          background: "#ffffff",
-                                          border: `1px solid ${grey[200]}`,
-                                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                                          minHeight: "5rem",
-                                          resize: "none",
-                                        }}
-                                        rows={1}
-                                      />
-                                    )
-                                  ) : (
-                                    <ReactMarkdown
-                                      key={index}
-                                      children={segment?.value?.replace(
-                                        /\n/gi,
-                                        "&nbsp; \n",
-                                      )}
-                                    />
-                                  )
-                                ) : (
-                                  <SyntaxHighlighter
-                                    key={index}
-                                    language={segment.language}
-                                    style={gruvboxDark}
-                                    customStyle={{
-                                      padding: "1rem",
-                                      borderRadius: "5px",
-                                    }}
-                                  >
-                                    {segment.value}
-                                  </SyntaxHighlighter>
-                                ),
-                            )}
-                          </Typography>
-                        </Box>
-                      </Fade>
-                    </Modal>
+                    {" "}
+                    <Typography>
+                      {message?.output?.[0]?.model_name} failed to load the
+                      response!
+                    </Typography>{" "}
+                  </Box>
+                ) : (
+                  <>
                     <Box
                       sx={{
-                        overflowY: "auto",
-                        maxHeight: "400px",
-                        padding: "20px 50px",
+                        border: "1px solid #ccc",
+                        width: "60%",
+                        marginLeft: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        alignItems: "flex-end",
+                        borderRadius: "10px",
                       }}
                     >
-                      {message?.output[0]?.output?.map((segment, index) =>
-                        segment.type === "text" ? (
-                          ProjectDetails?.metadata_json?.editable_response ||
-                          segment.value == "" ? (
-                            globalTransliteration ? (
-                              <IndicTransliterate
-                                key={index}
-                                value={segment.value}
-                                onChangeText={(e) =>
-                                  handleTextChange(e, index, message, "output")
-                                }
-                                lang={targetLang}
-                                style={{
-                                  fontSize: "1rem",
-                                  padding: "12px",
-                                  borderRadius: "12px 12px 0 12px",
-                                  color: grey[900],
-                                  background: "#ffffff",
-                                  border: `1px solid ${grey[200]}`,
-                                  boxShadow: `0px 2px 2px ${grey[50]}`,
-                                  minHeight: "5rem",
-                                  // resize: "none",
-                                  width: "100%",
-                                }}
-                              />
-                            ) : (
-                              <textarea
-                                key={index}
-                                value={segment.value}
-                                onChange={(e) =>
-                                  handleTextChange(e, index, message, "output")
-                                }
-                                style={{
-                                  fontSize: "1rem",
-                                  width: "100%",
-                                  padding: "12px",
-                                  borderRadius: "12px 12px 0 12px",
-                                  color: grey[900],
-                                  background: "#ffffff",
-                                  border: `1px solid ${grey[200]}`,
-                                  boxShadow: `0px 2px 2px ${grey[50]}`,
-                                  minHeight: "5rem",
-                                  resize: "none",
-                                }}
-                                rows={1}
-                              />
-                            )
-                          ) : (
-                            <ReactMarkdown
-                              key={index}
-                              children={segment?.value?.replace(
-                                /\n/gi,
-                                "&nbsp; \n",
-                              )}
-                            />
-                          )
-                        ) : (
-                          <SyntaxHighlighter
-                            key={index}
-                            language={segment.language}
-                            style={gruvboxDark}
-                            customStyle={{
-                              padding: "1rem",
-                              borderRadius: "5px",
+                      <Tooltip
+                        title={
+                          <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                            Expand to view full response
+                          </span>
+                        }
+                      >
+                        <IconButton
+                          onClick={() => handleOpenViewFullResponse1(index)}
+                        >
+                          <OpenInFullIcon
+                            sx={{
+                              padding: "10px 10px 0 0",
+                              color: orange[400],
                             }}
-                          >
-                            {segment.value}
-                          </SyntaxHighlighter>
-                        ),
-                      )}
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{
-                          backgroundColor: "#E8E6E6",
-                          padding: "10px",
-                          borderRadius: "10px",
-                          fontSize: "1rem",
+                          />
+                        </IconButton>
+                      </Tooltip>
+                      <Modal
+                        open={activeModalIndex1 === index}
+                        onClose={handleCloseViewFullResponse1}
+                        closeAfterTransition
+                        BackdropComponent={Backdrop}
+                        BackdropProps={{
+                          timeout: 500,
+                          sx: {
+                            backdropFilter: "blur(2px)", // Apply blur effect
+                            backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
+                          },
                         }}
                       >
-                        {message?.output[0]?.model_name}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </>
-              )}
-
-              {/* Output 2 Section */}
-              {message?.output[1]?.status === "error" ? (
-                <Box
-                  sx={{
-                    border: "1px solid red",
-                    width: "60%",
-                    marginLeft: "10px",
-                    height: "10vh",
-                    padding: "10px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "10px",
-                    color: "red",
-                    fontWeight: "bold",
-                    backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-                  }}
-                >
-                  <ErrorIcon
-                    sx={{
-                      marginRight: "10px",
-                    }}
-                  />
-                  <Typography>
-                    {message?.output[1]?.model_name} failed to load the
-                    response!
-                  </Typography>{" "}
-                </Box>
-              ) : (
-                <>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      width: "60%",
-                      marginLeft: "2rem",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      alignItems: "flex-end",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    <Tooltip
-                      title={
-                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                          Expand to view full response
-                        </span>
-                      }
-                    >
-                      <IconButton
-                        onClick={() => handleOpenViewFullResponse2(index)}
-                      >
-                        <OpenInFullIcon
-                          sx={{
-                            padding: "10px 10px 0 0",
-                            color: "#EE6633",
-                          }}
-                        />
-                      </IconButton>
-                    </Tooltip>
-                    <Modal
-                      open={activeModalIndex2 === index}
-                      onClose={handleCloseViewFullResponse2}
-                      closeAfterTransition
-                      BackdropComponent={Backdrop}
-                      BackdropProps={{
-                        timeout: 500,
-                        sx: {
-                          backdropFilter: "blur(2px)", // Apply blur effect
-                          backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
-                        },
-                      }}
-                    >
-                      <Fade in={activeModalIndex2 === index}>
-                        <Box sx={viewFullResponseModalStyle}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              paddingBottom: "1.5rem",
-                            }}
-                          >
-                            <Typography
-                              variant="subtitle2"
+                        <Fade in={activeModalIndex1 === index}>
+                          <Box sx={viewFullResponseModalStyle}>
+                            <Box
                               sx={{
-                                fontWeight: "bold",
-                                color: "#EE6633",
-                                fontSize: "1.25rem",
-                              }}
-                            >
-                              {message?.output[1]?.model_name}
-                            </Typography>
-                            <IconButton onClick={handleCloseViewFullResponse2}>
-                              <CloseIcon sx={{ color: "#EE6633" }} />
-                            </IconButton>
-                          </Box>
-                          <Typography
-                            sx={{
-                              fontSize: "1.2rem",
-                              maxHeight: "60vh",
-                              overflowY: "scroll",
-                            }}
-                          >
-                            {message?.output[1]?.output?.map(
-                              (segment, index) =>
-                                segment.type === "text" ? (
-                                  ProjectDetails?.metadata_json
-                                    ?.editable_response ||
-                                  segment.value == "" ? (
-                                    globalTransliteration ? (
-                                      <IndicTransliterate
-                                        key={index}
-                                        value={segment.value}
-                                        onChangeText={(e) =>
-                                          handleTextChange(
-                                            e,
-                                            index,
-                                            message,
-                                            "output",
-                                          )
-                                        }
-                                        lang={targetLang}
-                                        style={{
-                                          fontSize: "1rem",
-                                          padding: "12px",
-                                          borderRadius: "12px 12px 0 12px",
-                                          color: grey[900],
-                                          background: "#ffffff",
-                                          border: `1px solid ${grey[200]}`,
-                                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                                          minHeight: "5rem",
-                                          // resize: "none",
-                                          width: "100%",
-                                        }}
-                                      />
-                                    ) : (
-                                      <textarea
-                                        key={index}
-                                        value={segment.value}
-                                        onChange={(e) =>
-                                          handleTextChange(
-                                            e,
-                                            index,
-                                            message,
-                                            "output",
-                                          )
-                                        }
-                                        style={{
-                                          fontSize: "1rem",
-                                          width: "100%",
-                                          padding: "12px",
-                                          borderRadius: "12px 12px 0 12px",
-                                          color: grey[900],
-                                          background: "#ffffff",
-                                          border: `1px solid ${grey[200]}`,
-                                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                                          minHeight: "5rem",
-                                          resize: "none",
-                                        }}
-                                        rows={1}
-                                      />
-                                    )
-                                  ) : (
-                                    <ReactMarkdown
-                                      key={index}
-                                      children={segment?.value?.replace(
-                                        /\n/gi,
-                                        "&nbsp; \n",
-                                      )}
-                                    />
-                                  )
-                                ) : (
-                                  <SyntaxHighlighter
-                                    key={index}
-                                    language={segment.language}
-                                    style={gruvboxDark}
-                                    customStyle={{
-                                      padding: "1rem",
-                                      borderRadius: "5px",
-                                    }}
-                                  >
-                                    {segment.value}
-                                  </SyntaxHighlighter>
-                                ),
-                            )}
-                          </Typography>
-                        </Box>
-                      </Fade>
-                    </Modal>
-                    <Box
-                      sx={{
-                        overflowY: "auto",
-                        maxHeight: "400px",
-                        padding: "20px 50px",
-                      }}
-                    >
-                      {message?.output[1]?.output?.map((segment, index) =>
-                        segment.type === "text" ? (
-                          ProjectDetails?.metadata_json?.editable_response ||
-                          segment.value == "" ? (
-                            globalTransliteration ? (
-                              <IndicTransliterate
-                                key={index}
-                                value={segment.value}
-                                onChangeText={(e) =>
-                                  handleTextChange(e, index, message, "output")
-                                }
-                                lang={targetLang}
-                                style={{
-                                  fontSize: "1rem",
-                                  padding: "12px",
-                                  borderRadius: "12px 12px 0 12px",
-                                  color: grey[900],
-                                  background: "#ffffff",
-                                  border: `1px solid ${grey[200]}`,
-                                  boxShadow: `0px 2px 2px ${grey[50]}`,
-                                  minHeight: "5rem",
-                                  // resize: "none",
-                                  width: "100%",
-                                }}
-                              />
-                            ) : (
-                              <textarea
-                                key={index}
-                                value={segment.value}
-                                onChange={(e) =>
-                                  handleTextChange(e, index, message, "output")
-                                }
-                                style={{
-                                  fontSize: "1rem",
-                                  width: "100%",
-                                  padding: "12px",
-                                  borderRadius: "12px 12px 0 12px",
-                                  color: grey[900],
-                                  background: "#ffffff",
-                                  border: `1px solid ${grey[200]}`,
-                                  boxShadow: `0px 2px 2px ${grey[50]}`,
-                                  minHeight: "5rem",
-                                  resize: "none",
-                                }}
-                                rows={1}
-                              />
-                            )
-                          ) : (
-                            <ReactMarkdown
-                              key={index}
-                              children={segment?.value?.replace(
-                                /\n/gi,
-                                "&nbsp; \n",
-                              )}
-                            />
-                          )
-                        ) : (
-                          <SyntaxHighlighter
-                            key={index}
-                            language={segment.language}
-                            style={gruvboxDark}
-                            customStyle={{
-                              padding: "1rem",
-                              borderRadius: "5px",
-                            }}
-                          >
-                            {segment.value}
-                          </SyntaxHighlighter>
-                        ),
-                      )}
-                    </Box>
-                    <Box>
-                      <Typography
-                        sx={{
-                          backgroundColor: "#E8E6E6",
-                          padding: "10px",
-                          borderRadius: "10px",
-                          fontSize: "1rem",
-                        }}
-                      >
-                        {message?.output[1]?.model_name}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </>
-              )}
-            </Grid>
-          </Grid>
-        </Grid>
-
-        {ProjectDetails?.metadata_json?.enable_preference_selection &&
-          visibleMessages[index] && (
-            <Grid
-              item
-              sx={{
-                padding: "1.5rem",
-                position: "relative",
-                width: "85%",
-                backgroundColor: "rgba(247, 184, 171, 0.2)",
-                borderRadius: "10px",
-              }}
-            >
-              <Box
-                sx={{
-                  maxHeight: "16rem",
-                }}
-              >
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  <IconButton
-                    onClick={() => handleClosePreferredResponseModal(index)}
-                  >
-                    <CloseIcon
-                      sx={{
-                        color: "#EE6633",
-                      }}
-                    />
-                  </IconButton>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-around",
-                    maxHeight: "15rem",
-                    overflowY: "scroll",
-                  }}
-                >
-                  {ProjectDetails?.metadata_json?.questions_json?.map(
-                    (question, questionIdx) => (
-                      <div key={questionIdx}>
-                        {question.question_type === "fill_in_blanks" && (
-                          <div
-                            style={{
-                              marginBottom: "20px",
-                            }}
-                          >
-                            <p className={classes.inputQuestion}>
-                              {questionIdx + 1}.{" "}
-                              {question.input_question
-                                .split("<blank>")
-                                .map((part, index) => (
-                                  <span key={`${questionIdx}-${index}`}>
-                                    {part}
-                                    {index <
-                                      question.input_question.split("<blank>")
-                                        .length -
-                                        1 && (
-                                      <span
-                                        style={{
-                                          borderBottom: "1px solid black",
-                                          display: "inline-block",
-                                          width: "100px",
-                                          margin: "0 4px",
-                                          verticalAlign: "middle",
-                                        }}
-                                      >
-                                        &nbsp;
-                                      </span>
-                                    )}
-                                  </span>
-                                ))}
-                              <span
-                                style={{
-                                  color: "#d93025",
-                                  fontSize: "25px",
-                                }}
-                              >
-                                {" "}
-                                *
-                              </span>
-                            </p>
-
-                            <div
-                              style={{
-                                padding: "10px 0 0 20px",
-                                maxWidth: "80%",
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                flexWrap: "wrap",
                               }}
                             >
-                              {message?.output?.map((response, outputIdx) => (
-                                <div
-                                  key={outputIdx}
-                                  style={{
-                                    marginBottom: "10px",
-                                    display: "flex",
-                                    flexDirection: "row",
-                                  }}
-                                >
-                                  <Typography
-                                    variant="subtitle2"
-                                    sx={{
-                                      fontWeight: "bold",
-                                      color: "#6C5F5B",
-                                      marginRight: "15px",
-                                      marginTop: "0.7rem",
-                                    }}
-                                  >
-                                    {response?.model_name}
-                                  </Typography>
-                                  {question.input_question
-                                    .split("<blank>")
-                                    .slice(0, -1)
-                                    .map((_, idx) => (
-                                      <input
-                                        key={`${outputIdx}-${idx}`}
-                                        type="text"
-                                        // value={
-                                        //   (currentInteraction?.model_responses_json &&
-                                        //     currentInteraction
-                                        //       ?.model_responses_json[
-                                        //       outputIdx
-                                        //     ]?.questions_response[
-                                        //       questionIdx
-                                        //     ]?.response?.[index]) ||
-                                        //   ""
-                                        // }
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            e,
-                                            message,
-                                            index, // chat index
-                                            questionIdx, // question no.
-                                            outputIdx, // the (i)th model
-                                          )
-                                        }
-                                        style={{
-                                          border: "1px solid #ccc",
-                                          borderRadius: "4px",
-                                          maxWidth: "200px",
-                                        }}
-                                        required
-                                      />
-                                    ))}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {question.question_type === "rating" && (
-                          <div
-                            style={{
-                              marginBottom: "20px",
-                            }}
-                          >
-                            <div className={classes.inputQuestion}>
-                              <span>
-                                {questionIdx + 1}. {question.input_question}
-                              </span>
-                              <span
-                                style={{
-                                  color: "#d93025",
-                                  fontSize: "25px",
+                              <Typography
+                                variant="subtitle2"
+                                sx={{
+                                  fontWeight: "bold",
+                                  color: orange[400],
+                                  fontSize: "1.25rem",
                                 }}
                               >
-                                {" "}
-                                *
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                padding: "10px 0 0 20px",
-                                maxWidth: "70%",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                flexWrap: "wrap",
+                                {message?.output?.[0]?.model_name}
+                              </Typography>
+                              <IconButton
+                                onClick={handleCloseViewFullResponse1}
+                              >
+                                <CloseIcon sx={{ color: orange[400] }} />
+                              </IconButton>
+                            </Box>
+                            <Typography
+                              sx={{
+                                fontSize: "1.2rem",
+                                maxHeight: "60vh",
+                                overflowY: "scroll",
                               }}
                             >
-                              {message?.output?.map((response, outputIdx) => {
-                                return (
-                                  <div key={outputIdx}>
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
+                              {message?.output?.[0]?.output?.map(
+                                (segment, index) =>
+                                  segment.type === "text" ? (
+                                    ProjectDetails?.metadata_json
+                                      ?.editable_response ||
+                                    segment.value == "" ? (
+                                      globalTransliteration ? (
+                                        <IndicTransliterate
+                                          key={index}
+                                          value={segment.value}
+                                          onChangeText={(e) =>
+                                            handleTextChange(
+                                              e,
+                                              index,
+                                              message,
+                                              "output",
+                                            )
+                                          }
+                                          lang={targetLang}
+                                          style={{
+                                            fontSize: "1rem",
+                                            padding: "12px",
+                                            borderRadius: "12px 12px 0 12px",
+                                            color: grey[900],
+                                            background: "#ffffff",
+                                            border: `1px solid ${grey[200]}`,
+                                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                                            minHeight: "5rem",
+                                            // resize: "none",
+                                            width: "100%",
+                                          }}
+                                        />
+                                      ) : (
+                                        <textarea
+                                          key={index}
+                                          value={segment.value}
+                                          onChange={(e) =>
+                                            handleTextChange(
+                                              e,
+                                              index,
+                                              message,
+                                              "output",
+                                            )
+                                          }
+                                          style={{
+                                            fontSize: "1rem",
+                                            width: "100%",
+                                            padding: "12px",
+                                            borderRadius: "12px 12px 0 12px",
+                                            color: grey[900],
+                                            background: "#ffffff",
+                                            border: `1px solid ${grey[200]}`,
+                                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                                            minHeight: "5rem",
+                                            resize: "none",
+                                          }}
+                                          rows={1}
+                                        />
+                                      )
+                                    ) : (
+                                      <ReactMarkdown
+                                        key={index}
+                                        children={segment?.value?.replace(
+                                          /\n/gi,
+                                          "&nbsp; \n",
+                                        )}
+                                      />
+                                    )
+                                  ) : (
+                                    <SyntaxHighlighter
+                                      key={index}
+                                      language={segment.language}
+                                      style={gruvboxDark}
+                                      customStyle={{
+                                        padding: "1rem",
+                                        borderRadius: "5px",
                                       }}
                                     >
-                                      <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                          marginRight: "15px",
-                                          marginTop: "0.5rem",
-                                          fontWeight: "bold",
-                                          color: "#6C5F5B",
-                                        }}
-                                      >
-                                        {response?.model_name}
-                                      </Typography>
+                                      {segment.value}
+                                    </SyntaxHighlighter>
+                                  ),
+                              )}
+                            </Typography>
+                          </Box>
+                        </Fade>
+                      </Modal>
+                      <Box
+                        sx={{
+                          overflowY: "auto",
+                          maxHeight: "400px",
+                          padding: "20px 50px",
+                        }}
+                      >
+                        {message?.output?.[0]?.output?.map((segment, index) =>
+                          segment.type === "text" ? (
+                            ProjectDetails?.metadata_json?.editable_response ||
+                            segment.value == "" ? (
+                              globalTransliteration ? (
+                                <IndicTransliterate
+                                  key={index}
+                                  value={segment.value}
+                                  onChangeText={(e) =>
+                                    handleTextChange(
+                                      e,
+                                      index,
+                                      message,
+                                      "output",
+                                    )
+                                  }
+                                  lang={targetLang}
+                                  style={{
+                                    fontSize: "1rem",
+                                    padding: "12px",
+                                    borderRadius: "12px 12px 0 12px",
+                                    color: grey[900],
+                                    background: "#ffffff",
+                                    border: `1px solid ${grey[200]}`,
+                                    boxShadow: `0px 2px 2px ${grey[50]}`,
+                                    minHeight: "5rem",
+                                    // resize: "none",
+                                    width: "100%",
+                                  }}
+                                />
+                              ) : (
+                                <textarea
+                                  key={index}
+                                  value={segment.value}
+                                  onChange={(e) =>
+                                    handleTextChange(
+                                      e,
+                                      index,
+                                      message,
+                                      "output",
+                                    )
+                                  }
+                                  style={{
+                                    fontSize: "1rem",
+                                    width: "100%",
+                                    padding: "12px",
+                                    borderRadius: "12px 12px 0 12px",
+                                    color: grey[900],
+                                    background: "#ffffff",
+                                    border: `1px solid ${grey[200]}`,
+                                    boxShadow: `0px 2px 2px ${grey[50]}`,
+                                    minHeight: "5rem",
+                                    resize: "none",
+                                  }}
+                                  rows={1}
+                                />
+                              )
+                            ) : (
+                              <ReactMarkdown
+                                key={index}
+                                children={segment?.value?.replace(
+                                  /\n/gi,
+                                  "&nbsp; \n",
+                                )}
+                              />
+                            )
+                          ) : (
+                            <SyntaxHighlighter
+                              key={index}
+                              language={segment.language}
+                              style={gruvboxDark}
+                              customStyle={{
+                                padding: "1rem",
+                                borderRadius: "5px",
+                              }}
+                            >
+                              {segment.value}
+                            </SyntaxHighlighter>
+                          ),
+                        )}
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            backgroundColor: "#E8E6E6",
+                            padding: "10px",
+                            borderRadius: "10px",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          {message?.output?.[0]?.model_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </>
+                )}
+
+                {/* Output 2 Section */}
+                {message?.output?.[1]?.status === "error" ? (
+                  <Box
+                    sx={{
+                      border: "1px solid red",
+                      width: "60%",
+                      marginLeft: "10px",
+                      height: "10vh",
+                      padding: "10px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: "10px",
+                      color: "red",
+                      fontWeight: "bold",
+                      backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+                    }}
+                  >
+                    <ErrorIcon
+                      sx={{
+                        marginRight: "10px",
+                      }}
+                    />
+                    <Typography>
+                      {message?.output?.[1]?.model_name} failed to load the
+                      response!
+                    </Typography>{" "}
+                  </Box>
+                ) : (
+                  <>
+                    <Box
+                      sx={{
+                        border: "1px solid #ccc",
+                        width: "60%",
+                        marginLeft: "2rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        alignItems: "flex-end",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <Tooltip
+                        title={
+                          <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                            Expand to view full response
+                          </span>
+                        }
+                      >
+                        <IconButton
+                          onClick={() => handleOpenViewFullResponse2(index)}
+                        >
+                          <OpenInFullIcon
+                            sx={{
+                              padding: "10px 10px 0 0",
+                              color: orange[400],
+                            }}
+                          />
+                        </IconButton>
+                      </Tooltip>
+                      <Modal
+                        open={activeModalIndex2 === index}
+                        onClose={handleCloseViewFullResponse2}
+                        closeAfterTransition
+                        BackdropComponent={Backdrop}
+                        BackdropProps={{
+                          timeout: 500,
+                          sx: {
+                            backdropFilter: "blur(2px)", // Apply blur effect
+                            backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
+                          },
+                        }}
+                      >
+                        <Fade in={activeModalIndex2 === index}>
+                          <Box sx={viewFullResponseModalStyle}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                paddingBottom: "1.5rem",
+                              }}
+                            >
+                              <Typography
+                                variant="subtitle2"
+                                sx={{
+                                  fontWeight: "bold",
+                                  color: orange[400],
+                                  fontSize: "1.25rem",
+                                }}
+                              >
+                                {message?.output?.[1]?.model_name}
+                              </Typography>
+                              <IconButton
+                                onClick={handleCloseViewFullResponse2}
+                              >
+                                <CloseIcon sx={{ color: orange[400] }} />
+                              </IconButton>
+                            </Box>
+                            <Typography
+                              sx={{
+                                fontSize: "1.2rem",
+                                maxHeight: "60vh",
+                                overflowY: "scroll",
+                              }}
+                            >
+                              {message?.output?.[1]?.output?.map(
+                                (segment, index) =>
+                                  segment.type === "text" ? (
+                                    ProjectDetails?.metadata_json
+                                      ?.editable_response ||
+                                    segment.value == "" ? (
+                                      globalTransliteration ? (
+                                        <IndicTransliterate
+                                          key={index}
+                                          value={segment.value}
+                                          onChangeText={(e) =>
+                                            handleTextChange(
+                                              e,
+                                              index,
+                                              message,
+                                              "output",
+                                            )
+                                          }
+                                          lang={targetLang}
+                                          style={{
+                                            fontSize: "1rem",
+                                            padding: "12px",
+                                            borderRadius: "12px 12px 0 12px",
+                                            color: grey[900],
+                                            background: "#ffffff",
+                                            border: `1px solid ${grey[200]}`,
+                                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                                            minHeight: "5rem",
+                                            // resize: "none",
+                                            width: "100%",
+                                          }}
+                                        />
+                                      ) : (
+                                        <textarea
+                                          key={index}
+                                          value={segment.value}
+                                          onChange={(e) =>
+                                            handleTextChange(
+                                              e,
+                                              index,
+                                              message,
+                                              "output",
+                                            )
+                                          }
+                                          style={{
+                                            fontSize: "1rem",
+                                            width: "100%",
+                                            padding: "12px",
+                                            borderRadius: "12px 12px 0 12px",
+                                            color: grey[900],
+                                            background: "#ffffff",
+                                            border: `1px solid ${grey[200]}`,
+                                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                                            minHeight: "5rem",
+                                            resize: "none",
+                                          }}
+                                          rows={1}
+                                        />
+                                      )
+                                    ) : (
+                                      <ReactMarkdown
+                                        key={index}
+                                        children={segment?.value?.replace(
+                                          /\n/gi,
+                                          "&nbsp; \n",
+                                        )}
+                                      />
+                                    )
+                                  ) : (
+                                    <SyntaxHighlighter
+                                      key={index}
+                                      language={segment.language}
+                                      style={gruvboxDark}
+                                      customStyle={{
+                                        padding: "1rem",
+                                        borderRadius: "5px",
+                                      }}
+                                    >
+                                      {segment.value}
+                                    </SyntaxHighlighter>
+                                  ),
+                              )}
+                            </Typography>
+                          </Box>
+                        </Fade>
+                      </Modal>
+                      <Box
+                        sx={{
+                          overflowY: "auto",
+                          maxHeight: "400px",
+                          padding: "20px 50px",
+                        }}
+                      >
+                        {message?.output?.[1]?.output?.map((segment, index) =>
+                          segment.type === "text" ? (
+                            ProjectDetails?.metadata_json?.editable_response ||
+                            segment.value == "" ? (
+                              globalTransliteration ? (
+                                <IndicTransliterate
+                                  key={index}
+                                  value={segment.value}
+                                  onChangeText={(e) =>
+                                    handleTextChange(
+                                      e,
+                                      index,
+                                      message,
+                                      "output",
+                                    )
+                                  }
+                                  lang={targetLang}
+                                  style={{
+                                    fontSize: "1rem",
+                                    padding: "12px",
+                                    borderRadius: "12px 12px 0 12px",
+                                    color: grey[900],
+                                    background: "#ffffff",
+                                    border: `1px solid ${grey[200]}`,
+                                    boxShadow: `0px 2px 2px ${grey[50]}`,
+                                    minHeight: "5rem",
+                                    // resize: "none",
+                                    width: "100%",
+                                  }}
+                                />
+                              ) : (
+                                <textarea
+                                  key={index}
+                                  value={segment.value}
+                                  onChange={(e) =>
+                                    handleTextChange(
+                                      e,
+                                      index,
+                                      message,
+                                      "output",
+                                    )
+                                  }
+                                  style={{
+                                    fontSize: "1rem",
+                                    width: "100%",
+                                    padding: "12px",
+                                    borderRadius: "12px 12px 0 12px",
+                                    color: grey[900],
+                                    background: "#ffffff",
+                                    border: `1px solid ${grey[200]}`,
+                                    boxShadow: `0px 2px 2px ${grey[50]}`,
+                                    minHeight: "5rem",
+                                    resize: "none",
+                                  }}
+                                  rows={1}
+                                />
+                              )
+                            ) : (
+                              <ReactMarkdown
+                                key={index}
+                                children={segment?.value?.replace(
+                                  /\n/gi,
+                                  "&nbsp; \n",
+                                )}
+                              />
+                            )
+                          ) : (
+                            <SyntaxHighlighter
+                              key={index}
+                              language={segment.language}
+                              style={gruvboxDark}
+                              customStyle={{
+                                padding: "1rem",
+                                borderRadius: "5px",
+                              }}
+                            >
+                              {segment.value}
+                            </SyntaxHighlighter>
+                          ),
+                        )}
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            backgroundColor: "#E8E6E6",
+                            padding: "10px",
+                            borderRadius: "10px",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          {message?.output?.[1]?.model_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </>
+                )}
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {ProjectDetails?.metadata_json?.enable_preference_selection &&
+            visibleMessages[index] && (
+              <Grid
+                item
+                sx={{
+                  padding: "1.5rem",
+                  position: "relative",
+                  width: "85%",
+                  backgroundColor: "rgba(247, 184, 171, 0.2)",
+                  borderRadius: "10px",
+                }}
+              >
+                <Box
+                  sx={{
+                    maxHeight: "16rem",
+                  }}
+                >
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <IconButton
+                      onClick={() => handleClosePreferredResponseModal(index)}
+                    >
+                      <CloseIcon
+                        sx={{
+                          color: orange[400],
+                        }}
+                      />
+                    </IconButton>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-around",
+                      maxHeight: "15rem",
+                      overflowY: "scroll",
+                    }}
+                  >
+                    {ProjectDetails?.metadata_json?.questions_json?.map(
+                      (question, questionIdx) => (
+                        <div key={questionIdx}>
+                          {question.question_type === "fill_in_blanks" && (
+                            <div
+                              style={{
+                                marginBottom: "20px",
+                              }}
+                            >
+                              <p className={classes.inputQuestion}>
+                                {questionIdx + 1}.{" "}
+                                {question.input_question
+                                  .split("<blank>")
+                                  .map((part, index) => (
+                                    <span key={`${questionIdx}-${index}`}>
+                                      {part}
+                                      {index <
+                                        question.input_question.split("<blank>")
+                                          .length -
+                                          1 && (
+                                        <span
+                                          style={{
+                                            borderBottom: "1px solid black",
+                                            display: "inline-block",
+                                            width: "100px",
+                                            margin: "0 4px",
+                                            verticalAlign: "middle",
+                                          }}
+                                        >
+                                          &nbsp;
+                                        </span>
+                                      )}
+                                    </span>
+                                  ))}
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </p>
+
+                              <div
+                                style={{
+                                  padding: "10px 0 0 20px",
+                                  maxWidth: "80%",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {message?.output?.map((response, outputIdx) => (
+                                  <div
+                                    key={outputIdx}
+                                    style={{
+                                      marginBottom: "10px",
+                                      display: "flex",
+                                      flexDirection: "row",
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="subtitle2"
+                                      sx={{
+                                        fontWeight: "bold",
+                                        color: "#6C5F5B",
+                                        marginRight: "15px",
+                                        marginTop: "0.7rem",
+                                      }}
+                                    >
+                                      {response?.model_name}
+                                    </Typography>
+                                    {question.input_question
+                                      .split("<blank>")
+                                      .slice(0, -1)
+                                      .map((_, idx) => (
+                                        <input
+                                          key={`${outputIdx}-${idx}`}
+                                          type="text"
+                                          value={
+                                            (message?.model_responses_json &&
+                                              message?.model_responses_json[
+                                                outputIdx
+                                              ]?.questions_response[questionIdx]
+                                                ?.response?.[index]) ||
+                                            ""
+                                          }
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              e,
+                                              message,
+                                              index, // chat index
+                                              questionIdx, // question no.
+                                              outputIdx, // the (i)th model
+                                            )
+                                          }
+                                          style={{
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                            maxWidth: "200px",
+                                          }}
+                                          required
+                                        />
+                                      ))}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {question.question_type === "rating" && (
+                            <div
+                              style={{
+                                marginBottom: "20px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion}>
+                                <span>
+                                  {questionIdx + 1}. {question.input_question}
+                                </span>
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  padding: "10px 0 0 20px",
+                                  maxWidth: "70%",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {message?.output?.map((response, outputIdx) => {
+                                  return (
+                                    <div key={outputIdx}>
                                       <Box
                                         sx={{
                                           display: "flex",
-                                          alignItems: "center",
+                                          flexWrap: "wrap",
                                         }}
                                       >
-                                        <Rating
-                                          name={`rating-${outputIdx}`}
-                                          // value={
-                                          //   (currentInteraction?.model_responses_json &&
-                                          //     currentInteraction
-                                          //       ?.model_responses_json[
-                                          //       outputIdx
-                                          //     ].questions_response[
-                                          //       questionIdx
-                                          //     ]?.response[0]) ||
-                                          //   0
-                                          // }
-                                          onChange={(event, newValue) => {
-                                            handleRating(
-                                              newValue,
-                                              message,
-                                              index,
-                                              questionIdx,
-                                              outputIdx,
-                                            );
-                                          }}
+                                        <Typography
+                                          variant="subtitle2"
                                           sx={{
-                                            color: "#ee6633",
-                                            "& .MuiRating-iconFilled": {
-                                              color: "#ee6633",
-                                            },
-                                            "& .MuiRating-iconHover": {
-                                              color: "#ee6633",
-                                            },
+                                            marginRight: "15px",
+                                            marginTop: "0.5rem",
+                                            fontWeight: "bold",
+                                            color: "#6C5F5B",
                                           }}
-                                          emptyIcon={
-                                            <StarIcon
-                                              style={{
-                                                opacity: 0.55,
-                                                color: "#EE6633",
-                                              }}
-                                              fontSize="inherit"
-                                            />
-                                          }
-                                        />
+                                        >
+                                          {response?.model_name}
+                                        </Typography>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <Rating
+                                            name={`rating-${outputIdx}`}
+                                            value={
+                                              (message?.model_responses_json &&
+                                                message?.model_responses_json[
+                                                  outputIdx
+                                                ].questions_response[
+                                                  questionIdx
+                                                ]?.response?.[0]) ||
+                                              0
+                                            }
+                                            onChange={(event, newValue) => {
+                                              handleRating(
+                                                newValue,
+                                                message,
+                                                index,
+                                                questionIdx,
+                                                outputIdx,
+                                              );
+                                            }}
+                                            sx={{
+                                              color: "#ee6633",
+                                              "& .MuiRating-iconFilled": {
+                                                color: "#ee6633",
+                                              },
+                                              "& .MuiRating-iconHover": {
+                                                color: "#ee6633",
+                                              },
+                                            }}
+                                            emptyIcon={
+                                              <StarIcon
+                                                style={{
+                                                  opacity: 0.55,
+                                                  color: orange[400],
+                                                }}
+                                                fontSize="inherit"
+                                              />
+                                            }
+                                          />
+                                        </Box>
                                       </Box>
-                                    </Box>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {question.question_type === "multi_select_options" && (
-                          <div
-                            style={{
-                              marginBottom: "20px",
-                            }}
-                          >
-                            <div className={classes.inputQuestion}>
-                              {questionIdx + 1}. {question.input_question}
-                              <span
-                                style={{
-                                  color: "#d93025",
-                                  fontSize: "25px",
-                                }}
-                              >
-                                {" "}
-                                *
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                paddingLeft: "20px",
-                              }}
-                            >
-                              {question?.input_selections_list?.map(
-                                (option, optionIdx) => (
-                                  <div
-                                    key={optionIdx}
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "row",
-                                      alignItems: "center",
-                                      justifyContent: "space-between",
-                                    }}
-                                  >
-                                    <span>{option} :</span>{" "}
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        flexWrap: "wrap",
-                                      }}
-                                    >
-                                      {message?.output?.map(
-                                        (response, outputIdx) => (
-                                          <div
-                                            key={`${optionIdx}-${outputIdx}`}
-                                            style={{
-                                              display: "flex",
-                                              alignItems: "center",
-                                              paddingRight: "2rem",
-                                            }}
-                                          >
-                                            <FormControl component="fieldset">
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  key={optionIdx}
-                                                  control={
-                                                    <Checkbox
-                                                      onChange={(e) =>
-                                                        handleMultiSelect(
-                                                          index,
-                                                          message,
-                                                          option,
-                                                          questionIdx,
-                                                          outputIdx,
-                                                        )
-                                                      }
-                                                      // checked={
-                                                      //   currentInteraction?.model_responses_json?.[
-                                                      //     outputIdx
-                                                      //   ]?.questions_response?.[
-                                                      //     questionIdx
-                                                      //   ]?.response?.includes(
-                                                      //     option,
-                                                      //   ) ?? false
-                                                      // }
-                                                    />
-                                                  }
-                                                  labelPlacement="start"
-                                                  label={
-                                                    <Typography
-                                                      variant="subtitle2"
-                                                      sx={{
-                                                        fontWeight: "bold",
-                                                        color: "#6C5F5B",
-                                                      }}
-                                                    >
-                                                      {response?.model_name}
-                                                    </Typography>
-                                                  }
-                                                />{" "}
-                                              </FormGroup>
-                                            </FormControl>
-                                          </div>
-                                        ),
-                                      )}
                                     </div>
-                                  </div>
-                                ),
-                              )}
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
-                        {question.question_type === "mcq" && (
-                          <div
-                            style={{
-                              marginBottom: "20px",
-                            }}
-                          >
-                            <div className={classes.inputQuestion}>
-                              {questionIdx + 1}. {question.input_question}
-                              <span
-                                style={{
-                                  color: "#d93025",
-                                  fontSize: "25px",
-                                }}
-                              >
-                                {" "}
-                                *
-                              </span>
-                            </div>
-
+                          {question.question_type ===
+                            "multi_select_options" && (
                             <div
                               style={{
-                                paddingLeft: "20px",
+                                marginBottom: "20px",
                               }}
                             >
-                              {question?.input_selections_list?.map(
-                                (option, optionIdx) => (
-                                  <div
-                                    key={optionIdx}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "space-between",
-                                      flexDirection: "row",
-                                    }}
-                                  >
-                                    <span>{option} :</span>{" "}
+                              <div className={classes.inputQuestion}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  paddingLeft: "20px",
+                                }}
+                              >
+                                {question?.input_selections_list?.map(
+                                  (option, optionIdx) => (
                                     <div
+                                      key={optionIdx}
                                       style={{
                                         display: "flex",
-                                        alignItems: "center",
                                         flexDirection: "row",
-                                        flexWrap: "wrap",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
                                       }}
                                     >
-                                      {message?.output?.map(
-                                        (response, outputIdx) => (
-                                          <div
-                                            key={`${optionIdx}-${outputIdx}`}
-                                            style={{
-                                              display: "flex",
-                                              alignItems: "center",
-                                              paddingRight: "2rem",
-                                            }}
-                                          >
-                                            <FormControl
-                                              component="fieldset"
-                                              key={outputIdx}
+                                      <span>{option} :</span>{" "}
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "row",
+                                          alignItems: "center",
+                                          flexWrap: "wrap",
+                                        }}
+                                      >
+                                        {message?.output?.map(
+                                          (response, outputIdx) => (
+                                            <div
+                                              key={`${optionIdx}-${outputIdx}`}
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                paddingRight: "2rem",
+                                              }}
                                             >
-                                              <RadioGroup
-                                                name={`question-${questionIdx}-model-${outputIdx}`}
-                                                // value={
-                                                //   currentInteraction
-                                                //     ?.model_responses_json?.[
-                                                //     outputIdx
-                                                //   ]?.questions_response?.[
-                                                //     questionIdx
-                                                //   ]?.response?.[0] || ""
-                                                // }
-                                                onChange={(e) =>
-                                                  handleMCQ(
-                                                    index,
-                                                    message,
-                                                    option,
-                                                    questionIdx,
-                                                    outputIdx,
-                                                  )
-                                                }
-                                              >
-                                                <FormControlLabel
-                                                  key={optionIdx}
-                                                  value={option}
-                                                  control={<Radio />}
-                                                  labelPlacement="start"
-                                                  label={
-                                                    <Typography
-                                                      variant="subtitle2"
-                                                      sx={{
-                                                        fontWeight: "bold",
-                                                        color: "#6C5F5B",
-                                                      }}
-                                                    >
-                                                      {response?.model_name}
-                                                    </Typography>
-                                                  }
-                                                />
-                                              </RadioGroup>
-                                            </FormControl>
-                                          </div>
-                                        ),
-                                      )}
+                                              <FormControl component="fieldset">
+                                                <FormGroup>
+                                                  <FormControlLabel
+                                                    key={optionIdx}
+                                                    control={
+                                                      <Checkbox
+                                                        onChange={(e) =>
+                                                          handleMultiSelect(
+                                                            index,
+                                                            message,
+                                                            option,
+                                                            questionIdx,
+                                                            outputIdx,
+                                                          )
+                                                        }
+                                                        checked={
+                                                          message?.model_responses_json?.[
+                                                            outputIdx
+                                                          ]?.questions_response?.[
+                                                            questionIdx
+                                                          ]?.response?.includes(
+                                                            option,
+                                                          ) ?? false
+                                                        }
+                                                      />
+                                                    }
+                                                    labelPlacement="start"
+                                                    label={
+                                                      <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                          fontWeight: "bold",
+                                                          color: "#6C5F5B",
+                                                        }}
+                                                      >
+                                                        {response?.model_name}
+                                                      </Typography>
+                                                    }
+                                                  />{" "}
+                                                </FormGroup>
+                                              </FormControl>
+                                            </div>
+                                          ),
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
-                                ),
-                              )}
+                                  ),
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    ),
-                  )}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
-                  >
-                    <Button
-                      variant="contained"
+                          )}
+
+                          {question.question_type === "mcq" && (
+                            <div
+                              style={{
+                                marginBottom: "20px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+
+                              <div
+                                style={{
+                                  paddingLeft: "20px",
+                                }}
+                              >
+                                {question?.input_selections_list?.map(
+                                  (option, optionIdx) => (
+                                    <div
+                                      key={optionIdx}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        flexDirection: "row",
+                                      }}
+                                    >
+                                      <span>{option} :</span>{" "}
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          flexDirection: "row",
+                                          flexWrap: "wrap",
+                                        }}
+                                      >
+                                        {message?.output?.map(
+                                          (response, outputIdx) => (
+                                            <div
+                                              key={`${optionIdx}-${outputIdx}`}
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                paddingRight: "2rem",
+                                              }}
+                                            >
+                                              <FormControl
+                                                component="fieldset"
+                                                key={outputIdx}
+                                              >
+                                                <RadioGroup
+                                                  name={`question-${questionIdx}-model-${outputIdx}`}
+                                                  value={
+                                                    message
+                                                      ?.model_responses_json?.[
+                                                      outputIdx
+                                                    ]?.questions_response?.[
+                                                      questionIdx
+                                                    ]?.response?.[0] || ""
+                                                  }
+                                                  onChange={(e) =>
+                                                    handleMCQ(
+                                                      index,
+                                                      message,
+                                                      option,
+                                                      questionIdx,
+                                                      outputIdx,
+                                                    )
+                                                  }
+                                                >
+                                                  <FormControlLabel
+                                                    key={optionIdx}
+                                                    value={option}
+                                                    control={<Radio />}
+                                                    labelPlacement="start"
+                                                    label={
+                                                      <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                          fontWeight: "bold",
+                                                          color: "#6C5F5B",
+                                                        }}
+                                                      >
+                                                        {response?.model_name}
+                                                      </Typography>
+                                                    }
+                                                  />
+                                                </RadioGroup>
+                                              </FormControl>
+                                            </div>
+                                          ),
+                                        )}
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ),
+                    )}
+                    <Box
                       sx={{
-                        border: "1.5px solid #EE6633",
-                        color: "#EE6633",
-                        backgroundColor: "#FFF",
-                        borderRadius: "8px",
-                        padding: "0.5rem 0.5rem",
-                        "&:hover": {
-                          backgroundColor: "#EE6633",
-                          color: "#FFF",
-                        },
-                        maxWidth: "fit-content",
-                        marginBottom: "20px",
-                        marginRight: "20px",
-                      }}
-                      onClick={() => {
-                        const modelResponses =
-                          evalFormResponse?.[0]?.model_responses_json;
-
-                        const isValid =
-                          modelResponses &&
-                          Object.values(modelResponses).every(
-                            (responseItem) => {
-                              const questionsResponse =
-                                responseItem?.questions_response;
-                              if (
-                                !Array.isArray(questionsResponse) ||
-                                questionsResponse.length !== ProjectDetails?.metadata_json?.questions_json?.length
-                              ) {
-                                return false;
-                              }
-
-                              // Each of the 4 items must have a non-empty 'response' array
-                              return questionsResponse.every(
-                                (q) =>
-                                  Array.isArray(q.response) &&
-                                  q.response.length > 0,
-                              );
-                            },
-                          );
-
-                        if (isValid) {
-                          handleButtonClick(
-                            message.output[0].prompt_output_pair_id,
-                            modelResponses,
-                          );
-                        } else {
-                          setSnackbarInfo({
-                            open: true,
-                            message:
-                              "Please ensure that all the fields in the form is filled before saving the evaluation!",
-                            variant: "error",
-                          });
-                        }
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        width: "100%",
                       }}
                     >
-                      Save Evaluations
-                    </Button>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          border: "1.5px solid #EE6633",
+                          color: orange[400],
+                          backgroundColor: "#FFF",
+                          borderRadius: "8px",
+                          padding: "0.5rem 0.5rem",
+                          "&:hover": {
+                            backgroundColor: orange[400],
+                            color: "#FFF",
+                          },
+                          maxWidth: "fit-content",
+                          marginBottom: "20px",
+                          marginRight: "20px",
+                        }}
+                        onClick={() => {
+                          const modelResponses =
+                            evalFormResponse?.[index]?.model_responses_json;
+
+                          const isValid =
+                            modelResponses &&
+                            Object.values(modelResponses).every(
+                              (responseItem) => {
+                                const questionsResponse =
+                                  responseItem?.questions_response;
+                                if (
+                                  !Array.isArray(questionsResponse) ||
+                                  questionsResponse.length !==
+                                    ProjectDetails?.metadata_json
+                                      ?.questions_json?.length
+                                ) {
+                                  return false;
+                                }
+
+                                return questionsResponse.every(
+                                  (q) =>
+                                    Array.isArray(q.response) &&
+                                    q.response.length > 0,
+                                );
+                              },
+                            );
+
+                          if (isValid) {
+                            handleButtonClick(
+                              message?.output?.[0]?.prompt_output_pair_id,
+                              modelResponses,
+                              index,
+                            );
+                          } else {
+                            setSnackbarInfo({
+                              open: true,
+                              message:
+                                "Please ensure that all the fields in the form is filled before saving the evaluation!",
+                              variant: "error",
+                            });
+                          }
+                        }}
+                      >
+                        Save Evaluations
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            </Grid>
-          )}
-      </Grid>
-    ));
+              </Grid>
+            )}
+        </Grid>
+      );
+    });
 
     return chatElements;
   };
@@ -2213,7 +2147,6 @@ const MultipleLLMInstructionDrivenChat = ({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                // padding: "1rem",
               }}
             >
               <Typography
@@ -2271,8 +2204,6 @@ const MultipleLLMInstructionDrivenChat = ({
           sx={{
             margin: "0.8rem 0",
             overflowY: "scroll",
-            // minHeight: "39rem",
-            // maxHeight: "39rem",
             borderRadius: "20px",
             backgroundColor: "#FFF",
             paddingLeft: "0px !important",
