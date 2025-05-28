@@ -49,7 +49,7 @@ const AssignMembersDialog = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('/assign_members_to_projects/', payload);
+      const res = await axios.post('/bulk_add_members_to_projects/', payload);
       setResponseMessage(res.data.message || 'Users assigned successfully');
       handleClose();
     } catch (err) {
