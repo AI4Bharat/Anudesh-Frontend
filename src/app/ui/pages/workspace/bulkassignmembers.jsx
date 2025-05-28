@@ -9,29 +9,33 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
-  Box,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import axios from 'axios';
+import configs from "@/config/config";
 
 const AssignMembersDialog = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState('');
+  const [responseType, setResponseType] = useState('success');
   const [formData, setFormData] = useState({
-    project_ids: [],
+    project_ids: '',
     user_emails: '',
     user_role: '',
   });
 
-  // 🔍 Extract workspace ID from URL hash (e.g., "#/workspaces/127")
   const getWorkspaceId = () => {
-    const hash = window.location.hash;
-    const match = hash.match(/workspaces\/(\d+)/);
+    const match = window.location.hash.match(/workspaces\/(\d+)/);
     return match ? match[1] : null;
   };
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setResponseMessage('');
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,31 +50,31 @@ const AssignMembersDialog = () => {
     const workspaceId = getWorkspaceId();
     if (!workspaceId) {
       setResponseMessage('Workspace ID not found in URL.');
+      setResponseType('error');
       return;
     }
 
     const payload = {
-      ...formData,
-      user_emails: formData.user_emails
-        .split(',')
-        .map((email) => email.trim()),
+      user_emails: formData.user_emails.split(',').map((email) => email.trim()),
       user_role: formData.user_role,
-      project_ids: formData.project_ids.map((id) => parseInt(id.trim())),
+      project_ids: formData.project_ids.split(',').map((id) => parseInt(id.trim())),
     };
 
     setLoading(true);
 
     try {
       const res = await axios.post(
-        `/workspaces/${workspaceId}/bulk_add_members_to_projects/`,
+        `${configs.BASE_URL_AUTO}/workspaces/${workspaceId}/bulk_add_members_to_projects/`,
         payload
       );
       setResponseMessage(res.data.message || 'Users assigned successfully');
+      setResponseType('success');
       handleClose();
     } catch (err) {
       setResponseMessage(
         err.response?.data?.message || 'Error assigning users'
       );
+      setResponseType('error');
     } finally {
       setLoading(false);
     }
@@ -89,7 +93,7 @@ const AssignMembersDialog = () => {
             textTransform: 'none',
             fontWeight: 'bold',
             '&:hover': {
-              backgroundColor: '#ee6633',
+              backgroundColor: '#d4552b',
             },
           }}
         >
@@ -107,19 +111,11 @@ const AssignMembersDialog = () => {
               label="Project IDs (comma-separated)"
               variant="outlined"
               margin="dense"
-              value={formData.project_ids.join(',')}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  project_ids: e.target.value
-                    .split(',')
-                    .map((id) => id.trim()),
-                }))
-              }
+              value={formData.project_ids}
+              onChange={handleChange}
               required
               InputLabelProps={{ required: false }}
             />
-
             <TextField
               fullWidth
               name="user_emails"
@@ -131,7 +127,6 @@ const AssignMembersDialog = () => {
               required
               InputLabelProps={{ required: false }}
             />
-
             <TextField
               fullWidth
               select
@@ -158,10 +153,21 @@ const AssignMembersDialog = () => {
             sx={{ backgroundColor: '#ee6633', color: '#fff' }}
             disabled={loading}
           >
-            Assign
+            {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Assign'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={!!responseMessage}
+        autoHideDuration={6000}
+        onClose={() => setResponseMessage('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={responseType} onClose={() => setResponseMessage('')}>
+          {responseMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
