@@ -85,11 +85,6 @@ const AssignMembersDialog = () => {
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>Assign Members</DialogTitle>
         <DialogContent>
-          {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" p={3}>
-              <CircularProgress />
-            </Box>
-          ) : (
             <form onSubmit={handleSubmit}>
               <TextField
                 fullWidth
@@ -136,7 +131,6 @@ const AssignMembersDialog = () => {
                 <MenuItem value="super_checker">Superchecker</MenuItem>
               </TextField>
             </form>
-          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
