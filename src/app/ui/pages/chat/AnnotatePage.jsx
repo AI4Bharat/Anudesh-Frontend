@@ -85,7 +85,6 @@ const AnnotatePage = () => {
   const [NextData, setNextData] = useState("");
   const [currentInteraction, setCurrentInteraction] = useState({});
   const [interactions, setInteractions] = useState([]);
-  const [ chatForms, setChatForms ] = useState([]);
   const [forms, setForms] = useState([]);
   const [answered, setAnswered] = useState(false);
   const [annotations, setAnnotations] = useState([]);
@@ -107,14 +106,8 @@ const AnnotatePage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
-  const [preferredSelections, setPreferredSelections] = useState({});
-
-  const handlePreferredResponse = (index) => (event) => {
-    setPreferredSelections((prev) => ({
-      ...prev,
-      [index]: event.target.value,
-    }));
-  };
+  const [formsAnswered, setFormsAnswered] = useState({});
+  const [evalFormResponse, setEvalFormResponse] = useState({});
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -374,20 +367,25 @@ const AnnotatePage = () => {
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const areAllFormsAnswered = () => {
+    return Object.values(formsAnswered).every(value => value === true);
+  };
+
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
-    // if (
-    //   value === "labeled" &&
-    //   type === "MultipleLLMInstructionDrivenChat" &&
-    //   Object.keys(preferredSelections).length < chatHistory.length
-    // ) {
-    //   setSnackbarInfo({
-    //     open: true,
-    //     message:
-    //       "Please ensure that all the evaluation forms are filled for each interaction!",
-    //     variant: "error",
-    //   });
-    //   return;
-    // }
+     if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are filled for each interaction!",
+        variant: "error",
+      });
+      return;
+    }
 
     // if (typeof window !== "undefined") {
     let resultValue;
@@ -662,7 +660,6 @@ const AnnotatePage = () => {
     getTaskData(taskId);
     return () => {
       setAnnotations([]);
-      setChatForms([]);
       setForms([]);
       setFilteredReady(false);
     };
@@ -855,11 +852,10 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
-          preferredSelections={preferredSelections}
-          setPreferredSelections={setPreferredSelections}
-          handlePreferredResponse={handlePreferredResponse}
-          chatForms={chatForms}
-          setChatForms={setChatForms}
+          formsAnswered={formsAnswered}
+          setFormsAnswered={setFormsAnswered}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
         />
       );
       break;

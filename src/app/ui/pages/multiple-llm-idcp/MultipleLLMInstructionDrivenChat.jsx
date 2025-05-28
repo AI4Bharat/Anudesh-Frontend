@@ -92,14 +92,12 @@ const MultipleLLMInstructionDrivenChat = ({
   info,
   disableUpdateButton,
   annotation,
-  preferredSelections,
-  setPreferredSelections,
-  handlePreferredResponse,
-  chatForms,
-  setChatForms,
+  formsAnswered,
+  setFormsAnswered,
+  evalFormResponse,
+  setEvalFormResponse
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  // console.log("annotation", annotation);
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -112,6 +110,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const [activeModalIndex2, setActiveModalIndex2] = useState(null); // For Model 2 responses
   const [visibleMessages, setVisibleMessages] = useState({});
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  const questions = ProjectDetails?.metadata_json?.questions_json;
   const classes = ModelResponseEvaluationStyle();
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [snackbar, setSnackbarInfo] = useState({
@@ -123,7 +122,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [evalFormResponse, setEvalFormResponse] = useState();
 
   useEffect(() => {
     setIsMounted(true);
@@ -153,7 +151,6 @@ const MultipleLLMInstructionDrivenChat = ({
       });
       return updated;
     });
-    console.log("chatHistory", chatHistory);
   }, [chatHistory]);
 
   useEffect(() => {
@@ -190,9 +187,15 @@ const MultipleLLMInstructionDrivenChat = ({
             model1_interaction?.prompt_output_pair_id,
         )?.model_responses_json;
 
-        setEvalFormResponse((prev) => ({
+        eval_form &&
+          setEvalFormResponse((prev) => ({
+            ...prev,
+            [model1_interaction?.prompt_output_pair_id]: eval_form,
+          }));
+
+        setFormsAnswered((prev) => ({
           ...prev,
-          [model1_interaction?.prompt_output_pair_id]: eval_form,
+          [model1_interaction?.prompt_output_pair_id]: eval_form ? true : false,
         }));
 
         modifiedChatHistory?.push({
@@ -300,11 +303,7 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (
-    prompt_output_pair_id,
-    modelResponses,
-    index,
-  ) => {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses) => {
     if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
@@ -358,11 +357,6 @@ const MultipleLLMInstructionDrivenChat = ({
             message: "Preferred response saved successfully!",
             variant: "success",
           });
-          setEvalFormResponse((prev) => {
-            const newResponse = { ...prev };
-            delete newResponse[index]; // remove the key by index
-            return newResponse;
-          });
         } else {
           setSnackbarInfo({
             open: true,
@@ -403,10 +397,11 @@ const MultipleLLMInstructionDrivenChat = ({
                 model1_interaction?.prompt_output_pair_id,
             )?.model_responses_json;
 
-            setEvalFormResponse((prev) => ({
-              ...prev,
-              [model1_interaction?.prompt_output_pair_id]: eval_form,
-            }));
+            eval_form &&
+              setEvalFormResponse((prev) => ({
+                ...prev,
+                [model1_interaction?.prompt_output_pair_id]: eval_form,
+              }));
 
             modifiedChatHistory.push({
               prompt: prompt,
@@ -501,91 +496,154 @@ const MultipleLLMInstructionDrivenChat = ({
 
   const handleInputChange = (e, message, index, questionIdx, model_idx) => {
     const value = e.target.value;
-    const blankIndex = parseInt(e.target.dataset.blankIndex) || 0; // Add data-blank-index to your input
-    setEvalFormResponse((prev) => {
-      const newResponse = { ...prev };
+    const blankIndex = Number(e.target.dataset.blankIndex); // Crucial: Must get from input
 
-      // Initialize structure if it doesn't exist
-      if (!newResponse[index]) {
-        newResponse[index] = {
+    setEvalFormResponse((prev) => {
+      // Clone root object
+      const newState = { ...prev };
+
+      // Initialize index level
+      if (!newState[index]) {
+        newState[index] = {
           model_responses_json: [],
         };
       }
 
       // Find or create model response
-      let modelResponse = newResponse[index].model_responses_json?.find(
-        (r) => r.model_name === message?.output?.[model_idx]?.model_name,
+      const modelResponses = [...newState[index].model_responses_json];
+      const targetModel = message?.output?.[model_idx]?.model_name;
+      let modelIndex = modelResponses.findIndex(
+        (m) => m.model_name === targetModel,
       );
-      if (!modelResponse) {
-        modelResponse = {
-          model_name: message?.output?.[model_idx]?.model_name,
+
+      if (modelIndex === -1) {
+        modelResponses.push({
+          model_name: targetModel,
           questions_response: [],
-        };
-        newResponse[index].model_responses_json.push(modelResponse);
+        });
+        modelIndex = modelResponses.length - 1;
       }
 
       // Find or create question response
-      let questionResponse = modelResponse.questions_response?.find(
-        (q) =>
-          q.question.input_question ===
-          ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
-            ?.input_question,
+      const questionResponses = [
+        ...modelResponses[modelIndex].questions_response,
+      ];
+      const targetQuestion =
+        ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+          ?.input_question;
+      let questionIndex = questionResponses.findIndex(
+        (q) => q.question.input_question === targetQuestion,
       );
-      if (!questionResponse) {
-        questionResponse = {
-          question:
-            ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
+
+      if (questionIndex === -1) {
+        questionResponses.push({
+          question: ProjectDetails.metadata_json.questions_json[questionIdx],
           response: [],
-        };
-        modelResponse.questions_response.push(questionResponse);
+        });
+        questionIndex = questionResponses.length - 1;
       }
 
-      // Update the specific blank response
-      questionResponse.response[blankIndex] = value;
+      // Update response array immutably
+      const newResponse = [...questionResponses[questionIndex].response];
+      newResponse[blankIndex] = value;
 
-      return newResponse;
+      // Rebuild nested structure with Object.assign to maintain references
+      return {
+        ...newState,
+        [index]: {
+          ...newState[index],
+          model_responses_json: [
+            ...modelResponses.slice(0, modelIndex),
+            {
+              ...modelResponses[modelIndex],
+              questions_response: [
+                ...questionResponses.slice(0, questionIndex),
+                {
+                  ...questionResponses[questionIndex],
+                  response: newResponse,
+                },
+                ...questionResponses.slice(questionIndex + 1),
+              ],
+            },
+            ...modelResponses.slice(modelIndex + 1),
+          ],
+        },
+      };
     });
   };
 
   const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
-      const newResponse = { ...prev };
+      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetQuestion =
+        ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+          ?.input_question;
 
-      if (!newResponse[index]) {
-        newResponse[index] = {
-          model_responses_json: [],
-        };
-      }
+      // Create new root state with spread operator
+      const newState = {
+        ...prev,
+        [index]: {
+          ...prev[index],
+          model_responses_json: [
+            ...(prev[index]?.model_responses_json || []).map((mr) => {
+              if (mr.model_name === targetModel) {
+                // Update existing model response
+                return {
+                  ...mr,
+                  questions_response: [
+                    ...(mr.questions_response || []).map((qr) => {
+                      if (qr.question.input_question === targetQuestion) {
+                        // Update existing question response
+                        return {
+                          ...qr,
+                          response: [newValue],
+                        };
+                      }
+                      return qr;
+                    }),
+                    // Create new question response if not found
+                    ...(!mr.questions_response?.some(
+                      (qr) => qr.question.input_question === targetQuestion,
+                    )
+                      ? [
+                          {
+                            question:
+                              ProjectDetails.metadata_json.questions_json[
+                                questionIdx
+                              ],
+                            response: [newValue],
+                          },
+                        ]
+                      : []),
+                  ],
+                };
+              }
+              return mr;
+            }),
+            // Create new model response if not found
+            ...(!prev[index]?.model_responses_json?.some(
+              (mr) => mr.model_name === targetModel,
+            )
+              ? [
+                  {
+                    model_name: targetModel,
+                    questions_response: [
+                      {
+                        question:
+                          ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                          ],
+                        response: [newValue],
+                      },
+                    ],
+                  },
+                ]
+              : []),
+          ],
+        },
+      };
 
-      let modelResponse = newResponse[index].model_responses_json?.find(
-        (r) => r.model_name === message?.output?.[model_idx]?.model_name,
-      );
-      if (!modelResponse) {
-        modelResponse = {
-          model_name: message?.output?.[model_idx]?.model_name,
-          questions_response: [],
-        };
-        newResponse[index].model_responses_json.push(modelResponse);
-      }
-
-      let questionResponse = modelResponse.questions_response?.find(
-        (q) =>
-          q.question.input_question ===
-          ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
-            ?.input_question,
-      );
-      if (!questionResponse) {
-        questionResponse = {
-          question:
-            ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
-          response: [],
-        };
-        modelResponse.questions_response.push(questionResponse);
-      }
-
-      questionResponse.response = [newValue];
-
-      return newResponse;
+      return newState;
     });
   };
 
@@ -597,132 +655,214 @@ const MultipleLLMInstructionDrivenChat = ({
     model_idx,
   ) => {
     setEvalFormResponse((prev) => {
-      const newResponse = { ...prev };
+      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetQuestion =
+        ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+          ?.input_question;
 
-      if (!newResponse[index]) {
-        newResponse[index] = {
-          model_responses_json: [],
-        };
-      }
+      // Create new root state
+      const newState = {
+        ...prev,
+        [index]: {
+          ...prev[index],
+          model_responses_json: [
+            ...(prev[index]?.model_responses_json || []).map((mr) => {
+              if (mr.model_name === targetModel) {
+                // Update model response
+                return {
+                  ...mr,
+                  questions_response: [
+                    ...(mr.questions_response || []).map((qr) => {
+                      if (qr.question.input_question === targetQuestion) {
+                        // Update question response
+                        const currentResponses = qr.response || [];
+                        const newResponses = currentResponses.includes(option)
+                          ? currentResponses.filter((item) => item !== option)
+                          : [...currentResponses, option];
 
-      // Create a new model_responses_json array
-      const newResponsesJson = [...newResponse[index].model_responses_json];
-
-      let modelResponseIndex = newResponsesJson.findIndex(
-        (r) => r.model_name === message?.output?.[model_idx]?.model_name,
-      );
-      let modelResponse;
-
-      if (modelResponseIndex === -1) {
-        modelResponse = {
-          model_name: message?.output?.[model_idx]?.model_name,
-          questions_response: [],
-        };
-        newResponsesJson.push(modelResponse);
-        modelResponseIndex = newResponsesJson.length - 1;
-      } else {
-        // Create a new model response object
-        modelResponse = {
-          ...newResponsesJson[modelResponseIndex],
-          questions_response: [
-            ...newResponsesJson[modelResponseIndex].questions_response,
+                        return {
+                          ...qr,
+                          response: newResponses,
+                        };
+                      }
+                      return qr;
+                    }),
+                    // Add new question if not exists
+                    ...(!mr.questions_response?.some(
+                      (qr) => qr.question.input_question === targetQuestion,
+                    )
+                      ? [
+                          {
+                            question:
+                              ProjectDetails.metadata_json.questions_json[
+                                questionIdx
+                              ],
+                            response: [option],
+                          },
+                        ]
+                      : []),
+                  ],
+                };
+              }
+              return mr;
+            }),
+            // Add new model if not exists
+            ...(!prev[index]?.model_responses_json?.some(
+              (mr) => mr.model_name === targetModel,
+            )
+              ? [
+                  {
+                    model_name: targetModel,
+                    questions_response: [
+                      {
+                        question:
+                          ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                          ],
+                        response: [option],
+                      },
+                    ],
+                  },
+                ]
+              : []),
           ],
-        };
-        newResponsesJson[modelResponseIndex] = modelResponse;
-      }
-
-      let questionResponseIndex = modelResponse.questions_response.findIndex(
-        (q) =>
-          q.question.input_question ===
-          ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
-            ?.input_question,
-      );
-      let questionResponse;
-
-      if (questionResponseIndex === -1) {
-        questionResponse = {
-          question:
-            ProjectDetails?.metadata_json?.questions_json?.[questionIdx],
-          response: [],
-        };
-        modelResponse.questions_response.push(questionResponse);
-      } else {
-        // Create a new question response object
-        questionResponse = {
-          ...modelResponse.questions_response[questionResponseIndex],
-        };
-        modelResponse.questions_response[questionResponseIndex] =
-          questionResponse;
-      }
-
-      // Toggle option in array - create new array
-      const currentResponses = questionResponse.response || [];
-      if (currentResponses.includes(option)) {
-        questionResponse.response = currentResponses.filter(
-          (item) => item !== option,
-        );
-      } else {
-        questionResponse.response = [...currentResponses, option];
-      }
-
-      // Update the main response object
-      newResponse[index] = {
-        ...newResponse[index],
-        model_responses_json: newResponsesJson,
+        },
       };
 
-      return newResponse;
+      return newState;
     });
   };
 
   const handleMCQ = (index, message, option, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
-      const newResponse = { ...prev };
-
-      if (!newResponse[index]) {
-        newResponse[index] = {
-          model_responses_json: [],
-        };
-      }
-
-      const modelName = message?.output?.[model_idx]?.model_name;
-      let modelResponse = newResponse[index].model_responses_json?.find(
-        (r) => r.model_name === modelName,
-      );
-
-      if (!modelResponse) {
-        modelResponse = {
-          model_name: modelName,
-          questions_response: [],
-        };
-        newResponse[index].model_responses_json.push(modelResponse);
-      }
-
+      const targetModel = message?.output?.[model_idx]?.model_name;
       const targetQuestion =
-        ProjectDetails?.metadata_json?.questions_json?.[questionIdx];
-      let questionResponse = modelResponse.questions_response?.find(
-        (q) => q.question.input_question === targetQuestion?.input_question,
-      );
+        ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+          ?.input_question;
 
-      if (!questionResponse) {
-        questionResponse = {
-          question: targetQuestion,
-          response: [],
-        };
-        modelResponse.questions_response.push(questionResponse);
-      }
+      // Create new root state
+      const newState = {
+        ...prev,
+        [index]: {
+          ...prev[index],
+          model_responses_json: [
+            ...(prev[index]?.model_responses_json || []).map((mr) => {
+              if (mr.model_name === targetModel) {
+                // Update model response
+                return {
+                  ...mr,
+                  questions_response: [
+                    ...(mr.questions_response || []).map((qr) => {
+                      if (qr.question.input_question === targetQuestion) {
+                        // Update existing question response
+                        return {
+                          ...qr,
+                          response: [option],
+                        };
+                      }
+                      return qr;
+                    }),
+                    // Add new question if not exists
+                    ...(!mr.questions_response?.some(
+                      (qr) => qr.question.input_question === targetQuestion,
+                    )
+                      ? [
+                          {
+                            question:
+                              ProjectDetails.metadata_json.questions_json[
+                                questionIdx
+                              ],
+                            response: [option],
+                          },
+                        ]
+                      : []),
+                  ],
+                };
+              }
+              return mr;
+            }),
+            // Add new model if not exists
+            ...(!prev[index]?.model_responses_json?.some(
+              (mr) => mr.model_name === targetModel,
+            )
+              ? [
+                  {
+                    model_name: targetModel,
+                    questions_response: [
+                      {
+                        question:
+                          ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                          ],
+                        response: [option],
+                      },
+                    ],
+                  },
+                ]
+              : []),
+          ],
+        },
+      };
 
-      // Update the response for this specific question
-      questionResponse.response = [option];
-
-      return newResponse;
+      return newState;
     });
+  };
+
+  const validateEvalFormResponse = (form, prompt_output_pair_id) => {
+    if (!form?.model_responses_json || form.model_responses_json.length <= 2) {
+      return false;
+    }
+
+    const allModelsValid = form.model_responses_json.every((modelResponse) => {
+      const allMandatoryAnswered = questions.every((question) => {
+        let expectedParts = 0;
+        if (question.question_type === "fill_in_blanks") {
+          expectedParts =
+            question?.input_question?.split("<blank>")?.length - 1;
+        }
+
+        const responseForQuestion = modelResponse?.questions_response?.find(
+          (qr) =>
+            qr?.question?.input_question === question?.input_question &&
+            qr?.question?.question_type === question?.question_type,
+        );
+
+        if (!responseForQuestion?.response) {
+          return false;
+        }
+
+        if (question.question_type === "fill_in_blanks") {
+          const isCorrectLength =
+            responseForQuestion.response.length === expectedParts;
+          const hasNoEmptyResponse = !responseForQuestion.response.some(
+            (response) => response === "" || response === undefined,
+          );
+          return isCorrectLength && hasNoEmptyResponse;
+        }
+
+        const hasValidResponse =
+          responseForQuestion.response.length > 0 &&
+          !responseForQuestion.response.some(
+            (response) =>
+              response === "" || response === undefined || response === null,
+          );
+        return hasValidResponse;
+      });
+
+      return allMandatoryAnswered;
+    });
+    console.log("All mandatory questions answered:", allModelsValid);
+
+    setFormsAnswered((prev) => ({
+      ...prev,
+      [prompt_output_pair_id]: allModelsValid ? true : false,
+    }));
+
+    return allModelsValid;
   };
 
   const renderChatHistory = () => {
     const chatElements = chatHistory?.map((message, index) => {
-      const evalForm = evalFormResponse?.[message?.prompt_output_pair_id];
-      console.log("message-evalForm", message, evalForm);
       return (
         <Grid
           container
@@ -827,10 +967,22 @@ const MultipleLLMInstructionDrivenChat = ({
                       borderRadius: "50%",
                     }}
                     onClick={() => {
+                      setEvalFormResponse((prev) => {
+                        const newResponse = { ...prev };
+                        delete newResponse[message?.prompt_output_pair_id]; // remove the key by index
+                        return newResponse;
+                      });
+
                       setVisibleMessages((prev) => {
                         const keys = Object.keys(prev);
                         delete prev[keys[keys.length - 1]];
                         return { ...prev };
+                      });
+
+                      setFormsAnswered((prev) => {
+                        const newResponse = { ...prev };
+                        delete newResponse[message?.prompt_output_pair_id];
+                        return newResponse;
                       });
 
                       handleClick(
@@ -839,18 +991,6 @@ const MultipleLLMInstructionDrivenChat = ({
                         0.0,
                         "MultipleLLMInstructionDrivenChat",
                       );
-
-                      // Remove the last item from preferredSelections
-                      setPreferredSelections((prev) => {
-                        const keys = Object.keys(prev).map(Number); // Sort numerically
-                        if (keys.length > 0) {
-                          const lastKey = keys[keys.length - 1];
-                          const newSelections = { ...prev };
-                          delete newSelections[lastKey];
-                          return newSelections;
-                        }
-                        return prev;
-                      });
                     }}
                   >
                     <DeleteOutlinedIcon
@@ -1597,22 +1737,25 @@ const MultipleLLMInstructionDrivenChat = ({
                                       .map((_, idx) => (
                                         <input
                                           key={`${outputIdx}-${idx}`}
+                                          data-blank-index={idx}
                                           type="text"
                                           value={
-                                            (message?.model_responses_json &&
-                                              message?.model_responses_json[
-                                                outputIdx
-                                              ]?.questions_response[questionIdx]
-                                                ?.response?.[index]) ||
-                                            ""
+                                            evalFormResponse?.[
+                                              message?.prompt_output_pair_id
+                                            ]?.model_responses_json?.find(
+                                              (m) =>
+                                                m.model_name ===
+                                                response.model_name,
+                                            )?.questions_response?.[questionIdx]
+                                              ?.response?.[idx] || ""
                                           }
                                           onChange={(e) =>
                                             handleInputChange(
                                               e,
                                               message,
-                                              index, // chat index
-                                              questionIdx, // question no.
-                                              outputIdx, // the (i)th model
+                                              message.prompt_output_pair_id,
+                                              questionIdx,
+                                              outputIdx,
                                             )
                                           }
                                           style={{
@@ -1687,22 +1830,38 @@ const MultipleLLMInstructionDrivenChat = ({
                                         >
                                           <Rating
                                             name={`rating-${outputIdx}`}
+                                            // value={
+                                            //   (message?.model_responses_json &&
+                                            //     message?.model_responses_json[
+                                            //       outputIdx
+                                            //     ].questions_response[
+                                            //       questionIdx
+                                            //     ]?.response?.[0]) ||
+                                            //   0
+                                            // }
                                             value={
-                                              (message?.model_responses_json &&
-                                                message?.model_responses_json[
-                                                  outputIdx
-                                                ].questions_response[
-                                                  questionIdx
-                                                ]?.response?.[0]) ||
-                                              0
+                                              evalFormResponse?.[
+                                                message?.prompt_output_pair_id
+                                              ]?.model_responses_json
+                                                ?.find(
+                                                  (m) =>
+                                                    m.model_name ===
+                                                    response.model_name,
+                                                )
+                                                ?.questions_response?.find(
+                                                  (q) =>
+                                                    q.question
+                                                      .input_question ===
+                                                    question.input_question,
+                                                )?.response?.[0] || 0
                                             }
                                             onChange={(event, newValue) => {
                                               handleRating(
                                                 newValue,
                                                 message,
-                                                index,
+                                                message.prompt_output_pair_id, // index
                                                 questionIdx,
-                                                outputIdx,
+                                                outputIdx, // model_idx
                                               );
                                             }}
                                             sx={{
@@ -1795,21 +1954,32 @@ const MultipleLLMInstructionDrivenChat = ({
                                                       <Checkbox
                                                         onChange={(e) =>
                                                           handleMultiSelect(
-                                                            index,
+                                                            message.prompt_output_pair_id, // index
                                                             message,
                                                             option,
                                                             questionIdx,
-                                                            outputIdx,
+                                                            outputIdx, // model_idx
                                                           )
                                                         }
                                                         checked={
-                                                          message?.model_responses_json?.[
-                                                            outputIdx
-                                                          ]?.questions_response?.[
-                                                            questionIdx
-                                                          ]?.response?.includes(
-                                                            option,
-                                                          ) ?? false
+                                                          evalFormResponse?.[
+                                                            message
+                                                              ?.prompt_output_pair_id
+                                                          ]?.model_responses_json
+                                                            ?.find(
+                                                              (m) =>
+                                                                m.model_name ===
+                                                                response.model_name,
+                                                            )
+                                                            ?.questions_response?.find(
+                                                              (q) =>
+                                                                q.question
+                                                                  .input_question ===
+                                                                question.input_question,
+                                                            )
+                                                            ?.response?.includes(
+                                                              option,
+                                                            ) || false
                                                         }
                                                       />
                                                     }
@@ -1900,20 +2070,29 @@ const MultipleLLMInstructionDrivenChat = ({
                                                 <RadioGroup
                                                   name={`question-${questionIdx}-model-${outputIdx}`}
                                                   value={
-                                                    message
-                                                      ?.model_responses_json?.[
-                                                      outputIdx
-                                                    ]?.questions_response?.[
-                                                      questionIdx
-                                                    ]?.response?.[0] || ""
+                                                    evalFormResponse?.[
+                                                      message
+                                                        ?.prompt_output_pair_id
+                                                    ]?.model_responses_json
+                                                      ?.find(
+                                                        (m) =>
+                                                          m.model_name ===
+                                                          response.model_name,
+                                                      )
+                                                      ?.questions_response?.find(
+                                                        (q) =>
+                                                          q.question
+                                                            .input_question ===
+                                                          question.input_question,
+                                                      )?.response?.[0] || ""
                                                   }
                                                   onChange={(e) =>
                                                     handleMCQ(
-                                                      index,
+                                                      message.prompt_output_pair_id, // index
                                                       message,
                                                       option,
                                                       questionIdx,
-                                                      outputIdx,
+                                                      outputIdx, // model_idx
                                                     )
                                                   }
                                                 >
@@ -1974,37 +2153,14 @@ const MultipleLLMInstructionDrivenChat = ({
                           marginRight: "20px",
                         }}
                         onClick={() => {
-                          const modelResponses =
-                            evalFormResponse?.[index]?.model_responses_json;
-
-                          const isValid =
-                            modelResponses &&
-                            Object.values(modelResponses).every(
-                              (responseItem) => {
-                                const questionsResponse =
-                                  responseItem?.questions_response;
-                                if (
-                                  !Array.isArray(questionsResponse) ||
-                                  questionsResponse.length !==
-                                    ProjectDetails?.metadata_json
-                                      ?.questions_json?.length
-                                ) {
-                                  return false;
-                                }
-
-                                return questionsResponse.every(
-                                  (q) =>
-                                    Array.isArray(q.response) &&
-                                    q.response.length > 0,
-                                );
-                              },
-                            );
-
+                          const isValid = validateEvalFormResponse(
+                            evalFormResponse?.[message?.prompt_output_pair_id],
+                            message?.prompt_output_pair_id,
+                          );
                           if (isValid) {
                             handleButtonClick(
                               message?.output?.[0]?.prompt_output_pair_id,
                               modelResponses,
-                              index,
                             );
                           } else {
                             setSnackbarInfo({
