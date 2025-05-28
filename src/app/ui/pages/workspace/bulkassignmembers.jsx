@@ -23,6 +23,13 @@ const AssignMembersDialog = () => {
     user_role: '',
   });
 
+  // 🔍 Extract workspace ID from URL hash (e.g., "#/workspaces/127")
+  const getWorkspaceId = () => {
+    const hash = window.location.hash;
+    const match = hash.match(/workspaces\/(\d+)/);
+    return match ? match[1] : null;
+  };
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -36,6 +43,11 @@ const AssignMembersDialog = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const workspaceId = getWorkspaceId();
+    if (!workspaceId) {
+      setResponseMessage('Workspace ID not found in URL.');
+      return;
+    }
 
     const payload = {
       ...formData,
@@ -49,7 +61,10 @@ const AssignMembersDialog = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('/assign_members_to_projects/', payload);
+      const res = await axios.post(
+        `/workspaces/${workspaceId}/bulk_add_members_to_projects/`,
+        payload
+      );
       setResponseMessage(res.data.message || 'Users assigned successfully');
       handleClose();
     } catch (err) {
@@ -85,58 +100,55 @@ const AssignMembersDialog = () => {
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>Assign Members</DialogTitle>
         <DialogContent>
-          {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" p={3}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
-                name="project_ids"
-                label="Project IDs (comma-separated) *"
-                variant="outlined"
-                margin="dense"
-                value={formData.project_ids.join(',')}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    project_ids: e.target.value
-                      .split(',')
-                      .map((id) => id.trim()),
-                  }))
-                }
-                required
-              />
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              name="project_ids"
+              label="Project IDs (comma-separated)"
+              variant="outlined"
+              margin="dense"
+              value={formData.project_ids.join(',')}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  project_ids: e.target.value
+                    .split(',')
+                    .map((id) => id.trim()),
+                }))
+              }
+              required
+              InputLabelProps={{ required: false }}
+            />
 
-              <TextField
-                fullWidth
-                name="user_emails"
-                label="User Emails (comma-separated) *"
-                variant="outlined"
-                margin="dense"
-                value={formData.user_emails}
-                onChange={handleChange}
-                required
-              />
+            <TextField
+              fullWidth
+              name="user_emails"
+              label="User Emails (comma-separated)"
+              variant="outlined"
+              margin="dense"
+              value={formData.user_emails}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ required: false }}
+            />
 
-              <TextField
-                fullWidth
-                select
-                name="user_role"
-                label="Role *"
-                variant="outlined"
-                margin="dense"
-                value={formData.user_role}
-                onChange={handleChange}
-                required
-              >
-                <MenuItem value="annotator">Annotator</MenuItem>
-                <MenuItem value="reviewer">Reviewer</MenuItem>
-                <MenuItem value="super_checker">Superchecker</MenuItem>
-              </TextField>
-            </form>
-          )}
+            <TextField
+              fullWidth
+              select
+              name="user_role"
+              label="Role"
+              variant="outlined"
+              margin="dense"
+              value={formData.user_role}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ required: false }}
+            >
+              <MenuItem value="annotator">Annotator</MenuItem>
+              <MenuItem value="reviewer">Reviewer</MenuItem>
+              <MenuItem value="super_checker">Superchecker</MenuItem>
+            </TextField>
+          </form>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
