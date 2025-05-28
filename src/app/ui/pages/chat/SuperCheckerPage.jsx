@@ -158,6 +158,8 @@ const SuperCheckerPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [formsAnswered, setFormsAnswered] = useState({});
+  const [evalFormResponse, setEvalFormResponse] = useState({});
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -517,6 +519,11 @@ const SuperCheckerPage = () => {
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const areAllFormsAnswered = () => {
+    return Object.values(formsAnswered).every(value => value === true);
+  };
+
   const handleSuperCheckerClick = async (
     value,
     id,
@@ -525,6 +532,19 @@ const SuperCheckerPage = () => {
     parentannotation,
     reviewNotesValue,
   ) => {
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are filled for each interaction!",
+        variant: "error",
+      });
+      return;
+    }
     let resultValue;
     if (ProjectDetails.project_type === "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -940,6 +960,10 @@ const SuperCheckerPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          formsAnswered={formsAnswered}
+          setFormsAnswered={setFormsAnswered}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
         />
       );
       break;

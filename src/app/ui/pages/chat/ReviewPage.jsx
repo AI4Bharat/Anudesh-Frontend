@@ -145,6 +145,8 @@ const ReviewPage = () => {
   const [reviewtext, setreviewtext] = useState("");
   const [supercheckertext, setsupercheckertext] = useState("");
   const [info, setInfo] = useState({});
+  const [formsAnswered, setFormsAnswered] = useState({});
+  const [evalFormResponse, setEvalFormResponse] = useState({});
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -541,9 +543,7 @@ const ReviewPage = () => {
     );
 
     const isMaxIdAnnotation =
-
       maxIdAnnotation?.id === task.correct_annotation_id;
-
 
     const nextAPIData = {
       id: projectId,
@@ -611,9 +611,15 @@ const ReviewPage = () => {
       }
     }
   };
+
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const areAllFormsAnswered = () => {
+    return Object.values(formsAnswered).every((value) => value === true);
+  };
+
   const handleReviewClick = async (
     value,
     id,
@@ -621,6 +627,19 @@ const ReviewPage = () => {
     type = "",
     parentannotation,
   ) => {
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are filled for each interaction!",
+        variant: "error",
+      });
+      return;
+    }
     if (typeof window !== "undefined") {
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -1131,6 +1150,10 @@ const ReviewPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          formsAnswered={formsAnswered}
+          setFormsAnswered={setFormsAnswered}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
         />
       );
       break;
