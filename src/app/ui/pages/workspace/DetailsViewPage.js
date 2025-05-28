@@ -45,6 +45,7 @@ import TaskAnalytics from "../progress/Workspace/TaskAnalytics";
 import MetaAnalytics from "../progress/Workspace/MetaAnalytics";
 import ProgressList from "../progress/Workspace/ProgressAnalytics";
 import PerformanceAnalytics from "../progress/Workspace/PerformanceAnalytics";
+import AssignMembersDialog from "./bulkassignmembers";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -119,6 +120,8 @@ const DetailsViewPage = (props) => {
       state.getWorkspaceDetails.status == "loading",
   );
   const [addAnnotatorsDialogOpen, setAddAnnotatorsDialogOpen] =
+    React.useState(false);
+  const [annotatorDialogOpen, setAnnotatorDialogOpen] = useState(false);
     React.useState(false);
   const [addManagersDialogOpen, setAddManagersDialogOpen] =
     React.useState(false);
@@ -601,12 +604,19 @@ const DetailsViewPage = (props) => {
                     columnSpacing={4}
                     rowSpacing={2}
                   >
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                       <CustomButton
                         className={classes.annotatorsButton}
                         label={"Add Members to Workspace"}
                         sx={{ width: "100%", mb: 2 }}
                         onClick={handleAnnotatorDialogOpen}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <AssignMembersDialog
+                        open={annotatorDialogOpen}
+                        onClose={() => setAnnotatorDialogOpen(false)}
+                        sx={{ width: '100%', mb: 2}}
                       />
                     </Grid>
                     {/* <Grid item xs={12} sm={6}>
