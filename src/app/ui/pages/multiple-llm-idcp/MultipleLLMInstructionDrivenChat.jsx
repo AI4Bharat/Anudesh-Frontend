@@ -97,9 +97,10 @@ const MultipleLLMInstructionDrivenChat = ({
   evalFormResponse, // [ {prompt_output_pair_id: corres_form}, {..}, {..}, ... ]
   setEvalFormResponse,
   setIsModelFailing, // true/false
+  setSubmittedEvalForms, // [ {prompt_output_pair_id: corres_form}, {..}, {..}, ... ]
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  console.log("annotations", annotation);
+  // console.log("annotation", annotation);
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -163,12 +164,11 @@ const MultipleLLMInstructionDrivenChat = ({
       annotation?.[0]?.result &&
       Array.isArray(annotation?.[0]?.result) &&
       annotation?.[0]?.id &&
-      annotation?.[0]?.result.length > 0
+      annotation?.[0]?.result?.length > 0
     ) {
       const interactions_length =
         annotation?.[0]?.result?.[0]?.model_interactions?.[0]?.interaction_json
           ?.length;
-      
 
       for (let i = 0; i < interactions_length; i++) {
         const prompt =
@@ -201,6 +201,12 @@ const MultipleLLMInstructionDrivenChat = ({
 
         eval_form &&
           setEvalFormResponse((prev) => ({
+            ...prev,
+            [model1_interaction?.prompt_output_pair_id]: eval_form,
+          }));
+
+        eval_form &&
+          setSubmittedEvalForms((prev) => ({
             ...prev,
             [model1_interaction?.prompt_output_pair_id]: eval_form,
           }));
@@ -238,7 +244,6 @@ const MultipleLLMInstructionDrivenChat = ({
                     `${annotation?.[0]?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
                   ),
               status: response_valid_2 ? "success" : "error",
-              preferred_response: model2_interaction?.preferred_response,
               prompt_output_pair_id: model2_interaction?.prompt_output_pair_id,
               output_error: response_valid_2
                 ? null
@@ -248,7 +253,6 @@ const MultipleLLMInstructionDrivenChat = ({
           prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
         });
       }
-      console.log("modifiedChatHistory", modifiedChatHistory)
       setChatHistory(modifiedChatHistory);
     } else {
       setChatHistory([]);
@@ -365,6 +369,10 @@ const MultipleLLMInstructionDrivenChat = ({
       const data = await res.json();
       if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
         if (data.message === "Success") {
+          setSubmittedEvalForms((prev) => ({
+            ...prev,
+            [prompt_output_pair_id]: modelResponses,
+          }));
           setSnackbarInfo({
             open: true,
             message: "Preferred response saved successfully!",
@@ -835,7 +843,16 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   };
 
+  // useEffect(() => {
+
+  // })
+
+  // useEffect(() => {
+  //   console.log("questions", questions);
+  // }, [])
+
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
+    console.log("form", form, prompt_output_pair_id);
     if (!form?.model_responses_json || form.model_responses_json.length <= 2) {
       return false;
     }
@@ -1065,19 +1082,25 @@ const MultipleLLMInstructionDrivenChat = ({
                 {message?.output?.[0]?.status === "error" ? (
                   <Box
                     sx={{
-                      border: "1px solid #ccc",
+                      border: "1px solid red",
                       width: "60%",
                       marginLeft: "10px",
+                      height: "10vh",
+                      padding: "10px",
                       display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      alignItems: "center",
                       borderRadius: "10px",
                       color: "red",
                       fontWeight: "bold",
+                      backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
                     }}
                   >
-                    {" "}
+                     <ErrorIcon
+                      sx={{
+                        marginRight: "10px",
+                      }}
+                    />
                     <Typography>
                       {message?.output?.[0]?.model_name} failed to load the
                       response!
@@ -2202,10 +2225,18 @@ const MultipleLLMInstructionDrivenChat = ({
                             message?.output?.[0]?.prompt_output_pair_id,
                           );
                           if (isValid) {
-                            handleButtonClick(
-                              message?.output?.[0]?.prompt_output_pair_id,
-                              modelResponses,
-                            );
+                            // handleButtonClick(
+                            //   message?.output?.[0]?.prompt_output_pair_id,
+                            //   evalFormResponse?.[
+                            //     message?.output?.[0]?.prompt_output_pair_id
+                            //   ],
+                            // );
+                            setSnackbarInfo({
+                              open: true,
+                              message:
+                                "can be submitted for evaluation!",
+                              variant: "success",
+                            });
                           } else {
                             setSnackbarInfo({
                               open: true,

@@ -121,13 +121,18 @@ const AnnotatePage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
-  const [formsAnswered, setFormsAnswered] = useState({});
-  const [evalFormResponse, setEvalFormResponse] = useState({});
+  const [formsAnswered, setFormsAnswered] = useState([]);
+  const [evalFormResponse, setEvalFormResponse] = useState([]);
+  const [submittedEvalForms, setSubmittedEvalForms] = useState([]);
   const [isModelFailing, setIsModelFailing] = useState(false);
 
-  useEffect(() => {
-    console.log("eval form response", evalFormResponse);
-  }, [evalFormResponse]);
+  // useEffect(() => {
+  //   console.log("eval form response", evalFormResponse);
+  // }, [evalFormResponse]);
+
+  // useEffect(() => {
+  //   console.log("submittedEvalForms form response", submittedEvalForms);
+  // }, [submittedEvalForms]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -423,35 +428,33 @@ const AnnotatePage = () => {
   };
 
   const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
     if (value === "delete") {
-      return [];
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
     }
     if (
       value === "delete-pair" &&
       type === "MultipleLLMInstructionDrivenChat"
     ) {
-      return [
-        {
-          eval_form: evalFormResponse,
-          model_interactions: resultValue.map((model) => ({
-            ...model,
-            interaction_json: model.interaction_json.slice(0, -1),
-          })),
-        },
-      ];
+      result = {
+        eval_form: submittedEvalForms, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1), // Remove last item
+        })),
+      };
     }
-    // For all other cases, wrap resultValue in the nested structure
-    return [
-      {
-        eval_form: evalFormResponse,
-        model_interactions: resultValue,
-      },
-    ];
+    return result;
   };
 
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
     if (value === "delete") {
-      setFormsAnswered({});
+      setFormsAnswered([]);
+      setEvalFormResponse([]);
+      setSubmittedEvalForms([]);
     }
     if (
       value === "labeled" &&
@@ -507,19 +510,19 @@ const AnnotatePage = () => {
           if (!modelMap[model]) {
             modelMap[model] = [];
           }
+
           const interaction = {
             prompt: entry.prompt,
             output: has_invalid_resp
               ? JSON.parse(modelResp.output_error)
               : reverseFormatResponse(modelResp.output),
-            preferred_response: modelResp.preferred_response,
             prompt_output_pair_id: modelResp.prompt_output_pair_id,
           };
           modelMap[model].push(interaction);
         });
       });
 
-      resultValue = Object.entries(modelMap).map(
+      const model_interactions = Object.entries(modelMap).map(
         ([model_name, interaction_json]) => {
           return {
             model_name,
@@ -527,6 +530,13 @@ const AnnotatePage = () => {
           };
         },
       );
+
+      resultValue = [
+        {
+          eval_form: submittedEvalForms,
+          model_interactions: model_interactions,
+        },
+      ];
     }
     setLoading(true);
     setAutoSave(false);
@@ -545,7 +555,7 @@ const AnnotatePage = () => {
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      result: buildResult(value, type, resultValue),
+      result: [buildResult(value, type, resultValue)],
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
@@ -594,58 +604,95 @@ const AnnotatePage = () => {
         headers: TaskObj.getHeaders().headers,
       });
       const resp = await res.json();
+
       if (
         (value === "delete" || value === "delete-pair") === true &&
         res.ok &&
         resp.result
       ) {
         if (type === "MultipleLLMInstructionDrivenChat") {
-          const interactions_length = resp?.result[0]?.interaction_json?.length;
+          const interactions_length =
+            resp?.result?.[0]?.model_interactions?.[0]?.interaction_json
+              ?.length;
           let modifiedChatHistory = [];
           for (let i = 0; i < interactions_length; i++) {
-            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
-            const response_valid_1 = isString(
-              resp?.result[0].interaction_json[i]?.output,
-            );
-            const response_valid_2 = isString(
-              resp?.result[1].interaction_json[i]?.output,
-            );
+            const prompt =
+              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
+                ?.prompt;
+
+            const model1_interaction =
+              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[i];
+            const model2_interaction =
+              resp?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[i];
+
+            const response_valid_1 = isString(model1_interaction?.output);
+            const response_valid_2 = isString(model2_interaction?.output);
+            if (!response_valid_1 || !response_valid_2) {
+              setIsModelFailing(true);
+            }
+
+            const eval_form = (
+              Array.isArray(resp?.result?.[0]?.eval_form)
+                ? resp?.result?.[0].eval_form
+                : []
+            ).find(
+              (item) =>
+                item.prompt_output_pair_id ===
+                model1_interaction?.prompt_output_pair_id,
+            )?.model_responses_json;
+
+            eval_form &&
+              setEvalFormResponse((prev) => ({
+                ...prev,
+                [model1_interaction?.prompt_output_pair_id]: eval_form,
+              }));
+
+            setFormsAnswered((prev) => ({
+              ...prev,
+              [model1_interaction?.prompt_output_pair_id]: eval_form
+                ? true
+                : false,
+            }));
+
             modifiedChatHistory?.push({
               prompt: prompt,
               output: [
                 {
-                  model_name: resp?.result[0].model_name,
+                  model_name:
+                    resp?.result?.[0].model_interactions?.[0]?.model_name,
                   output: response_valid_1
-                    ? formatResponse(
-                        resp?.result[0].interaction_json[i]?.output,
-                      )
+                    ? formatResponse(model1_interaction?.output)
                     : formatResponse(
-                        `${resp?.result[0].model_name} failed to generate a response`,
+                        `${resp?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
                       ),
                   status: response_valid_1 ? "success" : "error",
+                  prompt_output_pair_id:
+                    model1_interaction?.prompt_output_pair_id,
                   output_error: response_valid_1
                     ? null
                     : JSON.stringify(
-                        resp?.result[0].interaction_json[i]?.output,
+                        resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]?.output,
                       ),
                 },
                 {
-                  model_name: resp?.result[1].model_name,
+                  model_name:
+                    resp?.result?.[0]?.model_interactions?.[1]?.model_name,
                   output: response_valid_2
-                    ? formatResponse(
-                        resp?.result[1].interaction_json[i]?.output,
-                      )
+                    ? formatResponse(model2_interaction?.output)
                     : formatResponse(
-                        `${resp?.result[1].model_name} failed to generate a response`,
+                        `${resp?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
                       ),
                   status: response_valid_2 ? "success" : "error",
+                  prompt_output_pair_id:
+                    model2_interaction?.prompt_output_pair_id,
                   output_error: response_valid_2
                     ? null
                     : JSON.stringify(
-                        resp?.result[1].interaction_json[i]?.output,
+                        resp?.result?.[0]?.model_interactions?.[1]?.interaction_json[i]?.output,
                       ),
                 },
               ],
+              prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
             });
           }
           setChatHistory([...modifiedChatHistory]);
@@ -906,6 +953,7 @@ const AnnotatePage = () => {
           evalFormResponse={evalFormResponse}
           setEvalFormResponse={setEvalFormResponse}
           setIsModelFailing={setIsModelFailing}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
