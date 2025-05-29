@@ -95,7 +95,8 @@ const MultipleLLMInstructionDrivenChat = ({
   formsAnswered,
   setFormsAnswered,
   evalFormResponse,
-  setEvalFormResponse
+  setEvalFormResponse,
+  setIsModelFailing,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
@@ -180,6 +181,9 @@ const MultipleLLMInstructionDrivenChat = ({
 
         const response_valid_1 = isString(model1_interaction?.output);
         const response_valid_2 = isString(model2_interaction?.output);
+        if (!response_valid_1 || !response_valid_2) {
+          setIsModelFailing(true);
+        }
 
         const eval_form = annotation?.[0]?.result?.[0]?.eval_form?.find(
           (item) =>
@@ -365,6 +369,12 @@ const MultipleLLMInstructionDrivenChat = ({
           });
         }
       }
+      if (!inputValue && prompt_output_pair_id && modelResponses) {
+        setFormsAnswered((prev) => ({
+          ...prev,
+          [prompt_output_pair_id]: false,
+        }));
+      }
       let modifiedChatHistory = [];
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
@@ -390,6 +400,12 @@ const MultipleLLMInstructionDrivenChat = ({
 
             const response_valid_1 = isString(model1_interaction?.output);
             const response_valid_2 = isString(model2_interaction?.output);
+
+            if (!response_valid_1 || !response_valid_2) {
+              setIsModelFailing(true);
+            }
+
+            console.log("data?.result?.[0]?.eval_form", data?.result);
 
             const eval_form = data?.result?.[0]?.eval_form?.find(
               (item) =>
@@ -851,7 +867,6 @@ const MultipleLLMInstructionDrivenChat = ({
 
       return allMandatoryAnswered;
     });
-    console.log("All mandatory questions answered:", allModelsValid);
 
     setFormsAnswered((prev) => ({
       ...prev,
@@ -1711,63 +1726,82 @@ const MultipleLLMInstructionDrivenChat = ({
                                   flexWrap: "wrap",
                                 }}
                               >
-                                {message?.output?.map((response, outputIdx) => (
-                                  <div
-                                    key={outputIdx}
-                                    style={{
-                                      marginBottom: "10px",
-                                      display: "flex",
-                                      flexDirection: "row",
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="subtitle2"
-                                      sx={{
-                                        fontWeight: "bold",
-                                        color: "#6C5F5B",
-                                        marginRight: "15px",
-                                        marginTop: "0.7rem",
-                                      }}
-                                    >
-                                      {response?.model_name}
-                                    </Typography>
-                                    {question.input_question
-                                      .split("<blank>")
-                                      .slice(0, -1)
-                                      .map((_, idx) => (
-                                        <input
-                                          key={`${outputIdx}-${idx}`}
-                                          data-blank-index={idx}
-                                          type="text"
-                                          value={
-                                            evalFormResponse?.[
-                                              message?.prompt_output_pair_id
-                                            ]?.model_responses_json?.find(
-                                              (m) =>
-                                                m.model_name ===
-                                                response.model_name,
-                                            )?.questions_response?.[questionIdx]
-                                              ?.response?.[idx] || ""
-                                          }
-                                          onChange={(e) =>
-                                            handleInputChange(
-                                              e,
-                                              message,
-                                              message.prompt_output_pair_id,
-                                              questionIdx,
-                                              outputIdx,
-                                            )
-                                          }
-                                          style={{
-                                            border: "1px solid #ccc",
-                                            borderRadius: "4px",
-                                            maxWidth: "200px",
+                                {message?.output?.map(
+                                  (response, outputIdx) => (
+                                    console.log(
+                                      "eval form responses",
+                                      evalFormResponse,
+                                    ),
+                                    console.log("response", response),
+                                    console.log("question", question),
+                                    (
+                                      <div
+                                        key={outputIdx}
+                                        style={{
+                                          marginBottom: "10px",
+                                          display: "flex",
+                                          flexDirection: "row",
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="subtitle2"
+                                          sx={{
+                                            fontWeight: "bold",
+                                            color: "#6C5F5B",
+                                            marginRight: "15px",
+                                            marginTop: "0.7rem",
                                           }}
-                                          required
-                                        />
-                                      ))}
-                                  </div>
-                                ))}
+                                        >
+                                          {response?.model_name}
+                                        </Typography>
+                                        {question.input_question
+                                          .split("<blank>")
+                                          .slice(0, -1)
+                                          .map((_, idx) => (
+                                            <input
+                                              key={`${outputIdx}-${idx}`}
+                                              data-blank-index={idx}
+                                              type="text"
+                                              value={
+                                                evalFormResponse?.[
+                                                  message?.prompt_output_pair_id
+                                                ]?.model_responses_json
+                                                  ?.find(
+                                                    (m) =>
+                                                      m.model_name ===
+                                                      response.model_name,
+                                                  )
+                                                  ?.questions_response?.find(
+                                                    (q) =>
+                                                      q.question
+                                                        .question_type ===
+                                                        question.question_type &&
+                                                      q.question
+                                                        .input_question ===
+                                                        question.input_question,
+                                                  )?.response?.[idx] || ""
+                                              }
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  e,
+                                                  message,
+                                                  message.prompt_output_pair_id,
+                                                  questionIdx,
+                                                  outputIdx,
+                                                )
+                                              }
+                                              style={{
+                                                border: "1px solid #ccc",
+                                                borderRadius: "4px",
+                                                maxWidth: "200px",
+                                              }}
+                                              required
+                                            />
+                                          ))}
+                                      </div>
+                                    )
+                                  ),
+                                )}
                               </div>
                             </div>
                           )}
@@ -1830,15 +1864,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                         >
                                           <Rating
                                             name={`rating-${outputIdx}`}
-                                            // value={
-                                            //   (message?.model_responses_json &&
-                                            //     message?.model_responses_json[
-                                            //       outputIdx
-                                            //     ].questions_response[
-                                            //       questionIdx
-                                            //     ]?.response?.[0]) ||
-                                            //   0
-                                            // }
                                             value={
                                               evalFormResponse?.[
                                                 message?.prompt_output_pair_id
@@ -1850,9 +1875,11 @@ const MultipleLLMInstructionDrivenChat = ({
                                                 )
                                                 ?.questions_response?.find(
                                                   (q) =>
+                                                    q.question.question_type ===
+                                                      question.question_type &&
                                                     q.question
                                                       .input_question ===
-                                                    question.input_question,
+                                                      question.input_question,
                                                 )?.response?.[0] || 0
                                             }
                                             onChange={(event, newValue) => {
@@ -1974,8 +2001,11 @@ const MultipleLLMInstructionDrivenChat = ({
                                                             ?.questions_response?.find(
                                                               (q) =>
                                                                 q.question
+                                                                  .question_type ===
+                                                                  question.question_type &&
+                                                                q.question
                                                                   .input_question ===
-                                                                question.input_question,
+                                                                  question.input_question,
                                                             )
                                                             ?.response?.includes(
                                                               option,
@@ -2082,8 +2112,11 @@ const MultipleLLMInstructionDrivenChat = ({
                                                       ?.questions_response?.find(
                                                         (q) =>
                                                           q.question
+                                                            .question_type ===
+                                                            question.question_type &&
+                                                          q.question
                                                             .input_question ===
-                                                          question.input_question,
+                                                            question.input_question,
                                                       )?.response?.[0] || ""
                                                   }
                                                   onChange={(e) =>

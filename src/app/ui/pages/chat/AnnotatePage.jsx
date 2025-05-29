@@ -43,6 +43,26 @@ const ReactQuill = dynamic(
   },
 );
 
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
@@ -66,17 +86,12 @@ const AnnotatePage = () => {
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
 
   const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
+    severity: "",
   });
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
@@ -108,6 +123,131 @@ const AnnotatePage = () => {
   const [reviewtext, setreviewtext] = useState("");
   const [formsAnswered, setFormsAnswered] = useState({});
   const [evalFormResponse, setEvalFormResponse] = useState({});
+  const [isModelFailing, setIsModelFailing] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      annotationNotesRef.current &&
+      reviewNotesRef.current
+    ) {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
+          }
+        }
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
+      }
+    }
+  }, [AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      filterAnnotations(AnnotationsTaskDetails, userData);
+    }
+  }, [AnnotationsTaskDetails, userData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations, obs) => {
+      const element = topref.current;
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        obs.disconnect(); // Stop observing after scroll
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -116,26 +256,6 @@ const AnnotatePage = () => {
   const handleGlossaryClick = () => {
     setShowGlossary(!showGlossary);
   };
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const formatResponse = (response) => {
     if (!response) {
@@ -206,71 +326,6 @@ const AnnotatePage = () => {
     return markdownString;
   };
 
-  useEffect(() => {
-    if (taskData) {
-      setInfo((prev) => {
-        return {
-          hint: taskData?.data?.hint,
-          examples: taskData?.data?.examples,
-          meta_info_intent: taskData?.data?.meta_info_intent,
-          instruction_data: taskData?.data?.instruction_data,
-          meta_info_domain: taskData?.data?.meta_info_domain,
-          meta_info_language: taskData?.data?.meta_info_language,
-        };
-      });
-    }
-  }, [taskData]);
-
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      annotationNotesRef.current &&
-      reviewNotesRef.current
-    ) {
-      if (
-        AnnotationsTaskDetails &&
-        AnnotationsTaskDetails.length > 0 &&
-        reviewNotesRef.current &&
-        reviewNotesRef.current.getEditor &&
-        reviewNotesRef.current.getEditor() &&
-        annotationNotesRef.current &&
-        annotationNotesRef.current.getEditor &&
-        annotationNotesRef.current.getEditor()
-      ) {
-        annotationNotesRef.current.value =
-          AnnotationsTaskDetails[0].annotation_notes ?? "";
-        reviewNotesRef.current.value =
-          AnnotationsTaskDetails[0].review_notes ?? "";
-        try {
-          const newDelta2 =
-            annotationNotesRef.current.value !== ""
-              ? JSON.parse(annotationNotesRef.current.value)
-              : "";
-          annotationNotesRef.current.getEditor().setContents(newDelta2);
-        } catch (err) {
-          if (err) {
-            const newDelta2 = annotationNotesRef.current.value;
-            annotationNotesRef.current.getEditor().setText(newDelta2);
-          }
-        }
-
-        try {
-          const newDelta1 =
-            reviewNotesRef.current.value != ""
-              ? JSON.parse(reviewNotesRef.current.value)
-              : "";
-          reviewNotesRef.current.getEditor().setContents(newDelta1);
-        } catch (err) {
-          if (err) {
-            const newDelta1 = reviewNotesRef.current.value;
-            reviewNotesRef.current.getEditor().setText(newDelta1);
-          }
-        }
-        setannotationtext(annotationNotesRef.current.getEditor().getText());
-        setreviewtext(reviewNotesRef.current.getEditor().getText());
-      }
-    }
-  }, [AnnotationsTaskDetails]);
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -282,16 +337,6 @@ const AnnotatePage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -334,6 +379,7 @@ const AnnotatePage = () => {
         }, 1000);
       });
   };
+
   let Annotation = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 1,
   )[0];
@@ -369,11 +415,14 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
-    return Object.values(formsAnswered).every(value => value === true);
+    return Object.values(formsAnswered).every((value) => value === true);
   };
 
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
-     if (
+    if (value === "delete") {
+      setFormsAnswered({});
+    }
+    if (
       value === "labeled" &&
       type === "MultipleLLMInstructionDrivenChat" &&
       areAllFormsAnswered()
@@ -383,6 +432,7 @@ const AnnotatePage = () => {
         message:
           "Please ensure that all the evaluation forms are filled for each interaction!",
         variant: "error",
+        severity: "warning",
       });
       return;
     }
@@ -638,15 +688,10 @@ const AnnotatePage = () => {
     setShowNotes(false);
     // }
   };
+
   if (typeof window !== "undefined") {
     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
-
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      filterAnnotations(AnnotationsTaskDetails, userData);
-    }
-  }, [AnnotationsTaskDetails, userData]);
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
@@ -654,16 +699,6 @@ const AnnotatePage = () => {
   };
   const [filteredReady, setFilteredReady] = useState(false);
 
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
     let disableSkip = false;
@@ -799,12 +834,6 @@ const AnnotatePage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
-
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -856,6 +885,7 @@ const AnnotatePage = () => {
           setFormsAnswered={setFormsAnswered}
           evalFormResponse={evalFormResponse}
           setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
         />
       );
       break;
@@ -918,6 +948,7 @@ const AnnotatePage = () => {
       componentToRender = null;
       break;
   }
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -928,26 +959,12 @@ const AnnotatePage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
+
   const topref = useRef(null);
-  useEffect(() => {
-    const observer = new MutationObserver((mutations, obs) => {
-      const element = topref.current;
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-        obs.disconnect(); // Stop observing after scroll
-      }
-    });
-
-    observer.observe(document, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <>
@@ -1294,14 +1311,29 @@ const AnnotatePage = () => {
                       value="Updata"
                       type="default"
                       variant="contained"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "labeled",
-                          Annotation.id,
-                          Annotation.lead_time,
-                          ProjectDetails?.project_type,
-                        )
-                      }
+                      onClick={() => {
+                        // if (
+                        //   ProjectDetails?.project_type ===
+                        //     "MultipleLLMInstructionDrivenChat" &&
+                        //   isModelFailing
+                        // ) {
+                        //   setSnackbarInfo({
+                        //     open: true,
+                        //     message:
+                        //       "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+                        //     variant: "warning",
+                        //     severity: "warning"
+                        //   });
+                        //   return;
+                        // } else {
+                          handleAnnotationClick(
+                            "labeled",
+                            Annotation.id,
+                            Annotation.lead_time,
+                            ProjectDetails?.project_type,
+                          );
+                        // }
+                      }}
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
                         minWidth: { xs: "100px", sm: "150px", md: "150px" },
