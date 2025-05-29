@@ -843,17 +843,61 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   };
 
-  // useEffect(() => {
+  const handleComparison = (
+  index,
+  message,
+  option,
+  questionIdx,
+  newValue
+) => {
+  console.log("handleComparison", option, questionIdx, newValue);
+  setEvalFormResponse((prev) => {
+    const targetModel = newValue;
+    const targetQuestion =
+      ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+        ?.input_question;
 
-  // })
+    // Prepare the new question response object
+    const newQuestionResponse = [
+      {
+        question: ProjectDetails.metadata_json.questions_json[questionIdx],
+        response: [newValue],
+      },
+    ];
 
-  // useEffect(() => {
-  //   console.log("questions", questions);
-  // }, [])
+    // Prepare the new model response object
+    const newModelResponse = [
+      {
+        model_name: targetModel,
+        questions_response: newQuestionResponse,
+      },
+    ];
+
+    // Replace the model_responses_json array entirely for the target index
+    const newState = {
+      ...prev,
+      [index]: {
+        ...prev[index],
+        model_responses_json: newModelResponse,
+      },
+    };
+
+    return newState;
+  });
+};
+
+
+  useEffect(() => {
+    console.log("evalFormResponse", evalFormResponse);
+  }, [evalFormResponse]);
+
+  useEffect(() => {
+    console.log("questions", questions);
+  }, []);
 
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
     console.log("form", form, prompt_output_pair_id);
-    if (!form?.model_responses_json || form.model_responses_json.length <= 2) {
+    if (!form?.model_responses_json) {
       return false;
     }
 
@@ -883,6 +927,8 @@ const MultipleLLMInstructionDrivenChat = ({
           );
           return isCorrectLength && hasNoEmptyResponse;
         }
+
+        console.log("responseForQuestion", responseForQuestion);
 
         const hasValidResponse =
           responseForQuestion.response.length > 0 &&
@@ -1096,7 +1142,7 @@ const MultipleLLMInstructionDrivenChat = ({
                       backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
                     }}
                   >
-                     <ErrorIcon
+                    <ErrorIcon
                       sx={{
                         marginRight: "10px",
                       }}
@@ -1833,7 +1879,6 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             </div>
                           )}
-
                           {question.question_type === "rating" && (
                             <div
                               style={{
@@ -1948,7 +1993,6 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             </div>
                           )}
-
                           {question.question_type ===
                             "multi_select_options" && (
                             <div
@@ -2069,7 +2113,6 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             </div>
                           )}
-
                           {question.question_type === "mcq" && (
                             <div
                               style={{
@@ -2190,6 +2233,94 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             </div>
                           )}
+                          {question.question_type === "comparison" && (
+                            <div style={{ marginBottom: "20px" }}>
+                              <div className={classes.inputQuestion}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{ color: "#d93025", fontSize: "25px" }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+                              <div style={{ paddingLeft: "20px" }}>
+                                {question.input_selections_list?.map(
+                                  (option, optionIdx) => (
+                                    <div
+                                      key={optionIdx}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                      }}
+                                    >
+                                      <span>{option}:</span>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          flexWrap: "wrap",
+                                          paddingRight: "2rem",
+                                        }}
+                                      >
+                                        <FormControl
+                                          key={`${questionIdx}-${optionIdx}`}
+                                        >
+                                          <RadioGroup
+                                            name={`comparison-${questionIdx}-${optionIdx}`}
+                                            sx={{
+                                              display: "flex",
+                                              webkitFlexDirection: "row",
+                                              flexDirection: "row",
+                                            }}
+                                            // value={
+                                            //   evalFormResponse?.[
+                                            //     message
+                                            //       .prompt_output_pair_id
+                                            //   ]?.model_responses_json
+                                            //     ?.find(
+                                            //       (m) =>
+                                            //         m.model_name ===
+                                            //         response.model_name,
+                                            //     )
+                                            //     ?.questions_response?.find(
+                                            //       (q) =>
+                                            //         q.question
+                                            //           .input_question ===
+                                            //         question.input_question,
+                                            //     )?.response?.[0] || ""
+                                            // }
+                                          >
+                                            {/* Map over model responses */}
+                                            {message?.output?.map(
+                                              (response, outputIdx) => (
+                                                <FormControlLabel
+                                                  value={response.model_name}
+                                                  control={<Radio />}
+                                                  label={response.model_name}
+                                                  labelPlacement="start"
+                                                  onChange={(e) =>
+                                                    handleComparison(
+                                                      message.prompt_output_pair_id,
+                                                      message,
+                                                      option,
+                                                      questionIdx,
+                                                      e.target.value, // model_name
+                                                    )
+                                                  }
+                                                />
+                                              ),
+                                            )}
+                                          </RadioGroup>
+                                        </FormControl>
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ),
                     )}
@@ -2225,18 +2356,12 @@ const MultipleLLMInstructionDrivenChat = ({
                             message?.output?.[0]?.prompt_output_pair_id,
                           );
                           if (isValid) {
-                            // handleButtonClick(
-                            //   message?.output?.[0]?.prompt_output_pair_id,
-                            //   evalFormResponse?.[
-                            //     message?.output?.[0]?.prompt_output_pair_id
-                            //   ],
-                            // );
-                            setSnackbarInfo({
-                              open: true,
-                              message:
-                                "can be submitted for evaluation!",
-                              variant: "success",
-                            });
+                            handleButtonClick(
+                              message?.output?.[0]?.prompt_output_pair_id,
+                              evalFormResponse?.[
+                                message?.output?.[0]?.prompt_output_pair_id
+                              ],
+                            );
                           } else {
                             setSnackbarInfo({
                               open: true,

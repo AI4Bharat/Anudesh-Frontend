@@ -464,8 +464,8 @@ const AnnotatePage = () => {
       setSnackbarInfo({
         open: true,
         message:
-          "Please ensure that all the evaluation forms are saved for each interaction!",
-        variant: "error",
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
         severity: "warning",
       });
       return;

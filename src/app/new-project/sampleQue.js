@@ -7,7 +7,7 @@ const sampleQuestion = [
 
 const sampleMultipleLLMIDCPQuestion = [
   
-    { "question_type": "mcq", "input_question": "Evaluate and Choose the Preferred Response", "input_selections_list": ["Which response do you like better?"]}
+    { "question_type": "comparison", "input_question": "Evaluate and Choose the Preferred Response", "input_selections_list": ["Which response do you like better?"]}
   
 ]
 export { sampleQuestion, sampleMultipleLLMIDCPQuestion }
