@@ -126,6 +126,10 @@ const AnnotatePage = () => {
   const [isModelFailing, setIsModelFailing] = useState(false);
 
   useEffect(() => {
+    console.log("eval form response", evalFormResponse);
+  }, [evalFormResponse]);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const mode = localStorage.getItem("labellingMode");
       setLabellingMode(mode);
@@ -418,6 +422,33 @@ const AnnotatePage = () => {
     return Object.values(formsAnswered).every((value) => value === true);
   };
 
+  const buildResult = (value, type, resultValue) => {
+    if (value === "delete") {
+      return [];
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      return [
+        {
+          eval_form: evalFormResponse,
+          model_interactions: resultValue.map((model) => ({
+            ...model,
+            interaction_json: model.interaction_json.slice(0, -1),
+          })),
+        },
+      ];
+    }
+    // For all other cases, wrap resultValue in the nested structure
+    return [
+      {
+        eval_form: evalFormResponse,
+        model_interactions: resultValue,
+      },
+    ];
+  };
+
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
     if (value === "delete") {
       setFormsAnswered({});
@@ -430,7 +461,7 @@ const AnnotatePage = () => {
       setSnackbarInfo({
         open: true,
         message:
-          "Please ensure that all the evaluation forms are filled for each interaction!",
+          "Please ensure that all the evaluation forms are saved for each interaction!",
         variant: "error",
         severity: "warning",
       });
@@ -514,18 +545,7 @@ const AnnotatePage = () => {
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair" &&
-              type === "MultipleLLMInstructionDrivenChat"
-            ? resultValue.map((model) => ({
-                ...model,
-                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
-              }))
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
@@ -1326,12 +1346,12 @@ const AnnotatePage = () => {
                         //   });
                         //   return;
                         // } else {
-                          handleAnnotationClick(
-                            "labeled",
-                            Annotation.id,
-                            Annotation.lead_time,
-                            ProjectDetails?.project_type,
-                          );
+                        handleAnnotationClick(
+                          "labeled",
+                          Annotation.id,
+                          Annotation.lead_time,
+                          ProjectDetails?.project_type,
+                        );
                         // }
                       }}
                       sx={{
