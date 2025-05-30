@@ -92,10 +92,30 @@ const StyledMenu = styled((props) => (
     },
   },
 }));
+
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
-  let inputValue = "";
+  const open = Boolean(anchorEl);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -109,21 +129,11 @@ const SuperCheckerPage = () => {
   const [answered, setAnswered] = useState(false);
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
   const [labellingMode, setLabellingMode] = useState(null);
   let loaded = useRef();
-
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
-
   const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
-
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -134,17 +144,13 @@ const SuperCheckerPage = () => {
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
-
   const [annotations, setAnnotations] = useState([]);
-
   const annotationNotesRef = useRef(null);
   const superCheckerNotesRef = useRef(null);
   const [info, setInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
-
   const [disableSkip, setdisableSkip] = useState(false);
-
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
@@ -158,35 +164,74 @@ const SuperCheckerPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
-  const [formsAnswered, setFormsAnswered] = useState({});
-  const [evalFormResponse, setEvalFormResponse] = useState({});
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    setNotes(taskDataArr, AnnotationsTaskDetails);
+  }, [taskDataArr, AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    filterAnnotations(AnnotationsTaskDetails, userData);
+  }, [AnnotationsTaskDetails, userData]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
   };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
-  };
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const setNotes = (taskData, annotations) => {
     if (
@@ -402,25 +447,6 @@ const SuperCheckerPage = () => {
     return markdownString;
   };
 
-  useEffect(() => {
-    setNotes(taskDataArr, AnnotationsTaskDetails);
-  }, [taskDataArr, AnnotationsTaskDetails]);
-
-  useEffect(() => {
-    if (taskData) {
-      setInfo((prev) => {
-        return {
-          hint: taskData?.data?.hint,
-          examples: taskData?.data?.examples,
-          meta_info_intent: taskData?.data?.meta_info_intent,
-          instruction_data: taskData?.data?.instruction_data,
-          meta_info_domain: taskData?.data?.meta_info_domain,
-          meta_info_language: taskData?.data?.meta_info_language,
-        };
-      });
-    }
-  }, [taskData]);
-
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -432,17 +458,6 @@ const SuperCheckerPage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -521,7 +536,30 @@ const SuperCheckerPage = () => {
   }
 
   const areAllFormsAnswered = () => {
-    return Object.values(formsAnswered).every(value => value === true);
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
+  };
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    return !Array.isArray(result) ? [result] : result;
   };
 
   const handleSuperCheckerClick = async (
@@ -532,16 +570,21 @@ const SuperCheckerPage = () => {
     parentannotation,
     reviewNotesValue,
   ) => {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
     if (
       value === "labeled" &&
       type === "MultipleLLMInstructionDrivenChat" &&
-      areAllFormsAnswered()
+      !areAllFormsAnswered()
     ) {
       setSnackbarInfo({
         open: true,
         message:
-          "Please ensure that all the evaluation forms are filled for each interaction!",
-        variant: "error",
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
       });
       return;
     }
@@ -587,14 +630,13 @@ const SuperCheckerPage = () => {
             output: has_invalid_resp
               ? JSON.parse(modelResp.output_error)
               : reverseFormatResponse(modelResp.output),
-            preferred_response: modelResp.preferred_response,
             prompt_output_pair_id: modelResp.prompt_output_pair_id,
           };
           modelMap[model].push(interaction);
         });
       });
 
-      resultValue = Object.entries(modelMap).map(
+      const model_interactions = Object.entries(modelMap).map(
         ([model_name, interaction_json]) => {
           return {
             model_name,
@@ -602,6 +644,13 @@ const SuperCheckerPage = () => {
           };
         },
       );
+
+      resultValue = [
+        {
+          eval_form: Object.values(submittedEvalForms),
+          model_interactions: model_interactions,
+        },
+      ];
     }
 
     setLoading(true);
@@ -625,18 +674,7 @@ const SuperCheckerPage = () => {
         value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair" &&
-              type === "MultipleLLMInstructionDrivenChat"
-            ? resultValue.map((model) => ({
-                ...model,
-                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
-              }))
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" || value === "rejected"
@@ -701,52 +739,89 @@ const SuperCheckerPage = () => {
         resp.result
       ) {
         if (type === "MultipleLLMInstructionDrivenChat") {
-          const interactions_length = resp?.result[0]?.interaction_json?.length;
+          const interactions_length =
+            resp?.result?.[0]?.model_interactions?.[0]?.interaction_json
+              ?.length;
           let modifiedChatHistory = [];
           for (let i = 0; i < interactions_length; i++) {
-            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
-            const response_valid_1 = isString(
-              resp?.result[0].interaction_json[i]?.output,
-            );
-            const response_valid_2 = isString(
-              resp?.result[1].interaction_json[i]?.output,
-            );
+            const prompt =
+              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
+                ?.prompt;
+
+            const model1_interaction =
+              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[i];
+            const model2_interaction =
+              resp?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[i];
+
+            const response_valid_1 = isString(model1_interaction?.output);
+            const response_valid_2 = isString(model2_interaction?.output);
+            if (!response_valid_1 || !response_valid_2) {
+              setIsModelFailing(true);
+            }
+
+            const eval_form = (
+              Array.isArray(resp?.result?.[0]?.eval_form)
+                ? resp?.result?.[0].eval_form
+                : []
+            ).find(
+              (item) =>
+                item.prompt_output_pair_id ===
+                model1_interaction?.prompt_output_pair_id,
+            )?.model_responses_json;
+
+            eval_form &&
+              setEvalFormResponse((prev) => ({
+                ...prev,
+                [model1_interaction?.prompt_output_pair_id]: eval_form,
+              }));
+
+            eval_form &&
+              setSubmittedEvalForms((prev) => ({
+                ...prev,
+                [model1_interaction?.prompt_output_pair_id]: eval_form,
+              }));
+
             modifiedChatHistory?.push({
               prompt: prompt,
               output: [
                 {
-                  model_name: resp?.result[0].model_name,
+                  model_name:
+                    resp?.result?.[0].model_interactions?.[0]?.model_name,
                   output: response_valid_1
-                    ? formatResponse(
-                        resp?.result[0].interaction_json[i]?.output,
-                      )
+                    ? formatResponse(model1_interaction?.output)
                     : formatResponse(
-                        `${resp?.result[0].model_name} failed to generate a response`,
+                        `${resp?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
                       ),
                   status: response_valid_1 ? "success" : "error",
+                  prompt_output_pair_id:
+                    model1_interaction?.prompt_output_pair_id,
                   output_error: response_valid_1
                     ? null
                     : JSON.stringify(
-                        resp?.result[0].interaction_json[i]?.output,
+                        resp?.result?.[0]?.model_interactions?.[0]
+                          ?.interaction_json[i]?.output,
                       ),
                 },
                 {
-                  model_name: resp?.result[1].model_name,
+                  model_name:
+                    resp?.result?.[0]?.model_interactions?.[1]?.model_name,
                   output: response_valid_2
-                    ? formatResponse(
-                        resp?.result[1].interaction_json[i]?.output,
-                      )
+                    ? formatResponse(model2_interaction?.output)
                     : formatResponse(
-                        `${resp?.result[1].model_name} failed to generate a response`,
+                        `${resp?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
                       ),
                   status: response_valid_2 ? "success" : "error",
+                  prompt_output_pair_id:
+                    model2_interaction?.prompt_output_pair_id,
                   output_error: response_valid_2
                     ? null
                     : JSON.stringify(
-                        resp?.result[1].interaction_json[i]?.output,
+                        resp?.result?.[0]?.model_interactions?.[1]
+                          ?.interaction_json[i]?.output,
                       ),
                 },
               ],
+              prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
             });
           }
           setChatHistory([...modifiedChatHistory]);
@@ -807,26 +882,11 @@ const SuperCheckerPage = () => {
     setShowNotes(false);
     setAnchorEl(null);
   };
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-  }
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
-  const [filteredReady, setFilteredReady] = useState(false);
-
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
 
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
@@ -874,10 +934,6 @@ const SuperCheckerPage = () => {
     return [filteredAnnotations, disableSkip, disableAutoSave];
   };
 
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
-  }, [AnnotationsTaskDetails, userData]);
-
   const getTaskData = async (id) => {
     setLoading(true);
     const ProjectObj = new GetTaskDetailsAPI(id);
@@ -904,19 +960,14 @@ const SuperCheckerPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
+
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -960,10 +1011,11 @@ const SuperCheckerPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
-          formsAnswered={formsAnswered}
-          setFormsAnswered={setFormsAnswered}
           evalFormResponse={evalFormResponse}
           setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
@@ -1032,6 +1084,7 @@ const SuperCheckerPage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
