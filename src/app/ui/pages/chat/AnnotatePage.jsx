@@ -121,18 +121,10 @@ const AnnotatePage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
-  const [formsAnswered, setFormsAnswered] = useState([]);
-  const [evalFormResponse, setEvalFormResponse] = useState([]);
-  const [submittedEvalForms, setSubmittedEvalForms] = useState([]);
+  // const [formsAnswered, setFormsAnswered] = useState([]);
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
-
-  // useEffect(() => {
-  //   console.log("eval form response", evalFormResponse);
-  // }, [evalFormResponse]);
-
-  // useEffect(() => {
-  //   console.log("submittedEvalForms form response", submittedEvalForms);
-  // }, [submittedEvalForms]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -424,8 +416,12 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
-    return Object.values(formsAnswered).every((value) => value === true);
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
   };
+
+  useEffect(() => {
+    console.log("submittedEvalForms", submittedEvalForms);
+  }, [submittedEvalForms]);
 
   const buildResult = (value, type, resultValue) => {
     let result = resultValue;
@@ -440,26 +436,25 @@ const AnnotatePage = () => {
       type === "MultipleLLMInstructionDrivenChat"
     ) {
       result = {
-        eval_form: submittedEvalForms, // Keep as is
+        eval_form: Object.values(submittedEvalForms), // Keep as is
         model_interactions: resultValue[0].model_interactions.map((model) => ({
           model_name: model.model_name,
           interaction_json: model.interaction_json.slice(0, -1), // Remove last item
         })),
       };
     }
-    return result;
+    return !Array.isArray(result) ? [result] : result;
   };
 
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
     if (value === "delete") {
-      setFormsAnswered([]);
-      setEvalFormResponse([]);
-      setSubmittedEvalForms([]);
+      setEvalFormResponse();
+      setSubmittedEvalForms();
     }
     if (
       value === "labeled" &&
       type === "MultipleLLMInstructionDrivenChat" &&
-      areAllFormsAnswered()
+      !areAllFormsAnswered()
     ) {
       setSnackbarInfo({
         open: true,
@@ -555,7 +550,7 @@ const AnnotatePage = () => {
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      result: [buildResult(value, type, resultValue)],
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
@@ -596,6 +591,7 @@ const AnnotatePage = () => {
           return;
         }
       }
+      console.log("PatchAPIdata", PatchAPIdata);
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
@@ -647,12 +643,12 @@ const AnnotatePage = () => {
                 [model1_interaction?.prompt_output_pair_id]: eval_form,
               }));
 
-            setFormsAnswered((prev) => ({
-              ...prev,
-              [model1_interaction?.prompt_output_pair_id]: eval_form
-                ? true
-                : false,
-            }));
+            // setFormsAnswered((prev) => ({
+            //   ...prev,
+            //   [model1_interaction?.prompt_output_pair_id]: eval_form
+            //     ? true
+            //     : false,
+            // }));
 
             modifiedChatHistory?.push({
               prompt: prompt,
@@ -948,11 +944,10 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
-          formsAnswered={formsAnswered}
-          setFormsAnswered={setFormsAnswered}
           evalFormResponse={evalFormResponse}
           setEvalFormResponse={setEvalFormResponse}
           setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
           setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );

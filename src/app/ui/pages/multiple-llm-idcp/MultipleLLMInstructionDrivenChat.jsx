@@ -92,12 +92,11 @@ const MultipleLLMInstructionDrivenChat = ({
   info,
   disableUpdateButton,
   annotation,
-  formsAnswered,
-  setFormsAnswered, // [ {prompt_output_pair_id: true/false}, {..}, {..}, ...]
-  evalFormResponse, // [ {prompt_output_pair_id: corres_form}, {..}, {..}, ... ]
+  evalFormResponse,
   setEvalFormResponse,
-  setIsModelFailing, // true/false
-  setSubmittedEvalForms, // [ {prompt_output_pair_id: corres_form}, {..}, {..}, ... ]
+  setIsModelFailing,
+  submittedEvalForms,
+  setSubmittedEvalForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   // console.log("annotation", annotation);
@@ -197,7 +196,7 @@ const MultipleLLMInstructionDrivenChat = ({
           (item) =>
             item.prompt_output_pair_id ===
             model1_interaction?.prompt_output_pair_id,
-        )?.model_responses_json;
+        );
 
         eval_form &&
           setEvalFormResponse((prev) => ({
@@ -211,10 +210,10 @@ const MultipleLLMInstructionDrivenChat = ({
             [model1_interaction?.prompt_output_pair_id]: eval_form,
           }));
 
-        setFormsAnswered((prev) => ({
-          ...prev,
-          [model1_interaction?.prompt_output_pair_id]: eval_form ? true : false,
-        }));
+        // setFormsAnswered((prev) => ({
+        //   ...prev,
+        //   [model1_interaction?.prompt_output_pair_id]: eval_form ? true : false,
+        // }));
 
         modifiedChatHistory?.push({
           prompt: prompt,
@@ -336,7 +335,7 @@ const MultipleLLMInstructionDrivenChat = ({
             : generateUniquePromptOutputPairId(),
         ...(modelResponses &&
           prompt_output_pair_id >= 0 && {
-            model_responses_json: modelResponses,
+            model_responses_json: modelResponses?.model_responses_json,
           }),
       };
       if (stage === "Alltask") {
@@ -387,9 +386,9 @@ const MultipleLLMInstructionDrivenChat = ({
         }
       }
       if (!inputValue && prompt_output_pair_id && modelResponses) {
-        setFormsAnswered((prev) => ({
+        setSubmittedEvalForms((prev) => ({
           ...prev,
-          [prompt_output_pair_id]: false,
+          [prompt_output_pair_id]: modelResponses,
         }));
       }
       let modifiedChatHistory = [];
@@ -430,7 +429,7 @@ const MultipleLLMInstructionDrivenChat = ({
               (item) =>
                 item.prompt_output_pair_id ===
                 model1_interaction?.prompt_output_pair_id,
-            )?.model_responses_json;
+            );
 
             eval_form &&
               setEvalFormResponse((prev) => ({
@@ -843,60 +842,87 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   };
 
-  const handleComparison = (
-  index,
-  message,
-  option,
-  questionIdx,
-  newValue
-) => {
-  console.log("handleComparison", option, questionIdx, newValue);
-  setEvalFormResponse((prev) => {
-    const targetModel = newValue;
-    const targetQuestion =
-      ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
-        ?.input_question;
+  const handleComparison = (index, message, option, questionIdx, newValue) => {
+    setEvalFormResponse((prev) => {
+      const targetQuestion =
+        ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+          ?.input_question;
 
-    // Prepare the new question response object
-    const newQuestionResponse = [
-      {
-        question: ProjectDetails.metadata_json.questions_json[questionIdx],
-        response: [newValue],
-      },
-    ];
+      const models = message?.output || [];
 
-    // Prepare the new model response object
-    const newModelResponse = [
-      {
-        model_name: targetModel,
-        questions_response: newQuestionResponse,
-      },
-    ];
+      // Create new state preserving existing responses
+      const newState = {
+        ...prev,
+        [index]: {
+          ...prev[index],
+          model_responses_json: [
+            ...(prev[index]?.model_responses_json || []).map(
+              (existingModel) => {
+                // Find if this model exists in the current message outputs
+                const messageModel = models.find(
+                  (m) => m.model_name === existingModel.model_name,
+                );
 
-    // Replace the model_responses_json array entirely for the target index
-    const newState = {
-      ...prev,
-      [index]: {
-        ...prev[index],
-        model_responses_json: newModelResponse,
-      },
-    };
+                if (messageModel) {
+                  const isSelected = existingModel.model_name === newValue;
 
-    return newState;
-  });
-};
+                  return {
+                    ...existingModel,
+                    questions_response: [
+                      // Keep all existing question responses except the current comparison question
+                      ...(existingModel.questions_response || []).filter(
+                        (qr) =>
+                          !(
+                            qr.question.question_type === "comparison" &&
+                            qr.question.input_question === targetQuestion
+                          ),
+                      ),
+                      // Add the updated comparison question response
+                      {
+                        question:
+                          ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                          ],
+                        response: [isSelected ? newValue : "-1"],
+                      },
+                    ],
+                  };
+                }
+                return existingModel;
+              },
+            ),
+            // Add new models if they don't exist yet
+            ...models
+              .filter(
+                (model) =>
+                  !prev[index]?.model_responses_json?.some(
+                    (mr) => mr.model_name === model.model_name,
+                  ),
+              )
+              .map((model) => {
+                const isSelected = model.model_name === newValue;
+                return {
+                  model_name: model.model_name,
+                  questions_response: [
+                    {
+                      question:
+                        ProjectDetails.metadata_json.questions_json[
+                          questionIdx
+                        ],
+                      response: [isSelected ? newValue : "-1"],
+                    },
+                  ],
+                };
+              }),
+          ],
+        },
+      };
 
-
-  useEffect(() => {
-    console.log("evalFormResponse", evalFormResponse);
-  }, [evalFormResponse]);
-
-  useEffect(() => {
-    console.log("questions", questions);
-  }, []);
+      return newState;
+    });
+  };
 
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
-    console.log("form", form, prompt_output_pair_id);
     if (!form?.model_responses_json) {
       return false;
     }
@@ -928,7 +954,12 @@ const MultipleLLMInstructionDrivenChat = ({
           return isCorrectLength && hasNoEmptyResponse;
         }
 
-        console.log("responseForQuestion", responseForQuestion);
+        if (question.question_type === "comparison") {
+          const isValidComparison =
+            responseForQuestion.response.length === 1 &&
+            responseForQuestion.response[0] !== "";
+          return isValidComparison;
+        }
 
         const hasValidResponse =
           responseForQuestion.response.length > 0 &&
@@ -942,10 +973,10 @@ const MultipleLLMInstructionDrivenChat = ({
       return allMandatoryAnswered;
     });
 
-    setFormsAnswered((prev) => ({
-      ...prev,
-      [prompt_output_pair_id]: allModelsValid ? true : false,
-    }));
+    // setFormsAnswered((prev) => ({
+    //   ...prev,
+    //   [prompt_output_pair_id]: allModelsValid ? true : false,
+    // }));
 
     return allModelsValid;
   };
@@ -1070,11 +1101,11 @@ const MultipleLLMInstructionDrivenChat = ({
                         return { ...prev };
                       });
 
-                      setFormsAnswered((prev) => {
+                      setSubmittedEvalForms((prev) => {
                         const newResponse = { ...prev };
                         delete newResponse[
                           message?.output?.[0]?.prompt_output_pair_id
-                        ];
+                        ]; // remove the key by index
                         return newResponse;
                       });
 
@@ -1758,6 +1789,116 @@ const MultipleLLMInstructionDrivenChat = ({
                     {ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
                         <div key={questionIdx}>
+                          {question.question_type === "comparison" && (
+                            <div style={{ marginBottom: "20px" }}>
+                              <div className={classes.inputQuestion}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{ color: "#d93025", fontSize: "25px" }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+                              <div style={{ paddingLeft: "20px" }}>
+                                {question.input_selections_list?.map(
+                                  (option, optionIdx) => (
+                                    <div
+                                      key={optionIdx}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                      }}
+                                    >
+                                      <span>{option}:</span>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          flexWrap: "wrap",
+                                          paddingRight: "2rem",
+                                        }}
+                                      >
+                                        <FormControl>
+                                          <RadioGroup
+                                            name={`comparison-${questionIdx}-${optionIdx}`}
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "row",
+                                            }}
+                                            value={(() => {
+                                              const responses =
+                                                evalFormResponse?.[
+                                                  message?.output?.[0]
+                                                    ?.prompt_output_pair_id
+                                                ]?.model_responses_json;
+
+                                              if (!responses) return "";
+
+                                              // Find the first matching model response
+                                              const matchingResponse =
+                                                responses.find((model) =>
+                                                  model.questions_response?.some(
+                                                    (q) =>
+                                                      q.question
+                                                        .question_type ===
+                                                        question.question_type &&
+                                                      q.question
+                                                        .input_question ===
+                                                        question.input_question &&
+                                                      q.response?.[0] !== "-1",
+                                                  ),
+                                                );
+
+                                              // Find the specific question's response that is not -1
+                                              const validResponse =
+                                                matchingResponse?.questions_response?.find(
+                                                  (q) =>
+                                                    q.question.question_type ===
+                                                      question.question_type &&
+                                                    q.question
+                                                      .input_question ===
+                                                      question.input_question &&
+                                                    q.response?.[0] !== "-1",
+                                                );
+
+                                              return (
+                                                validResponse?.response?.[0] ||
+                                                ""
+                                              );
+                                            })()}
+                                            onChange={(e) =>
+                                              handleComparison(
+                                                message?.output?.[0]
+                                                  ?.prompt_output_pair_id,
+                                                message,
+                                                option,
+                                                questionIdx,
+                                                e.target.value,
+                                              )
+                                            }
+                                          >
+                                            {message?.output?.map(
+                                              (response, outputIdx) => (
+                                                <FormControlLabel
+                                                  key={outputIdx}
+                                                  value={response.model_name}
+                                                  control={<Radio />}
+                                                  label={response.model_name}
+                                                  labelPlacement="start"
+                                                />
+                                              ),
+                                            )}
+                                          </RadioGroup>
+                                        </FormControl>
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          )}
                           {question.question_type === "fill_in_blanks" && (
                             <div
                               style={{
@@ -2065,7 +2206,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                         }
                                                         checked={
                                                           evalFormResponse?.[
-                                                            message
+                                                            message?.output?.[0]
                                                               ?.prompt_output_pair_id
                                                           ]?.model_responses_json
                                                             ?.find(
@@ -2175,7 +2316,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   name={`question-${questionIdx}-model-${outputIdx}`}
                                                   value={
                                                     evalFormResponse?.[
-                                                      message
+                                                      message?.output?.[0]
                                                         ?.prompt_output_pair_id
                                                     ]?.model_responses_json
                                                       ?.find(
@@ -2226,94 +2367,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                             </div>
                                           ),
                                         )}
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {question.question_type === "comparison" && (
-                            <div style={{ marginBottom: "20px" }}>
-                              <div className={classes.inputQuestion}>
-                                {questionIdx + 1}. {question.input_question}
-                                <span
-                                  style={{ color: "#d93025", fontSize: "25px" }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </div>
-                              <div style={{ paddingLeft: "20px" }}>
-                                {question.input_selections_list?.map(
-                                  (option, optionIdx) => (
-                                    <div
-                                      key={optionIdx}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                      }}
-                                    >
-                                      <span>{option}:</span>
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          flexWrap: "wrap",
-                                          paddingRight: "2rem",
-                                        }}
-                                      >
-                                        <FormControl
-                                          key={`${questionIdx}-${optionIdx}`}
-                                        >
-                                          <RadioGroup
-                                            name={`comparison-${questionIdx}-${optionIdx}`}
-                                            sx={{
-                                              display: "flex",
-                                              webkitFlexDirection: "row",
-                                              flexDirection: "row",
-                                            }}
-                                            // value={
-                                            //   evalFormResponse?.[
-                                            //     message
-                                            //       .prompt_output_pair_id
-                                            //   ]?.model_responses_json
-                                            //     ?.find(
-                                            //       (m) =>
-                                            //         m.model_name ===
-                                            //         response.model_name,
-                                            //     )
-                                            //     ?.questions_response?.find(
-                                            //       (q) =>
-                                            //         q.question
-                                            //           .input_question ===
-                                            //         question.input_question,
-                                            //     )?.response?.[0] || ""
-                                            // }
-                                          >
-                                            {/* Map over model responses */}
-                                            {message?.output?.map(
-                                              (response, outputIdx) => (
-                                                <FormControlLabel
-                                                  value={response.model_name}
-                                                  control={<Radio />}
-                                                  label={response.model_name}
-                                                  labelPlacement="start"
-                                                  onChange={(e) =>
-                                                    handleComparison(
-                                                      message.prompt_output_pair_id,
-                                                      message,
-                                                      option,
-                                                      questionIdx,
-                                                      e.target.value, // model_name
-                                                    )
-                                                  }
-                                                />
-                                              ),
-                                            )}
-                                          </RadioGroup>
-                                        </FormControl>
                                       </div>
                                     </div>
                                   ),
