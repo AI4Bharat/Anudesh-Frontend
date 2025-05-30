@@ -541,6 +541,9 @@ const ReviewPage = () => {
     );
 
     const isMaxIdAnnotation =
+      maxIdAnnotation?.id === task?.correct_annotation_id;
+    console.log(isMaxIdAnnotation, "llove");
+
 
       maxIdAnnotation?.id === task.correct_annotation_id;
 
