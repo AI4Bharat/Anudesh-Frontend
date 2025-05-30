@@ -209,11 +209,6 @@ const MultipleLLMInstructionDrivenChat = ({
             [model1_interaction?.prompt_output_pair_id]: eval_form,
           }));
 
-        // setFormsAnswered((prev) => ({
-        //   ...prev,
-        //   [model1_interaction?.prompt_output_pair_id]: eval_form ? true : false,
-        // }));
-
         modifiedChatHistory?.push({
           prompt: prompt,
           output: [
@@ -393,8 +388,6 @@ const MultipleLLMInstructionDrivenChat = ({
       let modifiedChatHistory = [];
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
-
-        // Initialize modifiedChatHistory inside the function
         let modifiedChatHistory = [];
 
         if (data && data.result && data.result.length > 0) {
@@ -407,7 +400,6 @@ const MultipleLLMInstructionDrivenChat = ({
               data?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
                 ?.prompt;
 
-            // Get interactions from both models
             const model1_interaction =
               data?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[i];
             const model2_interaction =
@@ -529,20 +521,16 @@ const MultipleLLMInstructionDrivenChat = ({
 
   const handleInputChange = (e, message, index, questionIdx, model_idx) => {
     const value = e.target.value;
-    const blankIndex = Number(e.target.dataset.blankIndex); // Crucial: Must get from input
+    const blankIndex = Number(e.target.dataset.blankIndex);
 
     setEvalFormResponse((prev) => {
-      // Clone root object
       const newState = { ...prev };
-
-      // Initialize index level
       if (!newState[index]) {
         newState[index] = {
           model_responses_json: [],
         };
       }
 
-      // Find or create model response
       const modelResponses = [...newState[index].model_responses_json];
       const targetModel = message?.output?.[model_idx]?.model_name;
       let modelIndex = modelResponses.findIndex(
@@ -556,8 +544,6 @@ const MultipleLLMInstructionDrivenChat = ({
         });
         modelIndex = modelResponses.length - 1;
       }
-
-      // Find or create question response
       const questionResponses = [
         ...modelResponses[modelIndex].questions_response,
       ];
@@ -576,11 +562,9 @@ const MultipleLLMInstructionDrivenChat = ({
         questionIndex = questionResponses.length - 1;
       }
 
-      // Update response array immutably
       const newResponse = [...questionResponses[questionIndex].response];
       newResponse[blankIndex] = value;
 
-      // Rebuild nested structure with Object.assign to maintain references
       return {
         ...newState,
         [index]: {
@@ -611,8 +595,6 @@ const MultipleLLMInstructionDrivenChat = ({
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
-
-      // Create new root state with spread operator
       const newState = {
         ...prev,
         [index]: {
@@ -620,13 +602,11 @@ const MultipleLLMInstructionDrivenChat = ({
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
               if (mr.model_name === targetModel) {
-                // Update existing model response
                 return {
                   ...mr,
                   questions_response: [
                     ...(mr.questions_response || []).map((qr) => {
                       if (qr.question.input_question === targetQuestion) {
-                        // Update existing question response
                         return {
                           ...qr,
                           response: [newValue],
@@ -634,7 +614,6 @@ const MultipleLLMInstructionDrivenChat = ({
                       }
                       return qr;
                     }),
-                    // Create new question response if not found
                     ...(!mr.questions_response?.some(
                       (qr) => qr.question.input_question === targetQuestion,
                     )
@@ -653,7 +632,6 @@ const MultipleLLMInstructionDrivenChat = ({
               }
               return mr;
             }),
-            // Create new model response if not found
             ...(!prev[index]?.model_responses_json?.some(
               (mr) => mr.model_name === targetModel,
             )
@@ -692,8 +670,6 @@ const MultipleLLMInstructionDrivenChat = ({
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
-
-      // Create new root state
       const newState = {
         ...prev,
         [index]: {
@@ -701,13 +677,11 @@ const MultipleLLMInstructionDrivenChat = ({
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
               if (mr.model_name === targetModel) {
-                // Update model response
                 return {
                   ...mr,
                   questions_response: [
                     ...(mr.questions_response || []).map((qr) => {
                       if (qr.question.input_question === targetQuestion) {
-                        // Update question response
                         const currentResponses = qr.response || [];
                         const newResponses = currentResponses.includes(option)
                           ? currentResponses.filter((item) => item !== option)
@@ -720,7 +694,6 @@ const MultipleLLMInstructionDrivenChat = ({
                       }
                       return qr;
                     }),
-                    // Add new question if not exists
                     ...(!mr.questions_response?.some(
                       (qr) => qr.question.input_question === targetQuestion,
                     )
@@ -739,7 +712,6 @@ const MultipleLLMInstructionDrivenChat = ({
               }
               return mr;
             }),
-            // Add new model if not exists
             ...(!prev[index]?.model_responses_json?.some(
               (mr) => mr.model_name === targetModel,
             )
@@ -772,8 +744,6 @@ const MultipleLLMInstructionDrivenChat = ({
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
-
-      // Create new root state
       const newState = {
         ...prev,
         [index]: {
@@ -787,7 +757,6 @@ const MultipleLLMInstructionDrivenChat = ({
                   questions_response: [
                     ...(mr.questions_response || []).map((qr) => {
                       if (qr.question.input_question === targetQuestion) {
-                        // Update existing question response
                         return {
                           ...qr,
                           response: [option],
@@ -795,7 +764,6 @@ const MultipleLLMInstructionDrivenChat = ({
                       }
                       return qr;
                     }),
-                    // Add new question if not exists
                     ...(!mr.questions_response?.some(
                       (qr) => qr.question.input_question === targetQuestion,
                     )
@@ -814,7 +782,6 @@ const MultipleLLMInstructionDrivenChat = ({
               }
               return mr;
             }),
-            // Add new model if not exists
             ...(!prev[index]?.model_responses_json?.some(
               (mr) => mr.model_name === targetModel,
             )
@@ -851,7 +818,6 @@ const MultipleLLMInstructionDrivenChat = ({
     }
 
     setEvalFormResponse((prev) => {
-      // Ensure prev is an object
       const safePrev = prev || {};
 
       const targetQuestion =
@@ -976,11 +942,6 @@ const MultipleLLMInstructionDrivenChat = ({
       return allMandatoryAnswered;
     });
 
-    // setFormsAnswered((prev) => ({
-    //   ...prev,
-    //   [prompt_output_pair_id]: allModelsValid ? true : false,
-    // }));
-
     return allModelsValid;
   };
 
@@ -1092,9 +1053,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     onClick={() => {
                       setEvalFormResponse((prev) => {
                         const newResponse = { ...prev };
-                        delete newResponse[
-                          message?.output?.[0]?.prompt_output_pair_id
-                        ]; // remove the key by index
+                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
                         return newResponse;
                       });
 
@@ -1106,9 +1065,7 @@ const MultipleLLMInstructionDrivenChat = ({
 
                       setSubmittedEvalForms((prev) => {
                         const newResponse = { ...prev };
-                        delete newResponse[
-                          message?.output?.[0]?.prompt_output_pair_id
-                        ]; // remove the key by index
+                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
                         return newResponse;
                       });
 
@@ -1226,8 +1183,8 @@ const MultipleLLMInstructionDrivenChat = ({
                         BackdropProps={{
                           timeout: 500,
                           sx: {
-                            backdropFilter: "blur(2px)", // Apply blur effect
-                            backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
+                            backdropFilter: "blur(2px)",
+                            backgroundColor: "rgba(0, 0, 0, 0.2)",
                           },
                         }}
                       >
@@ -1291,7 +1248,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                             border: `1px solid ${grey[200]}`,
                                             boxShadow: `0px 2px 2px ${grey[50]}`,
                                             minHeight: "5rem",
-                                            // resize: "none",
                                             width: "100%",
                                           }}
                                         />
@@ -1382,7 +1338,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                     border: `1px solid ${grey[200]}`,
                                     boxShadow: `0px 2px 2px ${grey[50]}`,
                                     minHeight: "5rem",
-                                    // resize: "none",
                                     width: "100%",
                                   }}
                                 />
@@ -1521,8 +1476,8 @@ const MultipleLLMInstructionDrivenChat = ({
                         BackdropProps={{
                           timeout: 500,
                           sx: {
-                            backdropFilter: "blur(2px)", // Apply blur effect
-                            backgroundColor: "rgba(0, 0, 0, 0.2)", // Optional light overlay
+                            backdropFilter: "blur(2px)",
+                            backgroundColor: "rgba(0, 0, 0, 0.2)",
                           },
                         }}
                       >
@@ -1587,7 +1542,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                             border: `1px solid ${grey[200]}`,
                                             boxShadow: `0px 2px 2px ${grey[50]}`,
                                             minHeight: "5rem",
-                                            // resize: "none",
                                             width: "100%",
                                           }}
                                         />
@@ -1678,7 +1632,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                     border: `1px solid ${grey[200]}`,
                                     boxShadow: `0px 2px 2px ${grey[50]}`,
                                     minHeight: "5rem",
-                                    // resize: "none",
                                     width: "100%",
                                   }}
                                 />
@@ -1831,7 +1784,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                               flexDirection: "row",
                                             }}
                                             value={(() => {
-                                              // Add null checks for evalFormResponse and the specific index
                                               const responses =
                                                 evalFormResponse?.[
                                                   message?.output?.[0]
@@ -1841,10 +1793,9 @@ const MultipleLLMInstructionDrivenChat = ({
                                               if (
                                                 !responses ||
                                                 !Array.isArray(responses)
-                                              )
+                                              ) {
                                                 return "";
-
-                                              // Rest of your logic remains the same
+                                              }
                                               const matchingResponse =
                                                 responses.find((model) =>
                                                   model.questions_response?.some(

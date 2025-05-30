@@ -69,7 +69,6 @@ const AnnotatePage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // let taskData = localStorage.getItem("TaskData");
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
@@ -121,7 +120,6 @@ const AnnotatePage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
-  // const [formsAnswered, setFormsAnswered] = useState([]);
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
@@ -223,7 +221,6 @@ const AnnotatePage = () => {
     return () => {
       setAnnotations([]);
       setForms([]);
-      setFilteredReady(false);
     };
   }, [taskId]);
 
@@ -252,10 +249,6 @@ const AnnotatePage = () => {
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
-  };
-
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
   };
 
   const formatResponse = (response) => {
@@ -386,13 +379,10 @@ const AnnotatePage = () => {
   )[0];
 
   const tasksComplete = (id) => {
-    // if (typeof window !== "undefined") {
     if (id) {
       resetNotes();
-      // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
       navigate(`/projects/${projectId}/task/${id}`);
     } else {
-      // navigate(-1);
       resetNotes();
       setSnackbarInfo({
         open: true,
@@ -408,7 +398,6 @@ const AnnotatePage = () => {
         window.location.reload();
       }, 1000);
     }
-    // }
   };
 
   function isString(value) {
@@ -432,10 +421,10 @@ const AnnotatePage = () => {
       type === "MultipleLLMInstructionDrivenChat"
     ) {
       result = {
-        eval_form: Object.values(submittedEvalForms), // Keep as is
+        eval_form: resultValue[0].eval_form, // Keep as is
         model_interactions: resultValue[0].model_interactions.map((model) => ({
           model_name: model.model_name,
-          interaction_json: model.interaction_json.slice(0, -1), // Remove last item
+          interaction_json: model.interaction_json.slice(0, -1),
         })),
       };
     }
@@ -461,8 +450,6 @@ const AnnotatePage = () => {
       });
       return;
     }
-
-    // if (typeof window !== "undefined") {
     let resultValue;
 
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
@@ -524,7 +511,7 @@ const AnnotatePage = () => {
 
       resultValue = [
         {
-          eval_form: submittedEvalForms,
+          eval_form: Object.values(submittedEvalForms),
           model_interactions: model_interactions,
         },
       ];
@@ -588,7 +575,6 @@ const AnnotatePage = () => {
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(TaskObj.getBody()),
@@ -638,12 +624,11 @@ const AnnotatePage = () => {
                 [model1_interaction?.prompt_output_pair_id]: eval_form,
               }));
 
-            // setFormsAnswered((prev) => ({
-            //   ...prev,
-            //   [model1_interaction?.prompt_output_pair_id]: eval_form
-            //     ? true
-            //     : false,
-            // }));
+            eval_form &&
+              setSubmittedEvalForms((prev) => ({
+                ...prev,
+                [model1_interaction?.prompt_output_pair_id]: eval_form,
+              }));
 
             modifiedChatHistory?.push({
               prompt: prompt,
@@ -662,7 +647,8 @@ const AnnotatePage = () => {
                   output_error: response_valid_1
                     ? null
                     : JSON.stringify(
-                        resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]?.output,
+                        resp?.result?.[0]?.model_interactions?.[0]
+                          ?.interaction_json[i]?.output,
                       ),
                 },
                 {
@@ -679,7 +665,8 @@ const AnnotatePage = () => {
                   output_error: response_valid_2
                     ? null
                     : JSON.stringify(
-                        resp?.result?.[0]?.model_interactions?.[1]?.interaction_json[i]?.output,
+                        resp?.result?.[0]?.model_interactions?.[1]
+                          ?.interaction_json[i]?.output,
                       ),
                 },
               ],
@@ -744,7 +731,6 @@ const AnnotatePage = () => {
     }
     setLoading(false);
     setShowNotes(false);
-    // }
   };
 
   if (typeof window !== "undefined") {
@@ -755,7 +741,6 @@ const AnnotatePage = () => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
-  const [filteredReady, setFilteredReady] = useState(false);
 
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
@@ -1370,27 +1355,27 @@ const AnnotatePage = () => {
                       type="default"
                       variant="contained"
                       onClick={() => {
-                        // if (
-                        //   ProjectDetails?.project_type ===
-                        //     "MultipleLLMInstructionDrivenChat" &&
-                        //   isModelFailing
-                        // ) {
-                        //   setSnackbarInfo({
-                        //     open: true,
-                        //     message:
-                        //       "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
-                        //     variant: "warning",
-                        //     severity: "warning"
-                        //   });
-                        //   return;
-                        // } else {
+                        if (
+                          ProjectDetails?.project_type ===
+                            "MultipleLLMInstructionDrivenChat" &&
+                          isModelFailing
+                        ) {
+                          setSnackbarInfo({
+                            open: true,
+                            message:
+                              "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+                            variant: "warning",
+                            severity: "warning"
+                          });
+                          return;
+                        } else {
                         handleAnnotationClick(
                           "labeled",
                           Annotation.id,
                           Annotation.lead_time,
                           ProjectDetails?.project_type,
                         );
-                        // }
+                        }
                       }}
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
