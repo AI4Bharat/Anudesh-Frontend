@@ -164,6 +164,26 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
           </Box>
         </Grid>
 
+        {/* Required Annotators per Task */}
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            mb: 2,
+          }}
+        >
+          <Typography variant="subtitle1">Required Annotators per Task:</Typography>
+          <Typography
+            variant="subtitle1"
+            sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
+          >
+            {ProjectDetails.required_annotators_per_task}
+          </Typography>
+        </Grid>
+        
         {/* Filter String */}
         {ProjectDetails.filter_string && (
           <Grid
