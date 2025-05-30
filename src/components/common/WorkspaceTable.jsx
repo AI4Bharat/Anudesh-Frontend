@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import { Link } from "react-router-dom";
 import dynamic from 'next/dynamic';
-import GetWorkspaceAPI from "@/app/actions/api/workspace/GetWorkspaceData";
 import { ThemeProvider, Grid, Box, TablePagination, Select, MenuItem, Skeleton } from "@mui/material";
-import APITransport from "@/Lib/apiTransport/apitransport";
 import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
@@ -48,13 +46,6 @@ const WorkspaceTable = (props) => {
   );
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
-  const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
-  const [totalWorkspaces, setTotalWorkspaces] = useState(10);
-
-  const totalWorkspaceCount = useSelector(
-    (state) => state.GetWorkspace.data.count,
-  );
-
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -218,7 +209,6 @@ const WorkspaceTable = (props) => {
         ];
       })
       : [];
-  // console.log('DATA', data);
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
       <Box
@@ -297,16 +287,13 @@ const WorkspaceTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,

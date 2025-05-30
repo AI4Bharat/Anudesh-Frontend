@@ -65,11 +65,11 @@ const ColumnList = (props) => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={props.selectedColumns.includes(column.name)}
+                    checked={props.selectedColumns?.includes(column.name)}
                     onChange={() => {
-                      if (props.selectedColumns.includes(column.name)) {
+                      if (props.selectedColumns?.includes(column.name)) {
                         props.setColumns(
-                          props.selectedColumns.filter(
+                          props.selectedColumns?.filter(
                             (selectedColumn) => selectedColumn !== column.name
                           )
                         );
