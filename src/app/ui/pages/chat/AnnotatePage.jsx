@@ -419,10 +419,6 @@ const AnnotatePage = () => {
     return Object.keys(submittedEvalForms).length === chatHistory.length;
   };
 
-  useEffect(() => {
-    console.log("submittedEvalForms", submittedEvalForms);
-  }, [submittedEvalForms]);
-
   const buildResult = (value, type, resultValue) => {
     let result = resultValue;
     if (value === "delete") {
@@ -591,7 +587,6 @@ const AnnotatePage = () => {
           return;
         }
       }
-      console.log("PatchAPIdata", PatchAPIdata);
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
       // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {

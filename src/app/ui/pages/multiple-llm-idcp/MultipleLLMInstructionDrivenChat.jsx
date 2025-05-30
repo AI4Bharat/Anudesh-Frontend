@@ -99,7 +99,6 @@ const MultipleLLMInstructionDrivenChat = ({
   setSubmittedEvalForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  // console.log("annotation", annotation);
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -843,22 +842,30 @@ const MultipleLLMInstructionDrivenChat = ({
   };
 
   const handleComparison = (index, message, option, questionIdx, newValue) => {
+    if (
+      !index ||
+      !message?.output ||
+      !ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
+    ) {
+      return;
+    }
+
     setEvalFormResponse((prev) => {
+      // Ensure prev is an object
+      const safePrev = prev || {};
+
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
-
       const models = message?.output || [];
 
-      // Create new state preserving existing responses
       const newState = {
-        ...prev,
+        ...safePrev,
         [index]: {
-          ...prev[index],
+          ...safePrev[index],
           model_responses_json: [
-            ...(prev[index]?.model_responses_json || []).map(
+            ...(safePrev[index]?.model_responses_json || []).map(
               (existingModel) => {
-                // Find if this model exists in the current message outputs
                 const messageModel = models.find(
                   (m) => m.model_name === existingModel.model_name,
                 );
@@ -869,15 +876,13 @@ const MultipleLLMInstructionDrivenChat = ({
                   return {
                     ...existingModel,
                     questions_response: [
-                      // Keep all existing question responses except the current comparison question
                       ...(existingModel.questions_response || []).filter(
                         (qr) =>
                           !(
-                            qr.question.question_type === "comparison" &&
-                            qr.question.input_question === targetQuestion
+                            qr.question?.question_type === "comparison" &&
+                            qr.question?.input_question === targetQuestion
                           ),
                       ),
-                      // Add the updated comparison question response
                       {
                         question:
                           ProjectDetails.metadata_json.questions_json[
@@ -891,11 +896,10 @@ const MultipleLLMInstructionDrivenChat = ({
                 return existingModel;
               },
             ),
-            // Add new models if they don't exist yet
             ...models
               .filter(
                 (model) =>
-                  !prev[index]?.model_responses_json?.some(
+                  !safePrev[index]?.model_responses_json?.some(
                     (mr) => mr.model_name === model.model_name,
                   ),
               )
@@ -917,7 +921,6 @@ const MultipleLLMInstructionDrivenChat = ({
           ],
         },
       };
-
       return newState;
     });
   };
@@ -1828,37 +1831,42 @@ const MultipleLLMInstructionDrivenChat = ({
                                               flexDirection: "row",
                                             }}
                                             value={(() => {
+                                              // Add null checks for evalFormResponse and the specific index
                                               const responses =
                                                 evalFormResponse?.[
                                                   message?.output?.[0]
                                                     ?.prompt_output_pair_id
                                                 ]?.model_responses_json;
 
-                                              if (!responses) return "";
+                                              if (
+                                                !responses ||
+                                                !Array.isArray(responses)
+                                              )
+                                                return "";
 
-                                              // Find the first matching model response
+                                              // Rest of your logic remains the same
                                               const matchingResponse =
                                                 responses.find((model) =>
                                                   model.questions_response?.some(
                                                     (q) =>
                                                       q.question
-                                                        .question_type ===
+                                                        ?.question_type ===
                                                         question.question_type &&
                                                       q.question
-                                                        .input_question ===
+                                                        ?.input_question ===
                                                         question.input_question &&
                                                       q.response?.[0] !== "-1",
                                                   ),
                                                 );
 
-                                              // Find the specific question's response that is not -1
                                               const validResponse =
                                                 matchingResponse?.questions_response?.find(
                                                   (q) =>
-                                                    q.question.question_type ===
+                                                    q.question
+                                                      ?.question_type ===
                                                       question.question_type &&
                                                     q.question
-                                                      .input_question ===
+                                                      ?.input_question ===
                                                       question.input_question &&
                                                     q.response?.[0] !== "-1",
                                                 );
