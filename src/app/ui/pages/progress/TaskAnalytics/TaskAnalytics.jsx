@@ -26,6 +26,7 @@ import jsPDF from 'jspdf';
 import { KeyboardArrowDown } from "@material-ui/icons";
 import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
+import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -59,208 +60,7 @@ const TaskAnalytics = (props) => {
   const [submit,setsubmit] = useState(false);
   const [isWorkspaceLevel, setIsWorkspaceLevel] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState("");
-  const workspaces = [    {
-    "organization": 1,
-    "workspace_name": "AI4B Guest Workspace ~480",
-    "managers": [
-        {
-            "id": 516,
-            "username": "sounakd",
-            "email": "sounakdutta@ai4bharat.org",
-            "languages": [],
-            "availability_status": 1,
-            "enable_mail": false,
-            "first_name": "",
-            "last_name": "",
-            "phone": "",
-            "gender": "",
-            "address": "",
-            "city": "",
-            "state": "",
-            "pin_code": "",
-            "age": "",
-            "qualification": "",
-            "guest_user": false,
-            "profile_photo": "",
-            "role": 5,
-            "organization": {
-                "id": 1,
-                "title": "Anudesh",
-                "email_domain_name": "anudesh@ai4bharat.org",
-                "created_by": {
-                    "username": "Anudesh Admin",
-                    "email": "anudesh@ai4bharat.org",
-                    "first_name": "",
-                    "last_name": "",
-                    "role": 6
-                },
-                "created_at": "2024-01-05T09:37:15.899691Z"
-            },
-            "unverified_email": "",
-            "date_joined": "2024-10-21T09:53:35Z",
-            "participation_type": 1,
-            "prefer_cl_ui": false,
-            "is_active": true
-        }
-    ],
-    "is_archived": false,
-    "created_by": {
-        "id": 2,
-        "username": "Anudesh Admin",
-        "email": "anudesh@ai4bharat.org",
-        "languages": [
-            "Bengali",
-            "Bodo",
-            "Assamese"
-        ],
-        "availability_status": 1,
-        "enable_mail": false,
-        "first_name": "",
-        "last_name": "",
-        "phone": "7l",
-        "gender": "F",
-        "address": "IIT Madras, Chennai",
-        "city": "Chennai",
-        "state": "Tamil Nadu",
-        "pin_code": "769002",
-        "age": "22",
-        "qualification": "b.e",
-        "guest_user": false,
-        "profile_photo": "",
-        "role": 6,
-        "organization": {
-            "id": 1,
-            "title": "Anudesh",
-            "email_domain_name": "anudesh@ai4bharat.org",
-            "created_by": {
-                "username": "Anudesh Admin",
-                "email": "anudesh@ai4bharat.org",
-                "first_name": "",
-                "last_name": "",
-                "role": 6
-            },
-            "created_at": "2024-01-05T09:37:15.899691Z"
-        },
-        "unverified_email": "",
-        "date_joined": "2023-12-18T06:30:06Z",
-        "participation_type": 1,
-        "prefer_cl_ui": false,
-        "is_active": true
-    },
-    "id": 162,
-    "created_at": "2024-11-15T14:50:12.189728Z",
-    "guest_workspace_display": "Yes",
-    "frozen_users": [],
-    "public_analytics": true
-},
-{
-  "organization": 1,
-  "workspace_name": "AI4B Guest Workspace",
-  "managers": [],
-  "is_archived": false,
-  "created_by": {
-      "id": 2,
-      "username": "Anudesh Admin",
-      "email": "anudesh@ai4bharat.org",
-      "languages": [
-          "Bengali",
-          "Bodo",
-          "Assamese"
-      ],
-      "availability_status": 1,
-      "enable_mail": false,
-      "first_name": "",
-      "last_name": "",
-      "phone": "7l",
-      "gender": "F",
-      "address": "IIT Madras, Chennai",
-      "city": "Chennai",
-      "state": "Tamil Nadu",
-      "pin_code": "769002",
-      "age": "22",
-      "qualification": "b.e",
-      "guest_user": false,
-      "profile_photo": "",
-      "role": 6,
-      "organization": {
-          "id": 1,
-          "title": "Anudesh",
-          "email_domain_name": "anudesh@ai4bharat.org",
-          "created_by": {
-              "username": "Anudesh Admin",
-              "email": "anudesh@ai4bharat.org",
-              "first_name": "",
-              "last_name": "",
-              "role": 6
-          },
-          "created_at": "2024-01-05T09:37:15.899691Z"
-      },
-      "unverified_email": "",
-      "date_joined": "2023-12-18T06:30:06Z",
-      "participation_type": 1,
-      "prefer_cl_ui": false,
-      "is_active": true
-  },
-  "id": 152,
-  "created_at": "2024-11-05T06:44:38.888299Z",
-  "guest_workspace_display": "Yes",
-  "frozen_users": [],
-  "public_analytics": true
-}, {
-  "organization": 1,
-  "workspace_name": "IBM Guest Workspace",
-  "managers": [],
-  "is_archived": false,
-  "created_by": {
-      "id": 2,
-      "username": "Anudesh Admin",
-      "email": "anudesh@ai4bharat.org",
-      "languages": [
-          "Bengali",
-          "Bodo",
-          "Assamese"
-      ],
-      "availability_status": 1,
-      "enable_mail": false,
-      "first_name": "",
-      "last_name": "",
-      "phone": "7l",
-      "gender": "F",
-      "address": "IIT Madras, Chennai",
-      "city": "Chennai",
-      "state": "Tamil Nadu",
-      "pin_code": "769002",
-      "age": "22",
-      "qualification": "b.e",
-      "guest_user": false,
-      "profile_photo": "",
-      "role": 6,
-      "organization": {
-          "id": 1,
-          "title": "Anudesh",
-          "email_domain_name": "anudesh@ai4bharat.org",
-          "created_by": {
-              "username": "Anudesh Admin",
-              "email": "anudesh@ai4bharat.org",
-              "first_name": "",
-              "last_name": "",
-              "role": 6
-          },
-          "created_at": "2024-01-05T09:37:15.899691Z"
-      },
-      "unverified_email": "",
-      "date_joined": "2023-12-18T06:30:06Z",
-      "participation_type": 1,
-      "prefer_cl_ui": false,
-      "is_active": true
-  },
-  "id": 153,
-  "created_at": "2024-11-05T06:45:54.070592Z",
-  "guest_workspace_display": "Yes",
-  "frozen_users": [],
-  "public_analytics": true
-}]; // Example workspaces
-
+  const workspaces = useSelector((state) => state.GetWorkspace.data || []);
   const [selectedType, setSelectedType] = useState("AllTypes");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   if(isWorkspaceLevel && submit == true){
@@ -336,6 +136,11 @@ if(isWorkspaceLevel && submit==true){
   useEffect(() => {
     getTaskAnalyticsdata();
   }, []);
+
+  useEffect(() => {
+    dispatch(fetchWorkspaceData());
+  }, [dispatch]);
+
   const handleClose = () => {
     setAnchorEl(null);
   };
