@@ -9,9 +9,7 @@ import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
-import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
-import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
@@ -22,7 +20,6 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
 import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
@@ -119,7 +116,6 @@ const MultipleLLMInstructionDrivenChat = ({
     message: "",
     variant: "success",
   });
-  const [text, setText] = useState("");
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);

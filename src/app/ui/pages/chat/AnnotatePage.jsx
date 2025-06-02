@@ -616,7 +616,7 @@ const AnnotatePage = () => {
               (item) =>
                 item.prompt_output_pair_id ===
                 model1_interaction?.prompt_output_pair_id,
-            )?.model_responses_json;
+            );
 
             eval_form &&
               setEvalFormResponse((prev) => ({
@@ -1365,16 +1365,16 @@ const AnnotatePage = () => {
                             message:
                               "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
                             variant: "warning",
-                            severity: "warning"
+                            severity: "warning",
                           });
                           return;
                         } else {
-                        handleAnnotationClick(
-                          "labeled",
-                          Annotation.id,
-                          Annotation.lead_time,
-                          ProjectDetails?.project_type,
-                        );
+                          handleAnnotationClick(
+                            "labeled",
+                            Annotation.id,
+                            Annotation.lead_time,
+                            ProjectDetails?.project_type,
+                          );
                         }
                       }}
                       sx={{
