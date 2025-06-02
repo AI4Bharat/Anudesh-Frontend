@@ -103,11 +103,11 @@ const AnnotatePage = () => {
   const [answered, setAnswered] = useState(false);
   const [annotations, setAnnotations] = useState([]);
 
-  const annotationNotesRef = useRef(false);
+  const annotationNotesRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
-  const reviewNotesRef = useRef(false);
+  const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
@@ -320,9 +320,89 @@ const AnnotatePage = () => {
     return markdownString;
   };
 
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+ 
+
+  useEffect(() => {
+    let timeoutId;
+
+    const init = (annotationNotesRef,reviewNotesRef) => {
+      console.log(annotationNotesRef.current,reviewNotesRef.current,AnnotationsTaskDetails,"notes");
+
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
+        
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
+          }
+        }
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
+      }
+    }
+    const check = () => {
+      if (annotationNotesRef.current&&reviewNotesRef.current) {
+        init(annotationNotesRef,reviewNotesRef);
+        clearTimeout(timeoutId); 
+
+        return;
+      }
+      timeoutId = setTimeout(check, 100);
+    };
+    
+
+    check();
+
+  }, [AnnotationsTaskDetails,annotationNotesRef,reviewNotesRef]);
+
   const resetNotes = () => {
     if (
-      typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {

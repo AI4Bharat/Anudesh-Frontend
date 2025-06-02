@@ -20,8 +20,9 @@ import { setDomain } from "@/Lib/Features/actions/AddGlossary";
 
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { MenuProps } from "@/utils/utils";
-import { IndicTransliterate, getTransliterationLanguages } from "@ai4bharat/indic-transliterate-transcribe";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
+import { languages } from "@/components/Transliteration/languages";
 
 const SuggestAnEdit = ({
     openDialog,
@@ -39,7 +40,7 @@ const SuggestAnEdit = ({
     const dispatch = useDispatch();
     /* eslint-disable react-hooks/exhaustive-deps */
 
-  const [Targetlanguage, setTargetlanguage] = useState([]);
+  const [Targetlanguage] = languages;
     const [snackbar, setSnackbarInfo] = useState({
       open: false,
       message: "",
@@ -60,17 +61,6 @@ const SuggestAnEdit = ({
     const handleDomainChange = (e) => {
       setDomainValue(e.target.value);
     };
-  
-    useEffect(() => {
-  
-      getTransliterationLanguages()
-        .then(langs => {
-          setTargetlanguage(langs)
-        })
-        .catch(err => {
-          console.log(err);
-        })
-    }, [])
   
     var targetData = Targetlanguage?.filter((e)=>e.LangCode.includes(targetlang))
   

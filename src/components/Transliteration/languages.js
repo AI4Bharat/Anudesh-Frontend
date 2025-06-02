@@ -37,6 +37,14 @@ export const languages = [
     },
     {
       "Author": "AI4Bharat",
+      "Direction": "ltr",
+      "DisplayName": "English",
+      "Identifier": "eng",
+      "LangCode": "en",
+      "ScriptCode": "Eng"
+    },
+    {
+      "Author": "AI4Bharat",
       "CompiledDate": "09-April-2022",
       "Direction": "ltr",
       "DisplayName": "Goan Konkani - कोंकणी",
