@@ -448,7 +448,7 @@ const InstructionDrivenChatPage = ({
               {ProjectDetails?.metadata_json?.editable_prompt ? (
                 globalTransliteration === "true" ? (
                   <IndicTransliterate
-                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api1/generic/transliteration/`}
+                    customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                     enableASR={true}
                     asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                     apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
@@ -593,7 +593,7 @@ const InstructionDrivenChatPage = ({
                           // resize: "none",
                           width: "100%",
                         }}
-                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api2/generic/transliteration/`}
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                         enableASR={true}
                         asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                         apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
