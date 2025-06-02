@@ -887,7 +887,7 @@ const ReviewPage = () => {
                 (item) =>
                   item.prompt_output_pair_id ===
                   model1_interaction?.prompt_output_pair_id,
-              )?.model_responses_json;
+              );
 
               eval_form &&
                 setEvalFormResponse((prev) => ({
