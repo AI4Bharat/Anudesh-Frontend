@@ -54,6 +54,8 @@ const Transliteration = (props) => {
   };
 
   const handleLanguageChange = (event, val) => {
+    console.log(val);
+    
     setSelectedLang(val);
   };
 

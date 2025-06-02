@@ -3,6 +3,18 @@ export const languages = [
       "Author": "AI4Bharat",
       "CompiledDate": "09-April-2022",
       "Direction": "ltr",
+      "DisplayName": "English - English",
+      "FallbackFont": null,
+      "GoogleFont": null,
+      "Identifier": "en",
+      "IsStable": true,
+      "LangCode": "en",
+      "ScriptCode": "en"
+    },
+    {
+      "Author": "AI4Bharat",
+      "CompiledDate": "09-April-2022",
+      "Direction": "ltr",
       "DisplayName": "Assamese - অসমীয়া",
       "FallbackFont": null,
       "GoogleFont": null,
