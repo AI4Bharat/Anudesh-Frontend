@@ -13,7 +13,7 @@ import {
   Alert
 } from '@mui/material';
 import axios from 'axios';
-import configs from "@/config/config";
+import configs from '@/config/config';
 
 const AssignMembersDialog = () => {
   const [open, setOpen] = useState(false);
@@ -32,9 +32,14 @@ const AssignMembersDialog = () => {
   };
 
   const handleOpen = () => setOpen(true);
+
   const handleClose = () => {
     setOpen(false);
-    setResponseMessage('');
+    setFormData({
+      project_ids: '',
+      user_emails: '',
+      user_role: '',
+    });
   };
 
   const handleChange = (e) => {
@@ -55,9 +60,13 @@ const AssignMembersDialog = () => {
     }
 
     const payload = {
-      user_emails: formData.user_emails.split(',').map((email) => email.trim()),
+      user_emails: formData.user_emails
+        .split(',')
+        .map((email) => email.trim()),
       user_role: formData.user_role,
-      project_ids: formData.project_ids.split(',').map((id) => parseInt(id.trim())),
+      project_ids: formData.project_ids
+        .split(',')
+        .map((id) => parseInt(id.trim())),
     };
 
     setLoading(true);
@@ -65,11 +74,18 @@ const AssignMembersDialog = () => {
     try {
       const res = await axios.post(
         `${configs.BASE_URL_AUTO}/workspaces/${workspaceId}/bulk_add_members_to_projects/`,
-        payload
+        payload,
+        {
+          headers: {
+            Authorization: `JWT ${localStorage.getItem('anudesh_access_token')}`,
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
       );
       setResponseMessage(res.data.message || 'Users assigned successfully');
       setResponseType('success');
-      handleClose();
+      handleClose(); // Close modal
     } catch (err) {
       setResponseMessage(
         err.response?.data?.message || 'Error assigning users'
@@ -162,9 +178,15 @@ const AssignMembersDialog = () => {
         open={!!responseMessage}
         autoHideDuration={6000}
         onClose={() => setResponseMessage('')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{top: '50% !important',left: '50% !important',transform: 'translate(-50%, -50%)',}}
       >
-        <Alert severity={responseType} onClose={() => setResponseMessage('')}>
+        <Alert severity={responseType} onClose={() => setResponseMessage('')} sx={{
+          width: '100%',
+          backgroundColor: responseType === 'success' ? '#ee6633' : '#d32f2f',
+          color: '#fff',
+          fontWeight: 'bold'
+        }}>
           {responseMessage}
         </Alert>
       </Snackbar>
