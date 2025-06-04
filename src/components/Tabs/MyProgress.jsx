@@ -130,7 +130,11 @@ const MyProgress = () => {
         types.push(...subTypes);
       });
       setProjectTypes(types);
-      types?.length && setSelectedType(types[2]);
+      if(types?.length)
+        {
+          const idc = types.find(type => type.toLowerCase() === "InstructionDrivenChat");
+          setSelectedType(idc)
+        }
     }
   }, [ProjectTypes]);
 
