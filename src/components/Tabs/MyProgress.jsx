@@ -60,9 +60,7 @@ const MyProgress = () => {
   const [displayWidth, setDisplayWidth] = useState(0);
   const [selectRange, setSelectRange] = useState([
     {
-      startDate: new Date(
-        Date.parse(UserDetails?.date_joined, "yyyy-MM-ddTHH:mm:ss.SSSZ"),
-      ),
+      startDate: new Date(),
       endDate: new Date(),
       key: "selection",
     },
