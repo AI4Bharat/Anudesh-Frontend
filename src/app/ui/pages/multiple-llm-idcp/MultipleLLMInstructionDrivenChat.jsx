@@ -14,7 +14,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -96,6 +96,7 @@ const MultipleLLMInstructionDrivenChat = ({
   setSubmittedEvalForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  console.log("annotation", annotation);
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -104,8 +105,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
-  const [activeModalIndex1, setActiveModalIndex1] = useState(null); // For Model 1 responses
-  const [activeModalIndex2, setActiveModalIndex2] = useState(null); // For Model 2 responses
+  const [activeModalIdentifier, setActiveModalIdentifier] = useState(null); // For dynamic model responses
   const [visibleMessages, setVisibleMessages] = useState({});
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const questions = ProjectDetails?.metadata_json?.questions_json;
@@ -158,89 +158,80 @@ const MultipleLLMInstructionDrivenChat = ({
       annotation?.[0]?.result &&
       Array.isArray(annotation?.[0]?.result) &&
       annotation?.[0]?.id &&
-      annotation?.[0]?.result?.length > 0
+      annotation?.[0]?.result?.length > 0 &&
+      annotation?.[0]?.result?.[0]?.model_interactions &&
+      Array.isArray(annotation?.[0]?.result?.[0]?.model_interactions) &&
+      annotation?.[0]?.result?.[0]?.model_interactions.length > 0
     ) {
+      const allModelsInteractions =
+        annotation[0].result[0].model_interactions;
       const interactions_length =
-        annotation?.[0]?.result?.[0]?.model_interactions?.[0]?.interaction_json
-          ?.length;
+        allModelsInteractions[0]?.interaction_json?.length || 0;
 
       for (let i = 0; i < interactions_length; i++) {
         const prompt =
-          annotation?.[0]?.result?.[0]?.model_interactions?.[0]
-            ?.interaction_json[i]?.prompt;
+          allModelsInteractions[0]?.interaction_json[i]?.prompt;
 
-        // Get responses from both models
-        const model1_interaction =
-          annotation?.[0]?.result?.[0]?.model_interactions?.[0]
-            ?.interaction_json?.[i];
-        const model2_interaction =
-          annotation?.[0]?.result?.[0]?.model_interactions?.[1]
-            ?.interaction_json?.[i];
+        const modelOutputs = [];
+        let turnPromptOutputPairId = null;
 
-        const response_valid_1 = isString(model1_interaction?.output);
-        const response_valid_2 = isString(model2_interaction?.output);
-        if (!response_valid_1 || !response_valid_2) {
-          setIsModelFailing(true);
-        }
+        allModelsInteractions.forEach((modelData, modelIdx) => {
+          const interaction = modelData?.interaction_json?.[i];
+          if (interaction) {
+            const response_valid = isString(interaction?.output);
+            if (!response_valid) {
+              setIsModelFailing(true);
+            }
+            if (modelIdx === 0) { // Use the first model's ID as the turn's primary ID
+              turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+            }
 
-        const eval_form = (
-          Array.isArray(annotation?.[0]?.result?.[0]?.eval_form)
-            ? annotation[0].result[0].eval_form
-            : []
-        ).find(
-          (item) =>
-            item.prompt_output_pair_id ===
-            model1_interaction?.prompt_output_pair_id,
-        );
-
-        eval_form &&
-          setEvalFormResponse((prev) => ({
-            ...prev,
-            [model1_interaction?.prompt_output_pair_id]: eval_form,
-          }));
-
-        eval_form &&
-          setSubmittedEvalForms((prev) => ({
-            ...prev,
-            [model1_interaction?.prompt_output_pair_id]: eval_form,
-          }));
-
-        modifiedChatHistory?.push({
-          prompt: prompt,
-          output: [
-            {
-              model_name:
-                annotation?.[0]?.result?.[0]?.model_interactions?.[0]
-                  ?.model_name,
-              output: response_valid_1
-                ? formatResponse(model1_interaction?.output)
+            modelOutputs.push({
+              model_name: modelData?.model_name,
+              output: response_valid
+                ? formatResponse(interaction?.output)
                 : formatResponse(
-                    `${annotation?.[0]?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
+                    `${modelData?.model_name} failed to generate a response`,
                   ),
-              status: response_valid_1 ? "success" : "error",
-              prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
-              output_error: response_valid_1
+              status: response_valid ? "success" : "error",
+              prompt_output_pair_id: interaction?.prompt_output_pair_id,
+              output_error: response_valid
                 ? null
-                : JSON.stringify(model1_interaction?.output),
-            },
-            {
-              model_name:
-                annotation?.[0]?.result?.[0]?.model_interactions?.[1]
-                  ?.model_name,
-              output: response_valid_2
-                ? formatResponse(model2_interaction?.output)
-                : formatResponse(
-                    `${annotation?.[0]?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
-                  ),
-              status: response_valid_2 ? "success" : "error",
-              prompt_output_pair_id: model2_interaction?.prompt_output_pair_id,
-              output_error: response_valid_2
-                ? null
-                : JSON.stringify(model2_interaction?.output),
-            },
-          ],
-          prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
+                : JSON.stringify(interaction?.output),
+            });
+          }
         });
+        
+        if (turnPromptOutputPairId) {
+          const eval_form = (
+            Array.isArray(annotation?.[0]?.result?.[0]?.eval_form)
+              ? annotation[0].result[0].eval_form
+              : []
+          ).find(
+            (item) =>
+              item.prompt_output_pair_id === turnPromptOutputPairId,
+          );
+
+          if (eval_form) {
+            setEvalFormResponse((prev) => ({
+              ...prev,
+              [turnPromptOutputPairId]: eval_form,
+            }));
+
+            setSubmittedEvalForms((prev) => ({
+              ...prev,
+              [turnPromptOutputPairId]: eval_form,
+            }));
+          }
+        }
+        
+        if (prompt !== undefined && modelOutputs.length > 0) {
+          modifiedChatHistory?.push({
+            prompt: prompt,
+            output: modelOutputs,
+            prompt_output_pair_id: turnPromptOutputPairId, 
+          });
+        }
       }
       setChatHistory(modifiedChatHistory);
     } else {
@@ -257,20 +248,12 @@ const MultipleLLMInstructionDrivenChat = ({
     }));
   };
 
-  const handleOpenViewFullResponse1 = (index) => {
-    setActiveModalIndex1(index);
+  const handleOpenViewFullResponse = (messageIndex, modelIndex) => {
+    setActiveModalIdentifier(`${messageIndex}_${modelIndex}`);
   };
 
-  const handleCloseViewFullResponse1 = () => {
-    setActiveModalIndex1(null);
-  };
-
-  const handleOpenViewFullResponse2 = (index) => {
-    setActiveModalIndex2(index);
-  };
-
-  const handleCloseViewFullResponse2 = () => {
-    setActiveModalIndex2(null);
+  const handleCloseViewFullResponse = () => {
+    setActiveModalIdentifier(null);
   };
 
   const handleOpen = () => {
@@ -386,75 +369,71 @@ const MultipleLLMInstructionDrivenChat = ({
         data && data.result && setLoading(false);
         let modifiedChatHistory = [];
 
-        if (data && data.result && data.result.length > 0) {
+        if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
+          const allModelsInteractions = data.result[0].model_interactions;
           const interactions_length =
-            data?.result?.[0]?.model_interactions?.[0]?.interaction_json
-              ?.length;
+            allModelsInteractions[0]?.interaction_json?.length || 0;
 
           for (let i = 0; i < interactions_length; i++) {
             const prompt =
-              data?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
-                ?.prompt;
+              allModelsInteractions[0]?.interaction_json[i]?.prompt;
+            
+            const modelOutputs = [];
+            let turnPromptOutputPairId = null;
 
-            const model1_interaction =
-              data?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[i];
-            const model2_interaction =
-              data?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[i];
+            allModelsInteractions.forEach((modelData, modelIdx) => {
+              const interaction = modelData?.interaction_json?.[i];
+              if (interaction) {
+                const response_valid = isString(interaction?.output);
+                if (!response_valid) {
+                  setIsModelFailing(true);
+                }
+                if (modelIdx === 0) { // Use the first model's ID for eval form mapping
+                  turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                }
 
-            const response_valid_1 = isString(model1_interaction?.output);
-            const response_valid_2 = isString(model2_interaction?.output);
+                modelOutputs.push({
+                  model_name: modelData?.model_name,
+                  output: response_valid
+                    ? formatResponse(interaction?.output)
+                    : formatResponse(
+                        `${modelData?.model_name} failed to generate a response`,
+                      ),
+                  status: response_valid ? "success" : "error",
+                  prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                  output_error: response_valid
+                    ? null
+                    : JSON.stringify(interaction?.output),
+                });
+              }
+            });
 
-            if (!response_valid_1 || !response_valid_2) {
-              setIsModelFailing(true);
+            if (turnPromptOutputPairId) {
+                const eval_form = (
+                Array.isArray(data?.result[0]?.eval_form)
+                    ? data.result[0].eval_form
+                    : []
+                ).find(
+                (item) =>
+                    item.prompt_output_pair_id ===
+                    turnPromptOutputPairId,
+                );
+    
+                if (eval_form) {
+                setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                }));
+                }
             }
 
-            const eval_form = (
-              Array.isArray(data?.result[0]?.eval_form)
-                ? data.result[0].eval_form
-                : []
-            ).find(
-              (item) =>
-                item.prompt_output_pair_id ===
-                model1_interaction?.prompt_output_pair_id,
-            );
-
-            eval_form &&
-              setEvalFormResponse((prev) => ({
-                ...prev,
-                [model1_interaction?.prompt_output_pair_id]: eval_form,
-              }));
-
-            modifiedChatHistory.push({
-              prompt: prompt,
-              output: [
-                {
-                  model_name:
-                    data?.result?.[0]?.model_interactions?.[0]?.model_name,
-                  output: response_valid_1
-                    ? formatResponse(model1_interaction?.output)
-                    : `${data?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
-                  status: response_valid_1 ? "success" : "error",
-                  prompt_output_pair_id:
-                    model1_interaction?.prompt_output_pair_id,
-                  output_error: response_valid_1
-                    ? null
-                    : JSON.stringify(model1_interaction?.output),
-                },
-                {
-                  model_name:
-                    data?.result?.[0]?.model_interactions?.[1]?.model_name,
-                  output: response_valid_2
-                    ? formatResponse(model2_interaction?.output)
-                    : `${data?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
-                  status: response_valid_2 ? "success" : "error",
-                  prompt_output_pair_id:
-                    model2_interaction?.prompt_output_pair_id,
-                  output_error: response_valid_2
-                    ? null
-                    : JSON.stringify(model2_interaction?.output),
-                },
-              ],
-            });
+            if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                prompt: prompt,
+                output: modelOutputs,
+                prompt_output_pair_id: turnPromptOutputPairId,
+                });
+            }
           }
         } else {
           setLoading(false);
@@ -493,26 +472,37 @@ const MultipleLLMInstructionDrivenChat = ({
     setInputValue(prompt);
   };
 
-  const handleTextChange = (e, index, message, fieldType) => {
-    if (globalTransliteration) {
-      var updatedValue = e;
-    } else {
-      var updatedValue = e.target.value;
-    }
-
-    const updatedChatHistory = [...chatHistory];
-
-    const messageIndex = chatHistory.findIndex((msg) => msg === message);
-
-    if (messageIndex !== -1) {
-      if (fieldType === "prompt") {
-        updatedChatHistory[messageIndex].prompt = updatedValue;
-      } else if (fieldType === "output") {
-        updatedChatHistory[messageIndex].output[index].value = updatedValue;
-      }
-
-      setChatHistory(updatedChatHistory);
-    }
+  const handleTextChange = (newValue, currentMessage, modelIndexForOutput, segmentIndexForOutput, fieldType) => {
+    setChatHistory(prevChatHistory => {
+      return prevChatHistory.map(chatItem => {
+        // Find the chat message being edited
+        if (chatItem.prompt_output_pair_id === currentMessage.prompt_output_pair_id) {
+          if (fieldType === "prompt") {
+            return { ...chatItem, prompt: newValue };
+          } else if (fieldType === "output") {
+            // Update the specific model's output segments
+            const newOutputArray = chatItem.output.map((modelOutput, idx) => {
+              if (idx === modelIndexForOutput) {
+                // If editable, we assume the entire output for this model becomes a single text segment
+                // or, if segmentIndexForOutput is provided, we update that specific segment.
+                // For simplicity matching original intent of editing "the output":
+                // Let's assume formatResponse for an editable field for a model should ideally produce one text segment.
+                // Or, if we want to allow editing only one segment among many, this logic would be different.
+                // Given original calls, it seems it was replacing the whole output for the model.
+                return {
+                  ...modelOutput,
+                  // Replace all segments with a single text segment containing the new value
+                  output: [{ type: "text", value: newValue }],
+                };
+              }
+              return modelOutput;
+            });
+            return { ...chatItem, output: newOutputArray };
+          }
+        }
+        return chatItem;
+      });
+    });
   };
 
   const handleInputChange = (e, message, index, questionIdx, model_idx) => {
@@ -1001,8 +991,8 @@ const MultipleLLMInstructionDrivenChat = ({
                         />
                       )}
                       value={message.prompt}
-                      onChangeText={(e) =>
-                        handleTextChange(e, null, message, "prompt")
+                      onChangeText={(text) =>
+                        handleTextChange(text, message, null, null, "prompt")
                       }
                       lang={targetLang}
                     />
@@ -1010,7 +1000,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     <textarea
                       value={message.prompt}
                       onChange={(e) =>
-                        handleTextChange(e, null, message, "prompt")
+                        handleTextChange(e.target.value, message, null, null, "prompt")
                       }
                       style={{
                         fontSize: "1rem",
@@ -1030,7 +1020,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 ) : (
                   <ReactMarkdown
                     className="flex-col"
-                    children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+                    children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
                   />
                 )}
               </Grid>
@@ -1104,599 +1094,332 @@ const MultipleLLMInstructionDrivenChat = ({
 
               <Grid
                 item
-                xs={6}
+                xs
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  minWidth: `90%`,
+                  flexDirection: "row",
+                  flexWrap: "nowrap",
+                  overflowX: "auto",
+                  justifyContent: "flex-start",
+                  gap: "1rem",
+                  paddingBottom: "1rem",
                 }}
               >
-                {/* Output 1 Section */}
-                {message?.output?.[0]?.status === "error" ? (
-                  <Box
-                    sx={{
-                      border: "1px solid red",
-                      width: "60%",
-                      marginLeft: "10px",
-                      height: "10vh",
-                      padding: "10px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "10px",
-                      color: "red",
-                      fontWeight: "bold",
-                      backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-                    }}
-                  >
-                    <ErrorIcon
-                      sx={{
-                        marginRight: "10px",
-                      }}
-                    />
-                    <Typography>
-                      {message?.output?.[0]?.model_name} failed to load the
-                      response!
-                    </Typography>{" "}
-                  </Box>
-                ) : (
-                  <>
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        width: "60%",
-                        marginLeft: "10px",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        alignItems: "flex-end",
-                        borderRadius: "10px",
-                      }}
-                    >
-                      <Tooltip
-                        title={
-                          <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                            Expand to view full response
-                          </span>
-                        }
-                      >
-                        <IconButton
-                          onClick={() => handleOpenViewFullResponse1(index)}
-                        >
-                          <OpenInFullIcon
-                            sx={{
-                              padding: "10px 10px 0 0",
-                              color: orange[400],
-                            }}
-                          />
-                        </IconButton>
-                      </Tooltip>
-                      <Modal
-                        open={activeModalIndex1 === index}
-                        onClose={handleCloseViewFullResponse1}
-                        closeAfterTransition
-                        BackdropComponent={Backdrop}
-                        BackdropProps={{
-                          timeout: 500,
-                          sx: {
-                            backdropFilter: "blur(2px)",
-                            backgroundColor: "rgba(0, 0, 0, 0.2)",
-                          },
+                {message?.output?.map((modelOutput, modelIdx) => (
+                  <React.Fragment key={modelIdx}>
+                    {modelOutput?.status === "error" ? (
+                      <Box
+                        sx={{
+                          border: "1px solid red",
+                          width: "45%",
+                          minWidth: "300px",
+                          flexShrink: 0,
+                          height: "10vh",
+                          padding: "10px",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          borderRadius: "10px",
+                          color: "red",
+                          fontWeight: "bold",
+                          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
                         }}
                       >
-                        <Fade in={activeModalIndex1 === index}>
-                          <Box sx={viewFullResponseModalStyle}>
-                            <Box
+                        <ErrorIcon
+                          sx={{
+                            marginRight: "10px",
+                          }}
+                        />
+                        <Typography>
+                          {modelOutput?.model_name} failed to load the
+                          response!
+                        </Typography>{" "}
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          border: "1px solid #ccc",
+                          width: "45%",
+                          minWidth: "300px",
+                          flexShrink: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          alignItems: "flex-end",
+                          borderRadius: "10px",
+                          flexGrow: 1,
+                        }}
+                      >
+                        <Tooltip
+                          title={
+                            <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                              Expand to view full response
+                            </span>
+                          }
+                        >
+                          <IconButton
+                            onClick={() => handleOpenViewFullResponse(index, modelIdx)}
+                          >
+                            <OpenInFullIcon
                               sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
+                                padding: "10px 10px 0 0",
+                                color: orange[400],
                               }}
-                            >
-                              <Typography
-                                variant="subtitle2"
+                            />
+                          </IconButton>
+                        </Tooltip>
+                        <Modal
+                          open={activeModalIdentifier === `${index}_${modelIdx}`}
+                          onClose={handleCloseViewFullResponse}
+                          closeAfterTransition
+                          BackdropComponent={Backdrop}
+                          BackdropProps={{
+                            timeout: 500,
+                            sx: {
+                              backdropFilter: "blur(2px)",
+                              backgroundColor: "rgba(0, 0, 0, 0.2)",
+                            },
+                          }}
+                        >
+                          <Fade in={activeModalIdentifier === `${index}_${modelIdx}`}>
+                            <Box sx={viewFullResponseModalStyle}>
+                              <Box
                                 sx={{
-                                  fontWeight: "bold",
-                                  color: orange[400],
-                                  fontSize: "1.25rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  paddingBottom: "1.5rem",
                                 }}
                               >
-                                {message?.output?.[0]?.model_name}
-                              </Typography>
-                              <IconButton
-                                onClick={handleCloseViewFullResponse1}
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: orange[400],
+                                    fontSize: "1.25rem",
+                                  }}
+                                >
+                                  {modelOutput?.model_name}
+                                </Typography>
+                                <IconButton
+                                  onClick={handleCloseViewFullResponse}
+                                >
+                                  <CloseIcon sx={{ color: orange[400] }} />
+                                </IconButton>
+                              </Box>
+                              <Typography
+                                component="div"
+                                sx={{
+                                  fontSize: "1.2rem",
+                                  maxHeight: "60vh",
+                                  overflowY: "scroll",
+                                }}
                               >
-                                <CloseIcon sx={{ color: orange[400] }} />
-                              </IconButton>
-                            </Box>
-                            <Typography
-                              sx={{
-                                fontSize: "1.2rem",
-                                maxHeight: "60vh",
-                                overflowY: "scroll",
-                              }}
-                            >
-                              {message?.output?.[0]?.output?.map(
-                                (segment, index) =>
-                                  segment.type === "text" ? (
-                                    ProjectDetails?.metadata_json
-                                      ?.editable_response ||
-                                    segment.value == "" ? (
-                                      globalTransliteration ? (
-                                        <IndicTransliterate
-                                          key={index}
-                                          value={segment.value}
-                                          onChangeText={(e) =>
-                                            handleTextChange(
-                                              e,
-                                              index,
-                                              message,
-                                              "output",
-                                            )
-                                          }
-                                          lang={targetLang}
-                                          style={{
-                                            fontSize: "1rem",
-                                            padding: "12px",
-                                            borderRadius: "12px 12px 0 12px",
-                                            color: grey[900],
-                                            background: "#ffffff",
-                                            border: `1px solid ${grey[200]}`,
-                                            boxShadow: `0px 2px 2px ${grey[50]}`,
-                                            minHeight: "5rem",
-                                            width: "100%",
-                                          }}
-                                        />
+                                {modelOutput?.output?.map(
+                                  (segment, segmentIdx) =>
+                                    segment.type === "text" ? (
+                                      ProjectDetails?.metadata_json
+                                        ?.editable_response ||
+                                      segment.value == "" ? (
+                                        globalTransliteration ? (
+                                          <IndicTransliterate
+                                            key={segmentIdx}
+                                            value={segment.value}
+                                            onChangeText={(text) =>
+                                              handleTextChange(
+                                                text,
+                                                message,
+                                                modelIdx,
+                                                segmentIdx,
+                                                "output",
+                                              )
+                                            }
+                                            lang={targetLang}
+                                            renderComponent={(props) => (
+                                              <textarea
+                                                {...props}
+                                                style={{
+                                                  fontSize: "1rem",
+                                                  padding: "12px",
+                                                  borderRadius: "12px 12px 0 12px",
+                                                  color: grey[900],
+                                                  background: "#ffffff",
+                                                  border: `1px solid ${grey[200]}`,
+                                                  boxShadow: `0px 2px 2px ${grey[50]}`,
+                                                  minHeight: "5rem",
+                                                  width: "100%",
+                                                  resize: "none",
+                                                }}
+                                              />
+                                            )}
+                                          />
+                                        ) : (
+                                          <textarea
+                                            key={segmentIdx}
+                                            value={segment.value}
+                                            onChange={(e) =>
+                                              handleTextChange(
+                                                e.target.value,
+                                                message,
+                                                modelIdx,
+                                                segmentIdx,
+                                                "output",
+                                              )
+                                            }
+                                            style={{
+                                              fontSize: "1rem",
+                                              width: "100%",
+                                              padding: "12px",
+                                              borderRadius: "12px 12px 0 12px",
+                                              color: grey[900],
+                                              background: "#ffffff",
+                                              border: `1px solid ${grey[200]}`,
+                                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                                              minHeight: "5rem",
+                                              resize: "none",
+                                            }}
+                                            rows={1}
+                                          />
+                                        )
                                       ) : (
-                                        <textarea
-                                          key={index}
-                                          value={segment.value}
-                                          onChange={(e) =>
-                                            handleTextChange(
-                                              e,
-                                              index,
-                                              message,
-                                              "output",
-                                            )
-                                          }
-                                          style={{
-                                            fontSize: "1rem",
-                                            width: "100%",
-                                            padding: "12px",
-                                            borderRadius: "12px 12px 0 12px",
-                                            color: grey[900],
-                                            background: "#ffffff",
-                                            border: `1px solid ${grey[200]}`,
-                                            boxShadow: `0px 2px 2px ${grey[50]}`,
-                                            minHeight: "5rem",
-                                            resize: "none",
-                                          }}
-                                          rows={1}
+                                        <ReactMarkdown
+                                          key={segmentIdx}
+                                          children={segment?.value?.replace(
+                                            /\\n/gi,
+                                            "&nbsp; \\n",
+                                          )}
                                         />
                                       )
                                     ) : (
-                                      <ReactMarkdown
-                                        key={index}
-                                        children={segment?.value?.replace(
-                                          /\n/gi,
-                                          "&nbsp; \n",
-                                        )}
+                                      <SyntaxHighlighter
+                                        key={segmentIdx}
+                                        language={segment.language}
+                                        style={gruvboxDark}
+                                        customStyle={{
+                                          padding: "1rem",
+                                          borderRadius: "5px",
+                                        }}
+                                      >
+                                        {segment.value}
+                                      </SyntaxHighlighter>
+                                    ),
+                                )}
+                              </Typography>
+                            </Box>
+                          </Fade>
+                        </Modal>
+                        <Box
+                          sx={{
+                            overflowY: "auto",
+                            maxHeight: "400px",
+                            padding: "20px",
+                            width: "100%",
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          {modelOutput?.output?.map((segment, segmentIdx) =>
+                            segment.type === "text" ? (
+                              ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                globalTransliteration ? (
+                                  <IndicTransliterate
+                                    key={segmentIdx}
+                                    value={segment.value}
+                                    onChangeText={(text) =>
+                                      handleTextChange(
+                                        text,
+                                        message,
+                                        modelIdx,
+                                        segmentIdx,
+                                        "output",
+                                      )
+                                    }
+                                    lang={targetLang}
+                                    renderComponent={(props) => (
+                                      <textarea
+                                        {...props}
+                                        style={{
+                                          fontSize: "1rem",
+                                          padding: "12px",
+                                          borderRadius: "12px 12px 0 12px",
+                                          color: grey[900],
+                                          background: "#ffffff",
+                                          border: `1px solid ${grey[200]}`,
+                                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                                          minHeight: "5rem",
+                                          width: "100%",
+                                          resize: "none",
+                                        }}
                                       />
-                                    )
-                                  ) : (
-                                    <SyntaxHighlighter
-                                      key={index}
-                                      language={segment.language}
-                                      style={gruvboxDark}
-                                      customStyle={{
-                                        padding: "1rem",
-                                        borderRadius: "5px",
-                                      }}
-                                    >
-                                      {segment.value}
-                                    </SyntaxHighlighter>
-                                  ),
-                              )}
-                            </Typography>
-                          </Box>
-                        </Fade>
-                      </Modal>
-                      <Box
-                        sx={{
-                          overflowY: "auto",
-                          maxHeight: "400px",
-                          padding: "20px 50px",
-                        }}
-                      >
-                        {message?.output?.[0]?.output?.map((segment, index) =>
-                          segment.type === "text" ? (
-                            ProjectDetails?.metadata_json?.editable_response ||
-                            segment.value == "" ? (
-                              globalTransliteration ? (
-                                <IndicTransliterate
-                                  key={index}
-                                  value={segment.value}
-                                  onChangeText={(e) =>
-                                    handleTextChange(
-                                      e,
-                                      index,
-                                      message,
-                                      "output",
-                                    )
-                                  }
-                                  lang={targetLang}
-                                  style={{
-                                    fontSize: "1rem",
-                                    padding: "12px",
-                                    borderRadius: "12px 12px 0 12px",
-                                    color: grey[900],
-                                    background: "#ffffff",
-                                    border: `1px solid ${grey[200]}`,
-                                    boxShadow: `0px 2px 2px ${grey[50]}`,
-                                    minHeight: "5rem",
-                                    width: "100%",
-                                  }}
-                                />
+                                    )}
+                                  />
+                                ) : (
+                                  <textarea
+                                    key={segmentIdx}
+                                    value={segment.value}
+                                    onChange={(e) =>
+                                      handleTextChange(
+                                        e.target.value,
+                                        message,
+                                        modelIdx,
+                                        segmentIdx,
+                                        "output",
+                                      )
+                                    }
+                                    style={{
+                                      fontSize: "1rem",
+                                      width: "100%",
+                                      padding: "12px",
+                                      borderRadius: "12px 12px 0 12px",
+                                      color: grey[900],
+                                      background: "#ffffff",
+                                      border: `1px solid ${grey[200]}`,
+                                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                                      minHeight: "5rem",
+                                      resize: "none",
+                                    }}
+                                    rows={1}
+                                  />
+                                )
                               ) : (
-                                <textarea
-                                  key={index}
-                                  value={segment.value}
-                                  onChange={(e) =>
-                                    handleTextChange(
-                                      e,
-                                      index,
-                                      message,
-                                      "output",
-                                    )
-                                  }
-                                  style={{
-                                    fontSize: "1rem",
-                                    width: "100%",
-                                    padding: "12px",
-                                    borderRadius: "12px 12px 0 12px",
-                                    color: grey[900],
-                                    background: "#ffffff",
-                                    border: `1px solid ${grey[200]}`,
-                                    boxShadow: `0px 2px 2px ${grey[50]}`,
-                                    minHeight: "5rem",
-                                    resize: "none",
-                                  }}
-                                  rows={1}
+                                <ReactMarkdown
+                                  key={segmentIdx}
+                                  children={segment?.value?.replace(
+                                    /\\n/gi,
+                                    "&nbsp; \\n",
+                                  )}
                                 />
                               )
                             ) : (
-                              <ReactMarkdown
-                                key={index}
-                                children={segment?.value?.replace(
-                                  /\n/gi,
-                                  "&nbsp; \n",
-                                )}
-                              />
-                            )
-                          ) : (
-                            <SyntaxHighlighter
-                              key={index}
-                              language={segment.language}
-                              style={gruvboxDark}
-                              customStyle={{
-                                padding: "1rem",
-                                borderRadius: "5px",
-                              }}
-                            >
-                              {segment.value}
-                            </SyntaxHighlighter>
-                          ),
-                        )}
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            backgroundColor: "#E8E6E6",
-                            padding: "10px",
-                            borderRadius: "10px",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          {message?.output?.[0]?.model_name}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </>
-                )}
-
-                {/* Output 2 Section */}
-                {message?.output?.[1]?.status === "error" ? (
-                  <Box
-                    sx={{
-                      border: "1px solid red",
-                      width: "60%",
-                      marginLeft: "10px",
-                      height: "10vh",
-                      padding: "10px",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "10px",
-                      color: "red",
-                      fontWeight: "bold",
-                      backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-                    }}
-                  >
-                    <ErrorIcon
-                      sx={{
-                        marginRight: "10px",
-                      }}
-                    />
-                    <Typography>
-                      {message?.output?.[1]?.model_name} failed to load the
-                      response!
-                    </Typography>{" "}
-                  </Box>
-                ) : (
-                  <>
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        width: "60%",
-                        marginLeft: "2rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        alignItems: "flex-end",
-                        borderRadius: "10px",
-                      }}
-                    >
-                      <Tooltip
-                        title={
-                          <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                            Expand to view full response
-                          </span>
-                        }
-                      >
-                        <IconButton
-                          onClick={() => handleOpenViewFullResponse2(index)}
-                        >
-                          <OpenInFullIcon
-                            sx={{
-                              padding: "10px 10px 0 0",
-                              color: orange[400],
-                            }}
-                          />
-                        </IconButton>
-                      </Tooltip>
-                      <Modal
-                        open={activeModalIndex2 === index}
-                        onClose={handleCloseViewFullResponse2}
-                        closeAfterTransition
-                        BackdropComponent={Backdrop}
-                        BackdropProps={{
-                          timeout: 500,
-                          sx: {
-                            backdropFilter: "blur(2px)",
-                            backgroundColor: "rgba(0, 0, 0, 0.2)",
-                          },
-                        }}
-                      >
-                        <Fade in={activeModalIndex2 === index}>
-                          <Box sx={viewFullResponseModalStyle}>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                paddingBottom: "1.5rem",
-                              }}
-                            >
-                              <Typography
-                                variant="subtitle2"
-                                sx={{
-                                  fontWeight: "bold",
-                                  color: orange[400],
-                                  fontSize: "1.25rem",
+                              <SyntaxHighlighter
+                                key={segmentIdx}
+                                language={segment.language}
+                                style={gruvboxDark}
+                                customStyle={{
+                                  padding: "1rem",
+                                  borderRadius: "5px",
                                 }}
                               >
-                                {message?.output?.[1]?.model_name}
-                              </Typography>
-                              <IconButton
-                                onClick={handleCloseViewFullResponse2}
-                              >
-                                <CloseIcon sx={{ color: orange[400] }} />
-                              </IconButton>
-                            </Box>
-                            <Typography
-                              sx={{
-                                fontSize: "1.2rem",
-                                maxHeight: "60vh",
-                                overflowY: "scroll",
-                              }}
-                            >
-                              {message?.output?.[1]?.output?.map(
-                                (segment, index) =>
-                                  segment.type === "text" ? (
-                                    ProjectDetails?.metadata_json
-                                      ?.editable_response ||
-                                    segment.value == "" ? (
-                                      globalTransliteration ? (
-                                        <IndicTransliterate
-                                          key={index}
-                                          value={segment.value}
-                                          onChangeText={(e) =>
-                                            handleTextChange(
-                                              e,
-                                              index,
-                                              message,
-                                              "output",
-                                            )
-                                          }
-                                          lang={targetLang}
-                                          style={{
-                                            fontSize: "1rem",
-                                            padding: "12px",
-                                            borderRadius: "12px 12px 0 12px",
-                                            color: grey[900],
-                                            background: "#ffffff",
-                                            border: `1px solid ${grey[200]}`,
-                                            boxShadow: `0px 2px 2px ${grey[50]}`,
-                                            minHeight: "5rem",
-                                            width: "100%",
-                                          }}
-                                        />
-                                      ) : (
-                                        <textarea
-                                          key={index}
-                                          value={segment.value}
-                                          onChange={(e) =>
-                                            handleTextChange(
-                                              e,
-                                              index,
-                                              message,
-                                              "output",
-                                            )
-                                          }
-                                          style={{
-                                            fontSize: "1rem",
-                                            width: "100%",
-                                            padding: "12px",
-                                            borderRadius: "12px 12px 0 12px",
-                                            color: grey[900],
-                                            background: "#ffffff",
-                                            border: `1px solid ${grey[200]}`,
-                                            boxShadow: `0px 2px 2px ${grey[50]}`,
-                                            minHeight: "5rem",
-                                            resize: "none",
-                                          }}
-                                          rows={1}
-                                        />
-                                      )
-                                    ) : (
-                                      <ReactMarkdown
-                                        key={index}
-                                        children={segment?.value?.replace(
-                                          /\n/gi,
-                                          "&nbsp; \n",
-                                        )}
-                                      />
-                                    )
-                                  ) : (
-                                    <SyntaxHighlighter
-                                      key={index}
-                                      language={segment.language}
-                                      style={gruvboxDark}
-                                      customStyle={{
-                                        padding: "1rem",
-                                        borderRadius: "5px",
-                                      }}
-                                    >
-                                      {segment.value}
-                                    </SyntaxHighlighter>
-                                  ),
-                              )}
-                            </Typography>
-                          </Box>
-                        </Fade>
-                      </Modal>
-                      <Box
-                        sx={{
-                          overflowY: "auto",
-                          maxHeight: "400px",
-                          padding: "20px 50px",
-                        }}
-                      >
-                        {message?.output?.[1]?.output?.map((segment, index) =>
-                          segment.type === "text" ? (
-                            ProjectDetails?.metadata_json?.editable_response ||
-                            segment.value == "" ? (
-                              globalTransliteration ? (
-                                <IndicTransliterate
-                                  key={index}
-                                  value={segment.value}
-                                  onChangeText={(e) =>
-                                    handleTextChange(
-                                      e,
-                                      index,
-                                      message,
-                                      "output",
-                                    )
-                                  }
-                                  lang={targetLang}
-                                  style={{
-                                    fontSize: "1rem",
-                                    padding: "12px",
-                                    borderRadius: "12px 12px 0 12px",
-                                    color: grey[900],
-                                    background: "#ffffff",
-                                    border: `1px solid ${grey[200]}`,
-                                    boxShadow: `0px 2px 2px ${grey[50]}`,
-                                    minHeight: "5rem",
-                                    width: "100%",
-                                  }}
-                                />
-                              ) : (
-                                <textarea
-                                  key={index}
-                                  value={segment.value}
-                                  onChange={(e) =>
-                                    handleTextChange(
-                                      e,
-                                      index,
-                                      message,
-                                      "output",
-                                    )
-                                  }
-                                  style={{
-                                    fontSize: "1rem",
-                                    width: "100%",
-                                    padding: "12px",
-                                    borderRadius: "12px 12px 0 12px",
-                                    color: grey[900],
-                                    background: "#ffffff",
-                                    border: `1px solid ${grey[200]}`,
-                                    boxShadow: `0px 2px 2px ${grey[50]}`,
-                                    minHeight: "5rem",
-                                    resize: "none",
-                                  }}
-                                  rows={1}
-                                />
-                              )
-                            ) : (
-                              <ReactMarkdown
-                                key={index}
-                                children={segment?.value?.replace(
-                                  /\n/gi,
-                                  "&nbsp; \n",
-                                )}
-                              />
-                            )
-                          ) : (
-                            <SyntaxHighlighter
-                              key={index}
-                              language={segment.language}
-                              style={gruvboxDark}
-                              customStyle={{
-                                padding: "1rem",
-                                borderRadius: "5px",
-                              }}
-                            >
-                              {segment.value}
-                            </SyntaxHighlighter>
-                          ),
-                        )}
+                                {segment.value}
+                              </SyntaxHighlighter>
+                            ),
+                          )}
+                        </Box>
+                        <Box>
+                          <Typography
+                            sx={{
+                              backgroundColor: "#E8E6E6",
+                              padding: "10px",
+                              borderRadius: "10px",
+                              fontSize: "1rem",
+                            }}
+                          >
+                            {modelOutput?.model_name}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            backgroundColor: "#E8E6E6",
-                            padding: "10px",
-                            borderRadius: "10px",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          {message?.output?.[1]?.model_name}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </>
-                )}
+                    )}
+                  </React.Fragment>
+                ))}
               </Grid>
             </Grid>
           </Grid>
@@ -2198,126 +1921,6 @@ const MultipleLLMInstructionDrivenChat = ({
                                                     }
                                                   />{" "}
                                                 </FormGroup>
-                                              </FormControl>
-                                            </div>
-                                          ),
-                                        )}
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {question.question_type === "mcq" && (
-                            <div
-                              style={{
-                                marginBottom: "20px",
-                              }}
-                            >
-                              <div className={classes.inputQuestion}>
-                                {questionIdx + 1}. {question.input_question}
-                                <span
-                                  style={{
-                                    color: "#d93025",
-                                    fontSize: "25px",
-                                  }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </div>
-
-                              <div
-                                style={{
-                                  paddingLeft: "20px",
-                                }}
-                              >
-                                {question?.input_selections_list?.map(
-                                  (option, optionIdx) => (
-                                    <div
-                                      key={optionIdx}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        flexDirection: "row",
-                                      }}
-                                    >
-                                      <span>{option} :</span>{" "}
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          flexDirection: "row",
-                                          flexWrap: "wrap",
-                                        }}
-                                      >
-                                        {message?.output?.map(
-                                          (response, outputIdx) => (
-                                            <div
-                                              key={`${optionIdx}-${outputIdx}`}
-                                              style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                paddingRight: "2rem",
-                                              }}
-                                            >
-                                              <FormControl
-                                                component="fieldset"
-                                                key={outputIdx}
-                                              >
-                                                <RadioGroup
-                                                  name={`question-${questionIdx}-model-${outputIdx}`}
-                                                  value={
-                                                    evalFormResponse?.[
-                                                      message?.output?.[0]
-                                                        ?.prompt_output_pair_id
-                                                    ]?.model_responses_json
-                                                      ?.find(
-                                                        (m) =>
-                                                          m.model_name ===
-                                                          response.model_name,
-                                                      )
-                                                      ?.questions_response?.find(
-                                                        (q) =>
-                                                          q.question
-                                                            .question_type ===
-                                                            question.question_type &&
-                                                          q.question
-                                                            .input_question ===
-                                                            question.input_question,
-                                                      )?.response?.[0] || ""
-                                                  }
-                                                  onChange={(e) =>
-                                                    handleMCQ(
-                                                      message?.output?.[0]
-                                                        ?.prompt_output_pair_id, // index
-                                                      message,
-                                                      option,
-                                                      questionIdx,
-                                                      outputIdx, // model_idx
-                                                    )
-                                                  }
-                                                >
-                                                  <FormControlLabel
-                                                    key={optionIdx}
-                                                    value={option}
-                                                    control={<Radio />}
-                                                    labelPlacement="start"
-                                                    label={
-                                                      <Typography
-                                                        variant="subtitle2"
-                                                        sx={{
-                                                          fontWeight: "bold",
-                                                          color: "#6C5F5B",
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />
-                                                </RadioGroup>
                                               </FormControl>
                                             </div>
                                           ),
