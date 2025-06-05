@@ -1811,7 +1811,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             </div>
                           )}
-                             {question.question_type === "mcq" && (
+                          {question.question_type === "mcq" && (
                             <div
                               style={{
                                 marginBottom: "20px",
