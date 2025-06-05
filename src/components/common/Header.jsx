@@ -1033,6 +1033,7 @@ useEffect(() => {
                           }}
                         >
                           <MenuItem disabled value=""></MenuItem>
+                          <MenuItem value="en">English</MenuItem>
                           <MenuItem value="hi">Hindi</MenuItem>
                           <MenuItem value="mr">Marathi</MenuItem>
                           <MenuItem value="ta">Tamil</MenuItem>
