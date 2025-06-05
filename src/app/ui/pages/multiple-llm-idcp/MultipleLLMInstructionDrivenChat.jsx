@@ -96,7 +96,6 @@ const MultipleLLMInstructionDrivenChat = ({
   setSubmittedEvalForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  console.log("annotation", annotation);
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -1809,6 +1808,126 @@ const MultipleLLMInstructionDrivenChat = ({
                                     </div>
                                   );
                                 })}
+                              </div>
+                            </div>
+                          )}
+                             {question.question_type === "mcq" && (
+                            <div
+                              style={{
+                                marginBottom: "20px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+
+                              <div
+                                style={{
+                                  paddingLeft: "20px",
+                                }}
+                              >
+                                {question?.input_selections_list?.map(
+                                  (option, optionIdx) => (
+                                    <div
+                                      key={optionIdx}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        flexDirection: "row",
+                                      }}
+                                    >
+                                      <span>{option} :</span>{" "}
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          flexDirection: "row",
+                                          flexWrap: "wrap",
+                                        }}
+                                      >
+                                        {message?.output?.map(
+                                          (response, outputIdx) => (
+                                            <div
+                                              key={`${optionIdx}-${outputIdx}`}
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                paddingRight: "2rem",
+                                              }}
+                                            >
+                                              <FormControl
+                                                component="fieldset"
+                                                key={outputIdx}
+                                              >
+                                                <RadioGroup
+                                                  name={`question-${questionIdx}-model-${outputIdx}`}
+                                                  value={
+                                                    evalFormResponse?.[
+                                                      message
+                                                        ?.prompt_output_pair_id
+                                                    ]?.model_responses_json
+                                                      ?.find(
+                                                        (m) =>
+                                                          m.model_name ===
+                                                          response.model_name,
+                                                      )
+                                                      ?.questions_response?.find(
+                                                        (q) =>
+                                                          q.question
+                                                            .question_type ===
+                                                            question.question_type &&
+                                                          q.question
+                                                            .input_question ===
+                                                            question.input_question,
+                                                      )?.response?.[0] || ""
+                                                  }
+                                                  onChange={(e) =>
+                                                    handleMCQ(
+                                                      message?.output?.[0]
+                                                        ?.prompt_output_pair_id, // index
+                                                      message,
+                                                      option,
+                                                      questionIdx,
+                                                      outputIdx, // model_idx
+                                                    )
+                                                  }
+                                                >
+                                                  <FormControlLabel
+                                                    key={optionIdx}
+                                                    value={option}
+                                                    control={<Radio />}
+                                                    labelPlacement="start"
+                                                    label={
+                                                      <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                          fontWeight: "bold",
+                                                          color: "#6C5F5B",
+                                                        }}
+                                                      >
+                                                        {response?.model_name}
+                                                      </Typography>
+                                                    }
+                                                  />
+                                                </RadioGroup>
+                                              </FormControl>
+                                            </div>
+                                          ),
+                                        )}
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
                               </div>
                             </div>
                           )}
