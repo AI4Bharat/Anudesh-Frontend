@@ -64,8 +64,6 @@ const formats = [
 ];
 
 const AnnotatePage = () => {
-  // eslint-disable-next-line react/display-name
-
   /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -235,7 +233,7 @@ const AnnotatePage = () => {
       const element = topref.current;
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "start" });
-        obs.disconnect(); // Stop observing after scroll
+        obs.disconnect();
       }
     });
 
@@ -499,7 +497,7 @@ const AnnotatePage = () => {
       type === "MultipleLLMInstructionDrivenChat"
     ) {
       result = {
-        eval_form: resultValue[0].eval_form, // Keep as is
+        eval_form: resultValue[0].eval_form,
         model_interactions: resultValue[0].model_interactions.map((model) => ({
           model_name: model.model_name,
           interaction_json: model.interaction_json.slice(0, -1),
@@ -672,20 +670,20 @@ const AnnotatePage = () => {
             let modifiedChatHistory = [];
             let globalModelFailure = false;
 
-            for (let i = 0; i < interactions_length; i++) { // Loop for each turn
+            for (let i = 0; i < interactions_length; i++) {
               const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
               const modelOutputs = [];
               let turnPromptOutputPairId = null;
               let turnHasModelFailure = false;
 
-              allModelsInteractions.forEach((modelData, modelIdx) => { // Loop for each model in the turn
+              allModelsInteractions.forEach((modelData, modelIdx) => {
                 const interaction = modelData?.interaction_json?.[i];
                 if (interaction) {
                   const response_valid = isString(interaction?.output);
                   if (!response_valid) {
                     turnHasModelFailure = true;
                   }
-                  if (modelIdx === 0) { // Use the first model's ID as the turn's primary ID for eval form
+                  if (modelIdx === 0) {
                     turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                   }
                   modelOutputs.push({
@@ -742,7 +740,6 @@ const AnnotatePage = () => {
             }
             setChatHistory([...modifiedChatHistory]);
           } else {
-            // If model_interactions is not in the expected format or empty, clear history
             setChatHistory([]);
             setIsModelFailing(false); 
           }

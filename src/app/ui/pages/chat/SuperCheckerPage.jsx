@@ -739,93 +739,86 @@ const SuperCheckerPage = () => {
         resp.result
       ) {
         if (type === "MultipleLLMInstructionDrivenChat") {
-          const interactions_length =
-            resp?.result?.[0]?.model_interactions?.[0]?.interaction_json
-              ?.length;
-          let modifiedChatHistory = [];
-          for (let i = 0; i < interactions_length; i++) {
-            const prompt =
-              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
-                ?.prompt;
+          const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+          if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+            const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+            let modifiedChatHistory = [];
+            let globalModelFailure = false;
 
-            const model1_interaction =
-              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[i];
-            const model2_interaction =
-              resp?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[i];
+            for (let i = 0; i < interactions_length; i++) {
+              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const modelOutputs = [];
+              let turnPromptOutputPairId = null;
+              let turnHasModelFailure = false;
 
-            const response_valid_1 = isString(model1_interaction?.output);
-            const response_valid_2 = isString(model2_interaction?.output);
-            if (!response_valid_1 || !response_valid_2) {
+              allModelsInteractions.forEach((modelData, modelIdx) => {
+                const interaction = modelData?.interaction_json?.[i];
+                if (interaction) {
+                  const response_valid = isString(interaction?.output);
+                  if (!response_valid) {
+                    turnHasModelFailure = true;
+                  }
+                  if (modelIdx === 0) {
+                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  }
+                  modelOutputs.push({
+                    model_name: modelData?.model_name,
+                    output: response_valid
+                      ? formatResponse(interaction?.output)
+                      : formatResponse(
+                          `${modelData?.model_name} failed to generate a response`,
+                        ),
+                    status: response_valid ? "success" : "error",
+                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    output_error: response_valid
+                      ? null
+                      : JSON.stringify(interaction?.output),
+                  });
+                }
+              });
+
+              if (turnHasModelFailure) {
+                globalModelFailure = true;
+              }
+
+              if (turnPromptOutputPairId) {
+                const eval_form = (
+                  Array.isArray(resp?.result?.[0]?.eval_form)
+                    ? resp.result[0].eval_form
+                    : []
+                ).find(
+                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                );
+
+                if (eval_form) {
+                  setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                  setSubmittedEvalForms((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                }
+              }
+
+              if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                  prompt: prompt,
+                  output: modelOutputs,
+                  prompt_output_pair_id: turnPromptOutputPairId,
+                });
+              }
+            }
+            if (globalModelFailure) {
               setIsModelFailing(true);
             }
-
-            const eval_form = (
-              Array.isArray(resp?.result?.[0]?.eval_form)
-                ? resp?.result?.[0].eval_form
-                : []
-            ).find(
-              (item) =>
-                item.prompt_output_pair_id ===
-                model1_interaction?.prompt_output_pair_id,
-            );
-
-            eval_form &&
-              setEvalFormResponse((prev) => ({
-                ...prev,
-                [model1_interaction?.prompt_output_pair_id]: eval_form,
-              }));
-
-            eval_form &&
-              setSubmittedEvalForms((prev) => ({
-                ...prev,
-                [model1_interaction?.prompt_output_pair_id]: eval_form,
-              }));
-
-            modifiedChatHistory?.push({
-              prompt: prompt,
-              output: [
-                {
-                  model_name:
-                    resp?.result?.[0].model_interactions?.[0]?.model_name,
-                  output: response_valid_1
-                    ? formatResponse(model1_interaction?.output)
-                    : formatResponse(
-                        `${resp?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
-                      ),
-                  status: response_valid_1 ? "success" : "error",
-                  prompt_output_pair_id:
-                    model1_interaction?.prompt_output_pair_id,
-                  output_error: response_valid_1
-                    ? null
-                    : JSON.stringify(
-                        resp?.result?.[0]?.model_interactions?.[0]
-                          ?.interaction_json[i]?.output,
-                      ),
-                },
-                {
-                  model_name:
-                    resp?.result?.[0]?.model_interactions?.[1]?.model_name,
-                  output: response_valid_2
-                    ? formatResponse(model2_interaction?.output)
-                    : formatResponse(
-                        `${resp?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
-                      ),
-                  status: response_valid_2 ? "success" : "error",
-                  prompt_output_pair_id:
-                    model2_interaction?.prompt_output_pair_id,
-                  output_error: response_valid_2
-                    ? null
-                    : JSON.stringify(
-                        resp?.result?.[0]?.model_interactions?.[1]
-                          ?.interaction_json[i]?.output,
-                      ),
-                },
-              ],
-              prompt_output_pair_id: model1_interaction?.prompt_output_pair_id,
-            });
+            setChatHistory([...modifiedChatHistory]);
+          } else {
+            setChatHistory([]);
+            setIsModelFailing(false); 
           }
-          setChatHistory([...modifiedChatHistory]);
-        } else {
+        }else {
           let modifiedChatHistory = resp?.result.map((interaction) => {
             return {
               ...interaction,
