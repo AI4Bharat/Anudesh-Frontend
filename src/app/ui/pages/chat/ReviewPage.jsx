@@ -92,9 +92,29 @@ const StyledMenu = styled((props) => (
   },
 }));
 
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const ReviewPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+  const open = Boolean(anchorEl);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -109,13 +129,6 @@ const ReviewPage = () => {
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
   const [labellingMode, setLabellingMode] = useState(null);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
-
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -145,6 +158,74 @@ const ReviewPage = () => {
   const [reviewtext, setreviewtext] = useState("");
   const [supercheckertext, setsupercheckertext] = useState("");
   const [info, setInfo] = useState({});
+  const [filteredReady, setFilteredReady] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
+  }, [taskDataArr, AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
+  }, [AnnotationsTaskDetails, userData, taskDataArr]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
@@ -218,41 +299,6 @@ const ReviewPage = () => {
     const markdownString = lines?.join("  \n");
     return markdownString;
   };
-
-  useEffect(() => {
-    if (taskData) {
-      setInfo((prev) => {
-        return {
-          hint: taskData?.data?.hint,
-          examples: taskData?.data?.examples,
-          meta_info_intent: taskData?.data?.meta_info_intent,
-          instruction_data: taskData?.data?.instruction_data,
-          meta_info_domain: taskData?.data?.meta_info_domain,
-          meta_info_language: taskData?.data?.meta_info_language,
-        };
-      });
-    }
-  }, [taskData]);
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const setNotes = (taskData, annotations) => {
     if (
@@ -502,10 +548,6 @@ const ReviewPage = () => {
     }
   };
 
-  useEffect(() => {
-    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
-  }, [taskDataArr, AnnotationsTaskDetails]);
-
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -517,17 +559,6 @@ const ReviewPage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -541,12 +572,10 @@ const ReviewPage = () => {
     );
 
     const isMaxIdAnnotation =
-      maxIdAnnotation?.id === task?.correct_annotation_id;
-    console.log(isMaxIdAnnotation, "llove");
 
+      maxIdAnnotation?.id === task?.correct_annotation_id;
 
       maxIdAnnotation?.id === task.correct_annotation_id;
-
 
     const nextAPIData = {
       id: projectId,
@@ -589,6 +618,7 @@ const ReviewPage = () => {
       });
     // }
   };
+
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
       if (id) {
@@ -614,9 +644,38 @@ const ReviewPage = () => {
       }
     }
   };
+
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const areAllFormsAnswered = () => {
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
+  };
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    return !Array.isArray(result) ? [result] : result;
+  };
+
   const handleReviewClick = async (
     value,
     id,
@@ -624,6 +683,24 @@ const ReviewPage = () => {
     type = "",
     parentannotation,
   ) => {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      !areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
+      });
+      return;
+    }
     if (typeof window !== "undefined") {
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -676,7 +753,7 @@ const ReviewPage = () => {
           });
         });
 
-        resultValue = Object.entries(modelMap).map(
+        const model_interactions = Object.entries(modelMap).map(
           ([model_name, interaction_json]) => {
             return {
               model_name,
@@ -684,6 +761,13 @@ const ReviewPage = () => {
             };
           },
         );
+
+        resultValue = [
+          {
+            eval_form: Object.values(submittedEvalForms),
+            model_interactions: model_interactions,
+          },
+        ];
       }
       setLoading(true);
       setAutoSave(false);
@@ -705,18 +789,7 @@ const ReviewPage = () => {
           value === "accepted_with_major_changes") && {
           parent_annotation: parentannotation,
         }),
-        result:
-          value === "delete"
-            ? []
-            : value === "delete-pair" &&
-                type === "MultipleLLMInstructionDrivenChat"
-              ? resultValue.map((model) => ({
-                  ...model,
-                  interaction_json: model.interaction_json.slice(0, -1), // remove last pair
-                }))
-              : value === "delete-pair"
-                ? resultValue.slice(0, resultValue.length - 1)
-                : resultValue,
+        result: buildResult(value, type, resultValue),
         task_id: taskId,
         auto_save:
           value === "delete" || value === "delete-pair" || value === "rejected"
@@ -785,62 +858,91 @@ const ReviewPage = () => {
         ) {
           if (type === "MultipleLLMInstructionDrivenChat") {
             const interactions_length =
-              resp?.result[0]?.interaction_json?.length;
-            let modifiedChatHistory = [];
+              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json
+                ?.length;
             for (let i = 0; i < interactions_length; i++) {
-              const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
-              const response_valid_1 = isString(
-                resp?.result[0].interaction_json[i]?.output,
+              const prompt =
+                resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
+                  ?.prompt;
+              const model1_interaction =
+                resp?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[
+                  i
+                ];
+              const model2_interaction =
+                resp?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[
+                  i
+                ];
+
+              const response_valid_1 = isString(model1_interaction?.output);
+              const response_valid_2 = isString(model2_interaction?.output);
+              if (!response_valid_1 || !response_valid_2) {
+                setIsModelFailing(true);
+              }
+
+              const eval_form = (
+                Array.isArray(resp?.result?.[0]?.eval_form)
+                  ? resp?.result?.[0].eval_form
+                  : []
+              ).find(
+                (item) =>
+                  item.prompt_output_pair_id ===
+                  model1_interaction?.prompt_output_pair_id,
               );
-              const response_valid_2 = isString(
-                resp?.result[1].interaction_json[i]?.output,
-              );
+
+              eval_form &&
+                setEvalFormResponse((prev) => ({
+                  ...prev,
+                  [model1_interaction?.prompt_output_pair_id]: eval_form,
+                }));
+
+              eval_form &&
+                setSubmittedEvalForms((prev) => ({
+                  ...prev,
+                  [model1_interaction?.prompt_output_pair_id]: eval_form,
+                }));
+
               modifiedChatHistory?.push({
                 prompt: prompt,
                 output: [
                   {
-                    model_name: resp?.result[0].model_name,
+                    model_name:
+                      resp?.result?.[0].model_interactions?.[0]?.model_name,
                     output: response_valid_1
-                      ? formatResponse(
-                          resp?.result[0].interaction_json[i]?.output,
-                        )
+                      ? formatResponse(model1_interaction?.output)
                       : formatResponse(
-                          `${resp?.result[0].model_name} failed to generate a response`,
+                          `${resp?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
                         ),
                     status: response_valid_1 ? "success" : "error",
-                    preferred_response:
-                      resp?.result[0]?.interaction_json[i]?.preferred_response,
                     prompt_output_pair_id:
-                      resp?.result[0]?.interaction_json[i]
-                        ?.prompt_output_pair_id,
+                      model1_interaction?.prompt_output_pair_id,
                     output_error: response_valid_1
                       ? null
                       : JSON.stringify(
-                          resp?.result[0]?.interaction_json[i]?.output,
+                          resp?.result?.[0]?.model_interactions?.[0]
+                            ?.interaction_json[i]?.output,
                         ),
                   },
                   {
-                    model_name: resp?.result[1].model_name,
+                    model_name:
+                      resp?.result?.[0]?.model_interactions?.[1]?.model_name,
                     output: response_valid_2
-                      ? formatResponse(
-                          resp?.result[1].interaction_json[i]?.output,
-                        )
+                      ? formatResponse(model2_interaction?.output)
                       : formatResponse(
-                          `${resp?.result[1].model_name} failed to generate a response`,
+                          `${resp?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
                         ),
                     status: response_valid_2 ? "success" : "error",
-                    preferred_response:
-                      resp?.result[1]?.interaction_json[i]?.preferred_response,
                     prompt_output_pair_id:
-                      resp?.result[1]?.interaction_json[i]
-                        ?.prompt_output_pair_id,
+                      model2_interaction?.prompt_output_pair_id,
                     output_error: response_valid_2
                       ? null
                       : JSON.stringify(
-                          resp?.result[1]?.interaction_json[i]?.output,
+                          resp?.result?.[0]?.model_interactions?.[1]
+                            ?.interaction_json[i]?.output,
                         ),
                   },
                 ],
+                prompt_output_pair_id:
+                  model1_interaction?.prompt_output_pair_id,
               });
             }
             setChatHistory([...modifiedChatHistory]);
@@ -907,23 +1009,10 @@ const ReviewPage = () => {
     dispatch(fetchAnnotationsTask(id));
   };
 
-  const [filteredReady, setFilteredReady] = useState(false);
-
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -1051,12 +1140,6 @@ const ReviewPage = () => {
       filterMessage,
     ];
   };
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
-  }, [AnnotationsTaskDetails, userData, taskDataArr]);
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-  }
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -1084,15 +1167,11 @@ const ReviewPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
+
   let review = AnnotationsTaskDetails.filter(
     (annotation) => annotation.annotation_type === 2,
   )[0];
 
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -1134,6 +1213,11 @@ const ReviewPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
@@ -1198,9 +1282,11 @@ const ReviewPage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
+
   return (
     <>
       {loading && <Spinner />}

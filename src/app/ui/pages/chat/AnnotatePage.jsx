@@ -43,13 +43,32 @@ const ReactQuill = dynamic(
   },
 );
 
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const AnnotatePage = () => {
   // eslint-disable-next-line react/display-name
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // let taskData = localStorage.getItem("TaskData");
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
@@ -59,26 +78,19 @@ const AnnotatePage = () => {
   const [labelConfig, setLabelConfig] = useState();
   const [info, setInfo] = useState({});
   const [labellingMode, setLabellingMode] = useState(null);
-
   let loaded = useRef();
-
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
 
   const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
+    severity: "",
   });
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
@@ -108,34 +120,136 @@ const AnnotatePage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      annotationNotesRef.current &&
+      reviewNotesRef.current
+    ) {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
+          }
+        }
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
+      }
+    }
+  }, [AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      filterAnnotations(AnnotationsTaskDetails, userData);
+    }
+  }, [AnnotationsTaskDetails, userData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations, obs) => {
+      const element = topref.current;
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        obs.disconnect(); // Stop observing after scroll
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
   };
-
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
-  };
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const formatResponse = (response) => {
     if (!response) {
@@ -226,8 +340,6 @@ const AnnotatePage = () => {
     let timeoutId;
 
     const init = (annotationNotesRef,reviewNotesRef) => {
-      console.log(annotationNotesRef.current,reviewNotesRef.current,AnnotationsTaskDetails,"notes");
-
       if (
         AnnotationsTaskDetails &&
         AnnotationsTaskDetails.length > 0 &&
@@ -286,6 +398,7 @@ const AnnotatePage = () => {
     check();
 
   }, [AnnotationsTaskDetails,annotationNotesRef,reviewNotesRef]);
+
   const resetNotes = () => {
     if (
       annotationNotesRef.current &&
@@ -296,16 +409,6 @@ const AnnotatePage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -348,18 +451,16 @@ const AnnotatePage = () => {
         }, 1000);
       });
   };
+
   let Annotation = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 1,
   )[0];
 
   const tasksComplete = (id) => {
-    // if (typeof window !== "undefined") {
     if (id) {
       resetNotes();
-      // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
       navigate(`/projects/${projectId}/task/${id}`);
     } else {
-      // navigate(-1);
       resetNotes();
       setSnackbarInfo({
         open: true,
@@ -375,14 +476,58 @@ const AnnotatePage = () => {
         window.location.reload();
       }, 1000);
     }
-    // }
   };
 
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const areAllFormsAnswered = () => {
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
+  };
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    return !Array.isArray(result) ? [result] : result;
+  };
+
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
-    // if (typeof window !== "undefined") {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      !areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
+      });
+      return;
+    }
     let resultValue;
 
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
@@ -421,19 +566,19 @@ const AnnotatePage = () => {
           if (!modelMap[model]) {
             modelMap[model] = [];
           }
+
           const interaction = {
             prompt: entry.prompt,
             output: has_invalid_resp
               ? JSON.parse(modelResp.output_error)
               : reverseFormatResponse(modelResp.output),
-            preferred_response: modelResp.preferred_response,
             prompt_output_pair_id: modelResp.prompt_output_pair_id,
           };
           modelMap[model].push(interaction);
         });
       });
 
-      resultValue = Object.entries(modelMap).map(
+      const model_interactions = Object.entries(modelMap).map(
         ([model_name, interaction_json]) => {
           return {
             model_name,
@@ -441,6 +586,13 @@ const AnnotatePage = () => {
           };
         },
       );
+
+      resultValue = [
+        {
+          eval_form: Object.values(submittedEvalForms),
+          model_interactions: model_interactions,
+        },
+      ];
     }
     setLoading(true);
     setAutoSave(false);
@@ -459,18 +611,7 @@ const AnnotatePage = () => {
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair" &&
-              type === "MultipleLLMInstructionDrivenChat"
-            ? resultValue.map((model) => ({
-                ...model,
-                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
-              }))
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
@@ -512,68 +653,99 @@ const AnnotatePage = () => {
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(TaskObj.getBody()),
         headers: TaskObj.getHeaders().headers,
       });
       const resp = await res.json();
+
       if (
         (value === "delete" || value === "delete-pair") === true &&
         res.ok &&
         resp.result
       ) {
         if (type === "MultipleLLMInstructionDrivenChat") {
-          const interactions_length = resp?.result[0]?.interaction_json?.length;
-          let modifiedChatHistory = [];
-          for (let i = 0; i < interactions_length; i++) {
-            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
-            const response_valid_1 = isString(
-              resp?.result[0].interaction_json[i]?.output,
-            );
-            const response_valid_2 = isString(
-              resp?.result[1].interaction_json[i]?.output,
-            );
-            modifiedChatHistory?.push({
-              prompt: prompt,
-              output: [
-                {
-                  model_name: resp?.result[0].model_name,
-                  output: response_valid_1
-                    ? formatResponse(
-                        resp?.result[0].interaction_json[i]?.output,
-                      )
-                    : formatResponse(
-                        `${resp?.result[0].model_name} failed to generate a response`,
-                      ),
-                  status: response_valid_1 ? "success" : "error",
-                  output_error: response_valid_1
-                    ? null
-                    : JSON.stringify(
-                        resp?.result[0].interaction_json[i]?.output,
-                      ),
-                },
-                {
-                  model_name: resp?.result[1].model_name,
-                  output: response_valid_2
-                    ? formatResponse(
-                        resp?.result[1].interaction_json[i]?.output,
-                      )
-                    : formatResponse(
-                        `${resp?.result[1].model_name} failed to generate a response`,
-                      ),
-                  status: response_valid_2 ? "success" : "error",
-                  output_error: response_valid_2
-                    ? null
-                    : JSON.stringify(
-                        resp?.result[1].interaction_json[i]?.output,
-                      ),
-                },
-              ],
-            });
+          const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+          if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+            const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+            let modifiedChatHistory = [];
+            let globalModelFailure = false;
+
+            for (let i = 0; i < interactions_length; i++) { // Loop for each turn
+              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const modelOutputs = [];
+              let turnPromptOutputPairId = null;
+              let turnHasModelFailure = false;
+
+              allModelsInteractions.forEach((modelData, modelIdx) => { // Loop for each model in the turn
+                const interaction = modelData?.interaction_json?.[i];
+                if (interaction) {
+                  const response_valid = isString(interaction?.output);
+                  if (!response_valid) {
+                    turnHasModelFailure = true;
+                  }
+                  if (modelIdx === 0) { // Use the first model's ID as the turn's primary ID for eval form
+                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  }
+                  modelOutputs.push({
+                    model_name: modelData?.model_name,
+                    output: response_valid
+                      ? formatResponse(interaction?.output)
+                      : formatResponse(
+                          `${modelData?.model_name} failed to generate a response`,
+                        ),
+                    status: response_valid ? "success" : "error",
+                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    output_error: response_valid
+                      ? null
+                      : JSON.stringify(interaction?.output),
+                  });
+                }
+              });
+
+              if (turnHasModelFailure) {
+                globalModelFailure = true;
+              }
+
+              if (turnPromptOutputPairId) {
+                const eval_form = (
+                  Array.isArray(resp?.result?.[0]?.eval_form)
+                    ? resp.result[0].eval_form
+                    : []
+                ).find(
+                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                );
+
+                if (eval_form) {
+                  setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                  setSubmittedEvalForms((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                }
+              }
+
+              if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                  prompt: prompt,
+                  output: modelOutputs,
+                  prompt_output_pair_id: turnPromptOutputPairId,
+                });
+              }
+            }
+            if (globalModelFailure) {
+              setIsModelFailing(true);
+            }
+            setChatHistory([...modifiedChatHistory]);
+          } else {
+            // If model_interactions is not in the expected format or empty, clear history
+            setChatHistory([]);
+            setIsModelFailing(false); 
           }
-          setChatHistory([...modifiedChatHistory]);
         } else {
           let modifiedChatHistory = resp?.result.map((interaction) => {
             return {
@@ -581,6 +753,7 @@ const AnnotatePage = () => {
               output: formatResponse(interaction.output),
             };
           });
+          
           setChatHistory([...modifiedChatHistory]);
         }
       }
@@ -631,34 +804,17 @@ const AnnotatePage = () => {
     }
     setLoading(false);
     setShowNotes(false);
-    // }
   };
+
   if (typeof window !== "undefined") {
     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
-
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      filterAnnotations(AnnotationsTaskDetails, userData);
-    }
-  }, [AnnotationsTaskDetails, userData]);
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
-  const [filteredReady, setFilteredReady] = useState(false);
 
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
     let disableSkip = false;
@@ -794,12 +950,6 @@ const AnnotatePage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
-
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -847,6 +997,11 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
@@ -909,6 +1064,7 @@ const AnnotatePage = () => {
       componentToRender = null;
       break;
   }
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -919,26 +1075,12 @@ const AnnotatePage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
+
   const topref = useRef(null);
-  useEffect(() => {
-    const observer = new MutationObserver((mutations, obs) => {
-      const element = topref.current;
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-        obs.disconnect(); // Stop observing after scroll
-      }
-    });
-
-    observer.observe(document, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <>
@@ -1285,13 +1427,29 @@ const AnnotatePage = () => {
                       value="Updata"
                       type="default"
                       variant="contained"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "labeled",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
+                      onClick={() => {
+                        if (
+                          ProjectDetails?.project_type ===
+                            "MultipleLLMInstructionDrivenChat" &&
+                          isModelFailing
+                        ) {
+                          setSnackbarInfo({
+                            open: true,
+                            message:
+                              "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+                            variant: "warning",
+                            severity: "warning",
+                          });
+                          return;
+                        } else {
+                          handleAnnotationClick(
+                            "labeled",
+                            Annotation.id,
+                            Annotation.lead_time,
+                            ProjectDetails?.project_type,
+                          );
+                        }
+                      }}
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
                         minWidth: { xs: "100px", sm: "150px", md: "150px" },
