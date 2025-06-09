@@ -481,8 +481,8 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
-    return Object.keys(submittedEvalForms).length === chatHistory.length;
-  };
+    return Object.keys(submittedEvalForms ?? {}).length === chatHistory.length;
+  };  
 
   const buildResult = (value, type, resultValue) => {
     let result = resultValue;

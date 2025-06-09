@@ -114,7 +114,6 @@ const formats = [
 
 const ReviewPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const open = Boolean(anchorEl);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -160,6 +159,7 @@ const ReviewPage = () => {
   const [info, setInfo] = useState({});
   const [filteredReady, setFilteredReady] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
