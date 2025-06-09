@@ -160,6 +160,7 @@ export default function Textarea({
       width={grid_size}
       className={class_name}
       sx={{ width: "100%" }}
+      paddingBottom="8px"
     >
       {(globalTransliteration || defaultLang!==null)? (
         <IndicTransliterate
@@ -198,6 +199,7 @@ export default function Textarea({
             fontWeight: "400",
             lineHeight: "1.5",
             padding: "12px",
+            margin: "16px 0px",
             borderRadius: "12px 12px 0 12px",
             color: grey[900],
             background: "#ffffff",
