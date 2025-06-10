@@ -545,7 +545,7 @@ const ReviewPage = () => {
     console.log(isMaxIdAnnotation, "llove");
 
 
-      maxIdAnnotation?.id === task.correct_annotation_id;
+      maxIdAnnotation?.id === task?.correct_annotation_id;
 
 
     const nextAPIData = {
