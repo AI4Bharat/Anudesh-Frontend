@@ -96,6 +96,7 @@ const MultipleLLMInstructionDrivenChat = ({
   setSubmittedEvalForms,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  console.log('evalFormResponse', evalFormResponse, submittedEvalForms)
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
