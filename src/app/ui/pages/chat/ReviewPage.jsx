@@ -1001,6 +1001,29 @@ const ReviewPage = () => {
   };
 
   const handleClick = (event) => {
+    console.log("ProjectDetails?.project_type", ProjectDetails?.project_type, isModelFailing)
+    if (ProjectDetails?.project_type ===
+      "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
+      if (isModelFailing) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      if (!areAllFormsAnswered()) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      return;
+    }
     setAnchorEl(event.currentTarget);
   };
 
@@ -1639,26 +1662,14 @@ const ReviewPage = () => {
               >
                 <MenuItem
                   onClick={() => {
-                    if (ProjectDetails?.project_type ===
-                      "MultipleLLMInstructionDrivenChat" &&
-                      isModelFailing) {
-                      setSnackbarInfo({
-                        open: true,
-                        message:
-                          "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
-                        variant: "warning",
-                        severity: "warning",
-                      });
-                      return;
-                    } else {
-                      handleReviewClick(
-                        "accepted",
-                        review.id,
-                        AnnotationsTaskDetails[1]?.lead_time,
-                        ProjectDetails?.project_type,
-                        review?.parent_annotation,
-                      )
-                    }
+                    handleReviewClick(
+                      "accepted",
+                      review.id,
+                      AnnotationsTaskDetails[1]?.lead_time,
+                      ProjectDetails?.project_type,
+                      review?.parent_annotation,
+                    )
+
                   }}
                   disableRipple
                 >
@@ -1666,26 +1677,14 @@ const ReviewPage = () => {
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
-                    if (ProjectDetails?.project_type ===
-                      "MultipleLLMInstructionDrivenChat" &&
-                      isModelFailing) {
-                      setSnackbarInfo({
-                        open: true,
-                        message:
-                          "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
-                        variant: "warning",
-                        severity: "warning",
-                      });
-                      return;
-                    } else {
-                      handleReviewClick(
-                        "accepted_with_minor_changes",
-                        review.id,
-                        review.lead_time,
-                        ProjectDetails?.project_type,
-                        review?.parent_annotation,
-                      )
-                    }
+                    handleReviewClick(
+                      "accepted_with_minor_changes",
+                      review.id,
+                      review.lead_time,
+                      ProjectDetails?.project_type,
+                      review?.parent_annotation,
+                    )
+
                   }}
                   disableRipple
                 >
@@ -1693,26 +1692,14 @@ const ReviewPage = () => {
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
-                    if (ProjectDetails?.project_type ===
-                      "MultipleLLMInstructionDrivenChat" &&
-                      isModelFailing) {
-                      setSnackbarInfo({
-                        open: true,
-                        message:
-                          "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
-                        variant: "warning",
-                        severity: "warning",
-                      });
-                      return;
-                    } else {
-                      handleReviewClick(
-                        "accepted_with_major_changes",
-                        review.id,
-                        review.lead_time,
-                        ProjectDetails?.project_type,
-                        review?.parent_annotation,
-                      )
-                    }
+                    handleReviewClick(
+                      "accepted_with_major_changes",
+                      review.id,
+                      review.lead_time,
+                      ProjectDetails?.project_type,
+                      review?.parent_annotation,
+                    )
+
                   }}
                   disableRipple
                 >
