@@ -907,7 +907,6 @@ const ReviewPage = () => {
                   ).find(
                     (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
                   );
-                  console.log('eval_form', eval_form)
 
                   if (eval_form) {
                     setEvalFormResponse((prev) => ({
@@ -1001,7 +1000,6 @@ const ReviewPage = () => {
   };
 
   const handleClick = (event) => {
-    console.log("ProjectDetails?.project_type", ProjectDetails?.project_type, isModelFailing)
     if (ProjectDetails?.project_type ===
       "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
       if (isModelFailing) {

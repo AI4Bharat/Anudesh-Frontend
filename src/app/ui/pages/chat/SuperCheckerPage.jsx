@@ -115,7 +115,6 @@ const formats = [
 
 const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const open = Boolean(anchorEl);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -171,6 +170,7 @@ const SuperCheckerPage = () => {
   if (typeof window !== "undefined") {
     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -955,6 +955,28 @@ const SuperCheckerPage = () => {
   };
 
   const handleClick = (event) => {
+    if (ProjectDetails?.project_type ===
+      "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
+      if (isModelFailing) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      if (!areAllFormsAnswered()) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      return;
+    }
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {

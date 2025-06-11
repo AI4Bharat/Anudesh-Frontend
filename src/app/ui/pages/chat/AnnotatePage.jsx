@@ -130,10 +130,6 @@ const AnnotatePage = () => {
   }, []);
 
   useEffect(() => {
-    console.log("eval form response", evalFormResponse);
-  }, [evalFormResponse]);
-
-  useEffect(() => {
     if (taskData) {
       setInfo((prev) => {
         return {
