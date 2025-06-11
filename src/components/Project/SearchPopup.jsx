@@ -7,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import { translate } from "../../config/localisation";
 import { snakeToTitleCase } from "@/utils/utils";
 import  "../../styles/Dataset.css";
+import Langcode from "@/utils/searchmap";
 
 const SearchPopup = (props) => {
     
@@ -15,10 +16,19 @@ const SearchPopup = (props) => {
   
   const handleSearchSubmit = (e) => {
     if (typeof window !== 'undefined') {
-    updateFilters({
+      if(searchedCol == 'meta_info_language'){
+        let lower  = searchValue.toLowerCase()
+        let val = Langcode[lower]        
+        updateFilters({
+      ...currentFilters,
+      ["search_"+searchedCol]: val,
+        });
+      }
+    else{updateFilters({
       ...currentFilters,
       ["search_"+searchedCol]: searchValue,
-    });
+    })};
+    
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     props.handleClose();
   }
@@ -58,7 +68,8 @@ const SearchPopup = (props) => {
             variant="outlined" 
             placeholder={`Search ${snakeToTitleCase(searchedCol)}`} 
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => 
+             setSearchValue(e.target.value)}
             inputProps={{
                 style: {
                     fontSize: "16px"
