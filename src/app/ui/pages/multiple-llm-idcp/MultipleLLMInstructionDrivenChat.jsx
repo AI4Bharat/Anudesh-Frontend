@@ -200,6 +200,7 @@ const MultipleLLMInstructionDrivenChat = ({
             });
           }
         });
+
         
         if (turnPromptOutputPairId) {
           const eval_form = (
@@ -513,6 +514,7 @@ const MultipleLLMInstructionDrivenChat = ({
       if (!newState[index]) {
         newState[index] = {
           model_responses_json: [],
+          prompt_output_pair_id: index,
         };
       }
 
@@ -583,7 +585,8 @@ const MultipleLLMInstructionDrivenChat = ({
       const newState = {
         ...prev,
         [index]: {
-          ...prev[index],
+          ...(prev[index] || {}),
+          prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
               if (mr.model_name === targetModel) {
@@ -658,7 +661,8 @@ const MultipleLLMInstructionDrivenChat = ({
       const newState = {
         ...prev,
         [index]: {
-          ...prev[index],
+          ...(prev[index] || {}),
+          prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
               if (mr.model_name === targetModel) {
@@ -732,7 +736,8 @@ const MultipleLLMInstructionDrivenChat = ({
       const newState = {
         ...prev,
         [index]: {
-          ...prev[index],
+          ...(prev[index] || {}),
+          prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
               if (mr.model_name === targetModel) {
@@ -813,7 +818,8 @@ const MultipleLLMInstructionDrivenChat = ({
       const newState = {
         ...safePrev,
         [index]: {
-          ...safePrev[index],
+          ...(safePrev[index] || {}),
+          prompt_output_pair_id: index,
           model_responses_json: [
             ...(safePrev[index]?.model_responses_json || []).map(
               (existingModel) => {

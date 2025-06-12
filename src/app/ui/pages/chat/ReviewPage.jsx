@@ -114,7 +114,6 @@ const formats = [
 
 const ReviewPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const open = Boolean(anchorEl);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -160,6 +159,7 @@ const ReviewPage = () => {
   const [info, setInfo] = useState({});
   const [filteredReady, setFilteredReady] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
@@ -577,6 +577,7 @@ const ReviewPage = () => {
 
       maxIdAnnotation?.id === task?.correct_annotation_id;
 
+
     const nextAPIData = {
       id: projectId,
       current_task_id: taskId,
@@ -613,7 +614,7 @@ const ReviewPage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${projectId}`);
+          window.location.replace(`/#/projects/${ projectId }`);
         }, 1000);
       });
     // }
@@ -624,7 +625,7 @@ const ReviewPage = () => {
       if (id) {
         resetNotes();
         // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-        navigate(`/projects/${projectId}/review/${id}`);
+        navigate(`/projects/${ projectId }/review/${ id }`);
       } else {
         // navigate(-1);
         resetNotes();
@@ -638,7 +639,7 @@ const ReviewPage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${projectId}`);
+          window.location.replace(`/#/projects/${ projectId }`);
           window.location.reload();
         }, 1000);
       }
@@ -774,7 +775,7 @@ const ReviewPage = () => {
       const PatchAPIdata = {
         annotation_status:
           typeof window !== "undefined" &&
-          (value === "delete" || value === "delete-pair")
+            (value === "delete" || value === "delete-pair")
             ? localStorage.getItem("labellingMode")
             : value,
         review_notes:
@@ -857,95 +858,85 @@ const ReviewPage = () => {
           resp.result
         ) {
           if (type === "MultipleLLMInstructionDrivenChat") {
-            const interactions_length =
-              resp?.result?.[0]?.model_interactions?.[0]?.interaction_json
-                ?.length;
-            for (let i = 0; i < interactions_length; i++) {
-              const prompt =
-                resp?.result?.[0]?.model_interactions?.[0]?.interaction_json[i]
-                  ?.prompt;
-              const model1_interaction =
-                resp?.result?.[0]?.model_interactions?.[0]?.interaction_json?.[
-                  i
-                ];
-              const model2_interaction =
-                resp?.result?.[0]?.model_interactions?.[1]?.interaction_json?.[
-                  i
-                ];
+            const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+            if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+              const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+              let modifiedChatHistory = [];
+              let globalModelFailure = false;
 
-              const response_valid_1 = isString(model1_interaction?.output);
-              const response_valid_2 = isString(model2_interaction?.output);
-              if (!response_valid_1 || !response_valid_2) {
+              for (let i = 0; i < interactions_length; i++) {
+                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+                const modelOutputs = [];
+                let turnPromptOutputPairId = null;
+                let turnHasModelFailure = false;
+
+                allModelsInteractions.forEach((modelData, modelIdx) => {
+                  const interaction = modelData?.interaction_json?.[i];
+                  if (interaction) {
+                    const response_valid = isString(interaction?.output);
+                    if (!response_valid) {
+                      turnHasModelFailure = true;
+                    }
+                    if (modelIdx === 0) {
+                      turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                    }
+                    modelOutputs.push({
+                      model_name: modelData?.model_name,
+                      output: response_valid
+                        ? formatResponse(interaction?.output)
+                        : formatResponse(
+                          `${ modelData?.model_name } failed to generate a response`,
+                        ),
+                      status: response_valid ? "success" : "error",
+                      prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                      output_error: response_valid
+                        ? null
+                        : JSON.stringify(interaction?.output),
+                    });
+                  }
+                });
+
+                if (turnHasModelFailure) {
+                  globalModelFailure = true;
+                }
+
+                if (turnPromptOutputPairId) {
+                  const eval_form = (
+                    Array.isArray(resp?.result?.[0]?.eval_form)
+                      ? resp.result[0].eval_form
+                      : []
+                  ).find(
+                    (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                  );
+
+                  if (eval_form) {
+                    setEvalFormResponse((prev) => ({
+                      ...prev,
+                      [turnPromptOutputPairId]: eval_form,
+                    }));
+                    setSubmittedEvalForms((prev) => ({
+                      ...prev,
+                      [turnPromptOutputPairId]: eval_form,
+                    }));
+                  }
+                }
+
+                if (prompt !== undefined && modelOutputs.length > 0) {
+                  modifiedChatHistory.push({
+                    prompt: prompt,
+                    output: modelOutputs,
+                    prompt_output_pair_id: turnPromptOutputPairId,
+                  });
+                }
+              }
+              if (globalModelFailure) {
                 setIsModelFailing(true);
               }
-
-              const eval_form = (
-                Array.isArray(resp?.result?.[0]?.eval_form)
-                  ? resp?.result?.[0].eval_form
-                  : []
-              ).find(
-                (item) =>
-                  item.prompt_output_pair_id ===
-                  model1_interaction?.prompt_output_pair_id,
-              );
-
-              eval_form &&
-                setEvalFormResponse((prev) => ({
-                  ...prev,
-                  [model1_interaction?.prompt_output_pair_id]: eval_form,
-                }));
-
-              eval_form &&
-                setSubmittedEvalForms((prev) => ({
-                  ...prev,
-                  [model1_interaction?.prompt_output_pair_id]: eval_form,
-                }));
-
-              modifiedChatHistory?.push({
-                prompt: prompt,
-                output: [
-                  {
-                    model_name:
-                      resp?.result?.[0].model_interactions?.[0]?.model_name,
-                    output: response_valid_1
-                      ? formatResponse(model1_interaction?.output)
-                      : formatResponse(
-                          `${resp?.result?.[0]?.model_interactions?.[0]?.model_name} failed to generate a response`,
-                        ),
-                    status: response_valid_1 ? "success" : "error",
-                    prompt_output_pair_id:
-                      model1_interaction?.prompt_output_pair_id,
-                    output_error: response_valid_1
-                      ? null
-                      : JSON.stringify(
-                          resp?.result?.[0]?.model_interactions?.[0]
-                            ?.interaction_json[i]?.output,
-                        ),
-                  },
-                  {
-                    model_name:
-                      resp?.result?.[0]?.model_interactions?.[1]?.model_name,
-                    output: response_valid_2
-                      ? formatResponse(model2_interaction?.output)
-                      : formatResponse(
-                          `${resp?.result?.[0]?.model_interactions?.[1]?.model_name} failed to generate a response`,
-                        ),
-                    status: response_valid_2 ? "success" : "error",
-                    prompt_output_pair_id:
-                      model2_interaction?.prompt_output_pair_id,
-                    output_error: response_valid_2
-                      ? null
-                      : JSON.stringify(
-                          resp?.result?.[0]?.model_interactions?.[1]
-                            ?.interaction_json[i]?.output,
-                        ),
-                  },
-                ],
-                prompt_output_pair_id:
-                  model1_interaction?.prompt_output_pair_id,
-              });
+              setChatHistory([...modifiedChatHistory]);
+            } else {
+              setChatHistory([]);
+              setIsModelFailing(false);
             }
-            setChatHistory([...modifiedChatHistory]);
           } else {
             let modifiedChatHistory = resp?.result.map((interaction) => {
               return {
@@ -966,21 +957,21 @@ const ReviewPage = () => {
           }
           value === "delete"
             ? setSnackbarInfo({
-                open: true,
-                message: "Chat history has been cleared successfully!",
-                variant: "success",
-              })
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            })
             : value === "delete-pair"
               ? setSnackbarInfo({
-                  open: true,
-                  message: "Selected conversation is deleted",
-                  variant: "success",
-                })
+                open: true,
+                message: "Selected conversation is deleted",
+                variant: "success",
+              })
               : setSnackbarInfo({
-                  open: true,
-                  message: resp?.message,
-                  variant: "success",
-                });
+                open: true,
+                message: resp?.message,
+                variant: "success",
+              });
         } else {
           setAutoSave(true);
           setSnackbarInfo({
@@ -1010,6 +1001,28 @@ const ReviewPage = () => {
   };
 
   const handleClick = (event) => {
+    if (ProjectDetails?.project_type ===
+      "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
+      if (isModelFailing) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      if (!areAllFormsAnswered()) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      return;
+    }
     setAnchorEl(event.currentTarget);
   };
 
@@ -1037,13 +1050,13 @@ const ReviewPage = () => {
       if (userAnnotation.annotation_status === "unreviewed") {
         filteredAnnotations =
           userAnnotation.result.length > 0 &&
-          !taskData?.revision_loop_count?.review_count
+            !taskData?.revision_loop_count?.review_count
             ? [userAnnotation]
             : annotations.filter(
-                (annotation) =>
-                  annotation.id === userAnnotation.parent_annotation &&
-                  annotation.annotation_type === 1,
-              );
+              (annotation) =>
+                annotation.id === userAnnotation.parent_annotation &&
+                annotation.annotation_type === 1,
+            );
       } else if (
         userAnnotation &&
         ["rejected"].includes(userAnnotation.annotation_status)
@@ -1177,9 +1190,8 @@ const ReviewPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+            }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -1198,9 +1210,8 @@ const ReviewPage = () => {
     case "MultipleLLMInstructionDrivenChat":
       componentToRender = (
         <MultipleLLMInstructionDrivenChat
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+            }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -1226,7 +1237,7 @@ const ReviewPage = () => {
         <ModelInteractionEvaluation
           key={
             annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
+              ? `annotations-${ annotations[0]?.id }`
               : "annotations-default"
           }
           setCurrentInteraction={setCurrentInteraction}
@@ -1249,7 +1260,7 @@ const ReviewPage = () => {
         <PreferenceRanking
           key={
             annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
+              ? `annotations-${ annotations[0]?.id }`
               : "annotations-default"
           }
           setCurrentInteraction={setCurrentInteraction}
@@ -1315,7 +1326,7 @@ const ReviewPage = () => {
                   localStorage.removeItem("labelAll");
                 }
 
-                navigate(`/projects/${projectId}`);
+                navigate(`/projects/${ projectId }`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
               }}
@@ -1345,14 +1356,14 @@ const ReviewPage = () => {
               style={{
                 backgroundColor:
                   annotationtext.trim().length === 0 &&
-                  supercheckertext.trim().length === 0
+                    supercheckertext.trim().length === 0
                     ? "#bf360c"
                     : "green",
               }}
             >
               Notes{" "}
               {annotationtext.trim().length === 0 &&
-              supercheckertext.trim().length === 0
+                supercheckertext.trim().length === 0
                 ? ""
                 : "*"}
             </Button>
@@ -1405,7 +1416,7 @@ const ReviewPage = () => {
                   <div>
                     <div>
                       {ProjectDetails?.conceal == false &&
-                      Array.isArray(assignedUsers)
+                        Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -1417,11 +1428,11 @@ const ReviewPage = () => {
                       }}
                     >
                       {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${annotations[0]?.id}`}
+                        `ANNOTATION ID: ${ annotations[0]?.id }`}
                       {annotations[0]?.annotation_type == 2 &&
-                        `REVIEW ID: ${annotations[0]?.id}`}
+                        `REVIEW ID: ${ annotations[0]?.id }`}
                       {annotations[0]?.annotation_type == 3 &&
-                        `SUPERCHECK ID: ${annotations[0]?.id}`}
+                        `SUPERCHECK ID: ${ annotations[0]?.id }`}
                     </div>
                   </div>
                 }
@@ -1522,7 +1533,7 @@ const ReviewPage = () => {
               )}
             </Grid>
             {ProjectDetails.project_type == "InstructionDrivenChat" ||
-            ProjectDetails?.project_type ==
+              ProjectDetails?.project_type ==
               "MultipleLLMInstructionDrivenChat" ? (
               <Grid item>
                 {!disableSkip && taskData?.review_user === userData?.id && (
@@ -1649,7 +1660,7 @@ const ReviewPage = () => {
                 onClose={handleClose}
               >
                 <MenuItem
-                  onClick={() =>
+                  onClick={() => {
                     handleReviewClick(
                       "accepted",
                       review.id,
@@ -1657,13 +1668,14 @@ const ReviewPage = () => {
                       ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
-                  }
+
+                  }}
                   disableRipple
                 >
                   with No Changes
                 </MenuItem>
                 <MenuItem
-                  onClick={() =>
+                  onClick={() => {
                     handleReviewClick(
                       "accepted_with_minor_changes",
                       review.id,
@@ -1671,13 +1683,14 @@ const ReviewPage = () => {
                       ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
-                  }
+
+                  }}
                   disableRipple
                 >
                   with Minor Changes
                 </MenuItem>
                 <MenuItem
-                  onClick={() =>
+                  onClick={() => {
                     handleReviewClick(
                       "accepted_with_major_changes",
                       review.id,
@@ -1685,7 +1698,8 @@ const ReviewPage = () => {
                       ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
-                  }
+
+                  }}
                   disableRipple
                 >
                   with Major Changes
