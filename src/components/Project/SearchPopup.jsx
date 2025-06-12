@@ -7,23 +7,43 @@ import TextField from "@mui/material/TextField";
 import { translate } from "../../config/localisation";
 import { snakeToTitleCase } from "@/utils/utils";
 import  "../../styles/Dataset.css";
+import Langcode from "@/utils/seachmap";
 
 const SearchPopup = (props) => {
     
   const { currentFilters, updateFilters, searchedCol } = props;
   const [searchValue, setSearchValue] = useState(currentFilters["search_"+searchedCol]);
   
-  const handleSearchSubmit = (e) => {
-    if (typeof window !== 'undefined') {
-    updateFilters({
-      ...currentFilters,
-      ["search_"+searchedCol]: searchValue,
-    });
+const handleSearchSubmit = (e) => {
+  if (typeof window !== 'undefined') {
+    if(searchedCol == 'meta_info_language'){
+      let lower = searchValue.toLowerCase();
+      
+      let val = null;
+      for (const [key, value] of Object.entries(Langcode)) {
+        if (key.toLowerCase().includes(lower)) {
+          console.log(val ,value);
+          
+          val = value;
+          break; 
+        }
+      }
+      
+      updateFilters({
+        ...currentFilters,
+        ["search_"+searchedCol]: val || '', 
+      });
+    }
+    else {
+      updateFilters({
+        ...currentFilters,
+        ["search_"+searchedCol]: searchValue,
+      });
+    }
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     props.handleClose();
   }
-  };
-
+};
   const handleClearSearch = (e) => {
     if (typeof window !== 'undefined') {
 
