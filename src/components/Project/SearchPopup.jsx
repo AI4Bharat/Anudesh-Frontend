@@ -16,30 +16,18 @@ const SearchPopup = (props) => {
   
 const handleSearchSubmit = (e) => {
   if (typeof window !== 'undefined') {
-    if(searchedCol == 'meta_info_language'){
-      let lower = searchValue.toLowerCase();
-      
-      let val = null;
-      for (const [key, value] of Object.entries(Langcode)) {
-        if (key.toLowerCase().includes(lower)) {
-          console.log(val ,value);
-          
-          val = value;
-          break; 
-        }
+      if(searchedCol == 'meta_info_language'){
+        let lower  = searchValue.toLowerCase()
+        let val = Langcode[lower]        
+        updateFilters({
+      ...currentFilters,
+      ["search_"+searchedCol]: val,
+        });
       }
-      
-      updateFilters({
-        ...currentFilters,
-        ["search_"+searchedCol]: val || '', 
-      });
-    }
-    else {
-      updateFilters({
-        ...currentFilters,
-        ["search_"+searchedCol]: searchValue,
-      });
-    }
+    else{updateFilters({
+      ...currentFilters,
+      ["search_"+searchedCol]: searchValue,
+    })};
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     props.handleClose();
   }
