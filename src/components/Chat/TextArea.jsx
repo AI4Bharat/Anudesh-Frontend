@@ -217,6 +217,7 @@ export default function Textarea({
       }
       {(globalTransliteration || defLang!==null)? (
         <IndicTransliterate
+          key={`indic-${defLang || 'default'}`}
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
           enableASR={true}
           asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
