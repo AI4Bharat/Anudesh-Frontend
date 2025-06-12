@@ -10,6 +10,10 @@ import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAuto
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import { TextareaAutosize } from "@material-ui/core";
 import configs from "@/config/config";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 
 const orange = {
   200: "pink",
@@ -34,11 +38,13 @@ export default function Textarea({
   loading,
   inputValue,
   defaultLang = null,
+  overrideGT = false,
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [text, setText] = useState("");
 
+  const [defLang, setDefLang] = useState(defaultLang);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -66,6 +72,12 @@ export default function Textarea({
       handleOnchange(text);
     }
   }, [text]);
+
+  useEffect(() => {
+    if(overrideGT === true){
+      setDefLang("en");
+    }
+  }, [overrideGT]);
 
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
@@ -161,8 +173,49 @@ export default function Textarea({
       className={class_name}
       sx={{ width: "100%" }}
       paddingBottom="8px"
+      gap={"8px"}
     >
-      {(globalTransliteration || defaultLang!==null)? (
+      {overrideGT &&
+      <FormControl>
+        <InputLabel id="language-select-label">
+          Language
+        </InputLabel>
+        <Select
+          label="Language"
+          labelId="language-select-label"
+          value={defLang}
+          onChange={(e) => {
+            setDefLang(e.target.value);
+          }}
+        >
+          <MenuItem value="en">English</MenuItem>
+          <MenuItem value="hi">Hindi</MenuItem>
+          <MenuItem value="mr">Marathi</MenuItem>
+          <MenuItem value="ta">Tamil</MenuItem>
+          <MenuItem value="te">Telugu</MenuItem>
+          <MenuItem value="kn">Kannada</MenuItem>
+          <MenuItem value="gu">Gujarati</MenuItem>
+          <MenuItem value="pa">Punjabi</MenuItem>
+          <MenuItem value="bn">Bengali</MenuItem>
+          <MenuItem value="ml">Malayalam</MenuItem>
+          <MenuItem value="as">Assamese</MenuItem>
+          <MenuItem value="brx">Bodo</MenuItem>
+          <MenuItem value="doi">Dogri</MenuItem>
+          <MenuItem value="ks">Kashmiri</MenuItem>
+          <MenuItem value="mai">Maithili</MenuItem>
+          <MenuItem value="mni">Manipuri</MenuItem>
+          <MenuItem value="ne">Nepali</MenuItem>
+          <MenuItem value="or">Odia</MenuItem>
+          <MenuItem value="sd">Sindhi</MenuItem>
+          <MenuItem value="si">Sinhala</MenuItem>
+          <MenuItem value="ur">Urdu</MenuItem>
+          <MenuItem value="sat">Santali</MenuItem>
+          <MenuItem value="sa">Sanskrit</MenuItem>
+          <MenuItem value="gom">Goan Konkani</MenuItem>
+        </Select>
+      </FormControl>
+      }
+      {(globalTransliteration || defLang!==null)? (
         <IndicTransliterate
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
           enableASR={true}
@@ -189,7 +242,7 @@ export default function Textarea({
             setText(text);
           }}
           onKeyDown={handleKeyDown}
-          lang={defaultLang!==null ? defaultLang : targetLang}
+          lang={defLang!==null ? defLang : targetLang}
           style={{
             resize: "none",
             fontSize: "1rem",
@@ -207,7 +260,7 @@ export default function Textarea({
             boxShadow: `0px 2px 2px ${grey[50]}`,
           }}
           horizontalView={true}
-          enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
+          enabled={defLang!==null ? defLang === "en" ? false : true : true}
         />
       ) : (
         <TextareaAutosize

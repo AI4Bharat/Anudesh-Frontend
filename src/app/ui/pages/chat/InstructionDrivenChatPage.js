@@ -867,6 +867,7 @@ const InstructionDrivenChatPage = ({
                 loading={loading}
                 inputValue={inputValue}
                 // defaultLang={targetLang}
+                overrideGT={true}
               />
             </Grid>
           ) : null}
