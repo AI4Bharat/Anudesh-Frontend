@@ -224,10 +224,20 @@ export default function Textarea({
           apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
           renderComponent={(props) => (
             <textarea
-              // xs={size}
               sx={{
-                whiteSpace: "pre-wrap",
-              }}
+        whiteSpace: "pre-wrap",
+        resize: "none", 
+        maxHeight: "200px", 
+        overflow: "hidden", 
+        
+      }}
+      onInput={(e) => {
+        const textarea = e.target;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+        if (props.onInput) props.onInput(e); // Preserve any existing onInput
+      }}
+
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
@@ -238,6 +248,7 @@ export default function Textarea({
               {...props}
             />
           )}
+          
           value={text}
           onChangeText={(text) => {
             setText(text);
@@ -245,9 +256,11 @@ export default function Textarea({
           onKeyDown={handleKeyDown}
           lang={defLang!==null ? defLang : targetLang}
           style={{
-            resize: 'vertical',
-            overflow:'auto',
+          whiteSpace: "pre-wrap",
+            resize: "none", 
             fontSize: "1rem",
+                    overflow: "hidden", 
+
             height: "50%",
             width: "800px",
             height: "50px",
