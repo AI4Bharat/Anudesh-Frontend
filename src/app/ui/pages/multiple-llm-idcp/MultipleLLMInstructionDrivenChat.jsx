@@ -38,6 +38,7 @@ import StarIcon from "@mui/icons-material/Star";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
+import LanguageCode from "@/utils/LanguageCode";
 
 const orange = {
   200: "pink",
@@ -122,19 +123,30 @@ const MultipleLLMInstructionDrivenChat = ({
   useEffect(() => {
     setIsMounted(true);
 
-    if (typeof window !== "undefined") {
-      const storedGlobalTransliteration = localStorage.getItem(
-        "globalTransliteration",
-      );
-      const storedLanguage = localStorage.getItem("language");
+    // if (typeof window !== "undefined") {
+    //   const storedGlobalTransliteration = localStorage.getItem(
+    //     "globalTransliteration",
+    //   );
+    //   const storedLanguage = localStorage.getItem("language");
 
-      if (storedGlobalTransliteration !== null) {
-        setGlobalTransliteration(storedGlobalTransliteration === "true");
-      }
-      if (storedLanguage !== null) {
-        setTargetLang(storedLanguage);
-      }
+    //   if (storedGlobalTransliteration !== null) {
+    //     setGlobalTransliteration(storedGlobalTransliteration === "true");
+    //   }
+    //   if (storedLanguage !== null) {
+    //     setTargetLang(storedLanguage);
+    //   }
+    // }
+
+    const lc = LanguageCode.languages.find(
+      (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
+    );
+      window.alert(lc.code);
+    if (Number(info.meta_info_language) < 3){
+      setTargetLang(lc.code);
+    }else{
+      setTargetLang("en");
     }
+
   }, [chatHistory]);
 
   useEffect(() => {
@@ -2336,6 +2348,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 class_name={"w-full"}
                 loading={loading}
                 inputValue={inputValue}
+                defaultLang={targetLang}
               />
             </Grid>
           ) : null}
