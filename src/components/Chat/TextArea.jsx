@@ -14,6 +14,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
+import Switch from "@mui/material/Switch";
 
 const orange = {
   200: "pink",
@@ -47,6 +48,7 @@ export default function Textarea({
   const [defLang, setDefLang] = useState(defaultLang);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [localTransliteration, setLocalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -173,53 +175,64 @@ export default function Textarea({
       className={class_name}
       sx={{ width: "100%" }}
       paddingBottom="8px"
+      paddingRight={localTransliteration ? "32px" : "0px"}
       gap={"8px"}
     >
       {overrideGT &&
-      <FormControl>
-        <InputLabel id="language-select-label">
-          Language
-        </InputLabel>
-        <Select
-          label="Language"
-          labelId="language-select-label"
-          value={defLang}
-          onChange={(e) => {
-            setDefLang(e.target.value);
-          }}
-        >
-          <MenuItem value="en">English</MenuItem>
-          <MenuItem value="hi">Hindi</MenuItem>
-          <MenuItem value="mr">Marathi</MenuItem>
-          <MenuItem value="ta">Tamil</MenuItem>
-          <MenuItem value="te">Telugu</MenuItem>
-          <MenuItem value="kn">Kannada</MenuItem>
-          <MenuItem value="gu">Gujarati</MenuItem>
-          <MenuItem value="pa">Punjabi</MenuItem>
-          <MenuItem value="bn">Bengali</MenuItem>
-          <MenuItem value="ml">Malayalam</MenuItem>
-          <MenuItem value="as">Assamese</MenuItem>
-          <MenuItem value="brx">Bodo</MenuItem>
-          <MenuItem value="doi">Dogri</MenuItem>
-          <MenuItem value="ks">Kashmiri</MenuItem>
-          <MenuItem value="mai">Maithili</MenuItem>
-          <MenuItem value="mni">Manipuri</MenuItem>
-          <MenuItem value="ne">Nepali</MenuItem>
-          <MenuItem value="or">Odia</MenuItem>
-          <MenuItem value="sd">Sindhi</MenuItem>
-          <MenuItem value="si">Sinhala</MenuItem>
-          <MenuItem value="ur">Urdu</MenuItem>
-          <MenuItem value="sat">Santali</MenuItem>
-          <MenuItem value="sa">Sanskrit</MenuItem>
-          <MenuItem value="gom">Goan Konkani</MenuItem>
-        </Select>
-      </FormControl>
+      <>
+      {localTransliteration &&
+        <FormControl>
+          <InputLabel id="language-select-label">
+            Language
+          </InputLabel>
+          <Select
+            label="Language"
+            labelId="language-select-label"
+            value={defLang}
+            onChange={(e) => {
+              setDefLang(e.target.value);
+            }}
+          >
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="hi">Hindi</MenuItem>
+            <MenuItem value="mr">Marathi</MenuItem>
+            <MenuItem value="ta">Tamil</MenuItem>
+            <MenuItem value="te">Telugu</MenuItem>
+            <MenuItem value="kn">Kannada</MenuItem>
+            <MenuItem value="gu">Gujarati</MenuItem>
+            <MenuItem value="pa">Punjabi</MenuItem>
+            <MenuItem value="bn">Bengali</MenuItem>
+            <MenuItem value="ml">Malayalam</MenuItem>
+            <MenuItem value="as">Assamese</MenuItem>
+            <MenuItem value="brx">Bodo</MenuItem>
+            <MenuItem value="doi">Dogri</MenuItem>
+            <MenuItem value="ks">Kashmiri</MenuItem>
+            <MenuItem value="mai">Maithili</MenuItem>
+            <MenuItem value="mni">Manipuri</MenuItem>
+            <MenuItem value="ne">Nepali</MenuItem>
+            <MenuItem value="or">Odia</MenuItem>
+            <MenuItem value="sd">Sindhi</MenuItem>
+            <MenuItem value="si">Sinhala</MenuItem>
+            <MenuItem value="ur">Urdu</MenuItem>
+            <MenuItem value="sat">Santali</MenuItem>
+            <MenuItem value="sa">Sanskrit</MenuItem>
+            <MenuItem value="gom">Goan Konkani</MenuItem>
+          </Select>
+        </FormControl>
+      }
+      <Switch
+        onClick={() => {
+          setLocalTransliteration(!localTransliteration);
+        }}
+        checked={localTransliteration}
+      />
+      </>
       }
       {(globalTransliteration || defLang!==null)? (
         <IndicTransliterate
-          key={`indic-${defLang || 'default'}`}
+          key={`indic-${defLang || 'default'}-${localTransliteration}`}
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-          enableASR={true}
+          enableASR={localTransliteration ? true : false}
           asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
           apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
           renderComponent={(props) => (
@@ -262,7 +275,7 @@ export default function Textarea({
             boxShadow: `0px 2px 2px ${grey[50]}`,
           }}
           horizontalView={true}
-          enabled={defLang!==null ? defLang === "en" ? false : true : true}
+          enabled={defLang!==null ? defLang === "en" ? false : localTransliteration === false ? false : true : true}
         />
       ) : (
         <TextareaAutosize
