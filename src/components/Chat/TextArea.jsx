@@ -171,8 +171,19 @@ export default function Textarea({
             <textarea
               // xs={size}
               sx={{
-                whiteSpace: "pre-wrap",
-              }}
+        whiteSpace: "pre-wrap",
+        resize: "none", 
+        maxHeight: "200px", 
+        overflow: "hidden", 
+        
+      }}
+      onInput={(e) => {
+        const textarea = e.target;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+        if (props.onInput) props.onInput(e); // Preserve any existing onInput
+      }}
+
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
@@ -190,7 +201,9 @@ export default function Textarea({
           onKeyDown={handleKeyDown}
           lang={defaultLang!==null ? defaultLang : targetLang}
           style={{
-            resize: 'vertical',
+                    whiteSpace: "pre-wrap",
+        resize: "none", 
+
             overflow:'auto',
             fontSize: "1rem",
             height: "50%",
