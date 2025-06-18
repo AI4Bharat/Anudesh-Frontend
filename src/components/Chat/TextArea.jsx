@@ -190,7 +190,8 @@ export default function Textarea({
           onKeyDown={handleKeyDown}
           lang={defaultLang!==null ? defaultLang : targetLang}
           style={{
-            resize: "none",
+            resize: 'vertical',
+            overflow:'auto',
             fontSize: "1rem",
             height: "50%",
             width: "800px",
