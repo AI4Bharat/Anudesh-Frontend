@@ -140,7 +140,6 @@ const MultipleLLMInstructionDrivenChat = ({
     const lc = LanguageCode.languages.find(
       (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
     );
-      window.alert(lc.code);
     if (Number(info.meta_info_language) < 3){
       setTargetLang(lc.code);
     }else{
