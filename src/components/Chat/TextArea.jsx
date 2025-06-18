@@ -60,6 +60,8 @@ export default function Textarea({
       }
     }
   }, [text]);
+ 
+
 
   useEffect(() => {
     if (text !== "") {
@@ -67,6 +69,16 @@ export default function Textarea({
     }
   }, [text]);
 
+<<<<<<< Updated upstream
+=======
+  useEffect(() => {
+    if(overrideGT === true){
+      setDefLang("en");
+    }
+  }, [overrideGT]);
+
+
+>>>>>>> Stashed changes
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -147,6 +159,8 @@ export default function Textarea({
     return null;
   }
 
+// Add this useEffect to handle both typing and voice input
+
   return (
     <Grid
       item
@@ -175,15 +189,19 @@ export default function Textarea({
         resize: "none", 
         maxHeight: "200px", 
         overflow: "hidden", 
+                height: "auto !important",
+        "&:not(:focus)": {
+          overflowY: "auto" 
+        }
+
         
       }}
       onInput={(e) => {
         const textarea = e.target;
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
-        if (props.onInput) props.onInput(e); // Preserve any existing onInput
+        if (props.onInput) props.onInput(e); 
       }}
-
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
@@ -196,19 +214,33 @@ export default function Textarea({
           )}
           value={text}
           onChangeText={(text) => {
-            setText(text);
+            setText(text);   
+             setTimeout(() => {
+      const textarea = document.querySelector('textarea');
+      if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+      }
+    }, 0);         
           }}
           onKeyDown={handleKeyDown}
           lang={defaultLang!==null ? defaultLang : targetLang}
           style={{
+<<<<<<< Updated upstream
                     whiteSpace: "pre-wrap",
         resize: "none", 
 
             overflow:'auto',
             fontSize: "1rem",
             height: "50%",
+=======
+            whiteSpace: "pre-wrap",
+            resize: "none", 
+            fontSize: "1rem",
+            overflow: "hidden", 
+>>>>>>> Stashed changes
             width: "800px",
-            height: "50px",
+            height: "auto !important",
             fontWeight: "400",
             lineHeight: "1.5",
             padding: "12px",
@@ -217,6 +249,8 @@ export default function Textarea({
             background: "#ffffff",
             border: `1px solid ${grey[200]}`,
             boxShadow: `0px 2px 2px ${grey[50]}`,
+            boxSizing: "border-box", 
+            transition: "height 0.2s ease-out"
           }}
           horizontalView={true}
           enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
