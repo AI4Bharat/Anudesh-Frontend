@@ -48,7 +48,7 @@ export default function Textarea({
   const [defLang, setDefLang] = useState(defaultLang);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
-  const [localTransliteration, setLocalTransliteration] = useState(false);
+  const [localTransliteration, setLocalTransliteration] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
