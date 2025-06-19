@@ -60,7 +60,7 @@ export default function Textarea({
       }
     }
   }, [text]);
- 
+
 
 
   useEffect(() => {
@@ -69,16 +69,13 @@ export default function Textarea({
     }
   }, [text]);
 
-<<<<<<< Updated upstream
-=======
   useEffect(() => {
-    if(overrideGT === true){
+    if (overrideGT === true) {
       setDefLang("en");
     }
   }, [overrideGT]);
 
 
->>>>>>> Stashed changes
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -135,17 +132,15 @@ export default function Textarea({
     color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
     background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
     border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-    box-shadow: 0px 2px 2px ${
-      theme.palette.mode === "dark" ? grey[900] : grey[50]
-    };
+    box-shadow: 0px 2px 2px ${theme.palette.mode === "dark" ? grey[900] : grey[50]
+      };
     &:hover {
       border-color: ${orange[400]};
     }
     &:focus {
       outline: 0;
       border-color: ${orange[400]};
-      box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? orange[600] : orange[200]
+      box-shadow: 0 0 0 3px ${theme.palette.mode === "dark" ? orange[600] : orange[200]
       };
     }
     // firefox
@@ -159,7 +154,7 @@ export default function Textarea({
     return null;
   }
 
-// Add this useEffect to handle both typing and voice input
+  // Add this useEffect to handle both typing and voice input
 
   return (
     <Grid
@@ -175,7 +170,7 @@ export default function Textarea({
       className={class_name}
       sx={{ width: "100%" }}
     >
-      {(globalTransliteration || defaultLang!==null)? (
+      {(globalTransliteration || defaultLang !== null) ? (
         <IndicTransliterate
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
           enableASR={true}
@@ -185,23 +180,23 @@ export default function Textarea({
             <textarea
               // xs={size}
               sx={{
-        whiteSpace: "pre-wrap",
-        resize: "none", 
-        maxHeight: "200px", 
-        overflow: "hidden", 
+                whiteSpace: "pre-wrap",
+                resize: "none",
+                maxHeight: "200px",
+                overflow: "hidden",
                 height: "auto !important",
-        "&:not(:focus)": {
-          overflowY: "auto" 
-        }
+                "&:not(:focus)": {
+                  overflowY: "auto"
+                }
 
-        
-      }}
-      onInput={(e) => {
-        const textarea = e.target;
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-        if (props.onInput) props.onInput(e); 
-      }}
+
+              }}
+              onInput={(e) => {
+                const textarea = e.target;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+                if (props.onInput) props.onInput(e);
+              }}
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
@@ -214,31 +209,23 @@ export default function Textarea({
           )}
           value={text}
           onChangeText={(text) => {
-            setText(text);   
-             setTimeout(() => {
-      const textarea = document.querySelector('textarea');
-      if (textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-      }
-    }, 0);         
+            setText(text);
+            setTimeout(() => {
+              const textarea = document.querySelector('textarea');
+              if (textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+              }
+            }, 0);
           }}
           onKeyDown={handleKeyDown}
-          lang={defaultLang!==null ? defaultLang : targetLang}
+          lang={defaultLang !== null ? defaultLang : targetLang}
           style={{
-<<<<<<< Updated upstream
-                    whiteSpace: "pre-wrap",
-        resize: "none", 
-
-            overflow:'auto',
-            fontSize: "1rem",
-            height: "50%",
-=======
             whiteSpace: "pre-wrap",
-            resize: "none", 
+            resize: "none",
+
+            overflow: 'auto',
             fontSize: "1rem",
-            overflow: "hidden", 
->>>>>>> Stashed changes
             width: "800px",
             height: "auto !important",
             fontWeight: "400",
@@ -249,11 +236,11 @@ export default function Textarea({
             background: "#ffffff",
             border: `1px solid ${grey[200]}`,
             boxShadow: `0px 2px 2px ${grey[50]}`,
-            boxSizing: "border-box", 
+            boxSizing: "border-box",
             transition: "height 0.2s ease-out"
           }}
           horizontalView={true}
-          enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
+          enabled={defaultLang !== null ? defaultLang === "en" ? false : true : true}
         />
       ) : (
         <TextareaAutosize
