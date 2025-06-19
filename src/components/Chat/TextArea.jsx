@@ -171,18 +171,22 @@ export default function Textarea({
             <textarea
               // xs={size}
               sx={{
-        whiteSpace: "pre-wrap",
-        resize: "none", 
-        maxHeight: "200px", 
-        overflow: "hidden", 
-        
-      }}
-      onInput={(e) => {
-        const textarea = e.target;
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-        if (props.onInput) props.onInput(e); // Preserve any existing onInput
-      }}
+                whiteSpace: "pre-wrap",
+                resize: "none",
+                maxHeight: "200px",
+                overflow: "hidden",
+                height: "auto !important",
+                "&:not(:focus)": {
+                  overflowY: "auto"
+                }
+
+              }}
+              onInput={(e) => {
+                const textarea = e.target;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+                if (props.onInput) props.onInput(e); // Preserve any existing onInput
+              }}
 
               maxRows={10}
               aria-label="empty textarea"
@@ -197,18 +201,25 @@ export default function Textarea({
           value={text}
           onChangeText={(text) => {
             setText(text);
+            setTimeout(() => {
+              const textarea = document.querySelector('textarea');
+              if (textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+              }
+            }, 0);
           }}
           onKeyDown={handleKeyDown}
           lang={defaultLang!==null ? defaultLang : targetLang}
           style={{
-                    whiteSpace: "pre-wrap",
-        resize: "none", 
+            whiteSpace: "pre-wrap",
+            resize: "none",
 
-            overflow:'auto',
+            overflow: 'auto',
             fontSize: "1rem",
             height: "50%",
             width: "800px",
-            height: "50px",
+            height: "auto !important",
             fontWeight: "400",
             lineHeight: "1.5",
             padding: "12px",
@@ -217,6 +228,8 @@ export default function Textarea({
             background: "#ffffff",
             border: `1px solid ${grey[200]}`,
             boxShadow: `0px 2px 2px ${grey[50]}`,
+            boxSizing: "border-box",
+            transition: "height 0.2s ease-out"
           }}
           horizontalView={true}
           enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
