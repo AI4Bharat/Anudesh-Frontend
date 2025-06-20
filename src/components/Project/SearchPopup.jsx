@@ -7,23 +7,38 @@ import TextField from "@mui/material/TextField";
 import { translate } from "../../config/localisation";
 import { snakeToTitleCase } from "@/utils/utils";
 import  "../../styles/Dataset.css";
+import Langcode from "@/utils/seachmap";
 
 const SearchPopup = (props) => {
     
   const { currentFilters, updateFilters, searchedCol } = props;
   const [searchValue, setSearchValue] = useState(currentFilters["search_"+searchedCol]);
   
-  const handleSearchSubmit = (e) => {
-    if (typeof window !== 'undefined') {
-    updateFilters({
-      ...currentFilters,
-      ["search_"+searchedCol]: searchValue,
-    });
+const handleSearchSubmit = (e) => {
+  if (typeof window !== 'undefined') {
+    if (searchedCol == 'meta_info_language') {
+      let lower = searchValue.toLowerCase().trim();
+      
+      // Find all matching language codes
+      const matchedCodes = Object.entries(Langcode)
+        .filter(([key, value]) => key.toLowerCase().includes(lower))
+        .map(([key, value]) => value); // Extract only the numbers
+      console.log((matchedCodes),"code");
+      
+      updateFilters({
+        ...currentFilters,
+        ["search_" + searchedCol]: [matchedCodes], 
+      });
+    } else {
+      updateFilters({
+        ...currentFilters,
+        ["search_" + searchedCol]: searchValue,
+      });
+    }
     document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
     props.handleClose();
   }
-  };
-
+};
   const handleClearSearch = (e) => {
     if (typeof window !== 'undefined') {
 
