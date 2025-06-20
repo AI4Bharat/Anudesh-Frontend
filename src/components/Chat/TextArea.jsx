@@ -152,108 +152,123 @@ export default function Textarea({
       item
       // xs={size}
       backgroundColor="#FFf"
-      justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}
       position={"fixed"}
       bottom={0}
       width={grid_size}
       className={class_name}
-      sx={{ width: "100%" }}
+      sx={{
+        width: "90%",
+      }}
     >
-      {(globalTransliteration || defaultLang!==null)? (
-        <IndicTransliterate
-          customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-          enableASR={true}
-          asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
-          apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
-          renderComponent={(props) => (
-            <textarea
-              // xs={size}
-              sx={{
-        whiteSpace: "pre-wrap",
-        resize: "none", 
-        maxHeight: "200px", 
-        overflow: "hidden", 
-        
-      }}
-      onInput={(e) => {
-        const textarea = e.target;
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-        if (props.onInput) props.onInput(e); // Preserve any existing onInput
-      }}
+      <Grid container alignItems="end" spacing={6} sx={{ flexGrow: 1, mb: 2 }}>
+        <Grid item xs>
+          <div className="custom-transliterate-container">
+            {(globalTransliteration || defaultLang!==null)? (
+              <IndicTransliterate
+                customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                enableASR={true}
+                asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
+                renderComponent={(props) => (
+                  <textarea
+                  // xs={size}
+                    sx={{
+                      whiteSpace: "pre-wrap",
+                      resize: "none",
+                      maxHeight: "200px",
+                      overflow: "hidden",
+                      width: "100%",
+                    }}
+                    onInput={(e) => {
+                      const textarea = e.target;
+                      textarea.style.height = 'auto';
+                      textarea.style.height = `${textarea.scrollHeight}px`;
+                      if (props.onInput) props.onInput(e); // Preserve any existing onInput
+                    }}
 
-              maxRows={10}
-              aria-label="empty textarea"
-              placeholder={translate("chat_placeholder")}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              {...props}
+                    aria-label="empty textarea"
+                    placeholder={translate("chat_placeholder")}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    {...props}
+                  />
+                )}
+                value={text}
+                onChangeText={(text) => {
+                    setText(text);
+                }}
+                onKeyDown={handleKeyDown}
+                lang={defaultLang!==null ? defaultLang : targetLang}
+                style={{
+                  whiteSpace: "pre-wrap",
+                  resize: "none",
+                  overflow:'auto',
+                  fontSize: "1rem",
+                  width: "100%",
+                  height: "50px",
+                  fontWeight: "400",
+                  lineHeight: "1.5",
+                  padding: "12px",
+                  borderRadius: "12px 12px 0 12px",
+                  color: grey[900],
+                  background: "#ffffff",
+                  border: `1px solid ${grey[200]}`,
+                  boxShadow: `0px 2px 2px ${grey[50]}`,
+                }}
+                horizontalView={true}
+                enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
+              />
+            ) : (
+              <TextareaAutosize
+                // xs={size}
+                maxRows={10}
+                aria-label="empty textarea"
+                placeholder={translate("chat_placeholder")}
+                value={text}
+                style={{
+                  ...textareaStyle,
+                  width: "100%", 
+                }}
+                onChange={(e) => {
+                  setText(e.target.value);
+                }}
+                onKeyDown={handleKeyDown}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              />
+            )}
+          </div>
+        </Grid>
+
+        {/* Send button */}
+        <Grid item>
+          <IconButton
+            size="large"
+            onClick={() => {
+              handleButtonClick();
+              setText("");
+            }}
+            disabled={!text?.trim()}
+          >
+            <SendRoundedIcon
+              style={{ color: "#EE6633", width: "32px", height: "32px" }}
             />
-          )}
-          value={text}
-          onChangeText={(text) => {
-            setText(text);
-          }}
-          onKeyDown={handleKeyDown}
-          lang={defaultLang!==null ? defaultLang : targetLang}
-          style={{
-                    whiteSpace: "pre-wrap",
-        resize: "none", 
+          </IconButton>
+        </Grid>
 
-            overflow:'auto',
-            fontSize: "1rem",
-            height: "50%",
-            width: "800px",
-            height: "50px",
-            fontWeight: "400",
-            lineHeight: "1.5",
-            padding: "12px",
-            borderRadius: "12px 12px 0 12px",
-            color: grey[900],
-            background: "#ffffff",
-            border: `1px solid ${grey[200]}`,
-            boxShadow: `0px 2px 2px ${grey[50]}`,
-          }}
-          horizontalView={true}
-          enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
-        />
-      ) : (
-        <TextareaAutosize
-          // xs={size}
-          maxRows={10}
-          aria-label="empty textarea"
-          placeholder={translate("chat_placeholder")}
-          value={text}
-          style={textareaStyle}
-          onChange={(e) => {
-            setText(e.target.value);
-          }}
-          onKeyDown={handleKeyDown}
-          sx={{
-            whiteSpace: "pre-wrap",
-            width: "100%",
-          }}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
-      )}
-      <IconButton
-        size="large"
-        onClick={() => {
-          handleButtonClick();
-          setText("");
-        }}
-        disabled={!text?.trim()}
-      >
-        <SendRoundedIcon style={{ color: "#EE6633", height: "4rem" }} />
-      </IconButton>
-      {loading && <CircularProgress style={{ color: "#EE6633" }} />}
+        {/* Loader */}
+        {loading && (
+          <Grid item>
+            <CircularProgress style={{ color: "#EE6633" }} />
+          </Grid>
+        )}
+      </Grid>
     </Grid>
   );
 }
