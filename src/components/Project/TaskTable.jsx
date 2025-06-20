@@ -867,7 +867,7 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <div style={{ position: "relative" }}
+        <div style={{ position: "relative" }}>
           {filtersApplied && (
             <InfoIcon
               color="primary"
