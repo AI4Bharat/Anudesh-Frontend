@@ -3,19 +3,17 @@ import "./chat.css";
 import { useState, useRef, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
 import MenuItem from "@mui/material/MenuItem";
-import Menu, { MenuProps } from "@mui/material/Menu";
+import Menu from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
@@ -28,6 +26,7 @@ import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
@@ -42,7 +41,7 @@ import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking"
 
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -93,10 +92,29 @@ const StyledMenu = styled((props) => (
     },
   },
 }));
+
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
-  let inputValue = "";
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -110,21 +128,11 @@ const SuperCheckerPage = () => {
   const [answered, setAnswered] = useState(false);
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
   const [labellingMode, setLabellingMode] = useState(null);
   let loaded = useRef();
-
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
-
   const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
-
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -135,17 +143,13 @@ const SuperCheckerPage = () => {
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
-
   const [annotations, setAnnotations] = useState([]);
-
   const annotationNotesRef = useRef(null);
   const superCheckerNotesRef = useRef(null);
   const [info, setInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
-
   const [disableSkip, setdisableSkip] = useState(false);
-
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
@@ -159,33 +163,75 @@ const SuperCheckerPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+  const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    setNotes(taskDataArr, AnnotationsTaskDetails);
+  }, [taskDataArr, AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    filterAnnotations(AnnotationsTaskDetails, userData);
+  }, [AnnotationsTaskDetails, userData]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
   };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
-  };
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const setNotes = (taskData, annotations) => {
     if (
@@ -289,7 +335,6 @@ const SuperCheckerPage = () => {
                 (annotation) =>
                   annotation.parent_annotation === reviewerAnnotations[0]?.id,
               );
-              console.log(reviewerAnnotations, superCheckerAnnotation);
               reviewNotesRef.current.value =
                 reviewerAnnotations[0]?.review_notes ?? "";
               if (superCheckerAnnotation) {
@@ -402,25 +447,6 @@ const SuperCheckerPage = () => {
     return markdownString;
   };
 
-  useEffect(() => {
-    setNotes(taskDataArr, AnnotationsTaskDetails);
-  }, [taskDataArr, AnnotationsTaskDetails]);
-
-  useEffect(() => {
-    if (taskData) {
-      setInfo((prev) => {
-        return {
-          hint: taskData?.data?.hint,
-          examples: taskData?.data?.examples,
-          meta_info_intent: taskData?.data?.meta_info_intent,
-          instruction_data: taskData?.data?.instruction_data,
-          meta_info_domain: taskData?.data?.meta_info_domain,
-          meta_info_language: taskData?.data?.meta_info_language,
-        };
-      });
-    }
-  }, [taskData]);
-
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -432,17 +458,6 @@ const SuperCheckerPage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -515,13 +530,64 @@ const SuperCheckerPage = () => {
     }
     // }
   };
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+
+  const areAllFormsAnswered = () => {
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
+  };
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    return !Array.isArray(result) ? [result] : result;
+  };
+
   const handleSuperCheckerClick = async (
     value,
     id,
     lead_time,
+    type,
     parentannotation,
     reviewNotesValue,
   ) => {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      !areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
+      });
+      return;
+    }
     let resultValue;
     if (ProjectDetails.project_type === "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -539,7 +605,6 @@ const SuperCheckerPage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -549,6 +614,43 @@ const SuperCheckerPage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
+    } else if (
+      ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+    ) {
+      const modelMap = {};
+      chatHistory.forEach((entry) => {
+        entry.output.forEach((modelResp) => {
+          const model = modelResp.model_name;
+          const has_invalid_resp = modelResp.output_error;
+          if (!modelMap[model]) {
+            modelMap[model] = [];
+          }
+          const interaction = {
+            prompt: entry.prompt,
+            output: has_invalid_resp
+              ? JSON.parse(modelResp.output_error)
+              : reverseFormatResponse(modelResp.output),
+            prompt_output_pair_id: modelResp.prompt_output_pair_id,
+          };
+          modelMap[model].push(interaction);
+        });
+      });
+
+      const model_interactions = Object.entries(modelMap).map(
+        ([model_name, interaction_json]) => {
+          return {
+            model_name,
+            interaction_json,
+          };
+        },
+      );
+
+      resultValue = [
+        {
+          eval_form: Object.values(submittedEvalForms),
+          model_interactions: model_interactions,
+        },
+      ];
     }
 
     setLoading(true);
@@ -572,12 +674,7 @@ const SuperCheckerPage = () => {
         value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" || value === "rejected"
@@ -602,7 +699,6 @@ const SuperCheckerPage = () => {
           "to_be_revised",
         ].includes(value)
       ) {
-        console.log("answered variable: ");
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -642,13 +738,95 @@ const SuperCheckerPage = () => {
         res.ok &&
         resp.result
       ) {
-        let modifiedChatHistory = resp?.result.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
-        setChatHistory([...modifiedChatHistory]);
+        if (type === "MultipleLLMInstructionDrivenChat") {
+          const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+          if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+            const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+            let modifiedChatHistory = [];
+            let globalModelFailure = false;
+
+            for (let i = 0; i < interactions_length; i++) {
+              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const modelOutputs = [];
+              let turnPromptOutputPairId = null;
+              let turnHasModelFailure = false;
+
+              allModelsInteractions.forEach((modelData, modelIdx) => {
+                const interaction = modelData?.interaction_json?.[i];
+                if (interaction) {
+                  const response_valid = isString(interaction?.output);
+                  if (!response_valid) {
+                    turnHasModelFailure = true;
+                  }
+                  if (modelIdx === 0) {
+                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  }
+                  modelOutputs.push({
+                    model_name: modelData?.model_name,
+                    output: response_valid
+                      ? formatResponse(interaction?.output)
+                      : formatResponse(
+                          `${modelData?.model_name} failed to generate a response`,
+                        ),
+                    status: response_valid ? "success" : "error",
+                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    output_error: response_valid
+                      ? null
+                      : JSON.stringify(interaction?.output),
+                  });
+                }
+              });
+
+              if (turnHasModelFailure) {
+                globalModelFailure = true;
+              }
+
+              if (turnPromptOutputPairId) {
+                const eval_form = (
+                  Array.isArray(resp?.result?.[0]?.eval_form)
+                    ? resp.result[0].eval_form
+                    : []
+                ).find(
+                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                );
+
+                if (eval_form) {
+                  setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                  setSubmittedEvalForms((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                }
+              }
+
+              if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                  prompt: prompt,
+                  output: modelOutputs,
+                  prompt_output_pair_id: turnPromptOutputPairId,
+                });
+              }
+            }
+            if (globalModelFailure) {
+              setIsModelFailing(true);
+            }
+            setChatHistory([...modifiedChatHistory]);
+          } else {
+            setChatHistory([]);
+            setIsModelFailing(false); 
+          }
+        }else {
+          let modifiedChatHistory = resp?.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        }
       }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
@@ -697,26 +875,11 @@ const SuperCheckerPage = () => {
     setShowNotes(false);
     setAnchorEl(null);
   };
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-  }
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
-  const [filteredReady, setFilteredReady] = useState(false);
-
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
 
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
@@ -764,10 +927,6 @@ const SuperCheckerPage = () => {
     return [filteredAnnotations, disableSkip, disableAutoSave];
   };
 
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
-  }, [AnnotationsTaskDetails, userData]);
-
   const getTaskData = async (id) => {
     setLoading(true);
     const ProjectObj = new GetTaskDetailsAPI(id);
@@ -794,19 +953,36 @@ const SuperCheckerPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
+    if (ProjectDetails?.project_type ===
+      "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
+      if (isModelFailing) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      if (!areAllFormsAnswered()) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      return;
+    }
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
+
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -828,6 +1004,33 @@ const SuperCheckerPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+        />
+      );
+      break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
@@ -896,6 +1099,7 @@ const SuperCheckerPage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
@@ -1075,7 +1279,7 @@ const SuperCheckerPage = () => {
                       }}
                     >
                       {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${review?.id}`}
+                        `ANNOTATION ID: ${annotations[0]?.id}`}
                       {annotations[0]?.annotation_type == 2 &&
                         `REVIEW ID: ${annotations[0]?.id}`}
                       {annotations[0]?.annotation_type == 3 &&
@@ -1234,6 +1438,7 @@ const SuperCheckerPage = () => {
                         "rejected",
                         SuperChecker.id,
                         SuperChecker.lead_time,
+                        "",
                         SuperChecker.parent_annotation,
                       )
                     }
@@ -1301,6 +1506,7 @@ const SuperCheckerPage = () => {
                       "validated",
                       SuperChecker.id,
                       SuperChecker.lead_time,
+                      "",
                       SuperChecker.parent_annotation,
                     )
                   }
@@ -1314,6 +1520,7 @@ const SuperCheckerPage = () => {
                       "validated_with_changes",
                       SuperChecker.id,
                       SuperChecker.lead_time,
+                      "",
                       SuperChecker.parent_annotation,
                     )
                   }

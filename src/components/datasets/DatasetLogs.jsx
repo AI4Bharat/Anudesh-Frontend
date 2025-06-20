@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
@@ -20,6 +20,24 @@ import { snakeToTitleCase } from "@/utils/utils";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { fetchDatasetLogs } from "@/Lib/Features/datasets/GetDatasetLogs";
+import { styled } from "@mui/material/styles";
+
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -57,7 +75,7 @@ const DatasetLogs = (props) => {
     endDate: new Date(),
     key: "selection"
   }]);
-
+  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -111,7 +129,28 @@ const DatasetLogs = (props) => {
           options: {
             filter: key === 'status',
             sort: false,
-            align: "center"
+            align: "center",
+            setCellProps: () => ({ style: { width: 200, maxWidth: 400 } }),
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         });
       });
@@ -122,7 +161,7 @@ const DatasetLogs = (props) => {
       setDatasetLogs([]);
     }
     setShowSpinner(false);
-  }, [DatasetLogs]);
+  }, [DatasetLogs, expandedRow]);
 
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (

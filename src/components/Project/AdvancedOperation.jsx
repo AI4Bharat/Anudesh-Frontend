@@ -1,6 +1,4 @@
-import {
-  ThemeProvider,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
@@ -31,6 +29,7 @@ import DeleteProjectTasks from "./DeleteProjectTasks";
 import { snakeToTitleCase } from "@/utils/utils";
 import ExportProjectDialog from "./ExportProjectDialog";
 import DeallocationAnnotatorsAndReviewers from "./DeallocationAnnotatorsAndReviewers";
+import AllocateTasksDialog from "./manualtaskassign";
 import SuperCheckSettings from "./SuperCheckSettings";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import TextField from "@mui/material/TextField";
@@ -43,6 +42,7 @@ import GetPublishProjectButtonAPI from "@/app/actions/api/Projects/GetPublishPro
 import GetPullNewDataAPI from "@/app/actions/api/Projects/GetPullNewDataAPI";
 import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
+import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 /* eslint-disable react-hooks/exhaustive-deps */
 
 const ProgressType = [
@@ -282,6 +282,42 @@ const AdvancedOperation = (props) => {
       (downloadMetadataToggle) => !downloadMetadataToggle,
     );
   };
+  const handleMetadata = async () => {
+    const sendData={
+      title: newDetails.title,
+      project_type: ProjectDetails.project_type,
+      metadata_json:{
+        blank_response:!blankResponse
+      }
+    }
+      const projectObj = new GetSaveButtonAPI(id, sendData);
+            const res = await fetch(projectObj.apiEndPoint(), {
+                method: "PUT",
+                body: JSON.stringify(projectObj.getBody()),
+                headers: projectObj.getHeaders().headers,
+            });
+            const resp = await res.json();
+            setLoading(false);
+            if (res.ok) {
+                setSnackbarInfo({
+                    open: true,
+                    message: "success",
+                    variant: "success",
+                })
+                setBlankResponse(
+                  (blankResponse) => !blankResponse,
+                );    
+            } else {
+                setSnackbarInfo({
+                    open: true,
+                    message: resp?.message,
+                    variant: "error",
+                })
+            }
+    
+
+  };
+
 
   const getPublishProjectButton = async () => {
     const projectObj = new GetPublishProjectButtonAPI(id);
@@ -345,6 +381,8 @@ const AdvancedOperation = (props) => {
   const ArchiveProject = useSelector((state) => state.GetArchiveProject?.data);
   const [isArchived, setIsArchived] = useState(false);
   const [downloadMetadataToggle, setDownloadMetadataToggle] = useState(true);
+  const [blankResponse, setBlankResponse] = useState(ProjectDetails?.metadata_json?.blank_response||false);
+
   const getArchiveProjectAPI = () => {
     dispatch(fetchArchiveProject(id));
   };
@@ -621,6 +659,9 @@ const AdvancedOperation = (props) => {
               downloadMetadataToggle={downloadMetadataToggle}
             />
           </Grid>
+           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <AllocateTasksDialog />
+          </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <DeleteProjectTasks />
           </Grid>
@@ -708,6 +749,22 @@ const AdvancedOperation = (props) => {
               }
             />
           </Grid>
+          {ProjectDetails?.project_type === "InstructionDrivenChat" && (
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <FormControlLabel
+                control={<Switch color="primary" />}
+                label="Blank Response"
+                labelPlacement="start"
+                checked={blankResponse}
+                onChange={handleMetadata}
+                disabled={
+                  userRole.WorkspaceManager === loggedInUserData?.role
+                    ? true
+                    : false
+                }
+              />
+            </Grid>
+          )}
         </Grid>
         </Grid>
 

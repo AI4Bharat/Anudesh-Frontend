@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "@/components/common/Spinner";
-import {
-  ThemeProvider,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
@@ -17,15 +15,17 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TablePagination from "@mui/material/TablePagination";
 import tableTheme from "../../themes/tableTheme";
-import ColumnList from "../common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import AllTasksFilterList from "./AllTasksFilterList";
 import CustomButton from "../common/Button";
 import SearchIcon from "@mui/icons-material/Search";
-import AllTaskSearchPopup from "./AllTasksSearchpopup";
+import SearchPopup from "./SearchPopup"
 import { fetchAllTaskData } from "@/Lib/Features/projects/getAllTaskData";
+import { styled } from "@mui/material/styles";
+import ChatLang from "@/utils/Chatlang";
+import AllTaskSearchPopup from "./AllTasksSearchpopup";
 
 const excludeCols = [
   "avg_rating",
@@ -50,6 +50,22 @@ const excludeCols = [
   "prediction_json",
   "ocr_prediction_json",
 ];
+
+const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  WebkitLineClamp: expanded ? "unset" : 3,
+  WebkitBoxOrient: "vertical",
+  lineHeight: "1.5em",
+  maxHeight: expanded ? "9900px" : "4.5em",
+  transition: "max-height 1.8s ease-in-out",
+}));
+
+const RowContainer = styled(Box)(({ theme, expanded }) => ({
+  cursor: "pointer",
+  transition: "all 1.8s ease-in-out",
+}));
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -77,13 +93,13 @@ const AllTaskTable = (props) => {
   const [displayWidth, setDisplayWidth] = useState(0);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
+  const [expandedRow, setExpandedRow] = useState(null);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
   const [columns, setColumns] = useState([]);
-  const [selectedColumns, setSelectedColumns] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchAnchor, setSearchAnchor] = useState(null);
@@ -95,15 +111,15 @@ const AllTaskTable = (props) => {
 
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
-  const AllTaskData = useSelector((state) => state.getAllTaskData.data.result);
+  const AllTaskData = useSelector((state) => state.getAllTaskData?.data.result);
   const apiLoading = useSelector(
     (state) => state.getAllTaskData.status !== "succeeded",
   );
   const totalTaskCount = useSelector(
-    (state) => state.getAllTaskData.data.total_count,
+    (state) => state.getAllTaskData?.data.total_count,
   );
-  const ProjectDetails = useSelector((state) => state.getProjectDetails.data);
-  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  const userDetails = useSelector((state) => state.getLoggedInData?.data);
   const filterData = {
     Status: [
       "incomplete",
@@ -114,12 +130,8 @@ const AllTaskTable = (props) => {
     ],
   };
 
-  const [selectedFilters, setSelectedFilters] = useState(() => {
-    const savedFilters = localStorage.getItem('selectedFilters');
-    return savedFilters ? JSON.parse(savedFilters) :
-      { task_status: [filterData.Status[0]] };
-  });
-
+  const [selectedFilters, setSelectedFilters] = useState({
+    task_status: [filterData.Status[0]]})
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -137,9 +149,7 @@ const AllTaskTable = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
-  }, [selectedFilters]);
+
 
 
   if (ProjectDetails?.required_annotators_per_task > 1) {
@@ -168,9 +178,14 @@ const AllTaskTable = (props) => {
       const data = AllTaskData.map((el) => {
         let row = [el.id];
         row.push(
-          ...Object.keys(el.data)
+          ...Object.keys(el?.data)
             .filter((key) => !excludeCols.includes(key))
-            .map((key) => el.data[key]),
+            .map((key) => {
+              if (key === "meta_info_language") {
+                return ChatLang[el.data[key]] || el.data[key];
+              }
+              return el.data[key];
+            }),
         );
         AllTaskData[0].task_status && row.push(el.task_status);
         if (
@@ -208,7 +223,7 @@ const AllTaskTable = (props) => {
       let colList = ["id"];
 
       colList.push(
-        ...Object.keys(AllTaskData[0].data).filter(
+        ...Object.keys(AllTaskData[0]?.data).filter(
           (el) => !excludeCols.includes(el),
         ),
       );
@@ -229,6 +244,26 @@ const AllTaskTable = (props) => {
             sort: false,
             align: "center",
             customHeadLabelRender: customColumnHead,
+            customBodyRender: (value, tableMeta) => {
+              const rowIndex = tableMeta.rowIndex;
+              const isExpanded = expandedRow === rowIndex;
+
+              return (
+                <RowContainer
+                  expanded={isExpanded}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedRow((prevExpanded) =>
+                      prevExpanded === rowIndex ? null : rowIndex,
+                    );
+                  }}
+                >
+                  <TruncatedContent expanded={isExpanded}>
+                    {value}
+                  </TruncatedContent>
+                </RowContainer>
+              );
+            },
           },
         };
       });
@@ -236,7 +271,6 @@ const AllTaskTable = (props) => {
         cols.splice(1, 2);
       }
       setColumns(cols);
-      setSelectedColumns(colList);
       data.forEach(ele => {
         if (ele.length == 6) {
           ele.splice(1, 2);
@@ -246,17 +280,7 @@ const AllTaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [AllTaskData, ProjectDetails]);
-
-  useEffect(() => {
-    const newCols = columns.map((col) => {
-      col.options.display = selectedColumns.includes(col.name)
-        ? "true"
-        : "false";
-      return col;
-    });
-    setColumns(newCols);
-  }, [selectedColumns]);
+  }, [AllTaskData, ProjectDetails, expandedRow]);
 
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
@@ -298,14 +322,8 @@ const AllTaskTable = (props) => {
   };
 
   const renderToolBar = () => {
-    // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
-        {/* <ColumnList
-                columns={columns}
-                setColumns={setSelectedColumns}
-                selectedColumns={selectedColumns}
-            /> */}
         <Tooltip title="Filter Table">
           <Button onClick={handleShowFilter}>
             <FilterListIcon />
@@ -446,7 +464,7 @@ const AllTaskTable = (props) => {
             <MUIDataTable
               key={`table-${displayWidth}`}
               title={""}
-              data={data}
+              data={tasks}
               columns={columns}
               options={{
                 ...options,
@@ -468,15 +486,15 @@ const AllTaskTable = (props) => {
           )}
           {searchOpen && (
             <AllTaskSearchPopup
-              open={searchOpen}
-              anchorEl={searchAnchor}
-              handleClose={handleSearchClose}
-              updateFilters={setSelectedFilters}
-              //filterStatusData={filterData}
-              currentFilters={selectedFilters}
-              searchedCol={searchedCol}
-              onchange={GetAllTasksdata}
-            />
+                    open={searchOpen}
+                    anchorEl={searchAnchor}
+                     handleClose={handleSearchClose}
+                    updateFilters={setSelectedFilters}
+                    //filterStatusData={filterData}
+                    currentFilters={selectedFilters}
+                    searchedCol={searchedCol}
+                    onchange={GetAllTasksdata}
+                />
           )}
         </div>
       )}
