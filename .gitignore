@@ -10,7 +10,8 @@
 
 # production
 /build
-
+package-lock.json
+dist/
 # misc
 .DS_Store
 *.pem
@@ -28,3 +29,10 @@ npm-debug.log*
 # config files
 *.config.js
 *.layout.js
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

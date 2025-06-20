@@ -20,8 +20,9 @@ import { setDomain } from "@/Lib/Features/actions/AddGlossary";
 
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { MenuProps } from "@/utils/utils";
-import { IndicTransliterate, getTransliterationLanguages } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
+import { languages } from "@/components/Transliteration/languages";
 
 const SuggestAnEdit = ({
     openDialog,
@@ -39,7 +40,7 @@ const SuggestAnEdit = ({
     const dispatch = useDispatch();
     /* eslint-disable react-hooks/exhaustive-deps */
 
-  const [Targetlanguage, setTargetlanguage] = useState([]);
+  const [Targetlanguage] = languages;
     const [snackbar, setSnackbarInfo] = useState({
       open: false,
       message: "",
@@ -60,17 +61,6 @@ const SuggestAnEdit = ({
     const handleDomainChange = (e) => {
       setDomainValue(e.target.value);
     };
-  
-    useEffect(() => {
-  
-      getTransliterationLanguages()
-        .then(langs => {
-          setTargetlanguage(langs)
-        })
-        .catch(err => {
-          console.log(err);
-        })
-    }, [])
   
     var targetData = Targetlanguage?.filter((e)=>e.LangCode.includes(targetlang))
   
@@ -145,6 +135,8 @@ const SuggestAnEdit = ({
                   { targetData.length > 0 && targetlang !== "en" ? (
                    <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                    // enableASR={true}
+                    // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
                     apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     lang={Targetlanguage.LangCode ? Targetlanguage.LangCode : (targetData.length > 0  ?  targetData[0]?.LangCode : "en" )}
                     value={targetText}

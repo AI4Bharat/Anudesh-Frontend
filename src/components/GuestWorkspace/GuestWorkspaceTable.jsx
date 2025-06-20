@@ -23,10 +23,9 @@ import {
   fetchGuestWorkspaceData,
   addAuthenticatedWorkspace,
 } from "@/Lib/Features/getGuestWorkspaces";
-import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
-import { store } from "@/Lib/Store";
+
 import ProjectList from "@/app/ui/pages/projects/project";
 const style = {
   position: "absolute",
@@ -77,11 +76,7 @@ const GuestWorkspaceTable = (props) => {
   });
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
-  const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
-  const [totalWorkspaces, setTotalWorkspaces] = useState(10);
-  const [filteredProjects, setFilteredProjects] = useState(null); // Added state for filtered projects
-
-  // const totalWorkspaceCount = useSelector(state => state.getGuestWorkspace.data.count);
+  const [filteredProjects, setFilteredProjects] = useState(null);
 
   const guestWorkspaceData = useSelector(
     (state) => state.getGuestWorkspaces?.data
@@ -93,10 +88,6 @@ const GuestWorkspaceTable = (props) => {
     (state) => state.getGuestWorkspaces?.authenticatedWorkspaces
   );
 
-  const authenticatedWorkspaces1 = useSelector(
-    (state) => console.log(state)
-    
-  );
   const handleOpen = (workspace_name, workspace_id) => {
     setPassword("");
     setWorkspaceCurrentId(workspace_id);
@@ -105,23 +96,22 @@ const GuestWorkspaceTable = (props) => {
   };
   const handleClose = () => setOpen(false);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
 
-    useEffect(() => {
-      const handleResize = () => {
-        setDisplayWidth(window.innerWidth);
-      };
-  
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
       if (typeof window !== 'undefined') {
-        handleResize();
-        window.addEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
       }
-  
-      return () => {
-        if (typeof window !== 'undefined') {
-          window.removeEventListener('resize', handleResize);
-        }
-      };
-    }, []);
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchGuestWorkspaceData(currentPageNumber));
@@ -152,7 +142,6 @@ const GuestWorkspaceTable = (props) => {
         headers: AuthenticationObj.getHeaders().headers,
     }
     );
-    const resData = await res.json();
     if(!res.ok) {
       handleClose();
       setSnackbarInfo({
@@ -172,30 +161,6 @@ const GuestWorkspaceTable = (props) => {
     const handleViewWorkspace = (workspaceId) => {
     navigate(`/guest_workspaces/${workspaceId}`);
   };
-
-
-  // const handleViewWorkspace = (workspaceId) => {
-  //   dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
-  //     const state = store.getState().getProjects.data || {};
-  //     const includedProjects = state.included_projects || [];
-  //     const excludedProjects = state.excluded_projects || [];
-  
-  //     const filteredIncludedProjects = includedProjects.filter(
-  //       (project) => project.workspace_id === workspaceId
-  //     );
-  //     const filteredExcludedProjects = excludedProjects.filter(
-  //       (project) => project.workspace_id === workspaceId
-  //     );
-  
-  //     const filteredProjects = {
-  //       included_projects: filteredIncludedProjects,
-  //       excluded_projects: filteredExcludedProjects,
-  //     };
-  
-  //     setFilteredProjects(filteredProjects);
-  //     console.log(filteredProjects,"hello",workspaceId);
-  //   });
-  // };
   
   const renderSnackBar = () => {
     return (
@@ -343,13 +308,7 @@ const GuestWorkspaceTable = (props) => {
             key={i}
             sx={{ borderRadius: 2 }}
             label={isAuthenticated ? "View" : "Authenticate"}
-            // label={
-            //   authenticatedWorkspaces.includes(el.id)
-            //     ? "View"
-            //     : "Authenticate"
-            // }
             onClick={
-              // authenticatedWorkspaces.includes(el.id)
               isAuthenticated
                 ? () => handleViewWorkspace(el.id)
                 : () => handleOpen(el.workspace_name, el.id)
@@ -435,16 +394,13 @@ const GuestWorkspaceTable = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,

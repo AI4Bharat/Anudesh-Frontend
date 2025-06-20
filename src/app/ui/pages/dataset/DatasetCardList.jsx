@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import CustomButton from "@/components/common/Button";
-import { ThemeProvider } from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -215,11 +215,6 @@ const DatasetCardList = (props) => {
   const renderToolBar = () => {
     return (
       <div>
-        {/* <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
-          <Tooltip title={"Filter Table"}>
-            <FilterListIcon sx={{ color: "#515A5A" }} />
-          </Tooltip>
-        </Button> */}
         <Button style={{ minWidth: '25px', position: "relative" }} onClick={handleShowFilter}>
           {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{ position: "absolute", top: -4, right: -4 }} />}
           <CustomTooltip
@@ -320,16 +315,13 @@ const DatasetCardList = (props) => {
       pagination: { rowsPerPage: "Rows per page" },
       options: { sortDirection: "desc" },
     },
-    // customToolbar: fetchHeaderButton,
     displaySelectToolbar: false,
     fixedHeader: false,
     filterType: "checkbox",
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
     filter: false,
-    // page: PageInfo.page,
     viewColumns: false,
     selectableRows: "none",
     search: false,
