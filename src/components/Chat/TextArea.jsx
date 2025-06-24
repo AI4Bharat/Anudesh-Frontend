@@ -97,6 +97,7 @@ export default function Textarea({
 
   const handleBlur = (event) => {
     event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+    
   };
 
   const handleKeyDown = (event) => {
@@ -165,7 +166,7 @@ export default function Textarea({
     <Grid
       item
       // xs={size}
-      backgroundColor="#FFf"
+      backgroundColor="transparent"
       justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}
@@ -215,11 +216,11 @@ export default function Textarea({
             },
             width: {
               xs: "90%",
-              sm: "auto", // Default width after small screens
+              sm: "auto", 
             },
           }}
         >
-          <InputLabel id="language-select-label">
+          <InputLabel id="language-select-label" >
             Language
           </InputLabel>
           <Select
@@ -286,21 +287,22 @@ export default function Textarea({
             <textarea
               // xs={size}
               sx={{
-                whiteSpace: "pre-wrap",
-                resize: "none",
-                maxHeight: "200px",
-                overflow: "hidden",
-                height: "auto !important",
-                "&:not(:focus)": {
-                  overflowY: "auto"
-                }
-                
-              }}
+        whiteSpace: "pre-wrap",
+        resize: "none",
+        maxHeight: "200px",
+        overflow: "hidden",
+        height: text ? 'auto' : "50px", 
+        minHeight: "50px",
+        "&:not(:focus)": {
+          overflowY: text ? "auto" : "hidden", 
+          minHeight: "50px"
+        }
+      }}
               onInput={(e) => {
                 const textarea = e.target;
                 textarea.style.height = 'auto';
                 textarea.style.height = `${textarea.scrollHeight}px`;
-                if (props.onInput) props.onInput(e); // Preserve any existing onInput
+                if (props.onInput) props.onInput(e); 
               }}
               
               maxRows={10}
@@ -309,7 +311,11 @@ export default function Textarea({
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               onFocus={handleFocus}
-              onBlur={handleBlur}
+              onBlur={(e) => {
+        const textarea = e.target;
+          textarea.style.height = "50px";
+        handleBlur(e);
+      }}
               {...props}
               />
             )}
@@ -329,10 +335,10 @@ export default function Textarea({
             style={{
               whiteSpace: "pre-wrap",
             resize: "none",
-            
-            overflow: 'auto',
+            overflow: text ? 'auto' : 'hidden',
+           height: text ? 'auto' : "50px",
+
             fontSize: "1rem",
-            height: "50px",
             width:"100%",
             fontWeight: "400",
             lineHeight: "1.5",
