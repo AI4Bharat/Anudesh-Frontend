@@ -1,3 +1,22 @@
+.custom-transliterate-container div[style] > button[style] {
+  bottom: 13px !important;
+  right: -40px !important; /* Default for mobile */
+  top: auto !important;
+}
+
+@media (min-width: 768px) {
+  .custom-transliterate-container div[style] > button[style] {
+    right: -50px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .custom-transliterate-container div[style] > button[style] {
+    right: -60px !important;
+  }
+}
+
+
 @media screen and (max-width: 992px) {
   .textarea_grid {
     max-width: 70% !important;
