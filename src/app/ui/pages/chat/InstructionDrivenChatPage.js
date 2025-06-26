@@ -868,6 +868,8 @@ const InstructionDrivenChatPage = ({
                 inputValue={inputValue}
                 // defaultLang={targetLang}
                 overrideGT={true}
+                task_id={taskId}
+                script={info.meta_info_language}
               />
             </Grid>
           ) : null}

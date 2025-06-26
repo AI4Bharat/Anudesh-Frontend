@@ -40,6 +40,8 @@ export default function Textarea({
   inputValue,
   defaultLang = null,
   overrideGT = false,
+  task_id = "",
+  script = "",
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -50,6 +52,7 @@ export default function Textarea({
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [localTransliteration, setLocalTransliteration] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -76,7 +79,7 @@ export default function Textarea({
   }, [text]);
 
   useEffect(() => {
-    if(overrideGT === true){
+    if (overrideGT === true) {
       setDefLang("en");
     }
   }, [overrideGT]);
@@ -138,17 +141,15 @@ export default function Textarea({
     color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
     background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
     border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-    box-shadow: 0px 2px 2px ${
-      theme.palette.mode === "dark" ? grey[900] : grey[50]
-    };
+    box-shadow: 0px 2px 2px ${theme.palette.mode === "dark" ? grey[900] : grey[50]
+      };
     &:hover {
       border-color: ${orange[400]};
     }
     &:focus {
       outline: 0;
       border-color: ${orange[400]};
-      box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? orange[600] : orange[200]
+      box-shadow: 0 0 0 3px ${theme.palette.mode === "dark" ? orange[600] : orange[200]
       };
     }
     // firefox
@@ -161,6 +162,37 @@ export default function Textarea({
   if (!isMounted) {
     return null;
   }
+
+  const sendLogs = () => {
+    if (overrideGT) {
+      let voiceLogs = [], user_email = "";
+      if (typeof window !== "undefined") {
+        voiceLogs = JSON.parse(localStorage.getItem("voiceLogs"));
+        user_email = localStorage.getItem("email_id");
+      }
+      const vlBody = {
+        platform: "Anudesh",
+        user_email: user_email,
+        language: defLang,
+        script: Number(script),
+        task_id: Number(task_id),
+        voiceLogs: voiceLogs.map(log => ({
+          timestamp: log.id,
+          audioBase64: log.audioBase64,
+          machineTranscription: log.initialTranscript,
+          correctedTranscription: log.correctedText
+        }))
+      }
+      fetch("https://backend.anudesh.ai4bharat.org/logs/transcription_selection/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(vlBody)
+      });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("voiceLogs");
+      }
+    }
+  };
 
   return (
     <Grid
@@ -277,7 +309,7 @@ export default function Textarea({
           }}
         >
         <IndicTransliterate
-          key={`indic-${defLang || 'default'}-${localTransliteration}`}
+          key={`indic-${defLang || 'default'}-${localTransliteration}-${count}`}
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
           enableASR={localTransliteration ? true : false}
           asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
