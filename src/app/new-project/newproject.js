@@ -1615,7 +1615,7 @@ const CreateProject = () => {
                     selectedInstances &&
                     domains &&
                     samplingMode &&
-                    (selectedType === "ModelInteractionEvaluation"
+                    (selectedType === "ModelInteractionEvaluation" || "multipleInteractionEvaluation"
                       ? questionsJSON?.length > 0
                       : true)
                     ? false

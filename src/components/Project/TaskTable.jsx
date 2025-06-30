@@ -5,6 +5,8 @@ import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
+import _ from 'lodash'; 
+
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
@@ -48,6 +50,7 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
+import { setPage, setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 
 const defaultColumns = [
   "id",
@@ -121,7 +124,6 @@ const TaskTable = (props) => {
     (state) => state.GetTasksByProjectId?.data?.result,
   );
   const [displayWidth, setDisplayWidth] = useState(0);
-  const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
   const [find, setFind] = useState("");
@@ -138,10 +140,21 @@ const TaskTable = (props) => {
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
   );
+
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
-  const TaskFilter = AllTaskFilters.find(
+  const TaskFilter = AllTaskFilters?.find(
     (filter) => filter.id === id && filter.type === props.type,
   )
+    const AllPageFilters = useSelector((state) => state.taskPaginationSlice?.data);
+
+    const currentPageFromState = useSelector(state => {
+    const filter = state.taskPaginationSlice?.data[0]
+    
+    return filter?.page || 1;
+  });
+
+  const [currentPageNumber, setCurrentPageNumber] = useState(currentPageFromState);
+
 
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
@@ -246,9 +259,17 @@ const TaskTable = (props) => {
   const [expandedRow, setExpandedRow] = useState(null);
 
   const getTaskListData = () => {
+      const existingFilter = AllPageFilters?.find(filter => 
+    filter.id === id && 
+    filter.type === props.type && 
+    _.isEqual(filter.selectedFilters, selectedFilters)
+  );
+
+  
+    
     const taskobj = {
       id: id,
-      currentPageNumber: currentPageNumber,
+      currentPageNumber: existingFilter?.page || 1,
       currentRowPerPage: currentRowPerPage,
       selectedFilters: selectedFilters,
       taskType: props.type,
@@ -261,6 +282,7 @@ const TaskTable = (props) => {
 
   useEffect(() => {
     getTaskListData();
+
   }, [currentPageNumber, currentRowPerPage]);
 
   useEffect(() => {
@@ -318,7 +340,8 @@ const TaskTable = (props) => {
             ...selectedFilters,
             task_status: props.type === "annotation" ? "unlabeled" : "labeled",
           });
-          setCurrentPageNumber(1);
+
+
         }
         dispatch(fetchProjectDetails(id));
       }
@@ -470,28 +493,54 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
   useEffect(() => {
-    const payload = {
-      id,
-      selectedFilters,
-      type: props.type,
-      pull,
-      rejected,
-    };
-    dispatch(setTaskFilter(payload));
-    if (currentPageNumber !== 1) {
-      setCurrentPageNumber(1);
-    } else {
-      getTaskListData();
+    dispatch(setTaskFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+    }))
+  const existingFilter = AllPageFilters?.find(filter => 
+    filter.id === id && 
+    filter.type === props.type && 
+    _.isEqual(filter.selectedFilters, selectedFilters)
+  );
+    
+
+    if (!existingFilter) {
+    dispatch(setPageFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+        page:1
+    }))
+    
+
+    }else{
+      dispatch(setPageFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+        page:existingFilter?.page
+    }))
+
     }
+    getTaskListData();
+
+
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "labellingMode",
         props.type === "annotation"
           ? selectedFilters.annotation_status
-          : selectedFilters.review_status,
+          : selectedFilters.review_status
       );
-
-      localStorage.setItem(
+        }
+        localStorage.setItem(
         "filters",
         JSON.stringify({
           selectedStatus,
@@ -499,9 +548,7 @@ const TaskTable = (props) => {
           rejected,
         }),
       );
-    }
-  }, [selectedFilters, pull, rejected]);
-
+      }, [selectedFilters, pull, rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -1019,7 +1066,21 @@ const TaskTable = (props) => {
       </Box>
     );
   };
-  
+    const handlePageChange = (newPage) => {
+    const page = newPage + 1;
+    setCurrentPageNumber(page);
+    dispatch(setPageFilter({
+      id,
+      type: props.type,
+      selectedFilters,
+      pull,
+      rejected,
+      page 
+    }));
+    getTaskListData();
+
+  };
+
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,
@@ -1034,10 +1095,11 @@ const TaskTable = (props) => {
       },
     },
     onChangePage: (currentPage) => {
-      setCurrentPageNumber(currentPage + 1);
+      handlePageChange(currentPage)
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
       setCurrentPageNumber(1);
+      dispatch(setPage({ projectId: id, page : 1}));
       setCurrentRowPerPage(rowPerPageCount);
     },
     filterType: "checkbox",
