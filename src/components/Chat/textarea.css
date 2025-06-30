@@ -1,3 +1,9 @@
+.custom-transliterate-container div[style] > button[style] {
+  bottom: 13px !important;
+  right: -45px !important;
+  top: auto !important;
+}
+
 @media screen and (max-width: 992px) {
   .textarea_grid {
     max-width: 70% !important;
