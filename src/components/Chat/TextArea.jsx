@@ -184,8 +184,16 @@ export default function Textarea({
               onInput={(e) => {
                 const textarea = e.target;
                 textarea.style.height = 'auto';
-                textarea.style.height = `${textarea.scrollHeight}px`;
-                if (props.onInput) props.onInput(e); // Preserve any existing onInput
+                const scrollHeight = textarea.scrollHeight;
+                const maxHeight = 200; // px
+                if (scrollHeight <= maxHeight) {
+                  textarea.style.height = scrollHeight + 'px';
+                  textarea.style.overflowY = 'hidden';
+                } else {
+                  textarea.style.height = maxHeight + 'px';
+                  textarea.style.overflowY = 'auto';
+                }
+                if (props.onInput) props.onInput(e);
               }}
 
               maxRows={10}
@@ -201,13 +209,6 @@ export default function Textarea({
           value={text}
           onChangeText={(text) => {
             setText(text);
-            setTimeout(() => {
-              const textarea = document.querySelector('textarea');
-              if (textarea) {
-                textarea.style.height = 'auto';
-                textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-              }
-            }, 0);
           }}
           onKeyDown={handleKeyDown}
           lang={defaultLang!==null ? defaultLang : targetLang}
