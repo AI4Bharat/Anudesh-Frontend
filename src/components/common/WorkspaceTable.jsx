@@ -76,6 +76,11 @@ const WorkspaceTable = (props) => {
       if (SearchWorkspace == "") {
         return el;
       } else if (
+        el.id?.toString().includes(SearchWorkspace?.toLowerCase())
+      ) {
+        console.log(el);
+        return el;
+      } else if (
         el.workspace_name
           ?.toLowerCase()
           .includes(SearchWorkspace?.toLowerCase())
