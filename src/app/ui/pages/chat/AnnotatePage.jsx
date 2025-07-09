@@ -219,6 +219,7 @@ const AnnotatePage = () => {
     return () => {
       setAnnotations([]);
       setForms([]);
+      setSubmittedEvalForms([])
     };
   }, [taskId]);
 
@@ -481,6 +482,7 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
+    
     return Object.keys(submittedEvalForms ?? {}).length === chatHistory.length;
   };  
 
@@ -512,11 +514,13 @@ const AnnotatePage = () => {
       setEvalFormResponse();
       setSubmittedEvalForms();
     }
+        console.log(submittedEvalForms,"hello");
+
     if (
       value === "labeled" &&
       type === "MultipleLLMInstructionDrivenChat" &&
       !areAllFormsAnswered()
-    ) {
+    ) {      
       setSnackbarInfo({
         open: true,
         message:
@@ -587,7 +591,7 @@ const AnnotatePage = () => {
 
       resultValue = [
         {
-          eval_form: Object.values(submittedEvalForms),
+          eval_form: submittedEvalForms?Object.values(submittedEvalForms):[],
           model_interactions: model_interactions,
         },
       ];
@@ -753,7 +757,7 @@ const AnnotatePage = () => {
           
           setChatHistory([...modifiedChatHistory]);
         }
-      }
+      } 
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
           if (typeof window !== "undefined") {

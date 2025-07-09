@@ -46,7 +46,7 @@ import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { sampleQuestion, sampleMultipleLLMIDCPQuestion } from "./sampleQue";
-import { fixedModels, languageModelOptions } from "./models";
+import { fixed_Models, languageModelOptions } from "./models";
 import { styled } from "@mui/styles";
 
 const isNum = (str) => {
@@ -126,6 +126,7 @@ const CreateProject = () => {
   const [selectedType, setSelectedType] = useState("");
   const [sourceLanguage, setSourceLanguage] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("");
+  const [fixedModels, setFixedModels] = useState(fixed_Models); 
   const [samplingMode, setSamplingMode] = useState(null);
   const [random, setRandom] = useState("");
   const [batchSize, setBatchSize] = useState();
@@ -537,7 +538,7 @@ const CreateProject = () => {
 
   useEffect(() => {
     if (NewProject?.id) {
-      navigate(`/projects/${ NewProject.id }`, { replace: true });
+      navigate(`/projects/${NewProject.id}`, { replace: true });
       window.location.reload();
 
       if (NewProject?.id) {
@@ -973,12 +974,12 @@ const CreateProject = () => {
                             onDelete={
                               value !== "Sarvam" && value !== "Ai4B"
                                 ? () => {
-                                    setSelectedLanguageModels(
-                                      selectedLanguageModels.filter(
-                                        (instance) => instance !== value,
-                                      ),
-                                    );
-                                  }
+                                  setSelectedLanguageModels(
+                                    selectedLanguageModels.filter(
+                                      (instance) => instance !== value,
+                                    ),
+                                  );
+                                }
                                 : undefined
                             }
                           />
@@ -997,7 +998,61 @@ const CreateProject = () => {
               </Grid>
             ) : null}
             {selectedType === "MultipleLLMInstructionDrivenChat" &&
-            selectedDomain === "Chat" && selectedLanguageModels.length >= fixedModels.length ? (
+              selectedDomain === "Chat" && selectedLanguageModels.length > 0 ? (
+              <Grid
+                container
+                direction="row"
+                alignItems="center"
+                sx={{
+                  paddingTop: "10px",
+                }}
+              >
+                <Typography>
+                  Select Fixed Models (Cannot be changed by users during chat):
+                </Typography>
+                <FormControl fullWidth sx={{ marginTop: "10px" }}>
+                  <Select
+                    multiple
+                    value={fixedModels}
+                    onChange={(e) => {
+                      // Ensure at least one fixed model is selected
+                      if (e.target.value.length > 0) {
+                        setFixedModels(e.target.value);
+                      }
+                    }}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={value}
+                            deleteIcon={
+                              <CancelIcon onMouseDown={(event) => event.stopPropagation()} />
+                            }
+                            onDelete={() => {
+                              // Only allow deletion if there would still be at least one fixed model
+                              if (selected.length > 1) {
+                                setFixedModels(selected.filter((model) => model !== value));
+                              }
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    MenuProps={MenuProps}
+                  >
+                    {selectedLanguageModels.map((model) => (
+                      <MenuItem key={model} value={model}>
+                        {model}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            ) : null}
+
+            {selectedType === "MultipleLLMInstructionDrivenChat" &&
+              selectedDomain === "Chat" && selectedLanguageModels.length >= fixedModels.length ? (
               <Grid
                 container
                 direction="row"
@@ -1231,7 +1286,7 @@ const CreateProject = () => {
                 >
                   <ThemeProvider theme={tableTheme}>
                     <MUIDataTable
-                      key={`table-${ displayWidth }`}
+                      key={`table-${displayWidth}`}
                       title={""}
                       data={tableData}
                       columns={columns.filter((column) =>
@@ -1239,7 +1294,7 @@ const CreateProject = () => {
                       )}
                       options={{
                         ...options,
-                        tableBodyHeight: `${ typeof window !== "undefined"
+                        tableBodyHeight: `${typeof window !== "undefined"
                           ? window.innerHeight - 200
                           : 400
                           }px`,
@@ -1624,7 +1679,7 @@ const CreateProject = () => {
               />
               <Button
                 label={"Cancel"}
-                onClick={() => navigate(`/workspaces/${ id }`)}
+                onClick={() => navigate(`/workspaces/${id}`)}
               />
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12} />

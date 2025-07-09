@@ -1,4 +1,4 @@
-const fixedModels = [ "Sarvam", "Ai4B" ]
+const fixed_Models = [ "Sarvam", "Ai4B" ]
 
 const languageModelOptions = [
     "Sarvam",
@@ -9,4 +9,4 @@ const languageModelOptions = [
     "GPT4 Turbo",
   ];
 
-export { fixedModels, languageModelOptions }
+export { fixed_Models, languageModelOptions }
