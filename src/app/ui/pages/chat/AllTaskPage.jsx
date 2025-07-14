@@ -417,61 +417,66 @@ const AllTaskPage = () => {
 
   return (
     <>
-      <Grid container spacing={2}>
+      <Grid container >
+        <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
         <Grid item>
           <Box
-            sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
-            }}
+            
           >
-            {!loading && (
-              <Button
-                value="Back to Project"
-                startIcon={<ArrowBackIcon />}
-                variant="contained"
-                color="primary"
-                sx={{ mt: 2 }}
-                onClick={() => {
+            <Button
+              value="Back to Project"
+              startIcon={<ArrowBackIcon />}
+              variant="contained"
+              color="primary"
+              sx={{
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
+              }}
+              onClick={() => {
+                if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
-                  navigate(`/projects/${projectId}`);
-                  //window.location.replace(`/#/projects/${projectId}`);
-                  //window.location.reload();
-                }}
-              >
-                Back to Project
-              </Button>
-            )}
+                }
+
+                navigate(`/projects/${ projectId }`);
+                //window.location.replace(`/#/projects/${projectId}`);
+                //window.location.reload();
+              }}
+            >
+              Back to Project
+            </Button>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
-            }}
-          >
-            {!loading && (
-              <Button
-                endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
-                variant="contained"
-                color={reviewtext.trim().length === 0 ? "primary" : "success"}
-                onClick={handleCollapseClick}
-                style={{ backgroundColor: "#bf360c" }}
-              >
-                Notes {reviewtext.trim().length === 0 ? "" : "*"}
-              </Button>
-            )}
+        <Grid item>
+            <Button
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              variant="contained"
+              color={reviewtext.trim().length === 0 ? "primary" : "success"}
+              onClick={handleCollapseClick}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "90px", sm: "90px", md: "100px" },
+              }}
+                              style={{ backgroundColor: "#bf360c" }}
+
+            >
+                              Notes {reviewtext.trim().length === 0 ? "" : "*"}
+
+            </Button>
+             </Grid>
+            </Grid>
+
+
 
             <div
               // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                width:"100%"
               }}
             >
               <ReactQuill
@@ -491,18 +496,17 @@ const AllTaskPage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-
-          </Box>
           <Grid
             container
             justifyContent="center"
-            spacing={3}
+                         alignItems="center"
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "10px",
+              gap: "0.5rem",
             }}
+
           >
             <Grid item>
               <LightTooltip
@@ -593,8 +597,9 @@ const AllTaskPage = () => {
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  style={{
-                    minWidth: "150px",
+                  sx={{
+                                          minWidth: { xs: "60px", sm: "80px", md: "100px" },
+
                     color: "black",
                     borderRadius: "5px",
                     pt: 2,
@@ -671,7 +676,6 @@ const AllTaskPage = () => {
               {filterMessage}
             </Alert>
           )}
-        </Grid>
         <Grid item container>
           {" "}
           {componentToRender}{" "}

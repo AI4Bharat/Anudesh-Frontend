@@ -1145,6 +1145,8 @@ const AnnotatePage = () => {
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                                width:"100%"
+
               }}
             >
               <ReactQuill
