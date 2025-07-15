@@ -140,9 +140,9 @@ const MultipleLLMInstructionDrivenChat = ({
     const lc = LanguageCode.languages.find(
       (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
     );
-    if (Number(info.meta_info_language) < 3){
+    if (Number(info.meta_info_language) < 3) {
       setTargetLang(lc.code);
-    }else{
+    } else {
       setTargetLang("en");
     }
 
@@ -201,8 +201,8 @@ const MultipleLLMInstructionDrivenChat = ({
               output: response_valid
                 ? formatResponse(interaction?.output)
                 : formatResponse(
-                    `${modelData?.model_name} failed to generate a response`,
-                  ),
+                  `${modelData?.model_name} failed to generate a response`,
+                ),
               status: response_valid ? "success" : "error",
               prompt_output_pair_id: interaction?.prompt_output_pair_id,
               output_error: response_valid
@@ -212,7 +212,7 @@ const MultipleLLMInstructionDrivenChat = ({
           }
         });
 
-        
+
         if (turnPromptOutputPairId) {
           const eval_form = (
             Array.isArray(annotation?.[0]?.result?.[0]?.eval_form)
@@ -235,12 +235,12 @@ const MultipleLLMInstructionDrivenChat = ({
             }));
           }
         }
-        
+
         if (prompt !== undefined && modelOutputs.length > 0) {
           modifiedChatHistory?.push({
             prompt: prompt,
             output: modelOutputs,
-            prompt_output_pair_id: turnPromptOutputPairId, 
+            prompt_output_pair_id: turnPromptOutputPairId,
           });
         }
       }
@@ -319,8 +319,8 @@ const MultipleLLMInstructionDrivenChat = ({
             : generateUniquePromptOutputPairId(),
         ...(modelResponses &&
           prompt_output_pair_id >= 0 && {
-            model_responses_json: modelResponses?.model_responses_json,
-          }),
+          model_responses_json: modelResponses?.model_responses_json,
+        }),
       };
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -388,7 +388,7 @@ const MultipleLLMInstructionDrivenChat = ({
           for (let i = 0; i < interactions_length; i++) {
             const prompt =
               allModelsInteractions[0]?.interaction_json[i]?.prompt;
-            
+
             const modelOutputs = [];
             let turnPromptOutputPairId = null;
 
@@ -408,8 +408,8 @@ const MultipleLLMInstructionDrivenChat = ({
                   output: response_valid
                     ? formatResponse(interaction?.output)
                     : formatResponse(
-                        `${modelData?.model_name} failed to generate a response`,
-                      ),
+                      `${modelData?.model_name} failed to generate a response`,
+                    ),
                   status: response_valid ? "success" : "error",
                   prompt_output_pair_id: interaction?.prompt_output_pair_id,
                   output_error: response_valid
@@ -420,30 +420,30 @@ const MultipleLLMInstructionDrivenChat = ({
             });
 
             if (turnPromptOutputPairId) {
-                const eval_form = (
+              const eval_form = (
                 Array.isArray(data?.result[0]?.eval_form)
-                    ? data.result[0].eval_form
-                    : []
-                ).find(
+                  ? data.result[0].eval_form
+                  : []
+              ).find(
                 (item) =>
-                    item.prompt_output_pair_id ===
-                    turnPromptOutputPairId,
-                );
-    
-                if (eval_form) {
+                  item.prompt_output_pair_id ===
+                  turnPromptOutputPairId,
+              );
+
+              if (eval_form) {
                 setEvalFormResponse((prev) => ({
-                    ...prev,
-                    [turnPromptOutputPairId]: eval_form,
+                  ...prev,
+                  [turnPromptOutputPairId]: eval_form,
                 }));
-                }
+              }
             }
 
             if (prompt !== undefined && modelOutputs.length > 0) {
-                modifiedChatHistory.push({
+              modifiedChatHistory.push({
                 prompt: prompt,
                 output: modelOutputs,
                 prompt_output_pair_id: turnPromptOutputPairId,
-                });
+              });
             }
           }
         } else {
@@ -617,14 +617,14 @@ const MultipleLLMInstructionDrivenChat = ({
                       (qr) => qr.question.input_question === targetQuestion,
                     )
                       ? [
-                          {
-                            question:
-                              ProjectDetails.metadata_json.questions_json[
-                                questionIdx
-                              ],
-                            response: [newValue],
-                          },
-                        ]
+                        {
+                          question:
+                            ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                            ],
+                          response: [newValue],
+                        },
+                      ]
                       : []),
                   ],
                 };
@@ -635,19 +635,19 @@ const MultipleLLMInstructionDrivenChat = ({
               (mr) => mr.model_name === targetModel,
             )
               ? [
-                  {
-                    model_name: targetModel,
-                    questions_response: [
-                      {
-                        question:
-                          ProjectDetails.metadata_json.questions_json[
-                            questionIdx
-                          ],
-                        response: [newValue],
-                      },
-                    ],
-                  },
-                ]
+                {
+                  model_name: targetModel,
+                  questions_response: [
+                    {
+                      question:
+                        ProjectDetails.metadata_json.questions_json[
+                        questionIdx
+                        ],
+                      response: [newValue],
+                    },
+                  ],
+                },
+              ]
               : []),
           ],
         },
@@ -698,14 +698,14 @@ const MultipleLLMInstructionDrivenChat = ({
                       (qr) => qr.question.input_question === targetQuestion,
                     )
                       ? [
-                          {
-                            question:
-                              ProjectDetails.metadata_json.questions_json[
-                                questionIdx
-                              ],
-                            response: [option],
-                          },
-                        ]
+                        {
+                          question:
+                            ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                            ],
+                          response: [option],
+                        },
+                      ]
                       : []),
                   ],
                 };
@@ -716,19 +716,19 @@ const MultipleLLMInstructionDrivenChat = ({
               (mr) => mr.model_name === targetModel,
             )
               ? [
-                  {
-                    model_name: targetModel,
-                    questions_response: [
-                      {
-                        question:
-                          ProjectDetails.metadata_json.questions_json[
-                            questionIdx
-                          ],
-                        response: [option],
-                      },
-                    ],
-                  },
-                ]
+                {
+                  model_name: targetModel,
+                  questions_response: [
+                    {
+                      question:
+                        ProjectDetails.metadata_json.questions_json[
+                        questionIdx
+                        ],
+                      response: [option],
+                    },
+                  ],
+                },
+              ]
               : []),
           ],
         },
@@ -769,14 +769,14 @@ const MultipleLLMInstructionDrivenChat = ({
                       (qr) => qr.question.input_question === targetQuestion,
                     )
                       ? [
-                          {
-                            question:
-                              ProjectDetails.metadata_json.questions_json[
-                                questionIdx
-                              ],
-                            response: [option],
-                          },
-                        ]
+                        {
+                          question:
+                            ProjectDetails.metadata_json.questions_json[
+                            questionIdx
+                            ],
+                          response: [option],
+                        },
+                      ]
                       : []),
                   ],
                 };
@@ -787,19 +787,19 @@ const MultipleLLMInstructionDrivenChat = ({
               (mr) => mr.model_name === targetModel,
             )
               ? [
-                  {
-                    model_name: targetModel,
-                    questions_response: [
-                      {
-                        question:
-                          ProjectDetails.metadata_json.questions_json[
-                            questionIdx
-                          ],
-                        response: [option],
-                      },
-                    ],
-                  },
-                ]
+                {
+                  model_name: targetModel,
+                  questions_response: [
+                    {
+                      question:
+                        ProjectDetails.metadata_json.questions_json[
+                        questionIdx
+                        ],
+                      response: [option],
+                    },
+                  ],
+                },
+              ]
               : []),
           ],
         },
@@ -854,7 +854,7 @@ const MultipleLLMInstructionDrivenChat = ({
                       {
                         question:
                           ProjectDetails.metadata_json.questions_json[
-                            questionIdx
+                          questionIdx
                           ],
                         response: [isSelected ? newValue : "-1"],
                       },
@@ -879,7 +879,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     {
                       question:
                         ProjectDetails.metadata_json.questions_json[
-                          questionIdx
+                        questionIdx
                         ],
                       response: [isSelected ? newValue : "-1"],
                     },
@@ -957,17 +957,17 @@ const MultipleLLMInstructionDrivenChat = ({
           direction="column"
           justifyContent="center"
           alignItems="center"
-          sx={{ padding: "1.5rem", margin: "auto" }}
+          sx={{ marginLeft: "0.5rem" }}
         >
           <Grid
             item
             sx={{
               backgroundColor: "rgba(247, 184, 171, 0.2)",
-              padding: "1.5rem",
+              padding: "10px",
               borderRadius: "0.5rem",
               position: "relative",
               width: "100%",
-              marginBottom: "1.5rem",
+              marginBottom: "0.6rem",
             }}
           >
             <Grid container alignItems="center" spacing={2}>
@@ -1093,7 +1093,7 @@ const MultipleLLMInstructionDrivenChat = ({
               textAlign: "left",
               position: "relative",
               width: "100%",
-              padding: "1.5rem",
+              padding: "1rem",
               borderRadius: "0.5rem",
             }}
           >
@@ -1111,15 +1111,26 @@ const MultipleLLMInstructionDrivenChat = ({
               <Grid
                 item
                 xs
+                
                 sx={{
                   display: "flex",
                   flexDirection: "row",
                   flexWrap: "nowrap",
-                  overflowX: "auto",
+                  overflowX: "auto", 
+                  scrollbarWidth: "none",  
+                  "-ms-overflow-style": "none", 
+                  "&::-webkit-scrollbar": {
+                    display: "none", 
+                  },
                   justifyContent: "flex-start",
-                  gap: "1rem",
-                  paddingBottom: "1rem",
+                  gap: "0.5rem",
+                  paddingBottom: "0.5rem",
+                  cursor: "grab",
+                  "&:active": {
+                    cursor: "grabbing",
+                  },
                 }}
+
               >
                 {message?.output?.map((modelOutput, modelIdx) => (
                   <React.Fragment key={modelIdx}>
@@ -1131,7 +1142,6 @@ const MultipleLLMInstructionDrivenChat = ({
                           minWidth: "300px",
                           flexShrink: 0,
                           height: "10vh",
-                          padding: "10px",
                           display: "flex",
                           justifyContent: "center",
                           alignItems: "center",
@@ -1178,7 +1188,7 @@ const MultipleLLMInstructionDrivenChat = ({
                           >
                             <OpenInFullIcon
                               sx={{
-                                padding: "10px 10px 0 0",
+                                padding: "5px 5px 0 0",
                                 color: orange[400],
                               }}
                             />
@@ -1236,7 +1246,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                     segment.type === "text" ? (
                                       ProjectDetails?.metadata_json
                                         ?.editable_response ||
-                                      segment.value == "" ? (
+                                        segment.value == "" ? (
                                         globalTransliteration ? (
                                           <IndicTransliterate
                                             key={segmentIdx}
@@ -1328,7 +1338,7 @@ const MultipleLLMInstructionDrivenChat = ({
                           sx={{
                             overflowY: "auto",
                             maxHeight: "400px",
-                            padding: "20px",
+                            padding: "0 5px 0 20px",
                             width: "100%",
                             boxSizing: "border-box",
                           }}
@@ -1384,7 +1394,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                     style={{
                                       fontSize: "1rem",
                                       width: "100%",
-                                      padding: "12px",
+                                      padding: "10px",
                                       borderRadius: "12px 12px 0 12px",
                                       color: grey[900],
                                       background: "#ffffff",
@@ -1424,7 +1434,7 @@ const MultipleLLMInstructionDrivenChat = ({
                           <Typography
                             sx={{
                               backgroundColor: "#E8E6E6",
-                              padding: "10px",
+                              padding: "5px 10px 5px 10px",
                               borderRadius: "10px",
                               fontSize: "1rem",
                             }}
@@ -1445,11 +1455,12 @@ const MultipleLLMInstructionDrivenChat = ({
               <Grid
                 item
                 sx={{
-                  padding: "1.5rem",
+                  padding: " 1.5rem",
                   position: "relative",
                   width: "85%",
                   backgroundColor: "rgba(247, 184, 171, 0.2)",
                   borderRadius: "10px",
+
                 }}
               >
                 <Box
@@ -1474,14 +1485,14 @@ const MultipleLLMInstructionDrivenChat = ({
                       flexDirection: "column",
                       justifyContent: "space-around",
                       maxHeight: "15rem",
-                      overflowY: "scroll",
+                      overflowY: "auto",
                     }}
                   >
                     {ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
                         <div key={questionIdx}>
                           {question.question_type === "comparison" && (
-                            <div style={{ marginBottom: "20px" }}>
+                            <div style={{ marginBottom: "5px" }}>
                               <div className={classes.inputQuestion}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
@@ -1508,7 +1519,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                           display: "flex",
                                           alignItems: "center",
                                           flexWrap: "wrap",
-                                          paddingRight: "2rem",
+                                          paddingRight: "1rem",
                                         }}
                                       >
                                         <FormControl>
@@ -1537,10 +1548,10 @@ const MultipleLLMInstructionDrivenChat = ({
                                                     (q) =>
                                                       q.question
                                                         ?.question_type ===
-                                                        question.question_type &&
+                                                      question.question_type &&
                                                       q.question
                                                         ?.input_question ===
-                                                        question.input_question &&
+                                                      question.input_question &&
                                                       q.response?.[0] !== "-1",
                                                   ),
                                                 );
@@ -1550,10 +1561,10 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   (q) =>
                                                     q.question
                                                       ?.question_type ===
-                                                      question.question_type &&
+                                                    question.question_type &&
                                                     q.question
                                                       ?.input_question ===
-                                                      question.input_question &&
+                                                    question.input_question &&
                                                     q.response?.[0] !== "-1",
                                                 );
 
@@ -1596,7 +1607,7 @@ const MultipleLLMInstructionDrivenChat = ({
                           {question.question_type === "fill_in_blanks" && (
                             <div
                               style={{
-                                marginBottom: "20px",
+                                marginBottom: "5px",
                               }}
                             >
                               <p className={classes.inputQuestion}>
@@ -1609,19 +1620,19 @@ const MultipleLLMInstructionDrivenChat = ({
                                       {index <
                                         question.input_question.split("<blank>")
                                           .length -
-                                          1 && (
-                                        <span
-                                          style={{
-                                            borderBottom: "1px solid black",
-                                            display: "inline-block",
-                                            width: "100px",
-                                            margin: "0 4px",
-                                            verticalAlign: "middle",
-                                          }}
-                                        >
-                                          &nbsp;
-                                        </span>
-                                      )}
+                                        1 && (
+                                          <span
+                                            style={{
+                                              borderBottom: "1px solid black",
+                                              display: "inline-block",
+                                              width: "100px",
+                                              margin: "0 4px",
+                                              verticalAlign: "middle",
+                                            }}
+                                          >
+                                            &nbsp;
+                                          </span>
+                                        )}
                                     </span>
                                   ))}
                                 <span
@@ -1686,9 +1697,9 @@ const MultipleLLMInstructionDrivenChat = ({
                                               ?.questions_response?.find(
                                                 (q) =>
                                                   q.question.question_type ===
-                                                    question.question_type &&
+                                                  question.question_type &&
                                                   q.question.input_question ===
-                                                    question.input_question,
+                                                  question.input_question,
                                               )?.response?.[idx] || ""
                                           }
                                           onChange={(e) =>
@@ -1717,7 +1728,7 @@ const MultipleLLMInstructionDrivenChat = ({
                           {question.question_type === "rating" && (
                             <div
                               style={{
-                                marginBottom: "20px",
+                                marginBottom: "5px",
                               }}
                             >
                               <div className={classes.inputQuestion}>
@@ -1785,10 +1796,10 @@ const MultipleLLMInstructionDrivenChat = ({
                                                 ?.questions_response?.find(
                                                   (q) =>
                                                     q.question.question_type ===
-                                                      question.question_type &&
+                                                    question.question_type &&
                                                     q.question
                                                       .input_question ===
-                                                      question.input_question,
+                                                    question.input_question,
                                                 )?.response?.[0] || 0
                                             }
                                             onChange={(event, newValue) => {
@@ -1831,7 +1842,7 @@ const MultipleLLMInstructionDrivenChat = ({
                           {question.question_type === "mcq" && (
                             <div
                               style={{
-                                marginBottom: "20px",
+                                marginBottom: "5px",
                               }}
                             >
                               <div className={classes.inputQuestion}>
@@ -1902,10 +1913,10 @@ const MultipleLLMInstructionDrivenChat = ({
                                                         (q) =>
                                                           q.question
                                                             .question_type ===
-                                                            question.question_type &&
+                                                          question.question_type &&
                                                           q.question
                                                             .input_question ===
-                                                            question.input_question,
+                                                          question.input_question,
                                                       )?.response?.[0] || ""
                                                   }
                                                   onChange={(e) =>
@@ -1950,124 +1961,124 @@ const MultipleLLMInstructionDrivenChat = ({
                           )}
                           {question.question_type ===
                             "multi_select_options" && (
-                            <div
-                              style={{
-                                marginBottom: "20px",
-                              }}
-                            >
-                              <div className={classes.inputQuestion}>
-                                {questionIdx + 1}. {question.input_question}
-                                <span
-                                  style={{
-                                    color: "#d93025",
-                                    fontSize: "25px",
-                                  }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </div>
                               <div
                                 style={{
-                                  paddingLeft: "20px",
+                                  marginBottom: "5px",
                                 }}
                               >
-                                {question?.input_selections_list?.map(
-                                  (option, optionIdx) => (
-                                    <div
-                                      key={optionIdx}
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                      }}
-                                    >
-                                      <span>{option} :</span>{" "}
+                                <div className={classes.inputQuestion}>
+                                  {questionIdx + 1}. {question.input_question}
+                                  <span
+                                    style={{
+                                      color: "#d93025",
+                                      fontSize: "25px",
+                                    }}
+                                  >
+                                    {" "}
+                                    *
+                                  </span>
+                                </div>
+                                <div
+                                  style={{
+                                    paddingLeft: "20px",
+                                  }}
+                                >
+                                  {question?.input_selections_list?.map(
+                                    (option, optionIdx) => (
                                       <div
+                                        key={optionIdx}
                                         style={{
                                           display: "flex",
                                           flexDirection: "row",
                                           alignItems: "center",
-                                          flexWrap: "wrap",
+                                          justifyContent: "space-between",
                                         }}
                                       >
-                                        {message?.output?.map(
-                                          (response, outputIdx) => (
-                                            <div
-                                              key={`${optionIdx}-${outputIdx}`}
-                                              style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                paddingRight: "2rem",
-                                              }}
-                                            >
-                                              <FormControl component="fieldset">
-                                                <FormGroup>
-                                                  <FormControlLabel
-                                                    key={optionIdx}
-                                                    control={
-                                                      <Checkbox
-                                                        onChange={(e) =>
-                                                          handleMultiSelect(
-                                                            message?.output?.[0]
-                                                              ?.prompt_output_pair_id, // index
-                                                            message,
-                                                            option,
-                                                            questionIdx,
-                                                            outputIdx, // model_idx
-                                                          )
-                                                        }
-                                                        checked={
-                                                          evalFormResponse?.[
-                                                            message?.output?.[0]
-                                                              ?.prompt_output_pair_id
-                                                          ]?.model_responses_json
-                                                            ?.find(
-                                                              (m) =>
-                                                                m.model_name ===
-                                                                response.model_name,
-                                                            )
-                                                            ?.questions_response?.find(
-                                                              (q) =>
-                                                                q.question
-                                                                  .question_type ===
-                                                                  question.question_type &&
-                                                                q.question
-                                                                  .input_question ===
-                                                                  question.input_question,
-                                                            )
-                                                            ?.response?.includes(
+                                        <span>{option} :</span>{" "}
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            flexWrap: "wrap",
+                                          }}
+                                        >
+                                          {message?.output?.map(
+                                            (response, outputIdx) => (
+                                              <div
+                                                key={`${optionIdx}-${outputIdx}`}
+                                                style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  paddingRight: "2rem",
+                                                }}
+                                              >
+                                                <FormControl component="fieldset">
+                                                  <FormGroup>
+                                                    <FormControlLabel
+                                                      key={optionIdx}
+                                                      control={
+                                                        <Checkbox
+                                                          onChange={(e) =>
+                                                            handleMultiSelect(
+                                                              message?.output?.[0]
+                                                                ?.prompt_output_pair_id, // index
+                                                              message,
                                                               option,
-                                                            ) || false
-                                                        }
-                                                      />
-                                                    }
-                                                    labelPlacement="start"
-                                                    label={
-                                                      <Typography
-                                                        variant="subtitle2"
-                                                        sx={{
-                                                          fontWeight: "bold",
-                                                          color: "#6C5F5B",
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />{" "}
-                                                </FormGroup>
-                                              </FormControl>
-                                            </div>
-                                          ),
-                                        )}
+                                                              questionIdx,
+                                                              outputIdx, // model_idx
+                                                            )
+                                                          }
+                                                          checked={
+                                                            evalFormResponse?.[
+                                                              message?.output?.[0]
+                                                                ?.prompt_output_pair_id
+                                                            ]?.model_responses_json
+                                                              ?.find(
+                                                                (m) =>
+                                                                  m.model_name ===
+                                                                  response.model_name,
+                                                              )
+                                                              ?.questions_response?.find(
+                                                                (q) =>
+                                                                  q.question
+                                                                    .question_type ===
+                                                                  question.question_type &&
+                                                                  q.question
+                                                                    .input_question ===
+                                                                  question.input_question,
+                                                              )
+                                                              ?.response?.includes(
+                                                                option,
+                                                              ) || false
+                                                          }
+                                                        />
+                                                      }
+                                                      labelPlacement="start"
+                                                      label={
+                                                        <Typography
+                                                          variant="subtitle2"
+                                                          sx={{
+                                                            fontWeight: "bold",
+                                                            color: "#6C5F5B",
+                                                          }}
+                                                        >
+                                                          {response?.model_name}
+                                                        </Typography>
+                                                      }
+                                                    />{" "}
+                                                  </FormGroup>
+                                                </FormControl>
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ),
-                                )}
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       ),
                     )}
@@ -2077,6 +2088,8 @@ const MultipleLLMInstructionDrivenChat = ({
                         justifyContent: "flex-end",
                         alignItems: "center",
                         width: "100%",
+
+
                       }}
                     >
                       <Button
@@ -2098,7 +2111,7 @@ const MultipleLLMInstructionDrivenChat = ({
                         onClick={() => {
                           const isValid = validateEvalFormResponse(
                             evalFormResponse?.[
-                              message?.output?.[0]?.prompt_output_pair_id
+                            message?.output?.[0]?.prompt_output_pair_id
                             ],
                             message?.output?.[0]?.prompt_output_pair_id,
                           );
@@ -2106,7 +2119,7 @@ const MultipleLLMInstructionDrivenChat = ({
                             handleButtonClick(
                               message?.output?.[0]?.prompt_output_pair_id,
                               evalFormResponse?.[
-                                message?.output?.[0]?.prompt_output_pair_id
+                              message?.output?.[0]?.prompt_output_pair_id
                               ],
                             );
                           } else {
@@ -2295,6 +2308,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                whiteSpace: "pre-line", 
               }}
             >
               {info.instruction_data}

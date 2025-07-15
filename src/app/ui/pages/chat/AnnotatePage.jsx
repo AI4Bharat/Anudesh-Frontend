@@ -1089,12 +1089,11 @@ const AnnotatePage = () => {
       <div id="top" ref={topref}></div>
       <Grid container>
         {renderSnackBar()}
+          <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
+
         <Grid item>
           <Box
-            sx={{
-              paddingTop: { xs: 1.5, md: 3 },
-              paddingLeft: 1.5,
-            }}
+        
           >
             <Button
               value="Back to Project"
@@ -1102,10 +1101,10 @@ const AnnotatePage = () => {
               variant="contained"
               color="primary"
               sx={{
-                px: { xs: 2, sm: 3, md: 4 },
-                py: { xs: 1, sm: 1.5, md: 2 },
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
@@ -1119,13 +1118,8 @@ const AnnotatePage = () => {
             </Button>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              paddingTop: { xs: 1.5, md: 3 },
-              paddingLeft: 1.5,
-            }}
-          >
+
+        <Grid item>
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
@@ -1135,7 +1129,7 @@ const AnnotatePage = () => {
                 px: { xs: 2, sm: 3, md: 4 },
                 py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+                minWidth: { xs: "90px", sm: "90px", md: "100px" },
               }}
               style={{
                 backgroundColor:
@@ -1144,12 +1138,15 @@ const AnnotatePage = () => {
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
-            {/* )} */}
+            </Grid>
+            </Grid>
 
             <div
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                                width:"100%"
+
               }}
             >
               <ReactQuill
@@ -1169,14 +1166,14 @@ const AnnotatePage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-          </Box>
           <Grid
             container
             justifyContent="center"
+            alignItems="center"
             style={{
               display: "flex",
               width: "100%",
-              padding: "16px",
+              padding: "10px",
               gap: "0.5rem",
             }}
           >
@@ -1251,7 +1248,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                       }}
                       style={{
                         color: "black",
@@ -1280,7 +1277,7 @@ const AnnotatePage = () => {
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   sx={{
                     fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                   }}
                   style={{
                     color: "black",
@@ -1318,7 +1315,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                       }}
                       style={{
                         color: "black",
@@ -1364,7 +1361,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
-                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                         }}
                         style={{
                           color: "black",
@@ -1402,7 +1399,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
-                          minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                         }}
                         style={{
                           color: "black",
@@ -1453,7 +1450,7 @@ const AnnotatePage = () => {
                       }}
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                       }}
                       style={{
                         color: "black",
@@ -1473,7 +1470,6 @@ const AnnotatePage = () => {
               {filterMessage}
             </Alert>
           )}
-        </Grid>
         <Grid item container sx={{ width: "100%" }}>
           {" "}
           {componentToRender}{" "}
