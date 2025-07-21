@@ -880,32 +880,31 @@ useEffect(() => {
                 <Grid
                   container
                   direction="row"
-                  justifyContent="center"
-                  spacing={2}
-                  sx={{ textAlign: "center", alignItems: "center", }}
+                  sx={{
+                    width: "fit-content",
+                  }}
                 >
-                <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title={
-                         <span style={{ fontFamily: 'Rowdies' }}>
-                            Notifications
-                          </span>
-                    }>
+                  <Grid
+                    item
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Rowdies" }}>
+                          Notifications
+                        </span>
+                      }
+                    >
                      <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
-                          <NotificationsIcon color="primary.dark" fontSize="large" />
+                          <NotificationsIcon
+                            color="primary.dark"
+                            fontSize="large"
+                          />
                         </Badge>
-                      </IconButton>
-                    </Tooltip>
-                  </Grid>
-{/* 
-                  { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
-                  <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Analytics">
-                      <IconButton onClick={handleAnalytics}>
-                        <PieChartOutlineOutlinedIcon
-                          color="primary.dark"
-                          fontSize="large"
-                        />
                       </IconButton>
                     </Tooltip>
                   </Grid>
