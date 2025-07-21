@@ -65,6 +65,7 @@ import  {getQueuedTaskDetailsReducer}  from './Features/getQueuedTaskDetails';
 import GlossarysentenceAPI from './Features/actions/GlossarysentenceAPI';
 import AddGlossary from './Features/actions/AddGlossary';
 import getDomain from './Features/actions/getDomain';
+import taskPaginationSlice from './Features/user/taskPaginationSlice'
 import EditOrganization from './Features/user/EditOrganization';
 import SendWorkspaceUserReports from './Features/projects/SendWorkspaceUserReports';
 import WorkspaceUserReports from './Features/projects/WorkspaceUserReports';
@@ -73,6 +74,7 @@ import GetExportProjectButton from './Features/datasets/GetExportProjectButton';
 import getDatasetByType from './Features/datasets/getDatasetByType';
 import wsgetTaskAnalytics from './Features/Analytics/Workspace/wsgetTaskAnalytics';
 import wsgetMetaAnalytics from './Features/Analytics/Workspace/wsgetMetaAnalytics';
+import projectTabs from "./Features/projects/ProjectTabs"
 const makeStore = () => {
     return configureStore({
       reducer: {
@@ -121,6 +123,7 @@ const makeStore = () => {
         domains: domainsReducer,
         projects: projectsReducer,
         user: userReducer,
+        taskPaginationSlice:taskPaginationSlice,
         getQueuedTaskDetails:getQueuedTaskDetailsReducer,
         SendOrganizationUserReports:SendOrganizationUserReports,
         GetOrganizationUserReports:GetOrganizationUserReports,
@@ -150,6 +153,7 @@ const makeStore = () => {
         getTaskAnalyticsData: getTaskAnalyticsData,
         getMetaAnalyticsData: getMetaAnalyticsData,
         getGuestWorkspaces: getGuestWorkspaces,
+        getProjectTabs: projectTabs,
       },
     });
   };

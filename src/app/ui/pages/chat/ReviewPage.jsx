@@ -1,53 +1,36 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
 import MenuItem from "@mui/material/MenuItem";
-import Menu, { MenuProps } from "@mui/material/Menu";
+import Menu from "@mui/material/Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { styled, alpha } from "@mui/material/styles";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
 import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
@@ -57,7 +40,7 @@ import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking"
 
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -109,37 +92,42 @@ const StyledMenu = styled((props) => (
   },
 }));
 
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const ReviewPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
-  let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const lsfRef = useRef();
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [chatHistory, setChatHistory] = useState([{}]);
   const [showNotes, setShowNotes] = useState(false);
-  const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
   const [currentInteraction, setCurrentInteraction] = useState({});
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
   const [answered, setAnswered] = useState(false);
-  let loaded = useRef();
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
   const [labellingMode, setLabellingMode] = useState(null);
-  const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
-
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -148,7 +136,6 @@ const ReviewPage = () => {
   const [disableSkip, setdisableSkip] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
-  const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
   const [annotations, setAnnotations] = useState([]);
   const annotationNotesRef = useRef(null);
@@ -156,7 +143,6 @@ const ReviewPage = () => {
   const [disableButton, setDisableButton] = useState(false);
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
-  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
@@ -165,21 +151,84 @@ const ReviewPage = () => {
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
   );
-
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
-  const [showChatContainer, setShowChatContainer] = useState(false);
-  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
   const [supercheckertext, setsupercheckertext] = useState("");
   const [info, setInfo] = useState({});
+  const [filteredReady, setFilteredReady] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
+  }, [taskDataArr, AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setFilteredReady(false);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
+  }, [AnnotationsTaskDetails, userData, taskDataArr]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
-  };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
   };
 
   const formatResponse = (response) => {
@@ -250,41 +299,6 @@ const ReviewPage = () => {
     const markdownString = lines?.join("  \n");
     return markdownString;
   };
-
-  useEffect(() => {
-    if (taskData) {
-      setInfo((prev) => {
-        return {
-          hint: taskData?.data?.hint,
-          examples: taskData?.data?.examples,
-          meta_info_intent: taskData?.data?.meta_info_intent,
-          instruction_data: taskData?.data?.instruction_data,
-          meta_info_domain: taskData?.data?.meta_info_domain,
-          meta_info_language: taskData?.data?.meta_info_language,
-        };
-      });
-    }
-  }, [taskData]);
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const setNotes = (taskData, annotations) => {
     if (
@@ -534,10 +548,6 @@ const ReviewPage = () => {
     }
   };
 
-  useEffect(() => {
-    taskDataArr && setNotes(taskDataArr, AnnotationsTaskDetails);
-  }, [taskDataArr, AnnotationsTaskDetails]);
-
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -549,17 +559,6 @@ const ReviewPage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -573,51 +572,12 @@ const ReviewPage = () => {
     );
 
     const isMaxIdAnnotation =
-      maxIdAnnotation?.id === task.correct_annotation_id;
-    console.log(isMaxIdAnnotation, "llove");
 
-    // if (ProjectDetails.required_annotators_per_task > 1 && !isMaxIdAnnotation) {
-    //   const nextAPIData = {
-    //     id: projectId,
-    //     current_task_id: taskId,
-    //     mode: "review",
-    //     annotation_status: labellingMode,
-    //     current_annotation_id: task.correct_annotation_id,
-    //   };
+      maxIdAnnotation?.id === task?.correct_annotation_id;
 
-    //   let apiObj = new GetNextProjectAPI(projectId, nextAPIData);
-    //   var rsp_data = [];
-    //   fetch(apiObj.apiEndPoint(), {
-    //     method: "post",
-    //     body: JSON.stringify(apiObj.getBody()),
-    //     headers: apiObj.getHeaders().headers,
-    //   })
-    //     .then(async (response) => {
-    //       rsp_data = await response.json();
-    //       setLoading(false);
-    //       if (response.ok) {
-    //         localStorage.setItem("Task", JSON.stringify(rsp_data));
-    //         setNextData(rsp_data);
-    //         tasksComplete(rsp_data?.id || null);
-    //         getAnnotationsTaskData(rsp_data.id);
-    //         getTaskData(rsp_data.id);
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       setSnackbarInfo({
-    //         open: true,
-    //         message: "No more tasks to label",
-    //         variant: "info",
-    //       });
-    //       setTimeout(() => {
-    //         if (typeof window !== "undefined") {
-    //           localStorage.removeItem("labelAll");
-    //         }
+      maxIdAnnotation?.id === task?.correct_annotation_id;
 
-    //         window.location.replace(`/#/projects/${projectId}`);
-    //       }, 1000);
-    //     });
-    // } else {
+
     const nextAPIData = {
       id: projectId,
       current_task_id: taskId,
@@ -654,17 +614,18 @@ const ReviewPage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${projectId}`);
+          window.location.replace(`/#/projects/${ projectId }`);
         }, 1000);
       });
     // }
   };
+
   const tasksComplete = (id) => {
     if (typeof window !== "undefined") {
       if (id) {
         resetNotes();
         // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-        navigate(`/projects/${projectId}/review/${id}`);
+        navigate(`/projects/${ projectId }/review/${ id }`);
       } else {
         // navigate(-1);
         resetNotes();
@@ -678,14 +639,69 @@ const ReviewPage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${projectId}`);
+          window.location.replace(`/#/projects/${ projectId }`);
           window.location.reload();
         }, 1000);
       }
     }
   };
 
-  const handleReviewClick = async (value, id, lead_time, parentannotation) => {
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+
+  const areAllFormsAnswered = () => {
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
+  };
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    return !Array.isArray(result) ? [result] : result;
+  };
+
+  const handleReviewClick = async (
+    value,
+    id,
+    lead_time,
+    type = "",
+    parentannotation,
+  ) => {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      !areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
+      });
+      return;
+    }
     if (typeof window !== "undefined") {
       let resultValue;
       if (ProjectDetails.project_type === "InstructionDrivenChat") {
@@ -693,7 +709,9 @@ const ReviewPage = () => {
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
         }));
-      } else if (ProjectDetails.project_type == "MultipleInteractionEvaluation") {
+      } else if (
+        ProjectDetails.project_type == "MultipleInteractionEvaluation"
+      ) {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
           model_responses_json: form.model_responses_json.map((response) => ({
@@ -704,7 +722,6 @@ const ReviewPage = () => {
           prompt_output_pair_id: form.prompt_output_pair_id,
           additional_note: form.additional_note,
         }));
-        console.log("resval: " + resultValue);
       } else if (ProjectDetails.project_type === "ModelInteractionEvaluation") {
         resultValue = forms.map((form) => ({
           prompt: form.prompt,
@@ -714,14 +731,51 @@ const ReviewPage = () => {
           questions_response: form.questions_response,
           prompt_output_pair_id: form.prompt_output_pair_id,
         }));
-      }
+      } else if (
+        ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+      ) {
+        const modelMap = {};
+        chatHistory.forEach((entry) => {
+          entry.output.forEach((modelResp) => {
+            const model = modelResp.model_name;
+            const has_invalid_resp = modelResp.output_error;
+            if (!modelMap[model]) {
+              modelMap[model] = [];
+            }
+            const interaction = {
+              prompt: entry.prompt,
+              output: has_invalid_resp
+                ? JSON.parse(modelResp.output_error)
+                : reverseFormatResponse(modelResp.output),
+              preferred_response: modelResp.preferred_response,
+              prompt_output_pair_id: modelResp.prompt_output_pair_id,
+            };
+            modelMap[model].push(interaction);
+          });
+        });
 
+        const model_interactions = Object.entries(modelMap).map(
+          ([model_name, interaction_json]) => {
+            return {
+              model_name,
+              interaction_json,
+            };
+          },
+        );
+
+        resultValue = [
+          {
+            eval_form: Object.values(submittedEvalForms),
+            model_interactions: model_interactions,
+          },
+        ];
+      }
       setLoading(true);
       setAutoSave(false);
       const PatchAPIdata = {
         annotation_status:
           typeof window !== "undefined" &&
-          (value === "delete" || value === "delete-pair")
+            (value === "delete" || value === "delete-pair")
             ? localStorage.getItem("labellingMode")
             : value,
         review_notes:
@@ -736,12 +790,7 @@ const ReviewPage = () => {
           value === "accepted_with_major_changes") && {
           parent_annotation: parentannotation,
         }),
-        result:
-          value === "delete"
-            ? []
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+        result: buildResult(value, type, resultValue),
         task_id: taskId,
         auto_save:
           value === "delete" || value === "delete-pair" || value === "rejected"
@@ -750,9 +799,6 @@ const ReviewPage = () => {
         interaction_llm: value === "delete" || value === "delete-pair",
         clear_conversation: value === "delete" || value === "rejected",
       };
-
-      console.log("hello");
-
       if (
         ["draft", "skipped", "delete", "to_be_revised", "delete-pair"].includes(
           value,
@@ -763,10 +809,15 @@ const ReviewPage = () => {
           "accepted_with_major_changes",
         ].includes(value)
       ) {
-        if (!["draft", "skipped", "delete", "delete-pair","to_be_revised"].includes(value)) {
-          console.log("answered variable: ");
-          console.log(answered, "kelo");
-
+        if (
+          ![
+            "draft",
+            "skipped",
+            "delete",
+            "delete-pair",
+            "to_be_revised",
+          ].includes(value)
+        ) {
           if (
             (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
               ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -781,8 +832,7 @@ const ReviewPage = () => {
             setLoading(false);
             setShowNotes(false);
             return;
-          }
-          else if(chatHistory.length==0){
+          } else if (chatHistory.length == 0) {
             setAutoSave(true);
             setSnackbarInfo({
               open: true,
@@ -807,13 +857,95 @@ const ReviewPage = () => {
           res.ok &&
           resp.result
         ) {
-          let modifiedChatHistory = resp?.result.map((interaction) => {
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output),
-            };
-          });
-          setChatHistory([...modifiedChatHistory]);
+          if (type === "MultipleLLMInstructionDrivenChat") {
+            const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+            if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+              const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+              let modifiedChatHistory = [];
+              let globalModelFailure = false;
+
+              for (let i = 0; i < interactions_length; i++) {
+                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+                const modelOutputs = [];
+                let turnPromptOutputPairId = null;
+                let turnHasModelFailure = false;
+
+                allModelsInteractions.forEach((modelData, modelIdx) => {
+                  const interaction = modelData?.interaction_json?.[i];
+                  if (interaction) {
+                    const response_valid = isString(interaction?.output);
+                    if (!response_valid) {
+                      turnHasModelFailure = true;
+                    }
+                    if (modelIdx === 0) {
+                      turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                    }
+                    modelOutputs.push({
+                      model_name: modelData?.model_name,
+                      output: response_valid
+                        ? formatResponse(interaction?.output)
+                        : formatResponse(
+                          `${ modelData?.model_name } failed to generate a response`,
+                        ),
+                      status: response_valid ? "success" : "error",
+                      prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                      output_error: response_valid
+                        ? null
+                        : JSON.stringify(interaction?.output),
+                    });
+                  }
+                });
+
+                if (turnHasModelFailure) {
+                  globalModelFailure = true;
+                }
+
+                if (turnPromptOutputPairId) {
+                  const eval_form = (
+                    Array.isArray(resp?.result?.[0]?.eval_form)
+                      ? resp.result[0].eval_form
+                      : []
+                  ).find(
+                    (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                  );
+
+                  if (eval_form) {
+                    setEvalFormResponse((prev) => ({
+                      ...prev,
+                      [turnPromptOutputPairId]: eval_form,
+                    }));
+                    setSubmittedEvalForms((prev) => ({
+                      ...prev,
+                      [turnPromptOutputPairId]: eval_form,
+                    }));
+                  }
+                }
+
+                if (prompt !== undefined && modelOutputs.length > 0) {
+                  modifiedChatHistory.push({
+                    prompt: prompt,
+                    output: modelOutputs,
+                    prompt_output_pair_id: turnPromptOutputPairId,
+                  });
+                }
+              }
+              if (globalModelFailure) {
+                setIsModelFailing(true);
+              }
+              setChatHistory([...modifiedChatHistory]);
+            } else {
+              setChatHistory([]);
+              setIsModelFailing(false);
+            }
+          } else {
+            let modifiedChatHistory = resp?.result.map((interaction) => {
+              return {
+                ...interaction,
+                output: formatResponse(interaction.output),
+              };
+            });
+            setChatHistory([...modifiedChatHistory]);
+          }
         }
         if (res.ok) {
           if ((value === "delete" || value === "delete-pair") === false) {
@@ -825,21 +957,21 @@ const ReviewPage = () => {
           }
           value === "delete"
             ? setSnackbarInfo({
-                open: true,
-                message: "Chat history has been cleared successfully!",
-                variant: "success",
-              })
+              open: true,
+              message: "Chat history has been cleared successfully!",
+              variant: "success",
+            })
             : value === "delete-pair"
               ? setSnackbarInfo({
-                  open: true,
-                  message: "Selected conversation is deleted",
-                  variant: "success",
-                })
+                open: true,
+                message: "Selected conversation is deleted",
+                variant: "success",
+              })
               : setSnackbarInfo({
-                  open: true,
-                  message: resp?.message,
-                  variant: "success",
-                });
+                open: true,
+                message: resp?.message,
+                variant: "success",
+              });
         } else {
           setAutoSave(true);
           setSnackbarInfo({
@@ -868,29 +1000,38 @@ const ReviewPage = () => {
     dispatch(fetchAnnotationsTask(id));
   };
 
-  const [filteredReady, setFilteredReady] = useState(false);
-
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const handleClick = (event) => {
+    if (ProjectDetails?.project_type ===
+      "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
+      if (isModelFailing) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      if (!areAllFormsAnswered()) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      return;
+    }
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   const filterAnnotations = (annotations, user, taskData) => {
-    setLoading(true)
+    setLoading(true);
     let filteredAnnotations = annotations;
     let userAnnotation = annotations.find((annotation) => {
       return (
@@ -909,13 +1050,13 @@ const ReviewPage = () => {
       if (userAnnotation.annotation_status === "unreviewed") {
         filteredAnnotations =
           userAnnotation.result.length > 0 &&
-          !taskData?.revision_loop_count?.review_count
+            !taskData?.revision_loop_count?.review_count
             ? [userAnnotation]
             : annotations.filter(
-                (annotation) =>
-                  annotation.id === userAnnotation.parent_annotation &&
-                  annotation.annotation_type === 1,
-              );
+              (annotation) =>
+                annotation.id === userAnnotation.parent_annotation &&
+                annotation.annotation_type === 1,
+            );
       } else if (
         userAnnotation &&
         ["rejected"].includes(userAnnotation.annotation_status)
@@ -1002,7 +1143,7 @@ const ReviewPage = () => {
     setFilterMessage(filterMessage);
     setAnnotations(filteredAnnotations);
     setFilteredReady(false);
-    setLoading(false)
+    setLoading(false);
     return [
       filteredAnnotations,
       disable,
@@ -1012,12 +1153,6 @@ const ReviewPage = () => {
       filterMessage,
     ];
   };
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData, taskDataArr);
-  }, [AnnotationsTaskDetails, userData, taskDataArr]);
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-  }
 
   const getTaskData = async (id) => {
     setLoading(true);
@@ -1045,23 +1180,18 @@ const ReviewPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
+
   let review = AnnotationsTaskDetails.filter(
     (annotation) => annotation.annotation_type === 2,
   )[0];
 
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+            }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
           setChatHistory={setChatHistory}
@@ -1077,12 +1207,39 @@ const ReviewPage = () => {
         />
       );
       break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+            }`}
+          handleClick={handleReviewClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={review}
+          stage={"Review"}
+          notes={reviewNotesRef}
+          info={info}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
+        />
+      );
+      break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${ annotations[0]?.id }`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1101,9 +1258,11 @@ const ReviewPage = () => {
     case "MultipleInteractionEvaluation":
       componentToRender = (
         <PreferenceRanking
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
+          key={
+            annotations?.length > 0
+              ? `annotations-${ annotations[0]?.id }`
+              : "annotations-default"
+          }
           setCurrentInteraction={setCurrentInteraction}
           currentInteraction={currentInteraction}
           interactions={interactions}
@@ -1134,34 +1293,38 @@ const ReviewPage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
+
   return (
     <>
       {loading && <Spinner />}
-      <Grid container spacing={2}>
+      <Grid container>
         {renderSnackBar()}
+        <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
         <Grid item>
           <Box
-            sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
-            }}
+            
           >
             <Button
               value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{ mt: 2 }}
+              sx={{
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
+              }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
 
-                navigate(`/projects/${projectId}`);
+                navigate(`/projects/${ projectId }`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
               }}
@@ -1170,41 +1333,42 @@ const ReviewPage = () => {
             </Button>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
-            }}
-          >
+        <Grid item>
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "90px", sm: "90px", md: "100px" },
+              }}
               style={{
                 backgroundColor:
                   annotationtext.trim().length === 0 &&
-                  supercheckertext.trim().length === 0
+                    supercheckertext.trim().length === 0
                     ? "#bf360c"
                     : "green",
               }}
             >
               Notes{" "}
               {annotationtext.trim().length === 0 &&
-              supercheckertext.trim().length === 0
+                supercheckertext.trim().length === 0
                 ? ""
                 : "*"}
             </Button>
+             </Grid>
+            </Grid>
 
             <div
               // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                                width:"100%"
+
               }}
             >
               <ReactQuill
@@ -1231,25 +1395,24 @@ const ReviewPage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-          </Box>
           <Grid
             container
             justifyContent="center"
-            spacing={3}
+             alignItems="center"
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "10px",
+              gap: "0.5rem",
             }}
           >
             <Grid item>
-              {/* title={assignedUsers ? assignedUsers : ""} */}
               <LightTooltip
                 title={
                   <div>
                     <div>
-                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                        Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -1260,9 +1423,12 @@ const ReviewPage = () => {
                         textAlign: "center",
                       }}
                     >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
+                      {annotations[0]?.annotation_type == 1 &&
+                        `ANNOTATION ID: ${ annotations[0]?.id }`}
+                      {annotations[0]?.annotation_type == 2 &&
+                        `REVIEW ID: ${ annotations[0]?.id }`}
+                      {annotations[0]?.annotation_type == 3 &&
+                        `SUPERCHECK ID: ${ annotations[0]?.id }`}
                     </div>
                   </div>
                 }
@@ -1285,12 +1451,7 @@ const ReviewPage = () => {
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
+
             {!disableBtns && taskData?.review_user === userData?.id && (
               <Grid item>
                 <Tooltip title="Save task for later">
@@ -1301,16 +1462,16 @@ const ReviewPage = () => {
                     onClick={() =>
                       handleReviewClick("draft", review.id, review.lead_time)
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Draft
                   </Button>
@@ -1325,13 +1486,13 @@ const ReviewPage = () => {
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                  sx={{
+                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },                  }}
                   style={{
-                    minWidth: "150px",
                     color: "black",
                     borderRadius: "5px",
                     border: "0px",
-                    pt: 2,
-                    pb: 2,
                     backgroundColor: "#ffe0b2",
                   }}
                 >
@@ -1350,73 +1511,79 @@ const ReviewPage = () => {
                     onClick={() =>
                       handleReviewClick("skipped", review.id, review.lead_time)
                     }
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                                              minWidth: { xs: "60px", sm: "80px", md: "100px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ffe0b2",
                     }}
-                    // className="lsf-button"
                   >
                     Skip
                   </Button>
                 </Tooltip>
               )}
             </Grid>
-            {ProjectDetails.project_type == "InstructionDrivenChat"?(<Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="clear the entire chat history">
-                  <Button
-                    value="Clear Chats"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Clear Chats
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>):((<Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="Reset the entire chat history">
-                  <Button
-                    value="Reset All"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    style={{
-                      minWidth: "150px",
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      pt: 2,
-                      pb: 2,
-                      backgroundColor: "#ffe0b2",
-                    }}
-                    // className="lsf-button"
-                  >
-                    Reset All
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>))}
+            {ProjectDetails.project_type == "InstructionDrivenChat" ||
+              ProjectDetails?.project_type ==
+              "MultipleLLMInstructionDrivenChat" ? (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="clear the entire chat history">
+                    <Button
+                      value="Clear Chats"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                                                minWidth: { xs: "60px", sm: "80px", md: "100px" },
+                      }}
+                      style={{
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Clear Chats
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            ) : (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="Reset the entire chat history">
+                    <Button
+                      value="Reset All"
+                      type="default"
+                      variant="outlined"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                                                minWidth: { xs: "60px", sm: "80px", md: "100px" },
+                      }}
+                      style={{
+                        color: "black",
+                        borderRadius: "5px",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Reset All
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            )}
             {!disableBtns &&
               !disableButton &&
               taskData?.review_user === userData?.id && (
@@ -1431,16 +1598,18 @@ const ReviewPage = () => {
                           "to_be_revised",
                           review?.id,
                           review?.lead_time,
+                          ProjectDetails?.project_type,
                           review?.parent_annotation,
                         )
                       }
+                      sx={{
+                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                                                minWidth: { xs: "60px", sm: "80px", md: "100px" },
+                      }}
                       style={{
-                        minWidth: "150px",
                         color: "black",
                         borderRadius: "5px",
                         border: "0px",
-                        pt: 2,
-                        pb: 2,
                         backgroundColor: "#ee6633",
                       }}
                     >
@@ -1459,13 +1628,14 @@ const ReviewPage = () => {
                     aria-controls={open ? "accept-menu" : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                                             minWidth: { xs: "60px", sm: "80px", md: "100px" },
+                    }}
                     style={{
-                      minWidth: "150px",
                       color: "black",
                       borderRadius: "5px",
                       border: "0px",
-                      pt: 2,
-                      pb: 2,
                       backgroundColor: "#ee6633",
                     }}
                     onClick={handleClick}
@@ -1485,40 +1655,46 @@ const ReviewPage = () => {
                 onClose={handleClose}
               >
                 <MenuItem
-                  onClick={() =>
+                  onClick={() => {
                     handleReviewClick(
                       "accepted",
                       review.id,
                       AnnotationsTaskDetails[1]?.lead_time,
+                      ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
-                  }
+
+                  }}
                   disableRipple
                 >
                   with No Changes
                 </MenuItem>
                 <MenuItem
-                  onClick={() =>
+                  onClick={() => {
                     handleReviewClick(
                       "accepted_with_minor_changes",
                       review.id,
                       review.lead_time,
+                      ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
-                  }
+
+                  }}
                   disableRipple
                 >
                   with Minor Changes
                 </MenuItem>
                 <MenuItem
-                  onClick={() =>
+                  onClick={() => {
                     handleReviewClick(
                       "accepted_with_major_changes",
                       review.id,
                       review.lead_time,
+                      ProjectDetails?.project_type,
                       review?.parent_annotation,
                     )
-                  }
+
+                  }}
                   disableRipple
                 >
                   with Major Changes
@@ -1531,14 +1707,13 @@ const ReviewPage = () => {
               {filterMessage}
             </Alert>
           )}
-        </Grid>
         {filteredReady == false && annotations.length > 0 ? (
           <Grid item container>
             {" "}
             {componentToRender}{" "}
           </Grid>
         ) : null}
-      </Grid>
+        </Grid>
     </>
   );
 };

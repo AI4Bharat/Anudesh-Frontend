@@ -9,7 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler, // 1. Import Filler plugin
+  Filler, 
 } from "chart.js";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -38,9 +38,6 @@ import {
 import { modifiedStaticRanges } from "@/utils/Date_Range/getDateRangeFormat";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import GetProjectDomainsAPI from "@/app/actions/api/ProjectDetails/GetProjectDomains";
-import FetchLanguagesAPI from "@/app/actions/api/UserManagement/FetchLanguages";
-import APITransport from "@/Lib/apiTransport/apitransport";
 import axios from "axios";
 import PerformanceAnalyticsAPI from "@/app/actions/api/Progress/PerformanceAnalytics";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
@@ -166,7 +163,6 @@ export default function PerformanceAnalytics() {
   const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.getLoggedInData.data);
   const ProjectTypes = useSelector((state) => state.domains.domains);
-  const workspaceDetails = useSelector((state) => state.getWorkspaceDetails.data);
   const LanguageChoices = useSelector((state) => state.getLanguages.data);
 
   useEffect(() => {

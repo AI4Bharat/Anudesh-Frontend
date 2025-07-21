@@ -1,17 +1,13 @@
 "use client";
 import "./chat.css";
-import {
-  Avatar,
-  Box,
-  Grid,
-  IconButton,
-  Button,
-  Modal,
-  Tooltip,
-  Typography,
-  TextareaAutosize,
-} from "@mui/material";
-import remarkBreaks from "remark-breaks";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import Modal from "@mui/material/Modal";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
@@ -22,17 +18,15 @@ import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
 import { useState, useEffect, useRef } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
-import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
-import GetTaskAnnotationsAPI from "@/app/actions/api/Dashboard/GetTaskAnnotationsAPI";
-import { Block } from "@mui/icons-material";
 import ChatLang from "@/utils/Chatlang";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
+import LanguageCode from "@/utils/LanguageCode";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -110,7 +104,6 @@ const InstructionDrivenChatPage = ({
   const handleOpen = () => {
     setOpen(true);
   };
-  console.log(disableUpdateButton);
   const handleClose = () => {
     setOpen(false);
   };
@@ -232,7 +225,6 @@ const InstructionDrivenChatPage = ({
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
   const handleButtonClick = async () => {
-    console.log(inputValue);
 
     if (inputValue) {
       setLoading(true);
@@ -244,7 +236,6 @@ const InstructionDrivenChatPage = ({
         auto_save: true,
         task_id: taskId,
       };
-      console.log(id, stage);
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
@@ -308,39 +299,46 @@ const InstructionDrivenChatPage = ({
     }, 1000);
     setShowChatContainer(true);
   };
-  console.log(chatHistory, ProjectDetails?.metadata_json);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
-    console.log(inputValue, chatHistory);
   };
   const [text, setText] = useState("");
   const [targetLang, setTargetLang] = useState("");
-  const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  // const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
 
-    if (typeof window !== "undefined") {
-      const storedGlobalTransliteration = localStorage.getItem(
-        "globalTransliteration",
-      );
-      const storedLanguage = localStorage.getItem("language");
+    // if (typeof window !== "undefined") {
+    //   const storedGlobalTransliteration = localStorage.getItem(
+    //     "globalTransliteration",
+    //   );
+    //   const storedLanguage = localStorage.getItem("language");
 
-      if (storedGlobalTransliteration !== null) {
-        setGlobalTransliteration(storedGlobalTransliteration === "true");
-      }
-      if (storedLanguage !== null) {
-        setTargetLang(storedLanguage);
+    //   if (storedGlobalTransliteration !== null) {
+    //     setGlobalTransliteration(storedGlobalTransliteration === "true");
+    //   }
+      // if (storedLanguage !== null) {
+      //   setTargetLang(storedLanguage);
+      // }
+      const lc = LanguageCode.languages.find(
+        (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
+      );
+
+      if (Number(info.meta_info_language) < 3){
+        setTargetLang(lc.code);
+      }else{
+        setTargetLang("en");
       }
 
-      console.log(
-        globalTransliteration,
-        "lll",
-        localStorage.getItem("globalTransliteration"),
-      );
-    }
+      // console.log(
+      //   globalTransliteration,
+      //   "lll",
+      //   localStorage.getItem("globalTransliteration"),
+      // );
+    // }
   }, [chatHistory]);
 
   useEffect(() => {
@@ -396,11 +394,11 @@ const InstructionDrivenChatPage = ({
     return null;
   }
   const handleTextChange = (e, index, message, fieldType) => {
-    if (globalTransliteration) {
+    // if (globalTransliteration) {
       var updatedValue = e;
-    } else {
-      var updatedValue = e.target.value;
-    }
+    // } else {
+    //   var updatedValue = e.target.value;
+    // }
 
     const updatedChatHistory = [...chatHistory];
 
@@ -421,12 +419,12 @@ const InstructionDrivenChatPage = ({
     const chatElements = chatHistory?.map((message, index) => (
       <Grid
         container
-        spacing={2}
+        spacing={1}
         key={index}
         direction="column"
         justifyContent="center"
         alignItems="center"
-        style={{ padding: "1.5rem", margin: "auto" }}
+        style={{ marginRight:"0.5rem",marginLeft:"0.5rem" }}
       >
         <Grid
           item
@@ -438,7 +436,7 @@ const InstructionDrivenChatPage = ({
             width: "100%",
           }}
         >
-          <Grid container alignItems="center" spacing={2}>
+          <Grid container alignItems="center" spacing={1}>
             <Grid item>
               <Avatar
                 alt="user_profile_pic"
@@ -448,12 +446,12 @@ const InstructionDrivenChatPage = ({
             </Grid>
             <Grid item xs className="w-full">
               {ProjectDetails?.metadata_json?.editable_prompt ? (
-                globalTransliteration ? (
+                // globalTransliteration ? (
                   <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                    apiKey={`JWT ${localStorage.getItem(
-                      "anudesh_access_token",
-                    )}`}
+                    enableASR={true}
+                    asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                    apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                     renderComponent={(props) => (
                       <textarea
                         maxRows={10}
@@ -479,28 +477,29 @@ const InstructionDrivenChatPage = ({
                       handleTextChange(e, null, message, "prompt")
                     }
                     lang={targetLang}
+                    enabled={targetLang === "en" ? false : true}
                   />
-                ) : (
-                  <textarea
-                    value={message.prompt}
-                    onChange={(e) =>
-                      handleTextChange(e, null, message, "prompt")
-                    }
-                    style={{
-                      fontSize: "1rem",
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "12px 12px 0 12px",
-                      color: grey[900],
-                      background: "#ffffff",
-                      border: `1px solid ${grey[200]}`,
-                      boxShadow: `0px 2px 2px ${grey[50]}`,
-                      minHeight: "5rem",
-                      resize: "none",
-                    }}
-                    rows={1}
-                  />
-                )
+                // ) : (
+                //   <textarea
+                //     value={message.prompt}
+                //     onChange={(e) =>
+                //       handleTextChange(e, null, message, "prompt")
+                //     }
+                //     style={{
+                //       fontSize: "1rem",
+                //       width: "100%",
+                //       padding: "12px",
+                //       borderRadius: "12px 12px 0 12px",
+                //       color: grey[900],
+                //       background: "#ffffff",
+                //       border: `1px solid ${grey[200]}`,
+                //       boxShadow: `0px 2px 2px ${grey[50]}`,
+                //       minHeight: "5rem",
+                //       resize: "none",
+                //     }}
+                //     rows={1}
+                //   />
+                // )
               ) : (
                 <ReactMarkdown
                   className="flex-col"
@@ -552,7 +551,7 @@ const InstructionDrivenChatPage = ({
           >
             <Grid
               item
-              xs={3}
+              xs={1}
               style={{
                 display: "flex",
                 // justifyContent: "flex-end",
@@ -560,20 +559,21 @@ const InstructionDrivenChatPage = ({
                 minWidth: "50px",
               }}
             >
-              <img
+              <Image
                 width={50}
                 height={50}
-                src="https://i.imgur.com/56Ut9oz.png"
+                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                 alt="Bot Avatar"
+                priority
               />
             </Grid>
 
-    <Grid item  xs={6}  >
+    <Grid item  xs={11}  >
 
               {message?.output.map((segment, index) =>
                 segment.type === 'text' ? (
                   (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
-                    globalTransliteration ? (
+                    // globalTransliteration ? (
                       <IndicTransliterate
                         key={index}
                         value={segment.value}
@@ -593,29 +593,34 @@ const InstructionDrivenChatPage = ({
                           // resize: "none",
                           width: "100%",
                         }}
+                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                        enableASR={true}
+                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                        enabled={targetLang === "en" ? false : true}
                       />
-                    ) : (
-                      <textarea
-                        key={index}
-                        value={segment.value}
-                        onChange={(e) =>
-                          handleTextChange(e, index, message, "output")
-                        }
-                        style={{
-                          fontSize: "1rem",
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          resize: "none",
-                        }}
-                        rows={1}
-                      />
-                    )
+                    // ) : (
+                    //   <textarea
+                    //     key={index}
+                    //     value={segment.value}
+                    //     onChange={(e) =>
+                    //       handleTextChange(e, index, message, "output")
+                    //     }
+                    //     style={{
+                    //       fontSize: "1rem",
+                    //       width: "100%",
+                    //       padding: "12px",
+                    //       borderRadius: "12px 12px 0 12px",
+                    //       color: grey[900],
+                    //       background: "#ffffff",
+                    //       border: `1px solid ${grey[200]}`,
+                    //       boxShadow: `0px 2px 2px ${grey[50]}`,
+                    //       minHeight: "5rem",
+                    //       resize: "none",
+                    //     }}
+                    //     rows={1}
+                    //   />
+                    // )
                   ) : (
                     <ReactMarkdown
                       key={index}
@@ -804,8 +809,8 @@ const InstructionDrivenChatPage = ({
                 height: "auto",
                 display: "flex",
                 alignItems: "center",
-                // alignItems: "flex-start",
                 justifyContent: "center",
+                whiteSpace: "pre-line", 
               }}
             >
               {info.instruction_data}
@@ -861,6 +866,7 @@ const InstructionDrivenChatPage = ({
                 class_name={"w-full"}
                 loading={loading}
                 inputValue={inputValue}
+                defaultLang={targetLang}
               />
             </Grid>
           ) : null}

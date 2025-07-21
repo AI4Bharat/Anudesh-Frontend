@@ -3,12 +3,12 @@ import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
+import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LeaderboardOutlinedIcon from "@mui/icons-material/LeaderboardOutlined";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { usePathname } from 'next/navigation'
+import { usePathname } from "next/navigation";
 import MobileNavbar from "./MobileNavbar";
 import { useTheme } from "@emotion/react";
 import { useMediaQuery } from "@mui/material";
@@ -23,18 +23,18 @@ import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import { Link, NavLink } from "react-router-dom";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 import NotificationAPI from "@/app/actions/api/Notification/Notification";
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import GradingSharpIcon from '@mui/icons-material/GradingSharp';
-import { formatDistanceToNow, format } from 'date-fns';
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import GradingSharpIcon from "@mui/icons-material/GradingSharp";
+import { formatDistanceToNow, format } from "date-fns";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
-import APITransport from "@/app/actions/apitransport/apitransport"
+import APITransport from "@/app/actions/apitransport/apitransport";
 
 const Header = () => {
-       /* eslint-disable react-hooks/exhaustive-deps */
-           /* eslint-disable-next-line react/jsx-key */
+  /* eslint-disable react-hooks/exhaustive-deps */
+  /* eslint-disable-next-line react/jsx-key */
 
   const currentUrl = window.location.href;
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -42,7 +42,8 @@ const Header = () => {
   const [anchorElHelp, setAnchorElHelp] = useState(null);
   const [isSpaceClicked, setIsSpaceClicked] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
-  const [showTransliterationModel, setShowTransliterationModel] = useState(false);
+  const [showTransliterationModel, setShowTransliterationModel] =
+    useState(false);
   const [anchorElNotification, setAnchorElNotification] = useState(null);
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -50,14 +51,16 @@ const Header = () => {
     variant: "success",
   });
   //const[checkClUI,setCheckClUI]=useState(null)
+  const [open, setOpen] = useState(false);
+  const [emailToChange, setEmailToChange] = useState("");
   const [moreHorizonAnchorEl, setMoreHorizonAnchorEl] = useState(null);
-  const [Notification, setnotification] = useState()
-  const [unread, setunread] = useState(null)
+  const [Notification, setnotification] = useState();
+  const [unread, setunread] = useState(null);
   const [selectedNotificationId, setSelectedNotificationId] = useState(null);
   //below one is for Unreaded notification count countinue from line No. 157
   const [notificationCount, setNotificationCount] = useState(0);
 
-  if(localStorage.getItem("source") !== undefined){
+  if (localStorage.getItem("source") !== undefined) {
     localStorage.setItem("source", "anudesh-frontend");
   }
 
@@ -69,15 +72,13 @@ const Header = () => {
     setMoreHorizonAnchorEl(null);
   };
 
-
-  const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-   
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -86,7 +87,6 @@ const Header = () => {
   const navigate = useNavigate();
   const pathname = usePathname();
   const classes = headerStyle();
-
 
   const getLoggedInUserData = () => {
     dispatch(FetchLoggedInUserData("me"));
@@ -140,24 +140,23 @@ const Header = () => {
   const markAsRead =  (notificationId) => {
     const task = new NotificationPatchAPI(notificationId);
     setSelectedNotificationId(notificationId);
-     dispatch(APITransport(task));
-     fetchNotifications()
-
+    dispatch(APITransport(task));
+    fetchNotifications();
   };
 
-  const markAllAsRead =  () => {
+  const markAllAsRead = () => {
     const notificationIds = Notification.map((notification) => notification.id);
     const tasks = new NotificationPatchAPI(notificationIds);
-    setSelectedNotificationId(notificationIds)
-     dispatch(APITransport(tasks));
-     fetchNotifications()
+    setSelectedNotificationId(notificationIds);
+    dispatch(APITransport(tasks));
+    fetchNotifications();
   };
 
-  const handleMarkAllAsReadClick =  () => {
+  const handleMarkAllAsReadClick = () => {
     markAllAsRead();
   };
 
-  const handleMarkAsRead =  (notificationId) => {
+  const handleMarkAsRead = (notificationId) => {
     markAsRead(notificationId);
   };
 
@@ -168,7 +167,6 @@ const Header = () => {
   useEffect(() => {
     getLoggedInUserData();
   }, []);
-
 
   /* useEffect(()=>{
     if(loggedInUserData?.prefer_cl_ui !== undefined){
@@ -181,7 +179,7 @@ const Header = () => {
     handleCloseUserMenu();
     dispatch(Logout());
     // ExpireSession();
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.clear();
     }
     navigate("/");
@@ -205,7 +203,7 @@ const Header = () => {
 
   const handleTitleMouseLeave = () => {
     setPopoverAnchorEl(null);
-  }
+  };
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
@@ -214,30 +212,22 @@ const Header = () => {
     setPopoverAnchorEl(null);
   };
 
-const handleopenproject=(id,type)=>{
-  if(type=="publish_project"){
-    navigate(`/projects/${id}`);
-  }
-}
+  const handleopenproject = (id, type) => {
+    if (type == "publish_project") {
+      navigate(`/projects/${id}`);
+    }
+  };
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
-
-  const handleAnalytics = (event) => {
-    console.log('Analytics clicked');
-  }
-
-  const handleLeaderboard = (event) => {
-    console.log('Leaderboard clicked')
-  }
 
   const handleOpenHelpMenu = (event) => {
     setAnchorElHelp(event.currentTarget);
   };
 
   const handleInfo = () => {
-    window.open('https://github.com/AI4Bharat/Anudesh/wiki', '_blank'); 
+    window.open("https://github.com/AI4Bharat/Anudesh/wiki", "_blank");
   };
 
   const handleCloseHelpMenu = () => {
@@ -259,10 +249,22 @@ const handleopenproject=(id,type)=>{
   const handleCloseNotification = () => {
     setAnchorElNotification(null);
   };
+const [isRtl, setIsRtl] = useState(false);
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    setIsRtl(localStorage.getItem("rtl") === "true");
+  }
+}, []);
+
+
 
   const handleRTLChange = (event) => {
-    if (typeof window !== 'undefined') {
-    let style;
+    if (typeof window !== "undefined") {
+        const value = event.target.checked;
+  setIsRtl(value);
+
+      let style;
       if (event.target.checked) {
         localStorage.setItem("rtl", true);
         style = document.createElement("style");
@@ -311,18 +313,18 @@ const handleopenproject=(id,type)=>{
 
   
   const handleTagsChange = (event) => {
-  if (typeof window !== 'undefined') {
-    if (event.target.checked) {
-      localStorage.setItem("enableTags", true);
-      setSnackbarInfo({
-        open: true,
-        message: "Please type blackslash ( \\ ) to access the tags",
-        variant: "info",
-      });
-    } else {
-      localStorage.setItem("enableTags", false);
+    if (typeof window !== "undefined") {
+      if (event.target.checked) {
+        localStorage.setItem("enableTags", true);
+        setSnackbarInfo({
+          open: true,
+          message: "Please type blackslash ( \\ ) to access the tags",
+          variant: "info",
+        });
+      } else {
+        localStorage.setItem("enableTags", false);
+      }
     }
-  }
   };
   const renderSnackBar = () => {
     return (
@@ -337,7 +339,13 @@ const handleopenproject=(id,type)=>{
       />
     );
   };
-  const unseenNotifications = Notification?.length > 0 && Notification?.filter(notification => notification?.seen_json == true || (notification?.seen_json && !notification?.seen_json[loggedInUserData.id]));
+  const unseenNotifications =
+    Notification?.length > 0 &&
+    Notification?.filter(
+      (notification) =>
+        notification?.seen_json == null ||
+        !notification?.seen_json[loggedInUserData.id],
+    );
 
   const renderTabs = () => {
     if (
@@ -349,54 +357,21 @@ const handleopenproject=(id,type)=>{
         <Grid
           container
           direction="row"
-          // justifyContent="space-evenly"
-          // spacing={0}
-          columnGap={2}
-          rowGap={2}
-          xs={12}
-          sm={12}
-          md={7}
-          zIndex={2000}
+          sx={{ width: "fit-content", gap: "5px" }}
         >
-          {/* <Typography variant="body1">
-            <NavLink
-              hidden={loggedInUserData.role === 1}
-              to={
-                loggedInUserData && loggedInUserData.organization
-                  ? `/my-organization/${loggedInUserData.organization.id}`
-                  : `/my-organization/1`
-              }
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Organization
-            </NavLink>
-          </Typography> */}
-          {/* <Typography variant="body1">
-            <NavLink
-              hidden={loggedInUserData.role === 1 || loggedInUserData.role === 3}
-              to="/workspaces"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Workspaces
-            </NavLink>
-          </Typography> */}
-          { loggedInUserData.guest_user ? <Typography variant="body1">
-            <NavLink
-              to="/guest_workspaces"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Guest Workspaces
-            </NavLink>
-          </Typography> : null}
+          {loggedInUserData.guest_user ? (
+            <Typography variant="body1">
+              <NavLink
+                to="/guest_workspaces"
+                className={({ isActive }) =>
+                  isActive ? classes.highlightedMenu : classes.headerMenu
+                }
+                activeClassName={classes.highlightedMenu}
+              >
+                Guest Workspaces
+              </NavLink>
+            </Typography>
+          ) : null}
           <Typography variant="body1">
             <NavLink
               to="/projects"
@@ -419,18 +394,6 @@ const handleopenproject=(id,type)=>{
               Analytics
             </NavLink>
           </Typography>
-          {/* <Typography variant="body1">
-            <NavLink
-              hidden={loggedInUserData.role === 1}
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Datasets
-            </NavLink>
-          </Typography> */}
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -438,32 +401,11 @@ const handleopenproject=(id,type)=>{
         <Grid
           container
           direction="row"
-          // justifyContent="space-evenly"
-          // spacing={0}
-          columnGap={2}
-          rowGap={2}
-          xs={12}
-          sm={12}
-          md={7}
+          sx={{ width: "fit-content", gap: "5px" }}
         >
-          {/* <Typography variant="body1">
-            <NavLink
-              to={
-                loggedInUserData && loggedInUserData.organization
-                  ? `/my-organization/${loggedInUserData.organization.id}`
-                  : `/my-organization/1`
-              }
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Organization
-            </NavLink>
-          </Typography> */}
           <Typography variant="body1">
             <NavLink
-              to="/workspaces"
+              to={`/workspaces/${loggedInUserData?.organization?.id}`}
               className={({ isActive }) =>
                 isActive ? classes.highlightedMenu : classes.headerMenu
               }
@@ -512,13 +454,7 @@ const handleopenproject=(id,type)=>{
         <Grid
           container
           direction="row"
-          // justifyContent="space-evenly"
-          // spacing={0}
-          columnGap={2}
-          rowGap={2}
-          xs={12}
-          sm={12}
-          md={7}
+          sx={{ width: "fit-content", gap: "5px" }}
         >
           <Typography variant="body1">
             <NavLink
@@ -575,13 +511,7 @@ const handleopenproject=(id,type)=>{
         <Grid
           container
           direction="row"
-          // justifyContent="space-evenly"
-          // spacing={0}
-          columnGap={2}
-          rowGap={2}
-          xs={12}
-          sm={12}
-          md={8}
+          sx={{ width: "fit-content", gap: "5px" }}
         >
           <Typography variant="body1">
             <NavLink
@@ -631,14 +561,13 @@ const handleopenproject=(id,type)=>{
               Analytics
             </NavLink>
           </Typography>
-          <Typography variant="body1" >
+          <Typography variant="body1">
             <NavLink
               to="/admin"
               className={({ isActive }) =>
                 isActive ? classes.highlightedMenu : classes.headerMenu
               }
               activeClassName={classes.highlightedMenu}
-              
             >
               Admin
             </NavLink>
@@ -651,51 +580,61 @@ const handleopenproject=(id,type)=>{
   };
 
   const tabs = [
-    loggedInUserData?.guest_user ? <Typography variant="body1">
-      <NavLink
-        to="/guest_workspaces"
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Guest Workspaces
-      </NavLink>
-    </Typography> : null,
-    <Typography key={1} variant="body1">
-      <NavLink
-        hidden={
-          userRole.Annotator === loggedInUserData?.role ||
-          userRole.Reviewer === loggedInUserData?.role ||
-          userRole.SuperChecker === loggedInUserData?.role ||
-          userRole.WorkspaceManager === loggedInUserData?.role
-        }
-        to={
-          loggedInUserData && loggedInUserData?.organization
-            ? `/organizations/${loggedInUserData?.organization.id}`
-            : `/organizations/1`
-        }
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Organization
-      </NavLink>
-    </Typography>,
-    <Typography variant="body1" key={2}>
-      <NavLink
-        hidden={userRole.WorkspaceManager !== loggedInUserData?.role}
-        to="/workspaces"
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Workspaces
-      </NavLink>
-    </Typography>,
-    <Typography key={3} variant="body1">
+    // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
+    loggedInUserData?.guest_user &&
+    (userRole.Annotator === loggedInUserData?.role ||
+      userRole.Reviewer === loggedInUserData?.role ||
+      userRole.SuperChecker === loggedInUserData?.role) ? (
+      <Typography key="guest" variant="body1">
+        <NavLink
+          to="/guest_workspaces"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Guest Workspaces
+        </NavLink>
+      </Typography>
+    ) : null,
+
+    // Organization tab - only shown for Organization Owners and Admins
+    userRole.OrganizationOwner === loggedInUserData?.role ||
+    userRole.Admin === loggedInUserData?.role ? (
+      <Typography key="organization" variant="body1">
+        <NavLink
+          to={
+            loggedInUserData && loggedInUserData?.organization
+              ? `/organizations/${loggedInUserData?.organization.id}`
+              : `/organizations/1`
+          }
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Organization
+        </NavLink>
+      </Typography>
+    ) : null,
+
+    // Workspaces tab - only shown for Workspace Managers
+    userRole.WorkspaceManager === loggedInUserData?.role ? (
+      <Typography key="workspaces" variant="body1">
+        <NavLink
+          to="/workspaces"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Workspaces
+        </NavLink>
+      </Typography>
+    ) : null,
+
+    // Projects tab - shown for all roles
+    <Typography key="projects" variant="body1">
       <NavLink
         to="/projects"
         className={({ isActive }) =>
@@ -706,23 +645,26 @@ const handleopenproject=(id,type)=>{
         Projects
       </NavLink>
     </Typography>,
-    <Typography key={4} variant="body1">
-      <NavLink
-        hidden={
-          userRole.Annotator === loggedInUserData?.role ||
-          userRole.Reviewer === loggedInUserData?.role ||
-          userRole.SuperChecker === loggedInUserData?.role
-        }
-        to="/datasets"
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Datasets
-      </NavLink>
-    </Typography>,
-    <Typography key={5} variant="body1">
+
+    // Datasets tab - only shown for Workspace Managers, Organization Owners, and Admins
+    userRole.WorkspaceManager === loggedInUserData?.role ||
+    userRole.OrganizationOwner === loggedInUserData?.role ||
+    userRole.Admin === loggedInUserData?.role ? (
+      <Typography key="datasets" variant="body1">
+        <NavLink
+          to="/datasets"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Datasets
+        </NavLink>
+      </Typography>
+    ) : null,
+
+    // Analytics tab - shown for all roles
+    <Typography key="analytics" variant="body1">
       <NavLink
         to="/analytics"
         className={({ isActive }) =>
@@ -733,19 +675,25 @@ const handleopenproject=(id,type)=>{
         Analytics
       </NavLink>
     </Typography>,
-    <Typography key={6} variant="body1">
-      <NavLink
-        to="/admin"
-        hidden={userRole.Admin !== loggedInUserData?.role}
-        className={({ isActive }) =>
-          isActive ? classes.highlightedMenu : classes.headerMenu
-        }
-        activeClassName={classes.highlightedMenu}
-      >
-        Admin
-      </NavLink>
-    </Typography>,
+
+    // Admin tab - only shown for Admins
+    userRole.Admin === loggedInUserData?.role ? (
+      <Typography key="admin" variant="body1">
+        <NavLink
+          to="/admin"
+          className={({ isActive }) =>
+            isActive ? classes.highlightedMenu : classes.headerMenu
+          }
+          activeClassName={classes.highlightedMenu}
+        >
+          Admin
+        </NavLink>
+      </Typography>
+    ) : null,
   ];
+
+  // Filter out null values
+  const filteredTabs = tabs.filter((tab) => tab !== null);
 
   const userSettings = [
     {
@@ -778,33 +726,10 @@ const handleopenproject=(id,type)=>{
       control: (
         <Checkbox
           onChange={handleRTLChange}
-          defaultChecked={() => { if (typeof window !== 'undefined') { localStorage.getItem("rtl") === "true"}}}
+          checked={isRtl}
         />
       ),
     },
-    /* {
-      name: "Use Chitralekha Transcription Flow",
-      control: (
-        <Checkbox
-          onChange={handleTranscriptionFlowChange}
-          checked={checkClUI} 
-        />
-      ),
-    }, */
-    // {
-    //   name: "Enable Tags Dropdown",
-    //   control: (
-    //     <Checkbox
-    //       onChange={handleTagsChange}
-    //       defaultChecked={localStorage.getItem("enableTags") === "true"}
-    //     />
-    //   ),
-    // },
-
-    // {
-    //   name: "Help",
-    //   onclick: () => {},
-    // },
   ];
   const helpMenu = [
     {
@@ -814,102 +739,127 @@ const handleopenproject=(id,type)=>{
         window.open(url, "_blank");
       },
     },
+  ];
 
-    // {
-    //   name: "Feedback",
-    //   onclick: () => {},
-    // },
+  const appInfo = [
+    {
+      name: "Help",
+      onclick: () => {
+        const url = "https://github.com/AI4Bharat/Anudesh/wiki";
+        window.open(url, "_blank");
+      },
+    },
+
+    {
+      name: "Notifications",
+    },
   ];
 
   const handleTransliterationModelClose = () => {
     setShowTransliterationModel(false);
   };
 
+  const handleClickOpen = (email) => {
+    setEmailToChange(email);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEmailToChange("");
+  };
+
+  const handleApply = async () => {
+    await handleChangePassword(emailToChange);
+    handleClose();
+  };
+
   const handleChangePassword = async (email) => {
-    let obj = new ForgotPasswordAPI({email: email});
+    let obj = new ForgotPasswordAPI({ email: email });
     const res = await fetch(obj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(obj.getBody()),
-        headers: obj.getHeaders().headers,
+      method: "POST",
+      body: JSON.stringify(obj.getBody()),
+      headers: obj.getHeaders().headers,
     });
     const resp = await res.json();
     if (res.ok) {
-        setSnackbarInfo({
-            open: true,
-            message: "Link to change password sent successfully on your email.",
-            variant: "success",
-        })
+      setSnackbarInfo({
+        open: true,
+        message: "Link to change password sent successfully on your email.",
+        variant: "success",
+      });
     } else {
-        setSnackbarInfo({
-            open: true,
-            message: resp?.message,
-            variant: "error",
-        })
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
     }
   };
 
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
-  const [language, setLanguage] = useState(localStorage.getItem("language") || "");
+  const [language, setLanguage] = useState(
+    localStorage.getItem("language") || "",
+  );
 
   useEffect(() => {
     localStorage.setItem("language", language);
   }, [language]);
   useEffect(() => {
     localStorage.setItem("globalTransliteration", globalTransliteration);
-  }, [ globalTransliteration]);
-
+  }, [globalTransliteration]);
 
   return (
     <Grid container direction="row" style={{ zIndex: 1 }}>
-      <Box
-        className={
-          // pathname.includes("AudioTranscriptionLandingPage") ? classes.AudioparentContainers: 
-        classes.parentContainer
-        }
-      >
+      <Box className={classes.parentContainer}>
         {isMobile ? (
           <MobileNavbar
-            tabs={tabs}
+            tabs={filteredTabs}
             userSettings={userSettings}
             appSettings={appSettings}
+            appInfo={appInfo}
             loggedInUserData={loggedInUserData}
           />
         ) : (
-          <AppBar>
-            <Toolbar className={classes.toolbar} style={{zIndex: 200}}>
-            <Grid
-              sx={{ display: "flex", alignItems: "center" }}
-              xs={12}
-              sm={12}
-              md={3}
-            >   
-                <a style={{ display: "flex", alignItems: "center" }}>
-                  <Image 
-                    onClick={() => navigate("/")} 
-                    src="https://i.imgur.com/56Ut9oz.png"
+          <AppBar
+            sx={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Toolbar className={classes.toolbar}>
+              <Grid
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "fit-content",
+                }}
+              >
+                <a
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    gap: "10px",
+                  }}
+                  onClick={() => navigate("/")}
+                >
+                  <Image
+                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                     alt="anudesh"
                     height="100"
                     width="100"
                     className={classes.headerLogo}
-                    sx={{ marginTop: "5%" }}
+                    priority
                   />
-                  <Typography
-                    
-                    onClick={() => navigate("/")} 
-                    variant="h4"
-                    className={classes.headerTitle}
-                    sx={{
-                      fontSize: "28px",
-                      fontWeight: "bold",
-                      fontFamily: 'Rowdies,"cursive", Roboto, sans-serif',
-                    }}
-                  >
+                  <Typography variant="h4" className={classes.headerTitle}>
                     Anudesh
                   </Typography>
                 </a>
-
-                
-            </Grid>
+              </Grid>
 
               {/* <Grid
                 container
@@ -926,7 +876,7 @@ const handleopenproject=(id,type)=>{
               </Grid> */}
               {renderTabs()}
               {renderSnackBar()}
-              <Box sx={{ flexGrow: 0 }} xs={12} sm={12} md={4}>
+              <Grid container sx={{ width: "fit-content" }}>
                 <Grid
                   container
                   direction="row"
@@ -958,62 +908,68 @@ const handleopenproject=(id,type)=>{
                         />
                       </IconButton>
                     </Tooltip>
-                  </Grid>} */}
-
-                  {/* { currentUrl.includes('/projects/') && currentUrl.includes('/task/') && 
-                  <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip title="Leaderboard">
-                      <IconButton onClick={handleLeaderboard} style={{"display": "flex", "justifyContent": "center", "alignItems": "center"}}>
-                        <LeaderboardOutlinedIcon
-                          color="primary.dark"
-                          fontSize="large"
-                        />
-                        <h3 className="text-orange-600 text-sm font-bold mt-4">100</h3>
-                      </IconButton>
-                    </Tooltip>
-                  </Grid> } */}
-
-                  <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip  title={
-                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-                            Help
+                  </Grid>
+                  <Grid
+                    item
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          Help
                         </span>
-                     }>
+                      }
+                    >
                       <IconButton onClick={handleInfo}>
                         <InfoOutlinedIcon
                           color="primary.dark"
-                          fontSize="large"
+                          fontSize="36px"
                         />
                       </IconButton>
                     </Tooltip>
                   </Grid>
-
-                  <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip  title={
-                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-                              Settings
+                  <Grid
+                    item
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          Settings
                         </span>
-                    }>
+                      }
+                    >
                       <IconButton onClick={handleOpenSettingsMenu}>
                         <SettingsOutlinedIcon
                           color="primary.dark"
-                          fontSize="large"
+                          fontSize="36px"
                         />
                       </IconButton>
                     </Tooltip>
                   </Grid>
-
-                  <Grid item xs={3} sm={3} md={2}>
-                    <Tooltip  title={
-                        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-                            User Options
+                  <Grid item>
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          User Options
                         </span>
-                   }>
+                      }
+                    >
                       <IconButton onClick={handleOpenUserMenu}>
                         <Avatar
                           alt="user_profile_pic"
                           variant="contained"
-                          src={loggedInUserData?.profile_photo ? loggedInUserData.profile_photo : ''}
+                          src={
+                            loggedInUserData?.profile_photo
+                              ? loggedInUserData.profile_photo
+                              : ""
+                          }
                           className={classes.avatar}
                         >
                           {loggedInUserData &&
@@ -1023,7 +979,17 @@ const handleopenproject=(id,type)=>{
                         <Typography
                           variant="body1"
                           color="black"
-                          sx={{ p: 0, ml: 1 }}
+                          sx={{
+                            ml: 1,
+                            fontSize: "1rem",
+                            fontWeight: 500,
+                            display: {
+                              xs: "block",
+                              sm: "block",
+                              md: "none",
+                              lg: "block",
+                            },
+                          }}
                         >
                           {loggedInUserData?.username}
                         </Typography>
@@ -1067,38 +1033,55 @@ const handleopenproject=(id,type)=>{
                     <Typography variant="body2" textAlign="center">
                       Global Transliteration
                     </Typography>
-                    <Switch onClick={() => {setGlobalTransliteration(!globalTransliteration)}} checked={globalTransliteration}/>
+                    <Switch
+                      onClick={() => {
+                        setGlobalTransliteration(!globalTransliteration);
+                      }}
+                      checked={globalTransliteration}
+                    />
                   </MenuItem>
                   <MenuItem>
-                    {globalTransliteration && <FormControl fullWidth>
-                    <InputLabel id="language-select-label">Language</InputLabel>
-                    <Select label="Language" labelId="language-select-label" value={language} onChange={(e) => {setLanguage(e.target.value)}}>
-                      <MenuItem disabled value=""></MenuItem>
-                      <MenuItem value="hi">Hindi</MenuItem>
-                      <MenuItem value="mr">Marathi</MenuItem>
-                      <MenuItem value="ta">Tamil</MenuItem>
-                      <MenuItem value="te">Telugu</MenuItem>
-                      <MenuItem value="kn">Kannada</MenuItem>
-                      <MenuItem value="gu">Gujarati</MenuItem>
-                      <MenuItem value="pa">Punjabi</MenuItem>
-                      <MenuItem value="bn">Bengali</MenuItem>
-                      <MenuItem value="ml">Malayalam</MenuItem>
-                      <MenuItem value="as">Assamese</MenuItem>
-                      <MenuItem value="brx">Bodo</MenuItem>
-                      <MenuItem value="doi">Dogri</MenuItem>
-                      <MenuItem value="ks">Kashmiri</MenuItem>
-                      <MenuItem value="mai">Maithili</MenuItem>
-                      <MenuItem value="mni">Manipuri</MenuItem>
-                      <MenuItem value="ne">Nepali</MenuItem>
-                      <MenuItem value="or">Odia</MenuItem>
-                      <MenuItem value="sd">Sindhi</MenuItem>
-                      <MenuItem value="si">Sinhala</MenuItem>
-                      <MenuItem value="ur">Urdu</MenuItem>
-                      <MenuItem value="sat">Santali</MenuItem>
-                      <MenuItem value="sa">Sanskrit</MenuItem>
-                      <MenuItem value="gom">Goan Konkani</MenuItem>
-                    </Select>
-                    </FormControl>}
+                    {globalTransliteration && (
+                      <FormControl fullWidth>
+                        <InputLabel id="language-select-label">
+                          Language
+                        </InputLabel>
+                        <Select
+                          label="Language"
+                          labelId="language-select-label"
+                          value={language}
+                          onChange={(e) => {
+                            setLanguage(e.target.value);
+                          }}
+                        >
+                          <MenuItem disabled value=""></MenuItem>
+                          <MenuItem value="en">English</MenuItem>
+                          <MenuItem value="hi">Hindi</MenuItem>
+                          <MenuItem value="mr">Marathi</MenuItem>
+                          <MenuItem value="ta">Tamil</MenuItem>
+                          <MenuItem value="te">Telugu</MenuItem>
+                          <MenuItem value="kn">Kannada</MenuItem>
+                          <MenuItem value="gu">Gujarati</MenuItem>
+                          <MenuItem value="pa">Punjabi</MenuItem>
+                          <MenuItem value="bn">Bengali</MenuItem>
+                          <MenuItem value="ml">Malayalam</MenuItem>
+                          <MenuItem value="as">Assamese</MenuItem>
+                          <MenuItem value="brx">Bodo</MenuItem>
+                          <MenuItem value="doi">Dogri</MenuItem>
+                          <MenuItem value="ks">Kashmiri</MenuItem>
+                          <MenuItem value="mai">Maithili</MenuItem>
+                          <MenuItem value="mni">Manipuri</MenuItem>
+                          <MenuItem value="ne">Nepali</MenuItem>
+                          <MenuItem value="or">Odia</MenuItem>
+                          <MenuItem value="sd">Sindhi</MenuItem>
+                          <MenuItem value="si">Sinhala</MenuItem>
+                          <MenuItem value="ur">Urdu</MenuItem>
+                          <MenuItem value="sat">Santali</MenuItem>
+                          <MenuItem value="sa">Sanskrit</MenuItem>
+                          <MenuItem value="gom">Goan Konkani</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
                   </MenuItem>
                 </Menu>
                 <Menu
@@ -1128,14 +1111,39 @@ const handleopenproject=(id,type)=>{
                       </Typography>
                     </MenuItem>
                   ))}
-                  {!loggedInUserData.guest_user && 
-                    <MenuItem key={3} onClick={() => {handleCloseUserMenu(); handleChangePassword(loggedInUserData.email);}}>
-                    <Typography variant="body2" textAlign="center">
-                      Change Password
-                    </Typography>
+                  {!loggedInUserData.guest_user && (
+                    <MenuItem
+                      key={3}
+                      onClick={() => {
+                        handleCloseUserMenu();
+                        handleClickOpen(loggedInUserData.email);
+                        // handleChangePassword(loggedInUserData.email);
+                      }}
+                    >
+                      <Typography variant="body2" textAlign="center">
+                        Change Password
+                      </Typography>
                     </MenuItem>
-                  }
-                  <MenuItem key={4} onClick={() => onLogoutClick() } style={{cursor:"pointer"}}>
+                  )}
+                <Dialog open={open} onClose={handleClose}>
+                  <DialogTitle>Change Password:</DialogTitle>
+                  <DialogContent>
+                   Are you sure you want to change your password?
+                 </DialogContent>
+                 <DialogActions>
+                 <Button onClick={handleApply} color="primary" variant="contained">
+                   Confirm
+                  </Button>
+                  <Button onClick={handleClose} color="error" variant="contained">
+                   Cancel
+                  </Button>
+                 </DialogActions>
+                </Dialog>
+                  <MenuItem
+                    key={4}
+                    onClick={() => onLogoutClick()}
+                    style={{ cursor: "pointer" }}
+                  >
                     <Typography variant="body2" textAlign="center">
                       Logout
                     </Typography>
@@ -1182,7 +1190,6 @@ const handleopenproject=(id,type)=>{
                     vertical: "top",
                     horizontal: "right",
                   }}
-
                   keepMounted
                   transformOrigin={{
                     vertical: "top",
@@ -1192,18 +1199,42 @@ const handleopenproject=(id,type)=>{
                   open={Boolean(anchorElNotification)}
                   onClose={handleCloseNotification}
                 >
-                  <Stack direction="row" style={{ justifyContent: "space-between", padding: "0 10px 0 10px" }} >
+                  <Stack
+                    direction="row"
+                    style={{
+                      justifyContent: "space-between",
+                      padding: "0 10px 0 10px",
+                    }}
+                  >
                     <Typography variant="h4">Notifications</Typography>
-                    {Notification && Notification?.length > 0 && unseenNotifications?.length > 0 ? <Tooltip title="Mark all as read"><IconButton aria-label="More" onClick={handleMarkAllAsReadClick}>
-                      <GradingSharpIcon color="primary"/>
-                    </IconButton> </Tooltip>: null}
+                    {Notification &&
+                    Notification?.length > 0 &&
+                    unseenNotifications?.length > 0 ? (
+                      <Tooltip title="Mark all as read">
+                        <IconButton
+                          aria-label="More"
+                          onClick={handleMarkAllAsReadClick}
+                        >
+                          <GradingSharpIcon color="primary" />
+                        </IconButton>{" "}
+                      </Tooltip>
+                    ) : null}
                   </Stack>
-                  <Stack direction="row" spacing={2} style={{ padding: "0 0 10px 10px" }}>
-                    <Tabs value={value} onChange={handleChange} sx={{
-                      '& .MuiTabs-indicator': {
-                        backgroundColor: theme => theme.palette.primary.main,
-                      }
-                    }}>
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    style={{ padding: "0 0 10px 10px" }}
+                  >
+                    <Tabs
+                      value={value}
+                      onChange={handleChange}
+                      sx={{
+                        "& .MuiTabs-indicator": {
+                          backgroundColor: (theme) =>
+                            theme.palette.primary.main,
+                        },
+                      }}
+                    >
                       <Tab label="All" onClick={() => handleTabChange(0)} />
                       <Tab label="Unread" onClick={() => handleTabChange(1)} />
                     </Tabs>
@@ -1211,42 +1242,122 @@ const handleopenproject=(id,type)=>{
                   {Notification && Notification?.length > 0 ? (
                     <>
                       {Notification.map((notification, index) => (
-                        <div key={index} style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-                          <div style={{ marginRight: '10px' ,cursor:"pointer"}}>
-                            <FiberManualRecordIcon color={notification?.seen_json
-                              ? notification?.seen_json[loggedInUserData.id]
-                                ? 'action'
-                                : 'primary'
-                              : "primary"} />
+                        <div
+                          key={index}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "10px",
+                          }}
+                        >
+                          <div
+                            style={{ marginRight: "10px", cursor: "pointer" }}
+                          >
+                            <FiberManualRecordIcon
+                              color={
+                                notification?.seen_json
+                                  ? notification?.seen_json[loggedInUserData.id]
+                                    ? "action"
+                                    : "primary"
+                                  : "primary"
+                              }
+                            />
                           </div>
-                          <Link style={{ color: "rgba(0, 0, 0, 0.87)", display: 'flex', flexDirection: 'column', width: '100%' ,cursor:"pointer",textDecoration:"none" }} to={notification.on_click}>
-                            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-                              <Typography variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`ID: ${notification?.title?.split('\n')[0]}`}</Typography>
-                              <Typography style={{ paddingLeft: "10px" }} variant="subtitle2" fontFamily="Roboto, sans-serif" fontWeight="bold">{`TITLE: ${notification?.notification_type}`}</Typography>
-                              <Typography style={{ padding: "5px 5px 0px 5px" }} variant="caption" color="action">{`${formatDistanceToNow(new Date(notification?.created_at), { addSuffix: true })}`}</Typography>
+                          <Link
+                            style={{
+                              color: "rgba(0, 0, 0, 0.87)",
+                              display: "flex",
+                              flexDirection: "column",
+                              width: "100%",
+                              cursor: "pointer",
+                              textDecoration: "none",
+                            }}
+                            to={notification.on_click}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                width: "100%",
+                              }}
+                            >
+                              <Typography
+                                variant="subtitle2"
+                                fontFamily="Roboto, sans-serif"
+                                fontWeight="bold"
+                              >{`ID: ${
+                                notification?.title?.split("\n")[0]
+                              }`}</Typography>
+                              <Typography
+                                style={{ paddingLeft: "10px" }}
+                                variant="subtitle2"
+                                fontFamily="Roboto, sans-serif"
+                                fontWeight="bold"
+                              >{`TITLE: ${notification?.notification_type}`}</Typography>
+                              <Typography
+                                style={{ padding: "5px 5px 0px 5px" }}
+                                variant="caption"
+                                color="action"
+                              >{`${formatDistanceToNow(
+                                new Date(notification?.created_at),
+                                { addSuffix: true },
+                              )}`}</Typography>
                             </div>
-                           
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: "space-between" }}>
-                              <Typography style={{ justifyContent: "flex-start", width: '100%' }} variant="body2">{notification?.title?.split('\n')[1]}</Typography>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  justifyContent: "flex-start",
+                                  width: "100%",
+                                }}
+                                variant="body2"
+                              >
+                                {notification?.title?.split("\n")[1]}
+                              </Typography>
                               {/* {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
                               <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
                                 <CheckCircleOutlineRoundedIcon color="primary"/>
                               </IconButton></Tooltip>:null} */}
                             </div>
-                            <Typography variant="caption" color="action">{`Sent on: ${format(new Date(notification?.created_at), 'MMM d, yyyy')}`}</Typography>
-                            {index !== Notification?.length - 1 && <Divider />} 
-                          </Link>  
-                          {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
-                          <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
-                            <CheckCircleOutlineRoundedIcon color="primary"/>
-                          </IconButton></Tooltip>:null}
+                            <Typography
+                              variant="caption"
+                              color="action"
+                            >{`Sent on: ${format(
+                              new Date(notification?.created_at),
+                              "MMM d, yyyy",
+                            )}`}</Typography>
+                            {index !== Notification?.length - 1 && <Divider />}
+                          </Link>
+                          {notification?.seen_json == null ||
+                          !notification?.seen_json[loggedInUserData.id] ? (
+                            <Tooltip title="Mark as read">
+                              <IconButton
+                                aria-label="More"
+                                onClick={() =>
+                                  handleMarkAsRead(notification?.id)
+                                }
+                              >
+                                <CheckCircleOutlineRoundedIcon color="primary" />
+                              </IconButton>
+                            </Tooltip>
+                          ) : null}
                         </div>
                       ))}
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <div style={{ textAlign: "center", padding: "20px" }}>
                       <NotificationsOffIcon color="disabled" fontSize="large" />
-                      <Typography variant="h5" color="textSecondary" style={{ marginTop: '10px' }}>
+                      <Typography
+                        variant="h5"
+                        color="textSecondary"
+                        style={{ marginTop: "10px" }}
+                      >
                         No notifications found
                       </Typography>
                     </div>
@@ -1257,35 +1368,34 @@ const handleopenproject=(id,type)=>{
                   anchorEl={moreHorizonAnchorEl}
                   onClose={handleMoreHorizonClose}
                   anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
+                    vertical: "bottom",
+                    horizontal: "right",
                   }}
                   transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    vertical: "top",
+                    horizontal: "right",
                   }}
                 >
-                  <MenuItem onClick={handleMarkAllAsReadClick}>Mark All as read</MenuItem>
+                  <MenuItem onClick={handleMarkAllAsReadClick}>
+                    Mark All as read
+                  </MenuItem>
                 </Popover>
                 <Popover
                   open={Boolean(popoverAnchorEl)}
                   anchorEl={popoverAnchorEl}
                   onClose={handlePopoverClose}
                   anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
+                    vertical: "bottom",
+                    horizontal: "right",
                   }}
                   transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    vertical: "top",
+                    horizontal: "right",
                   }}
                 >
-
-                    <MenuItem onClick={handleMarkAsRead}>Mark as Read</MenuItem>
-
+                  <MenuItem onClick={handleMarkAsRead}>Mark as Read</MenuItem>
                 </Popover>
-
-              </Box>
+              </Grid>
             </Toolbar>
           </AppBar>
         )}
@@ -1298,15 +1408,14 @@ const handleopenproject=(id,type)=>{
         topTranslate={"40"}
         leftTranslate={"-50"}
         isTransliteration={true}
-        style={{cursor:"pointer"}}
-      // sx={{width: "400px"}}
+        style={{ cursor: "pointer" }}
+        // sx={{width: "400px"}}
       >
         <Transliteration
           onCancelTransliteration={() => handleTransliterationModelClose}
           setIsSpaceClicked={setIsSpaceClicked}
           isSpaceClicked={isSpaceClicked}
           setShowTransliterationModel={setShowTransliterationModel}
-
         />
       </Modal>
     </Grid>

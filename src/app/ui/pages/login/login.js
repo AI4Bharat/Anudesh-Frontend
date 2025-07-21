@@ -104,11 +104,37 @@ export default function Login() {
     event.preventDefault();
   };
 
+  const preventDefaultToggle = {
+    "& .MuiInputBase-root": {
+      "& input": {
+        // Hide Edge's password reveal button
+        "&::-ms-reveal, &::-ms-clear": {
+          display: "none",
+          width: "0",
+          height: "0",
+        },
+        // Hide Chrome's autofill button
+        "&::-webkit-credentials-auto-fill-button": {
+          visibility: "hidden",
+          display: "none !important",
+          position: "absolute",
+          right: "0",
+        },
+        // Prevent autofill background color change
+        "&:-webkit-autofill": {
+          transition: "background-color 1s ease-in-out 0s !important",
+          boxShadow: "0 0 0 1000px white inset !important",
+        },
+      },
+    },
+  };
+
   const TextFields = () => {
     return (
       <Grid container spacing={2} style={{ marginTop: "2px" }}>
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
           <OutlinedTextField
+            className="input-email"
             fullWidth
             name="email"
             onChange={handleFieldChange}
@@ -118,12 +144,14 @@ export default function Login() {
         </Grid>
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
           <OutlinedTextField
+            className="input-password"
             fullWidth
             name="password"
             type={values.showPassword ? "text" : "password"}
             onChange={handleFieldChange}
             value={credentials["password"]}
             placeholder={translate("enterPassword")}
+            sx={preventDefaultToggle}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

@@ -1,56 +1,37 @@
 "use client";
 import "./chat.css";
 import { useState, useRef, useEffect } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
 import "./chat.css";
-import Spinner from "@/components/common/Spinner";
-import { ContactlessOutlined } from "@mui/icons-material";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
-import PatchAnnotationAPI from "@/app/actions/api/Annotate/PatchAnnotationAPI";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
-import Glossary from "./Glossary";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -62,22 +43,14 @@ const ReactQuill = dynamic(
 const AllTaskPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
-  let inputValue = "";
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
-  const [showGlossary, setShowGlossary] = useState(false);
   const { projectId, taskId } = useParams();
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
-  let loaded = useRef();
 
-  const userData = useSelector((state) => state.getLoggedInData?.data);
-  const [loadtime, setloadtime] = useState(new Date());
 
-  const load_time = useRef();
 
   let labellingMode = localStorage.getItem("labellingMode");
   const [snackbar, setSnackbarInfo] = useState({
@@ -86,19 +59,12 @@ const AllTaskPage = () => {
     variant: "success",
   });
   const [currentInteraction, setCurrentInteraction] = useState({});
-  const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
-  const [autoSave, setAutoSave] = useState(true);
-  const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
-  const [NextData, setNextData] = useState("");
 
   const [annotations, setAnnotations] = useState([]);
   const annotationNotesRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [disableButton, setDisableButton] = useState(false);
   const reviewNotesRef = useRef(null);
-  const [disableBtns, setDisableBtns] = useState(false);
-  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
@@ -107,7 +73,6 @@ const AllTaskPage = () => {
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [chatHistory, setChatHistory] = useState([]);
-  const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
@@ -117,9 +82,6 @@ const AllTaskPage = () => {
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
-  };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
   };
 
   const modules = {
@@ -338,7 +300,6 @@ const AllTaskPage = () => {
     const markdownString = lines.join("  \n");
     return markdownString;
   };
-console.log(annotations);
 
   useEffect(() => {
     getAnnotationsTaskData(taskId);
@@ -392,6 +353,24 @@ console.log(annotations);
         />
       );
       break;
+      case "MultipleLLMInstructionDrivenChat":
+        componentToRender = (
+          <MultipleLLMInstructionDrivenChat
+            key={`annotations-${annotations?.length}-${
+              annotations?.[0]?.id || "default"
+            }`}
+            chatHistory={chatHistory}
+            setChatHistory={setChatHistory}
+            formatResponse={formatResponse}
+            formatPrompt={formatPrompt}
+            id={AnnotationsTaskDetails[0]}
+            stage={"Alltask"}
+            notes={annotationNotesRef}
+            info={info}
+            annotation={annotations}
+          />
+        );
+        break;
     case "ModelInteractionEvaluation":
       componentToRender = (
         <ModelInteractionEvaluation
@@ -438,61 +417,66 @@ console.log(annotations);
 
   return (
     <>
-      <Grid container spacing={2}>
+      <Grid container >
+        <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
         <Grid item>
           <Box
-            sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginLeft: "5px",
-            }}
+            
           >
-            {!loading && (
-              <Button
-                value="Back to Project"
-                startIcon={<ArrowBackIcon />}
-                variant="contained"
-                color="primary"
-                sx={{ mt: 2 }}
-                onClick={() => {
+            <Button
+              value="Back to Project"
+              startIcon={<ArrowBackIcon />}
+              variant="contained"
+              color="primary"
+              sx={{
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
+              }}
+              onClick={() => {
+                if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
-                  navigate(`/projects/${projectId}`);
-                  //window.location.replace(`/#/projects/${projectId}`);
-                  //window.location.reload();
-                }}
-              >
-                Back to Project
-              </Button>
-            )}
+                }
+
+                navigate(`/projects/${ projectId }`);
+                //window.location.replace(`/#/projects/${projectId}`);
+                //window.location.reload();
+              }}
+            >
+              Back to Project
+            </Button>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              // borderRadius: "20px",
-              padding: "10px",
-              marginTop: "5px",
-              marginBottom: "5px",
-              marginLeft: "5px",
-            }}
-          >
-            {!loading && (
-              <Button
-                endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
-                variant="contained"
-                color={reviewtext.trim().length === 0 ? "primary" : "success"}
-                onClick={handleCollapseClick}
-                style={{ backgroundColor: "#bf360c" }}
-              >
-                Notes {reviewtext.trim().length === 0 ? "" : "*"}
-              </Button>
-            )}
+        <Grid item>
+            <Button
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              variant="contained"
+              color={reviewtext.trim().length === 0 ? "primary" : "success"}
+              onClick={handleCollapseClick}
+              sx={{
+                px: { xs: 2, sm: 3, md: 4 },
+                py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "90px", sm: "90px", md: "100px" },
+              }}
+                              style={{ backgroundColor: "#bf360c" }}
+
+            >
+                              Notes {reviewtext.trim().length === 0 ? "" : "*"}
+
+            </Button>
+             </Grid>
+            </Grid>
+
+
 
             <div
               // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                width:"100%"
               }}
             >
               <ReactQuill
@@ -512,18 +496,17 @@ console.log(annotations);
                 readOnly={true}
               ></ReactQuill>
             </div>
-
-          </Box>
           <Grid
             container
             justifyContent="center"
-            spacing={3}
+                         alignItems="center"
             style={{
               display: "flex",
               width: "100%",
-              marginTop: "3px",
-              marginBottom: "25px",
+              padding: "10px",
+              gap: "0.5rem",
             }}
+
           >
             <Grid item>
               <LightTooltip
@@ -614,8 +597,9 @@ console.log(annotations);
                   value="Next"
                   type="default"
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  style={{
-                    minWidth: "150px",
+                  sx={{
+                                          minWidth: { xs: "60px", sm: "80px", md: "100px" },
+
                     color: "black",
                     borderRadius: "5px",
                     pt: 2,
@@ -692,7 +676,6 @@ console.log(annotations);
               {filterMessage}
             </Alert>
           )}
-        </Grid>
         <Grid item container>
           {" "}
           {componentToRender}{" "}

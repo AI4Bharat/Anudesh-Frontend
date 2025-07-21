@@ -1,6 +1,11 @@
 import { makeStyles } from "@mui/styles";
 
 const ModelResponseEvaluationStyle = makeStyles({
+  outputWrpr: {
+    "@media (max-width: 425px)": {
+      flexDirection: "column", // Stacks children vertically on smaller screens
+    },
+  },
   yesText: {
     marginRight: "1rem",
   },
@@ -18,7 +23,6 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   container: {
     display: "flex",
-    backgroundColor: "#F6F6F6",
     marginBottom: "30px",
   },
 
@@ -27,20 +31,15 @@ const ModelResponseEvaluationStyle = makeStyles({
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
-    backgroundColor: "#F6F6F6",
-    // maxHeight: '1000vh',
   },
 
   rightPanel: {
-    backgroundColor: "#F6F6F6",
     flex: "1",
-    width: "100%",
-    // maxHeight: '1000vh',
     height: "auto",
-    overflowY: "auto",
+    overflowY: "scroll",
+    overflowX: "hidden",
     display: "flex",
     flexDirection: "column",
-    padding: "2rem",
     scrollBehavior: "smooth",
   },
 
@@ -57,7 +56,6 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   promptContainer: {
-    fontWeight: "bold",
     marginBottom: "1rem",
     color: "#6C5F5B",
   },
@@ -67,12 +65,10 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   inputQuestion: {
     fontWeight: "bold",
-    marginBottom: "0.5rem",
     color: "#6C5F5B",
   },
   heading: {
     fontWeight: "bold",
-    marginBottom: "1rem",
     color: "#6C5F5B",
   },
   ratingButton: {
@@ -83,7 +79,7 @@ const ModelResponseEvaluationStyle = makeStyles({
 
   hr: {
     border: "1px solid #d8d8d8",
-    marginBottom: "1rem",
+    margin: "1rem 0",
   },
   questionContainer: {
     display: "flex",
@@ -106,7 +102,6 @@ const ModelResponseEvaluationStyle = makeStyles({
     maxHeight: "5rem",
   },
   notesTextarea: {
-    width: "100%",
     marginTop: "1.2rem",
     border: "2px solid #6C5F5B",
     borderRadius: "2px",
@@ -114,17 +109,11 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   interactionWindow: {
-    width: "100wh",
-    padding: "2rem",
+    padding: "0rem 1rem 1rem 1rem",
     color: "#6C5F5B",
-    borderRadius: "2rem 0px 0px 1rem",
     flexDirection: "row",
-    // marginTop:"1.5rem"
   },
 
-  promptTile: {
-    marginBottom: "1rem",
-  },
   answerTile: {
     overflowWrap: "anywhere",
   },

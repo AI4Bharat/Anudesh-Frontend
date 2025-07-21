@@ -1,10 +1,8 @@
-import {
-  Grid,
-  ThemeProvider,
-  Typography,
-  FormControlLabel,
-  Switch,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import React, { useState ,useEffect} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import themeDefault from "../../../../themes/theme";

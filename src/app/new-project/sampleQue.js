@@ -4,4 +4,10 @@ const sampleQuestion = [
     { "question_type": "multi_select_options", "input_question": "Which of the following improvements might make the model's output better?", "input_selections_list": ["Answer by the model should be more factual and contain a detailed information.", "The answer could have been rephrased to make it more presentable.", "Avoiding silly mistakes would do wonders to this answer", "None of the above."]},
     { "question_type": "mcq", "input_question": "Is the answer given by the model satisfactory on the basis of data collection guidelines shared by your team lead?", "input_selections_list": ["Yes, it can be accepted without any changes.", "Yes, but need minor improvements.", "No, there are some major improvements required.", "No, the model is completely hallucinating"]}
     ] 
-export default sampleQuestion
+
+const sampleMultipleLLMIDCPQuestion = [
+  
+    { "question_type": "comparison", "input_question": "Evaluate and Choose the Preferred Response", "input_selections_list": ["Which response do you like better?"]}
+  
+]
+export { sampleQuestion, sampleMultipleLLMIDCPQuestion }

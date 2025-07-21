@@ -1,18 +1,13 @@
-import {
-  Grid,
-  ThemeProvider,
-  Select,
-  Box,
-  Button,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Checkbox,
-  ListItemText,
-  ListItemIcon,
-  Card,
-  Typography,
-} from "@mui/material";
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import Grid from "@mui/material/Grid";
+import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Checkbox from "@mui/material/Checkbox";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -34,6 +29,7 @@ import DeleteProjectTasks from "./DeleteProjectTasks";
 import { snakeToTitleCase } from "@/utils/utils";
 import ExportProjectDialog from "./ExportProjectDialog";
 import DeallocationAnnotatorsAndReviewers from "./DeallocationAnnotatorsAndReviewers";
+import AllocateTasksDialog from "./manualtaskassign";
 import SuperCheckSettings from "./SuperCheckSettings";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import TextField from "@mui/material/TextField";
@@ -46,6 +42,7 @@ import GetPublishProjectButtonAPI from "@/app/actions/api/Projects/GetPublishPro
 import GetPullNewDataAPI from "@/app/actions/api/Projects/GetPullNewDataAPI";
 import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
+import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 /* eslint-disable react-hooks/exhaustive-deps */
 
 const ProgressType = [
@@ -285,6 +282,42 @@ const AdvancedOperation = (props) => {
       (downloadMetadataToggle) => !downloadMetadataToggle,
     );
   };
+  const handleMetadata = async () => {
+    const sendData={
+      title: newDetails.title,
+      project_type: ProjectDetails.project_type,
+      metadata_json:{
+        blank_response:!blankResponse
+      }
+    }
+      const projectObj = new GetSaveButtonAPI(id, sendData);
+            const res = await fetch(projectObj.apiEndPoint(), {
+                method: "PUT",
+                body: JSON.stringify(projectObj.getBody()),
+                headers: projectObj.getHeaders().headers,
+            });
+            const resp = await res.json();
+            setLoading(false);
+            if (res.ok) {
+                setSnackbarInfo({
+                    open: true,
+                    message: "success",
+                    variant: "success",
+                })
+                setBlankResponse(
+                  (blankResponse) => !blankResponse,
+                );    
+            } else {
+                setSnackbarInfo({
+                    open: true,
+                    message: resp?.message,
+                    variant: "error",
+                })
+            }
+    
+
+  };
+
 
   const getPublishProjectButton = async () => {
     const projectObj = new GetPublishProjectButtonAPI(id);
@@ -348,6 +381,8 @@ const AdvancedOperation = (props) => {
   const ArchiveProject = useSelector((state) => state.GetArchiveProject?.data);
   const [isArchived, setIsArchived] = useState(false);
   const [downloadMetadataToggle, setDownloadMetadataToggle] = useState(true);
+  const [blankResponse, setBlankResponse] = useState(ProjectDetails?.metadata_json?.blank_response||false);
+
   const getArchiveProjectAPI = () => {
     dispatch(fetchArchiveProject(id));
   };
@@ -437,26 +472,29 @@ const AdvancedOperation = (props) => {
       <div className={classes.rootdiv}>
         <Grid
           container
+          columns={16}
+          spacing={{xs:2,lg:4}}
+          sx={{
+            alignItems:"flex-start",
+            justifyContent:"space-between"
+          }}
+        >
+        <Grid
+          container
+          item
           // direction="row"
-          direction="column"
           xs={12}
-          md={12}
-          lg={4}
-          xl={4}
-          sm={12}
-          spacing={1}
-          rowGap={2}
-          sx={{ float: "left" }}
-          columnSpacing={2}
+          sm={4}
+          sx={{
+            gap:4,
+          }}
         >
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <CustomButton
               sx={{
                 inlineSize: "max-content",
-                pl: 2,
                 borderRadius: 3,
-                ml: 2,
-                width: "300px",
+                width: "100%"
               }}
               onClick={handlePublishProject}
               label="Publish Project"
@@ -467,10 +505,8 @@ const AdvancedOperation = (props) => {
             <CustomButton
               sx={{
                 inlineSize: "max-content",
-                p: 2,
                 borderRadius: 3,
-                ml: 2,
-                width: "300px",
+                width: "100%"
               }}
               color="error"
               onClick={handleClickOpen}
@@ -490,13 +526,17 @@ const AdvancedOperation = (props) => {
             md={12}
             lg={12}
             xl={12}
-            sx={{ ml: 2, height: "20px", mb: 2 }}
           >
             {userRole.WorkspaceManager === loggedInUserData?.role ? null : (
-              <FormControl size="small" className={classes.formControl}>
+              <FormControl 
+              className={classes.formControl}
+              sx={{
+                width: "100%"
+              }}
+              >
                 <InputLabel
                   id="Select-Task-Statuses"
-                  sx={{ fontSize: "16px", padding: "3px" }}
+                  sx={{ fontSize: "16px" }}
                 >
                   Select Task Statuses
                 </InputLabel>
@@ -529,26 +569,21 @@ const AdvancedOperation = (props) => {
 
         <Grid
           container
+          item
           // direction="row"
           xs={12}
-          md={12}
-          lg={4}
-          xl={4}
-          sm={12}
-          spacing={1}
-          rowGap={2}
-          sx={{ float: "left" }}
-          columnSpacing={2}
+          sm={4}
+          sx={{
+            gap:4,
+          }}
         >
           {ProjectDetails.project_type == "ContextualTranslationEditing" ? (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <CustomButton
                 sx={{
                   inlineSize: "max-content",
-                  p: 2,
                   borderRadius: 3,
-                  ml: 2,
-                  width: "300px",
+                  width: "100%"
                 }}
                 onClick={handleDownloadProjectAnnotations}
                 label="Downoload Project Annotations"
@@ -563,10 +598,9 @@ const AdvancedOperation = (props) => {
               <CustomButton
                 sx={{
                   inlineSize: "max-content",
-                  p: 2,
                   borderRadius: 3,
-                  ml: 2,
-                  width: "300px",
+                  width: "100%",
+                  height: "50px",
                 }}
                 onClick={handleOpenExportProjectDialog}
                 label="Export Project into Dataset"
@@ -580,10 +614,10 @@ const AdvancedOperation = (props) => {
               <CustomButton
                 sx={{
                   inlineSize: "max-content",
-                  p: 2,
                   borderRadius: 3,
-                  ml: 2,
-                  width: "300px",
+                  width: "100%",
+                  height: "50px",
+
                 }}
                 onClick={handleExportProject}
                 label="Export Project into Dataset"
@@ -602,10 +636,8 @@ const AdvancedOperation = (props) => {
               <CustomButton
                 sx={{
                   inlineSize: "max-content",
-                  p: 2,
                   borderRadius: 3,
-                  ml: 2,
-                  width: "300px",
+                  width: "100%",
                   height: "50px",
                 }}
                 onClick={handlePullNewData}
@@ -627,6 +659,9 @@ const AdvancedOperation = (props) => {
               downloadMetadataToggle={downloadMetadataToggle}
             />
           </Grid>
+           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <AllocateTasksDialog />
+          </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <DeleteProjectTasks />
           </Grid>
@@ -637,16 +672,13 @@ const AdvancedOperation = (props) => {
 
         <Grid
           container
+          item
           // direction="row"
           xs={12}
-          md={12}
-          lg={4}
-          xl={4}
-          sm={12}
-          spacing={1}
-          rowGap={2}
-          columnSpacing={2}
-          sx={{ mb: "10px" }}
+          sm={4}
+          sx={{ 
+            gap:4,
+           }}
         >
           {/* <div className={classes.divider} ></div> */}
           {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -658,8 +690,13 @@ const AdvancedOperation = (props) => {
                 onChange={handleReviewToggle}
               />
             </Grid> */}
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ ml: 2 }}>
-            <FormControl size="small" className={classes.formControl}>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <FormControl 
+            className={classes.formControl}
+            sx={{
+                width: "100%"
+              }}
+            >
               <InputLabel id="task-Reviews-label" sx={{ fontSize: "16px" }}>
                 Project Stage
               </InputLabel>
@@ -696,21 +733,7 @@ const AdvancedOperation = (props) => {
               <SuperCheckSettings ProjectDetails={ProjectDetails} />
             </Grid>
           )}
-        </Grid>
 
-        <Grid
-          container
-          // direction="row"
-          xs={12}
-          md={12}
-          lg={4}
-          xl={4}
-          sm={12}
-          spacing={1}
-          rowGap={2}
-          columnSpacing={2}
-          sx={{ mt: 1 }}
-        >
           {/* <div className={classes.divider} ></div> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <FormControlLabel
@@ -726,7 +749,26 @@ const AdvancedOperation = (props) => {
               }
             />
           </Grid>
+          {ProjectDetails?.project_type === "InstructionDrivenChat" && (
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <FormControlLabel
+                control={<Switch color="primary" />}
+                label="Blank Response"
+                labelPlacement="start"
+                checked={blankResponse}
+                onChange={handleMetadata}
+                disabled={
+                  userRole.WorkspaceManager === loggedInUserData?.role
+                    ? true
+                    : false
+                }
+              />
+            </Grid>
+          )}
         </Grid>
+        </Grid>
+
+
 
         <Dialog
           open={open}
@@ -741,7 +783,6 @@ const AdvancedOperation = (props) => {
             </DialogContentText>
             <TextField
               autoFocus
-              margin="dense"
               id="password"
               label="Password"
               type="password"

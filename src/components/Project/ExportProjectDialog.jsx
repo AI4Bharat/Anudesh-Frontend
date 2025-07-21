@@ -1,26 +1,22 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  Box,
-  Typography,
-  ListItemText,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Checkbox,
-  ListItemIcon,
-  Chip,
-} from "@mui/material";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import ListItemText from "@mui/material/ListItemText";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Checkbox from "@mui/material/Checkbox";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Chip from "@mui/material/Chip";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import OutlinedTextField from "../common/OutlinedTextField";
-import { snakeToTitleCase } from "@/utils/utils";
 import DatasetStyle from "@/styles/dataset";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";

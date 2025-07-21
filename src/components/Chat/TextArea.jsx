@@ -1,13 +1,13 @@
 import "./textarea.css";
 import { useEffect, useState } from "react";
-import { styled, width } from "@mui/system";
+import { styled } from '@mui/material/styles';
 import { Grid } from "@mui/material";
 import { translate } from "@/config/localisation";
 import IconButton from "@mui/material/IconButton";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
-import { IndicTransliterate } from "@/libs/dist";
+import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import { TextareaAutosize } from "@material-ui/core";
 import configs from "@/config/config";
 
@@ -33,6 +33,7 @@ export default function Textarea({
   class_name,
   loading,
   inputValue,
+  defaultLang = null,
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -57,12 +58,6 @@ export default function Textarea({
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
-
-      console.log(
-        globalTransliteration,
-        "lll",
-        localStorage.getItem("globalTransliteration"),
-      );
     }
   }, [text]);
 
@@ -94,6 +89,7 @@ export default function Textarea({
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       handleButtonClick();
+      setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
     }
@@ -150,7 +146,6 @@ export default function Textarea({
   if (!isMounted) {
     return null;
   }
-  console.log(text, "llm", inputValue);
 
   return (
     <Grid
@@ -166,16 +161,33 @@ export default function Textarea({
       className={class_name}
       sx={{ width: "100%" }}
     >
-      {globalTransliteration ? (
+      {(globalTransliteration || defaultLang!==null)? (
         <IndicTransliterate
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+          enableASR={true}
+          asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
           apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
           renderComponent={(props) => (
             <textarea
               // xs={size}
               sx={{
                 whiteSpace: "pre-wrap",
+                resize: "none",
+                maxHeight: "200px",
+                overflow: "hidden",
+                height: "auto !important",
+                "&:not(:focus)": {
+                  overflowY: "auto"
+                }
+
               }}
+              onInput={(e) => {
+                const textarea = e.target;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+                if (props.onInput) props.onInput(e); // Preserve any existing onInput
+              }}
+
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
@@ -189,15 +201,25 @@ export default function Textarea({
           value={text}
           onChangeText={(text) => {
             setText(text);
+            setTimeout(() => {
+              const textarea = document.querySelector('textarea');
+              if (textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+              }
+            }, 0);
           }}
           onKeyDown={handleKeyDown}
-          lang={targetLang}
+          lang={defaultLang!==null ? defaultLang : targetLang}
           style={{
+            whiteSpace: "pre-wrap",
             resize: "none",
+
+            overflow: 'auto',
             fontSize: "1rem",
             height: "50%",
             width: "800px",
-            height: "50px",
+            height: "auto !important",
             fontWeight: "400",
             lineHeight: "1.5",
             padding: "12px",
@@ -206,8 +228,11 @@ export default function Textarea({
             background: "#ffffff",
             border: `1px solid ${grey[200]}`,
             boxShadow: `0px 2px 2px ${grey[50]}`,
+            boxSizing: "border-box",
+            transition: "height 0.2s ease-out"
           }}
           horizontalView={true}
+          enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
         />
       ) : (
         <TextareaAutosize
@@ -235,6 +260,7 @@ export default function Textarea({
         size="large"
         onClick={() => {
           handleButtonClick();
+          setText("");
         }}
         disabled={!text?.trim()}
       >

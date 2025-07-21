@@ -1,45 +1,22 @@
 "use client";
 import "./chat.css";
-import { useState, useRef, useEffect, LegacyRef, memo } from "react";
-import {
-  Grid,
-  Box,
-  Avatar,
-  Typography,
-  Tooltip,
-  Button,
-  Alert,
-} from "@mui/material";
-import Image from "next/image";
-import { translate } from "@/config/localisation";
-import Textarea from "@/components/Chat/TextArea";
-import headerStyle from "@/styles/Header";
+import { useState, useRef, useEffect, memo } from "react";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dynamic from "next/dynamic";
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-// import type ReactQuill from 'react-quill'
-
-// import ReactQuill, { Quill } from 'react-quill';
 import "./chat.css";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {
-  getProjectsandTasks,
-  postAnnotation,
-  getNextProject,
-  patchAnnotation,
-  deleteAnnotation,
-  fetchAnnotation,
-} from "../../../actions/api/Annotate/AnnotateAPI";
-import Glossary from "./Glossary";
 import Spinner from "@/components/common/Spinner";
-import { ArrowDropDown } from "@material-ui/icons";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import LightTooltip from "@/components/common/Tooltip";
-import { ContactlessOutlined } from "@mui/icons-material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
@@ -51,12 +28,13 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
-import OutputSelection from "../dual-screen-preference-ranking/PreferenceRanking";
+import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import("react-quill");
+    const { default: RQ } = await import("react-quill-new");
 
     return ({ forwardedRef, ...props }) => <RQ ref={forwardedRef} {...props} />;
   },
@@ -65,14 +43,30 @@ const ReactQuill = dynamic(
   },
 );
 
-const AnnotatePage = () => {
-  // eslint-disable-next-line react/display-name
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
 
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
+const AnnotatePage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const classes = headerStyle();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // let taskData = localStorage.getItem("TaskData");
   const [assignedUsers, setAssignedUsers] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
@@ -82,26 +76,19 @@ const AnnotatePage = () => {
   const [labelConfig, setLabelConfig] = useState();
   const [info, setInfo] = useState({});
   const [labellingMode, setLabellingMode] = useState(null);
-
   let loaded = useRef();
-
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
   const questions =
     useSelector((state) => state.getProjectDetails.data.metadata_json) ?? [];
 
   const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
 
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
+    severity: "",
   });
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
@@ -114,121 +101,33 @@ const AnnotatePage = () => {
   const [answered, setAnswered] = useState(false);
   const [annotations, setAnnotations] = useState([]);
 
-  const annotationNotesRef = useRef(false);
+  const annotationNotesRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
-  const reviewNotesRef = useRef(false);
+  const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
   const AnnotationsTaskDetails = useSelector(
     (state) => state.getAnnotationsTask?.data,
   );
-
   const getNextTask = useSelector((state) => state.getnextProject?.data);
   const taskData = useSelector((state) => state.getTaskDetails?.data);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
 
-  const handleCollapseClick = () => {
-    setShowNotes(!showNotes);
-  };
-
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
-  };
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
-
-  const formatResponse = (response) => {
-    if (!response) {
-      return [
-        {
-          type: "text",
-          value: "",
-        },
-      ];
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
     }
-  
-    response = String(response);
-    const output = [];
-    let count = 0;
-    
-    while (response) {
-      response = response.trim();
-      let index = response.indexOf("```");
-      if (index == -1) {
-        output.push({
-          type: "text",
-          value: response,
-        });
-        break;
-      } else {
-        count++;
-        if (count % 2 !== 0) {
-          output.push({
-            type: "text",
-            value: response.substring(0, index),
-          });
-          response = response.slice(index + 3);
-        } else if (count % 2 === 0) {
-          let next_space = response.indexOf("\n");
-          let language = response.substring(0, next_space);
-          response = response.slice(next_space + 1);
-          let new_index = response.indexOf("```");
-          let value = response.substring(0, new_index);
-          output.push({
-            type: "code",
-            value: value,
-            language: language,
-          });
-          response = response.slice(new_index + 3);
-        }
-      }
-    }
-    return output;
-  };
-
-  const reverseFormatResponse = (formattedOutput) => {
-    let response = "";
-
-    formattedOutput.forEach((item) => {
-      if (item.type === "text") {
-        response += item.value;
-      } else if (item.type === "code") {
-        response += "```" + item.language + "\n" + item.value + "\n```";
-      }
-    });
-
-    return response;
-  };
-
-  const formatPrompt = (prompt) => {
-    const lines = prompt?.split("\n");
-    const markdownString = lines.join("  \n");
-    return markdownString;
-  };
+  }, []);
 
   useEffect(() => {
     if (taskData) {
@@ -251,7 +150,16 @@ const AnnotatePage = () => {
       annotationNotesRef.current &&
       reviewNotesRef.current
     ) {
-      if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
         annotationNotesRef.current.value =
           AnnotationsTaskDetails[0].annotation_notes ?? "";
         reviewNotesRef.current.value =
@@ -286,17 +194,7 @@ const AnnotatePage = () => {
       }
     }
   }, [AnnotationsTaskDetails]);
-  const resetNotes = () => {
-    if (
-      typeof window !== "undefined" &&
-      annotationNotesRef.current &&
-      reviewNotesRef.current
-    ) {
-      setShowNotes(false);
-      annotationNotesRef.current.getEditor().setContents([]);
-      reviewNotesRef.current.getEditor().setContents([]);
-    }
-  };
+
   useEffect(() => {
     resetNotes();
   }, [taskId]);
@@ -307,6 +205,209 @@ const AnnotatePage = () => {
     };
     taskData?.id && showAssignedUsers();
   }, [taskData]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      filterAnnotations(AnnotationsTaskDetails, userData);
+    }
+  }, [AnnotationsTaskDetails, userData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+      setSubmittedEvalForms([])
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations, obs) => {
+      const element = topref.current;
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        obs.disconnect();
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handleCollapseClick = () => {
+    setShowNotes(!showNotes);
+  };
+
+  const formatResponse = (response) => {
+    if (!response) {
+      return [
+        {
+          type: "text",
+          value: "",
+        },
+      ];
+    }
+
+    response = String(response);
+    const output = [];
+    let count = 0;
+
+    while (response) {
+      response = response.trim();
+      let index = response.indexOf("```");
+      if (index == -1) {
+        output?.push({
+          type: "text",
+          value: response,
+        });
+        break;
+      } else {
+        count++;
+        if (count % 2 !== 0) {
+          output?.push({
+            type: "text",
+            value: response.substring(0, index),
+          });
+          response = response.slice(index + 3);
+        } else if (count % 2 === 0) {
+          let next_space = response.indexOf("\n");
+          let language = response.substring(0, next_space);
+          response = response.slice(next_space + 1);
+          let new_index = response.indexOf("```");
+          let value = response.substring(0, new_index);
+          output?.push({
+            type: "code",
+            value: value,
+            language: language,
+          });
+          response = response.slice(new_index + 3);
+        }
+      }
+    }
+    return output;
+  };
+
+  const reverseFormatResponse = (formattedOutput) => {
+    let response = "";
+
+    formattedOutput.forEach((item) => {
+      if (item.type === "text") {
+        response += item.value;
+      } else if (item.type === "code") {
+        response += "```" + item.language + "\n" + item.value + "\n```";
+      }
+    });
+
+    return response;
+  };
+
+  const formatPrompt = (prompt) => {
+    const lines = prompt?.split("\n");
+    const markdownString = lines?.join("  \n");
+    return markdownString;
+  };
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+ 
+
+  useEffect(() => {
+    let timeoutId;
+
+    const init = (annotationNotesRef,reviewNotesRef) => {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
+        
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
+          }
+        }
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
+      }
+    }
+    const check = () => {
+      if (annotationNotesRef.current&&reviewNotesRef.current) {
+        init(annotationNotesRef,reviewNotesRef);
+        clearTimeout(timeoutId); 
+
+        return;
+      }
+      timeoutId = setTimeout(check, 100);
+    };
+    
+
+    check();
+
+  }, [AnnotationsTaskDetails,annotationNotesRef,reviewNotesRef]);
+
+  const resetNotes = () => {
+    if (
+      annotationNotesRef.current &&
+      reviewNotesRef.current
+    ) {
+      setShowNotes(false);
+      annotationNotesRef.current.getEditor().setContents([]);
+      reviewNotesRef.current.getEditor().setContents([]);
+    }
+  };
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -349,18 +450,16 @@ const AnnotatePage = () => {
         }, 1000);
       });
   };
+
   let Annotation = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 1,
   )[0];
 
   const tasksComplete = (id) => {
-    // if (typeof window !== "undefined") {
     if (id) {
       resetNotes();
-      // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
       navigate(`/projects/${projectId}/task/${id}`);
     } else {
-      // navigate(-1);
       resetNotes();
       setSnackbarInfo({
         open: true,
@@ -376,13 +475,62 @@ const AnnotatePage = () => {
         window.location.reload();
       }, 1000);
     }
-    // }
   };
-  console.log(interactions[0]);
-  const handleAnnotationClick = async (value, id, lead_time) => {
-    // if (typeof window !== "undefined") {
+
+  function isString(value) {
+    return typeof value === "string" || value instanceof String;
+  }
+
+  const areAllFormsAnswered = () => {
+    
+    return Object.keys(submittedEvalForms ?? {}).length === chatHistory.length;
+  };  
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = {
+        eval_form: [],
+        model_interactions: [],
+      };
+    }
+    if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form,
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    return !Array.isArray(result) ? [result] : result;
+  };
+
+  const handleAnnotationClick = async (value, id, lead_time, type = "") => {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
+        console.log(submittedEvalForms,"hello");
+
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      !areAllFormsAnswered()
+    ) {      
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
+      });
+      return;
+    }
     let resultValue;
-    console.log(forms);
 
     if (ProjectDetails.project_type == "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -400,7 +548,6 @@ const AnnotatePage = () => {
         prompt_output_pair_id: form.prompt_output_pair_id,
         additional_note: form.additional_note,
       }));
-      console.log("resval: " + resultValue);
     } else if (ProjectDetails.project_type == "ModelInteractionEvaluation") {
       resultValue = forms.map((form) => ({
         prompt: form.prompt,
@@ -410,9 +557,45 @@ const AnnotatePage = () => {
         questions_response: form.questions_response,
         prompt_output_pair_id: form.prompt_output_pair_id,
       }));
-      console.log("resval: " + resultValue);
-    }
+    } else if (
+      ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
+    ) {
+      const modelMap = {};
+      chatHistory.forEach((entry) => {
+        entry.output.forEach((modelResp) => {
+          const model = modelResp.model_name;
+          const has_invalid_resp = modelResp.output_error;
+          if (!modelMap[model]) {
+            modelMap[model] = [];
+          }
 
+          const interaction = {
+            prompt: entry.prompt,
+            output: has_invalid_resp
+              ? JSON.parse(modelResp.output_error)
+              : reverseFormatResponse(modelResp.output),
+            prompt_output_pair_id: modelResp.prompt_output_pair_id,
+          };
+          modelMap[model].push(interaction);
+        });
+      });
+
+      const model_interactions = Object.entries(modelMap).map(
+        ([model_name, interaction_json]) => {
+          return {
+            model_name,
+            interaction_json,
+          };
+        },
+      );
+
+      resultValue = [
+        {
+          eval_form: submittedEvalForms?Object.values(submittedEvalForms):[],
+          model_interactions: model_interactions,
+        },
+      ];
+    }
     setLoading(true);
     setAutoSave(false);
     const PatchAPIdata = {
@@ -430,12 +613,7 @@ const AnnotatePage = () => {
           : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair"
-            ? resultValue.slice(0, resultValue.length - 1)
-            : resultValue,
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save: value === "delete" || value === "delete-pair" ? true : false,
       interaction_llm: value === "delete" || value === "delete-pair",
@@ -446,9 +624,6 @@ const AnnotatePage = () => {
       ["draft", "skipped", "delete", "labeled", "delete-pair"].includes(value)
     ) {
       if (!["draft", "skipped", "delete", "delete-pair"].includes(value)) {
-        console.log("answered variable: ");
-        console.log(chatHistory.length);
-
         if (
           (ProjectDetails.project_type == "ModelInteractionEvaluation" ||
             ProjectDetails.project_type == "MultipleInteractionEvaluation") &&
@@ -464,11 +639,11 @@ const AnnotatePage = () => {
           setShowNotes(false);
           return;
         } else if (
-          ProjectDetails.project_type == "InstructionDrivenChat" &&
+          (ProjectDetails.project_type == "InstructionDrivenChat" ||
+            ProjectDetails.project_type ==
+              "MultipleLLMInstructionDrivenChat") &&
           chatHistory.length == 0
         ) {
-          console.log(chatHistory);
-
           setSnackbarInfo({
             open: true,
             message: "Please enter prompt",
@@ -480,26 +655,109 @@ const AnnotatePage = () => {
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
-      // dispatch(APITransport(GlossaryObj));
       const res = await fetch(TaskObj.apiEndPoint(), {
         method: "PATCH",
         body: JSON.stringify(TaskObj.getBody()),
         headers: TaskObj.getHeaders().headers,
       });
       const resp = await res.json();
+
       if (
         (value === "delete" || value === "delete-pair") === true &&
         res.ok &&
         resp.result
       ) {
-        let modifiedChatHistory = resp?.result.map((interaction) => {
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output),
-          };
-        });
-        setChatHistory([...modifiedChatHistory]);
-      }
+        if (type === "MultipleLLMInstructionDrivenChat") {
+          const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+          if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+            const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+            let modifiedChatHistory = [];
+            let globalModelFailure = false;
+
+            for (let i = 0; i < interactions_length; i++) {
+              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const modelOutputs = [];
+              let turnPromptOutputPairId = null;
+              let turnHasModelFailure = false;
+
+              allModelsInteractions.forEach((modelData, modelIdx) => {
+                const interaction = modelData?.interaction_json?.[i];
+                if (interaction) {
+                  const response_valid = isString(interaction?.output);
+                  if (!response_valid) {
+                    turnHasModelFailure = true;
+                  }
+                  if (modelIdx === 0) {
+                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  }
+                  modelOutputs.push({
+                    model_name: modelData?.model_name,
+                    output: response_valid
+                      ? formatResponse(interaction?.output)
+                      : formatResponse(
+                          `${modelData?.model_name} failed to generate a response`,
+                        ),
+                    status: response_valid ? "success" : "error",
+                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    output_error: response_valid
+                      ? null
+                      : JSON.stringify(interaction?.output),
+                  });
+                }
+              });
+
+              if (turnHasModelFailure) {
+                globalModelFailure = true;
+              }
+
+              if (turnPromptOutputPairId) {
+                const eval_form = (
+                  Array.isArray(resp?.result?.[0]?.eval_form)
+                    ? resp.result[0].eval_form
+                    : []
+                ).find(
+                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                );
+
+                if (eval_form) {
+                  setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                  setSubmittedEvalForms((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                }
+              }
+
+              if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                  prompt: prompt,
+                  output: modelOutputs,
+                  prompt_output_pair_id: turnPromptOutputPairId,
+                });
+              }
+            }
+            if (globalModelFailure) {
+              setIsModelFailing(true);
+            }
+            setChatHistory([...modifiedChatHistory]);
+          } else {
+            setChatHistory([]);
+            setIsModelFailing(false); 
+          }
+        } else {
+          let modifiedChatHistory = resp?.result.map((interaction) => {
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output),
+            };
+          });
+          
+          setChatHistory([...modifiedChatHistory]);
+        }
+      } 
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
           if (typeof window !== "undefined") {
@@ -547,34 +805,17 @@ const AnnotatePage = () => {
     }
     setLoading(false);
     setShowNotes(false);
-    // }
   };
+
   if (typeof window !== "undefined") {
     window.localStorage.setItem("TaskData", JSON.stringify(taskData));
   }
-
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      filterAnnotations(AnnotationsTaskDetails, userData);
-    }
-  }, [AnnotationsTaskDetails, userData]);
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
-  const [filteredReady, setFilteredReady] = useState(false);
 
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
     let disableSkip = false;
@@ -710,12 +951,6 @@ const AnnotatePage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
-
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -739,6 +974,35 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+        />
+      );
+      break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
@@ -785,6 +1049,15 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
         />
       );
       break;
@@ -792,6 +1065,7 @@ const AnnotatePage = () => {
       componentToRender = null;
       break;
   }
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -802,26 +1076,12 @@ const AnnotatePage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
+
   const topref = useRef(null);
-  useEffect(() => {
-    const observer = new MutationObserver((mutations, obs) => {
-      const element = topref.current;
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-        obs.disconnect(); // Stop observing after scroll
-      }
-    });
-
-    observer.observe(document, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <>
@@ -829,11 +1089,11 @@ const AnnotatePage = () => {
       <div id="top" ref={topref}></div>
       <Grid container>
         {renderSnackBar()}
+          <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
+
         <Grid item>
           <Box
-            sx={{
-              padding: "0px 10px",
-            }}
+        
           >
             <Button
               value="Back to Project"
@@ -841,10 +1101,10 @@ const AnnotatePage = () => {
               variant="contained"
               color="primary"
               sx={{
-                px: { xs: 2, sm: 3, md: 4 },
-                py: { xs: 1, sm: 1.5, md: 2 },
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
@@ -858,23 +1118,18 @@ const AnnotatePage = () => {
             </Button>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              padding: "0px 10px",
-            }}
-          >
+
+        <Grid item>
             <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               onClick={handleCollapseClick}
               sx={{
-                mt: 2,
                 px: { xs: 2, sm: 3, md: 4 },
                 py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+                minWidth: { xs: "90px", sm: "90px", md: "100px" },
               }}
               style={{
                 backgroundColor:
@@ -883,13 +1138,15 @@ const AnnotatePage = () => {
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
-            {/* )} */}
+            </Grid>
+            </Grid>
 
             <div
-              // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                                width:"100%"
+
               }}
             >
               <ReactQuill
@@ -909,37 +1166,14 @@ const AnnotatePage = () => {
                 readOnly={true}
               ></ReactQuill>
             </div>
-            {/* <Button
-              variant="contained"
-              style={{
-                marginLeft: "10px",
-                backgroundColor: "lightgrey",
-                color: "black",
-              }}
-              endIcon={
-                showGlossary ? <ArrowRightIcon /> : <ArrowDropDownIcon />
-              }
-              onClick={handleGlossaryClick}
-              disabled
-            >
-              Glossary
-            </Button>
-            <div
-              style={{
-                display: showGlossary ? "block" : "none",
-                paddingBottom: "16px",
-              }}
-            >
-              {/* <Glossary taskData={taskData} /> */}
-            {/* </div> */}
-          </Box>
           <Grid
             container
             justifyContent="center"
+            alignItems="center"
             style={{
               display: "flex",
               width: "100%",
-              padding: "16px",
+              padding: "10px",
               gap: "0.5rem",
             }}
           >
@@ -948,7 +1182,8 @@ const AnnotatePage = () => {
                 title={
                   <div>
                     <div>
-                      {ProjectDetails?.conceal==false&&Array.isArray(assignedUsers)
+                      {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
                         ? assignedUsers.join(", ")
                         : assignedUsers || "No assigned users"}
                     </div>
@@ -987,45 +1222,12 @@ const AnnotatePage = () => {
                 </Button>
               </LightTooltip>
             </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
 
             {!disableBtns &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="Save task for later">
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "draft",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip> */}
-
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1046,6 +1248,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                       }}
                       style={{
                         color: "black",
@@ -1061,25 +1264,6 @@ const AnnotatePage = () => {
                 </Grid>
               )}
             <Grid item>
-              {/* <Tooltip title="Go to next task">
-                <Button
-                  value="Next"
-                  type="default"
-                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  style={{
-                    // minWidth: "150px",
-                    color: "black",
-                    borderRadius: "5px",
-                    border: "0px",
-                    pt: 2,
-                    pb: 2,
-                    backgroundColor: "#ffe0b2",
-                  }}
-                >
-                  Next
-                </Button>
-              </Tooltip> */}
-
               <Tooltip
                 title={
                   <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1093,6 +1277,7 @@ const AnnotatePage = () => {
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   sx={{
                     fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                   }}
                   style={{
                     color: "black",
@@ -1110,32 +1295,6 @@ const AnnotatePage = () => {
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="skip to next task">
-                    <Button
-                      value="Skip"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "skipped",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Skip
-                    </Button>
-                  </Tooltip> */}
                   <Tooltip
                     title={
                       <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1156,6 +1315,7 @@ const AnnotatePage = () => {
                       }
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                       }}
                       style={{
                         color: "black",
@@ -1174,34 +1334,9 @@ const AnnotatePage = () => {
                 (users) => users === userData.id,
               ) && (
                 <Grid item>
-                  {/* <Tooltip title="clear the entire chat history">
-                    <Button
-                      value="Clear Chats"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "delete",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      style={{
-                        // minWidth: "150px",
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        pt: 2,
-                        pb: 2,
-                        backgroundColor: "#ffe0b2",
-                      }}
-                      // className="lsf-button"
-                    >
-                      Clear Chats
-                    </Button>
-                  </Tooltip> */}
-
-                  {ProjectDetails?.project_type == "InstructionDrivenChat" ? (
+                  {ProjectDetails?.project_type == "InstructionDrivenChat" ||
+                  ProjectDetails?.project_type ==
+                    "MultipleLLMInstructionDrivenChat" ? (
                     <Tooltip
                       title={
                         <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -1226,6 +1361,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                         }}
                         style={{
                           color: "black",
@@ -1263,6 +1399,7 @@ const AnnotatePage = () => {
                             sm: "0.875rem",
                             md: "1rem",
                           },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                         }}
                         style={{
                           color: "black",
@@ -1288,15 +1425,32 @@ const AnnotatePage = () => {
                       value="Updata"
                       type="default"
                       variant="contained"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "labeled",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
+                      onClick={() => {
+                        if (
+                          ProjectDetails?.project_type ===
+                            "MultipleLLMInstructionDrivenChat" &&
+                          isModelFailing
+                        ) {
+                          setSnackbarInfo({
+                            open: true,
+                            message:
+                              "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+                            variant: "warning",
+                            severity: "warning",
+                          });
+                          return;
+                        } else {
+                          handleAnnotationClick(
+                            "labeled",
+                            Annotation.id,
+                            Annotation.lead_time,
+                            ProjectDetails?.project_type,
+                          );
+                        }
+                      }}
                       sx={{
                         fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
                       }}
                       style={{
                         color: "black",
@@ -1316,7 +1470,6 @@ const AnnotatePage = () => {
               {filterMessage}
             </Alert>
           )}
-        </Grid>
         <Grid item container sx={{ width: "100%" }}>
           {" "}
           {componentToRender}{" "}
