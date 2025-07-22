@@ -811,6 +811,7 @@ const InstructionDrivenChatPage = ({
                 alignItems: "center",
                 // alignItems: "flex-start",
                 justifyContent: "center",
+                whiteSpace: "pre-line",
               }}
             >
               {info.instruction_data}
