@@ -2,10 +2,10 @@ import AddAnnotatorsToWorkspaceAPI from "@/app/actions/api/workspace/AddAnnotato
 import AddMembersToProjectAPI from "@/app/actions/api/workspace/AddMembersToProjectAPI";
 import AddProjectReviewersAPI from "@/app/actions/api/workspace/AddProjectReviewersAPI";
 import AddProjectSuperCheckerAPI from "@/app/actions/api/workspace/AddProjectSuperCheckerAPI";
-import GetDatasetDetailsAPI from "@/app/actions/api/Projects/GetDatasetDetailsAPI";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import AssignManagerToWorkspaceAPI from "@/app/actions/api/workspace/AssignManagerToWorkspaceAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
+import APITransport from "@/Lib/apiTransport/apitransport"
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { fetchWorkspacesAnnotatorsData } from "@/Lib/Features/getWorkspacesAnnotatorsData";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
@@ -26,6 +26,7 @@ import React, { useState, useEffect } from "react";
 
 import addUserTypes from "../../Constants/addUserTypes";
 import CustomButton from "./Button";
+import { fetchDatasetDetails } from "@/Lib/Features/datasets/getDatasetDetails";
 
 const DialogHeading = {
   [addUserTypes.ANNOTATOR]: "Add Annotators",
@@ -287,7 +288,7 @@ const getAvailableUsers = (
           const datasetRespData = await datasetRes.json();
 
           if (datasetRes.ok) {
-            const datasetDetailsObj = new GetDatasetDetailsAPI(datasetId);
+            const datasetDetailsObj = new fetchDatasetDetails(datasetId);
             dispatch(APITransport(datasetDetailsObj));
             return datasetRespData;
           }
@@ -312,6 +313,8 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const workspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails?.data,
   );
+      const DatasetMembers = useSelector((state) => state.getDatasetMembers.data);
+  
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
   /* eslint-disable react-hooks/exhaustive-deps */

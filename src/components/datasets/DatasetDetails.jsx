@@ -76,8 +76,8 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
         navigate(`datasetsetting`)
     }
     useEffect(() => {
-		dispatch(APITransport(new GetDatasetDetailsAPI(datasetId)));
-		dispatch(APITransport(new GetDatasetMembersAPI(datasetId)));
+		dispatch(fetchDatasetDetails(datasetId));
+		dispatch(fetchDatasetMembers(datasetId));
 	}, [datasetId,loading]);
 
         useEffect(() => {

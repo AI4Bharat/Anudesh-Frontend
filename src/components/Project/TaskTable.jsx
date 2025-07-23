@@ -50,7 +50,7 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
-import { setPage, setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
+import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 
 const defaultColumns = [
   "id",
