@@ -2,8 +2,10 @@ import AddAnnotatorsToWorkspaceAPI from "@/app/actions/api/workspace/AddAnnotato
 import AddMembersToProjectAPI from "@/app/actions/api/workspace/AddMembersToProjectAPI";
 import AddProjectReviewersAPI from "@/app/actions/api/workspace/AddProjectReviewersAPI";
 import AddProjectSuperCheckerAPI from "@/app/actions/api/workspace/AddProjectSuperCheckerAPI";
+import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import AssignManagerToWorkspaceAPI from "@/app/actions/api/workspace/AssignManagerToWorkspaceAPI";
 import { fetchOrganizationUsers } from "@/Lib/Features/getOrganizationUsers";
+import APITransport from "@/Lib/apiTransport/apitransport"
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { fetchWorkspacesAnnotatorsData } from "@/Lib/Features/getWorkspacesAnnotatorsData";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
@@ -24,6 +26,7 @@ import React, { useState, useEffect } from "react";
 
 import addUserTypes from "../../Constants/addUserTypes";
 import CustomButton from "./Button";
+import { fetchDatasetDetails } from "@/Lib/Features/datasets/getDatasetDetails";
 
 const DialogHeading = {
   [addUserTypes.ANNOTATOR]: "Add Annotators",
@@ -31,6 +34,7 @@ const DialogHeading = {
   [addUserTypes.PROJECT_ANNOTATORS]: "Add Project Annotators",
   [addUserTypes.PROJECT_REVIEWER]: "Add Project Reviewers",
   [addUserTypes.PROJECT_SUPERCHECKER]: "Add Project SuperChecker",
+    dataset:"Add Members to Dataset",
 };
 
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -58,6 +62,7 @@ const getAvailableUsers = (
   workspaceAnnotators,
   workspaceManagers,
   orgUsers,
+    datasetmembers,
 ) => {
   if (!Array.isArray(workspaceAnnotators)) {
     return [];
@@ -141,111 +146,159 @@ const getAvailableUsers = (
           username: user.username,
         }));
       break;
+     case 'dataset':
+      return orgUsers
+        ?.filter(
+          (orgUser) =>
+            datasetmembers?.findIndex(
+              (manager) =>  manager?.id === orgUser?.id
+            ) === -1  
+        )
+        .map((user) => ({ id: user.id, email: user.email, username: user.username }));
+        break;
     default:
       break;
   }
 };
 
-const handleAddUsers = async (userType, users, id, dispatch) => {
-  switch (userType) {
-    case addUserTypes.PROJECT_ANNOTATORS:
-      const addMembersObj = new AddMembersToProjectAPI(
-        id,
-        users.map((user) => user.id),
-      );
-      const res = await fetch(addMembersObj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(addMembersObj.getBody()),
-        headers: addMembersObj.getHeaders().headers,
-      });
+  const handleAddUsers = async (userType, users, id, dispatch) => {
+    switch (userType) {
+      case addUserTypes.PROJECT_ANNOTATORS:
+        const addMembersObj = new AddMembersToProjectAPI(
+          id,
+          users.map((user) => user.id),
+        );
+        const res = await fetch(addMembersObj.apiEndPoint(), {
+          method: "POST",
+          body: JSON.stringify(addMembersObj.getBody()),
+          headers: addMembersObj.getHeaders().headers,
+        });
 
-      const resp_data = await res.json();
+        const resp_data = await res.json();
 
-      if (res.ok) {
-        dispatch(fetchProjectDetails(id));
-        return resp_data;
-      }
-      break;
+        if (res.ok) {
+          const projectObj = new GetProjectDetailsAPI(id);
+          dispatch(APITransport(projectObj));
+          return resp_data;
+        }
+        break;
 
-    case addUserTypes.PROJECT_REVIEWER:
-      const addReviewersObj = new AddProjectReviewersAPI(
-        id,
-        users.map((user) => user.id),
-      );
-      const reviewerRes = await fetch(addReviewersObj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(addReviewersObj.getBody()),
-        headers: addReviewersObj.getHeaders().headers,
-      });
+        case addUserTypes.PROJECT_REVIEWER:
+          const addReviewersObj = new AddProjectReviewersAPI(
+            id,
+            users.map((user) => user.id),
+          );
+          const reviewerRes = await fetch(addReviewersObj.apiEndPoint(), {
+            method: "POST",
+            body: JSON.stringify(addReviewersObj.getBody()),
+            headers: addReviewersObj.getHeaders().headers,
+          });
 
-      const reviewerRespData = await reviewerRes.json();
+          const reviewerRespData = await reviewerRes.json();
 
-      if (reviewerRes.ok) {
-        dispatch(fetchProjectDetails(id));
-        return reviewerRespData;
-      }
-      break;
-    case addUserTypes.PROJECT_SUPERCHECKER:
-      const addsuperCheckerObj = new AddProjectSuperCheckerAPI(
-        id,
-        users.map((user) => user.id),
-      );
-      const superCheckerRes = await fetch(addsuperCheckerObj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(addsuperCheckerObj.getBody()),
-        headers: addsuperCheckerObj.getHeaders().headers,
-      });
+          if (reviewerRes.ok) {
+            const projectObj = new GetProjectDetailsAPI(id);
+            dispatch(APITransport(projectObj));
+            return reviewerRespData;
+          }
+          break;
+          case addUserTypes.PROJECT_SUPERCHECKER:
+          const addsuperCheckerObj = new AddProjectSuperCheckerAPI(
+            id,
+            users.map((user) => user.id),
+          );
+          const superCheckerRes = await fetch(addsuperCheckerObj.apiEndPoint(), {
+            method: "POST",
+            body: JSON.stringify(addsuperCheckerObj.getBody()),
+            headers: addsuperCheckerObj.getHeaders().headers,
+          });
 
-      const superCheckerRespData = await superCheckerRes.json();
+          const superCheckerRespData = await superCheckerRes.json();
 
-      if (superCheckerRes.ok) {
-        dispatch(fetchProjectDetails(id));
-        return superCheckerRespData;
-      }
-      break;
+          if (superCheckerRes.ok) {
+            const projectObj = new GetProjectDetailsAPI(id);
+            dispatch(APITransport(projectObj));
+            return superCheckerRespData;
+          }
+          break;
 
-    case addUserTypes.ANNOTATOR:
-      const addAnnotatorsObj = new AddAnnotatorsToWorkspaceAPI(
-        id,
-        users.map((user) => user.id).join(","),
-      );
-      const addAnnotatorsRes = await fetch(addAnnotatorsObj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(addAnnotatorsObj.getBody()),
-        headers: addAnnotatorsObj.getHeaders().headers,
-      });
+      case addUserTypes.ANNOTATOR:
+        const addAnnotatorsObj = new AddAnnotatorsToWorkspaceAPI(
+          id,
+          users.map((user) => user.id).join(','),
+        );
+        const addAnnotatorsRes = await fetch(addAnnotatorsObj.apiEndPoint(), {
+          method: "POST",
+          body: JSON.stringify(addAnnotatorsObj.getBody()),
+          headers: addAnnotatorsObj.getHeaders().headers,
+        });
 
-      const addAnnotatorsRespData = await addAnnotatorsRes.json();
+        const addAnnotatorsRespData = await addAnnotatorsRes.json();
 
-      if (addAnnotatorsRes.ok) {
-        dispatch(fetchWorkspacesAnnotatorsData({ workspaceId: id }));
-        return addAnnotatorsRespData;
-      }
-      break;
+        if (addAnnotatorsRes.ok) {
+          const workspaceAnnotatorsObj = new GetWorkspacesAnnotatorsDataAPI(id);
+          dispatch(APITransport(workspaceAnnotatorsObj));
+          return addAnnotatorsRespData;
+        }
+        break;
 
-    case addUserTypes.MANAGER:
-      const addManagerObj = new AssignManagerToWorkspaceAPI(
-        id,
-        users.map((user) => user.id),
-      );
-      const assignManagerRes = await fetch(addManagerObj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(addManagerObj.getBody()),
-        headers: addManagerObj.getHeaders().headers,
-      });
+      case addUserTypes.MANAGER:
+        const addManagerObj = new AssignManagerToWorkspaceAPI(
+          id,
+          users.map((user) => user.id),
+        );
+        const assignManagerRes = await fetch(addManagerObj.apiEndPoint(), {
+          method: "POST",
+          body: JSON.stringify(addManagerObj.getBody()),
+          headers: addManagerObj.getHeaders().headers,
+        });
 
-      const assignManagerRespData = await assignManagerRes.json();
+        const assignManagerRespData = await assignManagerRes.json();
 
-      if (assignManagerRes.ok) {
-        dispatch(fetchWorkspaceDetails(id));
-        return assignManagerRespData;
-      }
-      break;
-    default:
-      break;
-  }
-};
+        if (assignManagerRes.ok) {
+          const workspaceDetailsObj = new GetWorkspacesDetailsAPI(id);
+          dispatch(APITransport(workspaceDetailsObj));
+          return assignManagerRespData;
+        }
+        break;
+      case 'dataset':
+        const existingUsers = DatasetDetails?.users ; 
+        const existingUserIds = existingUsers.map((user) => user);
 
+        const updatedUserIds = [...new Set([...existingUserIds, ...users.map((user) => user.id)])];
+      console.log(DatasetDetails,updatedUserIds,existingUserIds,"avaa");
+
+        const DatasetUsersObj = {
+          instance_name: DatasetDetails?.instance_name ,
+          parent_instance_id: DatasetDetails?.parent_instance_id ,
+          instance_description: DatasetDetails?.instance_description ,
+          dataset_type: DatasetDetails?.dataset_type ,
+          organisation_id: DatasetDetails?.organisation_id ,
+          users: updatedUserIds,
+        };
+        const addDatasetUsersObj = new GetSaveButtonAPI(datasetId, DatasetUsersObj);
+
+
+          const datasetRes = await fetch(addDatasetUsersObj.apiEndPoint(), {
+            method: "PUT",
+            body: JSON.stringify(addDatasetUsersObj.getBody()),
+            headers: addDatasetUsersObj.getHeaders().headers,
+          });
+
+          const datasetRespData = await datasetRes.json();
+
+          if (datasetRes.ok) {
+            const datasetDetailsObj = new fetchDatasetDetails(datasetId);
+            dispatch(APITransport(datasetDetailsObj));
+            return datasetRespData;
+          }
+          break;
+
+
+      default:
+        break;
+    }
+  };
 const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -260,6 +313,8 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const workspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails?.data,
   );
+      const DatasetMembers = useSelector((state) => state.getDatasetMembers.data);
+  
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -294,7 +349,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
         projectDetails,
         workspaceAnnotators,
         workspaceDetails?.managers,
-        orgUsers,
+        orgUsers,DatasetMembers
       ),
     );
   }, [projectDetails, workspaceAnnotators, workspaceDetails, orgUsers]);
