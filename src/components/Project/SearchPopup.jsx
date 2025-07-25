@@ -15,7 +15,7 @@ const SearchPopup = (props) => {
   const [displayValue, setDisplayValue] = useState(
     currentFilters["search_"+searchedCol] ? 
       (typeof currentFilters["search_"+searchedCol] === 'string' ? 
-        currentFilters["search_"+searchedCol] : 
+        currentFilters["searchText_"+searchedCol] || '' : 
         '') 
       : ''
   );
@@ -30,12 +30,14 @@ const SearchPopup = (props) => {
         
         updateFilters({
           ...currentFilters,
-          ["search_" + searchedCol]: matchedCodes.join(','), // Send as comma-separated string
+          ["search_" + searchedCol]: matchedCodes.join(','),
+          ["searchText_" + searchedCol]: displayValue, // Store the display text separately
         });
       } else {
         updateFilters({
           ...currentFilters,
           ["search_" + searchedCol]: displayValue,
+          ["searchText_" + searchedCol]: displayValue,
         });
       }
       
@@ -48,6 +50,7 @@ const SearchPopup = (props) => {
     if (typeof window !== 'undefined') {
       const newFilters = {...currentFilters};
       delete newFilters["search_" + searchedCol];
+      delete newFilters["searchText_" + searchedCol]; // Also clear the stored text
       
       updateFilters(newFilters);
       setDisplayValue("");
@@ -76,8 +79,8 @@ const SearchPopup = (props) => {
             size="small" 
             variant="outlined" 
             placeholder={`Search ${snakeToTitleCase(searchedCol)}`} 
-          value={displayValue}
-          onChange={(e) => setDisplayValue(e.target.value)}
+            value={displayValue}
+            onChange={(e) => setDisplayValue(e.target.value)}
             inputProps={{
                 style: {
                     fontSize: "16px"
