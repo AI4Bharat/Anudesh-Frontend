@@ -575,6 +575,7 @@ const ReviewPage = () => {
 
       maxIdAnnotation?.id === task?.correct_annotation_id;
 
+
       maxIdAnnotation?.id === task?.correct_annotation_id;
 
 

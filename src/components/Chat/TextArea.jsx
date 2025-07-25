@@ -1,7 +1,7 @@
 import "./textarea.css";
 import { useEffect, useState } from "react";
 import { styled } from '@mui/material/styles';
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { translate } from "@/config/localisation";
 import IconButton from "@mui/material/IconButton";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
@@ -10,6 +10,11 @@ import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAuto
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import { TextareaAutosize } from "@material-ui/core";
 import configs from "@/config/config";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Switch from "@mui/material/Switch";
 
 const orange = {
   200: "pink",
@@ -34,14 +39,20 @@ export default function Textarea({
   loading,
   inputValue,
   defaultLang = null,
+  overrideGT = false,
+  task_id = "",
+  script = "",
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [text, setText] = useState("");
 
+  const [defLang, setDefLang] = useState(defaultLang);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [localTransliteration, setLocalTransliteration] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -67,6 +78,12 @@ export default function Textarea({
     }
   }, [text]);
 
+  useEffect(() => {
+    if (overrideGT === true) {
+      setDefLang("en");
+    }
+  }, [overrideGT]);
+
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -83,6 +100,7 @@ export default function Textarea({
 
   const handleBlur = (event) => {
     event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+    
   };
 
   const handleKeyDown = (event) => {
@@ -123,17 +141,15 @@ export default function Textarea({
     color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
     background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
     border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-    box-shadow: 0px 2px 2px ${
-      theme.palette.mode === "dark" ? grey[900] : grey[50]
-    };
+    box-shadow: 0px 2px 2px ${theme.palette.mode === "dark" ? grey[900] : grey[50]
+      };
     &:hover {
       border-color: ${orange[400]};
     }
     &:focus {
       outline: 0;
       border-color: ${orange[400]};
-      box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? orange[600] : orange[200]
+      box-shadow: 0 0 0 3px ${theme.palette.mode === "dark" ? orange[600] : orange[200]
       };
     }
     // firefox
@@ -147,11 +163,42 @@ export default function Textarea({
     return null;
   }
 
+  const sendLogs = () => {
+    if (overrideGT) {
+      let voiceLogs = [], user_email = "";
+      if (typeof window !== "undefined") {
+        voiceLogs = JSON.parse(localStorage.getItem("voiceLogs"));
+        user_email = localStorage.getItem("email_id");
+      }
+      const vlBody = {
+        platform: "Anudesh",
+        user_email: user_email,
+        language: defLang,
+        script: Number(script),
+        task_id: Number(task_id),
+        voiceLogs: voiceLogs.map(log => ({
+          timestamp: log.id,
+          audioBase64: log.audioBase64,
+          machineTranscription: log.initialTranscript,
+          correctedTranscription: log.correctedText
+        }))
+      }
+      fetch("https://backend.anudesh.ai4bharat.org/logs/transcription_selection/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(vlBody)
+      });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("voiceLogs");
+      }
+    }
+  };
+
   return (
     <Grid
       item
       // xs={size}
-      backgroundColor="#FFf"
+      backgroundColor="transparent"
       justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}
@@ -159,67 +206,173 @@ export default function Textarea({
       bottom={0}
       width={grid_size}
       className={class_name}
-      sx={{ width: "100%" }}
+      sx={{ 
+        width:"90%" 
+      }}
+      paddingBottom="8px"
+      gap={"8px"}
     >
-      {(globalTransliteration || defaultLang!==null)? (
+      <Grid container position={"relative"} alignItems="end" sx={{ flexGrow: 1, mb: 2 }}>
+      {overrideGT &&
+      <>
+       <Switch
+        onClick={() => {
+          setLocalTransliteration(!localTransliteration);
+        }}
+        checked={localTransliteration}
+      />
+      {localTransliteration &&
+        <FormControl
+          fullWidth
+          sx={{
+            backgroundColor: "white",
+            position: {
+              xs: "fixed",
+              sm: "relative",
+            },
+            bottom: {
+              xs: "83px",
+              sm: "auto",
+            },
+            left: {
+              xs: "50%",
+              sm: "auto",
+            },
+            transform: {
+              xs: "translateX(-50%)",
+              sm: "none",
+            },
+            mx: {
+              xs: 0,
+              sm: "10px",
+            },
+            width: {
+              xs: "90%",
+              sm: "auto", 
+            },
+          }}
+        >
+          <InputLabel id="language-select-label" >
+            Language
+          </InputLabel>
+          <Select
+            fullWidth
+            label="Language"
+            labelId="language-select-label"
+            value={defLang}
+            onChange={(e) => {
+              setDefLang(e.target.value);
+            }}
+          >
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="hi">Hindi</MenuItem>
+            <MenuItem value="mr">Marathi</MenuItem>
+            <MenuItem value="ta">Tamil</MenuItem>
+            <MenuItem value="te">Telugu</MenuItem>
+            <MenuItem value="kn">Kannada</MenuItem>
+            <MenuItem value="gu">Gujarati</MenuItem>
+            <MenuItem value="pa">Punjabi</MenuItem>
+            <MenuItem value="bn">Bengali</MenuItem>
+            <MenuItem value="ml">Malayalam</MenuItem>
+            <MenuItem value="as">Assamese</MenuItem>
+            <MenuItem value="brx">Bodo</MenuItem>
+            <MenuItem value="doi">Dogri</MenuItem>
+            <MenuItem value="ks">Kashmiri</MenuItem>
+            <MenuItem value="mai">Maithili</MenuItem>
+            <MenuItem value="mni">Manipuri</MenuItem>
+            <MenuItem value="ne">Nepali</MenuItem>
+            <MenuItem value="or">Odia</MenuItem>
+            <MenuItem value="sd">Sindhi</MenuItem>
+            <MenuItem value="si">Sinhala</MenuItem>
+            <MenuItem value="ur">Urdu</MenuItem>
+            <MenuItem value="sat">Santali</MenuItem>
+            <MenuItem value="sa">Sanskrit</MenuItem>
+            <MenuItem value="gom">Goan Konkani</MenuItem>
+          </Select>
+        </FormControl>
+      }
+      </>
+      }
+      <Grid item xs>
+      <div className="custom-transliterate-container">
+      {(globalTransliteration || defLang!==null)? (
+        <Box
+          sx={{
+            width: localTransliteration
+              ? {
+                  xs: "85%",
+                  sm: "88%",
+                  md: "90%",
+                  lg: "92%",
+                }
+              : "100%",
+          }}
+        >
         <IndicTransliterate
+          key={`indic-${defLang || 'default'}-${localTransliteration}-${count}`}
           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-          enableASR={true}
+          enableASR={localTransliteration ? true : false}
           asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
           apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
           renderComponent={(props) => (
+              
             <textarea
               // xs={size}
               sx={{
-                whiteSpace: "pre-wrap",
-                resize: "none",
-                maxHeight: "200px",
-                overflow: "hidden",
-                height: "auto !important",
-                "&:not(:focus)": {
-                  overflowY: "auto"
-                }
-
-              }}
+        whiteSpace: "pre-wrap",
+        resize: "none",
+        maxHeight: "200px",
+        overflow: "hidden",
+        height: text ? 'auto' : "50px", 
+        minHeight: "50px",
+        "&:not(:focus)": {
+          overflowY: text ? "auto" : "hidden", 
+          minHeight: "50px"
+        }
+      }}
               onInput={(e) => {
                 const textarea = e.target;
                 textarea.style.height = 'auto';
-                textarea.style.height = `${textarea.scrollHeight}px`;
-                if (props.onInput) props.onInput(e); // Preserve any existing onInput
+                const scrollHeight = textarea.scrollHeight;
+                const maxHeight = 200;
+                if (scrollHeight <= maxHeight) {
+                  textarea.style.height = scrollHeight + 'px';
+                  textarea.style.overflowY = 'hidden';
+                } else {
+                  textarea.style.height = maxHeight + 'px';
+                  textarea.style.overflowY = 'auto';
+                }
+                if (props.onInput) props.onInput(e);
               }}
-
+              
               maxRows={10}
               aria-label="empty textarea"
               placeholder={translate("chat_placeholder")}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               onFocus={handleFocus}
-              onBlur={handleBlur}
+              onBlur={(e) => {
+        const textarea = e.target;
+          textarea.style.height = "50px";
+        handleBlur(e);
+      }}
               {...props}
-            />
-          )}
-          value={text}
-          onChangeText={(text) => {
-            setText(text);
-            setTimeout(() => {
-              const textarea = document.querySelector('textarea');
-              if (textarea) {
-                textarea.style.height = 'auto';
-                textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-              }
-            }, 0);
-          }}
-          onKeyDown={handleKeyDown}
-          lang={defaultLang!==null ? defaultLang : targetLang}
-          style={{
-            whiteSpace: "pre-wrap",
+              />
+            )}
+            value={text}
+            onChangeText={(text) => {
+              setText(text);
+            }}
+            onKeyDown={handleKeyDown}
+            lang={defLang!==null ? defLang : targetLang}
+            style={{
+              whiteSpace: "pre-wrap",
             resize: "none",
+            overflow: text ? 'auto' : 'hidden',
+           height: text ? 'auto' : "50px",
 
-            overflow: 'auto',
             fontSize: "1rem",
-            height: "50%",
-            width: "800px",
-            height: "auto !important",
+            width:"100%",
             fontWeight: "400",
             lineHeight: "1.5",
             padding: "12px",
@@ -232,8 +385,9 @@ export default function Textarea({
             transition: "height 0.2s ease-out"
           }}
           horizontalView={true}
-          enabled={defaultLang!==null ? defaultLang === "en" ? false : true : true}
-        />
+          enabled={defLang!==null ? defLang === "en" ? false : localTransliteration === false ? false : true : true}
+          />
+          </Box>
       ) : (
         <TextareaAutosize
           // xs={size}
@@ -241,7 +395,10 @@ export default function Textarea({
           aria-label="empty textarea"
           placeholder={translate("chat_placeholder")}
           value={text}
-          style={textareaStyle}
+          style={{
+            ...textareaStyle,
+            width: "100%",
+          }}
           onChange={(e) => {
             setText(e.target.value);
           }}
@@ -256,17 +413,28 @@ export default function Textarea({
           onMouseLeave={handleMouseLeave}
         />
       )}
-      <IconButton
-        size="large"
-        onClick={() => {
-          handleButtonClick();
-          setText("");
-        }}
-        disabled={!text?.trim()}
-      >
-        <SendRoundedIcon style={{ color: "#EE6633", height: "4rem" }} />
-      </IconButton>
-      {loading && <CircularProgress style={{ color: "#EE6633" }} />}
+      </div>
+      </Grid>
+      <Grid item>
+        <IconButton
+          size="large"
+          onClick={() => {
+            handleButtonClick();
+            setText("");
+          }}
+          disabled={!text?.trim()}
+        >
+          <SendRoundedIcon
+                style={{ color: "#EE6633", width: "32px", height: "32px" }}
+              />
+        </IconButton>
+      </Grid>
+      {loading && (
+        <Grid item>
+          <CircularProgress style={{ color: "#EE6633" }} />
+        </Grid>
+        )}
+    </Grid>
     </Grid>
   );
 }
