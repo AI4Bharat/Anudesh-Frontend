@@ -148,10 +148,13 @@ const TaskTable = (props) => {
     const AllPageFilters = useSelector((state) => state.taskPaginationSlice?.data);
 
     const currentPageFromState = useSelector(state => {
-    const filter = state.taskPaginationSlice?.data[0]
-    
-    return filter?.page || 1;
-  });
+  const filters = state.taskPaginationSlice?.data || [];
+  const matchingFilter = filters.find(filter => 
+    filter.id === id && filter.type === props.type
+  );
+  return matchingFilter?.page || 1; 
+});
+
 
   const [currentPageNumber, setCurrentPageNumber] = useState(currentPageFromState);
 
