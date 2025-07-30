@@ -111,6 +111,7 @@ const AssignMembersDialog = () => {
             '&:hover': {
               backgroundColor: '#d4552b',
             },
+            mb:2
           }}
         >
           Assign Members to Projects
