@@ -180,7 +180,7 @@ const AssignMembersDialog = () => {
         autoHideDuration={6000}
         onClose={() => setResponseMessage('')}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{top: '50% !important',left: '50% !important',transform: 'translate(-50%, -50%)',}}
+        sx={{top: '15% !important',left: '50% !important',transform: 'translate(-50%, -50%)',}}
       >
         <Alert severity={responseType} onClose={() => setResponseMessage('')} sx={{
           width: '100%',
