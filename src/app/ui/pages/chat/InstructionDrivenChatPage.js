@@ -27,6 +27,10 @@ import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 import LanguageCode from "@/utils/LanguageCode";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import Collapse from "@mui/material/Collapse";
+
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -66,6 +70,15 @@ const style = {
   pb: 3,
 };
 
+const chatPalette = {
+    promptBg:  "#fff1ef",
+    outputBg:  "#FFF1F2",
+    codeBg:    "#F6F7FB",
+    cardShadow:"0px 3px 10px rgba(0,0,0,0.06)",
+    textColor:   "#6c5f5b",
+    backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+  };
+
 const InstructionDrivenChatPage = ({
   chatHistory,
   setChatHistory,
@@ -98,6 +111,18 @@ const InstructionDrivenChatPage = ({
     message: "",
     variant: "success",
   });
+
+  const [expandedMessages, setExpandedMessages] = useState({});
+
+  const toggleMessageExpansion = (messageIndex) => {
+  setExpandedMessages(prev => ({
+    ...prev,
+    [messageIndex]: !prev[messageIndex]
+  }));
+};
+
+
+
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
@@ -415,38 +440,73 @@ const InstructionDrivenChatPage = ({
     }
   };
 
-  const renderChatHistory = () => {
-    const chatElements = chatHistory?.map((message, index) => (
+const renderChatHistory = () => {
+  const chatElements = chatHistory?.map((message, messageIndex) => {
+    const isExpanded = expandedMessages[messageIndex] || false;
+    
+    return (
       <Grid
         container
-        spacing={1}
-        key={index}
+        key={messageIndex}
         direction="column"
         justifyContent="center"
         alignItems="center"
-        style={{ marginRight:"0.5rem",marginLeft:"0.5rem" }}
+        style={{ marginRight:"0.5rem", marginLeft:"0.5rem", width:"90%" }}
       >
-        <Grid
-          item
-          style={{
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            padding: "1.5rem",
-            borderRadius: "0.5rem",
-            position: "relative",
-            width: "100%",
+        <Box
+          sx={{
+            border:"1px",
+            borderStyle:"solid",
+            borderRadius:"0 0 16px 16px",
+            borderColor:"#e0e0e0",
+            p:"20px",
+            mb:"20px",
+            color:chatPalette.textColor,
+            backgroundImage:chatPalette.backgroundImage,
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            width:"100%"
           }}
         >
-          <Grid container alignItems="center" spacing={1}>
-            <Grid item>
-              <Avatar
-                alt="user_profile_pic"
-                src={loggedInUserData?.profile_photo || ""}
-                style={{ marginRight: "1rem" }}
-              />
-            </Grid>
-            <Grid item xs className="w-full">
-              {ProjectDetails?.metadata_json?.editable_prompt ? (
-                // globalTransliteration ? (
+          {/* CLICKABLE PROMPT SECTION */}
+          <Box
+            onClick={() => toggleMessageExpansion(messageIndex)}
+            sx={{
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              mb: 2
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight:700, fontSize:"1.2rem", alignSelf:"start", ml:2 }}
+            >
+              Prompt
+            </Typography>
+            <IconButton size="small">
+              {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </Box>
+
+          {/* PROMPT CONTENT */}
+          <Grid
+            item
+            style={{
+              backgroundColor: chatPalette.promptBg,
+              padding: "1.5rem",
+              position: "relative",
+              width: "100%",
+              borderRadius: "16px",
+              boxShadow: chatPalette.cardShadow,
+              mb: 2,
+            }}
+          >
+            <Grid container alignItems="center">
+              <Grid item xs className="w-full">
+                {ProjectDetails?.metadata_json?.editable_prompt ? (
                   <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                     enableASR={true}
@@ -479,173 +539,131 @@ const InstructionDrivenChatPage = ({
                     lang={targetLang}
                     enabled={targetLang === "en" ? false : true}
                   />
-                // ) : (
-                //   <textarea
-                //     value={message.prompt}
-                //     onChange={(e) =>
-                //       handleTextChange(e, null, message, "prompt")
-                //     }
-                //     style={{
-                //       fontSize: "1rem",
-                //       width: "100%",
-                //       padding: "12px",
-                //       borderRadius: "12px 12px 0 12px",
-                //       color: grey[900],
-                //       background: "#ffffff",
-                //       border: `1px solid ${grey[200]}`,
-                //       boxShadow: `0px 2px 2px ${grey[50]}`,
-                //       minHeight: "5rem",
-                //       resize: "none",
-                //     }}
-                //     rows={1}
-                //   />
-                // )
-              ) : (
-                <ReactMarkdown
-                  className="flex-col"
-                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
-                />
-              )}
-            </Grid>
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1.2rem" }}
+                ) : (
+                  <ReactMarkdown
+                    className="flex-col"
+                    children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
                   />
-                </IconButton>
-              )}
+                )}
+              </Grid>
+              {messageIndex === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="large"
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      marginTop: "1rem",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                  >
+                    <DeleteOutlinedIcon
+                      style={{ color: "#EE6633", fontSize: "1.2rem" }}
+                    />
+                  </IconButton>
+                )}
+            </Grid>
           </Grid>
-        </Grid>
 
-        <Grid
-          item
-          xs={12}
-          style={{
-            textAlign: "left",
-            position: "relative",
-            width: "100%",
-          }}
-        >
-          <Grid
-            container
-            alignItems="start"
-            spacing={2}
-            justifyContent="flex-start"
-            style={{
-              padding: "1.5rem",
-              borderRadius: "0.5rem",
-              width: "100%",
-            }}
-          >
+          {/* COLLAPSIBLE OUTPUT SECTION */}
+          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <Grid
               item
-              xs={1}
               style={{
-                display: "flex",
-                // justifyContent: "flex-end",
-                alignItems: "center",
-                minWidth: "50px",
+                textAlign: "left",
+                position: "relative",
+                width: "100%",
               }}
             >
-              <Image
-                width={50}
-                height={50}
-                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
-                alt="Bot Avatar"
-                priority
-              />
+              <Grid
+                container
+                alignItems="start"
+                justifyContent="flex-start"
+                style={{
+                  padding: "1.5rem",
+                  borderRadius: "0.5rem",
+                  width: "100%",
+                }}
+              >
+                <Grid item>
+                  {message?.output.map((segment, segmentIndex) => (
+                    <Box
+                      key={segmentIndex}
+                      sx={{
+                        background: chatPalette.outputBg,
+                        borderRadius:"16px",
+                        boxShadow: chatPalette.cardShadow,
+                        p: "18px 20px",
+                        flex:1,
+                        minWidth:0,
+                        mb: 2
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight:700, fontSize:"1.04rem", color: chatPalette.textColor, mb:1 }}
+                      >
+                        {`Output`}
+                      </Typography>
+                      {segment.type === 'text' ? (
+                        (ProjectDetails?.metadata_json?.editable_response || segment.value === "") ? (
+                          <IndicTransliterate
+                            key={segmentIndex}
+                            value={segment.value}
+                            onChangeText={(e) =>
+                              handleTextChange(e, segmentIndex, message, "output")
+                            }
+                            lang={targetLang}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "12px",
+                              borderRadius: "12px 12px 0 12px",
+                              color: grey[900],
+                              background: "#ffffff",
+                              border: `1px solid ${grey[200]}`,
+                              boxShadow: `0px 2px 2px ${grey[50]}`,
+                              minHeight: "5rem",
+                              width: "100%",
+                            }}
+                            customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                            enableASR={true}
+                            asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                            apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                            enabled={targetLang === "en" ? false : true}
+                          />
+                        ) : (
+                          <ReactMarkdown
+                            key={segmentIndex}
+                            children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                          />
+                        )
+                      ) : (
+                        <SyntaxHighlighter
+                          key={segmentIndex}
+                          language={segment.language}
+                          style={gruvboxDark}
+                          customStyle={{ padding: "1rem", borderRadius: "5px" }}
+                        >
+                          {segment.value}
+                        </SyntaxHighlighter>
+                      )}
+                    </Box>
+                  ))}
+                </Grid>
+              </Grid>
             </Grid>
-
-    <Grid item  xs={11}  >
-
-              {message?.output.map((segment, index) =>
-                segment.type === 'text' ? (
-                  (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
-                    // globalTransliteration ? (
-                      <IndicTransliterate
-                        key={index}
-                        value={segment.value}
-                        onChangeText={(e) =>
-                          handleTextChange(e, index, message, "output")
-                        }
-                        lang={targetLang}
-                        style={{
-                          fontSize: "1rem",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          // resize: "none",
-                          width: "100%",
-                        }}
-                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                        enableASR={true}
-                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
-                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-                        enabled={targetLang === "en" ? false : true}
-                      />
-                    // ) : (
-                    //   <textarea
-                    //     key={index}
-                    //     value={segment.value}
-                    //     onChange={(e) =>
-                    //       handleTextChange(e, index, message, "output")
-                    //     }
-                    //     style={{
-                    //       fontSize: "1rem",
-                    //       width: "100%",
-                    //       padding: "12px",
-                    //       borderRadius: "12px 12px 0 12px",
-                    //       color: grey[900],
-                    //       background: "#ffffff",
-                    //       border: `1px solid ${grey[200]}`,
-                    //       boxShadow: `0px 2px 2px ${grey[50]}`,
-                    //       minHeight: "5rem",
-                    //       resize: "none",
-                    //     }}
-                    //     rows={1}
-                    //   />
-                    // )
-                  ) : (
-                    <ReactMarkdown
-                      key={index}
-                      children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
-                    />
-                  )
-                ) : (
-                  <SyntaxHighlighter
-                    key={index}
-                    language={segment.language}
-                    style={gruvboxDark}
-                    customStyle={{ padding: "1rem", borderRadius: "5px" }}
-                  >
-                    {segment.value}
-                  </SyntaxHighlighter>
-                ),
-              )}
-            </Grid>
-          </Grid>
-        </Grid>
+          </Collapse>
+        </Box>
       </Grid>
-    ));
+    );
+  });
 
-    return chatElements;
-  };
+  return chatElements;
+};
+
 
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
@@ -749,10 +767,11 @@ const InstructionDrivenChatPage = ({
             sx={{
               borderRadius: "10px",
               padding: "10px",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              backgroundColor: chatPalette.promptBg,
+              color: chatPalette.textColor,
               display: "flex",
               flexDirection: "column",
-              width: "100%",
+              width: "90%",
               alignItems: "center",
               justifyContent: "center",
               margin: "1rem",
@@ -770,7 +789,6 @@ const InstructionDrivenChatPage = ({
                 variant="h3"
                 align="center"
                 sx={{
-                  color: "#636363",
                   fontSize: {
                     xs: "0.8125rem", // Small screens (mobile)
                     sm: "1rem", // Medium screens (tablet)
@@ -797,7 +815,7 @@ const InstructionDrivenChatPage = ({
             </Box>
 
             <Typography
-              paragraph={true}
+              paragraph
               sx={{
                 fontSize: {
                   xs: "0.5rem", // Small screens (mobile)
@@ -805,16 +823,14 @@ const InstructionDrivenChatPage = ({
                   md: ".8125rem", // Large screens (laptops)
                   lg: "1rem", // Extra-large screens (desktops)
                 },
-                padding: "0.5rem 1rem ",
+                padding: "0.5rem 1rem",
                 height: "auto",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                whiteSpace: "pre-line", 
+                whiteSpace: "pre-line",
               }}
             >
               {info.instruction_data}
             </Typography>
+
           </Box>
         </Box>
         <Grid
