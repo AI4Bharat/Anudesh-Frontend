@@ -12,7 +12,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
         return fetch(annotatorObj.apiEndPoint(), {
             method: "GET",
             headers: annotatorObj.getHeaders().headers,
-        }).then(res => res.json()).then(res => res.email);
+        }).then(res => res.json()).then(res => res);
     };
 
     const getReviewer = async () => {
@@ -23,7 +23,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
         return fetch(reviewerObj.apiEndPoint(), {
             method: "GET",
             headers: reviewerObj.getHeaders().headers,
-        }).then(res => res.json()).then(res => res.email);
+        }).then(res => res.json()).then(res => res);
     }
 
     const getSuperChecker = async () => {
@@ -34,14 +34,21 @@ const getTaskAssignedUsers = async (taskDetails) => {
         return fetch(superCheckerObj.apiEndPoint(), {
             method: "GET",
             headers: superCheckerObj.getHeaders().headers,
-        }).then(res => res.json()).then(res => res.email);
+        }).then(res => res.json()).then(res => res);
     };
     
     return Promise.all([getAnnotator(), getReviewer(), getSuperChecker()]).then(res => 
         <div style={{display: "flex", padding: "8px 0px", flexDirection: "column", gap: "14px"}}>
-            {res.map((email, idx) => 
-                email && <div key={idx} style={{display: "inline", fontSize: 12}}>{UserMappedByRole(idx + 1).element} {email}</div>
-            )}
+            {res.map((user, idx) => 
+    user && (
+        <div key={idx} style={{display: "inline", fontSize: 12}}>
+            {UserMappedByRole(idx + 1).element} 
+            {user?.firstname && user?.lastname 
+                ? `${user.firstname} ${user.lastname}`
+                : user?.email || 'No name/email available'}
+        </div>
+    )
+)}
         </div>
     )
 };
