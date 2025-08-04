@@ -119,6 +119,12 @@ const MyProgress = () => {
   useEffect(() => {
     setLoading(apiLoading);
   }, [apiLoading]);
+    useEffect(() => {
+      if( selectedType === ""){
+        setSelectedType("InstructionDrivenChat")
+      }
+      }, []);
+
 
   useEffect(() => {
     if (ProjectTypes) {
@@ -131,11 +137,13 @@ const MyProgress = () => {
       if(types?.length)
         {
           const idc = types.find(type => type.toLowerCase() === "InstructionDrivenChat");
-          setSelectedType(idc)
+          if(selectedType ===""){
+                      setSelectedType(idc)
+
+          }
         }
     }
-  }, [ProjectTypes]);
-
+  }, [ProjectTypes]);    
   useEffect(() => {
     if (UserAnalytics?.message) {
       setSnackbarText(UserAnalytics?.message);
@@ -323,7 +331,6 @@ const MyProgress = () => {
     jumpToPage: true,
     customToolbar: renderToolBar,
   };
-  const selectedTypeWithDefault = selectedType || "InstructionDrivenChat";
   return (
     <ThemeProvider theme={themeDefault}>
       {loading && <Spinner />}
@@ -392,7 +399,7 @@ const MyProgress = () => {
                 labelId="project-type-label"
                 id="project-type-select"
                 defaultValue="InstructionDrivenChat"
-                value={selectedTypeWithDefault}
+                value={selectedType}
                 label="Project Type"
                 onChange={(e) => setSelectedType(e.target.value)}
                 MenuProps={MenuProps}
