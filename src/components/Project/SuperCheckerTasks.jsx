@@ -560,6 +560,7 @@ const SuperCheckerTasks = (props) => {
     );
   };
 
+
   const areFiltersApplied = (filters) => {
     return Object.values(filters).some((value) => value !== "");
   };
@@ -646,6 +647,8 @@ const SuperCheckerTasks = (props) => {
               sx={{ position: "absolute", top: -4, right: -4 }}
             />
           )}
+          <Button sx={{ position: "relative" }}>
+              <FilterListIcon sx={{ color: "#515A5A" }} />
           <CustomTooltip
             title={
               filtersApplied ? (
@@ -679,10 +682,8 @@ const SuperCheckerTasks = (props) => {
             }
             disableInteractive
           >
-            <Button sx={{ position: "relative" }}>
-              <FilterListIcon sx={{ color: "#515A5A" }} />
-            </Button>
           </CustomTooltip>
+         </Button>
         </Box>
       </Box>
     );

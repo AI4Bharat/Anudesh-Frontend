@@ -6,36 +6,58 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { translate } from "../../config/localisation";
 import { snakeToTitleCase } from "@/utils/utils";
-import  "../../styles/Dataset.css";
+import "../../styles/Dataset.css";
+import Langcode from "@/utils/searchmap";
 
 const SearchPopup = (props) => {
-    
   const { currentFilters, updateFilters, searchedCol } = props;
-  const [searchValue, setSearchValue] = useState(currentFilters["search_"+searchedCol]);
   
+  const [displayValue, setDisplayValue] = useState(
+    currentFilters["search_"+searchedCol] ? 
+      (typeof currentFilters["search_"+searchedCol] === 'string' ? 
+        currentFilters["searchText_"+searchedCol] || '' : 
+        '') 
+      : ''
+  );
+
   const handleSearchSubmit = (e) => {
     if (typeof window !== 'undefined') {
-    updateFilters({
-      ...currentFilters,
-      ["search_"+searchedCol]: searchValue,
-    });
-    document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
-    props.handleClose();
-  }
+      if (searchedCol === 'meta_info_language') {
+        const lower = displayValue.toLowerCase().trim();
+        const matchedCodes = Object.entries(Langcode)
+          .filter(([key, value]) => key.toLowerCase().includes(lower))
+          .map(([key, value]) => value);
+        
+        updateFilters({
+          ...currentFilters,
+          ["search_" + searchedCol]: matchedCodes.join(','),
+          ["searchText_" + searchedCol]: displayValue, // Store the display text separately
+        });
+      } else {
+        updateFilters({
+          ...currentFilters,
+          ["search_" + searchedCol]: displayValue,
+          ["searchText_" + searchedCol]: displayValue,
+        });
+      }
+      
+      document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
+      props.handleClose();
+    }
   };
 
   const handleClearSearch = (e) => {
     if (typeof window !== 'undefined') {
-
-    updateFilters({
-        ...currentFilters,
-        ["search_"+searchedCol]: "",
-    });
-    setSearchValue("");
-    document.getElementById(searchedCol + "_btn").style.color = "rgba(0, 0, 0, 0.54)";
-    props.handleClose();
-  }
-    };
+      const newFilters = {...currentFilters};
+      delete newFilters["search_" + searchedCol];
+      delete newFilters["searchText_" + searchedCol]; // Also clear the stored text
+      
+      updateFilters(newFilters);
+      setDisplayValue("");
+      document.getElementById(searchedCol + "_btn").style.color = "rgba(0, 0, 0, 0.54)";
+      props.handleClose();
+    }
+  };
 
   return (
       <Popover
@@ -57,8 +79,8 @@ const SearchPopup = (props) => {
             size="small" 
             variant="outlined" 
             placeholder={`Search ${snakeToTitleCase(searchedCol)}`} 
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            value={displayValue}
+            onChange={(e) => setDisplayValue(e.target.value)}
             inputProps={{
                 style: {
                     fontSize: "16px"

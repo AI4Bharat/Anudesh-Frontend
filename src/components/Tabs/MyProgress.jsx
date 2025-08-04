@@ -60,9 +60,7 @@ const MyProgress = () => {
   const [displayWidth, setDisplayWidth] = useState(0);
   const [selectRange, setSelectRange] = useState([
     {
-      startDate: new Date(
-        Date.parse(UserDetails?.date_joined, "yyyy-MM-ddTHH:mm:ss.SSSZ"),
-      ),
+      startDate: new Date(),
       endDate: new Date(),
       key: "selection",
     },
@@ -130,7 +128,11 @@ const MyProgress = () => {
         types.push(...subTypes);
       });
       setProjectTypes(types);
-      types?.length && setSelectedType(types[2]);
+      if(types?.length)
+        {
+          const idc = types.find(type => type.toLowerCase() === "InstructionDrivenChat");
+          setSelectedType(idc)
+        }
     }
   }, [ProjectTypes]);
 

@@ -1,25 +1,5 @@
-import AppBar from "@mui/material/AppBar";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Checkbox from "@mui/material/Checkbox";
-import Divider from "@mui/material/Divider";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import Popover from "@mui/material/Popover";
-import Badge from "@mui/material/Badge";
-import Stack from "@mui/material/Stack";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Switch from "@mui/material/Switch";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
+import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu,MenuItem,Toolbar,Tooltip,
+  Typography,Popover,Badge,Stack,Tabs,Tab,Switch,Select,InputLabel,FormControl,Dialog,DialogTitle,DialogContent ,DialogActions ,Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -71,10 +51,14 @@ const Header = () => {
     variant: "success",
   });
   //const[checkClUI,setCheckClUI]=useState(null)
+  const [open, setOpen] = useState(false);
+  const [emailToChange, setEmailToChange] = useState("");
   const [moreHorizonAnchorEl, setMoreHorizonAnchorEl] = useState(null);
   const [Notification, setnotification] = useState();
   const [unread, setunread] = useState(null);
   const [selectedNotificationId, setSelectedNotificationId] = useState(null);
+  //below one is for Unreaded notification count countinue from line No. 157
+  const [notificationCount, setNotificationCount] = useState(0);
 
   if (localStorage.getItem("source") !== undefined) {
     localStorage.setItem("source", "anudesh-frontend");
@@ -110,11 +94,7 @@ const Header = () => {
 
   const fetchNotifications = () => {
     let apiObj = new NotificationAPI();
-    const endpoint =
-      unread == null
-        ? apiObj.apiEndPoint()
-        : `${apiObj.apiEndPoint()}?seen=${unread}`;
-
+    const endpoint = unread == null ? apiObj.apiEndPoint() : `${apiObj.apiEndPoint()}?seen=${unread}`;
     fetch(endpoint, {
       method: "get",
       body: JSON.stringify(apiObj.getBody()),
@@ -132,7 +112,32 @@ const Header = () => {
         console.error("Error fetching notifications:", error);
       });
   };
-  const markAsRead = (notificationId) => {
+  const fetchUnreadCount = async () => {
+    try {
+      let apiObj = new NotificationAPI();
+      const endpoint = `${apiObj.apiEndPoint()}unread`;
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: apiObj.getHeaders().headers,
+      });
+      if (!response.ok) {
+        throw new Error(`Error fetching unread notifications: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      // Assuming the response contains a total_count field
+      setNotificationCount(data.total_count || 0);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      setNotificationCount(0);
+    }
+  };
+  // Fetch unread notifications on mount
+  useEffect(() => {
+    fetchUnreadCount();
+  }, []);
+
+
+  const markAsRead =  (notificationId) => {
     const task = new NotificationPatchAPI(notificationId);
     setSelectedNotificationId(notificationId);
     dispatch(APITransport(task));
@@ -155,10 +160,10 @@ const Header = () => {
     markAsRead(notificationId);
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [unread, selectedNotificationId]);
-
+  // useEffect(() => {
+  //   fetchNotifications();
+  // }, [unread,selectedNotificationId]);
+  
   useEffect(() => {
     getLoggedInUserData();
   }, []);
@@ -299,6 +304,14 @@ useEffect(() => {
       await setunread("False");
     }
   };
+
+  // const handleTabChange = (newValue) => {
+  //   setValue(newValue);
+  //   setunread(newValue === 0 ? "False" : null);
+  //   fetchNotifications();
+  // };
+
+  
   const handleTagsChange = (event) => {
     if (typeof window !== "undefined") {
       if (event.target.checked) {
@@ -746,6 +759,21 @@ useEffect(() => {
     setShowTransliterationModel(false);
   };
 
+  const handleClickOpen = (email) => {
+    setEmailToChange(email);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEmailToChange("");
+  };
+
+  const handleApply = async () => {
+    await handleChangePassword(emailToChange);
+    handleClose();
+  };
+
   const handleChangePassword = async (email) => {
     let obj = new ForgotPasswordAPI({ email: email });
     const res = await fetch(obj.apiEndPoint(), {
@@ -870,15 +898,8 @@ useEffect(() => {
                         </span>
                       }
                     >
-                      <IconButton onClick={handleOpenNotification}>
-                        <Badge
-                          badgeContent={
-                            unseenNotifications?.length > 0
-                              ? unseenNotifications?.length
-                              : null
-                          }
-                          color="primary"
-                        >
+                     <IconButton onClick={handleOpenNotification}>
+                        <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
                           <NotificationsIcon
                             color="primary.dark"
                             fontSize="large"
@@ -1094,7 +1115,8 @@ useEffect(() => {
                       key={3}
                       onClick={() => {
                         handleCloseUserMenu();
-                        handleChangePassword(loggedInUserData.email);
+                        handleClickOpen(loggedInUserData.email);
+                        // handleChangePassword(loggedInUserData.email);
                       }}
                     >
                       <Typography variant="body2" textAlign="center">
@@ -1102,6 +1124,20 @@ useEffect(() => {
                       </Typography>
                     </MenuItem>
                   )}
+                <Dialog open={open} onClose={handleClose}>
+                  <DialogTitle>Change Password:</DialogTitle>
+                  <DialogContent>
+                   Are you sure you want to change your password?
+                 </DialogContent>
+                 <DialogActions>
+                 <Button onClick={handleApply} color="primary" variant="contained">
+                   Confirm
+                  </Button>
+                  <Button onClick={handleClose} color="error" variant="contained">
+                   Cancel
+                  </Button>
+                 </DialogActions>
+                </Dialog>
                   <MenuItem
                     key={4}
                     onClick={() => onLogoutClick()}

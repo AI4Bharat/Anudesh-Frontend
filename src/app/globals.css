@@ -85,6 +85,15 @@ body {
   overflow-x: hidden;
   
 }
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* Hide scrollbar for WebKit (Chrome, Safari, Opera) */
+*::-webkit-scrollbar {
+  display: none;
+}
 
 
 body {

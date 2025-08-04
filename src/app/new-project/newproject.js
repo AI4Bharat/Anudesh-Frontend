@@ -45,8 +45,10 @@ import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import sampleQuestion from "./sampleQue";
+import { sampleQuestion, sampleMultipleLLMIDCPQuestion } from "./sampleQue";
+import { fixed_Models, languageModelOptions } from "./models";
 import { styled } from "@mui/styles";
+
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
   return reg.test(String(str));
@@ -121,10 +123,10 @@ const CreateProject = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("");
-
   const [selectedType, setSelectedType] = useState("");
   const [sourceLanguage, setSourceLanguage] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("");
+  const [fixedModels, setFixedModels] = useState(fixed_Models); 
   const [samplingMode, setSamplingMode] = useState(null);
   const [random, setRandom] = useState("");
   const [batchSize, setBatchSize] = useState();
@@ -157,9 +159,28 @@ const CreateProject = () => {
   const [passwordForProjects, setPasswordForProjects] = useState("");
   const [shownewpassword, setShowNewPassword] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
-  const [jsonInput, setJsonInput] = useState(JSON.stringify(sampleQuestion));
-  const [questionsJSON, setQuestionsJSON] = useState(sampleQuestion);
+  const [jsonInput, setJsonInput] = useState();
+  const [questionsJSON, setQuestionsJSON] = useState();
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
+  const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
+  const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
+
+  useEffect(() => {
+    if (selectedType === "MultipleLLMInstructionDrivenChat") {
+      setJsonInput(JSON.stringify(sampleMultipleLLMIDCPQuestion, null, 2));
+      setQuestionsJSON(sampleMultipleLLMIDCPQuestion);
+    } else {
+      setJsonInput(JSON.stringify(sampleQuestion, null, 2));
+      setQuestionsJSON(sampleQuestion);
+    }
+  }, [selectedType]);
+
+  useEffect(() => {
+    if (selectedLanguageModels.length < numSelectedModels) {
+      setNumSelectedModels(Math.max(fixedModels.length, selectedLanguageModels.length));
+    }
+  }, [selectedLanguageModels, numSelectedModels]);
+
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -287,7 +308,7 @@ const CreateProject = () => {
       columns?.length > 0
         ? setSelectedColumns(columns)
         : fetchedItems?.length > 0 &&
-          setSelectedColumns(Object.keys(fetchedItems[0]));
+        setSelectedColumns(Object.keys(fetchedItems[0]));
     }
 
     if (fetchedItems?.length > 0) {
@@ -391,16 +412,16 @@ const CreateProject = () => {
           tempTypesArr.push(project_type);
           if (
             ProjectDomains[domain]["project_types"][project_type][
-              "input_dataset"
+            "input_dataset"
             ]
           ) {
             tempDatasetTypes[project_type] =
               ProjectDomains[domain]["project_types"][project_type][
-                "input_dataset"
+              "input_dataset"
               ]["class"];
             tempColumnFields[project_type] =
               ProjectDomains[domain]["project_types"][project_type][
-                "input_dataset"
+              "input_dataset"
               ]["fields"];
           }
         }
@@ -490,11 +511,16 @@ const CreateProject = () => {
       password: passwordForProjects,
       metadata_json:
         selectedType === "MultipleLLMInstructionDrivenChat"
-          ? { enable_preferrence_selection: isModelSelectionEnabled }
+          ? {
+            enable_preference_selection: isModelSelectionEnabled,
+            questions_json: questionsJSON,
+            models_set: selectedLanguageModels,
+            fixed_models: fixedModels,
+            num_models: numSelectedModels,
+          }
           : questionsJSON,
       conceal: conceal,
     };
-
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
     dispatch(createProject(newProject));
@@ -689,9 +715,9 @@ const CreateProject = () => {
               marginLeft: "0px",
             },
             "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -892,7 +918,7 @@ const CreateProject = () => {
               </>
             )}
             {selectedType === "MultipleLLMInstructionDrivenChat" &&
-            selectedDomain === "Chat" ? (
+              selectedDomain === "Chat" ? (
               <Grid
                 container
                 direction="row"
@@ -902,8 +928,7 @@ const CreateProject = () => {
                 }}
               >
                 <Typography>
-                  Enable Model Selection(Allow Users to Pick a preferred AI
-                  Model)<span style={{ color: "#d93025" }}>*</span> :
+                  Enable Feedback Form After Every Interaction: <span style={{ color: "#d93025" }}>*</span> :
                 </Typography>
                 <FormControlLabel
                   checked={isModelSelectionEnabled}
@@ -911,6 +936,151 @@ const CreateProject = () => {
                   color="warning"
                   control={<Switch />}
                 />
+              </Grid>
+            ) : null}
+            {selectedType === "MultipleLLMInstructionDrivenChat" &&
+              selectedDomain === "Chat" ? (
+              <Grid
+                container
+                direction="row"
+                alignItems="center"
+                sx={{
+                  paddingTop: "10px",
+                }}
+              >
+                <Typography>
+                  Select Language Models <span style={{ color: "#d93025" }}>*</span> :
+                </Typography>
+                <FormControl fullWidth sx={{ marginTop: "10px" }}>
+                  <Select
+                    multiple
+                    value={selectedLanguageModels}
+                    onChange={(e) => setSelectedLanguageModels(e.target.value)}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={value}
+                            deleteIcon={
+                              value !== "Sarvam" && value !== "Ai4B" ? (
+                                <CancelIcon
+                                  onMouseDown={(event) =>
+                                    event.stopPropagation()
+                                  }
+                                />
+                              ) : undefined
+                            }
+                            onDelete={
+                              value !== "Sarvam" && value !== "Ai4B"
+                                ? () => {
+                                  setSelectedLanguageModels(
+                                    selectedLanguageModels.filter(
+                                      (instance) => instance !== value,
+                                    ),
+                                  );
+                                }
+                                : undefined
+                            }
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    MenuProps={MenuProps}
+                  >
+                    {languageModelOptions.map((name) => (
+                      <MenuItem key={name} value={name}>
+                        {name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            ) : null}
+            {selectedType === "MultipleLLMInstructionDrivenChat" &&
+              selectedDomain === "Chat" && selectedLanguageModels.length > 0 ? (
+              <Grid
+                container
+                direction="row"
+                alignItems="center"
+                sx={{
+                  paddingTop: "10px",
+                }}
+              >
+                <Typography>
+                  Select Fixed Models (Cannot be changed by users during chat):
+                </Typography>
+                <FormControl fullWidth sx={{ marginTop: "10px" }}>
+                  <Select
+                    multiple
+                    value={fixedModels}
+                    onChange={(e) => {
+                      // Ensure at least one fixed model is selected
+                      if (e.target.value.length > 0) {
+                        setFixedModels(e.target.value);
+                      }
+                    }}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={value}
+                            deleteIcon={
+                              <CancelIcon onMouseDown={(event) => event.stopPropagation()} />
+                            }
+                            onDelete={() => {
+                              // Only allow deletion if there would still be at least one fixed model
+                              if (selected.length > 1) {
+                                setFixedModels(selected.filter((model) => model !== value));
+                              }
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    MenuProps={MenuProps}
+                  >
+                    {selectedLanguageModels.map((model) => (
+                      <MenuItem key={model} value={model}>
+                        {model}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            ) : null}
+
+            {selectedType === "MultipleLLMInstructionDrivenChat" &&
+              selectedDomain === "Chat" && selectedLanguageModels.length >= fixedModels.length ? (
+              <Grid
+                container
+                direction="row"
+                alignItems="center"
+                sx={{
+                  paddingTop: "10px",
+                }}
+              >
+                <Typography>
+                  Number of models to Activate for Multi-Model Chat Support:
+                  <span style={{ color: "#d93025" }}>*</span> :
+                </Typography>
+                <FormControl fullWidth sx={{ marginTop: "10px" }}>
+                  <Select
+                    value={numSelectedModels}
+                    onChange={(e) => setNumSelectedModels(e.target.value)}
+                    MenuProps={MenuProps}
+                  >
+                    {Array.from(
+                      { length: selectedLanguageModels.length - 1 },
+                      (_, i) => i + 2,
+                    ).map((num) => (
+                      <MenuItem key={num} value={num}>
+                        {num}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
             ) : null}
             {selectedDomain && (
@@ -1041,12 +1211,12 @@ const CreateProject = () => {
                                     confirmed
                                       ? undefined
                                       : () => {
-                                          setSelectedInstances(
-                                            selectedInstances.filter(
-                                              (instance) => instance !== key,
-                                            ),
-                                          );
-                                        }
+                                        setSelectedInstances(
+                                          selectedInstances.filter(
+                                            (instance) => instance !== key,
+                                          ),
+                                        );
+                                      }
                                   }
                                 />
                               ))}
@@ -1124,11 +1294,10 @@ const CreateProject = () => {
                       )}
                       options={{
                         ...options,
-                        tableBodyHeight: `${
-                          typeof window !== "undefined"
-                            ? window.innerHeight - 200
-                            : 400
-                        }px`,
+                        tableBodyHeight: `${typeof window !== "undefined"
+                          ? window.innerHeight - 200
+                          : 400
+                          }px`,
                       }}
                     />
                   </ThemeProvider>
@@ -1344,7 +1513,8 @@ const CreateProject = () => {
                   </FormControl>
                 </Grid>
                 {selectedType === "ModelInteractionEvaluation" ||
-                selectedType === "MultipleInteractionEvaluation" ? (
+                  selectedType === "MultipleInteractionEvaluation" ||
+                  selectedType === "MultipleLLMInstructionDrivenChat" ? (
                   <Grid
                     item
                     xs={12}
@@ -1494,15 +1664,15 @@ const CreateProject = () => {
                 onClick={handleCreateProject}
                 disabled={
                   title &&
-                  description &&
-                  selectedDomain &&
-                  selectedType &&
-                  selectedInstances &&
-                  domains &&
-                  samplingMode &&
-                  (selectedType === "ModelInteractionEvaluation"
-                    ? questionsJSON?.length > 0
-                    : true)
+                    description &&
+                    selectedDomain &&
+                    selectedType &&
+                    selectedInstances &&
+                    domains &&
+                    samplingMode &&
+                    (selectedType === "ModelInteractionEvaluation" || "multipleInteractionEvaluation"
+                      ? questionsJSON?.length > 0
+                      : true)
                     ? false
                     : true
                 }
