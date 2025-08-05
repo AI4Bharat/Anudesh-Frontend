@@ -516,7 +516,7 @@ const AnnotatePage = () => {
   };
 
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
-    if (value === "delete" && type === "MultipleLLMInstructionDrivenChat") {
+    if (value === "delete" ) {
       setEvalFormResponse();
       setSubmittedEvalForms();
     }
