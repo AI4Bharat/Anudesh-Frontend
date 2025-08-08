@@ -23,6 +23,7 @@ import { translate } from "../../config/localisation";
 import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
 import SearchPopup from "../../components/Project/SearchPopup"
 import AllTaskSearchPopup from "../Project/AllTasksSearchpopup";
+import { useParams } from "react-router-dom";
 
 const TASK_TYPES = ["annotation", "review", "supercheck"]
 
@@ -48,7 +49,7 @@ const MUIDataTable = dynamic(
 
 const RecentTasks = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const id = 2
+  const { id } = useParams();  
   const dispatch = useDispatch();
   const [displayWidth, setDisplayWidth] = useState(0);
   const [taskType, setTaskType] = useState(TASK_TYPES[0]);
