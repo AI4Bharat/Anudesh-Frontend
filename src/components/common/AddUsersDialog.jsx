@@ -27,6 +27,9 @@ import React, { useState, useEffect } from "react";
 import addUserTypes from "../../Constants/addUserTypes";
 import CustomButton from "./Button";
 import { fetchDatasetDetails } from "@/Lib/Features/datasets/getDatasetDetails";
+import CustomizedSnackbars from "./Snackbar";
+import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
+import GetWorkspacesDetailsAPI from "@/app/actions/api/workspace/getWorkspaceDetails";
 
 const DialogHeading = {
   [addUserTypes.ANNOTATOR]: "Add Annotators",
@@ -161,7 +164,7 @@ const getAvailableUsers = (
   }
 };
 
-  const handleAddUsers = async (userType, users, id, dispatch) => {
+  const handleAddUsers = async (userType, users, id, dispatch,setSnackbar) => {
     switch (userType) {
       case addUserTypes.PROJECT_ANNOTATORS:
         const addMembersObj = new AddMembersToProjectAPI(
@@ -177,9 +180,21 @@ const getAvailableUsers = (
         const resp_data = await res.json();
 
         if (res.ok) {
-          const projectObj = new GetProjectDetailsAPI(id);
-          dispatch(APITransport(projectObj));
+          const projectObj = new fetchProjectDetails(id);
+          dispatch(fetchProjectDetails(id));
+          setSnackbar({
+              open: true,
+              message: "successfully added!",
+              severity: "success",
+            });
           return resp_data;
+        }
+        else{
+          setSnackbar({
+              open: true,
+              message: resp_data?.message,
+              severity: "error",
+            });
         }
         break;
 
@@ -197,10 +212,22 @@ const getAvailableUsers = (
           const reviewerRespData = await reviewerRes.json();
 
           if (reviewerRes.ok) {
-            const projectObj = new GetProjectDetailsAPI(id);
-            dispatch(APITransport(projectObj));
+            const projectObj = new fetchProjectDetails(id);
+            dispatch(fetchProjectDetails(id));
+            setSnackbar({
+              open: true,
+              message: "successfully added!",
+              severity: "success",
+            });
             return reviewerRespData;
           }
+          else{
+          setSnackbar({
+              open: true,
+              message: res?.message,
+              severity: "error",
+            });
+        }
           break;
           case addUserTypes.PROJECT_SUPERCHECKER:
           const addsuperCheckerObj = new AddProjectSuperCheckerAPI(
@@ -216,10 +243,22 @@ const getAvailableUsers = (
           const superCheckerRespData = await superCheckerRes.json();
 
           if (superCheckerRes.ok) {
-            const projectObj = new GetProjectDetailsAPI(id);
-            dispatch(APITransport(projectObj));
+            const projectObj = new fetchProjectDetails(id);
+            dispatch(fetchProjectDetails(id));
+            setSnackbar({
+              open: true,
+              message: "successfully added!",
+              severity: "success",
+            });
             return superCheckerRespData;
           }
+          else{
+          setSnackbar({
+              open: true,
+              message: res?.message,
+              severity: "error",
+            });
+        }
           break;
 
       case addUserTypes.ANNOTATOR:
@@ -237,8 +276,19 @@ const getAvailableUsers = (
 
         if (addAnnotatorsRes.ok) {
           const workspaceAnnotatorsObj = new GetWorkspacesAnnotatorsDataAPI(id);
-          dispatch(APITransport(workspaceAnnotatorsObj));
+          setSnackbar({
+              open: true,
+              message: "successfully added!",
+              severity: "success",
+            });
           return addAnnotatorsRespData;
+        }
+        else{
+          setSnackbar({
+              open: true,
+              message: addAnnotatorsRes?.message,
+              severity: "error",
+            });
         }
         break;
 
@@ -257,8 +307,19 @@ const getAvailableUsers = (
 
         if (assignManagerRes.ok) {
           const workspaceDetailsObj = new GetWorkspacesDetailsAPI(id);
-          dispatch(APITransport(workspaceDetailsObj));
+          setSnackbar({
+              open: true,
+              message: "successfully added!",
+              severity: "success",
+            });
           return assignManagerRespData;
+        }
+        else{
+          setSnackbar({
+              open: true,
+              message: assignManagerRes?.message,
+              severity: "error",
+            });
         }
         break;
       case 'dataset':
@@ -266,7 +327,6 @@ const getAvailableUsers = (
         const existingUserIds = existingUsers.map((user) => user);
 
         const updatedUserIds = [...new Set([...existingUserIds, ...users.map((user) => user.id)])];
-      console.log(DatasetDetails,updatedUserIds,existingUserIds,"avaa");
 
         const DatasetUsersObj = {
           instance_name: DatasetDetails?.instance_name ,
@@ -291,7 +351,14 @@ const getAvailableUsers = (
             const datasetDetailsObj = new fetchDatasetDetails(datasetId);
             dispatch(APITransport(datasetDetailsObj));
             return datasetRespData;
-          }
+          }        else{
+          setSnackbar({
+              open: true,
+              message: datasetRes?.message,
+              severity: "error",
+            });
+        }
+          
           break;
 
 
@@ -303,6 +370,11 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const projectDetails = useSelector((state) => state.getProjectDetails?.data);
   const workspaceAnnotators = useSelector(
     (state) => state.getWorkspacesAnnotatorsData.data,
@@ -341,7 +413,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
     (user) =>
       !projectDetails?.annotators?.some((annotator) => annotator?.id === user.id),
   );
-  console.log(workspaceAnnotators);
+  console.log(workspaceAnnotators,"lll");
   useEffect(() => {
     setAvailableUsers(
       getAvailableUsers(
@@ -356,20 +428,38 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
 
   const addBtnClickHandler = async () => {
     setLoading(true);
-    const res = await handleAddUsers(userType, selectedUsers, id, dispatch);
+    const res = await handleAddUsers(userType, selectedUsers, id, dispatch,setSnackbar);
     setLoading(false);
 
     if (res) {
       dialogCloseHandler();
+
     }
+  };
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbar({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        hide={5000}
+      />
+    );
   };
 
   const dialogCloseHandler = () => {
+
     handleDialogClose();
   };
   console.log(availableUsers, filteruser, userType, "helo");
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
+      {renderSnackBar()}
       <DialogTitle style={{ paddingBottom: 0 }}>
         {DialogHeading[userType]}
       </DialogTitle>
@@ -386,8 +476,8 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
           options={
             projectDetails.required_annotators_per_task > 1 &&
             userType == "PROJECT_REVIEWER"
-              ? filteruser
-              : availableUsers
+              ? availableUsers
+              : filteruser
           }
           value={selectedUsers}
           style={{ fontSize: "1rem", paddingTop: 4, paddingBottom: 4 }}
