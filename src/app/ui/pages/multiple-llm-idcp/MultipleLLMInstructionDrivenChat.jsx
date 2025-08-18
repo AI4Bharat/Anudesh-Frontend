@@ -350,6 +350,23 @@ const MultipleLLMInstructionDrivenChat = ({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
+      
+      let errorMessage = null;
+
+      for (const [modelName, modelResponse] of Object.entries(data.output)) {
+        if (modelResponse?.error) {
+          errorMessage = `${modelName} error: ${modelResponse.error}`;
+          break; 
+        }
+      }
+
+      if (errorMessage) {
+        setSnackbarInfo({
+          open: true,
+          message: errorMessage,
+          variant: "error",
+        });
+      }
       if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
         if (data.message === "Success") {
           setSubmittedEvalForms((prev) => ({
