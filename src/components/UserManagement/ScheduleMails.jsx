@@ -301,7 +301,7 @@ const ScheduleMails = () => {
         }
         tempSelected.push("Actions");
         updatedMail.Actions = (
-          <Box sx={{ display: "flex", gapp: 1}}>
+          <Box sx={{ display: "flex", gap: 1}}>
             <Tooltip
               title={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
             >
