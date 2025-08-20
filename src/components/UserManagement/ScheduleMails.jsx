@@ -301,12 +301,12 @@ const ScheduleMails = () => {
         }
         tempSelected.push("Actions");
         updatedMail.Actions = (
-          <>
+          <Box sx={{ display: "flex", gapp: 1}}>
             <Tooltip
               title={updatedMail["Status"] === "Enabled" ? "Pause" : "Resume"}
             >
               <Button
-                sx={{ m: 1, p: 1 }}
+                sx={{ m: 0, p: 1 }}
                 variant={"contained"}
                 color={"primary"}
                 onClick={() => updateScheduledMail(updatedMail)}
@@ -320,7 +320,7 @@ const ScheduleMails = () => {
             </Tooltip>
             <Tooltip title={"Delete"}>
               <Button
-                sx={{ m: 1, backgroundColor: "#EC0000" }}
+                sx={{ m: 0, backgroundColor: "#EC0000" }}
                 variant={"contained"}
                 color={"primary"}
                 onClick={() => deleteScheduledMail(updatedMail)}
@@ -328,7 +328,7 @@ const ScheduleMails = () => {
                 {<DeleteIcon />}
               </Button>
             </Tooltip>
-          </>
+          </Box>
         );
         return updatedMail;
       });
