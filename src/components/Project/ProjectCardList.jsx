@@ -32,6 +32,8 @@ import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';
+import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
+import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -55,6 +57,7 @@ const MUIDataTable = dynamic(
 const ProjectCardList = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
+  const [loading,setLoading] = useState(false);
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const [displayWidth, setDisplayWidth] = useState(0);
@@ -71,7 +74,7 @@ const ProjectCardList = (props) => {
   const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects).sort((a, b) => a.id - b.id) : projectData
   const navigate = useNavigate();
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
-
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   useEffect(() => {
     const handleResize = () => {
       setDisplayWidth(window.innerWidth);
@@ -110,32 +113,67 @@ const ProjectCardList = (props) => {
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const fetchNewTasks = async () => {
+    setLoading(true);
+    const batchObj = new PullNewBatchAPI(selectedProject?.id, ProjectDetails?.metadata_json?.auto_assign_count)
+    const res = await fetch(batchObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(batchObj.getBody()),
+      headers: batchObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      if (resp?.message) {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "success",
+        });
+            navigate(`/projects/${selectedProject?.id}`)
+            handleAuthClose();
+            setLoading(false);
 
-  const handlePasswordSubmit = async () => {
-    const apiObj = new VerifyProject(loggedInUserData?.id, selectedProject?.id, password);
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+        setLoading(false)
+    } 
+    
+    handleAuthClose();
+
+  };
+}
+  const handlePasswordSubmit = async() => {
+    dispatch(fetchProjectDetails(selectedProject?.id));
+    const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
       headers: apiObj.getHeaders().headers,
     });
     const resp = await res.json();
-    // setLoading(false);
     if (res.ok) {
       setSnackbarInfo({
         open: true,
         message: resp?.message,
         variant: "success",
       })
+      fetchNewTasks()
+
     } else {
       setSnackbarInfo({
         open: true,
         message: resp?.message,
         variant: "error",
       })
-    }
-    navigate(`/projects/${selectedProject?.id}`)
     handleAuthClose();
-  };
+
+    } 
+  } 
+
   const pageSearch = () => {
     return combinedData.filter((el) => {
       if (SearchProject == "") {
@@ -493,6 +531,7 @@ const ProjectCardList = (props) => {
 
   return (
     <>
+    {loading && <Spinner />} 
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable
           key={`table-${displayWidth}`}
