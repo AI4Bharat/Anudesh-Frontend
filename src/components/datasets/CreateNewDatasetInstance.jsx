@@ -54,6 +54,7 @@ const CollectionProject = (props) => {
   },[]) 
 
 
+
   const handleCreate = () => {
     setLoading(true);
     setErrors({});
@@ -263,7 +264,7 @@ const CollectionProject = (props) => {
               <OutlinedTextField
                 fullWidth
                 value={organisation_Id}
-                onChange={(e) => setOrganisation_Id(e.target.value)}
+                disabled={true}
                 helperText={errors.organisation_id ? errors.organisation_id : ""}
                 error={errors.organisation_id ? true : false}
               />
