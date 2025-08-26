@@ -136,6 +136,10 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
+    const workspaceDtails = useSelector(
+      (state) => state.getWorkspaceDetails.data,
+    );
+  
 
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
@@ -703,6 +707,9 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
+        if (workspaceDtails?.guest_workspace_display === "Yes") {
+          setPullDisabled("disable for guest user");
+        }
     }
   }, [ProjectDetails.labeled_task_count]);
 
@@ -723,6 +730,9 @@ const TaskTable = (props) => {
         else if (pullDisabled === "You're no more a part of this project")
           setPullDisabled("");
       });
+      if (workspaceDtails?.guest_workspace_display === "Yes") {
+          setPullDisabled("disable for guest user");
+        }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
     }
   }, [
@@ -1320,7 +1330,7 @@ const TaskTable = (props) => {
                   : 4
               }
             >
-              <Tooltip title={pullDisabled}>
+             <Tooltip title={pullDisabled}>
                 <Box>
                   <CustomButton
                     sx={{

@@ -29,6 +29,7 @@ import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 
 
 
@@ -38,6 +39,8 @@ const Projectcard = (props) => {
 
   const { projectData, selectedFilters, setsSelectedFilters } = props;
   const classes = DatasetStyle();
+    const [loading,setLoading] = useState(false);
+  
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
   const [page, setPage] = useState(0);
   const navigate = useNavigate();
@@ -55,7 +58,7 @@ const Projectcard = (props) => {
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -77,8 +80,45 @@ const Projectcard = (props) => {
   };
 
 
-  const handlePasswordSubmit = async () => {
-    const apiObj = new VerifyProject(selectedProject?.id, password);
+  const fetchNewTasks = async () => {
+    setLoading(true);
+    const batchObj = new PullNewBatchAPI(selectedProject?.id, ProjectDetails?.metadata_json?.auto_assign_count)
+    const res = await fetch(batchObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(batchObj.getBody()),
+      headers: batchObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      if (resp?.message) {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "success",
+        });
+            navigate(`/projects/${selectedProject?.id}`)
+            handleAuthClose();
+            setLoading(false);
+
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+        setLoading(false)
+    } 
+    
+    handleAuthClose();
+
+  };
+}
+
+
+
+  const handlePasswordSubmit = async() => {
+     dispatch(fetchProjectDetails(selectedProject?.id));
+    const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(apiObj.getBody()),
@@ -90,18 +130,19 @@ const Projectcard = (props) => {
         open: true,
         message: resp?.message,
         variant: "success",
-      });
+      })
+      fetchNewTasks()
+
     } else {
       setSnackbarInfo({
         open: true,
         message: resp?.message,
         variant: "error",
-      });
-    }
-    navigate(`/projects/${selectedProject?.id}`)
+      })
     handleAuthClose();
-  };
 
+    }  
+  }
 
  
   const pageSearch = () => {
