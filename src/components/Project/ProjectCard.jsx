@@ -30,6 +30,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
+import CustomizedSnackbars from "../common/Snackbar";
 
 
 
@@ -54,7 +55,7 @@ const Projectcard = (props) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const [snackbar, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
   const handleShowFilter = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -136,7 +137,7 @@ const Projectcard = (props) => {
     } else {
       setSnackbarInfo({
         open: true,
-        message: resp?.message,
+        message: resp?.error,
         variant: "error",
       })
     handleAuthClose();
@@ -144,7 +145,20 @@ const Projectcard = (props) => {
     }  
   }
 
- 
+   const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
+  };
+
   const pageSearch = () => {
     return combinedData.filter((el) => {
       if (SearchProject == "") {
@@ -213,7 +227,8 @@ const Projectcard = (props) => {
   return (
     <React.Fragment>
       {/* <Header /> */}
-      {/* {loading && <Spinner />} */}
+      {renderSnackBar()}
+      {loading && <Spinner />}
       <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
         <Button style={{ minWidth: "25px" }} onClick={handleShowFilter}>
                   {filtersApplied && <InfoIcon color="primary" fontSize="small" sx={{position:"absolute", top:-4, right:-4}}/>}

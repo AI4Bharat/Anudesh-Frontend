@@ -51,6 +51,7 @@ import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
 import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 const defaultColumns = [
   "id",
@@ -136,9 +137,7 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
-    const workspaceDtails = useSelector(
-      (state) => state.getWorkspaceDetails.data,
-    );
+
   
 
   const getProjectReviewers = useSelector(
@@ -308,6 +307,7 @@ const TaskTable = (props) => {
       }
     };
   }, []);
+
 
   const fetchNewTasks = async () => {
     setLoading(true);
@@ -707,7 +707,7 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
-        if (workspaceDtails?.guest_workspace_display === "Yes") {
+        if (userDetails?.guest_user === true) {
           setPullDisabled("disable for guest user");
         }
     }
@@ -730,7 +730,7 @@ const TaskTable = (props) => {
         else if (pullDisabled === "You're no more a part of this project")
           setPullDisabled("");
       });
-      if (workspaceDtails?.guest_workspace_display === "Yes") {
+      if (userDetails?.guest_user === true) {
           setPullDisabled("disable for guest user");
         }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
