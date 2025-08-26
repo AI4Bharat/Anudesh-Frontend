@@ -34,6 +34,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import CustomizedSnackbars from "../common/Snackbar";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -70,7 +71,7 @@ const ProjectCardList = (props) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
   const [showPassword, setShowPassword] = useState(false);
-  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const [snackbar, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
   const combinedData = (projectData.included_projects && projectData.excluded_projects) ? projectData.excluded_projects.concat(projectData.included_projects).sort((a, b) => a.id - b.id) : projectData
   const navigate = useNavigate();
   const SearchProject = useSelector((state) => state.searchProjectCard?.searchValue);
@@ -166,13 +167,27 @@ const ProjectCardList = (props) => {
     } else {
       setSnackbarInfo({
         open: true,
-        message: resp?.message,
+        message: resp?.error,
         variant: "error",
       })
     handleAuthClose();
 
     } 
   } 
+    const renderSnackBar = () => {
+      return (
+        <CustomizedSnackbars
+          open={snackbar.open}
+          handleClose={() =>
+            setSnackbarInfo({ open: false, message: "", variant: "" })
+          }
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          variant={snackbar.variant}
+          message={snackbar.message}
+        />
+      );
+    };
+  
 
   const pageSearch = () => {
     return combinedData.filter((el) => {
@@ -531,6 +546,7 @@ const ProjectCardList = (props) => {
 
   return (
     <>
+    {renderSnackBar()}
     {loading && <Spinner />} 
       <ThemeProvider theme={tableTheme}>
         <MUIDataTable

@@ -35,6 +35,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import CustomizedSnackbars from "../common/Snackbar";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -65,7 +66,7 @@ const GuestWorkspaceTable = (props) => {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
-  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const [snackbar, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
   const [loading,setLoading] = useState(false);
   const SearchProject = useSelector(
     (state) => state.searchProjectCard?.searchValue,
@@ -182,7 +183,6 @@ const GuestWorkspaceTable = (props) => {
           variant: "success",
         });
             navigate(`/projects/${selectedProject?.id}`)
-            handleAuthClose();
             setLoading(false);
 
       } else {
@@ -193,9 +193,6 @@ const GuestWorkspaceTable = (props) => {
         });
         setLoading(false)
     } 
-    
-    handleAuthClose();
-
   };
 }
 
@@ -215,17 +212,31 @@ const GuestWorkspaceTable = (props) => {
         message: resp?.message,
         variant: "success",
       })
+      handleAuthClose();
       fetchNewTasks()
 
     } else {
       setSnackbarInfo({
         open: true,
-        message: resp?.message,
+        message: resp?.error,
         variant: "error",
       })
     handleAuthClose();
 
     }  
+  };
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
   };
 
   const columns = [
@@ -498,6 +509,7 @@ const GuestWorkspaceTable = (props) => {
 
   return (
     <div>
+      {renderSnackBar()}
       {loading && <Spinner />} 
       <div>
 
