@@ -43,7 +43,7 @@ const getTaskAssignedUsers = async (taskDetails) => {
     user && (
         <div key={idx} style={{display: "inline", fontSize: 12}}>
             {UserMappedByRole(idx + 1).element} 
-            {user?.first_name || user?.last_name 
+            {user?.first_name && user?.last_name 
                 ? `${user.first_name} ${user.last_name}`
                 : user?.email || 'No name/email available'}
         </div>
