@@ -323,16 +323,20 @@ const TasksassignDialog = () => {
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <TextField
+              select
               fullWidth
-              name="task_ids"
-              label="Task IDs (comma-separated) *"
+              name="annotation_type"
+              label="Annotation Type *"
               variant="outlined"
               margin="dense"
-              value={formData.task_ids}
+              value={formData.annotation_type}
               onChange={handleChange}
               required
-            />
-
+            >
+              <MenuItem value={1}>Annotation</MenuItem>
+              <MenuItem value={2}>Review</MenuItem>
+              <MenuItem value={3}>Supercheck</MenuItem>
+            </TextField>
             {/* User dropdown with roles */}
             <TextField
               select
@@ -352,22 +356,16 @@ const TasksassignDialog = () => {
                 </MenuItem>
               ))}
             </TextField>
-
             <TextField
-              select
               fullWidth
-              name="annotation_type"
-              label="Annotation Type *"
+              name="task_ids"
+              label="Task IDs (comma-separated) *"
               variant="outlined"
               margin="dense"
-              value={formData.annotation_type}
+              value={formData.task_ids}
               onChange={handleChange}
               required
-            >
-              <MenuItem value={1}>Annotation</MenuItem>
-              <MenuItem value={2}>Review</MenuItem>
-              <MenuItem value={3}>Supercheck</MenuItem>
-            </TextField>
+            />
           </form>
         </DialogContent>
         <DialogActions>
