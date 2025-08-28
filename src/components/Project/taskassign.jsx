@@ -59,31 +59,18 @@ const TasksassignDialog = () => {
           const { annotation_reviewers, annotators, review_supercheckers } =
             response.data;
 
-          // Build map of users with their roles
-          const roleMap = new Map();
+          // Merge all users into a single array (unique by id)
+          const combinedUsers = [
+            ...(annotation_reviewers || []),
+            ...(annotators || []),
+            ...(review_supercheckers || []),
+          ];
 
-          (annotators || []).forEach((u) => {
-            if (!roleMap.has(u.id)) {
-              roleMap.set(u.id, { ...u, roles: [] });
-            }
-            roleMap.get(u.id).roles.push('Annotator');
-          });
+          const uniqueUsers = Array.from(
+            new Map(combinedUsers.map((u) => [u.id, u])).values()
+          );
 
-          (annotation_reviewers || []).forEach((u) => {
-            if (!roleMap.has(u.id)) {
-              roleMap.set(u.id, { ...u, roles: [] });
-            }
-            roleMap.get(u.id).roles.push('Reviewer');
-          });
-
-          (review_supercheckers || []).forEach((u) => {
-            if (!roleMap.has(u.id)) {
-              roleMap.set(u.id, { ...u, roles: [] });
-            }
-            roleMap.get(u.id).roles.push('Superchecker');
-          });
-
-          setUsers(Array.from(roleMap.values()));
+          setUsers(uniqueUsers);
         } catch (error) {
           console.error('Error fetching project users:', error);
         }
@@ -150,6 +137,36 @@ const TasksassignDialog = () => {
         <DialogContent>
           <form onSubmit={handleSubmit}>
             <TextField
+              fullWidth
+              name="task_ids"
+              label="Task IDs (comma-separated) *"
+              variant="outlined"
+              margin="dense"
+              value={formData.task_ids}
+              onChange={handleChange}
+              required
+            />
+
+            {/* User dropdown instead of free text */}
+            <TextField
+              select
+              fullWidth
+              name="user_id"
+              label="Select User *"
+              variant="outlined"
+              margin="dense"
+              value={formData.user_id}
+              onChange={handleChange}
+              required
+            >
+              {users.map((user) => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.username || user.email || `User ${user.id}`}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
               select
               fullWidth
               name="annotation_type"
@@ -164,35 +181,6 @@ const TasksassignDialog = () => {
               <MenuItem value={2}>Review</MenuItem>
               <MenuItem value={3}>Supercheck</MenuItem>
             </TextField>
-            {/* User dropdown with roles */}
-            <TextField
-              select
-              fullWidth
-              name="user_id"
-              label="Select User *"
-              variant="outlined"
-              margin="dense"
-              value={formData.user_id}
-              onChange={handleChange}
-              required
-            >
-              {users.map((user) => (
-                <MenuItem key={user.id} value={user.id}>
-                  {user.username || user.email || `User ${user.id}`} (
-                  {user.roles.join(', ')})
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              fullWidth
-              name="task_ids"
-              label="Task IDs (comma-separated) *"
-              variant="outlined"
-              margin="dense"
-              value={formData.task_ids}
-              onChange={handleChange}
-              required
-            />
           </form>
         </DialogContent>
         <DialogActions>
