@@ -4,8 +4,7 @@ import CustomButton from "../common/Button";
 import { useNavigate } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import {
-  ThemeProvider,
-
+  ThemeProvider 
 } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
@@ -35,6 +34,8 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
 
 import ProjectList from "@/app/ui/pages/projects/project";
+import Spinner from "@/components/common/Spinner";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -72,7 +73,7 @@ const GuestWorkspaceTable = (props) => {
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
   const [open, setOpen] = useState(false);
-    const [displayWidth, setDisplayWidth] = useState(0);
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [currentWorkspaceName, setCurrentWorkspaceName] = useState("");
   const [currentWorkspaceId, setWorkspaceCurrentId] = useState("");
   const [password, setPassword] = useState('');
@@ -85,6 +86,7 @@ const GuestWorkspaceTable = (props) => {
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [filteredProjects, setFilteredProjects] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const guestWorkspaceData = useSelector(
     (state) => state.getGuestWorkspaces?.data
@@ -129,7 +131,10 @@ const GuestWorkspaceTable = (props) => {
     dispatch(fetchGuestWorkspaceData(currentPageNumber));
   }, []);
 
-  
+  const apiLoading = useSelector(
+    (state) => state.getGuestWorkspaces.status === "loading"
+  );
+
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
@@ -145,31 +150,34 @@ const GuestWorkspaceTable = (props) => {
 
     const AuthenticationObj = new AuthenticateToWorkspaceAPI(currentWorkspaceId, body);
     const res = await fetch(AuthenticationObj.apiEndPoint(), {
-        method: "PUT",
-        body: JSON.stringify(AuthenticationObj.getBody()),
-        headers: AuthenticationObj.getHeaders().headers,
-    }
-    );
-    if(!res.ok) {
+      method: "PUT",
+      body: JSON.stringify(AuthenticationObj.getBody()),
+      headers: AuthenticationObj.getHeaders().headers,
+    });
+    if (!res.ok) {
       handleClose();
       setSnackbarInfo({
         open: true,
         message: "something went wrong",
         variant: "error",
-      });    } else {
-        handleClose();
+      });
+    } else {
+      handleClose();
       setSnackbarInfo({
         open: true,
         message: "Successfully Authenticated",
         variant: "success",
       });
-      dispatch(addAuthenticatedWorkspace(currentWorkspaceId)); 
+      dispatch(addAuthenticatedWorkspace(currentWorkspaceId));
     }
   };
-    const handleViewWorkspace = (workspaceId) => {
+
+  const handleViewWorkspace = async (workspaceId) => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 4000));
     navigate(`/guest_workspaces/${workspaceId}`);
   };
-  
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -186,7 +194,7 @@ const GuestWorkspaceTable = (props) => {
 
   const pageSearch = () => {
     return guestWorkspaceData.filter((el) => {
-      if (SearchWorkspace == "") {
+      if (SearchWorkspace === "") {
         return el;
       } else if (
         el.workspace_name
@@ -201,6 +209,7 @@ const GuestWorkspaceTable = (props) => {
       ) {
         return el;
       }
+      return false;
     });
   };
 
@@ -212,14 +221,15 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          },
         }),
       },
     },
@@ -230,14 +240,15 @@ const GuestWorkspaceTable = (props) => {
         filter: false,
         sort: false,
         align: "center",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          },
         }),
       },
     },
@@ -249,14 +260,15 @@ const GuestWorkspaceTable = (props) => {
         sort: false,
         align: "center",
         display: showManager ? "true" : "exclude",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          },
         }),
       },
     },
@@ -268,14 +280,15 @@ const GuestWorkspaceTable = (props) => {
         sort: false,
         align: "center",
         display: showCreatedBy ? "true" : "exclude",
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          },
         }),
       },
     },
@@ -285,14 +298,15 @@ const GuestWorkspaceTable = (props) => {
       options: {
         filter: false,
         sort: false,
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          },
         }),
       },
     },
@@ -302,94 +316,103 @@ const GuestWorkspaceTable = (props) => {
     guestWorkspaceData && guestWorkspaceData.length > 0
       ? pageSearch().map((el, i) => {
           const isAuthenticated =
-          el.is_autheticated || authenticatedWorkspaces.includes(el.id);
+            el.is_autheticated || authenticatedWorkspaces.includes(el.id);
           return [
             el.id,
             el.workspace_name,
             el.managers
-              .map((manager, index) => {
-                return manager.username;
-              })
+              .map((manager) => manager.username)
               .join(", "),
             el.created_by && el.created_by.username,
             <CustomButton
-            key={i}
-            sx={{ borderRadius: 2 }}
-            label={isAuthenticated ? "View" : "Authenticate"}
-            onClick={
-              isAuthenticated
-                ? () => handleViewWorkspace(el.id)
-                : () => handleOpen(el.workspace_name, el.id)
-            }
-          />,
+              key={i}
+              sx={{ borderRadius: 2 }}
+              label={isAuthenticated ? "View" : "Authenticate"}
+              onClick={
+                isAuthenticated
+                  ? () => handleViewWorkspace(el.id)
+                  : () => handleOpen(el.workspace_name, el.id)
+              }
+            />,
           ];
         })
       : [];
-      const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-        return (
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap", 
-              justifyContent: { 
-                xs: "space-between", 
-                md: "flex-end" 
-              }, 
-              alignItems: "center",
-              padding: "10px",
-              gap: { 
-                xs: "10px", 
-                md: "20px" 
-              }, 
+
+  const CustomFooter = ({
+    count,
+    page,
+    rowsPerPage,
+    changeRowsPerPage,
+    changePage,
+  }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end",
+          },
+          alignItems: "center",
+          padding: "10px",
+          gap: {
+            xs: "10px",
+            md: "20px",
+          },
+        }}
+      >
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
+          }}
+        />
+
+        {/* Jump to Page */}
+        <div>
+          <label
+            style={{
+              marginRight: "5px",
+              fontSize: "0.83rem",
             }}
           >
-      
-            {/* Pagination Controls */}
-            <TablePagination
-              component="div"
-              count={count}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={(_, newPage) => changePage(newPage)}
-              onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
-              sx={{
-                "& .MuiTablePagination-actions": {
-                marginLeft: "0px",
-              },
-              "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-                marginRight: "10px",
-              },
-              }}
-            />
-      
-            {/* Jump to Page */}
-            <div>
-              <label style={{ 
-                marginRight: "5px", 
-                fontSize:"0.83rem", 
-              }}>
-              Jump to Page:
-              </label>
-              <Select
-                value={page + 1}
-                onChange={(e) => changePage(Number(e.target.value) - 1)}
-                sx={{
-                  fontSize: "0.8rem",
-                  padding: "4px",
-                  height: "32px",
-                }}
-              >
-                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-                  <MenuItem key={i} value={i + 1}>
-                    {i + 1}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-          </Box>
-        );
-      };
-    
+            Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
+            sx={{
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+            }}
+          >
+            {Array.from(
+              { length: Math.ceil(count / rowsPerPage) },
+              (_, i) => (
+                <MenuItem key={i} value={i + 1}>
+                  {i + 1}
+                </MenuItem>
+              )
+            )}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
+
   const options = {
     textLabels: {
       body: {
@@ -427,84 +450,91 @@ const GuestWorkspaceTable = (props) => {
 
   return (
     <div>
-            {filteredProjects ? (
+      {loading ? (
+        <Spinner />
+      ) : apiLoading ? (
+        <Spinner />
+      ) : filteredProjects ? (
         <ProjectList data={filteredProjects} />
       ) : (
         <>
-      {renderSnackBar()}
-      <Grid sx={{ mb: 1 }}>
-        <Search />
-      </Grid>
+          {renderSnackBar()}
+          <Grid sx={{ mb: 1 }}>
+            <Search />
+          </Grid>
+          <ThemeProvider theme={tableTheme}>
+            <MUIDataTable
+              key={`table-${displayWidth}`}
+              title={""}
+              data={data}
+              columns={columns}
+              options={{
+                ...options,
+                tableBodyHeight: `${
+                  typeof window !== "undefined"
+                    ? window.innerHeight - 200
+                    : 400
+                }px`,
+              }}
+            />
+          </ThemeProvider>
 
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          title={""}
-          data={data}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-          }}
-        />
-      </ThemeProvider>
-      
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
-      >
-        <Fade in={open}>
-          <Box sx={style}>
-            <FormControl>
-              <InputLabel htmlFor="my-input">Enter Password</InputLabel>
-              <Input
-                id="my-input"
-                type={showPassword ? "text" : "password"}
-                aria-describedby="enter-password"
-                value={password}
-                onChange={handlePasswordChange}
-                endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={handleTogglePasswordVisibility}
-                        edge="end"
-                        aria-label="toggle password visibility"
-                      >
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                }
-              />
-              <FormHelperText id="enter-password">
-                To enter{" "}
-                <Typography
-                  component="span"
-                  fontWeight="bold"
-                  fontSize={"12px"}
-                >
-                  {currentWorkspaceName}
-                </Typography>{" "}
-                workspace you must type in the password.
-              </FormHelperText>
-              <CustomButton
-                sx={{ borderRadius: 2, marginTop: "2rem" }}
-                label="Enter"
-                onClick={handleSubmitPassword}
-              />
-            </FormControl>
-          </Box>
-        </Fade>
-      </Modal>
-      </>
+          <Modal
+            aria-labelledby="transition-modal-title"
+            aria-describedby="transition-modal-description"
+            open={open}
+            onClose={handleClose}
+            closeAfterTransition
+            slots={{ backdrop: Backdrop }}
+            slotProps={{
+              backdrop: {
+                timeout: 500,
+              },
+            }}
+          >
+            <Fade in={open}>
+              <Box sx={style}>
+                <FormControl>
+                  <InputLabel htmlFor="my-input">Enter Password</InputLabel>
+                  <Input
+                    id="my-input"
+                    type={showPassword ? "text" : "password"}
+                    aria-describedby="enter-password"
+                    value={password}
+                    onChange={handlePasswordChange}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleTogglePasswordVisibility}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                  <FormHelperText id="enter-password">
+                    To enter{" "}
+                    <Typography
+                      component="span"
+                      fontWeight="bold"
+                      fontSize={"12px"}
+                    >
+                      {currentWorkspaceName}
+                    </Typography>{" "}
+                    workspace you must type in the password.
+                  </FormHelperText>
+                  <CustomButton
+                    sx={{ borderRadius: 2, marginTop: "2rem" }}
+                    label="Enter"
+                    onClick={handleSubmitPassword}
+                  />
+                </FormControl>
+              </Box>
+            </Fade>
+          </Modal>
+        </>
       )}
     </div>
   );
