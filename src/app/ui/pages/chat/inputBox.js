@@ -420,7 +420,7 @@ function GuestChatPage() {
         const formattedResponse = formatResponse(interactionData.message);
         const newEntry = {
           prompt: inputValue,
-          output: formattedResponse,
+          output: interactionData.message,
         };
         const updatedChatHistory = [...chatHistory, newEntry];
         setChatHistory(updatedChatHistory);
