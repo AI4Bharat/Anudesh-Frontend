@@ -134,3 +134,4 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
 };
 
 export default AllocateTasksDialog;
+

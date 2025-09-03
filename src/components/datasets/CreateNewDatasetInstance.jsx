@@ -51,11 +51,10 @@ const CollectionProject = (props) => {
 
   useEffect(() => {
     setUsers([loggedInUserData.id])
-    if (loggedInUserData?.organization?.id) {
-      setOrganisation_Id(loggedInUserData.organization.id)
-    }
-  },[loggedInUserData])
- 
+  },[]) 
+
+
+
   const handleCreate = () => {
     setLoading(true);
     setErrors({});
