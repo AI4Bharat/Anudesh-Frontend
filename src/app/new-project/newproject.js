@@ -164,6 +164,11 @@ const CreateProject = () => {
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
   const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
+  const [defaultValue, setDefaultValue] = useState(0);
+
+  const handleTextareaChange = (event) => {
+    setDefaultValue(event.target.value);
+  };
 
   useEffect(() => {
     if (selectedType === "MultipleLLMInstructionDrivenChat") {
@@ -484,6 +489,29 @@ const CreateProject = () => {
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
   const handleCreateProject = async () => {
+      const autoAssignCount = parseInt(defaultValue);
+
+  let baseMetadata = {};
+  
+  if (selectedType === "MultipleLLMInstructionDrivenChat") {
+    baseMetadata = {
+            enable_preference_selection: isModelSelectionEnabled,
+            questions_json: questionsJSON,
+            models_set: selectedLanguageModels,
+            fixed_models: fixedModels,
+            num_models: numSelectedModels,
+    };
+  } else {
+    baseMetadata = questionsJSON;
+  }
+
+  if (workspaceDtails?.guest_workspace_display === "Yes") {
+    baseMetadata = {
+      ...baseMetadata,
+      auto_assign_count: autoAssignCount
+    };
+  }
+
     const newProject = {
       title: title,
       description: description,
@@ -509,16 +537,7 @@ const CreateProject = () => {
       automatic_annotation_creation_mode: createannotationsAutomatically,
       is_published: is_published,
       password: passwordForProjects,
-      metadata_json:
-        selectedType === "MultipleLLMInstructionDrivenChat"
-          ? {
-            enable_preference_selection: isModelSelectionEnabled,
-            questions_json: questionsJSON,
-            models_set: selectedLanguageModels,
-            fixed_models: fixedModels,
-            num_models: numSelectedModels,
-          }
-          : questionsJSON,
+      metadata_json:baseMetadata,
       conceal: conceal,
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
@@ -1620,6 +1639,41 @@ const CreateProject = () => {
                     />
                   </Grid>
                 ) : null}
+                {workspaceDtails?.guest_workspace_display === "Yes" ? (
+                  <Grid container direction="row" alignItems="center" spacing={2}>
+                    <Grid item>
+                      <Typography gutterBottom component="div">
+                        Task Auto Assign count :
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <TextField
+                        size="small"
+                        type="number"
+                        value={defaultValue}
+                        onChange={handleTextareaChange}
+                        inputProps={{
+                          min: 1,
+                          max: 100,
+                          style: {
+                            width: '60px',
+                            height: '32px',
+                            padding: '4px 8px'
+                          }
+                        }}
+                        sx={{
+                          mt: 2,
+                          ml: 2,
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            height: '40px'
+                          }
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                ) : null}
+
                 <Grid container direction="row" alignItems="center">
                   <Typography gutterBottom components="div">
                     Hide Details :

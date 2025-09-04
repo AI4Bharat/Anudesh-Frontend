@@ -177,7 +177,7 @@ const MultipleLLMInstructionDrivenChat = ({
         annotation[0].result[0].model_interactions;
       const interactions_length =
         allModelsInteractions[0]?.interaction_json?.length || 0;
-
+      console.log("lead", allModelsInteractions);
       for (let i = 0; i < interactions_length; i++) {
         const prompt =
           allModelsInteractions[0]?.interaction_json[i]?.prompt;
@@ -187,12 +187,14 @@ const MultipleLLMInstructionDrivenChat = ({
 
         allModelsInteractions.forEach((modelData, modelIdx) => {
           const interaction = modelData?.interaction_json?.[i];
+          console.log("lead", interaction);
+
           if (interaction) {
             const response_valid = isString(interaction?.output);
             if (!response_valid) {
               setIsModelFailing(true);
             }
-            if (modelIdx === 0) { // Use the first model's ID as the turn's primary ID
+            if (modelIdx === 0) {
               turnPromptOutputPairId = interaction?.prompt_output_pair_id;
             }
 
@@ -350,7 +352,7 @@ const MultipleLLMInstructionDrivenChat = ({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
-      
+
       let errorMessage = null;
 
       for (const [modelName, modelResponse] of Object.entries(data.output)) {
@@ -411,12 +413,15 @@ const MultipleLLMInstructionDrivenChat = ({
 
             allModelsInteractions.forEach((modelData, modelIdx) => {
               const interaction = modelData?.interaction_json?.[i];
+              console.log("lead", interaction,)
+
               if (interaction) {
                 const response_valid = isString(interaction?.output);
+                console.log("lead", response_valid, interaction)
                 if (!response_valid) {
                   setIsModelFailing(true);
                 }
-                if (modelIdx === 0) { // Use the first model's ID for eval form mapping
+                if (modelIdx === 0) {
                   turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                 }
 
@@ -1128,16 +1133,16 @@ const MultipleLLMInstructionDrivenChat = ({
               <Grid
                 item
                 xs
-                
+
                 sx={{
                   display: "flex",
                   flexDirection: "row",
                   flexWrap: "nowrap",
-                  overflowX: "auto", 
-                  scrollbarWidth: "none",  
-                  "-ms-overflow-style": "none", 
+                  overflowX: "auto",
+                  scrollbarWidth: "none",
+                  "-ms-overflow-style": "none",
                   "&::-webkit-scrollbar": {
-                    display: "none", 
+                    display: "none",
                   },
                   justifyContent: "flex-start",
                   gap: "0.5rem",
@@ -2325,7 +2330,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                whiteSpace: "pre-line", 
+                whiteSpace: "pre-line",
               }}
             >
               {info.instruction_data}
