@@ -164,7 +164,7 @@ const CreateProject = () => {
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
   const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
-  const [defaultValue, setDefaultValue] = useState(5);
+  const [defaultValue, setDefaultValue] = useState(0);
 
   const handleTextareaChange = (event) => {
     setDefaultValue(event.target.value);
