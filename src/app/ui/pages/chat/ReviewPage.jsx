@@ -550,7 +550,6 @@ const ReviewPage = () => {
 
   const resetNotes = () => {
     if (
-      typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current &&
       superCheckerNotesRef.current
