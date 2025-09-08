@@ -35,6 +35,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
 
 import ProjectList from "@/app/ui/pages/projects/project";
+import Spinner from "@/components/common/Spinner";
 const style = {
   position: "absolute",
   top: "50%",
@@ -72,7 +73,7 @@ const GuestWorkspaceTable = (props) => {
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;
   const [open, setOpen] = useState(false);
-    const [displayWidth, setDisplayWidth] = useState(0);
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [currentWorkspaceName, setCurrentWorkspaceName] = useState("");
   const [currentWorkspaceId, setWorkspaceCurrentId] = useState("");
   const [password, setPassword] = useState('');
@@ -85,6 +86,7 @@ const GuestWorkspaceTable = (props) => {
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [filteredProjects, setFilteredProjects] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const guestWorkspaceData = useSelector(
     (state) => state.getGuestWorkspaces?.data
@@ -95,14 +97,6 @@ const GuestWorkspaceTable = (props) => {
   const authenticatedWorkspaces = useSelector(
     (state) => state.getGuestWorkspaces?.authenticatedWorkspaces
   );
-
-  const handleOpen = (workspace_name, workspace_id) => {
-    setPassword("");
-    setWorkspaceCurrentId(workspace_id);
-    setCurrentWorkspaceName(workspace_name);
-    setOpen(true);
-  };
-  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -129,7 +123,18 @@ const GuestWorkspaceTable = (props) => {
     dispatch(fetchGuestWorkspaceData(currentPageNumber));
   }, []);
 
-  
+  const apiLoading = useSelector(
+    (state) => state.getGuestWorkspaces.status === "loading"
+  );
+
+  const handleOpen = (workspace_name, workspace_id) => {
+    setPassword("");
+    setWorkspaceCurrentId(workspace_id);
+    setCurrentWorkspaceName(workspace_name);
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
+
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
@@ -166,7 +171,7 @@ const GuestWorkspaceTable = (props) => {
       dispatch(addAuthenticatedWorkspace(currentWorkspaceId)); 
     }
   };
-    const handleViewWorkspace = (workspaceId) => {
+  const handleViewWorkspace = (workspaceId) => {
     navigate(`/guest_workspaces/${workspaceId}`);
   };
   
@@ -427,7 +432,9 @@ const GuestWorkspaceTable = (props) => {
 
   return (
     <div>
-            {filteredProjects ? (
+      {loading || apiLoading ? (
+        <Spinner />
+      ) : filteredProjects ? (
         <ProjectList data={filteredProjects} />
       ) : (
         <>
