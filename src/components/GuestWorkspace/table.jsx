@@ -35,6 +35,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import { fetchGuestWorkspaceData } from "@/Lib/Features/getGuestWorkspaces";
 import CustomizedSnackbars from "../common/Snackbar";
 
 const MUIDataTable = dynamic(
@@ -68,11 +69,12 @@ const GuestWorkspaceTable = (props) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [snackbar, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
   const [loading,setLoading] = useState(false);
+  const [currentWorkspaceDetails, setCurrentWorkspaceDetails] = useState(null);
   const SearchProject = useSelector(
     (state) => state.searchProjectCard?.searchValue,
   );
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  
+  const guestWorkspaceData = useSelector((state) => state.getGuestWorkspaces?.data);
   
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
@@ -96,6 +98,8 @@ const GuestWorkspaceTable = (props) => {
     }, []);
 
   useEffect(() => {
+    dispatch(fetchGuestWorkspaceData(1));
+    
     dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
         const state = store.getState().getProjects.data || {};
         const includedProjects = state.included_projects || [];
@@ -114,9 +118,17 @@ const GuestWorkspaceTable = (props) => {
         };
     
         setFilteredProjects(filteredProjects);
-        console.log(filteredProjects,"hello",id);
       });
   }, []);
+
+  useEffect(() => {
+    if (guestWorkspaceData && guestWorkspaceData.length > 0) {
+      const currentWorkspace = guestWorkspaceData.find(ws => ws.id == id);
+      if (currentWorkspace) {
+        setCurrentWorkspaceDetails(currentWorkspace);
+      }
+    }
+  }, [guestWorkspaceData, id]);
 
   const pageSearch = () => {
     return combinedData.filter((el) => {
@@ -512,6 +524,33 @@ const GuestWorkspaceTable = (props) => {
       {renderSnackBar()}
       {loading && <Spinner />} 
       <div>
+        {currentWorkspaceDetails && (
+          <>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ mb: 3 }}
+            >
+              <Box flex="1" textAlign="center">
+                <Typography variant="h3">{currentWorkspaceDetails.workspace_name}</Typography>
+              </Box>
+            </Box>
+            <Typography
+              variant="body1"
+              gutterBottom
+              component="div"
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                fontSize: "1rem",
+              }}
+            >
+              Created by : {currentWorkspaceDetails.created_by?.username}
+            </Typography>
+          </>
+        )}
 
         <Grid sx={{ mb: 1 }}>
           <Search />
