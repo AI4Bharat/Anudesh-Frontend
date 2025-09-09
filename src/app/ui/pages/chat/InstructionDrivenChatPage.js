@@ -305,40 +305,40 @@ const InstructionDrivenChatPage = ({
   };
   const [text, setText] = useState("");
   const [targetLang, setTargetLang] = useState("");
-  // const [globalTransliteration, setGlobalTransliteration] = useState(false);
+  const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
 
-    // if (typeof window !== "undefined") {
-    //   const storedGlobalTransliteration = localStorage.getItem(
-    //     "globalTransliteration",
-    //   );
-    //   const storedLanguage = localStorage.getItem("language");
-
-    //   if (storedGlobalTransliteration !== null) {
-    //     setGlobalTransliteration(storedGlobalTransliteration === "true");
-    //   }
-      // if (storedLanguage !== null) {
-      //   setTargetLang(storedLanguage);
-      // }
-      const lc = LanguageCode.languages.find(
-        (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
+    if (typeof window !== "undefined") {
+      const storedGlobalTransliteration = localStorage.getItem(
+        "globalTransliteration",
       );
+      const storedLanguage = localStorage.getItem("language");
 
-      if (Number(info.meta_info_language) < 3){
-        setTargetLang(lc.code);
-      }else{
-        setTargetLang("en");
+      if (storedGlobalTransliteration !== null) {
+        setGlobalTransliteration(storedGlobalTransliteration);
       }
-
-      // console.log(
-      //   globalTransliteration,
-      //   "lll",
-      //   localStorage.getItem("globalTransliteration"),
+      if (storedLanguage !== null) {
+        setTargetLang(storedLanguage);
+      }
+      // const lc = LanguageCode.languages.find(
+      //   (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
       // );
-    // }
+
+      // if (Number(info.meta_info_language) < 3){
+      //   setTargetLang(lc.code);
+      // }else{
+      //   setTargetLang("en");
+      // }
+
+      console.log(
+        globalTransliteration,
+        "lll",
+        localStorage.getItem("globalTransliteration"),
+      );
+    }
   }, [chatHistory]);
 
   useEffect(() => {
@@ -394,11 +394,11 @@ const InstructionDrivenChatPage = ({
     return null;
   }
   const handleTextChange = (e, index, message, fieldType) => {
-    // if (globalTransliteration) {
+    if (globalTransliteration) {
       var updatedValue = e;
-    // } else {
-    //   var updatedValue = e.target.value;
-    // }
+    } else {
+      var updatedValue = e.target.value;
+    }
 
     const updatedChatHistory = [...chatHistory];
 
@@ -446,7 +446,7 @@ const InstructionDrivenChatPage = ({
             </Grid>
             <Grid item xs className="w-full">
               {ProjectDetails?.metadata_json?.editable_prompt ? (
-                // globalTransliteration ? (
+                globalTransliteration === "true" ? (
                   <IndicTransliterate
                     customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                     enableASR={true}
@@ -479,27 +479,27 @@ const InstructionDrivenChatPage = ({
                     lang={targetLang}
                     enabled={targetLang === "en" ? false : true}
                   />
-                // ) : (
-                //   <textarea
-                //     value={message.prompt}
-                //     onChange={(e) =>
-                //       handleTextChange(e, null, message, "prompt")
-                //     }
-                //     style={{
-                //       fontSize: "1rem",
-                //       width: "100%",
-                //       padding: "12px",
-                //       borderRadius: "12px 12px 0 12px",
-                //       color: grey[900],
-                //       background: "#ffffff",
-                //       border: `1px solid ${grey[200]}`,
-                //       boxShadow: `0px 2px 2px ${grey[50]}`,
-                //       minHeight: "5rem",
-                //       resize: "none",
-                //     }}
-                //     rows={1}
-                //   />
-                // )
+                ) : (
+                  <textarea
+                    value={message.prompt}
+                    onChange={(e) =>
+                      handleTextChange(e, null, message, "prompt")
+                    }
+                    style={{
+                      fontSize: "1rem",
+                      width: "100%",
+                      padding: "12px",
+                      borderRadius: "12px 12px 0 12px",
+                      color: grey[900],
+                      background: "#ffffff",
+                      border: `1px solid ${grey[200]}`,
+                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                      minHeight: "5rem",
+                      resize: "none",
+                    }}
+                    rows={1}
+                  />
+                )
               ) : (
                 <ReactMarkdown
                   className="flex-col"
@@ -573,7 +573,7 @@ const InstructionDrivenChatPage = ({
               {message?.output.map((segment, index) =>
                 segment.type === 'text' ? (
                   (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
-                    // globalTransliteration ? (
+                    globalTransliteration === "true" ? (
                       <IndicTransliterate
                         key={index}
                         value={segment.value}
@@ -599,28 +599,28 @@ const InstructionDrivenChatPage = ({
                         apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
                         enabled={targetLang === "en" ? false : true}
                       />
-                    // ) : (
-                    //   <textarea
-                    //     key={index}
-                    //     value={segment.value}
-                    //     onChange={(e) =>
-                    //       handleTextChange(e, index, message, "output")
-                    //     }
-                    //     style={{
-                    //       fontSize: "1rem",
-                    //       width: "100%",
-                    //       padding: "12px",
-                    //       borderRadius: "12px 12px 0 12px",
-                    //       color: grey[900],
-                    //       background: "#ffffff",
-                    //       border: `1px solid ${grey[200]}`,
-                    //       boxShadow: `0px 2px 2px ${grey[50]}`,
-                    //       minHeight: "5rem",
-                    //       resize: "none",
-                    //     }}
-                    //     rows={1}
-                    //   />
-                    // )
+                    ) : (
+                      <textarea
+                        key={index}
+                        value={segment.value}
+                        onChange={(e) =>
+                          handleTextChange(e, index, message, "output")
+                        }
+                        style={{
+                          fontSize: "1rem",
+                          width: "100%",
+                          padding: "12px",
+                          borderRadius: "12px 12px 0 12px",
+                          color: grey[900],
+                          background: "#ffffff",
+                          border: `1px solid ${grey[200]}`,
+                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                          minHeight: "5rem",
+                          resize: "none",
+                        }}
+                        rows={1}
+                      />
+                    )
                   ) : (
                     <ReactMarkdown
                       key={index}
@@ -810,7 +810,7 @@ const InstructionDrivenChatPage = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                whiteSpace: "pre-line", 
+                whiteSpace: "pre-line",
               }}
             >
               {info.instruction_data}
@@ -866,7 +866,10 @@ const InstructionDrivenChatPage = ({
                 class_name={"w-full"}
                 loading={loading}
                 inputValue={inputValue}
-                defaultLang={targetLang}
+                // defaultLang={targetLang}
+                overrideGT={true}
+                task_id={taskId}
+                script={info.meta_info_language}
               />
             </Grid>
           ) : null}

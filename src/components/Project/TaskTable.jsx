@@ -50,7 +50,8 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
-import { setPage, setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
+import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 const defaultColumns = [
   "id",
@@ -137,6 +138,8 @@ const TaskTable = (props) => {
     (state) => state.getProjectDetails?.data.annotators,
   );
 
+  
+
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
   );
@@ -148,10 +151,13 @@ const TaskTable = (props) => {
     const AllPageFilters = useSelector((state) => state.taskPaginationSlice?.data);
 
     const currentPageFromState = useSelector(state => {
-    const filter = state.taskPaginationSlice?.data[0]
-    
-    return filter?.page || 1;
-  });
+  const filters = state.taskPaginationSlice?.data || [];
+  const matchingFilter = filters.find(filter => 
+    filter.id === id && filter.type === props.type
+  );
+  return matchingFilter?.page || 1; 
+});
+
 
   const [currentPageNumber, setCurrentPageNumber] = useState(currentPageFromState);
 
@@ -301,6 +307,7 @@ const TaskTable = (props) => {
       }
     };
   }, []);
+
 
   const fetchNewTasks = async () => {
     setLoading(true);
@@ -700,6 +707,9 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
+        if (userDetails?.guest_user === true) {
+          setPullDisabled("disable for guest user");
+        }
     }
   }, [ProjectDetails.labeled_task_count]);
 
@@ -720,6 +730,9 @@ const TaskTable = (props) => {
         else if (pullDisabled === "You're no more a part of this project")
           setPullDisabled("");
       });
+      if (userDetails?.guest_user === true) {
+          setPullDisabled("disable for guest user");
+        }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
     }
   }, [
@@ -1317,7 +1330,7 @@ const TaskTable = (props) => {
                   : 4
               }
             >
-              <Tooltip title={pullDisabled}>
+             <Tooltip title={pullDisabled}>
                 <Box>
                   <CustomButton
                     sx={{

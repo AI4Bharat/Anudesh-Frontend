@@ -28,6 +28,7 @@ npm-debug.log*
 
 # config files
 *.config.js
+src/config/config.js
 *.layout.js
 
 # Playwright
