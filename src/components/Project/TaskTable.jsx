@@ -1112,7 +1112,7 @@ const TaskTable = (props) => {
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
       setCurrentPageNumber(1);
-      dispatch(setPage({ projectId: id, page : 1}));
+      dispatch(setPageFilter({ projectId: id, page : 1}));
       setCurrentRowPerPage(rowPerPageCount);
     },
     filterType: "checkbox",
