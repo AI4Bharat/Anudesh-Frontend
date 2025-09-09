@@ -29,7 +29,6 @@ import DeleteProjectTasks from "./DeleteProjectTasks";
 import { snakeToTitleCase } from "@/utils/utils";
 import ExportProjectDialog from "./ExportProjectDialog";
 import DeallocationAnnotatorsAndReviewers from "./DeallocationAnnotatorsAndReviewers";
-import AllocateTasksDialog from "./manualtaskassign";
 import SuperCheckSettings from "./SuperCheckSettings";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import TextField from "@mui/material/TextField";
@@ -44,7 +43,7 @@ import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 /* eslint-disable react-hooks/exhaustive-deps */
-
+import TasksassignDialog from "./taskassign";
 const ProgressType = [
   "incomplete",
   "annotated",
@@ -659,9 +658,9 @@ const AdvancedOperation = (props) => {
               downloadMetadataToggle={downloadMetadataToggle}
             />
           </Grid>
-           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+           {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <AllocateTasksDialog />
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <DeleteProjectTasks />
           </Grid>
@@ -719,6 +718,9 @@ const AdvancedOperation = (props) => {
                 ))}
               </Select>
             </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <TasksassignDialog />
           </Grid>
 
           {(userRole.WorkspaceManager === loggedInUserData?.role ||
