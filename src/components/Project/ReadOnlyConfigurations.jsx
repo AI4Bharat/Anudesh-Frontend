@@ -207,20 +207,107 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
         )}
       </>
     )}
-  </Grid>
 
-  {/* Variable Parameters Section */}
-  <Grid container direction="row" sx={{ mt: 4 }}>
-    {ProjectDetails?.variable_parameters?.output_language && (
-      <div>
-        <Grid item xs={12} sx={{ mb: 2 }}>
+    {/* Multi LLM Interaction Project Details */}
+    {ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json && (
+      <>
+        <Grid item xs={12}>
           <Typography
             variant="h6"
-            sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
+            sx={{
+              fontSize: { xs: "1rem", md: "1.25rem" },
+              textAlign: { xs: "center", sm: "left" },
+              mt: 4,
+              mb: 2,
+            }}
           >
-            Variable Parameters
+            Multi LLM Interaction Project Details
           </Typography>
         </Grid>
+
+        {/* No. of Models */}
+        {ProjectDetails.metadata_json.num_models && (
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 2,
+            }}
+          >
+            <Typography variant="subtitle1">No. of Models:</Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
+            >
+              {ProjectDetails.metadata_json.num_models}
+            </Typography>
+          </Grid>
+        )}
+
+        {/* Models set */}
+        {ProjectDetails.metadata_json.models_set && (
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 2,
+            }}
+          >
+            <Typography variant="subtitle1">Models set:</Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
+            >
+              {Array.isArray(ProjectDetails.metadata_json.models_set) 
+                ? ProjectDetails.metadata_json.models_set.join(", ")
+                : ProjectDetails.metadata_json.models_set
+              }
+            </Typography>
+          </Grid>
+        )}
+
+        {/* Fixed Models */}
+        {ProjectDetails.metadata_json.fixed_models && (
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              mb: 2,
+            }}
+          >
+            <Typography variant="subtitle1">Fixed Models:</Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
+            >
+              {Array.isArray(ProjectDetails.metadata_json.fixed_models) 
+                ? ProjectDetails.metadata_json.fixed_models.join(", ")
+                : ProjectDetails.metadata_json.fixed_models
+              }
+            </Typography>
+          </Grid>
+        )}
+      </>
+    )}
+
+  {/* Variable Parameters Section */}
+    {ProjectDetails?.variable_parameters?.output_language && (
+      <Grid item xs={12}>
+        <Typography
+          variant="h6"
+          sx={{ fontSize: { xs: "1rem", md: "1.25rem" }, mt: 4, mb: 2 }}
+        >
+          Variable Parameters
+        </Typography>
 
         {/* Output Language */}
         <Grid
@@ -241,7 +328,7 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
             {ProjectDetails?.variable_parameters?.output_language}
           </Typography>
         </Grid>
-      </div>
+      </Grid>
     )}
   </Grid>
 </ThemeProvider>
