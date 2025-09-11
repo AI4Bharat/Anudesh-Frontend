@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import tableTheme from "@/themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
-
+import CreateProjectDropdown from "@/components/Project/createprojectbutton";
 export default function ProjectList({ data }) {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
@@ -32,10 +32,10 @@ export default function ProjectList({ data }) {
     return savedFilters
       ? JSON.parse(savedFilters)
       : {
-          project_type: "",
-          project_user_type: "",
-          archived_projects: "",
-        };
+        project_type: "",
+        project_user_type: "",
+        archived_projects: "",
+      };
   });
 
   const [guestworkspace, setguestworkspace] = useState(false);
@@ -120,7 +120,22 @@ export default function ProjectList({ data }) {
               </FormControl>
             </Grid>
 
-            <Grid item sx={{mt:1,mb:1,mr:2,ml:2}}>
+            <CreateProjectDropdown />
+            {/* {workspaceData && (
+              <ThemeProvider theme={tableTheme}>
+                <MUIDataTable
+                  key={`table-${displayWidth}`}
+                  title={""}
+                  data={data}
+                  columns={columns}
+                  options={{
+                    ...options,
+                    tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                  }}
+                />
+              </ThemeProvider>
+            )} */}
+            <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
               <Search />
             </Grid>
           </Grid>
