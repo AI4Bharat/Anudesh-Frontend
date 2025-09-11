@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import tableTheme from "@/themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
-
+import CreateProjectDropdown from "@/components/Project/createprojectbutton";
 export default function ProjectList({ data }) {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
@@ -32,10 +32,10 @@ export default function ProjectList({ data }) {
     return savedFilters
       ? JSON.parse(savedFilters)
       : {
-          project_type: "",
-          project_user_type: "",
-          archived_projects: "",
-        };
+        project_type: "",
+        project_user_type: "",
+        archived_projects: "",
+      };
   });
 
   const [guestworkspace, setguestworkspace] = useState(false);
@@ -62,6 +62,7 @@ export default function ProjectList({ data }) {
     }
   }, [selectedFilters, loggedInUserData]);
 
+
   // Save selected filters to localStorage
   useEffect(() => {
     localStorage.setItem(
@@ -79,73 +80,84 @@ export default function ProjectList({ data }) {
     setRadiobutton(false);
   };
   const displayedProjects = projectData;
-
-  const firstLoad = apiLoading || (projectData && projectData.length === 0);
-  if (firstLoad) {
-    return (
-      <ThemeProvider theme={themeDefault}>
-        <Spinner />
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider theme={themeDefault}>
-      <>
-        <Grid container className="root">
-          <Grid item style={{ flexGrow: "0" }}>
-            <Typography
-              variant="h6"
-              sx={{ paddingBottom: "7px", paddingLeft: "15px" }}
-            >
-              View :{" "}
-            </Typography>
-          </Grid>
-          <Grid item style={{ flexGrow: "1", paddingLeft: "5px" }}>
-            <FormControl>
-              <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                defaultValue="ProjectList"
+      {apiLoading || (projectData && projectData.length === 0) ? (
+        <Spinner />
+      ) : (
+        <>
+          <Grid container className="root">
+            <Grid item style={{ flexGrow: "0" }}>
+              <Typography
+                variant="h6"
+                sx={{ paddingBottom: "7px", paddingLeft: "15px" }}
               >
-                <FormControlLabel
-                  value="ProjectList"
-                  control={<Radio />}
-                  label="List"
-                  onClick={handleProjectlist}
+                View :{" "}
+              </Typography>
+            </Grid>
+            <Grid item style={{ flexGrow: "1", paddingLeft: "5px" }}>
+              <FormControl>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-radio-buttons-group-label"
+                  name="row-radio-buttons-group"
+                  defaultValue="ProjectList"
+                >
+                  <FormControlLabel
+                    value="ProjectList"
+                    control={<Radio />}
+                    label="List"
+                    onClick={handleProjectlist}
+                  />
+                  <FormControlLabel
+                    value="ProjectCard"
+                    control={<Radio />}
+                    label="Card"
+                    onClick={handleProjectcard}
+                  />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+
+            <CreateProjectDropdown />
+            {/* {workspaceData && (
+              <ThemeProvider theme={tableTheme}>
+                <MUIDataTable
+                  key={`table-${displayWidth}`}
+                  title={""}
+                  data={data}
+                  columns={columns}
+                  options={{
+                    ...options,
+                    tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                  }}
                 />
-                <FormControlLabel
-                  value="ProjectCard"
-                  control={<Radio />}
-                  label="Card"
-                  onClick={handleProjectcard}
+              </ThemeProvider>
+            )} */}
+            <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
+              <Search />
+            </Grid>
+          </Grid>
+
+          <Box>
+            <Box sx={{ margin: "20px" }}>
+              {radiobutton ? (
+                <ProjectCardList
+                  projectData={displayedProjects}
+                  selectedFilters={selectedFilters}
+                  setsSelectedFilters={setsSelectedFilters}
                 />
-              </RadioGroup>
-            </FormControl>
-          </Grid>
-          <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
-            <Search />
-          </Grid>
-        </Grid>
-        <Box>
-          <Box sx={{ margin: "20px" }}>
-            {radiobutton ? (
-              <ProjectCardList
-                projectData={displayedProjects}
-                selectedFilters={selectedFilters}
-                setsSelectedFilters={setsSelectedFilters}
-              />
-            ) : (
-              <ProjectCard
-                projectData={displayedProjects}
-                selectedFilters={selectedFilters}
-                setsSelectedFilters={setsSelectedFilters}
-              />
-            )}
+              ) : (
+                <ProjectCard
+                  projectData={displayedProjects}
+                  selectedFilters={selectedFilters}
+                  setsSelectedFilters={setsSelectedFilters}
+                />
+              )}
+            </Box>
           </Box>
-        </Box>
-      </>
+        </>
+      )}
     </ThemeProvider>
   );
 }
