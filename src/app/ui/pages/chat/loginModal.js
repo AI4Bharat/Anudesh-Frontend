@@ -31,7 +31,6 @@ const LoginModal = ({ open }) => {
         if (typeof window !== "undefined") {
             signInWithPopup(auth, googleAuthProvider)
                 .then(async (result) => {
-                    console.log('User signed in:', result.user);
                     const { user } = result;
                     const fireResult = await user.getIdTokenResult();
                     const apiObj = new GoogleLoginAPI(fireResult.token);
