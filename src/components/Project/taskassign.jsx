@@ -91,7 +91,7 @@ const TasksassignDialog = () => {
       };
 
       const response = await axios.post(
-        `${configs.BASE_URL_AUTO}/projects/${id}/assign_tasks_to_user2/`,
+        `${configs.BASE_URL_AUTO}/projects/${id}/assign_tasks_to_user/`,
         payload,
         {
           headers: {
