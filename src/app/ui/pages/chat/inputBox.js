@@ -525,7 +525,6 @@ function GuestChatPage() {
       }
       const interactionData = await interactionRes.json();
       if (interactionData) {
-        console.log(interactionData);
         const formattedResponse = formatResponse(interactionData.message);
         const newEntry = {
           prompt: message,
@@ -543,7 +542,6 @@ function GuestChatPage() {
           interaction_json: updatedChatHistory,
         };
         const ChatLogObj = new PostChatLogAPI(chatLogBody);
-        console.log(ChatLogObj.getBody());
         const logRes = await fetch(ChatLogObj.apiEndPoint(), {
           method: "POST",
           body: JSON.stringify(ChatLogObj.getBody()),
