@@ -537,7 +537,7 @@ function GuestChatPage() {
       if (interactionData) {
         const formattedResponse = formatResponse(interactionData.message);
         const newEntry = {
-          prompt: message,
+          prompt: message[0].text,
           output: interactionData.message,
         };
         const updatedChatHistory = [...chatHistory, newEntry];
