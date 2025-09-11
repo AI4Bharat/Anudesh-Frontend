@@ -91,9 +91,9 @@ const ModelSelectorDialog = ({ open, onClose, modelsData, selectedValue, onValue
                                             primaryTypographyProps={{ fontWeight: 'bold' }}
                                         />
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <CapabilityIcon active={model.capabilities.reasoning}><CloudQueueIcon fontSize="small" /></CapabilityIcon>
                                             <CapabilityIcon active={model.capabilities.image}><CameraAltOutlinedIcon fontSize="small" /></CapabilityIcon>
                                             <CapabilityIcon active={model.capabilities.voice}><MicNoneOutlinedIcon fontSize="small" /></CapabilityIcon>
+                                            <CapabilityIcon active={model.capabilities.reasoning}><CloudQueueIcon fontSize="small" /></CapabilityIcon>
                                         </Box>
                                     </ListItemButton>
                                 ))}
