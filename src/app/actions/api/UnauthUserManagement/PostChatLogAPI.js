@@ -30,8 +30,9 @@ export default class PostChatLogAPI extends API {
      this.headers = {
        headers: {
          "Content-Type": "application/json",
-       },
-     };
+         "Authorization":`JWT ${localStorage.getItem("anudesh_access_token")}`
+      },
+      };
      return this.headers;
    }
  

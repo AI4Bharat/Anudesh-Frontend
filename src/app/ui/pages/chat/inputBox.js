@@ -49,6 +49,8 @@ import { translate } from "@/config/localisation";
 import ImagePreview from './imagePreview';
 import ENDPOINTS from "../../../../config/apiendpoint";
 import config from '@/config/config';
+import ConsentBanner from './consentBanner';
+import RestoreIcon from '@mui/icons-material/Restore';
 
 const lightTheme = createTheme({
   palette: {
@@ -115,7 +117,7 @@ const modelsData = [
         name: 'Sarvam M',
         description: 'Advanced hybrid-reasoning model',
         icon: <BoltIcon sx={{ color: '#F39C12' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
     ],
   },
@@ -314,13 +316,13 @@ function GuestChatPage() {
               <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap' }}>
                 <ReactMarkdown>{formatPrompt(res.value)}</ReactMarkdown>
               </Typography>
-              : res.type === "code" ? 
-              <CodeBlock language={res.language} codeString={res.value} />
-              :
-              <Alert severity="error" variant="outlined" sx={{ mt: 1, borderColor: 'error.light' }}>
-                <AlertTitle sx={{ fontWeight: 'bold' }}>Request Failed</AlertTitle>
-                {res.value}
-              </Alert>
+              : res.type === "code" ?
+                <CodeBlock language={res.language} codeString={res.value} />
+                :
+                <Alert severity="error" variant="outlined" sx={{ mt: 1, borderColor: 'error.light' }}>
+                  <AlertTitle sx={{ fontWeight: 'bold' }}>Request Failed</AlertTitle>
+                  {res.value}
+                </Alert>
             }
           </>
         ))}
@@ -490,6 +492,14 @@ function GuestChatPage() {
     }
   }
 
+  const getBrowserData = () => {
+    return {
+      userAgent: navigator.userAgent,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      language: navigator.language,
+    };
+  };
+
   const handleButtonClick = async () => {
     event.preventDefault();
     if (inputValue) {
@@ -527,7 +537,7 @@ function GuestChatPage() {
       if (interactionData) {
         const formattedResponse = formatResponse(interactionData.message);
         const newEntry = {
-          prompt: message,
+          prompt: message[0].text,
           output: interactionData.message,
         };
         const updatedChatHistory = [...chatHistory, newEntry];
@@ -538,8 +548,13 @@ function GuestChatPage() {
         const aiMessage = { role: 'assistant', content: responses };
         setProcessedChatHistory(prev => [...prev, aiMessage]);
         setLoading(false);
+        let user_data = {};
+        if (localStorage.getItem('cookies_user_consent') === "true") {
+          user_data = getBrowserData();
+        }
         const chatLogBody = {
           interaction_json: updatedChatHistory,
+          user_data: user_data,
         };
         const ChatLogObj = new PostChatLogAPI(chatLogBody);
         const logRes = await fetch(ChatLogObj.apiEndPoint(), {
@@ -611,6 +626,7 @@ function GuestChatPage() {
 
   const handleSignOut = async () => {
     try {
+      handleUserMenuClose();
       await signOut(auth);
       sessionStorage.removeItem("interaction_json_processed");
       sessionStorage.removeItem("interaction_json");
@@ -625,12 +641,18 @@ function GuestChatPage() {
     }
   };
 
+  const resetChat = () => {
+    setProcessedChatHistory([]);
+    setChatHistory([]);
+    handleUserMenuClose();
+  };
+
   return (
     <ThemeProvider theme={lightTheme}>
       {renderSnackBar()}
       <CssBaseline />
       <LoginModal open={!user} />
-
+      <ConsentBanner />
       <Box
         sx={{
           display: 'flex',
@@ -689,7 +711,12 @@ function GuestChatPage() {
                   <Typography variant="body2" fontWeight="bold" color="text.secondary">{user && user.email}</Typography>
                 </Box>
               </MenuItem>
-
+              <MenuItem onClick={resetChat}>
+                <ListItemIcon>
+                  <RestoreIcon fontSize="small" />
+                </ListItemIcon>
+                Reset Chat
+              </MenuItem>
               <MenuItem onClick={handleSignOut}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
