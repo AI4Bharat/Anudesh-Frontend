@@ -16,6 +16,8 @@ import {
   Menu,
   ListItemIcon,
   Button,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
@@ -44,6 +46,9 @@ import ReactMarkdown from "react-markdown";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 import { translate } from "@/config/localisation";
+import ImagePreview from './imagePreview';
+import ENDPOINTS from "../../../../config/apiendpoint";
+import config from '@/config/config';
 
 const lightTheme = createTheme({
   palette: {
@@ -77,28 +82,28 @@ const modelsData = [
         name: 'GPT 3.5',
         description: 'Advanced reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#8E44AD' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'GPT4',
         name: 'GPT 4',
         description: 'Efficient reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'GPT4O',
         name: 'GPT 4o',
         description: 'Efficient reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'GPT4OMini',
         name: 'GPT 4o Mini',
         description: 'Efficient reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
     ],
   },
@@ -122,14 +127,14 @@ const modelsData = [
         name: 'Gemma 3 12B Instruct',
         description: 'Advanced reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#8E44AD' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'google/gemma-3-27b-it',
         name: 'Gemma 3 27B Instruct',
         description: 'Efficient reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
     ],
   },
@@ -141,7 +146,7 @@ const modelsData = [
         name: 'LLAMA2',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
@@ -162,49 +167,49 @@ const modelsData = [
         name: 'Meta Llama 3.1 8B Instruct Turbo',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'eta-llama/Llama-3.2-3B-Instruct',
         name: 'Llama 3.2 3B Instruct',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
         name: 'Llama 3.3 70B Instruct Turbo',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
         name: 'Meta Llama 3.1 70B Instruct Turbo',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'meta-llama/Llama-3.3-70B-Instruct',
         name: 'Llama 3.3 70B Instruct',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'meta-llama/Meta-Llama-3.1-70B-Instruct',
         name: 'Meta Llama 3.1 70B Instruct',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
       {
         id: 'meta-llama/Meta-Llama-3.1-8B-Instruct',
         name: 'Meta Llama 3.1 8B Instruct',
         description: 'Advanced reasoning model',
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
     ],
   },
@@ -216,7 +221,7 @@ const modelsData = [
         name: 'Qwen3 30B A3B',
         description: 'Advanced hybrid-reasoning model',
         icon: <AllOutIcon sx={{ color: '#F39C12' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
     ],
   },
@@ -247,12 +252,16 @@ function GuestChatPage() {
   const [selectedModel, setSelectedModel] = useState('GPT3.5');
   const [selectedLang, setSelectedLang] = useState("en");
   const [showLanguageSelect, setShowLanguageSelect] = useState(false);
+  const [enableImageUpload, setEnableImageUpload] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [processedChatHistory, setProcessedChatHistory] = useState([]);
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
+  const fileInputRef = useRef(null);
+  const [imageUploadStatus, setImageUploadStatus] = useState('idle');
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -263,7 +272,10 @@ function GuestChatPage() {
   const currentModel = useMemo(() => {
     for (const group of modelsData) {
       const found = group.models.find(m => m.id === selectedModel);
-      if (found) return found;
+      if (found) {
+        setEnableImageUpload(found?.capabilities.image);
+        return found;
+      }
     }
     return null;
   }, [selectedModel]);
@@ -302,8 +314,13 @@ function GuestChatPage() {
               <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap' }}>
                 <ReactMarkdown>{formatPrompt(res.value)}</ReactMarkdown>
               </Typography>
-              :
+              : res.type === "code" ? 
               <CodeBlock language={res.language} codeString={res.value} />
+              :
+              <Alert severity="error" variant="outlined" sx={{ mt: 1, borderColor: 'error.light' }}>
+                <AlertTitle sx={{ fontWeight: 'bold' }}>Request Failed</AlertTitle>
+                {res.value}
+              </Alert>
             }
           </>
         ))}
@@ -335,11 +352,75 @@ function GuestChatPage() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [processedChatHistory]);
 
-  const handleImageUpload = (event) => {
-    if (event.target.files && event.target.files[0]) {
-      setUploadedImage(event.target.files[0]);
-      console.log("Image uploaded:", event.target.files[0].name);
+  const uploadImageAndGetUrl = async (imageFile) => {
+    if (!imageFile) return null;
+    setImageUploadStatus('loading');
+
+    const formData = new FormData();
+    formData.append('image', imageFile, imageFile.name);
+
+    try {
+      const response = await fetch(`${config.BASE_URL_AUTO}${ENDPOINTS.functions}upload_chat_image`,
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            "Authorization": `JWT ${localStorage.getItem("anudesh_access_token")}`
+          },
+        });
+      if (!response.ok) throw new Error('Upload failed');
+      const result = await response.json();
+      setImageUploadStatus('idle');
+      return result.image_url;
+    } catch (err) {
+      console.error('Failed to upload image:', err);
+      setImageUploadStatus('error');
+      return null;
     }
+  };
+
+  const getImageAsBase64 = async (imageFile) => {
+    if (!imageFile) return null;
+    setImageUploadStatus('loading');
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        setImageUploadStatus('idle');
+        resolve(reader.result);
+      };
+
+      reader.onerror = (error) => {
+        console.error('Failed to convert image to base64:', error);
+        setImageUploadStatus('error');
+        reject(null);
+      };
+
+      reader.readAsDataURL(imageFile);
+    });
+  };
+
+
+  const handleImageUpload = async (event) => {
+    if (event.target.files && event.target.files[0]) {
+      const imgFile = event.target.files[0];
+      setUploadedImage(imgFile);
+      setImageUploadStatus('idle');
+      // const image_url = await uploadImageAndGetUrl(event.target.files[0]);
+      const image_url = await getImageAsBase64(imgFile);
+      setUploadedImageUrl(image_url);
+      console.log("Image uploaded:", imgFile.name);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setUploadedImage(null);
+    setUploadedImageUrl(null);
+    setImageUploadStatus('idle');
   };
 
   const renderSnackBar = () => {
@@ -396,16 +477,30 @@ function GuestChatPage() {
     return output;
   };
 
+  function createMessageObject(userPrompt, imageUrl) {
+    if (!imageUrl) {
+      return [
+        { type: "text", text: userPrompt }
+      ];
+    } else {
+      return [
+        { type: "text", text: userPrompt },
+        { type: "image_url", image_url: { url: imageUrl } }
+      ];
+    }
+  }
+
   const handleButtonClick = async () => {
     event.preventDefault();
     if (inputValue) {
-      const userMessage = { role: 'user', content: inputValue };
+      const message = createMessageObject(inputValue, uploadedImageUrl);
+      const userMessage = { role: 'user', content: message };
       setProcessedChatHistory(prev => [...prev, userMessage]);
       setInputValue("");
-      setUploadedImage(null);
+      handleRemoveImage();
       setLoading(true);
       const body = {
-        message: inputValue,
+        message: message,
         model: selectedModel,
         history: chatHistory,
       };
@@ -415,11 +510,25 @@ function GuestChatPage() {
         body: JSON.stringify(ChatInteractionObj.getBody()),
         headers: ChatInteractionObj.getHeaders().headers,
       });
+      if (!interactionRes.ok) {
+        const responses = [
+          {
+            modelName: selectedModel, content: [{
+              type: "error",
+              value: "The model failed to generate a response. Please try again.",
+            }]
+          },
+        ];
+        const aiMessage = { role: 'assistant', content: responses };
+        setProcessedChatHistory(prev => [...prev, aiMessage]);
+        setLoading(false);
+      }
       const interactionData = await interactionRes.json();
       if (interactionData) {
+        console.log(interactionData);
         const formattedResponse = formatResponse(interactionData.message);
         const newEntry = {
-          prompt: inputValue,
+          prompt: message,
           output: interactionData.message,
         };
         const updatedChatHistory = [...chatHistory, newEntry];
@@ -441,7 +550,6 @@ function GuestChatPage() {
           headers: ChatLogObj.getHeaders().headers,
         });
         const logData = await logRes.json();
-        logData?.message.includes("successfully") ? setLoading(false) : null;
       }
     } else {
       alert("Please provide a prompt.");
@@ -535,7 +643,7 @@ function GuestChatPage() {
           backgroundSize: "cover",
         }}
       >
-        <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: 12, alignItems: 'center' }}>
+        <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4%' }}>
             <Image
               width={50}
@@ -547,11 +655,11 @@ function GuestChatPage() {
               Anudesh
             </Typography>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4%' }}>
-            <Typography variant="h6" className={classes.headerTitle}>
-              {user && user.displayName}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h6" noWrap className={classes.headerTitle} style={{ flexGrow: 1, minWidth: 0 }}>
+              {user && user.displayName.split(" ", 2).join(" ")}
             </Typography>
-            <IconButton onClick={handleUserMenuOpen} size="small" sx={{ ml: 2 }}>
+            <IconButton onClick={handleUserMenuOpen} size="small" sx={{ ml: 1 }}>
               <Avatar
                 sx={{ width: 45, height: 45, bgcolor: 'primary.main' }}
                 src={user && user.photoURL}
@@ -626,7 +734,8 @@ function GuestChatPage() {
                   <Box sx={{ maxWidth: message.role === 'user' ? '70%' : '93.7%' }}>
                     {message.role === 'user' ? (
                       <Paper elevation={0} sx={{ p: '12px 16px', borderRadius: '18px', bgcolor: 'rgba(255, 107, 107, 0.1)' }}>
-                        <Typography variant="body1" color="text.primary">{message.content}</Typography>
+                        {message.content.length == 2 && <img height={140} width={140} src={message.content[1].image_url.url} />}
+                        <Typography variant="body1" color="text.primary">{message.content[0].text}</Typography>
                       </Paper>
                     ) : (
                       <Grid container spacing={2}>
@@ -678,6 +787,15 @@ function GuestChatPage() {
               },
             }}
           >
+            {uploadedImage && (
+              <Box sx={{ p: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                <ImagePreview
+                  file={uploadedImage}
+                  onRemove={handleRemoveImage}
+                  status={imageUploadStatus}
+                />
+              </Box>
+            )}
             <IndicTransliterate
               key={`indic-${selectedLang || 'default'}-${showLanguageSelect}`}
               customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
@@ -787,12 +905,14 @@ function GuestChatPage() {
                     <TranslateIcon />
                   </IconButton>
                 </Tooltip>
-                {/* <Tooltip title="Upload Image" >
-                  <IconButton component="label" sx={{ color: 'text.secondary' }}>
-                    <ImageOutlinedIcon />
-                    <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
-                  </IconButton>
-                </Tooltip> */}
+                {enableImageUpload &&
+                  <Tooltip title="Upload Image" >
+                    <IconButton component="label" sx={{ color: 'text.secondary' }}>
+                      <ImageOutlinedIcon />
+                      <input type="file" accept="image/*" hidden onChange={handleImageUpload} ref={fileInputRef} />
+                    </IconButton>
+                  </Tooltip>
+                }
                 {/* <IconButton sx={{ color: 'text.secondary' }}>
                   <MicNoneOutlinedIcon />
                 </IconButton> */}
@@ -802,11 +922,6 @@ function GuestChatPage() {
               </div>
             </div>
           </Paper>
-          {uploadedImage && (
-            <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: 'text.secondary' }}>
-              Attached: {uploadedImage.name}
-            </Typography>
-          )}
         </Box>
       </Box>
       <ModelSelectorDialog
