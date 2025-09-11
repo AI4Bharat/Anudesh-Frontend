@@ -51,18 +51,17 @@ export default function ProjectList({ data }) {
 
   useEffect(() => {
     if (loggedInUserData) {
-      if (loggedInUserData?.guest_user == true) {
-        console.log(loggedInUserData.guest_user);
-        setguestworkspace(true);
-      }
+      const isGuest = loggedInUserData.guest_user === true;
+      setguestworkspace(isGuest);
       dispatch(
         fetchProjects({
           selectedFilters: selectedFilters,
-          guestworkspace: guestworkspace,
+          guestworkspace: isGuest,
         }),
       );
     }
   }, [selectedFilters, loggedInUserData]);
+
 
   // Save selected filters to localStorage
   useEffect(() => {
@@ -80,10 +79,10 @@ export default function ProjectList({ data }) {
   const handleProjectcard = () => {
     setRadiobutton(false);
   };
-  const displayedProjects = data?.length > 0 ? data : projectData || [];
+  const displayedProjects = projectData;
   return (
     <ThemeProvider theme={themeDefault}>
-      {apiLoading ? (
+      {apiLoading || (projectData && projectData.length === 0) ? (
         <Spinner />
       ) : (
         <>
