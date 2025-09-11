@@ -117,7 +117,7 @@ const modelsData = [
         name: 'Sarvam M',
         description: 'Advanced hybrid-reasoning model',
         icon: <BoltIcon sx={{ color: '#F39C12' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
+        capabilities: { reasoning: true, image: false, voice: true },
       },
     ],
   },
