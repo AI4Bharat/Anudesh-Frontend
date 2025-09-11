@@ -148,9 +148,10 @@ const DatasetReports = () => {
   useEffect(() => {
     if (reportRequested && DatasetReports?.length) {
       let tempColumns = [];
+      const allColumnNames = Object.keys(DatasetReports[0]);
       if (selectedColumns.length === 0) {
-        setSelectedColumns(columns);
-      }
+        setSelectedColumns(allColumnNames);
+      }  
       Object.keys(DatasetReports[0]).forEach((key) => {
         const isSelectedColumn = selectedColumns.includes(key);
         tempColumns.push({
@@ -215,7 +216,7 @@ const DatasetReports = () => {
         setColumns(newCols);
       }
     }
-  }, [selectedColumns, columns]);
+  }, [selectedColumns]);
 
   const renderToolBar = () => {
     return (
