@@ -51,14 +51,12 @@ export default function ProjectList({ data }) {
 
   useEffect(() => {
     if (loggedInUserData) {
-      if (loggedInUserData?.guest_user == true) {
-        console.log(loggedInUserData.guest_user);
-        setguestworkspace(true);
-      }
+      const isGuest = loggedInUserData.guest_user === true;
+      setguestworkspace(isGuest);
       dispatch(
         fetchProjects({
           selectedFilters: selectedFilters,
-          guestworkspace: guestworkspace,
+          guestworkspace: isGuest,
         }),
       );
     }
@@ -80,70 +78,74 @@ export default function ProjectList({ data }) {
   const handleProjectcard = () => {
     setRadiobutton(false);
   };
-  const displayedProjects = data?.length > 0 ? data : projectData || [];
+  const displayedProjects = projectData;
+
+  const firstLoad = apiLoading || (projectData && projectData.length === 0);
+  if (firstLoad) {
+    return (
+      <ThemeProvider theme={themeDefault}>
+        <Spinner />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={themeDefault}>
-      {apiLoading ? (
-        <Spinner />
-      ) : (
-        <>
-          <Grid container className="root">
-            <Grid item style={{ flexGrow: "0" }}>
-              <Typography
-                variant="h6"
-                sx={{ paddingBottom: "7px", paddingLeft: "15px" }}
-              >
-                View :{" "}
-              </Typography>
-            </Grid>
-            <Grid item style={{ flexGrow: "1", paddingLeft: "5px" }}>
-              <FormControl>
-                <RadioGroup
-                  row
-                  aria-labelledby="demo-row-radio-buttons-group-label"
-                  name="row-radio-buttons-group"
-                  defaultValue="ProjectList"
-                >
-                  <FormControlLabel
-                    value="ProjectList"
-                    control={<Radio />}
-                    label="List"
-                    onClick={handleProjectlist}
-                  />
-                  <FormControlLabel
-                    value="ProjectCard"
-                    control={<Radio />}
-                    label="Card"
-                    onClick={handleProjectcard}
-                  />
-                </RadioGroup>
-              </FormControl>
-            </Grid>
-
-            <Grid item sx={{mt:1,mb:1,mr:2,ml:2}}>
-              <Search />
-            </Grid>
+      <>
+        <Grid container className="root">
+          <Grid item style={{ flexGrow: "0" }}>
+            <Typography
+              variant="h6"
+              sx={{ paddingBottom: "7px", paddingLeft: "15px" }}
+            >
+              View :{" "}
+            </Typography>
           </Grid>
-
-          <Box>
-            <Box sx={{ margin: "20px" }}>
-              {radiobutton ? (
-                <ProjectCardList
-                  projectData={displayedProjects}
-                  selectedFilters={selectedFilters}
-                  setsSelectedFilters={setsSelectedFilters}
+          <Grid item style={{ flexGrow: "1", paddingLeft: "5px" }}>
+            <FormControl>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                defaultValue="ProjectList"
+              >
+                <FormControlLabel
+                  value="ProjectList"
+                  control={<Radio />}
+                  label="List"
+                  onClick={handleProjectlist}
                 />
-              ) : (
-                <ProjectCard
-                  projectData={displayedProjects}
-                  selectedFilters={selectedFilters}
-                  setsSelectedFilters={setsSelectedFilters}
+                <FormControlLabel
+                  value="ProjectCard"
+                  control={<Radio />}
+                  label="Card"
+                  onClick={handleProjectcard}
                 />
-              )}
-            </Box>
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
+            <Search />
+          </Grid>
+        </Grid>
+        <Box>
+          <Box sx={{ margin: "20px" }}>
+            {radiobutton ? (
+              <ProjectCardList
+                projectData={displayedProjects}
+                selectedFilters={selectedFilters}
+                setsSelectedFilters={setsSelectedFilters}
+              />
+            ) : (
+              <ProjectCard
+                projectData={displayedProjects}
+                selectedFilters={selectedFilters}
+                setsSelectedFilters={setsSelectedFilters}
+              />
+            )}
           </Box>
-        </>
-      )}
+        </Box>
+      </>
     </ThemeProvider>
   );
 }
