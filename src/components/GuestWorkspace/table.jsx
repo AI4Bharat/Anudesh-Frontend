@@ -96,6 +96,7 @@ const GuestWorkspaceTable = (props) => {
     }, []);
 
   useEffect(() => {
+    setLoading(true);
     dispatch(fetchProjects({ selectedFilters: {}, guestworkspace: true })).then(() => {
         const state = store.getState().getProjects.data || {};
         const includedProjects = state.included_projects || [];
@@ -114,6 +115,7 @@ const GuestWorkspaceTable = (props) => {
         };
     
         setFilteredProjects(filteredProjects);
+        setLoading(false);
         console.log(filteredProjects,"hello",id);
       });
   }, []);
