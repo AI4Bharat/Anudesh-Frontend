@@ -44,10 +44,8 @@ const LoginModal = ({ open }) => {
                     if (res.ok && typeof window !== "undefined") {
                         localStorage.setItem("anudesh_access_token", rsp_data.access);
                         localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
-                        localStorage.setItem(
-                            "email_id",
-                            fireResult.claims.email.toLowerCase(),
-                        );
+                        localStorage.setItem("email_id",fireResult.claims.email.toLowerCase(),);
+                        localStorage.setItem("isLoggedIn", "true");
                     } else {
                         setSnackbarInfo({
                             open: true,
