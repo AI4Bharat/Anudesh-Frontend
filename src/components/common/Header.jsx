@@ -1110,9 +1110,14 @@ useEffect(() => {
                       </Typography>
                     </MenuItem>
                   ))}
+                  <MenuItem key={3} onClick={() => {navigate('/chat')}}>
+                    <Typography variant="body2" textAlign="center">
+                      Chat Page
+                    </Typography>
+                  </MenuItem>
                   {!loggedInUserData.guest_user && (
                     <MenuItem
-                      key={3}
+                      key={4}
                       onClick={() => {
                         handleCloseUserMenu();
                         handleClickOpen(loggedInUserData.email);
@@ -1139,7 +1144,7 @@ useEffect(() => {
                  </DialogActions>
                 </Dialog>
                   <MenuItem
-                    key={4}
+                    key={5}
                     onClick={() => onLogoutClick()}
                     style={{ cursor: "pointer" }}
                   >

@@ -305,7 +305,7 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses) => {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index=null) => {
     if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
@@ -380,6 +380,7 @@ const MultipleLLMInstructionDrivenChat = ({
             message: "Preferred response saved successfully!",
             variant: "success",
           });
+          handleClosePreferredResponseModal(index);
         } else {
           setSnackbarInfo({
             open: true,
@@ -1247,7 +1248,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                     fontSize: "1.25rem",
                                   }}
                                 >
-                                  {modelOutput?.model_name}
+                                  {"Model "+(modelIdx+1)}
                                 </Typography>
                                 <IconButton
                                   onClick={handleCloseViewFullResponse}
@@ -1461,7 +1462,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               fontSize: "1rem",
                             }}
                           >
-                            {modelOutput?.model_name}
+                            {"Model "+(modelIdx+1)}
                           </Typography>
                         </Box>
                       </Box>
@@ -1482,7 +1483,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   width: "85%",
                   backgroundColor: "rgba(247, 184, 171, 0.2)",
                   borderRadius: "10px",
-
+                  marginBottom: "2rem",
                 }}
               >
                 <Box
@@ -1612,7 +1613,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={response.model_name}
+                                                  label={"Model "+(outputIdx+1)}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -1696,7 +1697,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         marginTop: "0.7rem",
                                       }}
                                     >
-                                      {response?.model_name}
+                                      {"Model "+(outputIdx+1)}
                                     </Typography>
                                     {question.input_question
                                       .split("<blank>")
@@ -2142,7 +2143,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               message?.output?.[0]?.prompt_output_pair_id,
                               evalFormResponse?.[
                               message?.output?.[0]?.prompt_output_pair_id
-                              ],
+                              ], index
                             );
                           } else {
                             setSnackbarInfo({
