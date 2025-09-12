@@ -619,7 +619,8 @@ function GuestChatPage() {
       if (typeof window !== "undefined") {
         localStorage.removeItem("anudesh_access_token");
         localStorage.removeItem("anudesh_refresh_token");
-        localStorage.removeItem("email_id")
+        localStorage.removeItem("email_id");
+        localStorage.removeItem("isLoggedIn");
       }
       console.log("User signed out successfully.");
     } catch (error) {
