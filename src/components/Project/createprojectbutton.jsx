@@ -1,17 +1,27 @@
 import React, { useState } from "react";
-import { Button, Menu, MenuItem } from "@mui/material";
+import { Button, Menu, MenuItem, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import configs from "../../config/config";
+import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
+import Spinner from "@/components/common/Spinner";
 
 
-const CreateProjectDropdown = ({ workspaceData }) => {
+const CreateProjectDropdown = ({ userRole }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [workspaces, setWorkspaces] = useState([]);
+    const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
     const open = Boolean(anchorEl);
     const navigate = useNavigate();
 
+    const mappedUserRole = typeof userRole === "number" ? UserRolesList[userRole] : userRole;
+
+    if (mappedUserRole !== "Admin" && mappedUserRole !== "OrganizationOwner") {
+        return null;
+    }
+
     const handleClick = async (event) => {
         setAnchorEl(event.currentTarget);
+        setLoadingWorkspaces(true);
 
         try {
             // Direct API call instead of GetWorkspaceAPI
@@ -32,6 +42,8 @@ const CreateProjectDropdown = ({ workspaceData }) => {
         } catch (error) {
             console.error("❌ Error fetching workspaces", error);
             setWorkspaces([]);
+        } finally {
+            setLoadingWorkspaces(false);
         }
     };
 
@@ -58,7 +70,27 @@ const CreateProjectDropdown = ({ workspaceData }) => {
             </Button>
 
             <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                {workspaces.length > 0 ? (
+                {loadingWorkspaces ? (
+                    <MenuItem disabled 
+                      sx={{
+                        justifyContent: 'center',
+                        p: 1,
+                        opacity: 1,
+                        "&.Mui-disabled": {
+                            opacity: 1,
+                        },
+                     }}>
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "100%", }}>
+                            <div style={{all: "unset", transform: "scale(0.4)", }}>
+                                <Spinner />
+                            </div>
+                        </Box>
+                    </MenuItem>
+                ) : workspaces.length > 0 ? (
                     workspaces.map((ws) => (
                         <MenuItem key={ws.id} onClick={() => handleSelect(ws)}>
                             {ws.workspace_name}
