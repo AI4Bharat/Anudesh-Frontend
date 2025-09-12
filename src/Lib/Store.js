@@ -75,10 +75,12 @@ import getDatasetByType from './Features/datasets/getDatasetByType';
 import wsgetTaskAnalytics from './Features/Analytics/Workspace/wsgetTaskAnalytics';
 import wsgetMetaAnalytics from './Features/Analytics/Workspace/wsgetMetaAnalytics';
 import projectTabs from "./Features/projects/ProjectTabs"
+import  projectFormSlice  from './Features/projects/projectFormSlice';
 const makeStore = () => {
     return configureStore({
       reducer: {
         apiStatus:apiStatus,
+        projectFormSlice:projectFormSlice,
         wsgetTaskAnalytics:wsgetTaskAnalytics,
         wsgetMetaAnalytics:wsgetMetaAnalytics,
         GetExportProjectButton:GetExportProjectButton,
