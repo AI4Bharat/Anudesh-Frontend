@@ -51,6 +51,7 @@ import ENDPOINTS from "../../../../config/apiendpoint";
 import config from '@/config/config';
 import ConsentBanner from './consentBanner';
 import RestoreIcon from '@mui/icons-material/Restore';
+import { useNavigate } from 'react-router-dom';
 
 const lightTheme = createTheme({
   palette: {
@@ -269,6 +270,7 @@ function GuestChatPage() {
     message: "",
     variant: "success",
   });
+  const navigate = useNavigate();
   const classes = headerStyle();
   const [isModelsModalOpen, setIsModelsModalOpen] = useState(false);
   const currentModel = useMemo(() => {
@@ -608,22 +610,6 @@ function GuestChatPage() {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (authLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   const handleSignOut = async () => {
     try {
       handleUserMenuClose();
@@ -640,6 +626,32 @@ function GuestChatPage() {
       console.error("Sign out error:", error);
     }
   };
+
+  useEffect(() => {
+    if (document.readyState !== "loading") {
+      if (typeof window !== "undefined") {
+        if (localStorage.getItem("anudesh_access_token") === null || localStorage.getItem("anudesh_access_token") === undefined) {
+          handleSignOut();
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (authLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const resetChat = () => {
     setProcessedChatHistory([]);
@@ -664,7 +676,7 @@ function GuestChatPage() {
         }}
       >
         <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor:'pointer' }} onClick={() => {navigate("/")}} >
             <Image
               width={50}
               height={50}
@@ -710,6 +722,12 @@ function GuestChatPage() {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant="body2" fontWeight="bold" color="text.secondary">{user && user.email}</Typography>
                 </Box>
+              </MenuItem>
+              <MenuItem onClick={() => navigate("/edit-profile")}>
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                Edit Profile
               </MenuItem>
               <MenuItem onClick={resetChat}>
                 <ListItemIcon>
