@@ -177,7 +177,7 @@ const MultipleLLMInstructionDrivenChat = ({
         annotation[0].result[0].model_interactions;
       const interactions_length =
         allModelsInteractions[0]?.interaction_json?.length || 0;
-
+      console.log("lead", allModelsInteractions);
       for (let i = 0; i < interactions_length; i++) {
         const prompt =
           allModelsInteractions[0]?.interaction_json[i]?.prompt;
@@ -187,12 +187,14 @@ const MultipleLLMInstructionDrivenChat = ({
 
         allModelsInteractions.forEach((modelData, modelIdx) => {
           const interaction = modelData?.interaction_json?.[i];
+          console.log("lead", interaction);
+
           if (interaction) {
             const response_valid = isString(interaction?.output);
             if (!response_valid) {
               setIsModelFailing(true);
             }
-            if (modelIdx === 0) { // Use the first model's ID as the turn's primary ID
+            if (modelIdx === 0) {
               turnPromptOutputPairId = interaction?.prompt_output_pair_id;
             }
 
@@ -303,7 +305,7 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses) => {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index=null) => {
     if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
@@ -350,6 +352,23 @@ const MultipleLLMInstructionDrivenChat = ({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
+      console.log("hello", data);
+      let errorMessage = null;
+
+      for (const [modelName, modelResponse] of Object.entries(data.output)) {
+        if (modelResponse?.error) {
+          errorMessage = `${modelName} error: ${modelResponse.error}`;
+          break; 
+        }
+      }
+
+      if (errorMessage) {
+        setSnackbarInfo({
+          open: true,
+          message: errorMessage,
+          variant: "error",
+        });
+      }
       if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
         if (data.message === "Success") {
           setSubmittedEvalForms((prev) => ({
@@ -361,6 +380,7 @@ const MultipleLLMInstructionDrivenChat = ({
             message: "Preferred response saved successfully!",
             variant: "success",
           });
+          handleClosePreferredResponseModal(index);
         } else {
           setSnackbarInfo({
             open: true,
@@ -394,12 +414,15 @@ const MultipleLLMInstructionDrivenChat = ({
 
             allModelsInteractions.forEach((modelData, modelIdx) => {
               const interaction = modelData?.interaction_json?.[i];
+              console.log("lead", interaction,)
+
               if (interaction) {
                 const response_valid = isString(interaction?.output);
+                console.log("lead", response_valid, interaction)
                 if (!response_valid) {
                   setIsModelFailing(true);
                 }
-                if (modelIdx === 0) { // Use the first model's ID for eval form mapping
+                if (modelIdx === 0) {
                   turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                 }
 
@@ -1111,16 +1134,16 @@ const MultipleLLMInstructionDrivenChat = ({
               <Grid
                 item
                 xs
-                
+
                 sx={{
                   display: "flex",
                   flexDirection: "row",
                   flexWrap: "nowrap",
-                  overflowX: "auto", 
-                  scrollbarWidth: "none",  
-                  "-ms-overflow-style": "none", 
+                  overflowX: "auto",
+                  scrollbarWidth: "none",
+                  "-ms-overflow-style": "none",
                   "&::-webkit-scrollbar": {
-                    display: "none", 
+                    display: "none",
                   },
                   justifyContent: "flex-start",
                   gap: "0.5rem",
@@ -1225,7 +1248,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                     fontSize: "1.25rem",
                                   }}
                                 >
-                                  {modelOutput?.model_name}
+                                  {"Model "+(modelIdx+1)}
                                 </Typography>
                                 <IconButton
                                   onClick={handleCloseViewFullResponse}
@@ -1439,7 +1462,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               fontSize: "1rem",
                             }}
                           >
-                            {modelOutput?.model_name}
+                            {"Model "+(modelIdx+1)}
                           </Typography>
                         </Box>
                       </Box>
@@ -1460,7 +1483,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   width: "85%",
                   backgroundColor: "rgba(247, 184, 171, 0.2)",
                   borderRadius: "10px",
-
+                  marginBottom: "2rem",
                 }}
               >
                 <Box
@@ -1590,7 +1613,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={response.model_name}
+                                                  label={"Model "+(outputIdx+1)}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -1674,7 +1697,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         marginTop: "0.7rem",
                                       }}
                                     >
-                                      {response?.model_name}
+                                      {"Model "+(outputIdx+1)}
                                     </Typography>
                                     {question.input_question
                                       .split("<blank>")
@@ -2120,7 +2143,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               message?.output?.[0]?.prompt_output_pair_id,
                               evalFormResponse?.[
                               message?.output?.[0]?.prompt_output_pair_id
-                              ],
+                              ], index
                             );
                           } else {
                             setSnackbarInfo({
@@ -2308,7 +2331,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                whiteSpace: "pre-line", 
+                whiteSpace: "pre-line",
               }}
             >
               {info.instruction_data}

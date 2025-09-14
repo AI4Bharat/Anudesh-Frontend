@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams ,useNavigate} from "react-router-dom";
 import dynamic from 'next/dynamic';
 import Skeleton from "@mui/material/Skeleton";
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import Spinner from "../../components/common/Spinner";
 import Backdrop from '@mui/material/Backdrop';
 import { Fade } from '@mui/material';
 import FormControl from "@mui/material/FormControl";
@@ -32,6 +33,9 @@ import UserMappedByProjectStage from "@/utils/UserMappedByProjectStage";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ThemeProvider } from '@mui/material/styles';
 import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
+import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
+import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
+import CustomizedSnackbars from "../common/Snackbar";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -54,7 +58,7 @@ const MUIDataTable = dynamic(
 
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
     const [displayWidth, setDisplayWidth] = useState(0);
@@ -62,11 +66,13 @@ const GuestWorkspaceTable = (props) => {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
-  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
-
+  const [snackbar, setSnackbarInfo] = useState({ open: false, message: '', variant: '' });
+  const [loading,setLoading] = useState(false);
   const SearchProject = useSelector(
     (state) => state.searchProjectCard?.searchValue,
   );
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+  
   
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
@@ -160,9 +166,39 @@ const GuestWorkspaceTable = (props) => {
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const fetchNewTasks = async () => {
+    setLoading(true);
+    const batchObj = new PullNewBatchAPI(selectedProject?.id, ProjectDetails?.metadata_json?.auto_assign_count)
+    const res = await fetch(batchObj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(batchObj.getBody()),
+      headers: batchObj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      if (resp?.message) {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "success",
+        });
+            navigate(`/projects/${selectedProject?.id}`)
+            setLoading(false);
+
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message,
+          variant: "error",
+        });
+        setLoading(false)
+    } 
+  };
+}
+
 
   const handlePasswordSubmit = async() => {
-    console.log(selectedProject?.id);
+    dispatch(fetchProjectDetails(selectedProject?.id));
     const apiObj = new VerifyProject(loggedInUserData?.id,selectedProject?.id,password);
     const res = await fetch(apiObj.apiEndPoint(), {
       method: "POST",
@@ -176,15 +212,31 @@ const GuestWorkspaceTable = (props) => {
         message: resp?.message,
         variant: "success",
       })
+      handleAuthClose();
+      fetchNewTasks()
+
     } else {
       setSnackbarInfo({
         open: true,
-        message: resp?.message,
+        message: resp?.error,
         variant: "error",
       })
-    }  
-    navigate(`/projects/${selectedProject?.id}`)
     handleAuthClose();
+
+    }  
+  };
+  const renderSnackBar = () => {
+    return (
+      <CustomizedSnackbars
+        open={snackbar.open}
+        handleClose={() =>
+          setSnackbarInfo({ open: false, message: "", variant: "" })
+        }
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant={snackbar.variant}
+        message={snackbar.message}
+      />
+    );
   };
 
   const columns = [
@@ -457,7 +509,10 @@ const GuestWorkspaceTable = (props) => {
 
   return (
     <div>
+      {renderSnackBar()}
+      {loading && <Spinner />} 
       <div>
+
         <Grid sx={{ mb: 1 }}>
           <Search />
         </Grid>
