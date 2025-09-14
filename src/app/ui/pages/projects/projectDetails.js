@@ -31,6 +31,7 @@ import userRole from "../../../../utils/UsersRolesList";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import AllTaskTable from "@/components/Project/AllTaskTable";
 import { setSelectedTab } from "@/Lib/Features/projects/ProjectTabs";
+import BookmarkButton from "@/components/Project/BookmarkButton";
 
 const menuOptions = [
   { name: "Tasks", isChecked: false, component: () => null },
@@ -390,6 +391,14 @@ const Projects = () => {
                 >
                   {ProjectDetails.title}
                 </Typography>
+                {ProjectDetails?.id && (
+                <BookmarkButton
+                  project={ProjectDetails}
+                  onBookmarkChange={(projectId, isBookmarked) => {
+                    console.log("Bookmark changed:", projectId, isBookmarked);
+                  }}
+                />
+              )}
               </Grid>
 
               {(userRole.WorkspaceManager === loggedInUserData?.role ||
