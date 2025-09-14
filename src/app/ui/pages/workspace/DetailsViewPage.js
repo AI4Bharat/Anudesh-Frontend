@@ -46,6 +46,7 @@ import MetaAnalytics from "../progress/Workspace/MetaAnalytics";
 import ProgressList from "../progress/Workspace/ProgressAnalytics";
 import PerformanceAnalytics from "../progress/Workspace/PerformanceAnalytics";
 import AssignMembersDialog from "./bulkassignmembers";
+import APITransport from "@/Lib/apiTransport/apitransport";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

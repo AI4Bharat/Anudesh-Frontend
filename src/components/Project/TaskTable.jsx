@@ -5,6 +5,8 @@ import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
+import _ from 'lodash'; 
+
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
@@ -48,6 +50,7 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
+import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 
 const defaultColumns = [
   "id",
@@ -121,7 +124,6 @@ const TaskTable = (props) => {
     (state) => state.GetTasksByProjectId?.data?.result,
   );
   const [displayWidth, setDisplayWidth] = useState(0);
-  const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [currentRowPerPage, setCurrentRowPerPage] = useState(10);
   const [anchorEl, setAnchorEl] = useState(null);
   const [find, setFind] = useState("");
@@ -138,10 +140,24 @@ const TaskTable = (props) => {
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
   );
+
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
-  const TaskFilter = AllTaskFilters.find(
+  const TaskFilter = AllTaskFilters?.find(
     (filter) => filter.id === id && filter.type === props.type,
   )
+    const AllPageFilters = useSelector((state) => state.taskPaginationSlice?.data);
+
+    const currentPageFromState = useSelector(state => {
+  const filters = state.taskPaginationSlice?.data || [];
+  const matchingFilter = filters.find(filter => 
+    filter.id === id && filter.type === props.type
+  );
+  return matchingFilter?.page || 1; 
+});
+
+
+  const [currentPageNumber, setCurrentPageNumber] = useState(currentPageFromState);
+
 
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
@@ -246,9 +262,17 @@ const TaskTable = (props) => {
   const [expandedRow, setExpandedRow] = useState(null);
 
   const getTaskListData = () => {
+      const existingFilter = AllPageFilters?.find(filter => 
+    filter.id === id && 
+    filter.type === props.type && 
+    _.isEqual(filter.selectedFilters, selectedFilters)
+  );
+
+  
+    
     const taskobj = {
       id: id,
-      currentPageNumber: currentPageNumber,
+      currentPageNumber: existingFilter?.page || 1,
       currentRowPerPage: currentRowPerPage,
       selectedFilters: selectedFilters,
       taskType: props.type,
@@ -261,6 +285,7 @@ const TaskTable = (props) => {
 
   useEffect(() => {
     getTaskListData();
+
   }, [currentPageNumber, currentRowPerPage]);
 
   useEffect(() => {
@@ -318,7 +343,8 @@ const TaskTable = (props) => {
             ...selectedFilters,
             task_status: props.type === "annotation" ? "unlabeled" : "labeled",
           });
-          setCurrentPageNumber(1);
+
+
         }
         dispatch(fetchProjectDetails(id));
       }
@@ -470,28 +496,54 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
   useEffect(() => {
-    const payload = {
-      id,
-      selectedFilters,
-      type: props.type,
-      pull,
-      rejected,
-    };
-    dispatch(setTaskFilter(payload));
-    if (currentPageNumber !== 1) {
-      setCurrentPageNumber(1);
-    } else {
-      getTaskListData();
+    dispatch(setTaskFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+    }))
+  const existingFilter = AllPageFilters?.find(filter => 
+    filter.id === id && 
+    filter.type === props.type && 
+    _.isEqual(filter.selectedFilters, selectedFilters)
+  );
+    
+
+    if (!existingFilter) {
+    dispatch(setPageFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+        page:1
+    }))
+    
+
+    }else{
+      dispatch(setPageFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+        page:existingFilter?.page
+    }))
+
     }
+    getTaskListData();
+
+
     if (typeof window !== "undefined") {
       localStorage.setItem(
         "labellingMode",
         props.type === "annotation"
           ? selectedFilters.annotation_status
-          : selectedFilters.review_status,
+          : selectedFilters.review_status
       );
-
-      localStorage.setItem(
+        }
+        localStorage.setItem(
         "filters",
         JSON.stringify({
           selectedStatus,
@@ -499,9 +551,7 @@ const TaskTable = (props) => {
           rejected,
         }),
       );
-    }
-  }, [selectedFilters, pull, rejected]);
-
+      }, [selectedFilters, pull, rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -767,6 +817,12 @@ const TaskTable = (props) => {
   };
 
   const areFiltersApplied = (filters) => {
+    if (
+      (filters.annotation_status && filters.annotation_status === "unlabeled") ||
+      (filters.review_status && filters.review_status === "unreviewed")
+    ) {
+      return false;
+    }
     return Object.values(filters).some((value) => value !== "");
   };
 
@@ -794,24 +850,13 @@ const TaskTable = (props) => {
           (roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
             roles?.Admin === userDetails?.role) &&
-          !getProjectUsers?.some(
-            (annotator) => annotator.id === userDetails?.id,
-          ) &&
-          !getProjectReviewers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) &&
-          !ProjectDetails?.review_supercheckers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) && (
+          !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
+          !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
+          !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
             <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
               <InputLabel
                 id="annotator-filter-label"
-                sx={{
-                  fontSize: "16px",
-                  position: "inherit",
-                  top: "23px",
-                  left: "-20px",
-                }}
+                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-20px" }}
               >
                 Filter by Annotator
               </InputLabel>
@@ -821,10 +866,7 @@ const TaskTable = (props) => {
                 value={selectedFilters.req_user}
                 label="Filter by Annotator"
                 onChange={(e) =>
-                  setsSelectedFilters({
-                    ...selectedFilters,
-                    req_user: e.target.value,
-                  })
+                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
                 }
                 sx={{ fontSize: "16px" }}
               >
@@ -841,24 +883,13 @@ const TaskTable = (props) => {
           (roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
             roles?.Admin === userDetails?.role) &&
-          !getProjectUsers?.some(
-            (annotator) => annotator.id === userDetails?.id,
-          ) &&
-          !getProjectReviewers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) &&
-          !ProjectDetails?.review_supercheckers?.some(
-            (reviewer) => reviewer.id === userDetails?.id,
-          ) && (
+          !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
+          !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
+          !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
             <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
               <InputLabel
                 id="reviewer-filter-label"
-                sx={{
-                  fontSize: "16px",
-                  position: "inherit",
-                  top: "23px",
-                  left: "-25px",
-                }}
+                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px" }}
               >
                 Filter by Reviewer
               </InputLabel>
@@ -868,10 +899,7 @@ const TaskTable = (props) => {
                 value={selectedFilters.req_user}
                 label="Filter by Reviewer"
                 onChange={(e) =>
-                  setsSelectedFilters({
-                    ...selectedFilters,
-                    req_user: e.target.value,
-                  })
+                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
                 }
                 sx={{ fontSize: "16px" }}
               >
@@ -889,10 +917,7 @@ const TaskTable = (props) => {
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
         />
-        <div
-          style={{ display: "inline-block", position: "relative" }}
-          onClick={handleShowFilter}
-        >
+        <div style={{ position: "relative" }}>
           {filtersApplied && (
             <InfoIcon
               color="primary"
@@ -900,7 +925,8 @@ const TaskTable = (props) => {
               sx={{ position: "absolute", top: -4, right: -4 }}
             />
           )}
-
+         <Button sx={{ position: "relative" }} onClick={handleShowFilter}>
+              <FilterListIcon sx={{ color: "#515A5A" }} />
           <CustomTooltip
             title={
               filtersApplied ? (
@@ -950,10 +976,8 @@ const TaskTable = (props) => {
             }
             disableInteractive
           >
-            <Button sx={{ position: "relative" }}>
-              <FilterListIcon sx={{ color: "#515A5A" }} />
-            </Button>
           </CustomTooltip>
+         </Button>
         </div>
       </Box>
     );
@@ -1045,7 +1069,21 @@ const TaskTable = (props) => {
       </Box>
     );
   };
-  
+    const handlePageChange = (newPage) => {
+    const page = newPage + 1;
+    setCurrentPageNumber(page);
+    dispatch(setPageFilter({
+      id,
+      type: props.type,
+      selectedFilters,
+      pull,
+      rejected,
+      page 
+    }));
+    getTaskListData();
+
+  };
+
   const options = {
     count: totalTaskCount,
     rowsPerPage: currentRowPerPage,
@@ -1060,10 +1098,11 @@ const TaskTable = (props) => {
       },
     },
     onChangePage: (currentPage) => {
-      setCurrentPageNumber(currentPage + 1);
+      handlePageChange(currentPage)
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
       setCurrentPageNumber(1);
+      dispatch(setPageFilter({ projectId: id, page : 1}));
       setCurrentRowPerPage(rowPerPageCount);
     },
     filterType: "checkbox",

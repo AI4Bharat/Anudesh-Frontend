@@ -14,6 +14,13 @@ import Tab from "@mui/material/Tab";
 import Modal from "@mui/material/Modal";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
+import CustomizedSnackbars from "./Snackbar";
 import GradingSharpIcon from "@mui/icons-material/GradingSharp";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import Link from "next/link";
@@ -29,16 +36,6 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
-
-const handleChangePassword = async (email) => {
-  let obj = new ForgotPasswordAPI({ email: email });
-  const res = await fetch(obj.apiEndPoint(), {
-    method: "POST",
-    body: JSON.stringify(obj.getBody()),
-    headers: obj.getHeaders().headers,
-  });
-  const resp = await res.json();
-};
 
 const modalStyle = {
   position: "absolute",
@@ -60,6 +57,8 @@ function MobileNavbar(props) {
   const { loggedInUserData, appSettings, userSettings, tabs, appInfo } = props;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [snackbarInfo, setSnackbarInfo] = useState({ open: false, message: "", variant: "success" });
   const classes = headerStyle();
   const [activeTab, setActiveTab] = useState(0);
   const [Notification, setnotification] = useState();
@@ -138,6 +137,41 @@ function MobileNavbar(props) {
         notification?.seen_json == null ||
         !notification?.seen_json[loggedInUserData.id],
     );
+
+  const handleOpenDialog = () => {
+    setOpenDrawer(false);
+    setTimeout(() => {
+      setConfirmDialogOpen(true);
+    }, 300); 
+  };
+  
+  const handleCloseDialog = () => setConfirmDialogOpen(false);
+  const handleCloseSnackbar = () => setSnackbarInfo({ ...snackbarInfo, open: false });
+
+  const handleChangePassword = async (email) => {
+
+    setConfirmDialogOpen(false);
+    let obj = new ForgotPasswordAPI({ email: email });
+    const res = await fetch(obj.apiEndPoint(), {
+      method: "POST",
+      body: JSON.stringify(obj.getBody()),
+      headers: obj.getHeaders().headers,
+    });
+    const resp = await res.json();
+    if (res.ok) {
+      setSnackbarInfo({
+        open: true,
+        message: "Link to change password sent successfully on your email.",
+        variant: "success",
+      });
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: resp?.message,
+        variant: "error",
+      });
+    }
+  };
 
   const onLogoutClick = () => {
     dispatch(Logout());
@@ -478,10 +512,7 @@ function MobileNavbar(props) {
                         transform: "translateX(5px)",
                       },
                     }}
-                    onClick={() => {
-                      setOpenDrawer(false);
-                      handleChangePassword(loggedInUserData.email);
-                    }}
+                      onClick={handleOpenDialog}
                   >
                     <Typography variant="body1">Change Password</Typography>
                   </ListItem>
@@ -584,6 +615,32 @@ function MobileNavbar(props) {
         </Grid>
       </AppBar>
 
+      <Dialog open={confirmDialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle> Password Change: </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to change your password?
+          </DialogContentText>
+        </DialogContent>
+        <Box>
+        <DialogActions>
+          <Button onClick={() => handleChangePassword(loggedInUserData.email)} color="primary" variant="contained">
+            Confirm
+          </Button>
+          <Button onClick={handleCloseDialog} color="error" variant="contained">
+            Cancel
+          </Button>
+        </DialogActions>
+        </Box>
+      </Dialog>
+
+      <CustomizedSnackbars
+         open={snackbarInfo.open}
+         handleClose={handleCloseSnackbar}
+         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+         variant={snackbarInfo.variant} 
+         message={snackbarInfo.message}
+      />
       {/* Modal for Notification */}
       <Modal
         open={openModal}

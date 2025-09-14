@@ -10,3 +10,4 @@ export default configs;
 //https://backend.anudesh.ai4bharat.org/
 // https://backend.dev2.anudesh.ai4bharat.org
 //https://backend.prod2.anudesh.ai4bharat.org
+// http://127.0.0.1:8000

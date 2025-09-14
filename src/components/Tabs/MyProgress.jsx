@@ -60,9 +60,7 @@ const MyProgress = () => {
   const [displayWidth, setDisplayWidth] = useState(0);
   const [selectRange, setSelectRange] = useState([
     {
-      startDate: new Date(
-        Date.parse(UserDetails?.date_joined, "yyyy-MM-ddTHH:mm:ss.SSSZ"),
-      ),
+      startDate: new Date(),
       endDate: new Date(),
       key: "selection",
     },
@@ -121,6 +119,12 @@ const MyProgress = () => {
   useEffect(() => {
     setLoading(apiLoading);
   }, [apiLoading]);
+    useEffect(() => {
+      if( selectedType === ""){
+        setSelectedType("InstructionDrivenChat")
+      }
+      }, []);
+
 
   useEffect(() => {
     if (ProjectTypes) {
@@ -130,10 +134,16 @@ const MyProgress = () => {
         types.push(...subTypes);
       });
       setProjectTypes(types);
-      types?.length && setSelectedType(types[2]);
-    }
-  }, [ProjectTypes]);
+      if(types?.length)
+        {
+          const idc = types.find(type => type.toLowerCase() === "InstructionDrivenChat");
+          if(selectedType ===""){
+                      setSelectedType(idc)
 
+          }
+        }
+    }
+  }, [ProjectTypes]);    
   useEffect(() => {
     if (UserAnalytics?.message) {
       setSnackbarText(UserAnalytics?.message);
@@ -321,7 +331,6 @@ const MyProgress = () => {
     jumpToPage: true,
     customToolbar: renderToolBar,
   };
-  const selectedTypeWithDefault = selectedType || "InstructionDrivenChat";
   return (
     <ThemeProvider theme={themeDefault}>
       {loading && <Spinner />}
@@ -390,7 +399,7 @@ const MyProgress = () => {
                 labelId="project-type-label"
                 id="project-type-select"
                 defaultValue="InstructionDrivenChat"
-                value={selectedTypeWithDefault}
+                value={selectedType}
                 label="Project Type"
                 onChange={(e) => setSelectedType(e.target.value)}
                 MenuProps={MenuProps}

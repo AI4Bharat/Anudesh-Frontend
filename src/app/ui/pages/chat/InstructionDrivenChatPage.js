@@ -419,7 +419,7 @@ const InstructionDrivenChatPage = ({
     const chatElements = chatHistory?.map((message, index) => (
       <Grid
         container
-        spacing={2}
+        spacing={1}
         key={index}
         direction="column"
         justifyContent="center"
@@ -442,7 +442,7 @@ const InstructionDrivenChatPage = ({
             width: "100%",
           }}
         >
-          <Grid container alignItems="center" spacing={2}>
+          <Grid container alignItems="center" spacing={1}>
             <Grid item>
               <Avatar
                 alt="user_profile_pic"
@@ -557,7 +557,7 @@ const InstructionDrivenChatPage = ({
           >
             <Grid
               item
-              xs={3}
+              xs={1}
               style={{
                 display: "flex",
                 // justifyContent: "flex-end",
@@ -574,7 +574,7 @@ const InstructionDrivenChatPage = ({
               />
             </Grid>
 
-    <Grid item  xs={6}  >
+    <Grid item  xs={11}  >
 
               {message?.output.map((segment, index) =>
                 segment.type === 'text' ? (
@@ -815,7 +815,6 @@ const InstructionDrivenChatPage = ({
                 height: "auto",
                 display: "flex",
                 alignItems: "center",
-                // alignItems: "flex-start",
                 justifyContent: "center",
                 whiteSpace: "pre-line",
               }}

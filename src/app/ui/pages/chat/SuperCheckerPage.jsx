@@ -92,10 +92,29 @@ const StyledMenu = styled((props) => (
     },
   },
 }));
+
+const modules = {
+  toolbar: [
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }],
+    [{ script: "sub" }, { script: "super" }],
+  ],
+};
+
+const formats = [
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+];
+
 const SuperCheckerPage = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
-  let inputValue = "";
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [assignedUsers, setAssignedUsers] = useState(null);
@@ -109,21 +128,11 @@ const SuperCheckerPage = () => {
   const [answered, setAnswered] = useState(false);
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const [labelConfig, setLabelConfig] = useState();
   const [labellingMode, setLabellingMode] = useState(null);
   let loaded = useRef();
-
   const userData = useSelector((state) => state.getLoggedInData?.data);
   const [loadtime, setloadtime] = useState(new Date());
-
   const load_time = useRef();
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const mode = localStorage.getItem("labellingMode");
-      setLabellingMode(mode);
-    }
-  }, []);
-
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -134,17 +143,13 @@ const SuperCheckerPage = () => {
   const [autoSave, setAutoSave] = useState(true);
   const [autoSaveTrigger, setAutoSaveTrigger] = useState(false);
   const [NextData, setNextData] = useState("");
-
   const [annotations, setAnnotations] = useState([]);
-
   const annotationNotesRef = useRef(null);
   const superCheckerNotesRef = useRef(null);
   const [info, setInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
-
   const [disableSkip, setdisableSkip] = useState(false);
-
   const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
@@ -158,33 +163,75 @@ const SuperCheckerPage = () => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const [annotationtext, setannotationtext] = useState("");
   const [reviewtext, setreviewtext] = useState("");
+  const [evalFormResponse, setEvalFormResponse] = useState();
+  const [submittedEvalForms, setSubmittedEvalForms] = useState();
+  const [isModelFailing, setIsModelFailing] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
+  }
+  const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mode = localStorage.getItem("labellingMode");
+      setLabellingMode(mode);
+    }
+  }, []);
+
+  useEffect(() => {
+    setNotes(taskDataArr, AnnotationsTaskDetails);
+  }, [taskDataArr, AnnotationsTaskDetails]);
+
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+
+  useEffect(() => {
+    resetNotes();
+  }, [taskId]);
+
+  useEffect(() => {
+    const showAssignedUsers = async () => {
+      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
+    };
+    taskData?.id && showAssignedUsers();
+  }, [taskData]);
+
+  useEffect(() => {
+    getAnnotationsTaskData(taskId);
+    getProjectDetails();
+    getTaskData(taskId);
+    return () => {
+      setAnnotations([]);
+      setForms([]);
+    };
+  }, [taskId]);
+
+  useEffect(() => {
+    filterAnnotations(AnnotationsTaskDetails, userData);
+  }, [AnnotationsTaskDetails, userData]);
+
+  useEffect(() => {
+    if (AnnotationsTaskDetails?.length > 0) {
+      setLoading(false);
+    }
+  }, [AnnotationsTaskDetails]);
 
   const handleCollapseClick = () => {
     setShowNotes(!showNotes);
   };
-  const handleGlossaryClick = () => {
-    setShowGlossary(!showGlossary);
-  };
-
-  const modules = {
-    toolbar: [
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }],
-      [{ script: "sub" }, { script: "super" }],
-    ],
-  };
-
-  const formats = [
-    "size",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "color",
-    "background",
-    "script",
-  ];
 
   const setNotes = (taskData, annotations) => {
     if (
@@ -400,25 +447,6 @@ const SuperCheckerPage = () => {
     return markdownString;
   };
 
-  useEffect(() => {
-    setNotes(taskDataArr, AnnotationsTaskDetails);
-  }, [taskDataArr, AnnotationsTaskDetails]);
-
-  useEffect(() => {
-    if (taskData) {
-      setInfo((prev) => {
-        return {
-          hint: taskData?.data?.hint,
-          examples: taskData?.data?.examples,
-          meta_info_intent: taskData?.data?.meta_info_intent,
-          instruction_data: taskData?.data?.instruction_data,
-          meta_info_domain: taskData?.data?.meta_info_domain,
-          meta_info_language: taskData?.data?.meta_info_language,
-        };
-      });
-    }
-  }, [taskData]);
-
   const resetNotes = () => {
     if (
       typeof window !== "undefined" &&
@@ -430,17 +458,6 @@ const SuperCheckerPage = () => {
       reviewNotesRef.current.getEditor().setContents([]);
     }
   };
-
-  useEffect(() => {
-    resetNotes();
-  }, [taskId]);
-
-  useEffect(() => {
-    const showAssignedUsers = async () => {
-      getTaskAssignedUsers(taskData).then((res) => setAssignedUsers(res));
-    };
-    taskData?.id && showAssignedUsers();
-  }, [taskData]);
 
   const onNextAnnotation = async (value) => {
     setLoading(true);
@@ -517,6 +534,39 @@ const SuperCheckerPage = () => {
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const areAllFormsAnswered = () => {
+    return Object.keys(submittedEvalForms).length === chatHistory.length;
+  };
+
+  const buildResult = (value, type, resultValue) => {
+    let result = resultValue;
+    if (value === "delete") {
+      result = []
+    }
+    else if (
+      value === "delete-pair" &&
+      type === "MultipleLLMInstructionDrivenChat"
+    ) {
+      result = {
+        eval_form: resultValue[0].eval_form, // Keep as is
+        model_interactions: resultValue[0].model_interactions.map((model) => ({
+          model_name: model.model_name,
+          interaction_json: model.interaction_json.slice(0, -1),
+        })),
+      };
+    }
+    else if (
+      value === "delete-pair" 
+    ) {
+      result  = resultValue.slice(0, resultValue.length - 1)
+    }
+    else {
+      resultValue
+    }   
+    return !Array.isArray(result) ? [result] : result;
+  };
+
   const handleSuperCheckerClick = async (
     value,
     id,
@@ -525,6 +575,24 @@ const SuperCheckerPage = () => {
     parentannotation,
     reviewNotesValue,
   ) => {
+    if (value === "delete") {
+      setEvalFormResponse();
+      setSubmittedEvalForms();
+    }
+    if (
+      value === "labeled" &&
+      type === "MultipleLLMInstructionDrivenChat" &&
+      !areAllFormsAnswered()
+    ) {
+      setSnackbarInfo({
+        open: true,
+        message:
+          "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+        variant: "warning",
+        severity: "warning",
+      });
+      return;
+    }
     let resultValue;
     if (ProjectDetails.project_type === "InstructionDrivenChat") {
       resultValue = chatHistory.map((chat) => ({
@@ -567,14 +635,13 @@ const SuperCheckerPage = () => {
             output: has_invalid_resp
               ? JSON.parse(modelResp.output_error)
               : reverseFormatResponse(modelResp.output),
-            preferred_response: modelResp.preferred_response,
             prompt_output_pair_id: modelResp.prompt_output_pair_id,
           };
           modelMap[model].push(interaction);
         });
       });
 
-      resultValue = Object.entries(modelMap).map(
+      const model_interactions = Object.entries(modelMap).map(
         ([model_name, interaction_json]) => {
           return {
             model_name,
@@ -582,6 +649,13 @@ const SuperCheckerPage = () => {
           };
         },
       );
+
+      resultValue = [
+        {
+          eval_form: Object.values(submittedEvalForms),
+          model_interactions: model_interactions,
+        },
+      ];
     }
 
     setLoading(true);
@@ -605,18 +679,7 @@ const SuperCheckerPage = () => {
         value === "validated_with_changes") && {
         parent_annotation: parentannotation,
       }),
-      result:
-        value === "delete"
-          ? []
-          : value === "delete-pair" &&
-              type === "MultipleLLMInstructionDrivenChat"
-            ? resultValue.map((model) => ({
-                ...model,
-                interaction_json: model.interaction_json.slice(0, -1), // remove last pair
-              }))
-            : value === "delete-pair"
-              ? resultValue.slice(0, resultValue.length - 1)
-              : resultValue,
+      result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save:
         value === "delete" || value === "delete-pair" || value === "rejected"
@@ -681,56 +744,86 @@ const SuperCheckerPage = () => {
         resp.result
       ) {
         if (type === "MultipleLLMInstructionDrivenChat") {
-          const interactions_length = resp?.result[0]?.interaction_json?.length;
-          let modifiedChatHistory = [];
-          for (let i = 0; i < interactions_length; i++) {
-            const prompt = resp?.result[0]?.interaction_json[i]?.prompt;
-            const response_valid_1 = isString(
-              resp?.result[0].interaction_json[i]?.output,
-            );
-            const response_valid_2 = isString(
-              resp?.result[1].interaction_json[i]?.output,
-            );
-            modifiedChatHistory?.push({
-              prompt: prompt,
-              output: [
-                {
-                  model_name: resp?.result[0].model_name,
-                  output: response_valid_1
-                    ? formatResponse(
-                        resp?.result[0].interaction_json[i]?.output,
-                      )
-                    : formatResponse(
-                        `${resp?.result[0].model_name} failed to generate a response`,
-                      ),
-                  status: response_valid_1 ? "success" : "error",
-                  output_error: response_valid_1
-                    ? null
-                    : JSON.stringify(
-                        resp?.result[0].interaction_json[i]?.output,
-                      ),
-                },
-                {
-                  model_name: resp?.result[1].model_name,
-                  output: response_valid_2
-                    ? formatResponse(
-                        resp?.result[1].interaction_json[i]?.output,
-                      )
-                    : formatResponse(
-                        `${resp?.result[1].model_name} failed to generate a response`,
-                      ),
-                  status: response_valid_2 ? "success" : "error",
-                  output_error: response_valid_2
-                    ? null
-                    : JSON.stringify(
-                        resp?.result[1].interaction_json[i]?.output,
-                      ),
-                },
-              ],
-            });
+          const allModelsInteractions = resp?.result?.[0]?.model_interactions;
+          if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+            const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+            let modifiedChatHistory = [];
+            let globalModelFailure = false;
+
+            for (let i = 0; i < interactions_length; i++) {
+              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const modelOutputs = [];
+              let turnPromptOutputPairId = null;
+              let turnHasModelFailure = false;
+
+              allModelsInteractions.forEach((modelData, modelIdx) => {
+                const interaction = modelData?.interaction_json?.[i];
+                if (interaction) {
+                  const response_valid = isString(interaction?.output);
+                  if (!response_valid) {
+                    turnHasModelFailure = true;
+                  }
+                  if (modelIdx === 0) {
+                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  }
+                  modelOutputs.push({
+                    model_name: modelData?.model_name,
+                    output: response_valid
+                      ? formatResponse(interaction?.output)
+                      : formatResponse(
+                          `${modelData?.model_name} failed to generate a response`,
+                        ),
+                    status: response_valid ? "success" : "error",
+                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    output_error: response_valid
+                      ? null
+                      : JSON.stringify(interaction?.output),
+                  });
+                }
+              });
+
+              if (turnHasModelFailure) {
+                globalModelFailure = true;
+              }
+
+              if (turnPromptOutputPairId) {
+                const eval_form = (
+                  Array.isArray(resp?.result?.[0]?.eval_form)
+                    ? resp.result[0].eval_form
+                    : []
+                ).find(
+                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                );
+
+                if (eval_form) {
+                  setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                  setSubmittedEvalForms((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                }
+              }
+
+              if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                  prompt: prompt,
+                  output: modelOutputs,
+                  prompt_output_pair_id: turnPromptOutputPairId,
+                });
+              }
+            }
+            if (globalModelFailure) {
+              setIsModelFailing(true);
+            }
+            setChatHistory([...modifiedChatHistory]);
+          } else {
+            setChatHistory([]);
+            setIsModelFailing(false); 
           }
-          setChatHistory([...modifiedChatHistory]);
-        } else {
+        }else {
           let modifiedChatHistory = resp?.result.map((interaction) => {
             return {
               ...interaction,
@@ -787,26 +880,11 @@ const SuperCheckerPage = () => {
     setShowNotes(false);
     setAnchorEl(null);
   };
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem("TaskData", JSON.stringify(taskData));
-  }
 
   const getAnnotationsTaskData = (id) => {
     setLoading(true);
     dispatch(fetchAnnotationsTask(id));
   };
-  const [filteredReady, setFilteredReady] = useState(false);
-
-  useEffect(() => {
-    getAnnotationsTaskData(taskId);
-    getProjectDetails();
-    getTaskData(taskId);
-    return () => {
-      setAnnotations([]);
-      setForms([]);
-      setFilteredReady(false);
-    };
-  }, [taskId]);
 
   const filterAnnotations = (annotations, user) => {
     setLoading(true);
@@ -854,10 +932,6 @@ const SuperCheckerPage = () => {
     return [filteredAnnotations, disableSkip, disableAutoSave];
   };
 
-  useEffect(() => {
-    filterAnnotations(AnnotationsTaskDetails, userData);
-  }, [AnnotationsTaskDetails, userData]);
-
   const getTaskData = async (id) => {
     setLoading(true);
     const ProjectObj = new GetTaskDetailsAPI(id);
@@ -884,19 +958,36 @@ const SuperCheckerPage = () => {
   const getProjectDetails = () => {
     dispatch(fetchProjectDetails(projectId));
   };
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
+    if (ProjectDetails?.project_type ===
+      "MultipleLLMInstructionDrivenChat" && (isModelFailing || !areAllFormsAnswered())) {
+      if (isModelFailing) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      if (!areAllFormsAnswered()) {
+        setSnackbarInfo({
+          open: true,
+          message:
+            "Please ensure that all the evaluation forms are saved for each interaction before submitting the task!",
+          variant: "warning",
+          severity: "warning",
+        });
+      }
+      return;
+    }
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  useEffect(() => {
-    if (AnnotationsTaskDetails?.length > 0) {
-      setLoading(false);
-    }
-  }, [AnnotationsTaskDetails]);
+
   let componentToRender;
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
@@ -940,6 +1031,11 @@ const SuperCheckerPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
         />
       );
       break;
@@ -1008,6 +1104,7 @@ const SuperCheckerPage = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         variant={snackbar.variant}
         message={snackbar.message}
+        severity={snackbar.severity}
       />
     );
   };
@@ -1016,12 +1113,11 @@ const SuperCheckerPage = () => {
       {loading && <Spinner />}
       <Grid container>
         {renderSnackBar()}
+                <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
+
         <Grid item>
           <Box
-            sx={{
-              paddingTop: { xs: 1.5, md: 3 },
-              paddingLeft: 1.5,
-            }}
+            
           >
             <Button
               value="Back to Project"
@@ -1029,10 +1125,10 @@ const SuperCheckerPage = () => {
               variant="contained"
               color="primary"
               sx={{
-                px: { xs: 2, sm: 3, md: 4 },
-                py: { xs: 1, sm: 1.5, md: 2 },
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
@@ -1047,13 +1143,8 @@ const SuperCheckerPage = () => {
             </Button>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              paddingTop: { xs: 1.5, md: 3 },
-              paddingLeft: 1.5,
-            }}
-          >
+                <Grid item>
+
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
               variant="contained"
@@ -1064,7 +1155,7 @@ const SuperCheckerPage = () => {
                 px: { xs: 2, sm: 3, md: 4 },
                 py: { xs: 1, sm: 1.5, md: 2 },
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "120px", sm: "150px", md: "180px" },
+                minWidth: { xs: "90px", sm: "90px", md: "100px" },
               }}
               style={{
                 backgroundColor:
@@ -1073,12 +1164,16 @@ const SuperCheckerPage = () => {
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
+                         </Grid>
+            </Grid>
 
             <div
               // className={styles.collapse}
               style={{
                 display: showNotes ? "block" : "none",
                 paddingBottom: "16px",
+                                width:"100%"
+
               }}
             >
               <ReactQuill
@@ -1158,16 +1253,17 @@ const SuperCheckerPage = () => {
                 </Typography>
               </div>
             )}
-          </Box>
           <Grid
             container
             justifyContent="center"
+             alignItems="center"
             style={{
               display: "flex",
               width: "100%",
-              padding: "16px",
+              padding: "10px",
               gap: "0.5rem",
             }}
+
           >
             <Grid item>
               <LightTooltip
@@ -1237,7 +1333,7 @@ const SuperCheckerPage = () => {
                     }
                     sx={{
                       fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
                     }}
                     style={{
                       color: "black",
@@ -1260,7 +1356,7 @@ const SuperCheckerPage = () => {
                   onClick={() => onNextAnnotation("next", getNextTask?.id)}
                   sx={{
                     fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                    minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
                   }}
                   style={{
                     color: "black",
@@ -1290,7 +1386,7 @@ const SuperCheckerPage = () => {
                     }
                     sx={{
                       fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
                     }}
                     style={{
                       color: "black",
@@ -1320,7 +1416,7 @@ const SuperCheckerPage = () => {
                     }
                     sx={{
                       fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
                     }}
                     style={{
                       color: "black",
@@ -1358,7 +1454,7 @@ const SuperCheckerPage = () => {
                     }
                     sx={{
                       fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
                     }}
                     style={{
                       color: "black",
@@ -1384,7 +1480,7 @@ const SuperCheckerPage = () => {
                     aria-expanded={open ? "true" : undefined}
                     sx={{
                       fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "100px", sm: "150px", md: "150px" },
+                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
                     }}
                     style={{
                       color: "black",
@@ -1444,7 +1540,6 @@ const SuperCheckerPage = () => {
               {filterMessage}
             </Alert>
           )}
-        </Grid>
         <Grid item container>
           {" "}
           {componentToRender}{" "}
