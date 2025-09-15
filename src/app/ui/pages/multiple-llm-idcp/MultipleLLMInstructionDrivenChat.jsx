@@ -259,6 +259,13 @@ const MultipleLLMInstructionDrivenChat = ({
     }));
   };
 
+  const handleOpenPreferredResponseModal = (index) => {
+    setVisibleMessages((prev) => ({
+      ...prev,
+      [index]: true,
+    }));
+  };
+
   const handleOpenViewFullResponse = (messageIndex, modelIndex) => {
     setActiveModalIdentifier(`${messageIndex}_${modelIndex}`);
   };
@@ -1452,7 +1459,7 @@ const MultipleLLMInstructionDrivenChat = ({
           </Grid>
 
           {ProjectDetails?.metadata_json?.enable_preference_selection &&
-            visibleMessages[index] && (
+            visibleMessages[index] ? (
               <Grid
                 item
                 sx={{
@@ -2139,7 +2146,32 @@ const MultipleLLMInstructionDrivenChat = ({
                   </Box>
                 </Box>
               </Grid>
-            )}
+          ) : (<Grid
+            item
+            sx={{
+              padding: " 1rem",
+              position: "relative",
+              width: "85%",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              borderRadius: "10px",
+              marginBottom: "2rem",
+            }}
+          >
+            <Box
+              sx={{
+                maxHeight: "16rem",
+              }}
+            >
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div className={classes.inputQuestion}>Model Output Evaluation Form</div>
+                <IconButton
+                  onClick={() => handleOpenPreferredResponseModal(index)}
+                >
+                  <OpenInFullIcon sx={{color: orange[400]}}/>
+                </IconButton>
+              </Box>
+            </Box>
+          </Grid>)}
         </Grid>
       );
     });
