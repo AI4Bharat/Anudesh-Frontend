@@ -119,7 +119,7 @@ export default function ProjectList({ data }) {
               </FormControl>
             </Grid>
 
-            <CreateProjectDropdown />
+            <CreateProjectDropdown userRole={loggedInUserData?.role || loggedInUserData?.role_id} />
             {/* {workspaceData && (
               <ThemeProvider theme={tableTheme}>
                 <MUIDataTable
@@ -134,7 +134,7 @@ export default function ProjectList({ data }) {
                 />
               </ThemeProvider>
             )} */}
-            <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
+            <Grid item sx={{ mt: 0, mb: 2, mr: 2, ml: 2 }}>
               <Search />
             </Grid>
           </Grid>
