@@ -394,6 +394,17 @@ useEffect(() => {
               Analytics
             </NavLink>
           </Typography>
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
+            </NavLink>
+          </Typography>
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -445,6 +456,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
+            </NavLink>
+          </Typography>
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -502,6 +524,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
+            </NavLink>
+          </Typography>
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -570,6 +603,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Admin
+            </NavLink>
+          </Typography>
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -1110,11 +1154,6 @@ useEffect(() => {
                       </Typography>
                     </MenuItem>
                   ))}
-                  <MenuItem key={3} onClick={() => {navigate('/chat')}}>
-                    <Typography variant="body2" textAlign="center">
-                      Chat Page
-                    </Typography>
-                  </MenuItem>
                   {!loggedInUserData.guest_user && (
                     <MenuItem
                       key={4}
