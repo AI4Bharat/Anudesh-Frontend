@@ -51,18 +51,17 @@ export default function ProjectList({ data }) {
 
   useEffect(() => {
     if (loggedInUserData) {
-      if (loggedInUserData?.guest_user == true) {
-        console.log(loggedInUserData.guest_user);
-        setguestworkspace(true);
-      }
+      const isGuest = loggedInUserData.guest_user === true;
+      setguestworkspace(isGuest);
       dispatch(
         fetchProjects({
           selectedFilters: selectedFilters,
-          guestworkspace: guestworkspace,
+          guestworkspace: isGuest,
         }),
       );
     }
   }, [selectedFilters, loggedInUserData]);
+
 
   // Save selected filters to localStorage
   useEffect(() => {
@@ -80,10 +79,10 @@ export default function ProjectList({ data }) {
   const handleProjectcard = () => {
     setRadiobutton(false);
   };
-  const displayedProjects = data?.length > 0 ? data : projectData || [];
+  const displayedProjects = projectData;
   return (
     <ThemeProvider theme={themeDefault}>
-      {apiLoading ? (
+      {apiLoading || (projectData && projectData.length === 0) ? (
         <Spinner />
       ) : (
         <>
@@ -120,7 +119,7 @@ export default function ProjectList({ data }) {
               </FormControl>
             </Grid>
 
-            <CreateProjectDropdown />
+            <CreateProjectDropdown userRole={loggedInUserData?.role || loggedInUserData?.role_id} />
             {/* {workspaceData && (
               <ThemeProvider theme={tableTheme}>
                 <MUIDataTable
@@ -135,7 +134,7 @@ export default function ProjectList({ data }) {
                 />
               </ThemeProvider>
             )} */}
-            <Grid item sx={{ mt: 1, mb: 1, mr: 2, ml: 2 }}>
+            <Grid item sx={{ mt: 0, mb: 2, mr: 2, ml: 2 }}>
               <Search />
             </Grid>
           </Grid>

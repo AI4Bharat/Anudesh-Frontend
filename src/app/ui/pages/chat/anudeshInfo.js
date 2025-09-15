@@ -79,7 +79,7 @@ const AnudeshInfo = () => {
               <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.primary.main, mb: 1.5 }}>
                 {card.title}
               </Typography>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" color="text.secondary" textAlign='justify'>
                 {card.description}
               </Typography>
             </Paper>
