@@ -383,7 +383,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          {loggedInUserData.guest_user==false?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -393,7 +393,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>
+          </Typography>:null}
           <Typography variant="body1">
             <NavLink
               to="/chat"
