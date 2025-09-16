@@ -48,6 +48,9 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { sampleQuestion, sampleMultipleLLMIDCPQuestion } from "./sampleQue";
 import { fixed_Models, languageModelOptions } from "./models";
 import { styled } from "@mui/styles";
+import { Tooltip } from "@mui/material";
+import { InfoOutlined } from "@material-ui/icons";
+import { resetForm, saveProjectFormData } from "@/Lib/Features/projects/projectFormSlice";
 
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
@@ -104,6 +107,12 @@ const CreateProject = () => {
 
   const dispatch = useDispatch();
   const { id } = useParams();
+    const formData1 = useSelector((state) => console.log(state)
+    );
+        const formData = useSelector((state) =>state.projectFormSlice.formData
+    );
+
+
   const [displayWidth, setDisplayWidth] = useState(0);
   const ProjectDomains = useSelector((state) => state.domains?.domains);
   const DatasetInstances = useSelector((state) => state.getDatasetByType.data);
@@ -120,7 +129,7 @@ const CreateProject = () => {
   const [datasetTypes, setDatasetTypes] = useState(null);
   const [instanceIds, setInstanceIds] = useState(null);
   const [languageOptions, setLanguageOptions] = useState([]);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -164,6 +173,105 @@ const CreateProject = () => {
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
   const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
+  const [defaultValue, setDefaultValue] = useState(0);
+
+  const handleTextareaChange = (event) => {
+    setDefaultValue(event.target.value);
+  };
+    const saveToRedux = () => {
+    dispatch(saveProjectFormData({
+      title,
+      description,
+      selectedDomain,
+      selectedType,
+      sourceLanguage,
+      targetLanguage,
+      selectedInstances,
+      confirmed,
+      samplingMode,
+      random,
+      batchSize,
+      batchNumber,
+      selectedAnnotatorsNum,
+      taskReviews,
+      createannotationsAutomatically,
+      is_published,
+      passwordForProjects,
+      conceal,
+      jsonInput,
+      isModelSelectionEnabled,
+      selectedLanguageModels,
+      fixedModels,
+      numSelectedModels,
+      defaultValue
+    }));
+  };
+
+  useEffect(() => {
+    saveToRedux();
+  }, [
+    title, description, selectedDomain, selectedType, sourceLanguage, targetLanguage,
+    selectedInstances, confirmed, samplingMode, random, batchSize, batchNumber,
+    selectedAnnotatorsNum, taskReviews, createannotationsAutomatically, is_published,
+    passwordForProjects, conceal, jsonInput, isModelSelectionEnabled, selectedLanguageModels,
+    fixedModels, numSelectedModels, defaultValue
+  ]);
+    useEffect(() => {
+    setTitle(formData.title);
+    setDescription(formData.description);
+    setSelectedDomain(formData.selectedDomain);
+    setSelectedType(formData.selectedType);
+    setSourceLanguage(formData.sourceLanguage);
+    setTargetLanguage(formData.targetLanguage);
+    setSelectedInstances(formData.selectedInstances);
+    setConfirmed(formData.confirmed);
+    setSamplingMode(formData.samplingMode);
+    setRandom(formData.random);
+    setBatchSize(formData.batchSize);
+    setBatchNumber(formData.batchNumber);
+    setSelectedAnnotatorsNum(formData.selectedAnnotatorsNum);
+    setTaskReviews(formData.taskReviews);
+    setsCreateannotationsAutomatically(formData.createannotationsAutomatically);
+    setIsPublished(formData.is_published);
+    setPasswordForProjects(formData.passwordForProjects);
+    setconceal(formData.conceal);
+    setJsonInput(formData.jsonInput);
+    setIsModelSelectionEnabled(formData.isModelSelectionEnabled);
+    setSelectedLanguageModels(formData.selectedLanguageModels);
+    setFixedModels(formData.fixedModels);
+    setNumSelectedModels(formData.numSelectedModels);
+    setDefaultValue(formData.defaultValue);
+  }, []);
+
+  // Clear form function
+  const clearFormState = () => {
+    dispatch(resetForm());
+    // Reset local state
+    setTitle('');
+    setDescription('');
+    setSelectedDomain('');
+    setSelectedType('');
+    setSourceLanguage('');
+    setTargetLanguage('');
+    setSelectedInstances([]);
+    setConfirmed(false);
+    setSamplingMode(null);
+    setRandom('');
+    setBatchSize('');
+    setBatchNumber([]);
+    setSelectedAnnotatorsNum(1);
+    setTaskReviews(1);
+    setsCreateannotationsAutomatically('none');
+    setIsPublished(false);
+    setPasswordForProjects('');
+    setconceal(false);
+    setJsonInput('');
+    setIsModelSelectionEnabled(true);
+    setSelectedLanguageModels(fixed_Models);
+    setFixedModels(fixed_Models);
+    setNumSelectedModels(fixed_Models.length);
+    setDefaultValue(0);
+  };
 
   useEffect(() => {
     if (selectedType === "MultipleLLMInstructionDrivenChat") {
@@ -373,7 +481,7 @@ const CreateProject = () => {
 
   useEffect(() => {
     if (columns?.length > 0 && selectedColumns?.length > 0) {
-      const newCols = columns.map((col) => ({
+      const newCols = columns?.map((col) => ({
         ...col,
         options: {
           ...col.options,
@@ -428,7 +536,7 @@ const CreateProject = () => {
         tempTypes[domain] = tempTypesArr;
       }
       setDomains(
-        tempDomains.map((key) => {
+        tempDomains?.map((key) => {
           return {
             name: key,
             value: key,
@@ -484,6 +592,29 @@ const CreateProject = () => {
     setInstanceIds(tempInstanceIds);
   }, [DatasetInstances]);
   const handleCreateProject = async () => {
+      const autoAssignCount = parseInt(defaultValue);
+
+  let baseMetadata = {};
+  
+  if (selectedType === "MultipleLLMInstructionDrivenChat") {
+    baseMetadata = {
+            enable_preference_selection: isModelSelectionEnabled,
+            questions_json: questionsJSON,
+            models_set: selectedLanguageModels,
+            fixed_models: fixedModels,
+            num_models: fixedModels.length,
+    };
+  } else {
+    baseMetadata = questionsJSON;
+  }
+
+  if (workspaceDtails?.guest_workspace_display === "Yes") {
+    baseMetadata = {
+      ...baseMetadata,
+      auto_assign_count: autoAssignCount
+    };
+  }
+
     const newProject = {
       title: title,
       description: description,
@@ -502,28 +633,19 @@ const CreateProject = () => {
       sampling_parameters_json: samplingParameters,
       batch_size: batchSize,
       batch_number: batchNumber,
-      // variable_parameters: selectedVariableParameters,
       filter_string: filterString,
       project_stage: taskReviews,
       required_annotators_per_task: selectedAnnotatorsNum,
       automatic_annotation_creation_mode: createannotationsAutomatically,
       is_published: is_published,
       password: passwordForProjects,
-      metadata_json:
-        selectedType === "MultipleLLMInstructionDrivenChat"
-          ? {
-            enable_preference_selection: isModelSelectionEnabled,
-            questions_json: questionsJSON,
-            models_set: selectedLanguageModels,
-            fixed_models: fixedModels,
-            num_models: numSelectedModels,
-          }
-          : questionsJSON,
+      metadata_json:baseMetadata,
       conceal: conceal,
     };
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
     dispatch(createProject(newProject));
+    clearFormState()
   };
 
   const setPasswordForNewProject = async (projectId) => {
@@ -811,247 +933,364 @@ const CreateProject = () => {
             xl={12}
             sx={{ pb: "6rem" }}
           >
-            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mb: 2
+              }}>
               <Typography variant="h2" gutterBottom component="div">
                 Create a Project
               </Typography>
-            </Grid>
-
-            <Grid container direction="row">
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                md={12}
-                lg={12}
-                xl={12}
-                className="projectsettingGrid"
-              >
-                <Typography gutterBottom component="div" label="Required">
-                  Title<span style={{ color: "#d93025" }}>*</span> :
-                </Typography>
-              </Grid>
-              <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                <OutlinedTextField
-                  fullWidth
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid
-              item
-              className="projectsettingGrid"
-              xs={12}
-              sm={12}
-              md={12}
-              lg={12}
-              xl={12}
-            >
-              <Typography gutterBottom component="div">
-                Description<span style={{ color: "#d93025" }}>*</span> :
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <OutlinedTextField
-                fullWidth
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+              <Button
+                label={"Clear Form"}
+                onClick={clearFormState}
+                variant="outlined"
+                color="primary"
+                sx={{ height: 'fit-content' }}
               />
             </Grid>
 
-            {domains && (
-              <>
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                >
-                  <Typography gutterBottom component="div">
-                    Select a Category to Work in
-                    <span style={{ color: "#d93025" }}>*</span> :
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <MenuItems
-                    menuOptions={domains}
-                    handleChange={onSelectDomain}
-                    value={selectedDomain}
-                  />
-                </Grid>
-              </>
-            )}
+            <Card sx={{ p: 1, mb: 1 }}>
 
-            {selectedDomain && (
-              <>
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
+              <Grid container spacing={1} p={1}>
+                <Grid item xs={12} md={6}>
+                  <Grid container alignItems="center" spacing={1}>
+                    <Grid item xs={4}>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        Project Title<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                  title="Title of the project." 
+                  arrow
+                  placement="top"
                 >
-                  <Typography gutterBottom component="div">
-                    Select a Project Type{" "}
-                    <span style={{ color: "#d93025" }}>*</span> :
-                  </Typography>
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <OutlinedTextField
+                        fullWidth
+                        size="small"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter project title"
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <MenuItems
-                    menuOptions={projectTypes[selectedDomain].map((key) => {
-                      return {
-                        name: key,
-                        value: key,
-                      };
-                    })}
-                    handleChange={onSelectProjectType}
-                    value={selectedType}
-                  />
+
+                {/* Description Field */}
+                <Grid item xs={12} md={6}>
+                  <Grid container alignItems="center" spacing={1}>
+                    <Grid item xs={4}>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        Project Description<span style={{ color: "#d93025",fontSize:"20px" }}>*</span>:<Tooltip 
+                  title="Provide a detailed description of the project's objectives and scope." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <OutlinedTextField
+                        fullWidth
+                        size="small"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Enter project description"
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
-              </>
-            )}
-            {selectedType === "MultipleLLMInstructionDrivenChat" &&
-              selectedDomain === "Chat" ? (
-              <Grid
-                container
-                direction="row"
-                alignItems="center"
-                sx={{
-                  paddingTop: "10px",
-                }}
-              >
-                <Typography>
-                  Enable Feedback Form After Every Interaction: <span style={{ color: "#d93025" }}>*</span> :
-                </Typography>
-                <FormControlLabel
-                  checked={isModelSelectionEnabled}
-                  onChange={(e) => setIsModelSelectionEnabled(e.target.checked)}
-                  color="warning"
-                  control={<Switch />}
-                />
               </Grid>
-            ) : null}
-            {selectedType === "MultipleLLMInstructionDrivenChat" &&
-              selectedDomain === "Chat" ? (
-              <Grid
-                container
-                direction="row"
-                alignItems="center"
-                sx={{
-                  paddingTop: "10px",
-                }}
-              >
-                <Typography>
-                  Select Language Models <span style={{ color: "#d93025" }}>*</span> :
+            </Card>{domains && (
+              <Card sx={{ p: 1, mb: 1 }}>
+                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                  Project Configuration
                 </Typography>
-                <FormControl fullWidth sx={{ marginTop: "10px" }}>
-                  <Select
-                    multiple
-                    value={selectedLanguageModels}
-                    onChange={(e) => setSelectedLanguageModels(e.target.value)}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Chip
-                            key={value}
-                            label={value}
-                            deleteIcon={
-                              value !== "Sarvam" && value !== "Ai4B" ? (
-                                <CancelIcon
-                                  onMouseDown={(event) =>
-                                    event.stopPropagation()
-                                  }
-                                />
-                              ) : undefined
-                            }
-                            onDelete={
-                              value !== "Sarvam" && value !== "Ai4B"
-                                ? () => {
-                                  setSelectedLanguageModels(
-                                    selectedLanguageModels.filter(
-                                      (instance) => instance !== value,
-                                    ),
-                                  );
-                                }
-                                : undefined
-                            }
-                          />
-                        ))}
+
+                <Grid container spacing={2} alignItems="center">
+                  {/* Category Field */}
+                  <Grid item xs={12} md={3}>
+                    <Box sx={{ display: 'flex', flexDirection:"column" }}>
+                      <Typography variant="body2" sx={{  mr: 1, fontWeight: 'bold' }}>
+                        Category<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                  title="Select the domain or category that best describes your project's focus area." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <MenuItems
+                          menuOptions={domains}
+                          handleChange={onSelectDomain}
+                          value={selectedDomain}
+                          size="small"
+                        />
                       </Box>
-                    )}
-                    MenuProps={MenuProps}
-                  >
-                    {languageModelOptions.map((name) => (
-                      <MenuItem key={name} value={name}>
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            ) : null}
-            {selectedType === "MultipleLLMInstructionDrivenChat" &&
-              selectedDomain === "Chat" && selectedLanguageModels.length > 0 ? (
-              <Grid
-                container
-                direction="row"
-                alignItems="center"
-                sx={{
-                  paddingTop: "10px",
-                }}
-              >
-                <Typography>
-                  Select Fixed Models (Cannot be changed by users during chat):
+                    </Box>
+                  </Grid>
+
+                  {/* Project Type Field */}
+                  <Grid item xs={12} md={3} >
+                    <Box sx={{ display: 'flex',flexDirection:"column" }}>
+                      <Typography variant="body2" sx={{  mr: 1, fontWeight: 'bold' }}>
+                        Project Type<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                  title="Choose the type of project workflow that matches your annotation needs." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <MenuItems
+                          menuOptions={selectedDomain ? projectTypes[selectedDomain]?.map((key) => ({
+                            name: key,
+                            value: key,
+                          })) : []}
+                          handleChange={onSelectProjectType}
+                          value={selectedType}
+                          size="small"
+                          disabled={!selectedDomain}
+                        />
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Source Language Field */}
+                  <Grid item xs={12} md={3}>
+                    <Box sx={{ display: 'flex',flexDirection:"column" }}>
+                      <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal',color:"#454545)" }}>
+                        Source
+                        Language:<Tooltip 
+                  title="Select the original language of the data you'll be working with." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            value={sourceLanguage}
+                            onChange={(e) => setSourceLanguage(e.target.value)}
+                            MenuProps={MenuProps}
+                            disabled={!selectedDomain}
+                          >
+                            {languageOptions?.map((item, index) => (
+                              <MenuItem key={index} value={item.value}>
+                                {item.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Target Language Field */}
+                  <Grid item xs={12} md={3}>
+                    <Box sx={{ display: 'flex', flexDirection:"column" }}>
+                      <Typography variant="body2" sx={{  mr: 1, fontWeight: 'normal' }}>
+                        Target Language:<Tooltip 
+                  title="Select the target language for translation or multilingual projects" 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            value={targetLanguage}
+                            onChange={(e) => setTargetLanguage(e.target.value)}
+                            MenuProps={MenuProps}
+                            disabled={!selectedDomain}
+                          >
+                            {languageOptions?.map((item, index) => (
+                              <MenuItem key={index} value={item.value}>
+                                {item.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Card>
+            )}
+            {selectedType === "MultipleLLMInstructionDrivenChat" && selectedDomain === "Chat" && (
+              <Card sx={{ p: 1, mb: 1 }}>
+                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                  Chat Configuration
                 </Typography>
-                <FormControl fullWidth sx={{ marginTop: "10px" }}>
-                  <Select
-                    multiple
-                    value={fixedModels}
-                    onChange={(e) => {
-                      // Ensure at least one fixed model is selected
-                      if (e.target.value.length > 0) {
-                        setFixedModels(e.target.value);
-                      }
-                    }}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Chip
-                            key={value}
-                            label={value}
-                            deleteIcon={
-                              <CancelIcon onMouseDown={(event) => event.stopPropagation()} />
-                            }
-                            onDelete={() => {
-                              // Only allow deletion if there would still be at least one fixed model
-                              if (selected.length > 1) {
-                                setFixedModels(selected.filter((model) => model !== value));
+
+                <Grid container spacing={2} alignItems="center">
+                  {/* Toggle on the left */}
+                  <Grid item xs={12} md={3}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', p: 1, backgroundColor: 'grey.50', borderRadius: 1, height: '100%' }}>
+                      <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 'bold', mr: 1 }}>
+                        Enable Feedback Form<span style={{ color: "#d93025",fontSize:"20px" }}>*</span><Tooltip 
+                  title="Enable or disable the feedback collection form for chat interactions." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Switch
+                        checked={isModelSelectionEnabled}
+                        onChange={(e) => setIsModelSelectionEnabled(e.target.checked)}
+                        color="primary"
+                        size="small"
+                      />
+                    </Box>
+                  </Grid>
+
+                  {/* Language Models Selection */}
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="body2" sx={{ minWidth: '50px', mr: 1, fontWeight: "bold" }}>
+                        Models<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                  title="Select the language models to be used in the chat interactions." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            multiple
+                            value={selectedLanguageModels}
+                            onChange={(e) => setSelectedLanguageModels(e.target.value)}
+                            renderValue={(selected) => (
+                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                {selected?.map((value) => (
+                                  <Chip
+                                    key={value}
+                                    label={value}
+                                    size="small"
+                                    deleteIcon={
+                                      value !== "Sarvam" && value !== "Ai4B" ? (
+                                        <CancelIcon
+                                          onMouseDown={(event) => event.stopPropagation()}
+                                        />
+                                      ) : undefined
+                                    }
+                                    onDelete={
+                                      value !== "Sarvam" && value !== "Ai4B"
+                                        ? () => {
+                                          setSelectedLanguageModels(
+                                            selectedLanguageModels.filter(
+                                              (instance) => instance !== value,
+                                            ),
+                                          );
+                                        }
+                                        : undefined
+                                    }
+                                  />
+                                ))}
+                              </Box>
+                            )}
+                            MenuProps={MenuProps}
+                          >
+                            {languageModelOptions?.map((name) => (
+                              <MenuItem key={name} value={name}>
+                                {name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Fixed Models Selection */}
+                  <Grid item xs={12} md={5}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="body2" sx={{ minWidth: '85px', mr: 1, fontWeight: "bold" }}>
+                        Fixed Models:<Tooltip 
+                  title="Select models that will always be included in the chat interactions." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            multiple
+                            value={fixedModels}
+                            onChange={(e) => {
+                              if (e.target.value.length > 0) {
+                                setFixedModels(e.target.value);
                               }
                             }}
-                          />
-                        ))}
+                            renderValue={(selected) => (
+                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                {selected.map((value) => (
+                                  <Chip
+                                    key={value}
+                                    label={value}
+                                    size="small"
+                                    deleteIcon={
+                                      <CancelIcon onMouseDown={(event) => event.stopPropagation()} />
+                                    }
+                                    onDelete={() => {
+                                      if (selected.length > 1) {
+                                        setFixedModels(selected.filter((model) => model !== value));
+                                      }
+                                    }}
+                                  />
+                                ))}
+                              </Box>
+                            )}
+                            MenuProps={MenuProps}
+                            disabled={selectedLanguageModels.length === 0}
+                          >
+                            {selectedLanguageModels.map((model) => (
+                              <MenuItem key={model} value={model}>
+                                {model}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                       </Box>
-                    )}
-                    MenuProps={MenuProps}
-                  >
-                    {selectedLanguageModels.map((model) => (
-                      <MenuItem key={model} value={model}>
-                        {model}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            ) : null}
-
-            {selectedType === "MultipleLLMInstructionDrivenChat" &&
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Card>
+            )}
+            {/* {selectedType === "MultipleLLMInstructionDrivenChat" &&
               selectedDomain === "Chat" && selectedLanguageModels.length >= fixedModels.length ? (
               <Grid
                 container
@@ -1082,181 +1321,102 @@ const CreateProject = () => {
                   </Select>
                 </FormControl>
               </Grid>
-            ) : null}
-            {selectedDomain && (
-              <>
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                >
-                  <Typography gutterBottom component="div">
-                    Source Language:
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <FormControl fullWidth>
-                    <Select
-                      fullWidth
-                      labelId="select-Language"
-                      value={sourceLanguage}
-                      onChange={(e) => setSourceLanguage(e.target.value)}
-                      style={{ zIndex: "0" }}
-                      inputProps={{ "aria-label": "Without label" }}
-                      MenuProps={MenuProps}
-                    >
-                      {languageOptions?.map((item, index) => (
-                        <MenuItem key={index} value={item.value}>
-                          {item.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                >
-                  <Typography gutterBottom component="div">
-                    Target Language:
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <FormControl fullWidth>
-                    <Select
-                      fullWidth
-                      labelId="select-Language"
-                      value={targetLanguage}
-                      onChange={(e) => setTargetLanguage(e.target.value)}
-                      style={{ zIndex: "0" }}
-                      inputProps={{ "aria-label": "Without label" }}
-                      MenuProps={MenuProps}
-                    >
-                      {languageOptions?.map((item, index) => (
-                        <MenuItem key={index} value={item.value}>
-                          {item.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </>
-            )}
-
+            ) : null} */}
             {instanceIds && (
               <>
                 {selectedType && Object.keys(instanceIds)?.length > 0 && (
-                  <>
-                    <Grid
-                      item
-                      className="projectsettingGrid"
-                      xs={12}
-                      sm={12}
-                      md={12}
-                      lg={12}
-                      xl={12}
-                    >
-                      <Typography gutterBottom component="div">
-                        Select sources to fetch data from{" "}
-                        <span style={{ color: "#d93025" }}>*</span> :
-                      </Typography>
+                        <Card sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider' }}>
+        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+          Dataset Configuration
+        </Typography>
+
+
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} md={8}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="body2" sx={{ minWidth: '180px', mr: 2, fontWeight: "bold" }}>
+                            Select sources to fetch data from <span style={{ color: "#d93025",fontSize:"20px" }}>*</span>:<Tooltip 
+                  title="Choose the data sources you want to include in your project. You can select multiple sources from the available options." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                          </Typography>
+                          
+                          <Box sx={{ flexGrow: 1 }}>
+                            <FormControl fullWidth disabled={confirmed} size="small">
+                              <Select
+                                multiple
+                                value={selectedInstances}
+                                onChange={onSelectInstances}
+                                renderValue={(selected) => (
+                                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                    {selected.map((key) => (
+                                      <Chip
+                                        key={key}
+                                        label={instanceIds[key]}
+                                        size="small"
+                                        deleteIcon={
+                                          <CancelIcon
+                                            onMouseDown={(event) => event.stopPropagation()}
+                                          />
+                                        }
+                                        onDelete={
+                                          confirmed
+                                            ? undefined
+                                            : () => {
+                                              setSelectedInstances(
+                                                selectedInstances.filter(
+                                                  (instance) => instance !== key,
+                                                ),
+                                              );
+                                            }
+                                        }
+                                      />
+                                    ))}
+                                  </Box>
+                                )}
+                                MenuProps={MenuProps}
+                              >
+                                {Object.keys(instanceIds).map((key) => (
+                                  <MenuItem key={instanceIds[key]} value={key}>
+                                    {instanceIds[key]}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </Box>
+                        </Box>
+                      </Grid>
+
+                      {/* Buttons on the same row */}
+                      <Grid item xs={12} md={4}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                          {selectedInstances?.length > 0 && (
+                            <>
+                              <Button
+                                onClick={onConfirmSelections}
+                                label={"Confirm Selections"}
+                                disabled={confirmed}
+                                size="small"
+                              />
+                              <Button
+                                onClick={handleChangeInstances}
+                                label={"Change Sources"}
+                                disabled={!confirmed}
+                                variant="outlined"
+                                size="small"
+                              />
+                            </>
+                          )}
+                        </Box>
+                      </Grid>
                     </Grid>
 
-                    <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                      <FormControl
-                        fullWidth
-                        sx={{ minWidth: 120 }}
-                        disabled={confirmed}
-                      >
-                        <Select
-                          fullWidth
-                          style={{ zIndex: "0" }}
-                          inputProps={{ "aria-label": "Without label" }}
-                          MenuProps={MenuProps}
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          onChange={onSelectInstances}
-                          value={selectedInstances}
-                          multiple={true}
-                          renderValue={(selected) => (
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 0.5,
-                              }}
-                            >
-                              {selected.map((key) => (
-                                <Chip
-                                  key={key}
-                                  label={instanceIds[key]}
-                                  deleteIcon={
-                                    <CancelIcon
-                                      onMouseDown={(event) =>
-                                        event.stopPropagation()
-                                      }
-                                    />
-                                  }
-                                  onDelete={
-                                    confirmed
-                                      ? undefined
-                                      : () => {
-                                        setSelectedInstances(
-                                          selectedInstances.filter(
-                                            (instance) => instance !== key,
-                                          ),
-                                        );
-                                      }
-                                  }
-                                />
-                              ))}
-                            </Box>
-                          )}
-                        >
-                          {Object.keys(instanceIds).map((key) => (
-                            <MenuItem key={instanceIds[key]} value={key}>
-                              {instanceIds[key]}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={12}
-                      lg={12}
-                      xl={12}
-                      sm={12}
-                      sx={{ margin: "20px 0px 10px 0px" }}
-                    >
-                      {selectedInstances?.length > 0 && (
-                        <>
-                          <Button
-                            onClick={onConfirmSelections}
-                            style={{ margin: "0px 20px 0px 0px" }}
-                            label={"Confirm Selections"}
-                            disabled={confirmed}
-                          />
-                          <Button
-                            onClick={handleChangeInstances}
-                            label={"Change Sources"}
-                            disabled={!confirmed}
-                          />
-                        </>
-                      )}
-                    </Grid>
-                  </>
+                  </Card>
                 )}
               </>
             )}
@@ -1271,8 +1431,8 @@ const CreateProject = () => {
                   lg={12}
                   xl={12}
                 >
-                  <Typography gutterBottom component="div">
-                    Dataset Rows:
+                  <Typography gutterBottom component="div" variant="body2" sx={{ fontWeight: "bold" }}>
+                    Dataset Preview:
                   </Typography>
                 </Grid>
                 <Grid
@@ -1302,338 +1462,413 @@ const CreateProject = () => {
                     />
                   </ThemeProvider>
                 </Grid>
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                >
-                  <Typography gutterBottom component="div">
-                    Select Sampling Type
-                    <span style={{ color: "#d93025" }}>*</span> :
+                <Card sx={{ p: 1, mb: 1 }}>
+                  <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: "bold" }}>
+                    Sampling & Configuration
                   </Typography>
-                </Grid>
-                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <MenuItems
-                    menuOptions={["Random", "Full", "Batch"].map((mode) => {
-                      return {
-                        name: mode,
-                        value: mode[0].toLowerCase(),
-                      };
-                    })}
-                    handleChange={onSelectSamplingMode}
-                    defaultValue=""
-                  />
-                </Grid>
 
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
+                  <Grid container spacing={2} alignItems={'center'}>
+                    <Grid item xs={12} md={6} lg={3}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold", mr: 1 }}>
+                          Sampling Type<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                  title="Sampling Mode of the dataset for the project - Random, Batch or Full." 
+                  arrow
+                  placement="top"
                 >
-                  <Typography gutterBottom component="div">
-                    Filter String:
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <OutlinedTextField
-                    fullWidth
-                    value={filterString}
-                    onChange={(e) => {
-                      setFilterString(e.target.value);
-                    }}
-                  />
-                </Grid>
-              </>
-            )}
-            {samplingMode === "r" && (
-              <>
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                  className="projectsettingGrid"
-                >
-                  <Typography gutterBottom component="div" label="Required">
-                    Sampling Percentage:
-                  </Typography>
-                </Grid>
-                <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                  <OutlinedTextField
-                    fullWidth
-                    value={random}
-                    onChange={handleRandomChange}
-                  />
-                </Grid>
-              </>
-            )}
-            {samplingMode === "b" && (
-              <>
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                  className="projectsettingGrid"
-                >
-                  <Typography gutterBottom component="div" label="Required">
-                    Enter Batch size:
-                  </Typography>
-                </Grid>
-                <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                  <OutlinedTextField
-                    fullWidth
-                    type="number"
-                    inputProps={{ type: "number" }}
-                    value={batchSize}
-                    onChange={(e) =>
-                      isNum(e.target.value) &&
-                      setBatchSize(Number(e.target.value) || e.target.value)
-                    }
-                  />
-                </Grid>
-
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                  className="projectsettingGrid"
-                >
-                  <Typography gutterBottom component="div" label="Required">
-                    Enter Batch Number:
-                  </Typography>
-                </Grid>
-                <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                  <OutlinedTextField
-                    fullWidth
-                    value={batchNumber}
-                    onChange={(e) => setBatchNumber(e.target.value)}
-                  />
-                </Grid>
-              </>
-            )}
-            {samplingParameters && (
-              <>
-                <Grid
-                  item
-                  className="projectsettingGrid"
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                >
-                  <Typography gutterBottom component="div" label="Required">
-                    Annotators Per Task:
-                  </Typography>
-                </Grid>
-                <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                  <OutlinedTextField
-                    fullWidth
-                    value={selectedAnnotatorsNum}
-                    onChange={(e) => setSelectedAnnotatorsNum(e.target.value)}
-                  />
-                </Grid>
-              </>
-            )}
-            {confirmed && (
-              <>
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                  className="projectsettingGrid"
-                >
-                  <Typography gutterBottom component="div" label="Required">
-                    Project Stage:
-                  </Typography>
-                </Grid>
-                <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                  <FormControl fullWidth className="formControl">
-                    <Select
-                      labelId="task-Reviews-label"
-                      id="task-Reviews-select"
-                      value={taskReviews}
-                      onChange={handleReviewToggle}
-                    >
-                      {filteredProjectStage.map((type, index) => (
-                        <MenuItem value={type.value} key={index}>
-                          {type.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                  className="projectsettingGrid"
-                >
-                  <Typography gutterBottom component="div" label="Required">
-                    Create Annotations Automatically:
-                  </Typography>
-                </Grid>
-                <Grid item md={12} lg={12} xl={12} sm={12} xs={12}>
-                  <FormControl fullWidth className="formControl">
-                    <Select
-                      labelId="task-Reviews-label"
-                      id="task-Reviews-select"
-                      value={createannotationsAutomatically}
-                      onChange={handleChangeCreateAnnotationsAutomatically}
-                    >
-                      {CreateAnnotationsAutomatically.map((type, index) => (
-                        <MenuItem value={type.value} key={index}>
-                          {type.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {selectedType === "ModelInteractionEvaluation" ||
-                  selectedType === "MultipleInteractionEvaluation" ||
-                  selectedType === "MultipleLLMInstructionDrivenChat" ? (
-                  <Grid
-                    item
-                    xs={12}
-                    style={{
-                      marginTop: "20px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <Typography gutterBottom component="div" label="Required">
-                      Upload CSV or Paste JSON
-                      <span style={{ color: "#d93025" }}>*</span> :
-                    </Typography>
-
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCsvUpload}
-                      style={{ marginBottom: "20px" }}
-                    />
-
-                    <Grid
-                      container
-                      item
-                      xs={12}
-                      style={{ marginTop: "20px", alignItems: "center" }}
-                    >
-                      <TextField
-                        variant="outlined"
-                        multiline
-                        rows={4}
-                        value={jsonInput}
-                        onChange={handleJsonInputChange}
-                        style={{ flex: 1, marginRight: "10px" }}
-                      />
-                      <IconButton
-                        onClick={downloadCsv}
-                        style={{ marginLeft: "10px" }}
-                        aria-label="download CSV"
-                      >
-                        <ArrowCircleDownIcon />{" "}
-                      </IconButton>
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                        </Typography>
+                        <MenuItems
+                          menuOptions={["Random", "Full", "Batch"].map((mode) => {
+                            return {
+                              name: mode,
+                              value: mode[0].toLowerCase(),
+                            };
+                          })}
+                          handleChange={onSelectSamplingMode}
+                          defaultValue=""
+                          size="small"
+                        />
+                      </Box>
                     </Grid>
+
+                    {/* Filter String - Always visible */}
+                    <Grid item xs={12} md={6} lg={3}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', mr: 1 }}>
+                        <Typography variant="body2" gutterBottom sx={{ fontWeight: "normal" }}>
+                          Filter String:<Tooltip 
+                  title="Filter string for filtering data for project." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                        </Typography>
+                        <OutlinedTextField
+                          fullWidth
+                          size="small"
+                          value={filterString}
+                          onChange={(e) => {
+                            setFilterString(e.target.value);
+                          }}
+                          placeholder="Enter filter criteria"
+                        />
+                      </Box>
+                    </Grid>
+
+                    {/* Sampling Percentage - Only visible when samplingMode is "r" */}
+                    {samplingMode === "r" && (
+                      <Grid item xs={12} md={6} lg={3}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
+                            Sampling Percentage:<Tooltip 
+                  title="Choose the data sources you want to include in your project. You can select multiple sources from the available options." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                          </Typography>
+                          <OutlinedTextField
+                            fullWidth
+                            size="small"
+                            value={random}
+                            onChange={handleRandomChange}
+                            type="number"
+                            inputProps={{ min: 0, max: 100 }}
+                          />
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {/* Batch Size - Only visible when samplingMode is "b" */}
+                    {samplingMode === "b" && (
+                      <Grid item xs={12} md={6} lg={3}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
+                            Batch Size:<Tooltip 
+                  title="" 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                          </Typography>
+                          <OutlinedTextField
+                            fullWidth
+                            size="small"
+                            type="number"
+                            value={batchSize}
+                            onChange={(e) =>
+                              isNum(e.target.value) &&
+                              setBatchSize(Number(e.target.value) || e.target.value)
+                            }
+                            inputProps={{ min: 1 }}
+                          />
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {/* Batch Number - Only visible when samplingMode is "b" */}
+                    {samplingMode === "b" && (
+                      <Grid item xs={12} md={6} lg={3}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
+                            Batch Number:<Tooltip 
+                  title="Choose the data sources you want to include in your project. You can select multiple sources from the available options." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                          </Typography>
+                          <OutlinedTextField
+                            fullWidth
+                            size="small"
+                            value={batchNumber}
+                            onChange={(e) => setBatchNumber(e.target.value)}
+                          />
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {/* Annotators Per Task - Only visible when samplingParameters exists */}
+                    {samplingParameters && (
+                      <Grid item xs={12} md={6} lg={3}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
+                            Annotators Per Task :<Tooltip 
+                  title="No. of annotators required for each task." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                          </Typography>
+                          <OutlinedTextField
+                            fullWidth
+                            size="small"
+                            value={selectedAnnotatorsNum}
+                            onChange={(e) => setSelectedAnnotatorsNum(e.target.value)}
+                            type="number"
+                            inputProps={{ min: 1 }}
+                          />
+                        </Box>
+                      </Grid>
+                    )}
                   </Grid>
-                ) : null}
-                {workspaceDtails?.guest_workspace_display === "Yes" ? (
-                  <>
-                    <Grid
-                      item
-                      className="projectsettingGrid"
-                      xs={12}
-                      sm={12}
-                      md={12}
-                      lg={12}
-                      xl={12}
-                    >
-                      <Typography gutterBottom component="div">
-                        Set a password:
+                </Card>
+
+                <Card sx={{ p: 1, mb: 1 }}>
+                  <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
+                    Project Settings
+                  </Typography>
+
+                  <Grid container spacing={2} padding={1}>
+                    {/* Project Stage */}
+                    <Grid item xs={12} md={6} lg={3}>
+                      <Box sx={{ display: 'flex',flexDirection:"column" }}>
+                        <Typography variant="body2" gutterBottom sx={{ fontWeight: "normal", mr: 1 }}>
+                          Project Stage:<Tooltip 
+                  title="Select the workflow stage for your project (Annotation, Review, or Super-Check)." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            value={taskReviews}
+                            onChange={handleReviewToggle}
+                          >
+                            {filteredProjectStage.map((type, index) => (
+                              <MenuItem value={type.value} key={index}>
+                                {type.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Grid>
+
+                    {/* Create Annotations Automatically */}
+                    <Grid item xs={12} md={6} lg={3}>
+                      <Box sx={{ display: 'flex' ,flexDirection:"column"}}>
+                        <Typography variant="body2" gutterBottom sx={{ fontWeight: "normal", mr: 1 }}>
+                          Auto Create Annotations:<Tooltip 
+                  title="Choose whether to automatically create annotations at different stages of the workflow." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                          <Select
+                            value={createannotationsAutomatically}
+                            onChange={handleChangeCreateAnnotationsAutomatically}
+                          >
+                            {CreateAnnotationsAutomatically.map((type, index) => (
+                              <MenuItem value={type.value} key={index}>
+                                {type.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Grid>
+
+
+                    {(selectedType === "ModelInteractionEvaluation" ||
+                      selectedType === "MultipleInteractionEvaluation" ||
+                      selectedType === "MultipleLLMInstructionDrivenChat") && (
+                        <Grid item xs={12}>
+                          <Box sx={{ p: 1, backgroundColor: 'grey.50', borderRadius: 1 }}>
+                            <Typography variant="body2" gutterBottom fontWeight="bold">
+                              Upload or Paste Evaluation JSON<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span><Tooltip 
+                  title="Paste JSON data to configure the evaluation form" 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                            </Typography>
+
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                              <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleCsvUpload}
+                              />
+
+                              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                <TextField
+                                  variant="outlined"
+                                  multiline
+                                  rows={4}
+                                  value={jsonInput}
+                                  onChange={handleJsonInputChange}
+                                  fullWidth
+                                  size="small"
+                                  fontSize="8px"
+                                />
+                                <IconButton
+                                  onClick={downloadCsv}
+                                  aria-label="download CSV"
+                                  size="small"
+                                  sx={{ mt: 0.5 }}
+                                >
+                                  <ArrowCircleDownIcon />
+                                </IconButton>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      )}
+                    
+                  </Grid>
+                </Card>
+              </>
+            )}
+            {selectedType && selectedInstances?.length > 0 && confirmed && (
+              <>
+                {/* Guest Workspace Settings Card */}
+                {workspaceDtails?.guest_workspace_display === "Yes" && (
+                  <Card sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">
+                        Guest Workspace Settings
                       </Typography>
-                    </Grid>
+                    </Box>
 
-                    <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                      <OutlinedTextField
-                        fullWidth
-                        value={passwordForProjects}
-                        type={shownewpassword ? "text" : "password"}
-                        onChange={(e) => {
-                          setPasswordForProjects(e.target.value);
-                        }}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={handleTogglenewpasswordVisibility}
-                                edge="end"
-                                aria-label="toggle password visibility"
-                              >
-                                {shownewpassword ? (
-                                  <Visibility />
-                                ) : (
-                                  <VisibilityOff />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                  </>
-                ) : null}
+                    <Grid container spacing={2} alignItems="center">
+                      {/* Password Field */}
+                      <Grid item xs={12} md={4}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="body2" sx={{ minWidth: '100px', fontWeight: "normal" }}>
+                            Password:                                <Tooltip title="Set a Password for guest user.">
+                                  <IconButton size="small" sx={{ color: 'primary.main', ml: 0.5 }}>
+                                    <InfoOutlined fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
 
-                {workspaceDtails?.guest_workspace_display === "Yes" ? (
-                  <Grid container direction="row" alignItems="center">
-                    <Typography gutterBottom components="div">
-                      Publish Project :
-                    </Typography>
-                    <Switch
-                      checked={is_published}
-                      onChange={handleChangeIsPublished}
-                      inputProps={{ "aria-label": "controlled" }}
-                      sx={{ mt: 2, ml: 2, mb: 2 }}
-                    />
-                  </Grid>
-                ) : null}
-                <Grid container direction="row" alignItems="center">
-                  <Typography gutterBottom components="div">
-                    Hide Details :
-                  </Typography>
-                  <Switch
-                    checked={conceal}
-                    onChange={handleChangeconceal}
-                    inputProps={{ "aria-label": "controlled" }}
-                    sx={{ mt: 2, ml: 2, mb: 2 }}
-                  />
-                </Grid>
+                          </Typography>
+                          <Box sx={{ flexGrow: 1 }}>
+                            <OutlinedTextField
+                              fullWidth
+                              size="small"
+                              value={passwordForProjects}
+                              type={shownewpassword ? "text" : "password"}
+                              onChange={(e) => setPasswordForProjects(e.target.value)}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton
+                                      onClick={handleTogglenewpasswordVisibility}
+                                      edge="end"
+                                      size="small"
+                                    >
+                                      {shownewpassword ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                      </Grid>
+
+                      {/* Auto Assign Count Field */}
+                      <Grid item xs={12} md={3}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography variant="body2" sx={{ minWidth: '120px', fontWeight: "normal" }}>
+                            Auto Assign:                                <Tooltip title="Auto Assign count of task for users.">
+                                  <IconButton size="small" sx={{ color: 'primary.main', ml: 0.5 }}>
+                                    <InfoOutlined fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                          </Typography>
+                          <OutlinedTextField
+                            fullWidth
+                            size="small"
+                            type="number"
+                            value={defaultValue}
+                            onChange={handleTextareaChange}
+                            inputProps={{ min: 1, max: 100 }}
+                          />
+                        </Box>
+                      </Grid>
+
+                      {/* Toggle Switches */}
+                      <Grid item xs={12} md={5}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={is_published}
+                                onChange={handleChangeIsPublished}
+                                color="primary"
+                              />
+                            }
+                            label={
+                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                Publish
+                                <Tooltip title="To publish the project">
+                                  <IconButton size="small" sx={{ color: 'primary.main', ml: 0.5 }}>
+                                    <InfoOutlined fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            }
+                          />
+
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={conceal}
+                                onChange={handleChangeconceal}
+                                color="primary"
+                              />
+                            }
+                            label={
+                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                Hide Details                                <Tooltip title="To hide annotator,reviewer and superchecker details.">
+                                  <IconButton size="small" sx={{ color: 'primary.main', ml: 0.5 }}>
+                                    <InfoOutlined fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                              </Box>
+                            }
+                          />
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Card>
+                )}
               </>
             )}
-
             <Grid
               item
               className="projectsettingGrid"
@@ -1643,9 +1878,7 @@ const CreateProject = () => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom component="div">
-                Finalize Project
-              </Typography>
+
             </Grid>
 
             <Grid

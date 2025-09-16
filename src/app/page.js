@@ -5,7 +5,6 @@ import { HashRouter, Route, Routes, Navigate } from "react-router-dom"
 import { authenticateUser } from "@/utils/utils";
 import Login from "./ui/pages/login/login";
 import Layout from "./ui/Layout";
-import Chat from "./ui/pages/chat/chat";
 import MyOrganization from "./ui/pages/organizations/organizations";
 import ProjectList from "./ui/pages/projects/project";
 import Projects from "./ui/pages/projects/projectDetails"
@@ -35,6 +34,7 @@ import CreateProject from "./new-project/newproject";
 import OutputSelection from "./ui/pages/dual-screen-preference-ranking/PreferenceRanking";
 import PreferenceRanking from "./ui/pages/n-screen-preference-ranking/PreferenceRanking";
 import GuestWorkspaceTable from "@/components/GuestWorkspace/table";
+import GuestChatPage from "./ui/pages/chat/inputBox";
 
 export default function Root() {
   if (typeof window !== 'undefined') {
@@ -56,7 +56,7 @@ export default function Root() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat" element={<GuestChatPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/invite/:inviteCode" element={<SignUp />} />
             <Route

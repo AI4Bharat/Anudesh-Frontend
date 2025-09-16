@@ -58,16 +58,10 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
           <Button
             variant="contained"
             onClick={handleOpen}
-            sx={{
-              backgroundColor: '#ee6633',
-              color: '#fff',
-              p: 2,
-              borderRadius: 2,
-              ml: 2,
-              width: '300px',
-              textTransform: 'none',
-              fontWeight: 'bold',
-              mb: 2,
+             sx={{
+                  inlineSize: "max-content",
+                  borderRadius: 3,
+                  width: "100%",              
               '&:hover': {
                 backgroundColor: '#ee6633',
               },
@@ -140,3 +134,4 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
 };
 
 export default AllocateTasksDialog;
+

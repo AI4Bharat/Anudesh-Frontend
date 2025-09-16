@@ -383,7 +383,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          {loggedInUserData.guest_user==false?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -392,6 +392,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
+            </NavLink>
+          </Typography>:null}
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -436,7 +447,7 @@ useEffect(() => {
               Datasets
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          {loggedInUserData?.guest_user==false?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -445,6 +456,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
+            </NavLink>
+          </Typography>:null}
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -502,6 +524,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
+            </NavLink>
+          </Typography>
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -570,6 +603,17 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Admin
+            </NavLink>
+          </Typography>
+          <Typography variant="body1">
+            <NavLink
+              to="/chat"
+              className={({ isActive }) =>
+                isActive ? classes.highlightedMenu : classes.headerMenu
+              }
+              activeClassName={classes.highlightedMenu}
+            >
+              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -1112,7 +1156,7 @@ useEffect(() => {
                   ))}
                   {!loggedInUserData.guest_user && (
                     <MenuItem
-                      key={3}
+                      key={4}
                       onClick={() => {
                         handleCloseUserMenu();
                         handleClickOpen(loggedInUserData.email);
@@ -1139,7 +1183,7 @@ useEffect(() => {
                  </DialogActions>
                 </Dialog>
                   <MenuItem
-                    key={4}
+                    key={5}
                     onClick={() => onLogoutClick()}
                     style={{ cursor: "pointer" }}
                   >
