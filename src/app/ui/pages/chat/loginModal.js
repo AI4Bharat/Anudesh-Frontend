@@ -4,6 +4,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, googleAuthProvider } from "@/firebase";
 import GoogleLoginAPI from "../../../actions/api/user/GoogleLogin";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
+import { useDispatch } from "react-redux";
 
 const modalStyle = {
     position: 'absolute',
@@ -22,8 +23,13 @@ const modalStyle = {
 };
 
 const LoginModal = ({ open }) => {
+    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const getLoggedInUserData = () => {
+        dispatch(FetchLoggedInUserData("me"));
+      };
 
     const handleGoogleLogin = async () => {
         setIsLoading(true);
@@ -46,6 +52,7 @@ const LoginModal = ({ open }) => {
                         localStorage.setItem("anudesh_refresh_token", rsp_data.refresh);
                         localStorage.setItem("email_id",fireResult.claims.email.toLowerCase(),);
                         localStorage.setItem("isLoggedIn", "true");
+                        getLoggedInUserData();
                     } else {
                         setSnackbarInfo({
                             open: true,
