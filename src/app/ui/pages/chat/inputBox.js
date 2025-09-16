@@ -624,7 +624,6 @@ function GuestChatPage() {
   const handleSignOut = async () => {
     try {
       handleUserMenuClose();
-      await signOut(auth);
       sessionStorage.removeItem("interaction_json_processed");
       sessionStorage.removeItem("interaction_json");
       if (typeof window !== "undefined") {
@@ -633,6 +632,7 @@ function GuestChatPage() {
         localStorage.removeItem("email_id");
         localStorage.removeItem("isLoggedIn");
       }
+      await signOut(auth);
       console.log("User signed out successfully.");
     } catch (error) {
       console.error("Sign out error:", error);
