@@ -757,7 +757,7 @@ function GuestChatPage() {
                 </ListItemIcon>
                 Reset Chat
               </MenuItem>
-              <MenuItem onClick={handleSignOut}>
+              <MenuItem onClick={async () => {await handleSignOut(); navigate('/');}}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
