@@ -652,14 +652,19 @@ function GuestChatPage() {
   useEffect(() => {
     if(userDetails?.username){
       setUser(userDetails);
-      onAuthStateChanged(auth, (currentUser) => {
-        if(currentUser !== null){
-          setUser(currentUser);
-        }
-      });
-      setAuthLoading(false);
+    }else{
+      setUser(null);
     }
+    setAuthLoading(false);
   }, [userDetails]);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (currentUser) => {
+      if(currentUser !== null){
+        getLoggedInUserData();
+      }
+    });
+  }, [])
 
   if (authLoading) {
     return (
