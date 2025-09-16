@@ -424,7 +424,13 @@ const InstructionDrivenChatPage = ({
         direction="column"
         justifyContent="center"
         alignItems="center"
-        style={{ marginRight:"0.5rem",marginLeft:"0.5rem" }}
+        sx={{
+          padding: "1.5rem",
+          margin: "0 auto",
+          overflowX: "hidden", 
+          maxWidth: "100%",   
+          boxSizing: "border-box",
+        }}
       >
         <Grid
           item
