@@ -633,6 +633,7 @@ function GuestChatPage() {
         localStorage.removeItem("isLoggedIn");
       }
       await signOut(auth);
+      setUser(null);
       console.log("User signed out successfully.");
     } catch (error) {
       console.error("Sign out error:", error);
@@ -658,13 +659,13 @@ function GuestChatPage() {
     setAuthLoading(false);
   }, [userDetails]);
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
-      if(currentUser !== null){
-        getLoggedInUserData();
-      }
-    });
-  }, [])
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, (currentUser) => {
+  //       setUser(currentUser);
+  //       setAuthLoading(false);
+  //       // getLoggedInUserData();
+  //   });
+  // }, [])
 
   if (authLoading) {
     return (
