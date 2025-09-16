@@ -29,7 +29,6 @@ import DeleteProjectTasks from "./DeleteProjectTasks";
 import { snakeToTitleCase } from "@/utils/utils";
 import ExportProjectDialog from "./ExportProjectDialog";
 import DeallocationAnnotatorsAndReviewers from "./DeallocationAnnotatorsAndReviewers";
-import TasksassignDialog from "./taskassign";
 import SuperCheckSettings from "./SuperCheckSettings";
 import userRole from "@/utils/UserMappedByRole/Roles";
 import TextField from "@mui/material/TextField";
