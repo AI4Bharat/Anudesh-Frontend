@@ -51,7 +51,9 @@ import ENDPOINTS from "../../../../config/apiendpoint";
 import config from '@/config/config';
 import ConsentBanner from './consentBanner';
 import RestoreIcon from '@mui/icons-material/Restore';
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from 'react-router-dom';
+import { FetchLoggedInUserData } from '@/Lib/Features/getLoggedInData';
 
 const lightTheme = createTheme({
   palette: {
@@ -252,6 +254,7 @@ const formatPrompt = (prompt) => {
 
 function GuestChatPage() {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const [selectedModel, setSelectedModel] = useState('GPT3.5');
   const [selectedLang, setSelectedLang] = useState("en");
   const [showLanguageSelect, setShowLanguageSelect] = useState(false);
@@ -283,6 +286,14 @@ function GuestChatPage() {
     }
     return null;
   }, [selectedModel]);
+  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const getLoggedInUserData = () => {
+    dispatch(FetchLoggedInUserData("me"));
+  };
+
+  useEffect(() => {
+    getLoggedInUserData();
+  }, []);
 
   const modelsMap = useMemo(() => {
     const map = {};
@@ -639,12 +650,16 @@ function GuestChatPage() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    if(userDetails?.username){
+      setUser(userDetails);
+      onAuthStateChanged(auth, (currentUser) => {
+        if(currentUser !== null){
+          setUser(currentUser);
+        }
+      });
       setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+  }, [userDetails]);
 
   if (authLoading) {
     return (
@@ -690,15 +705,15 @@ function GuestChatPage() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" noWrap className={classes.headerTitle} style={{ flexGrow: 1, minWidth: 0 }}>
-              {user && user.displayName.split(" ", 2).join(" ")}
+              {user && user.username.split(" ", 2).join(" ")}
             </Typography>
             <IconButton onClick={handleUserMenuOpen} size="small" sx={{ ml: 1 }}>
               <Avatar
                 sx={{ width: 45, height: 45, bgcolor: 'primary.main' }}
                 src={user && user.photoURL}
-                alt={user && user.displayName}
+                alt={user && user.username}
               >
-                {user && user.displayName ? user && user.displayName[0] : <PersonIcon />}
+                {user && user.username ? user && user.username[0] : <PersonIcon />}
               </Avatar>
             </IconButton>
 
@@ -793,8 +808,8 @@ function GuestChatPage() {
                   </Box>
 
                   {message.role === 'user' && (
-                    <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }} alt={user && user.displayName} src={user && user.photoURL}>
-                      {user && user.displayName ? user && user.displayName[0] : <PersonIcon />}
+                    <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }} alt={user && user.username} src={user && user.photoURL}>
+                      {user && user.username ? user && user.username[0] : <PersonIcon />}
                     </Avatar>
                   )}
                 </Box>
