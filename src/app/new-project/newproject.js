@@ -1703,8 +1703,8 @@ const CreateProject = () => {
                         <Grid item xs={12}>
                           <Box sx={{ p: 1, backgroundColor: 'grey.50', borderRadius: 1 }}>
                             <Typography variant="body2" gutterBottom fontWeight="bold">
-                              Upload CSV or Paste JSON<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span><Tooltip 
-                  title="Paste Json data to configure the model interactions" 
+                              Upload or Paste Evaluation JSON<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span><Tooltip 
+                  title="Paste JSON data to configure the evaluation form" 
                   arrow
                   placement="top"
                 >
