@@ -297,19 +297,23 @@ function GuestChatPage() {
 
   function startNewChatSession() {
     const newSessionId = crypto.randomUUID();
-    localStorage.setItem('chatSessionId', newSessionId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem('chatSessionId', newSessionId);
+    }
     window.currentSessionId = newSessionId;
     console.log("New Chat Session ID:", window.currentSessionId);
   }
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
       const storedSessionId = localStorage.getItem('chatSessionId');
       if (!storedSessionId) {
-          startNewChatSession();
+        startNewChatSession();
       } else {
-          window.currentSessionId = storedSessionId;
-          console.log("Existing Chat Session ID:", window.currentSessionId);
+        window.currentSessionId = storedSessionId;
+        console.log("Existing Chat Session ID:", window.currentSessionId);
       }
+    }
   }, []);
 
 
@@ -583,6 +587,7 @@ function GuestChatPage() {
         if (localStorage.getItem('cookies_user_consent') === "true") {
           user_data = getBrowserData();
         }
+        newEntry.model = interactionData.model;
         const chatLogBody = {
           interaction_json: newEntry,
           user_data: user_data,
@@ -671,9 +676,9 @@ function GuestChatPage() {
   }, []);
 
   useEffect(() => {
-    if(userDetails?.username){
+    if (userDetails?.username) {
       setUser(userDetails);
-    }else{
+    } else {
       setUser(null);
     }
     setAuthLoading(false);
@@ -719,7 +724,7 @@ function GuestChatPage() {
         }}
       >
         <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor:'pointer' }} onClick={() => {navigate("/")}} >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor: 'pointer' }} onClick={() => { navigate("/") }} >
             <Image
               width={50}
               height={50}
@@ -778,7 +783,7 @@ function GuestChatPage() {
                 </ListItemIcon>
                 Reset Chat
               </MenuItem>
-              <MenuItem onClick={async () => {await handleSignOut(); navigate('/');}}>
+              <MenuItem onClick={async () => { await handleSignOut(); navigate('/'); }}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
