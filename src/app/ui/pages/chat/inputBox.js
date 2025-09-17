@@ -295,6 +295,24 @@ function GuestChatPage() {
     getLoggedInUserData();
   }, []);
 
+  function startNewChatSession() {
+    const newSessionId = crypto.randomUUID();
+    localStorage.setItem('chatSessionId', newSessionId);
+    window.currentSessionId = newSessionId;
+    console.log("New Chat Session ID:", window.currentSessionId);
+  }
+
+  useEffect(() => {
+      const storedSessionId = localStorage.getItem('chatSessionId');
+      if (!storedSessionId) {
+          startNewChatSession();
+      } else {
+          window.currentSessionId = storedSessionId;
+          console.log("Existing Chat Session ID:", window.currentSessionId);
+      }
+  }, []);
+
+
   const modelsMap = useMemo(() => {
     const map = {};
     modelsData.forEach(group => {
@@ -566,8 +584,9 @@ function GuestChatPage() {
           user_data = getBrowserData();
         }
         const chatLogBody = {
-          interaction_json: updatedChatHistory,
+          interaction_json: newEntry,
           user_data: user_data,
+          session_id: window.currentSessionId,
         };
         const ChatLogObj = new PostChatLogAPI(chatLogBody);
         const logRes = await fetch(ChatLogObj.apiEndPoint(), {
@@ -631,6 +650,7 @@ function GuestChatPage() {
         localStorage.removeItem("anudesh_refresh_token");
         localStorage.removeItem("email_id");
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("chatSessionId");
       }
       await signOut(auth);
       setUser(null);
@@ -678,6 +698,7 @@ function GuestChatPage() {
   const resetChat = () => {
     setProcessedChatHistory([]);
     setChatHistory([]);
+    startNewChatSession();
     handleUserMenuClose();
   };
 

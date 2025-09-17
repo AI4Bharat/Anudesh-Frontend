@@ -394,17 +394,6 @@ useEffect(() => {
               Analytics
             </NavLink>
           </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -456,17 +445,6 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -524,17 +502,6 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -603,17 +570,6 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Admin
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
