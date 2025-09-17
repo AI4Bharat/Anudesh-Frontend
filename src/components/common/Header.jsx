@@ -383,7 +383,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          {loggedInUserData.guest_user==false?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -393,7 +393,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>
+          </Typography>:null}
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -436,7 +436,7 @@ useEffect(() => {
               Datasets
             </NavLink>
           </Typography>
-          <Typography variant="body1">
+          {loggedInUserData?.guest_user==false?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -446,7 +446,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>
+          </Typography>:null}
         </Grid>
       );
     } else if (userRole.OrganizationOwner === loggedInUserData?.role) {

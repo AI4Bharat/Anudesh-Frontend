@@ -35,6 +35,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import AuthenticateToWorkspaceAPI from "@/app/actions/api/workspace/AuthenticateToWorkspaceAPI";
 
 import ProjectList from "@/app/ui/pages/projects/project";
+import Spinner from "@/components/common/Spinner";
 const style = {
   position: "absolute",
   top: "50%",
@@ -85,6 +86,7 @@ const GuestWorkspaceTable = (props) => {
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [filteredProjects, setFilteredProjects] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const guestWorkspaceData = useSelector(
     (state) => state.getGuestWorkspaces?.data
@@ -94,6 +96,10 @@ const GuestWorkspaceTable = (props) => {
   );
   const authenticatedWorkspaces = useSelector(
     (state) => state.getGuestWorkspaces?.authenticatedWorkspaces
+  );
+
+  const apiLoading = useSelector(
+    (state) => state.getGuestWorkspaces.status === "loading"
   );
 
   const handleOpen = (workspace_name, workspace_id) => {
@@ -427,7 +433,9 @@ const GuestWorkspaceTable = (props) => {
 
   return (
     <div>
-            {filteredProjects ? (
+      {loading || apiLoading ? (
+        <Spinner />
+      ) : filteredProjects ? (
         <ProjectList data={filteredProjects} />
       ) : (
         <>

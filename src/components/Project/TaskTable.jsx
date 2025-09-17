@@ -51,6 +51,7 @@ import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
 import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
+import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 
 const defaultColumns = [
   "id",
@@ -136,6 +137,8 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
+
+  
 
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
@@ -304,6 +307,7 @@ const TaskTable = (props) => {
       }
     };
   }, []);
+
 
   const fetchNewTasks = async () => {
     setLoading(true);
@@ -703,6 +707,9 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
+        if (userDetails?.guest_user === true) {
+          setPullDisabled("disable for guest user");
+        }
     }
   }, [ProjectDetails.labeled_task_count]);
 
@@ -723,6 +730,9 @@ const TaskTable = (props) => {
         else if (pullDisabled === "You're no more a part of this project")
           setPullDisabled("");
       });
+      if (userDetails?.guest_user === true) {
+          setPullDisabled("disable for guest user");
+        }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
     }
   }, [
@@ -1102,7 +1112,7 @@ const TaskTable = (props) => {
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
       setCurrentPageNumber(1);
-      dispatch(setPage({ projectId: id, page : 1}));
+      dispatch(setPageFilter({ projectId: id, page : 1}));
       setCurrentRowPerPage(rowPerPageCount);
     },
     filterType: "checkbox",
@@ -1320,7 +1330,7 @@ const TaskTable = (props) => {
                   : 4
               }
             >
-              <Tooltip title={pullDisabled}>
+             <Tooltip title={pullDisabled}>
                 <Box>
                   <CustomButton
                     sx={{

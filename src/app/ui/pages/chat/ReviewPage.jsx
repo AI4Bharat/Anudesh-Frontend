@@ -550,7 +550,6 @@ const ReviewPage = () => {
 
   const resetNotes = () => {
     if (
-      typeof window !== "undefined" &&
       annotationNotesRef.current &&
       reviewNotesRef.current &&
       superCheckerNotesRef.current
@@ -658,12 +657,9 @@ const ReviewPage = () => {
   const buildResult = (value, type, resultValue) => {
     let result = resultValue;
     if (value === "delete") {
-      result = {
-        eval_form: [],
-        model_interactions: [],
-      };
+      result = []
     }
-    if (
+    else if (
       value === "delete-pair" &&
       type === "MultipleLLMInstructionDrivenChat"
     ) {
@@ -675,6 +671,14 @@ const ReviewPage = () => {
         })),
       };
     }
+    else if (
+      value === "delete-pair" 
+    ) {
+      result  = resultValue.slice(0, resultValue.length - 1)
+    }
+    else {
+      resultValue
+    }   
     return !Array.isArray(result) ? [result] : result;
   };
 
