@@ -297,6 +297,28 @@ function GuestChatPage() {
     getLoggedInUserData();
   }, []);
 
+  function startNewChatSession() {
+    const newSessionId = crypto.randomUUID();
+    if (typeof window !== "undefined") {
+      localStorage.setItem('chatSessionId', newSessionId);
+    }
+    window.currentSessionId = newSessionId;
+    console.log("New Chat Session ID:", window.currentSessionId);
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedSessionId = localStorage.getItem('chatSessionId');
+      if (!storedSessionId) {
+        startNewChatSession();
+      } else {
+        window.currentSessionId = storedSessionId;
+        console.log("Existing Chat Session ID:", window.currentSessionId);
+      }
+    }
+  }, []);
+
+
   const modelsMap = useMemo(() => {
     const map = {};
     modelsData.forEach(group => {
@@ -567,9 +589,11 @@ function GuestChatPage() {
         if (localStorage.getItem('cookies_user_consent') === "true") {
           user_data = getBrowserData();
         }
+        newEntry.model = interactionData.model;
         const chatLogBody = {
-          interaction_json: updatedChatHistory,
+          interaction_json: newEntry,
           user_data: user_data,
+          session_id: window.currentSessionId,
         };
         const ChatLogObj = new PostChatLogAPI(chatLogBody);
         const logRes = await fetch(ChatLogObj.apiEndPoint(), {
@@ -633,6 +657,7 @@ function GuestChatPage() {
         localStorage.removeItem("anudesh_refresh_token");
         localStorage.removeItem("email_id");
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("chatSessionId");
       }
       await signOut(auth);
       setUser(null);
@@ -653,9 +678,9 @@ function GuestChatPage() {
   }, []);
 
   useEffect(() => {
-    if(userDetails?.username){
+    if (userDetails?.username) {
       setUser(userDetails);
-    }else{
+    } else {
       setUser(null);
     }
     setAuthLoading(false);
@@ -680,6 +705,7 @@ function GuestChatPage() {
   const resetChat = () => {
     setProcessedChatHistory([]);
     setChatHistory([]);
+    startNewChatSession();
     handleUserMenuClose();
   };
 
@@ -700,7 +726,7 @@ function GuestChatPage() {
         }}
       >
         <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor:'pointer' }} onClick={() => {navigate("/")}} >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor: 'pointer' }} onClick={() => { navigate("/") }} >
             <Image
               width={50}
               height={50}
@@ -759,7 +785,7 @@ function GuestChatPage() {
                 </ListItemIcon>
                 Reset Chat
               </MenuItem>
-              <MenuItem onClick={async () => {await handleSignOut(); navigate('/');}}>
+              <MenuItem onClick={async () => { await handleSignOut(); navigate('/'); }}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
