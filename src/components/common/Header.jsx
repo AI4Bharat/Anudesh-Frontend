@@ -889,7 +889,7 @@ useEffect(() => {
                     cursor: "pointer",
                     gap: "10px",
                   }}
-                  onClick={() => navigate("/")}
+                  onClick={() => window.location.href = "/#/"}
                 >
                   <Image
                     src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
