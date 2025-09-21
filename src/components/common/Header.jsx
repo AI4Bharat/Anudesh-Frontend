@@ -1,5 +1,7 @@
-import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu,MenuItem,Toolbar,Tooltip,
-  Typography,Popover,Badge,Stack,Tabs,Tab,Switch,Select,InputLabel,FormControl,Dialog,DialogTitle,DialogContent ,DialogActions ,Button } from "@mui/material";
+import {
+  AppBar, Avatar, Box, Checkbox, Divider, FormControlLabel, Grid, IconButton, Menu, MenuItem, Toolbar, Tooltip,
+  Typography, Popover, Badge, Stack, Tabs, Tab, Switch, Select, InputLabel, FormControl, Dialog, DialogTitle, DialogContent, DialogActions, Button
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -23,6 +25,7 @@ import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import { Link, NavLink } from "react-router-dom";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 import NotificationAPI from "@/app/actions/api/Notification/Notification";
+import FetchunreadcountAPI from "@/app/actions/api/Notification/notification_unseen";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
@@ -33,6 +36,8 @@ import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPat
 import APITransport from "@/app/actions/apitransport/apitransport";
 
 const Header = () => {
+  const [isNotifOpen, setIsNotifOpen] = useState(false); // ✅ control fetching
+  const [unreadCount, setUnreadCount] = useState(0);
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
 
@@ -132,12 +137,51 @@ const Header = () => {
     }
   };
   // Fetch unread notifications on mount
+  // ✅ only call when notif is opened + unread changes
   useEffect(() => {
-    fetchUnreadCount();
+    if (isNotifOpen) {
+      fetchNotifications();
+    }
+  }, [unread, isNotifOpen]);
+
+
+  const FetchUnreadcount = () => {
+    let apiObj = new FetchunreadcountAPI();
+    const endpoint = apiObj.apiEndPoint();
+
+    fetch(endpoint, {
+      method: "GET",
+      headers: apiObj.getHeaders().headers,
+    })
+      .then(async (response) => {
+        if (response.ok) {
+          const data = await response.json();
+
+          // API directly returns a number (85)
+          setUnreadCount(Number(data));
+        } else {
+          console.error("Error fetching unread count:", response.status, response.statusText);
+          setUnreadCount(0);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching unread count:", error);
+        setUnreadCount(0);
+      });
+  };
+
+  useEffect(() => {
+    FetchUnreadcount();
+    const interval = setInterval(() => {
+      FetchUnreadcount();
+    }, 30000); // every 30 seconds
+
+    return () => clearInterval(interval); // cleanup on unmount
+
   }, []);
 
 
-  const markAsRead =  (notificationId) => {
+  const markAsRead = (notificationId) => {
     const task = new NotificationPatchAPI(notificationId);
     setSelectedNotificationId(notificationId);
     dispatch(APITransport(task));
@@ -163,7 +207,7 @@ const Header = () => {
   // useEffect(() => {
   //   fetchNotifications();
   // }, [unread,selectedNotificationId]);
-  
+
   useEffect(() => {
     getLoggedInUserData();
   }, []);
@@ -243,26 +287,29 @@ const Header = () => {
   };
 
   const handleOpenNotification = (event) => {
+    event.stopPropagation();
     setAnchorElNotification(event.currentTarget);
+    setIsNotifOpen(true); // ✅ enable fetching
   };
 
   const handleCloseNotification = () => {
     setAnchorElNotification(null);
+    setIsNotifOpen(false); // optional: stop fetching when closed
   };
-const [isRtl, setIsRtl] = useState(false);
+  const [isRtl, setIsRtl] = useState(false);
 
-useEffect(() => {
-  if (typeof window !== "undefined") {
-    setIsRtl(localStorage.getItem("rtl") === "true");
-  }
-}, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsRtl(localStorage.getItem("rtl") === "true");
+    }
+  }, []);
 
 
 
   const handleRTLChange = (event) => {
     if (typeof window !== "undefined") {
-        const value = event.target.checked;
-  setIsRtl(value);
+      const value = event.target.checked;
+      setIsRtl(value);
 
       let style;
       if (event.target.checked) {
@@ -311,7 +358,7 @@ useEffect(() => {
   //   fetchNotifications();
   // };
 
-  
+
   const handleTagsChange = (event) => {
     if (typeof window !== "undefined") {
       if (event.target.checked) {
@@ -383,7 +430,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false?<Typography variant="body1">
+          {loggedInUserData.guest_user == false ? <Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -393,7 +440,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>:null}
+          </Typography> : null}
           <Typography variant="body1">
             <NavLink
               to="/chat"
@@ -447,7 +494,7 @@ useEffect(() => {
               Datasets
             </NavLink>
           </Typography>
-          {loggedInUserData?.guest_user==false?<Typography variant="body1">
+          {loggedInUserData?.guest_user == false ? <Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -457,7 +504,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>:null}
+          </Typography> : null}
           <Typography variant="body1">
             <NavLink
               to="/chat"
@@ -626,9 +673,9 @@ useEffect(() => {
   const tabs = [
     // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
     loggedInUserData?.guest_user &&
-    (userRole.Annotator === loggedInUserData?.role ||
-      userRole.Reviewer === loggedInUserData?.role ||
-      userRole.SuperChecker === loggedInUserData?.role) ? (
+      (userRole.Annotator === loggedInUserData?.role ||
+        userRole.Reviewer === loggedInUserData?.role ||
+        userRole.SuperChecker === loggedInUserData?.role) ? (
       <Typography key="guest" variant="body1">
         <NavLink
           to="/guest_workspaces"
@@ -644,7 +691,7 @@ useEffect(() => {
 
     // Organization tab - only shown for Organization Owners and Admins
     userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role ? (
+      userRole.Admin === loggedInUserData?.role ? (
       <Typography key="organization" variant="body1">
         <NavLink
           to={
@@ -692,8 +739,8 @@ useEffect(() => {
 
     // Datasets tab - only shown for Workspace Managers, Organization Owners, and Admins
     userRole.WorkspaceManager === loggedInUserData?.role ||
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role ? (
+      userRole.OrganizationOwner === loggedInUserData?.role ||
+      userRole.Admin === loggedInUserData?.role ? (
       <Typography key="datasets" variant="body1">
         <NavLink
           to="/datasets"
@@ -942,8 +989,10 @@ useEffect(() => {
                         </span>
                       }
                     >
-                     <IconButton onClick={handleOpenNotification}>
-                        <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
+                      <IconButton onClick={handleOpenNotification}>
+                        <Badge badgeContent={
+                          unreadCount > 0 ? unreadCount : null
+                          } color="primary">
                           <NotificationsIcon
                             color="primary.dark"
                             fontSize="large"
@@ -1168,20 +1217,20 @@ useEffect(() => {
                       </Typography>
                     </MenuItem>
                   )}
-                <Dialog open={open} onClose={handleClose}>
-                  <DialogTitle>Change Password:</DialogTitle>
-                  <DialogContent>
-                   Are you sure you want to change your password?
-                 </DialogContent>
-                 <DialogActions>
-                 <Button onClick={handleApply} color="primary" variant="contained">
-                   Confirm
-                  </Button>
-                  <Button onClick={handleClose} color="error" variant="contained">
-                   Cancel
-                  </Button>
-                 </DialogActions>
-                </Dialog>
+                  <Dialog open={open} onClose={handleClose}>
+                    <DialogTitle>Change Password:</DialogTitle>
+                    <DialogContent>
+                      Are you sure you want to change your password?
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleApply} color="primary" variant="contained">
+                        Confirm
+                      </Button>
+                      <Button onClick={handleClose} color="error" variant="contained">
+                        Cancel
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                   <MenuItem
                     key={5}
                     onClick={() => onLogoutClick()}
@@ -1251,8 +1300,8 @@ useEffect(() => {
                   >
                     <Typography variant="h4">Notifications</Typography>
                     {Notification &&
-                    Notification?.length > 0 &&
-                    unseenNotifications?.length > 0 ? (
+                      Notification?.length > 0 &&
+                      unseenNotifications?.length > 0 ? (
                       <Tooltip title="Mark all as read">
                         <IconButton
                           aria-label="More"
@@ -1328,9 +1377,8 @@ useEffect(() => {
                                 variant="subtitle2"
                                 fontFamily="Roboto, sans-serif"
                                 fontWeight="bold"
-                              >{`ID: ${
-                                notification?.title?.split("\n")[0]
-                              }`}</Typography>
+                              >{`ID: ${notification?.title?.split("\n")[0]
+                                }`}</Typography>
                               <Typography
                                 style={{ paddingLeft: "10px" }}
                                 variant="subtitle2"
@@ -1378,7 +1426,7 @@ useEffect(() => {
                             {index !== Notification?.length - 1 && <Divider />}
                           </Link>
                           {notification?.seen_json == null ||
-                          !notification?.seen_json[loggedInUserData.id] ? (
+                            !notification?.seen_json[loggedInUserData.id] ? (
                             <Tooltip title="Mark as read">
                               <IconButton
                                 aria-label="More"
@@ -1452,7 +1500,7 @@ useEffect(() => {
         leftTranslate={"-50"}
         isTransliteration={true}
         style={{ cursor: "pointer" }}
-        // sx={{width: "400px"}}
+      // sx={{width: "400px"}}
       >
         <Transliteration
           onCancelTransliteration={() => handleTransliterationModelClose}
