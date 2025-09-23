@@ -69,7 +69,7 @@ const MyProgress = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarText, setSnackbarText] = useState("");
   const [projectTypes, setProjectTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState("InstructionDrivenChat");
   const [columns, setColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [reportData, setReportData] = useState([]);
@@ -136,7 +136,7 @@ const MyProgress = () => {
       setProjectTypes(types);
       if(types?.length)
         {
-          const idc = types.find(type => type.toLowerCase() === "InstructionDrivenChat");
+          const idc = types.find(type => type.toLowerCase() === "instructiondrivenchat");
           if(selectedType ===""){
                       setSelectedType(idc)
 
