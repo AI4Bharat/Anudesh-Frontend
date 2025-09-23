@@ -1,8 +1,9 @@
 'use client'
+import config from '../config/config';
 
 const fetchParams = (endpoint, method = "GET", body = null) => {
     return {
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}${endpoint}`,
+        url: `${config.BASE_URL_AUTO}${endpoint}`,
         options: {
             method: method,
             body,
