@@ -52,6 +52,7 @@ import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
 import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import TasksassignDialog from "./taskassign";
 
 const defaultColumns = [
   "id",
@@ -1264,8 +1265,8 @@ const TaskTable = (props) => {
               item
               xs={4}
               sm={4}
-              md={
-                (props.type === "annotation" &&
+              md={props.type === "review" ? 1 :
+                ((props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
                 selectedFilters.annotation_status === "draft" ||
                 selectedFilters.annotation_status === "skipped" ||
@@ -1274,7 +1275,7 @@ const TaskTable = (props) => {
                 selectedFilters.review_status === "draft" ||
                 selectedFilters.review_status === "skipped"
                   ? 2
-                  : 3
+                  : 3)
               }
             >
               <FormControl size="small" sx={{ width: "100%" }}>
@@ -1317,8 +1318,8 @@ const TaskTable = (props) => {
               item
               xs={8}
               sm={8}
-              md={
-                (props.type === "annotation" &&
+              md={props.type === "review" ? 2 :
+                ((props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
                 selectedFilters.annotation_status === "draft" ||
                 selectedFilters.annotation_status === "skipped" ||
@@ -1327,7 +1328,7 @@ const TaskTable = (props) => {
                 selectedFilters.review_status === "draft" ||
                 selectedFilters.review_status === "skipped"
                   ? 3
-                  : 4
+                  : 4)
               }
             >
              <Tooltip title={pullDisabled}>
@@ -1346,6 +1347,19 @@ const TaskTable = (props) => {
                 </Box>
               </Tooltip>
             </Grid>
+            {props.type === "review" && 
+            <Grid
+              item
+              xs={8}
+              sm={8}
+              md={selectedFilters.review_status === "unreviewed" || selectedFilters.review_status === "draft" || selectedFilters.review_status === "skipped"? 2: 2}
+            >
+             <Tooltip title={pullDisabled}>
+                <Box>
+                  <TasksassignDialog disabled={pullDisabled}/>
+                </Box>
+              </Tooltip>
+            </Grid>}
             <Grid
               item
               xs={12}

@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import configs from '../../config/config';
 
-const TasksassignDialog = () => {
+const TasksassignDialog = (disabled=false) => {
   const { id } = useParams();
 
   const [open, setOpen] = useState(false);
@@ -120,6 +120,7 @@ const TasksassignDialog = () => {
         <Button
           variant="contained"
           onClick={handleOpen}
+          disabled={disabled}
           sx={{
             backgroundColor: '#ee6633',
             color: '#fff',
