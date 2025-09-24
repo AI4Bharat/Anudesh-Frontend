@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import configs from '../../config/config';
 
-const TasksassignDialog = (disabled=false) => {
+const TasksassignDialog = ({disabled=false}) => {
   const { id } = useParams();
 
   const [open, setOpen] = useState(false);
