@@ -634,7 +634,12 @@ const TaskTable = (props) => {
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
-        columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        if(props.type === "review" && ProjectDetails?.conceal === true){
+          const updatedColumns = [...defaultColumns, "Annotator Email"];
+          columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
+        }else{
+          columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        }
       }
       const metaInfoMapping = {
         meta_info_language: "language",
@@ -1356,7 +1361,7 @@ const TaskTable = (props) => {
             >
              <Tooltip title={pullDisabled}>
                 <Box>
-                  <TasksassignDialog disabled={pullDisabled}/>
+                  <TasksassignDialog default_reviewer={userDetails.id} disabled={pullDisabled}/>
                 </Box>
               </Tooltip>
             </Grid>}
