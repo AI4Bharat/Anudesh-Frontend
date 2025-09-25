@@ -27,297 +27,289 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
     <ThemeProvider theme={themeDefault}>
   <Grid
     container
-    gap={2}
+    spacing={2}
+    sx={{ alignItems: 'flex-start' }}
   >
+    {/* Left Column - Sampling Parameters Section */}
     {ProjectDetails && ProjectDetails.sampling_mode && (
-      <>
-        {/* Sampling Parameters Section */}
-        <Grid item xs={12}>
-          <Typography
-            variant="h6"
+      <Grid item xs={12} md={ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json ? 6 : 12}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontSize: { xs: "1rem", md: "1.25rem" },
+            textAlign: { xs: "center", sm: "left" },
+            mb: 2
+          }}
+        >
+          Sampling Parameters
+        </Typography>
+
+          {/* Sampling Mode */}
+          <Box
             sx={{
-              fontSize: { xs: "1rem", md: "1.25rem" }, // Adjust font size
-              textAlign: { xs: "center", sm: "left" }, // Center-align on mobile
+              display:"flex",
+              alignItems:"center",
+              mb: 1,
+              gap: 2
             }}
           >
-            Sampling Parameters
-          </Typography>
-        </Grid>
+            <Typography variant="subtitle1">Sampling Mode:</Typography>
+            <Typography
+              variant="subtitle1"
+            >
+              {ProjectDetails.sampling_mode === "f" && "Full"}
+              {ProjectDetails.sampling_mode === "b" && "Batch"}
+              {ProjectDetails.sampling_mode === "r" && "Random"}
+            </Typography>
+          </Box>
 
-        {/* Sampling Mode */}
-        <Grid
-          item
-          xs={12}
-          sx={{
-            display:"flex",
-            alignItems:"center"
-          }}
-          gap={2}
-        >
-          <Typography variant="subtitle1">Sampling Mode:</Typography>
-          <Typography
-            variant="subtitle1"
-          >
-            {ProjectDetails.sampling_mode === "f" && "Full"}
-            {ProjectDetails.sampling_mode === "b" && "Batch"}
-            {ProjectDetails.sampling_mode === "r" && "Random"}
-          </Typography>
-        </Grid>
+          {/* Batch Size */}
+          {ProjectDetails?.sampling_parameters_json?.batch_size && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { xs: "flex-start", md: "center" },
+                mb: 1,
+                gap: 2
+              }}
+            >
+              <Typography variant="subtitle1">Batch Size:</Typography>
+              <Typography
+                variant="subtitle1"
+              >
+                {ProjectDetails.sampling_parameters_json.batch_size}
+              </Typography>
+            </Box>
+          )}
 
-        {/* Batch Size */}
-        {ProjectDetails?.sampling_parameters_json?.batch_size && (
-          <Grid
-            item
-            xs={12}
+          {/* Dataset Instances */}
+          {ProjectDetails.datasets.map((dataset, i) => (
+            <Box
+              key={i}
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { xs: "flex-start", md: "center" },
+                mb: 1,
+                gap: 2
+              }}
+            >
+              <Typography variant="subtitle1">Dataset Instance:</Typography>
+              <Box sx={{
+                display:"flex",
+                alignItems:"center",
+                gap:2,
+                ml:{xs:4, md:0}
+              }}>
+                <Typography
+                  variant="subtitle1"
+                >
+                  {dataset?.instance_name}
+                </Typography>
+                <Link
+                  to={`/datasets/${dataset?.instance_id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <CustomButton
+                    sx={{
+                      borderRadius: 2,
+                    }}
+                    label="View Dataset"
+                  />
+                </Link>
+              </Box>
+            </Box>
+          ))}
+
+          {/* Workspace Name */}
+          <Box
             sx={{
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
               alignItems: { xs: "flex-start", md: "center" },
-              mb: 2,
+              mb: 1,
+              gap: 2
             }}
           >
-            <Typography variant="subtitle1">Batch Size:</Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
-            >
-              {ProjectDetails.sampling_parameters_json.batch_size}
-            </Typography>
-          </Grid>
-        )}
-
-        {/* Dataset Instances */}
-        {ProjectDetails.datasets.map((dataset, i) => (
-          <Grid
-            item
-            xs={12}
-            key={i}
-            sx={{
-              display: {md:"flex"},
-              alignItems:"center"
-            }}
-            gap={2}
-          >
-            <Typography variant="subtitle1">Dataset Instance:</Typography>
-            <Box sx={{
-              display:"flex",
-              alignItems:"center",
-              gap:2,
-              ml:{xs:4, md:0}
-            }}>
-            <Typography
-              variant="subtitle1"
-              >
-              {dataset?.instance_name}
-            </Typography>
-            <Link
-              to={`/datasets/${dataset?.instance_id}`}
-              style={{ textDecoration: "none", marginTop: { xs: 8, md: 0 } }}
-            >
-              <CustomButton
-                sx={{
-                  borderRadius: 2,
-                }}
-                label="View Dataset"
-                />
-            </Link>
-                </Box>
-          </Grid>
-        ))}
-
-        {/* Workspace Name */}
-        <Grid
-          item
-          xs={12}
-          sx={{
-            display: {md:"flex"},
-            alignItems:"center"
-          }}
-          gap={2}
-        >
-          <Typography variant="subtitle1">Workspace Name:</Typography>
-          <Box
-          sx={{
-              display:"flex",
-              alignItems:"center",
-              gap:2,
-              ml:{xs:4, md:0}
-
-            }}
-          >
-          <Typography
-            variant="subtitle1"
-          >
-            {workspaceDetails.workspace_name}
-          </Typography>
-          <Link
-            to={`/workspaces/${ProjectDetails.workspace_id}`}
-            style={{ textDecoration: "none" }}
-          >
-            <CustomButton
+            <Typography variant="subtitle1">Workspace Name:</Typography>
+            <Box
               sx={{
-                borderRadius: 2,
+                display:"flex",
+                alignItems:"center",
+                gap:2,
+                ml:{xs:4, md:0}
               }}
-              label="View Workspace"
-            />
-          </Link>
+            >
+              <Typography
+                variant="subtitle1"
+              >
+                {workspaceDetails.workspace_name}
+              </Typography>
+              <Link
+                to={`/workspaces/${ProjectDetails.workspace_id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <CustomButton
+                  sx={{
+                    borderRadius: 2,
+                  }}
+                  label="View Workspace"
+                />
+              </Link>
+            </Box>
           </Box>
-        </Grid>
 
-        {/* Required Annotators per Task */}
-        <Grid
-          item
-          xs={12}
+          {/* Required Annotators per Task */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mb: 1,
+              gap: 2
+            }}
+          >
+            <Typography variant="subtitle1">Required Annotators per Task:</Typography>
+            <Typography
+              variant="subtitle1"
+            >
+              {ProjectDetails.required_annotators_per_task}
+            </Typography>
+          </Box>
+          
+          {/* Filter String */}
+          {ProjectDetails.filter_string && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { xs: "flex-start", md: "center" },
+                mb: 1,
+                gap: 2
+              }}
+            >
+              <Typography variant="subtitle1">Filter String:</Typography>
+              <Typography
+                variant="subtitle1"
+              >
+                {ProjectDetails.filter_string}
+              </Typography>
+            </Box>
+          )}
+      </Grid>
+    )}
+
+    {/* Right Column - Multi LLM Interaction Project Details */}
+    {ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json && (
+      <Grid item xs={12} md={6}>
+        <Typography
+          variant="h6"
           sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
+            fontSize: { xs: "1rem", md: "1.25rem" },
+            textAlign: { xs: "center", sm: "left" },
             mb: 2,
           }}
         >
-          <Typography variant="subtitle1">Required Annotators per Task:</Typography>
-          <Typography
-            variant="subtitle1"
-            sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
-          >
-            {ProjectDetails.required_annotators_per_task}
-          </Typography>
-        </Grid>
-        
-        {/* Filter String */}
-        {ProjectDetails.filter_string && (
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 2,
-            }}
-          >
-            <Typography variant="subtitle1">Filter String:</Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
-            >
-              {ProjectDetails.filter_string}
-            </Typography>
-          </Grid>
-        )}
-      </>
-    )}
-
-    {/* Multi LLM Interaction Project Details */}
-    {ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json && (
-      <>
-        <Grid item xs={12}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontSize: { xs: "1rem", md: "1.25rem" },
-              textAlign: { xs: "center", sm: "left" },
-              mt: 4,
-              mb: 2,
-            }}
-          >
-            Multi LLM Interaction Project Details
-          </Typography>
-        </Grid>
+          Multi LLM Interaction Project Details
+        </Typography>
 
         {/* No. of Models */}
         {ProjectDetails.metadata_json.num_models && (
-          <Grid
-            item
-            xs={12}
+          <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 2,
+              alignItems: "center",
+              mb: 1,
+              gap: 2
             }}
           >
             <Typography variant="subtitle1">No. of Models:</Typography>
             <Typography
               variant="subtitle1"
-              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
             >
               {ProjectDetails.metadata_json.num_models}
             </Typography>
-          </Grid>
+          </Box>
         )}
 
         {/* Models set */}
         {ProjectDetails.metadata_json.models_set && (
-          <Grid
-            item
-            xs={12}
+          <Box
             sx={{
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 2,
+              alignItems: { xs: "flex-start", md: "flex-start" },
+              mb: 1,
+              gap: { xs: 1, md: 2 }
             }}
           >
-            <Typography variant="subtitle1">Models set:</Typography>
+            <Typography variant="subtitle1" sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>Models set:</Typography>
             <Typography
               variant="subtitle1"
-              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
+              sx={{ 
+                ml: { xs: 4, md: 0 }, 
+                mt: { xs: 1, md: 0 },
+                wordBreak: 'break-word',
+                flex: 1
+              }}
             >
               {Array.isArray(ProjectDetails.metadata_json.models_set) 
                 ? ProjectDetails.metadata_json.models_set.join(", ")
                 : ProjectDetails.metadata_json.models_set
               }
             </Typography>
-          </Grid>
+          </Box>
         )}
 
         {/* Fixed Models */}
         {ProjectDetails.metadata_json.fixed_models && (
-          <Grid
-            item
-            xs={12}
+          <Box
             sx={{
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
-              mb: 2,
+              alignItems: { xs: "flex-start", md: "flex-start" },
+              mb: 1,
+              gap: { xs: 1, md: 2 }
             }}
           >
-            <Typography variant="subtitle1">Fixed Models:</Typography>
+            <Typography variant="subtitle1" sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>Fixed Models:</Typography>
             <Typography
               variant="subtitle1"
-              sx={{ ml: { xs: 0, md: 3 }, mt: { xs: 1, md: 0 } }}
+              sx={{ 
+                ml: { xs: 4, md: 0 }, 
+                mt: { xs: 1, md: 0 },
+                wordBreak: 'break-word',
+                flex: 1
+              }}
             >
               {Array.isArray(ProjectDetails.metadata_json.fixed_models) 
                 ? ProjectDetails.metadata_json.fixed_models.join(", ")
                 : ProjectDetails.metadata_json.fixed_models
               }
             </Typography>
-          </Grid>
+          </Box>
         )}
-      </>
+      </Grid>
     )}
 
-  {/* Variable Parameters Section */}
+    {/* Variable Parameters Section - Part of right column if Multi LLM exists, otherwise full width */}
     {ProjectDetails?.variable_parameters?.output_language && (
-      <Grid item xs={12}>
+      <Grid item xs={12} md={ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" ? 6 : 12}>
         <Typography
           variant="h6"
-          sx={{ fontSize: { xs: "1rem", md: "1.25rem" }, mt: 4, mb: 2 }}
+          sx={{ fontSize: { xs: "1rem", md: "1.25rem" }, mb: 2 }}
         >
           Variable Parameters
         </Typography>
 
         {/* Output Language */}
-        <Grid
-          item
-          xs={12}
+        <Box
           sx={{
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             alignItems: { xs: "flex-start", md: "center" },
-            mb: 2,
+            mb: 1,
+            gap: 2
           }}
         >
           <Typography variant="subtitle1">Output Language:</Typography>
@@ -327,7 +319,7 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
           >
             {ProjectDetails?.variable_parameters?.output_language}
           </Typography>
-        </Grid>
+        </Box>
       </Grid>
     )}
   </Grid>
