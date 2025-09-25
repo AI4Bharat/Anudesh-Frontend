@@ -1361,7 +1361,7 @@ const TaskTable = (props) => {
             >
              <Tooltip title={pullDisabled}>
                 <Box>
-                  <TasksassignDialog default_reviewer={userDetails.id} disabled={pullDisabled}/>
+                  <TasksassignDialog default_reviewer={userDetails?.id} disabled={pullDisabled}/>
                 </Box>
               </Tooltip>
             </Grid>}
