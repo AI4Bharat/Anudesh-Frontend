@@ -238,15 +238,20 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
             sx={{
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
+              alignItems: { xs: "flex-start", md: "flex-start" },
               mb: 1,
-              gap: 1
+              gap: { xs: 1, md: 2 }
             }}
           >
-            <Typography variant="subtitle1">Models set:</Typography>
+            <Typography variant="subtitle1" sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>Models set:</Typography>
             <Typography
               variant="subtitle1"
-              sx={{ ml: { xs: 4, md: 0 }, mt: { xs: 1, md: 0 } }}
+              sx={{ 
+                ml: { xs: 4, md: 0 }, 
+                mt: { xs: 1, md: 0 },
+                wordBreak: 'break-word',
+                flex: 1
+              }}
             >
               {Array.isArray(ProjectDetails.metadata_json.models_set) 
                 ? ProjectDetails.metadata_json.models_set.join(", ")
@@ -262,15 +267,20 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
             sx={{
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
-              alignItems: { xs: "flex-start", md: "center" },
+              alignItems: { xs: "flex-start", md: "flex-start" },
               mb: 1,
-              gap: 1
+              gap: { xs: 1, md: 2 }
             }}
           >
-            <Typography variant="subtitle1">Fixed Models:</Typography>
+            <Typography variant="subtitle1" sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>Fixed Models:</Typography>
             <Typography
               variant="subtitle1"
-              sx={{ ml: { xs: 4, md: 0 }, mt: { xs: 1, md: 0 } }}
+              sx={{ 
+                ml: { xs: 4, md: 0 }, 
+                mt: { xs: 1, md: 0 },
+                wordBreak: 'break-word',
+                flex: 1
+              }}
             >
               {Array.isArray(ProjectDetails.metadata_json.fixed_models) 
                 ? ProjectDetails.metadata_json.fixed_models.join(", ")
