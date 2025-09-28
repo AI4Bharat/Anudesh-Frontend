@@ -2,7 +2,7 @@ const configs = {
   BASE_URL: "https://backend.anudesh.ai4bharat.org",
   BASE_URL_AUTO: process.env.NEXT_PUBLIC_BACKEND_URL
     ? process.env.NEXT_PUBLIC_BACKEND_URL
-       :"http://127.0.0.1:8000/",
+       :"https://backend.dev.anudesh.ai4bharat.org",
 };
 
 export default configs;
