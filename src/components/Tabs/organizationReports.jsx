@@ -596,6 +596,13 @@ const OrganizationReports = () => {
             onlyReviewProjects: ReviewData,
           }),
         );
+        if (sendMail) {
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          });
+        }
       } else if (
         reportTypes === "SuperCheck" ||
         (reportfilter === "All Stage" && radioButton === "UsersReports")
@@ -610,6 +617,13 @@ const OrganizationReports = () => {
           sendMail: sendMail,
         };
         dispatch(fetchOrganizationUserReports(supercheckObj));
+        if (sendMail) {
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          });
+        }
       } else if (radioButton === "ProjectReports") {
         if (projectReportType === 1) {
           dispatch(
