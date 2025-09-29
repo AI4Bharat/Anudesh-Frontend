@@ -50,8 +50,11 @@ const CollectionProject = (props) => {
   );
 
   useEffect(() => {
-    setUsers([loggedInUserData.id])
-  },[]) 
+    setUsers([loggedInUserData.id]);
+    if (loggedInUserData.organization?.id) {
+      setOrganisation_Id(loggedInUserData.organization.id);
+    }
+  }, [loggedInUserData]);
 
 
 
@@ -264,9 +267,10 @@ const CollectionProject = (props) => {
               <OutlinedTextField
                 fullWidth
                 value={organisation_Id}
-                disabled={true}
+                onChange={(e) => setOrganisation_Id(e.target.value)}
                 helperText={errors.organisation_id ? errors.organisation_id : ""}
                 error={errors.organisation_id ? true : false}
+                disabled={true}
               />
             </Grid>
             <Grid
