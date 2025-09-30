@@ -383,7 +383,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false || loggedInUserData.organization.id == 1?(<Typography variant="body1">
+          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
