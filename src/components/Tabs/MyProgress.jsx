@@ -18,7 +18,7 @@ import {
 import dynamic from "next/dynamic";
 import tableTheme from "../../themes/tableTheme";
 import themeDefault from "../../themes/theme";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Skeleton from "@mui/material/Skeleton";
 import "../../styles/Dataset.css";
@@ -80,7 +80,8 @@ const MyProgress = () => {
   const [totalsummary, setTotalsummary] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedWorkspaces, setSelectedWorkspaces] = useState([]);
-
+  const [hydrated, setHydrated] = useState(false);
+  const initialFetchedRef = useRef(false);
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const Workspaces = useSelector((state) => state.GetWorkspace.data);
   const UserAnalytics = useSelector(
@@ -89,7 +90,6 @@ const MyProgress = () => {
   const UserAnalyticstotalsummary = useSelector(
     (state) => state.getUserAnalytics.data.total_summary,
   );
-  const UserAnalyticstotalsummary1 = useSelector((state) => console.log(state));
   const apiLoading = useSelector((state) => state.apiStatus.loading);
   const dispatch = useDispatch();
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -119,12 +119,19 @@ const MyProgress = () => {
   useEffect(() => {
     setLoading(apiLoading);
   }, [apiLoading]);
-    useEffect(() => {
-      if( selectedType === ""){
-        setSelectedType("InstructionDrivenChat")
-      }
-      }, []);
-
+  useEffect(() => {
+    setSelectRange([
+      {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: "selection",
+      },
+    ]);
+    setShowPicker(false);
+    setSubmitted(false);
+    setTotalsummary(false);
+    setShowSpinner(false);
+  }, [id]);
 
   useEffect(() => {
     if (ProjectTypes) {
@@ -134,16 +141,56 @@ const MyProgress = () => {
         types.push(...subTypes);
       });
       setProjectTypes(types);
-      if(types?.length)
-        {
-          const idc = types.find(type => type.toLowerCase() === "instructiondrivenchat");
-          if(selectedType ===""){
-                      setSelectedType(idc)
-
-          }
+      if (types?.length) {
+        const idc = types.find(
+          (type) => type.toLowerCase() === "instructiondrivenchat",
+        );
+        if (!selectedType && idc) {
+          setSelectedType(idc);
+          
         }
+      }
     }
-  }, [ProjectTypes]);    
+  }, [ProjectTypes]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("myProgressFilters");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setRadiobutton(parsed.radiobutton || radiobutton);
+      setSelectedType(parsed.selectedType || selectedType);
+      setSelectRange(parsed.selectRange || selectRange);
+      setTotalsummary(parsed.totalsummary || false);
+      const reviewdata = {
+        user_id: id,
+        project_type: parsed.selectedType || selectedType,
+        reports_type:
+        (parsed.radiobutton === "AnnotatationReports"
+          ? "annotation"
+          : parsed.radiobutton === "ReviewerReports"
+          ? "review"
+          : "supercheck"),
+          start_date: format(parsed.selectRange[0].startDate, "yyyy-MM-dd"),
+          end_date: format(parsed.selectRange[0].endDate, "yyyy-MM-dd"),
+        };
+      dispatch(fetchUserAnalytics({ progressObj: reviewdata }));
+    }
+  }, [id]);
+  useEffect(() => {
+    if (!initialFetchedRef.current && projectTypes?.length) {
+      initialFetchedRef.current = true;
+      const payload = {
+        user_id: id,
+        project_type: selectedType || "InstructionDrivenChat",
+        reports_type: radiobutton === "AnnotatationReports" ? "annotation" : radiobutton === "ReviewerReports" ? "review" : "supercheck",
+      };
+      dispatch(fetchUserAnalytics({ progressObj: payload })).then(() => {
+        setHydrated(true);
+      });
+      setShowSpinner(true);
+    }
+  }, [projectTypes, id]);
+
   useEffect(() => {
     if (UserAnalytics?.message) {
       setSnackbarText(UserAnalytics?.message);
@@ -151,27 +198,20 @@ const MyProgress = () => {
       return;
     }
     if (UserAnalytics?.length) {
-      let tempColumns = [];
-      let tempSelected = [];
-      Object.keys(UserAnalytics[0]).forEach((key) => {
-        tempColumns.push({
-          name: key,
-          label: key,
-          options: {
-            filter: false,
-            sort: false,
-            align: "center",
-          },
-        });
-        tempSelected.push(key);
-      });
-      setColumns(tempColumns);
+      const keys = Object.keys(UserAnalytics[0]).sort();
+      const newColumns = keys.map((key) => ({
+        name: key,
+        label: key,
+        options: { filter: false, sort: false, align: "center" },
+      }));
+      const newSelected = keys;
+      setColumns(newColumns);
+      setSelectedColumns(newSelected);
       setReportData(UserAnalytics);
-      setSelectedColumns(tempSelected);
     } else {
       setColumns([]);
-      setReportData([]);
       setSelectedColumns([]);
+      setReportData([]);
     }
     setShowSpinner(false);
   }, [UserAnalytics]);
@@ -192,11 +232,17 @@ const MyProgress = () => {
         radiobutton === "AnnotatationReports"
           ? "annotation"
           : radiobutton === "ReviewerReports"
-            ? "review"
-            : "supercheck",
+          ? "review"
+          : "supercheck",
       start_date: format(selectRange[0].startDate, "yyyy-MM-dd"),
       end_date: format(selectRange[0].endDate, "yyyy-MM-dd"),
     };
+    localStorage.setItem("myProgressFilters", JSON.stringify({
+      radiobutton,
+      selectedType,
+      selectRange,
+      totalsummary: true
+    }));
     dispatch(fetchUserAnalytics({ progressObj: reviewdata }));
     setShowSpinner(true);
     setTotalsummary(true);
@@ -263,10 +309,9 @@ const MyProgress = () => {
             "& .MuiTablePagination-actions": {
               marginLeft: "0px",
             },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -643,16 +688,18 @@ const MyProgress = () => {
             </Grid>
           </Grid>
         )}
-        {UserAnalytics?.length > 0 ? (
+        {!hydrated ? (
+        <CircularProgress color="primary" size={50} />
+        ) : columns.length && reportData.length ? (
           <ThemeProvider theme={tableTheme}>
+            <Box sx={{ width: '100%', overflowX: 'auto' }}>
             <MUIDataTable
-              key={`table-${displayWidth}`}
               title={
                 radiobutton === "AnnotatationReports"
                   ? "Annotation Report"
                   : radiobutton === "ReviewerReports"
-                    ? "Reviewer Report"
-                    : "Super Checker Report"
+                  ? "Reviewer Report"
+                  : "Super Checker Report"
               }
               data={reportData}
               columns={columns.filter((col) =>
@@ -665,15 +712,12 @@ const MyProgress = () => {
                 }px`,
               }}
             />
+            </Box>
           </ThemeProvider>
         ) : (
           <Grid container justifyContent="center">
             <Grid item sx={{ mt: "10%" }}>
-              {showSpinner ? (
-                <CircularProgress color="primary" size={50} />
-              ) : (
-                !reportData?.length && submitted && <>No results</>
-              )}
+                {!reportData?.length && submitted && <>No results</>}
             </Grid>
           </Grid>
         )}
