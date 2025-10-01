@@ -150,7 +150,7 @@ const OrganizationReports = () => {
     (state) => state.GetOrganizationUserReports.data,
   );
   const ProjectReports = useSelector(
-    (state) => state.getOrganizationProjectReports?.data,
+    (state) => state.GetOrganizationProjectReports?.data,
   );
   const LanguageChoices = useSelector((state) => state.getLanguages?.data);
 
@@ -303,8 +303,8 @@ const OrganizationReports = () => {
                 filter: false,
                 sort: true,
                 align: "center",
+                display: isSelectedColumn ? "true" : "false",
               },
-              display: isSelectedColumn ? "true" : "false",
               setCellProps: () => ({
                 style: {
                   padding: "16px",
@@ -682,6 +682,7 @@ const OrganizationReports = () => {
       />
     );
   };
+  
   const handleChange = (event) => {
     const {
       target: { value },
