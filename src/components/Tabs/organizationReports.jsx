@@ -150,7 +150,7 @@ const OrganizationReports = () => {
     (state) => state.GetOrganizationUserReports.data,
   );
   const ProjectReports = useSelector(
-    (state) => state.getOrganizationProjectReports?.data,
+    (state) => state.GetOrganizationProjectReports?.data,
   );
   const LanguageChoices = useSelector((state) => state.getLanguages?.data);
 
