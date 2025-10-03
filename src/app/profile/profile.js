@@ -38,6 +38,8 @@ import dynamic from 'next/dynamic';
 import { ThemeProvider } from '@mui/material/styles';
 import tableTheme from "../../themes/tableTheme";
 import { getUserProjects } from '@/Lib/Features/projects/bookmarkService';
+import BookmarkButton from "@/components/Project/BookmarkButton";
+import { Box } from "@mui/material";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -298,12 +300,18 @@ export default function ProfilePage() {
         const projectId = rowData[0]; 
         
         return (
-          <Link to={`/projects/${projectId}`} style={{ textDecoration: "none" }}>
-            <CustomButton
-              sx={{ borderRadius: 2, marginRight: 2 }}
-              label="View"
-            />
-          </Link>
+          <div style={{display:"flex", wordBreak:"normal"}}>
+            <Link to={`/projects/${projectId}`} style={{ textDecoration: "none" }}>
+              <CustomButton
+                sx={{ borderRadius: 2, marginRight: 2 }}
+                label="View"
+              />
+            </Link>
+              <BookmarkButton
+                projectId={projectId}
+                onBookmarkChange={handleBookmarkChange}
+              />
+          </div>
         );
       },
       setCellProps: () => ({
@@ -345,6 +353,15 @@ export default function ProfilePage() {
     search: false,
     responsive: "vertical",
   };
+
+  const handleBookmarkChange = (projectId, bookmarked) => {
+    if (!bookmarked) {
+      setBookmarkedProjects((prev) =>
+        prev.filter((proj) => proj.id !== projectId)
+      );
+    }
+  };
+
 
 
 
