@@ -544,6 +544,7 @@ const OrganizationReports = () => {
         message: "Payment Reports will be e-mailed to you shortly",
         variant: "success",
       });
+      setLoading(false)
     } else {
       if (sendMail) {
         setReportRequested(false);
