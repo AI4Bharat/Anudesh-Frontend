@@ -28,12 +28,24 @@ import Diversity2OutlinedIcon from '@mui/icons-material/Diversity2Outlined';
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import userRole from "../../utils/Role";
 import ScheduleMails from '@/components/UserManagement/ScheduleMails';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import UpdateProfileImageAPI from '../actions/api/user/UpdateProfileImageAPI'
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
 import ReportBarGraph from '../../components/UserManagement/ProfileDetails';
+import dynamic from 'next/dynamic';
+import { ThemeProvider } from '@mui/material/styles';
+import tableTheme from "../../themes/tableTheme";
+import { getUserProjects } from '@/Lib/Features/projects/bookmarkService';
+
+const MUIDataTable = dynamic(
+  () => import('mui-datatables'),
+  {
+    ssr: false,
+    loading: () => <div>Loading...</div>,
+  }
+);
 
 export default function ProfilePage() {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -131,6 +143,209 @@ export default function ProfilePage() {
       setLoading(false);
     }
   }, [UserDetails]);
+
+  const [bookmarkedProjects, setBookmarkedProjects] = useState([]);
+  const [bookmarkedLoading, setBookmarkedLoading] = useState(false);
+
+  const fetchBookmarkedProjects = async () => {
+    setBookmarkedLoading(true);
+    try {
+      const data = await getUserProjects();
+      // Extract the results array from the paginated response
+      setBookmarkedProjects(data.results || []);
+    } catch (error) {
+      console.error('Error fetching bookmarked projects:', error);
+      setSnackbarInfo({
+        open: true,
+        message: "Failed to fetch bookmarked projects",
+        variant: "error",
+      });
+    }
+    setBookmarkedLoading(false);
+  };
+
+
+  useEffect(() => {
+    if (userDetails?.id) {
+      fetchBookmarkedProjects();
+    }
+  }, [userDetails?.id]);
+
+  const bookmarkedColumns = [
+    {
+      name: "id",
+      label: "Project Id",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+    {
+      name: "title",
+      label: "Project Title",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+    {
+      name: "project_type",
+      label: "Project Type",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+    {
+      name: "project_stage",
+      label: "Project Stage",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+    {
+      name: "tgt_language",
+      label: "Target Language",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+    {
+      name: "workspace_id",
+      label: "Workspace Id",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+  {
+    name: "action",
+    label: "Action",
+    options: {
+      filter: false,
+      sort: false,
+      align: "center",
+      customBodyRender: (value, tableMeta) => {
+        const rowData = tableMeta.rowData;
+        const projectId = rowData[0]; 
+        
+        return (
+          <Link to={`/projects/${projectId}`} style={{ textDecoration: "none" }}>
+            <CustomButton
+              sx={{ borderRadius: 2, marginRight: 2 }}
+              label="View"
+            />
+          </Link>
+        );
+      },
+      setCellProps: () => ({
+        style: {
+          height: "70px",
+          fontSize: "16px",
+          padding: "16px",
+          whiteSpace: "normal",
+          overflowWrap: "break-word",
+          wordBreak: "break-word",
+        }
+      }),
+    },
+  }
+
+  ];
+
+  const bookmarkedTableOptions = {
+    textLabels: {
+      body: {
+        noMatch: "No bookmarked projects found",
+      },
+      toolbar: {
+        search: "Search",
+        viewColumns: "View Column",
+      },
+      pagination: { rowsPerPage: "Rows per page" },
+      options: { sortDirection: "desc" },
+    },
+    displaySelectToolbar: false,
+    fixedHeader: false,
+    filterType: "checkbox",
+    download: false,
+    print: false,
+    rowsPerPageOptions: [5, 10, 25],
+    filter: false,
+    viewColumns: false,
+    selectableRows: "none",
+    search: false,
+    responsive: "vertical",
+  };
+
 
 
 
@@ -314,6 +529,32 @@ export default function ProfilePage() {
               </Card>
             </Grid>
           }
+
+          {LoggedInUserId === userDetails?.id && (
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
+              <Card sx={{ borderRadius: "5px", mb: 2 }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                    Bookmarked Projects
+                  </Typography>
+                  {bookmarkedLoading ? (
+                    <Spinner />
+                  ) : (
+                    <ThemeProvider theme={tableTheme}>
+                      <MUIDataTable
+                        title=""
+                        data={bookmarkedProjects}
+                        columns={bookmarkedColumns}
+                        options={bookmarkedTableOptions}
+                      />
+                    </ThemeProvider>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
+
+
         </>
       }
     </Grid >
