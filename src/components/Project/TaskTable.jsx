@@ -53,6 +53,7 @@ import ChatLang from "@/utils/Chatlang";
 import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import TasksassignDialog from "./taskassign";
+import ReviewTasksTable from "./prefered_members";
 
 const defaultColumns = [
   "id",
@@ -897,6 +898,7 @@ const TaskTable = (props) => {
           !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
           !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
           !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
+            <>
             <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
               <InputLabel
                 id="reviewer-filter-label"
@@ -922,6 +924,8 @@ const TaskTable = (props) => {
                 ))}
               </Select>
             </FormControl>
+                      <ReviewTasksTable />
+            </>
           )}
         <ColumnList
           columns={columns}
