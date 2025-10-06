@@ -1,5 +1,5 @@
 "use client";
-import { React, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Radio, Box, Grid, Typography, ThemeProvider } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -16,13 +16,16 @@ import tableTheme from "@/themes/tableTheme";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import CreateProjectDropdown from "@/components/Project/createprojectbutton";
-export default function ProjectList({ data }) {
+import { getUserProjects } from "@/Lib/Features/projects/bookmarkService";
+
+
+const ProjectList = React.memo(function ProjectList({ data }) {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
 
   const dispatch = useDispatch();
   const [radiobutton, setRadiobutton] = useState(true);
-  console.log(data);
+  // console.log(data);
   const theme = useTheme();
 
   // const [loading, setLoading] = useState(true);
@@ -62,6 +65,37 @@ export default function ProjectList({ data }) {
     }
   }, [selectedFilters, loggedInUserData]);
 
+    const [bookmarkedProjects, setBookmarkedProjects] = useState([]);
+  
+    const fetchBookmarkedProjects = async () => {
+      try {
+        const data = await getUserProjects();
+        // Extract the results array from the paginated response
+        setBookmarkedProjects(data.results || []);
+      } catch (error) {
+        console.error('Error fetching bookmarked projects:', error);
+        setSnackbarInfo({
+          open: true,
+          message: "Failed to fetch bookmarked projects",
+          variant: "error",
+        });
+      }
+      setBookmarkedLoading(false);
+    };
+  
+  
+    useEffect(() => {
+        fetchBookmarkedProjects();
+    }, []);
+
+    // Create a set of bookmarked project IDs for efficient lookup
+    const bookmarkedProjectIds = useMemo(() => {
+      return new Set(bookmarkedProjects.map(project => project.id));
+    }, [bookmarkedProjects]);
+
+
+
+
 
   // Save selected filters to localStorage
   useEffect(() => {
@@ -71,7 +105,7 @@ export default function ProjectList({ data }) {
     );
   }, [selectedFilters]);
 
-  console.log(data?.length, "hel");
+  // console.log(data?.length, "hel");
 
   const handleProjectlist = () => {
     setRadiobutton(true);
@@ -79,7 +113,33 @@ export default function ProjectList({ data }) {
   const handleProjectcard = () => {
     setRadiobutton(false);
   };
-  const displayedProjects = projectData;
+
+  const displayedProjects = useMemo(() => {
+  if (!projectData || !Array.isArray(projectData)) return [];
+  
+  // If no bookmarked projects, return original array (no sorting needed)
+  if (bookmarkedProjectIds.size === 0) {
+    return projectData;
+  }
+  
+  // Separate bookmarked and non-bookmarked projects in a single pass
+  const bookmarked = [];
+  const nonBookmarked = [];
+  
+  for (let i = 0; i < projectData.length; i++) {
+    const project = projectData[i];
+    if (bookmarkedProjectIds.has(project.id)) {
+      bookmarked.push(project);
+    } else {
+      nonBookmarked.push(project);
+    }
+  }
+  
+  // Concatenate arrays
+  return [...bookmarked, ...nonBookmarked];
+}, [projectData, bookmarkedProjectIds]);
+
+
   return (
     <ThemeProvider theme={themeDefault}>
       {apiLoading || (projectData && projectData.length === 0) ? (
@@ -160,4 +220,7 @@ export default function ProjectList({ data }) {
       )}
     </ThemeProvider>
   );
-}
+})
+
+export default ProjectList;
+
