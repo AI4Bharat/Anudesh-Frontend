@@ -521,23 +521,51 @@ const MyProgress = () => {
         )}
 
         {radiobutton === "ReviewerReports" && totalsummary && (
-          <Grid container direction="row" sx={{ mb: 3, mt: 2 }}>
-            <Typography variant="h6">Total Summary </Typography>
-            <Grid container alignItems="center" direction="row">
+          <Grid
+            container
+            alignItems="center"
+            direction="row"
+            sx={{ mb: 3, mt: 2 }}
+          >
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
+              <Typography variant="h6">Total Summary </Typography>
+            </Grid>
+
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
               <Typography variant="subtitle1">Reviewed Tasks : </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["Reviewed Tasks"]}
               </Typography>
             </Grid>
-            <Grid container alignItems="center" direction="row">
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
               <Typography variant="subtitle1">
-                Average Review Time (In Seconds) :
+                Average Review Time (In Seconds) :{" "}
               </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["Avg Review Time (sec)"]}
               </Typography>
             </Grid>
-            <Grid container alignItems="center" direction="row">
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
               <Typography variant="subtitle1">Word Count : </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["Word Count"]}
@@ -547,23 +575,53 @@ const MyProgress = () => {
         )}
 
         {radiobutton === "SuperCheckerReports" && totalsummary && (
-          <Grid container direction="row" sx={{ mb: 3, mt: 2 }}>
-            <Typography variant="h6">Total Summary </Typography>
-            <Grid container alignItems="center" direction="row">
-              <Typography variant="subtitle1">Super Checker Tasks : </Typography>
+          <Grid
+            container
+            alignItems="center"
+            direction="row"
+            sx={{ mb: 3, mt: 2 }}
+          >
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
+              <Typography variant="h6">Total Summary </Typography>
+            </Grid>
+
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
+              <Typography variant="subtitle1">
+                Super Checker Tasks :{" "}
+              </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["SuperChecked Tasks"]}
               </Typography>
             </Grid>
-            <Grid container alignItems="center" direction="row">
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
               <Typography variant="subtitle1">
-                Average Super Checker Time (In Seconds) :
+                Average Super Checker Time (In Seconds) :{" "}
               </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["Avg SuperCheck Time (sec)"]}
               </Typography>
             </Grid>
-            <Grid container alignItems="center" direction="row">
+            <Grid
+              container
+              alignItems="center"
+              direction="row"
+              justifyContent="flex-start"
+            >
               <Typography variant="subtitle1">Word Count : </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["Word Count"]}
@@ -613,8 +671,8 @@ const MyProgress = () => {
                     options={{
                       ...tableOptions,
                       tableBodyHeight: `${typeof window !== "undefined"
-                          ? window.innerHeight - 200
-                          : 400
+                        ? window.innerHeight - 200
+                        : 400
                         }px`,
                     }}
                   />
