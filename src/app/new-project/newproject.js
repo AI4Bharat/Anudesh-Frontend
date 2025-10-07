@@ -172,7 +172,7 @@ const CreateProject = () => {
   const [questionsJSON, setQuestionsJSON] = useState();
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState(true);
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
-  const [numSelectedModels, setNumSelectedModels] = useState();
+  const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
   const [defaultValue, setDefaultValue] = useState(0);
 
   const handleTextareaChange = (event) => {
@@ -282,9 +282,14 @@ const CreateProject = () => {
 
   useEffect(() => {
     if (selectedLanguageModels.length < numSelectedModels) {
-      setNumSelectedModels(Math.max(fixedModels.length, selectedLanguageModels.length));
-    }
-  }, [selectedLanguageModels, numSelectedModels]);
+    setNumSelectedModels(Math.max(fixedModels.length, selectedLanguageModels.length));
+  }
+  
+  if (numSelectedModels < fixedModels.length) {
+    setNumSelectedModels(fixedModels.length);
+  }
+
+  }, [selectedLanguageModels, numSelectedModels,fixedModels.length]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -592,14 +597,13 @@ const CreateProject = () => {
       const autoAssignCount = parseInt(defaultValue);
 
   let baseMetadata = {};
-  
   if (selectedType === "MultipleLLMInstructionDrivenChat") {
     baseMetadata = {
             enable_preference_selection: isModelSelectionEnabled,
             questions_json: questionsJSON,
             models_set: selectedLanguageModels,
             fixed_models: fixedModels,
-            num_models: fixedModels.length,
+            num_models: numSelectedModels,
     };
   } else {
     baseMetadata = questionsJSON;
@@ -1309,8 +1313,9 @@ const CreateProject = () => {
                             MenuProps={MenuProps}
                           >
                             {Array.from(
-                              { length: selectedLanguageModels.length - 1 },
-                              (_, i) => i + 2,
+                              { length: selectedLanguageModels.length - fixedModels.length + 1 },
+            (_, i) => fixedModels.length + i,
+
                             ).map((num) => (
                               <MenuItem key={num} value={num}>
                                 {num}
