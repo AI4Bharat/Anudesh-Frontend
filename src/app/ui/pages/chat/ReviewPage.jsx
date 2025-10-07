@@ -1332,7 +1332,6 @@ const ReviewPage = () => {
                 navigate(`/projects/${ projectId }`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
-                console.log('back to prject from reviewpage file')
               }}
             >
               Back to Project

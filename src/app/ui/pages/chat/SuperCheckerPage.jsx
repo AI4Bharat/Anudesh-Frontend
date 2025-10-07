@@ -1137,7 +1137,6 @@ const SuperCheckerPage = () => {
                 navigate(`/projects/${projectId}`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
-                console.log('back to project from superchecker file')
               }}
             >
               Back to Project

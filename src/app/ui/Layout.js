@@ -4,7 +4,6 @@ import BackButton from "@/components/common/BackButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { translate } from "@/config/localisation";
 import ErrorBoundary from "../ErrorBoundary";
-import { useNavigate } from "react-router-dom";
 
 const Header = React.lazy(() => import("@/components/common/Header"));
 
@@ -13,7 +12,6 @@ const Layout = (props) => {
   const { type, index, component, Backbutton, backPressNavigationPath } = props;
   const [show, setShow] = useState(false);
   const classes = GlobalStyles();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (show) {
