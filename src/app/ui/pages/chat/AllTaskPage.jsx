@@ -442,6 +442,7 @@ const AllTaskPage = () => {
                 navigate(`/projects/${ projectId }`);
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
+                console.log('back to project from alltaskpage file')
               }}
             >
               Back to Project
