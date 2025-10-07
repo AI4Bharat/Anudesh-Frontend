@@ -54,6 +54,7 @@ import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
+import UnassignedReviewSummaryPopup from "./UnassignedReviewSummaryPopup";
 
 const defaultColumns = [
   "id",
@@ -925,6 +926,7 @@ const TaskTable = (props) => {
               </Select>
             </FormControl>
                       <ReviewTasksTable />
+                      <UnassignedReviewSummaryPopup />
             </>
           )}
         <ColumnList
