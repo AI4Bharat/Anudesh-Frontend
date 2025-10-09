@@ -2430,7 +2430,7 @@ const MultipleLLMInstructionDrivenChat = ({
             paddingLeft: "0px !important",
             boxSizing: "border-box",
             width: "100%",
-            height:"300px",
+            height: "calc(100vh - 200px)",
           }}
         >
           <Box
