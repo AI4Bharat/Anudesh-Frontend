@@ -921,14 +921,19 @@ const TaskTable = (props) => {
                 </Select>
               </FormControl>
 
+              <ReviewTasksTable />
             </>
           )}
         {props.type === "review" &&
-          (roles?.WorkspaceManager === userDetails?.role ||
+          (
+            roles?.WorkspaceManager === userDetails?.role ||
             roles?.OrganizationOwner === userDetails?.role ||
-            roles?.Admin === userDetails?.role) &&
-          !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
-          !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
+            roles?.Admin === userDetails?.role ||
+            roles?.Reviewer === userDetails?.role // ✅ allow reviewers too
+          ) &&
+          !ProjectDetails?.review_supercheckers?.some(
+            (r) => r.id === userDetails?.id
+          ) && (
             <ReviewTasksTable />
           )}
         <ColumnList
