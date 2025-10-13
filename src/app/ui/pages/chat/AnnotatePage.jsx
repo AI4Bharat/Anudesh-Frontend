@@ -482,8 +482,15 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
-    
-    return Object.keys(submittedEvalForms ?? {}).length === chatHistory.length;
+  if (!chatHistory || chatHistory.length === 0) return false;
+  
+  const lastTurn = chatHistory[chatHistory.length - 1];
+  const lastPromptOutputPairId = String(lastTurn.prompt_output_pair_id);
+  
+  const isLatestFormSubmitted = submittedEvalForms && 
+  submittedEvalForms.hasOwnProperty(lastPromptOutputPairId);
+  
+  return isLatestFormSubmitted;
   };  
 
   const buildResult = (value, type, resultValue) => {
@@ -527,6 +534,8 @@ const AnnotatePage = () => {
       type === "MultipleLLMInstructionDrivenChat" &&
       !areAllFormsAnswered()
     ) {      
+      console.log(areAllFormsAnswered);
+      
       setSnackbarInfo({
         open: true,
         message:
