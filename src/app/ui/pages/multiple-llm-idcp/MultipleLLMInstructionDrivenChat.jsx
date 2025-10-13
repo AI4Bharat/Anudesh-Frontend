@@ -996,9 +996,9 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
   const handleMCQ = (index, message, option, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
       const targetModel = message?.output?.[model_idx]?.model_name;
-      const targetQuestion =
-        ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
-          ?.input_question;
+      const targetQuestionObj = ProjectDetails?.metadata_json?.questions_json?.[questionIdx];
+      const targetQuestion = targetQuestionObj?.input_question;
+      const targetSelection = targetQuestionObj?.input_selections_list?.[0]; 
       const newState = {
         ...prev,
         [index]: {
@@ -1012,7 +1012,8 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
                   ...mr,
                   questions_response: [
                     ...(mr.questions_response || []).map((qr) => {
-                      if (qr.question.input_question === targetQuestion) {
+                      if (qr.question.input_question === targetQuestion && 
+                          qr.question.input_selections_list?.[0] === targetSelection) {
                         return {
                           ...qr,
                           response: [option],
@@ -1021,7 +1022,8 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
                       return qr;
                     }),
                     ...(!mr.questions_response?.some(
-                      (qr) => qr.question.input_question === targetQuestion,
+                      (qr) => qr.question.input_question === targetQuestion && 
+                              qr.question.input_selections_list?.[0] === targetSelection,
                     )
                       ? [
                         {
@@ -1103,7 +1105,8 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
                         (qr) =>
                           !(
                             qr.question?.question_type === "comparison" &&
-                            qr.question?.input_question === targetQuestion
+                            qr.question?.input_question === targetQuestion &&
+                            qr.question?.input_selections_list?.[0] === ProjectDetails?.metadata_json?.questions_json?.[questionIdx]?.input_selections_list?.[0]
                           ),
                       ),
                       {
@@ -1831,7 +1834,7 @@ console.log(evalFormResponse);
                                       >
                                         <FormControl>
                                           <RadioGroup
-                                            name={`comparison-${questionIdx}-${optionIdx}`}
+                                            name={`comparison-${questionIdx}-${optionIdx}-${message?.output?.[0]?.prompt_output_pair_id}`}
                                             sx={{
                                               display: "flex",
                                               flexDirection: "row",
@@ -1859,6 +1862,9 @@ console.log(evalFormResponse);
                                                       q.question
                                                         ?.input_question ===
                                                       question.input_question &&
+                                                      q.question
+                                                        ?.input_selections_list?.[0] ===
+                                                      question.input_selections_list?.[0] &&
                                                       q.response?.[0] !== "-1",
                                                   ),
                                                 );
@@ -1872,6 +1878,9 @@ console.log(evalFormResponse);
                                                     q.question
                                                       ?.input_question ===
                                                     question.input_question &&
+                                                    q.question
+                                                      ?.input_selections_list?.[0] ===
+                                                    question.input_selections_list?.[0] &&
                                                     q.response?.[0] !== "-1",
                                                 );
 
@@ -2170,99 +2179,73 @@ console.log(evalFormResponse);
                                   paddingLeft: "20px",
                                 }}
                               >
-                                {question?.input_selections_list?.map(
-                                  (option, optionIdx) => (
+                                {message?.output?.map((response, outputIdx) => (
                                     <div
-                                      key={optionIdx}
+                                    key={`model-${outputIdx}`}
                                       style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        flexDirection: "row",
+                                      marginBottom: "15px",
+                                      padding: "10px",
+                                      border: "1px solid #e0e0e0",
+                                      borderRadius: "8px",
+                                      backgroundColor: "#fafafa"
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="subtitle1"
+                                      sx={{
+                                        fontWeight: "bold",
+                                        color: "#1976d2",
+                                        marginBottom: "8px",
+                                        fontSize: "1.1rem"
                                       }}
                                     >
-                                      <span>{option} :</span>{" "}
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          flexDirection: "row",
-                                          flexWrap: "wrap",
-                                        }}
-                                      >
-                                        {message?.output?.map(
-                                          (response, outputIdx) => (
-                                            <div
-                                              key={`${optionIdx}-${outputIdx}`}
-                                              style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                paddingRight: "2rem",
-                                              }}
-                                            >
-                                              <FormControl
-                                                component="fieldset"
-                                                key={outputIdx}
-                                              >
+                                      {response?.model_name}
+                                    </Typography>
+                                    <FormControl component="fieldset" key={outputIdx}>
                                                 <RadioGroup
                                                   name={`question-${questionIdx}-model-${outputIdx}`}
                                                   value={
                                                     evalFormResponse?.[
-                                                      message
-                                                        ?.prompt_output_pair_id
+                                            message?.prompt_output_pair_id
                                                     ]?.model_responses_json
-                                                      ?.find(
-                                                        (m) =>
-                                                          m.model_name ===
-                                                          response.model_name,
-                                                      )
+                                            ?.find((m) => m.model_name === response.model_name)
                                                       ?.questions_response?.find(
                                                         (q) =>
-                                                          q.question
-                                                            .question_type ===
-                                                          question.question_type &&
-                                                          q.question
-                                                            .input_question ===
-                                                          question.input_question,
+                                                q.question.question_type === question.question_type &&
+                                                q.question.input_question === question.input_question &&
+                                                q.question.input_selections_list?.[0] === question.input_selections_list?.[0],
                                                       )?.response?.[0] || ""
                                                   }
                                                   onChange={(e) =>
                                                     handleMCQ(
-                                                      message?.output?.[0]
-                                                        ?.prompt_output_pair_id, // index
+                                            message?.output?.[0]?.prompt_output_pair_id,
                                                       message,
-                                                      option,
+                                            e.target.value,
                                                       questionIdx,
-                                                      outputIdx, // model_idx
+                                            outputIdx,
                                                     )
                                                   }
                                                 >
+                                        {question?.input_selections_list?.map((option, optionIdx) => (
                                                   <FormControlLabel
                                                     key={optionIdx}
                                                     value={option}
                                                     control={<Radio />}
-                                                    labelPlacement="start"
-                                                    label={
-                                                      <Typography
-                                                        variant="subtitle2"
+                                            label={option}
                                                         sx={{
-                                                          fontWeight: "bold",
-                                                          color: "#6C5F5B",
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />
+                                              '& .MuiRadio-root': {
+                                                color: '#1976d2',
+                                              },
+                                              '& .Mui-checked': {
+                                                color: '#1976d2',
+                                              }
+                                            }}
+                                          />
+                                        ))}
                                                 </RadioGroup>
                                               </FormControl>
                                             </div>
-                                          ),
-                                        )}
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
+                                ))}
                               </div>
                             </div>
                           )}
