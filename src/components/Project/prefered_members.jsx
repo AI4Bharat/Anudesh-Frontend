@@ -40,7 +40,7 @@ const ReviewTasksTable = () => {
     try {
       const token = localStorage.getItem("anudesh_access_token");
       const response = await fetch(
-        `${configs.BASE_URL_AUTO}task/unassigned-review-summary/?project_id=${projectId}`,
+        `${configs.BASE_URL_AUTO}/task/unassigned-review-summary/?project_id=${projectId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -79,7 +79,7 @@ const ReviewTasksTable = () => {
     if (!projectId) return alert("❌ Project ID not found.");
 
     const token = localStorage.getItem("anudesh_access_token");
-    const endpoint = `${configs.BASE_URL_AUTO}users/account/save-preferred-annotators/`;
+    const endpoint = `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`;
 
     const bodyData = {
       project_id: projectId,
