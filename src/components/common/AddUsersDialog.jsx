@@ -409,10 +409,40 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
     console.log("id1", id);
     if (id) fetchAllUsers(userType, id, dispatch);
   }, [userType, id, projectDetails]);
-  const filteruser = availableUsers?.filter(
-    (user) =>
-      !projectDetails?.annotators?.some((annotator) => annotator?.id === user.id),
-  );
+  const filteruser = (userType) => {
+  switch (userType) {
+    case addUserTypes.PROJECT_ANNOTATORS:
+      return availableUsers?.filter(
+        availableUser => 
+        !projectDetails?.annotators?.some(
+          annotator => 
+          annotator.id === availableUser.id
+        )
+      );
+
+    case addUserTypes.PROJECT_REVIEWER:
+      return availableUsers?.filter(
+        availableUser => 
+        !projectDetails?.annotation_reviewers?.some(
+          reviewer => 
+          reviewer.id === availableUser.id
+        )
+      );
+
+    case addUserTypes.PROJECT_SUPERCHECKER:
+      return availableUsers?.filter(
+        availableUser => 
+        !projectDetails?.review_supercheckers?.some(
+          superchecker => 
+          superchecker.id === availableUser.id
+        )
+      );
+
+    default:
+      return availableUsers;
+  }
+};
+
   console.log(workspaceAnnotators,"lll");
   useEffect(() => {
     setAvailableUsers(
@@ -456,7 +486,8 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
 
     handleDialogClose();
   };
-  console.log(availableUsers, filteruser, userType, "helo");
+  console.log(availableUsers, userType, "helo");
+  console.log('filteruser : ', filteruser(userType));
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
       {renderSnackBar()}
@@ -474,10 +505,7 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
             setSelectedUsers(Array.isArray(newVal) ? newVal : [])
           }
           options={
-            projectDetails.required_annotators_per_task > 1 &&
-            userType == "PROJECT_REVIEWER"
-              ? availableUsers
-              : filteruser
+            filteruser(userType) || availableUsers
           }
           value={selectedUsers}
           style={{ fontSize: "1rem", paddingTop: 4, paddingBottom: 4 }}
