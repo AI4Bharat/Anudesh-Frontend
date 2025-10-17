@@ -2467,7 +2467,11 @@ const MultipleLLMInstructionDrivenChat = ({
                 class_name={"w-full"}
                 loading={loading}
                 inputValue={inputValue}
-                defaultLang={targetLang}
+                overrideGT={true}
+                // defaultLang={targetLang}
+                                task_id={taskId}
+                script={info.meta_info_language}
+
               />
             </Grid>
           ) : null}
