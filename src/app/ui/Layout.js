@@ -4,6 +4,7 @@ import BackButton from "@/components/common/BackButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { translate } from "@/config/localisation";
 import ErrorBoundary from "../ErrorBoundary";
+
 const Header = React.lazy(() => import("@/components/common/Header"));
 
 const Layout = (props) => {
@@ -45,11 +46,13 @@ const Layout = (props) => {
         {Backbutton && (
           <BackButton
             startIcon={<ArrowBackIcon />}
-            sx={{ color: "white", m: {xs:1,md:1,lg:2,xl:2}}}
+            sx={{ color: "white", m: { xs: 1, md: 1, lg: 2, xl: 2 } }}
+            // onClick={handleBack}
+            label={translate("label.backToPreviousPage")}
             backPressNavigationPath={
               backPressNavigationPath ? backPressNavigationPath : ""
             }
-            label={translate("label.backToPreviousPage")}
+
           />
         )}
         <Suspense fallback={<div>Loading....</div>}>
@@ -59,4 +62,5 @@ const Layout = (props) => {
     </div>
   );
 };
+
 export default Layout;
