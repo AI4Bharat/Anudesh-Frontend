@@ -40,7 +40,7 @@ const TasksSupercheckTable = () => {
     try {
       const token = localStorage.getItem("anudesh_access_token");
       const response = await fetch(
-        `${configs.BASE_URL_AUTO}task/unassigned-supercheck-summary/?project_id=${projectId}`,
+        `${configs.BASE_URL_AUTO}/task/unassigned-supercheck-summary/?project_id=${projectId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -80,7 +80,7 @@ const TasksSupercheckTable = () => {
     if (!projectId) return alert("❌ Project ID not found.");
 
     const token = localStorage.getItem("anudesh_access_token");
-    const endpoint = `${configs.BASE_URL_AUTO}users/account/save-preferred-reviewers/`;
+    const endpoint = `${configs.BASE_URL_AUTO}/users/account/save-preferred-reviewers/`;
 
     const bodyData = {
       project_id: projectId,
