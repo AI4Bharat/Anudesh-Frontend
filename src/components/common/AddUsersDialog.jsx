@@ -486,8 +486,8 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
 
     handleDialogClose();
   };
-  console.log(availableUsers, userType, "helo");
-  console.log('filteruser : ', filteruser(userType));
+  // console.log(availableUsers, userType, "helo");
+  // console.log('filteruser : ', filteruser(userType));
   return (
     <Dialog open={isOpen} onClose={dialogCloseHandler} close>
       {renderSnackBar()}
