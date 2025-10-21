@@ -707,9 +707,9 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
-        if (userDetails?.guest_user === true) {
-          setPullDisabled("disable for guest user");
-        }
+        // if (userDetails?.guest_user === true) {
+        //   setPullDisabled("disable for guest user");
+        // }
     }
   }, [ProjectDetails.labeled_task_count]);
 
@@ -730,9 +730,9 @@ const TaskTable = (props) => {
         else if (pullDisabled === "You're no more a part of this project")
           setPullDisabled("");
       });
-      if (userDetails?.guest_user === true) {
-          setPullDisabled("disable for guest user");
-        }
+      // if (userDetails?.guest_user === true) {
+      //     setPullDisabled("disable for guest user");
+      //   }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
     }
   }, [
