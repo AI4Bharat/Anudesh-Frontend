@@ -2964,7 +2964,7 @@ value={
                 }
               }}
             >
-           GET /.well-known/appspecific/com.chrome.devtools.json 404 in 42945ms   
+           {info.instruction_data}
             </Typography>
           </Box>
         </Box>
