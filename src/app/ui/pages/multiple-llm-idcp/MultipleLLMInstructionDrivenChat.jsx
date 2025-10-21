@@ -1793,7 +1793,7 @@ console.log(evalFormResponse);
                     overflowY: "auto",
                   }}
                 >
-                  {ProjectDetails?.metadata_json? (
+                  {!ProjectDetails?.metadata_json?.single_form_response (
 
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
