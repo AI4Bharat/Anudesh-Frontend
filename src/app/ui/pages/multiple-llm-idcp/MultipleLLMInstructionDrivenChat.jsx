@@ -39,7 +39,8 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import LanguageCode from "@/utils/LanguageCode";
-
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const orange = {
   200: "pink",
   400: "#EE6633",
@@ -116,6 +117,8 @@ const MultipleLLMInstructionDrivenChat = ({
     message: "",
     variant: "success",
   });
+        const [shrinkedMessages, setShrinkedMessages] = useState({});
+          const [isExpanded, setIsExpanded] = useState(true);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -981,11 +984,16 @@ const MultipleLLMInstructionDrivenChat = ({
   };
 
   const renderChatHistory = () => {
+        const toggleShrink = (index) => {
+        setShrinkedMessages(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
     const chatElements = chatHistory?.map((message, index) => {
       return (
         <Grid
           container
-          spacing={2}
           key={index}
           direction="column"
           justifyContent="center"
@@ -1028,7 +1036,6 @@ const MultipleLLMInstructionDrivenChat = ({
                           style={{
                             fontSize: "1rem",
                             width: "100%",
-                            padding: "12px",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
@@ -1054,7 +1061,6 @@ const MultipleLLMInstructionDrivenChat = ({
                       style={{
                         fontSize: "1rem",
                         width: "100%",
-                        padding: "12px",
                         borderRadius: "12px 12px 0 12px",
                         color: grey[900],
                         background: "#ffffff",
@@ -1073,6 +1079,22 @@ const MultipleLLMInstructionDrivenChat = ({
                   />
                 )}
               </Grid>
+                          <IconButton
+              size="small"
+              onClick={() => toggleShrink(index)}
+              style={{
+                position: "absolute",
+                bottom: "0.5rem",
+                right: "0.5rem",
+              }}
+            >
+              {shrinkedMessages[index] ? (
+                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+              ) : (
+                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              )}
+            </IconButton>
+
               {index === chatHistory.length - 1 &&
                 stage !== "Alltask" &&
                 !disableUpdateButton && (
@@ -1081,7 +1103,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     sx={{
                       position: "absolute",
                       bottom: 0,
-                      right: 0,
+                      right: "2rem",
                       marginTop: "1rem",
                       borderRadius: "50%",
                     }}
@@ -1119,7 +1141,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 )}
             </Grid>
           </Grid>
-
+        {!shrinkedMessages[index] && (
           <Grid
             item
             sx={{
@@ -1481,7 +1503,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 ))}
               </Grid>
             </Grid>
-          </Grid>
+          </Grid>)}
 
           {ProjectDetails?.metadata_json?.enable_preference_selection &&
             visibleMessages[index] ? (
@@ -2273,7 +2295,6 @@ const MultipleLLMInstructionDrivenChat = ({
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          width: "100%",
         }}
       >
         <Box
@@ -2286,14 +2307,16 @@ const MultipleLLMInstructionDrivenChat = ({
           <Box
             sx={{
               borderRadius: "10px",
-              padding: "10px",
               backgroundColor: "rgba(247, 184, 171, 0.2)",
               display: "flex",
               flexDirection: "column",
               width: "100%",
               alignItems: "center",
               justifyContent: "center",
-              margin: "1rem",
+              margin: "0.5rem",
+              transition: "all 0.3s ease",
+              cursor: "pointer",
+                transform: isExpanded ? "scale(1)" : "scale(0.98)",
             }}
           >
             <Box
@@ -2326,28 +2349,53 @@ const MultipleLLMInstructionDrivenChat = ({
                   </span>
                 }
               >
-                <IconButton onClick={handleOpen}>
+                <IconButton onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpen();
+                  }}>
                   <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
                 </IconButton>
               </Tooltip>
             </Box>
-
+            <IconButton
+              size="small"
+              onClick={() => setIsExpanded(!isExpanded)}
+              style={{
+                position: "absolute",
+                bottom: "0.5rem",
+                right: "0.5rem",
+              }}
+            >
+              {isExpanded ? (
+                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+              ) : (
+                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633",fontWeight:"bold" }} />
+              )}
+                </IconButton>
             <Typography
               paragraph={true}
               sx={{
-                fontSize: {
-                  xs: "0.5rem", // Small screens (mobile)
-                  sm: "0.75rem", // Medium screens (tablet)
-                  md: ".8125rem", // Large screens (laptops)
-                  lg: "1rem", // Extra-large screens (desktops)
-                },
-                padding: "0.5rem 1rem ",
-                height: "auto",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                whiteSpace: "pre-line",
-              }}
+                  fontSize: {
+                    xs: "0.5rem",
+                    sm: "0.75rem",
+                    md: ".8125rem",
+                    lg: "1rem",
+                  },
+                  padding: "0rem 1rem",
+                  height: "auto",
+                  display: "flex",
+                  minWidth: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  whiteSpace: "pre-wrap",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  maxHeight: isExpanded ? "none" : "60px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  "&:hover": {
+                  }
+                            }}
             >
               {info.instruction_data}
             </Typography>
@@ -2357,13 +2405,15 @@ const MultipleLLMInstructionDrivenChat = ({
           item
           xs={12}
           sx={{
-            margin: "0.8rem 0",
-            overflowY: "scroll",
+            margin: "0 0",
+            overflow: "scroll",
+            overflowX:"hidden",
             borderRadius: "20px",
             backgroundColor: "#FFF",
             paddingLeft: "0px !important",
             boxSizing: "border-box",
             width: "100%",
+            height:"300px",
           }}
         >
           <Box
@@ -2371,7 +2421,7 @@ const MultipleLLMInstructionDrivenChat = ({
               display: "flex",
               flexDirection: "column",
               alignItems: "center !important",
-              padding: "1rem 0",
+              padding: "0 0",
             }}
           >
             {showChatContainer ? renderChatHistory() : null}
@@ -2387,6 +2437,7 @@ const MultipleLLMInstructionDrivenChat = ({
                 height: "5rem",
                 display: "flex",
                 justifyContent: "center",
+                backgroundColor: "white"
               }}
             >
               <Textarea
@@ -2399,7 +2450,11 @@ const MultipleLLMInstructionDrivenChat = ({
                 class_name={"w-full"}
                 loading={loading}
                 inputValue={inputValue}
-                defaultLang={targetLang}
+                overrideGT={true}
+                // defaultLang={targetLang}
+                                task_id={taskId}
+                script={info.meta_info_language}
+
               />
             </Grid>
           ) : null}

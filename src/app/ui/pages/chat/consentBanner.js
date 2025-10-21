@@ -43,7 +43,7 @@ const ConsentBanner = () => {
         <Button variant="outlined" onClick={() => handleConsent(false)}>
           Decline
         </Button>
-        <Button variant="contained" onClick={() => handleConsent(true)}>
+        <Button variant="contained" style={{color:'white'}} onClick={() => handleConsent(true)}>
           Accept
         </Button>
       </Box>

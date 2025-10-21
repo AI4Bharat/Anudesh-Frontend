@@ -383,7 +383,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false?<Typography variant="body1">
+          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -393,18 +393,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>:null}
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
+          </Typography>):null}
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -458,17 +447,6 @@ useEffect(() => {
               Analytics
             </NavLink>
           </Typography>:null}
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
         </Grid>
       );
     } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
@@ -524,17 +502,6 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -603,17 +570,6 @@ useEffect(() => {
               activeClassName={classes.highlightedMenu}
             >
               Admin
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -889,7 +845,7 @@ useEffect(() => {
                     cursor: "pointer",
                     gap: "10px",
                   }}
-                  onClick={() => navigate("/")}
+                  onClick={() => window.location.href = "/#/"}
                 >
                   <Image
                     src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"

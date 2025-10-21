@@ -196,7 +196,6 @@ const CreateProject = () => {
       taskReviews,
       createannotationsAutomatically,
       is_published,
-      passwordForProjects,
       conceal,
       jsonInput,
       isModelSelectionEnabled,
@@ -212,8 +211,7 @@ const CreateProject = () => {
   }, [
     title, description, selectedDomain, selectedType, sourceLanguage, targetLanguage,
     selectedInstances, confirmed, samplingMode, random, batchSize, batchNumber,
-    selectedAnnotatorsNum, taskReviews, createannotationsAutomatically, is_published,
-    passwordForProjects, conceal, jsonInput, isModelSelectionEnabled, selectedLanguageModels,
+    selectedAnnotatorsNum, taskReviews, createannotationsAutomatically, is_published, conceal, jsonInput, isModelSelectionEnabled, selectedLanguageModels,
     fixedModels, numSelectedModels, defaultValue
   ]);
     useEffect(() => {
@@ -233,7 +231,6 @@ const CreateProject = () => {
     setTaskReviews(formData.taskReviews);
     setsCreateannotationsAutomatically(formData.createannotationsAutomatically);
     setIsPublished(formData.is_published);
-    setPasswordForProjects(formData.passwordForProjects);
     setconceal(formData.conceal);
     setJsonInput(formData.jsonInput);
     setIsModelSelectionEnabled(formData.isModelSelectionEnabled);
@@ -269,7 +266,7 @@ const CreateProject = () => {
     setIsModelSelectionEnabled(true);
     setSelectedLanguageModels(fixed_Models);
     setFixedModels(fixed_Models);
-    setNumSelectedModels(fixed_Models.length);
+    setNumSelectedModels();
     setDefaultValue(0);
   };
 
@@ -285,9 +282,14 @@ const CreateProject = () => {
 
   useEffect(() => {
     if (selectedLanguageModels.length < numSelectedModels) {
-      setNumSelectedModels(Math.max(fixedModels.length, selectedLanguageModels.length));
-    }
-  }, [selectedLanguageModels, numSelectedModels]);
+    setNumSelectedModels(Math.max(fixedModels.length, selectedLanguageModels.length));
+  }
+  
+  if (numSelectedModels < fixedModels.length) {
+    setNumSelectedModels(fixedModels.length);
+  }
+
+  }, [selectedLanguageModels, numSelectedModels,fixedModels.length]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -595,14 +597,13 @@ const CreateProject = () => {
       const autoAssignCount = parseInt(defaultValue);
 
   let baseMetadata = {};
-  
   if (selectedType === "MultipleLLMInstructionDrivenChat") {
     baseMetadata = {
             enable_preference_selection: isModelSelectionEnabled,
             questions_json: questionsJSON,
             models_set: selectedLanguageModels,
             fixed_models: fixedModels,
-            num_models: fixedModels.length,
+            num_models: numSelectedModels,
     };
   } else {
     baseMetadata = questionsJSON;
@@ -645,17 +646,17 @@ const CreateProject = () => {
     if (sourceLanguage) newProject["src_language"] = sourceLanguage;
     if (targetLanguage) newProject["tgt_language"] = targetLanguage;
     dispatch(createProject(newProject));
-    clearFormState()
   };
 
   const setPasswordForNewProject = async (projectId) => {
-    try {
+    try {   
       dispatch(
         setPasswordForProject({ projectId, password: passwordForProjects }),
       );
     } catch (error) {
       console.error("Error setting password for project:", error);
     }
+    clearFormState()
   };
 
   useEffect(() => {
@@ -1147,7 +1148,7 @@ const CreateProject = () => {
 
                 <Grid container spacing={2} alignItems="center">
                   {/* Toggle on the left */}
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={2}>
                     <Box sx={{ display: 'flex', alignItems: 'center', p: 1, backgroundColor: 'grey.50', borderRadius: 1, height: '100%' }}>
                       <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 'bold', mr: 1 }}>
                         Enable Feedback Form<span style={{ color: "#d93025",fontSize:"20px" }}>*</span><Tooltip 
@@ -1171,7 +1172,7 @@ const CreateProject = () => {
 
                   {/* Language Models Selection */}
                   <Grid item xs={12} md={4}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex',flexDirection:"column" }}>
                       <Typography variant="body2" sx={{ minWidth: '50px', mr: 1, fontWeight: "bold" }}>
                         Models<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
                   title="Select the language models to be used in the chat interactions." 
@@ -1232,8 +1233,8 @@ const CreateProject = () => {
                   </Grid>
 
                   {/* Fixed Models Selection */}
-                  <Grid item xs={12} md={5}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Grid item xs={12} md={3}>
+                    <Box sx={{ display: 'flex',flexDirection:"column" }}>
                       <Typography variant="body2" sx={{ minWidth: '85px', mr: 1, fontWeight: "bold" }}>
                         Fixed Models:<Tooltip 
                   title="Select models that will always be included in the chat interactions." 
@@ -1287,6 +1288,46 @@ const CreateProject = () => {
                       </Box>
                     </Box>
                   </Grid>
+                  {selectedType === "MultipleLLMInstructionDrivenChat" &&
+                    selectedDomain === "Chat" && selectedLanguageModels.length >= fixedModels.length ? (
+
+                    <Grid item xs={12} md={3}>
+                      <Box sx={{ display: 'flex',flexDirection:"column" }}>
+                      <Typography variant="body2" sx={{ mr: 1, fontWeight: "bold" }}>
+                          No of models to Activate:
+                          <span style={{ color: "#d93025" }}>*</span> :
+                          <Tooltip 
+                  title="Number of models to Activate for Multi-Model Chat Support." 
+                  arrow
+                  placement="top"
+                >
+                  <IconButton size="small" sx={{  color: 'primary.main' }}>
+                    <InfoOutlined fontSize="small" />
+                  </IconButton>
+                  </Tooltip>
+                        </Typography>
+                        <FormControl fullWidth  size="small">
+                          <Select
+                            value={numSelectedModels}
+                            onChange={(e) => setNumSelectedModels(e.target.value)}
+                            MenuProps={MenuProps}
+                          >
+                            {Array.from(
+                              { length: selectedLanguageModels.length - fixedModels.length + 1 },
+            (_, i) => fixedModels.length + i,
+
+                            ).map((num) => (
+                              <MenuItem key={num} value={num}>
+                                {num}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+
+                      </Box>
+                    </Grid>
+                  ) : null}
+
                 </Grid>
               </Card>
             )}

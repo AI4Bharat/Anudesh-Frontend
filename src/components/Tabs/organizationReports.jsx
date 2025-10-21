@@ -150,7 +150,7 @@ const OrganizationReports = () => {
     (state) => state.GetOrganizationUserReports.data,
   );
   const ProjectReports = useSelector(
-    (state) => state.getOrganizationProjectReports?.data,
+    (state) => state.GetOrganizationProjectReports?.data,
   );
   const LanguageChoices = useSelector((state) => state.getLanguages?.data);
 
@@ -544,6 +544,7 @@ const OrganizationReports = () => {
         message: "Payment Reports will be e-mailed to you shortly",
         variant: "success",
       });
+      setLoading(false)
     } else {
       if (sendMail) {
         setReportRequested(false);
@@ -596,6 +597,13 @@ const OrganizationReports = () => {
             onlyReviewProjects: ReviewData,
           }),
         );
+        if (sendMail) {
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          });
+        }
       } else if (
         reportTypes === "SuperCheck" ||
         (reportfilter === "All Stage" && radioButton === "UsersReports")
@@ -610,6 +618,13 @@ const OrganizationReports = () => {
           sendMail: sendMail,
         };
         dispatch(fetchOrganizationUserReports(supercheckObj));
+        if (sendMail) {
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          });
+        }
       } else if (radioButton === "ProjectReports") {
         if (projectReportType === 1) {
           dispatch(
