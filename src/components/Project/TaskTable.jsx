@@ -711,6 +711,9 @@ const TaskTable = (props) => {
       if (userDetails?.guest_user === true) {
         setPullDisabled("disable for guest user");
       }
+        // if (userDetails?.guest_user === true) {
+        //   setPullDisabled("disable for guest user");
+        // }
     }
   }, [ProjectDetails.labeled_task_count]);
 
@@ -734,6 +737,9 @@ const TaskTable = (props) => {
       if (userDetails?.guest_user === true) {
         setPullDisabled("disable for guest user");
       }
+      // if (userDetails?.guest_user === true) {
+      //     setPullDisabled("disable for guest user");
+      //   }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
     }
   }, [
