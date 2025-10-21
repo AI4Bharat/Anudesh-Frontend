@@ -2316,6 +2316,7 @@ const MultipleLLMInstructionDrivenChat = ({
       >
         <Box
           sx={{
+            width: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -2430,7 +2431,6 @@ const MultipleLLMInstructionDrivenChat = ({
             paddingLeft: "0px !important",
             boxSizing: "border-box",
             width: "100%",
-            height:"300px",
           }}
         >
           <Box
