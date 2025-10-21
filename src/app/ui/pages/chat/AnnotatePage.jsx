@@ -1118,9 +1118,8 @@ const AnnotatePage = () => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-
-                navigate(`/projects/${projectId}`);
-                console.log('back to project form annotatePage file')
+                navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } } );
+                // console.log('back to project form annotatePage file')
               }}
             >
               Back to Project

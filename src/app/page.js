@@ -74,7 +74,7 @@ export default function Root() {
             <Route
               path="projects/:id"
               element={ProtectedRouteWrapper(
-                <Layout component={<Projects />} Backbutton={true} backPressNavigationPath={"/projects"} />
+                <Layout component={<Projects />} Backbutton={true} />
               )}
             />
              <Route
