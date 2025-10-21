@@ -906,7 +906,6 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
                   minWidth: "100%",
                   alignItems: "center",
                   justifyContent: "center",
-                  whiteSpace: "pre-wrap",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
                   maxHeight: isExpanded ? "none" : "60px",

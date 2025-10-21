@@ -112,16 +112,26 @@ const MultipleLLMInstructionDrivenChat = ({
   const questions = ProjectDetails?.metadata_json?.questions_json;
   const classes = ModelResponseEvaluationStyle();
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
+  const [hover, setHover] = useState({});
+  const [selectedRatings, setSelectedRatings] = useState({});
+
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
   });
-        const [shrinkedMessages, setShrinkedMessages] = useState({});
-          const [isExpanded, setIsExpanded] = useState(true);
+  const [shrinkedMessages, setShrinkedMessages] = useState({});
+  const [isExpanded, setIsExpanded] = useState(true);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const labels = {
+    1: "Poor",
+    2: "Fair",
+    3: "Good",
+    4: "Very Good",
+    5: "Excellent",
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -315,7 +325,10 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index=null) => {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
+    console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
+        const isMultipleResponse = ProjectDetails?.metadata_json;
+
     if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
       const body = {
@@ -334,6 +347,8 @@ const MultipleLLMInstructionDrivenChat = ({
           model_responses_json: modelResponses?.model_responses_json,
         }),
       };
+      console.log(body);
+      
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
@@ -368,7 +383,7 @@ const MultipleLLMInstructionDrivenChat = ({
       for (const [modelName, modelResponse] of Object.entries(data.output)) {
         if (modelResponse?.error) {
           errorMessage = `${modelName} error: ${modelResponse.error}`;
-          break; 
+          break;
         }
       }
 
@@ -619,8 +634,215 @@ const MultipleLLMInstructionDrivenChat = ({
       };
     });
   };
-
-  const handleRating = (newValue, message, index, questionIdx, model_idx) => {
+// Updated handlers for single response mode
+// 1. Fill in Blanks Handler
+// 1. Fill in Blanks Handler
+const handleSingleInputChange = (value, questionIdx, blankIndex, promptOutputPairId) => {
+  setEvalFormResponse((prev) => {
+    const safePrev = prev || {};
+    
+    // Create a deep copy of the current entry or initialize a new one
+    const currentEntry = safePrev[promptOutputPairId] 
+      ? {
+          ...safePrev[promptOutputPairId],
+          model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
+        }
+      : {
+          prompt_output_pair_id: promptOutputPairId,
+          model_responses_json: []
+        };
+    
+    // Create a copy of model_responses_json array
+    const modelResponses = [...currentEntry.model_responses_json];
+    
+    // Ensure we have enough questions
+    while (modelResponses.length <= questionIdx) {
+      modelResponses.push({
+        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+        response: []
+      });
+    }
+    
+    // Update the specific question's response - create a new object for the question
+    const questionToUpdate = { 
+      ...modelResponses[questionIdx],
+      response: [...(modelResponses[questionIdx].response || [])]
+    };
+    
+    // Ensure we have enough blank spaces
+    const updatedResponse = [...questionToUpdate.response];
+    while (updatedResponse.length <= blankIndex) {
+      updatedResponse.push("");
+    }
+    
+    // Update the specific blank
+    updatedResponse[blankIndex] = value;
+    questionToUpdate.response = updatedResponse;
+    
+    // Update the model responses array with the new question
+    modelResponses[questionIdx] = questionToUpdate;
+    
+    return {
+      ...safePrev,
+      [promptOutputPairId]: {
+        ...currentEntry,
+        model_responses_json: modelResponses
+      }
+    };
+  });
+};// 2. Rating Handler
+const handleSingleRating = (newValue, questionIdx, promptOutputPairId) => {
+  setEvalFormResponse((prev) => {
+    const safePrev = prev || {};
+    
+    // Create a deep copy of the current entry or initialize a new one
+    const currentEntry = safePrev[promptOutputPairId] 
+      ? {
+          ...safePrev[promptOutputPairId],
+          model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
+        }
+      : {
+          prompt_output_pair_id: promptOutputPairId,
+          model_responses_json: []
+        };
+    
+    // Create a copy of model_responses_json array
+    const modelResponses = [...currentEntry.model_responses_json];
+    
+    // Ensure we have enough questions
+    while (modelResponses.length <= questionIdx) {
+      modelResponses.push({
+        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+        response: []
+      });
+    }
+    
+    // Update the specific question's response - create a new object for the question
+    const questionToUpdate = { 
+      ...modelResponses[questionIdx],
+      response: [newValue?.toString() || ""] // Direct array with the rating value
+    };
+    
+    // Update the model responses array with the new question
+    modelResponses[questionIdx] = questionToUpdate;
+    
+    return {
+      ...safePrev,
+      [promptOutputPairId]: {
+        ...currentEntry,
+        model_responses_json: modelResponses
+      }
+    };
+  });
+};
+const handleSingleMCQ = (value, questionIdx, promptOutputPairId) => {
+  setEvalFormResponse((prev) => {
+    const safePrev = prev || {};
+    
+    // Create a deep copy of the current entry or initialize a new one
+    const currentEntry = safePrev[promptOutputPairId] 
+      ? {
+          ...safePrev[promptOutputPairId],
+          model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
+        }
+      : {
+          prompt_output_pair_id: promptOutputPairId,
+          model_responses_json: []
+        };
+    
+    // Create a copy of model_responses_json array
+    const modelResponses = [...currentEntry.model_responses_json];
+    
+    // Ensure we have enough questions
+    while (modelResponses.length <= questionIdx) {
+      modelResponses.push({
+        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+        response: []
+      });
+    }
+    
+    // Update the specific question's response - create a new object for the question
+    const questionToUpdate = { 
+      ...modelResponses[questionIdx],
+      response: [value] // Direct array with the MCQ value
+    };
+    
+    // Update the model responses array with the new question
+    modelResponses[questionIdx] = questionToUpdate;
+    
+    return {
+      ...safePrev,
+      [promptOutputPairId]: {
+        ...currentEntry,
+        model_responses_json: modelResponses
+      }
+    };
+  });
+};
+const handleSingleMultiSelect = (checked, option, questionIdx, promptOutputPairId) => {
+  setEvalFormResponse((prev) => {
+    const safePrev = prev || {};
+    
+    // Create a deep copy of the current entry or initialize a new one
+    const currentEntry = safePrev[promptOutputPairId] 
+      ? {
+          ...safePrev[promptOutputPairId],
+          model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
+        }
+      : {
+          prompt_output_pair_id: promptOutputPairId,
+          model_responses_json: []
+        };
+    
+    // Create a copy of model_responses_json array
+    const modelResponses = [...currentEntry.model_responses_json];
+    
+    // Ensure we have enough questions
+    while (modelResponses.length <= questionIdx) {
+      modelResponses.push({
+        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+        response: []
+      });
+    }
+    
+    // Update the specific question's response - create a new object for the question
+    const questionToUpdate = { 
+      ...modelResponses[questionIdx],
+      response: [...(modelResponses[questionIdx].response || [])] // Copy existing responses
+    };
+    
+    // Update the response array based on checked status
+    const updatedResponse = checked
+      ? [...questionToUpdate.response, option]
+      : questionToUpdate.response.filter(item => item !== option);
+    
+    questionToUpdate.response = updatedResponse;
+    
+    // Update the model responses array with the new question
+    modelResponses[questionIdx] = questionToUpdate;
+    
+    return {
+      ...safePrev,
+      [promptOutputPairId]: {
+        ...currentEntry,
+        model_responses_json: modelResponses
+      }
+    };
+  });
+};
+const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex = 0) => {
+  console.log(evalFormResponse);
+  
+  const questionResponseJson = evalFormResponse?.model_responses_json;
+  if (!questionResponseJson) return responseIndex === 0 ? "" : 0;
+  
+  const formEntry = questionResponseJson.find(entry => entry.promptoutputid === promptOutputPairId.toString());
+  if (!formEntry?.questions_response) return responseIndex === 0 ? "" : 0;
+  
+  return formEntry.questions_response[questionIdx]?.response?.[responseIndex] || 
+         (responseIndex === 0 ? "" : 0);
+};
+const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
       const targetModel = message?.output?.[model_idx]?.model_name;
       const targetQuestion =
@@ -927,23 +1149,40 @@ const MultipleLLMInstructionDrivenChat = ({
   };
 
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
-    if (!form?.model_responses_json) {
+    console.log(form);
+
+      const formdata = form?.model_responses_json
+    console.log(formdata);
+    
+    if (!formdata) {
       return false;
     }
 
-    const allModelsValid = form.model_responses_json.every((modelResponse) => {
+    const allModelsValid = formdata.every((modelResponse) => {
+      console.log("something");
+      
       const allMandatoryAnswered = questions.every((question) => {
         let expectedParts = 0;
+              console.log("something");
+
         if (question.question_type === "fill_in_blanks") {
           expectedParts =
             question?.input_question?.split("<blank>")?.length - 1;
         }
-
-        const responseForQuestion = modelResponse?.questions_response?.find(
+            if(ProjectDetails?.metadata_json){
+      var responseForQuestion = formdata?.find(
           (qr) =>
             qr?.question?.input_question === question?.input_question &&
             qr?.question?.question_type === question?.question_type,
         );
+    }else{
+      var responseForQuestion = modelResponse?.questions_response?.find(
+          (qr) =>
+            qr?.question?.input_question === question?.input_question &&
+            qr?.question?.question_type === question?.question_type,
+        );
+    }
+        
 
         if (!responseForQuestion?.response) {
           return false;
@@ -979,13 +1218,27 @@ const MultipleLLMInstructionDrivenChat = ({
 
     return allModelsValid;
   };
+  function getLabelText(value) {
+    return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
+  }
+
+  const handleHover = (newHover, index) => {
+    setHover((prev) => {
+      const updated = {
+        ...prev,
+        [index]: newHover,
+      };
+      return updated;
+    });
+  };
+console.log(evalFormResponse);
 
   const renderChatHistory = () => {
-        const toggleShrink = (index) => {
-        setShrinkedMessages(prev => ({
-            ...prev,
-            [index]: !prev[index]
-        }));
+    const toggleShrink = (index) => {
+      setShrinkedMessages(prev => ({
+        ...prev,
+        [index]: !prev[index]
+      }));
     };
     const chatElements = chatHistory?.map((message, index) => {
       return (
@@ -1076,21 +1329,21 @@ const MultipleLLMInstructionDrivenChat = ({
                   />
                 )}
               </Grid>
-                          <IconButton
-              size="small"
-              onClick={() => toggleShrink(index)}
-              style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
-              }}
-            >
-              {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
+              <IconButton
+                size="small"
+                onClick={() => toggleShrink(index)}
+                style={{
+                  position: "absolute",
+                  bottom: "0.5rem",
+                  right: "0.5rem",
+                }}
+              >
+                {shrinkedMessages[index] ? (
+                  <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633", fontWeight: "bold" }} />
+                ) : (
+                  <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
 
               {index === chatHistory.length - 1 &&
                 stage !== "Alltask" &&
@@ -1138,409 +1391,411 @@ const MultipleLLMInstructionDrivenChat = ({
                 )}
             </Grid>
           </Grid>
-        {!shrinkedMessages[index] && (
-          <Grid
-            item
-            sx={{
-              textAlign: "left",
-              position: "relative",
-              width: "100%",
-              padding: "1rem",
-              borderRadius: "0.5rem",
-            }}
-          >
-            <Grid container alignItems="start" spacing={2}>
-              <Grid item>
-                <Image
-                  width={50}
-                  height={50}
-                  src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
-                  alt="Bot Avatar"
-                  priority
-                />
-              </Grid>
+          {!shrinkedMessages[index] && (
+            <Grid
+              item
+              sx={{
+                textAlign: "left",
+                position: "relative",
+                width: "100%",
+                padding: "1rem",
+                borderRadius: "0.5rem",
+              }}
+            >
+              <Grid container alignItems="start" spacing={2}>
+                <Grid item>
+                  <Image
+                    width={50}
+                    height={50}
+                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                    alt="Bot Avatar"
+                    priority
+                  />
+                </Grid>
 
-              <Grid
-                item
-                xs
+                <Grid
+                  item
+                  xs
 
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  flexWrap: "nowrap",
-                  overflowX: "auto",
-                  scrollbarWidth: "none",
-                  "-ms-overflow-style": "none",
-                  "&::-webkit-scrollbar": {
-                    display: "none",
-                  },
-                  justifyContent: "flex-start",
-                  gap: "0.5rem",
-                  paddingBottom: "0.5rem",
-                  cursor: "grab",
-                  "&:active": {
-                    cursor: "grabbing",
-                  },
-                }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    flexWrap: "nowrap",
+                    overflowX: "auto",
+                    scrollbarWidth: "none",
+                    "-ms-overflow-style": "none",
+                    "&::-webkit-scrollbar": {
+                      display: "none",
+                    },
+                    justifyContent: "flex-start",
+                    gap: "0.5rem",
+                    paddingBottom: "0.5rem",
+                    cursor: "grab",
+                    "&:active": {
+                      cursor: "grabbing",
+                    },
+                  }}
 
-              >
-                {message?.output?.map((modelOutput, modelIdx) => (
-                  <React.Fragment key={modelIdx}>
-                    {modelOutput?.status === "error" ? (
-                      <Box
-                        sx={{
-                          border: "1px solid red",
-                          width: "45%",
-                          minWidth: "300px",
-                          flexShrink: 0,
-                          height: "10vh",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          borderRadius: "10px",
-                          color: "red",
-                          fontWeight: "bold",
-                          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-                        }}
-                      >
-                        <ErrorIcon
+                >
+                  {message?.output?.map((modelOutput, modelIdx) => (
+                    <React.Fragment key={modelIdx}>
+                      {modelOutput?.status === "error" ? (
+                        <Box
                           sx={{
-                            marginRight: "10px",
+                            border: "1px solid red",
+                            width: "45%",
+                            minWidth: "300px",
+                            flexShrink: 0,
+                            height: "10vh",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: "10px",
+                            color: "red",
+                            fontWeight: "bold",
+                            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
                           }}
-                        />
-                        <Typography>
-                          {modelOutput?.model_name} failed to load the
-                          response!
-                        </Typography>{" "}
-                      </Box>
-                    ) : (
-                      <Box
-                        sx={{
-                          border: "1px solid #ccc",
-                          width: "45%",
-                          minWidth: "300px",
-                          flexShrink: 0,
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          alignItems: "flex-end",
-                          borderRadius: "10px",
-                          flexGrow: 1,
-                        }}
-                      >
-                        <Tooltip
-                          title={
-                            <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                              Expand to view full response
-                            </span>
-                          }
                         >
-                          <IconButton
-                            onClick={() => handleOpenViewFullResponse(index, modelIdx)}
+                          <ErrorIcon
+                            sx={{
+                              marginRight: "10px",
+                            }}
+                          />
+                          <Typography>
+                            {modelOutput?.model_name} failed to load the
+                            response!
+                          </Typography>{" "}
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            border: "1px solid #ccc",
+                            width: "45%",
+                            minWidth: "300px",
+                            flexShrink: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            alignItems: "flex-end",
+                            borderRadius: "10px",
+                            flexGrow: 1,
+                          }}
+                        >
+                          <Tooltip
+                            title={
+                              <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                                Expand to view full response
+                              </span>
+                            }
                           >
-                            <OpenInFullIcon
-                              sx={{
-                                padding: "5px 5px 0 0",
-                                color: orange[400],
-                              }}
-                            />
-                          </IconButton>
-                        </Tooltip>
-                        <Modal
-                          open={activeModalIdentifier === `${index}_${modelIdx}`}
-                          onClose={handleCloseViewFullResponse}
-                          closeAfterTransition
-                          BackdropComponent={Backdrop}
-                          BackdropProps={{
-                            timeout: 500,
-                            sx: {
-                              backdropFilter: "blur(2px)",
-                              backgroundColor: "rgba(0, 0, 0, 0.2)",
-                            },
-                          }}
-                        >
-                          <Fade in={activeModalIdentifier === `${index}_${modelIdx}`}>
-                            <Box sx={viewFullResponseModalStyle}>
-                              <Box
+                            <IconButton
+                              onClick={() => handleOpenViewFullResponse(index, modelIdx)}
+                            >
+                              <OpenInFullIcon
                                 sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  paddingBottom: "1.5rem",
+                                  padding: "5px 5px 0 0",
+                                  color: orange[400],
                                 }}
-                              >
-                                <Typography
-                                  variant="subtitle2"
+                              />
+                            </IconButton>
+                          </Tooltip>
+                          <Modal
+                            open={activeModalIdentifier === `${index}_${modelIdx}`}
+                            onClose={handleCloseViewFullResponse}
+                            closeAfterTransition
+                            BackdropComponent={Backdrop}
+                            BackdropProps={{
+                              timeout: 500,
+                              sx: {
+                                backdropFilter: "blur(2px)",
+                                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                              },
+                            }}
+                          >
+                            <Fade in={activeModalIdentifier === `${index}_${modelIdx}`}>
+                              <Box sx={viewFullResponseModalStyle}>
+                                <Box
                                   sx={{
-                                    fontWeight: "bold",
-                                    color: orange[400],
-                                    fontSize: "1.25rem",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    paddingBottom: "1.5rem",
                                   }}
                                 >
-                                  {"Model "+(modelIdx+1)}
-                                </Typography>
-                                <IconButton
-                                  onClick={handleCloseViewFullResponse}
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                      fontWeight: "bold",
+                                      color: orange[400],
+                                      fontSize: "1.25rem",
+                                    }}
+                                  >
+                                    {"Model " + (modelIdx + 1)}
+                                  </Typography>
+                                  <IconButton
+                                    onClick={handleCloseViewFullResponse}
+                                  >
+                                    <CloseIcon sx={{ color: orange[400] }} />
+                                  </IconButton>
+                                </Box>
+                                <Typography
+                                  component="div"
+                                  sx={{
+                                    fontSize: "1.2rem",
+                                    maxHeight: "60vh",
+                                    overflowY: "scroll",
+                                  }}
                                 >
-                                  <CloseIcon sx={{ color: orange[400] }} />
-                                </IconButton>
-                              </Box>
-                              <Typography
-                                component="div"
-                                sx={{
-                                  fontSize: "1.2rem",
-                                  maxHeight: "60vh",
-                                  overflowY: "scroll",
-                                }}
-                              >
-                                {modelOutput?.output?.map(
-                                  (segment, segmentIdx) =>
-                                    segment.type === "text" ? (
-                                      ProjectDetails?.metadata_json
-                                        ?.editable_response ||
-                                        segment.value == "" ? (
-                                        globalTransliteration ? (
-                                          <IndicTransliterate
-                                            key={segmentIdx}
-                                            value={segment.value}
-                                            onChangeText={(text) =>
-                                              handleTextChange(
-                                                text,
-                                                message,
-                                                modelIdx,
-                                                segmentIdx,
-                                                "output",
-                                              )
-                                            }
-                                            lang={targetLang}
-                                            renderComponent={(props) => (
-                                              <textarea
-                                                {...props}
-                                                style={{
-                                                  fontSize: "1rem",
-                                                  padding: "12px",
-                                                  borderRadius: "12px 12px 0 12px",
-                                                  color: grey[900],
-                                                  background: "#ffffff",
-                                                  border: `1px solid ${grey[200]}`,
-                                                  boxShadow: `0px 2px 2px ${grey[50]}`,
-                                                  minHeight: "5rem",
-                                                  width: "100%",
-                                                  resize: "none",
-                                                }}
-                                              />
-                                            )}
-                                          />
+                                  {modelOutput?.output?.map(
+                                    (segment, segmentIdx) =>
+                                      segment.type === "text" ? (
+                                        ProjectDetails?.metadata_json
+                                          ?.editable_response ||
+                                          segment.value == "" ? (
+                                          globalTransliteration ? (
+                                            <IndicTransliterate
+                                              key={segmentIdx}
+                                              value={segment.value}
+                                              onChangeText={(text) =>
+                                                handleTextChange(
+                                                  text,
+                                                  message,
+                                                  modelIdx,
+                                                  segmentIdx,
+                                                  "output",
+                                                )
+                                              }
+                                              lang={targetLang}
+                                              renderComponent={(props) => (
+                                                <textarea
+                                                  {...props}
+                                                  style={{
+                                                    fontSize: "1rem",
+                                                    padding: "12px",
+                                                    borderRadius: "12px 12px 0 12px",
+                                                    color: grey[900],
+                                                    background: "#ffffff",
+                                                    border: `1px solid ${grey[200]}`,
+                                                    boxShadow: `0px 2px 2px ${grey[50]}`,
+                                                    minHeight: "5rem",
+                                                    width: "100%",
+                                                    resize: "none",
+                                                  }}
+                                                />
+                                              )}
+                                            />
+                                          ) : (
+                                            <textarea
+                                              key={segmentIdx}
+                                              value={segment.value}
+                                              onChange={(e) =>
+                                                handleTextChange(
+                                                  e.target.value,
+                                                  message,
+                                                  modelIdx,
+                                                  segmentIdx,
+                                                  "output",
+                                                )
+                                              }
+                                              style={{
+                                                fontSize: "1rem",
+                                                width: "100%",
+                                                padding: "12px",
+                                                borderRadius: "12px 12px 0 12px",
+                                                color: grey[900],
+                                                background: "#ffffff",
+                                                border: `1px solid ${grey[200]}`,
+                                                boxShadow: `0px 2px 2px ${grey[50]}`,
+                                                minHeight: "5rem",
+                                                resize: "none",
+                                              }}
+                                              rows={1}
+                                            />
+                                          )
                                         ) : (
-                                          <textarea
+                                          <ReactMarkdown
                                             key={segmentIdx}
-                                            value={segment.value}
-                                            onChange={(e) =>
-                                              handleTextChange(
-                                                e.target.value,
-                                                message,
-                                                modelIdx,
-                                                segmentIdx,
-                                                "output",
-                                              )
-                                            }
-                                            style={{
-                                              fontSize: "1rem",
-                                              width: "100%",
-                                              padding: "12px",
-                                              borderRadius: "12px 12px 0 12px",
-                                              color: grey[900],
-                                              background: "#ffffff",
-                                              border: `1px solid ${grey[200]}`,
-                                              boxShadow: `0px 2px 2px ${grey[50]}`,
-                                              minHeight: "5rem",
-                                              resize: "none",
-                                            }}
-                                            rows={1}
+                                            children={segment?.value?.replace(
+                                              /\\n/gi,
+                                              "&nbsp; \\n",
+                                            )}
                                           />
                                         )
                                       ) : (
-                                        <ReactMarkdown
+                                        <SyntaxHighlighter
                                           key={segmentIdx}
-                                          children={segment?.value?.replace(
-                                            /\\n/gi,
-                                            "&nbsp; \\n",
-                                          )}
+                                          language={segment.language}
+                                          style={gruvboxDark}
+                                          customStyle={{
+                                            padding: "1rem",
+                                            borderRadius: "5px",
+                                          }}
+                                        >
+                                          {segment.value}
+                                        </SyntaxHighlighter>
+                                      ),
+                                  )}
+                                </Typography>
+                              </Box>
+                            </Fade>
+                          </Modal>
+                          <Box
+                            sx={{
+                              overflowY: "auto",
+                              maxHeight: "400px",
+                              padding: "0 5px 0 20px",
+                              width: "100%",
+                              boxSizing: "border-box",
+                            }}
+                          >
+                            {modelOutput?.output?.map((segment, segmentIdx) =>
+                              segment.type === "text" ? (
+                                ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                  globalTransliteration ? (
+                                    <IndicTransliterate
+                                      key={segmentIdx}
+                                      value={segment.value}
+                                      onChangeText={(text) =>
+                                        handleTextChange(
+                                          text,
+                                          message,
+                                          modelIdx,
+                                          segmentIdx,
+                                          "output",
+                                        )
+                                      }
+                                      lang={targetLang}
+                                      renderComponent={(props) => (
+                                        <textarea
+                                          {...props}
+                                          style={{
+                                            fontSize: "1rem",
+                                            padding: "12px",
+                                            borderRadius: "12px 12px 0 12px",
+                                            color: grey[900],
+                                            background: "#ffffff",
+                                            border: `1px solid ${grey[200]}`,
+                                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                                            minHeight: "5rem",
+                                            width: "100%",
+                                            resize: "none",
+                                          }}
                                         />
-                                      )
-                                    ) : (
-                                      <SyntaxHighlighter
-                                        key={segmentIdx}
-                                        language={segment.language}
-                                        style={gruvboxDark}
-                                        customStyle={{
-                                          padding: "1rem",
-                                          borderRadius: "5px",
-                                        }}
-                                      >
-                                        {segment.value}
-                                      </SyntaxHighlighter>
-                                    ),
-                                )}
-                              </Typography>
-                            </Box>
-                          </Fade>
-                        </Modal>
-                        <Box
-                          sx={{
-                            overflowY: "auto",
-                            maxHeight: "400px",
-                            padding: "0 5px 0 20px",
-                            width: "100%",
-                            boxSizing: "border-box",
-                          }}
-                        >
-                          {modelOutput?.output?.map((segment, segmentIdx) =>
-                            segment.type === "text" ? (
-                              ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
-                                globalTransliteration ? (
-                                  <IndicTransliterate
-                                    key={segmentIdx}
-                                    value={segment.value}
-                                    onChangeText={(text) =>
-                                      handleTextChange(
-                                        text,
-                                        message,
-                                        modelIdx,
-                                        segmentIdx,
-                                        "output",
-                                      )
-                                    }
-                                    lang={targetLang}
-                                    renderComponent={(props) => (
-                                      <textarea
-                                        {...props}
-                                        style={{
-                                          fontSize: "1rem",
-                                          padding: "12px",
-                                          borderRadius: "12px 12px 0 12px",
-                                          color: grey[900],
-                                          background: "#ffffff",
-                                          border: `1px solid ${grey[200]}`,
-                                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                                          minHeight: "5rem",
-                                          width: "100%",
-                                          resize: "none",
-                                        }}
-                                      />
-                                    )}
-                                  />
+                                      )}
+                                    />
+                                  ) : (
+                                    <textarea
+                                      key={segmentIdx}
+                                      value={segment.value}
+                                      onChange={(e) =>
+                                        handleTextChange(
+                                          e.target.value,
+                                          message,
+                                          modelIdx,
+                                          segmentIdx,
+                                          "output",
+                                        )
+                                      }
+                                      style={{
+                                        fontSize: "1rem",
+                                        width: "100%",
+                                        padding: "10px",
+                                        borderRadius: "12px 12px 0 12px",
+                                        color: grey[900],
+                                        background: "#ffffff",
+                                        border: `1px solid ${grey[200]}`,
+                                        boxShadow: `0px 2px 2px ${grey[50]}`,
+                                        minHeight: "5rem",
+                                        resize: "none",
+                                      }}
+                                      rows={1}
+                                    />
+                                  )
                                 ) : (
-                                  <textarea
+                                  <ReactMarkdown
                                     key={segmentIdx}
-                                    value={segment.value}
-                                    onChange={(e) =>
-                                      handleTextChange(
-                                        e.target.value,
-                                        message,
-                                        modelIdx,
-                                        segmentIdx,
-                                        "output",
-                                      )
-                                    }
-                                    style={{
-                                      fontSize: "1rem",
-                                      width: "100%",
-                                      padding: "10px",
-                                      borderRadius: "12px 12px 0 12px",
-                                      color: grey[900],
-                                      background: "#ffffff",
-                                      border: `1px solid ${grey[200]}`,
-                                      boxShadow: `0px 2px 2px ${grey[50]}`,
-                                      minHeight: "5rem",
-                                      resize: "none",
-                                    }}
-                                    rows={1}
+                                    children={segment?.value?.replace(
+                                      /\\n/gi,
+                                      "&nbsp; \\n",
+                                    )}
                                   />
                                 )
                               ) : (
-                                <ReactMarkdown
+                                <SyntaxHighlighter
                                   key={segmentIdx}
-                                  children={segment?.value?.replace(
-                                    /\\n/gi,
-                                    "&nbsp; \\n",
-                                  )}
-                                />
-                              )
-                            ) : (
-                              <SyntaxHighlighter
-                                key={segmentIdx}
-                                language={segment.language}
-                                style={gruvboxDark}
-                                customStyle={{
-                                  padding: "1rem",
-                                  borderRadius: "5px",
-                                }}
-                              >
-                                {segment.value}
-                              </SyntaxHighlighter>
-                            ),
-                          )}
+                                  language={segment.language}
+                                  style={gruvboxDark}
+                                  customStyle={{
+                                    padding: "1rem",
+                                    borderRadius: "5px",
+                                  }}
+                                >
+                                  {segment.value}
+                                </SyntaxHighlighter>
+                              ),
+                            )}
+                          </Box>
+                          <Box>
+                            <Typography
+                              sx={{
+                                backgroundColor: "#E8E6E6",
+                                padding: "5px 10px 5px 10px",
+                                borderRadius: "10px",
+                                fontSize: "1rem",
+                              }}
+                            >
+                              {"Model " + (modelIdx + 1)}
+                            </Typography>
+                          </Box>
                         </Box>
-                        <Box>
-                          <Typography
-                            sx={{
-                              backgroundColor: "#E8E6E6",
-                              padding: "5px 10px 5px 10px",
-                              borderRadius: "10px",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            {"Model "+(modelIdx+1)}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    )}
-                  </React.Fragment>
-                ))}
+                      )}
+                    </React.Fragment>
+                  ))}
+                </Grid>
               </Grid>
-            </Grid>
-          </Grid>)}
+            </Grid>)}
 
           {ProjectDetails?.metadata_json?.enable_preference_selection &&
             visibleMessages[index] ? (
-              <Grid
-                item
+            <Grid
+              item
+              sx={{
+                padding: " 1.5rem",
+                position: "relative",
+                width: "85%",
+                backgroundColor: "rgba(247, 184, 171, 0.2)",
+                borderRadius: "10px",
+                marginBottom: "2rem",
+              }}
+            >
+              <Box
                 sx={{
-                  padding: " 1.5rem",
-                  position: "relative",
-                  width: "85%",
-                  backgroundColor: "rgba(247, 184, 171, 0.2)",
-                  borderRadius: "10px",
-                  marginBottom: "2rem",
+                  maxHeight: "16rem",
                 }}
               >
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <IconButton
+                    onClick={() => handleClosePreferredResponseModal(index)}
+                  >
+                    <CloseIcon
+                      sx={{
+                        color: orange[400],
+                      }}
+                    />
+                  </IconButton>
+                </Box>
                 <Box
                   sx={{
-                    maxHeight: "16rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-around",
+                    maxHeight: "15rem",
+                    overflowY: "auto",
                   }}
                 >
-                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                    <IconButton
-                      onClick={() => handleClosePreferredResponseModal(index)}
-                    >
-                      <CloseIcon
-                        sx={{
-                          color: orange[400],
-                        }}
-                      />
-                    </IconButton>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-around",
-                      maxHeight: "15rem",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {ProjectDetails?.metadata_json?.questions_json?.map(
+                  {!ProjectDetails?.metadata_json?.single_form_response? (
+
+                    ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
                         <div key={questionIdx}>
                           {question.question_type === "comparison" && (
@@ -1642,7 +1897,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={"Model "+(outputIdx+1)}
+                                                  label={"Model " + (outputIdx + 1)}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -1726,7 +1981,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         marginTop: "0.7rem",
                                       }}
                                     >
-                                      {"Model "+(outputIdx+1)}
+                                      {"Model " + (outputIdx + 1)}
                                     </Typography>
                                     {question.input_question
                                       .split("<blank>")
@@ -2132,36 +2387,329 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             )}
                         </div>
-                      ),
-                    )}
-                    <Box
+                      ))) : (<>{ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
+                        const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
+                        switch (question?.question_type) {
+                          case "fill_in_blanks":
+                            const splitQuestion = question?.input_question.split("<blank>");
+                            return (
+                              <div key={questionIdx}>
+                                <p className={classes.inputQuestion}>
+                                  {questionIdx + 1}.{" "}
+                                  {splitQuestion?.map((part, index) => (
+                                    <span
+                                      key={`${questionIdx}-${index}`}
+                                      style={{ fontSize: "16px" }}
+                                    >
+                                      {part}
+                                      {index < splitQuestion.length - 1 && (
+                                        <input
+                                          type="text"
+  value={
+  evalFormResponse?.[promptOutputPairId]
+    ?.model_responses_json?.[questionIdx]
+    ?.response?.[index] || ""
+}
+                                         onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
+                                          style={{
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                            padding: "4px",
+                                            fontSize: "14px",
+                                            // lineHeight: "1.5",
+                                            verticalAlign: "middle",
+                                            width: "100%",
+                                            maxWidth: "200px",
+                                            margin: "4px 0",
+                                            boxSizing: "border-box",
+                                            backgroundColor: "white",
+                                            fontWeight: "normal",
+                                          }}
+                                          required={true}
+                                        />
+                                      )}
+                                    </span>
+                                  ))}
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </p>
+                              </div>
+                            );
+
+                          case "rating":
+                            return (
+                              <div key={questionIdx}>
+                                <div className={classes.inputQuestion}>
+                                  <span style={{ fontSize: "16px" }}>
+                                    {questionIdx + 1}. {question.input_question}
+                                  </span>
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </div>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                    onMouseLeave={() => handleHover(null)}
+                                  >
+                                    <Rating
+                                      name={`rating`}
+value={
+  Number(
+    evalFormResponse?.[promptOutputPairId]
+      ?.model_responses_json?.[questionIdx]
+      ?.response?.[0] || 0
+  )
+}
+                                      getLabelText={getLabelText}
+                                      onChange={(event, newValue) => {
+                                        handleSingleRating(newValue, questionIdx, promptOutputPairId);
+                                        setSelectedRatings((prev) => ({
+                                          ...prev,
+                                          [questionIdx]: newValue,
+                                        }));
+                                        setHover({});
+                                      }}
+                                      onChangeActive={(event, newHover) => {
+                                        handleHover(newHover, questionIdx);
+                                      }}
+                                      sx={{
+                                        marginLeft: "18px",
+                                        color: "#ee6633",
+                                        "& .MuiRating-iconFilled": {
+                                          color: "#ee6633",
+                                        },
+                                        "& .MuiRating-iconHover": {
+                                          color: "#ee6633",
+                                        },
+                                      }}
+                                      emptyIcon={
+                                        <StarIcon
+                                          style={{
+                                            opacity: 0.55,
+                                            color: "#EE6633",
+                                          }}
+                                          fontSize="inherit"
+                                        />
+                                      }
+                                    />
+                                    <Box
+                                      sx={{
+                                        ml: 2,
+                                        color: "#EE6633",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {(() => {
+                                        const currentHover = hover[questionIdx] || null;
+                                        const currentSelection =
+                                          Number(selectedRatings[questionIdx]) || null;
+                                        const initialResponse =
+                                          Number(
+                                            evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id]
+                                              ?.questions_response?.[questionIdx]?.response?.[0] || 0
+                                          )
+
+
+                                        return currentHover !== null && currentHover !== -1
+                                          ? labels[currentHover]
+                                          : initialResponse > 0
+                                            ? labels[initialResponse]
+                                            : initialResponse === null
+                                              ? ""
+                                              : currentSelection
+                                                ? labels[currentSelection]
+                                                : "";
+                                      })()}
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              </div>
+                            );
+
+                          case "multi_select_options":
+                            return (
+                              <div key={questionIdx}>
+                                <div
+                                  className={classes.inputQuestion}
+                                  style={{ fontSize: "16px" }}
+                                >
+                                  {questionIdx + 1}. {question.input_question}
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </div>
+                                <FormControl
+                                  component="fieldset"
+                                  sx={{
+                                    marginLeft: "18px",
+                                  }}
+                                >
+                                  <FormGroup>
+                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                      {question.input_selections_list.map((option, idx) => (
+                                        <div style={{ width: "50%" }} key={idx}>
+                                          <FormControlLabel
+                                            key={idx}
+                                            control={
+                                              <Checkbox
+                                                onChange={(e) =>
+                                                  handleSingleMultiSelect(
+                                                    e.target.checked,
+                                                    option,
+                                                    questionIdx,
+                                                    promptOutputPairId
+                                                  )
+                                                }
+checked={
+  evalFormResponse?.[promptOutputPairId]
+    ?.model_responses_json?.[questionIdx]
+    ?.response?.includes(option) || false
+}
+
+                                              />
+                                            }
+                                            label={option}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </FormGroup>
+                                </FormControl>
+                              </div>
+                            );
+
+                          case "mcq":
+                            return (
+                              <div key={questionIdx}>
+                                <div
+                                  className={classes.inputQuestion}
+                                  style={{ fontSize: "16px" }}
+                                >
+                                  {questionIdx + 1}. {question.input_question}
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </div>
+                                <FormControl
+                                  component="fieldset"
+                                  required={true}
+                                  sx={{
+                                    marginLeft: "18px",
+                                  }}
+                                >
+                                  <RadioGroup
+value={
+  evalFormResponse?.[promptOutputPairId]
+    ?.model_responses_json?.[questionIdx]
+    ?.response?.[0] || ""
+}
+
+                                    onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: "16px",
+                                      }}
+                                    >
+                                      {question?.input_selections_list?.map(
+                                        (option, idx) => (
+                                          <div
+                                            key={idx}
+                                            style={{ width: "calc(50% - 8px)" }} // 2 per row with spacing
+                                          >
+                                            <FormControlLabel
+                                              value={option}
+                                              control={<Radio />}
+                                              label={option}
+                                            />
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                              </div>
+                            );
+
+                          default:
+                            return null;
+                        }
+                      })}</>)}
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      width: "100%",
+
+
+                    }}
+                  >
+                    <Button
+                      variant="contained"
                       sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        width: "100%",
-
-
+                        border: "1.5px solid #EE6633",
+                        color: orange[400],
+                        backgroundColor: "#FFF",
+                        borderRadius: "8px",
+                        padding: "0.5rem 0.5rem",
+                        "&:hover": {
+                          backgroundColor: orange[400],
+                          color: "#FFF",
+                        },
+                        maxWidth: "fit-content",
+                        marginBottom: "20px",
+                        marginRight: "20px",
                       }}
-                    >
-                      <Button
-                        variant="contained"
-                        sx={{
-                          border: "1.5px solid #EE6633",
-                          color: orange[400],
-                          backgroundColor: "#FFF",
-                          borderRadius: "8px",
-                          padding: "0.5rem 0.5rem",
-                          "&:hover": {
-                            backgroundColor: orange[400],
-                            color: "#FFF",
-                          },
-                          maxWidth: "fit-content",
-                          marginBottom: "20px",
-                          marginRight: "20px",
-                        }}
-                        onClick={() => {
-                          const isValid = validateEvalFormResponse(
+                          onClick={() => {
+                          // if(ProjectDetails?.metadata_json){                          
+                          //   var  targetPrompt = evalFormResponse?.question_response_json?.find(item => item.promptoutputid == message?.output?.[0]?.prompt_output_pair_id);
+                          //   console.log(targetPrompt);
+                            
+                          //   const isValid = validateEvalFormResponse(
+                          //   targetPrompt
+                          // );
+                          // if (isValid) {
+                          //   handleButtonClick(
+                          //     message?.output?.[0]?.prompt_output_pair_id,targetPrompt, index
+                          //   );
+                          // } else {
+                          //   setSnackbarInfo({
+                          //     open: true,
+                          //     message:
+                          //       "Please ensure that all the fields in the form is filled before saving the evaluation!",
+                          //     variant: "error",
+                          //   });
+                          // }
+                          // }
+                          // else{
+                                                      const isValid = validateEvalFormResponse(
                             evalFormResponse?.[
                             message?.output?.[0]?.prompt_output_pair_id
                             ],
@@ -2182,14 +2730,16 @@ const MultipleLLMInstructionDrivenChat = ({
                               variant: "error",
                             });
                           }
+
+                          // }
                         }}
-                      >
+>
                         Save Evaluations
-                      </Button>
-                    </Box>
+                    </Button>
                   </Box>
                 </Box>
-              </Grid>
+              </Box>
+            </Grid>
           ) : (<Grid
             item
             sx={{
@@ -2207,11 +2757,11 @@ const MultipleLLMInstructionDrivenChat = ({
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div className={classes.inputQuestion}>Model Output Evaluation Form</div>
+                <div className={classes.inputQuestion}>Model Output Evaluation Form</div>
                 <IconButton
                   onClick={() => handleOpenPreferredResponseModal(index)}
                 >
-                  <OpenInFullIcon sx={{color: orange[400]}}/>
+                  <OpenInFullIcon sx={{ color: orange[400] }} />
                 </IconButton>
               </Box>
             </Box>
@@ -2333,7 +2883,7 @@ const MultipleLLMInstructionDrivenChat = ({
               margin: "0.5rem",
               transition: "all 0.3s ease",
               cursor: "pointer",
-                transform: isExpanded ? "scale(1)" : "scale(0.98)",
+              transform: isExpanded ? "scale(1)" : "scale(0.98)",
             }}
           >
             <Box
@@ -2367,9 +2917,9 @@ const MultipleLLMInstructionDrivenChat = ({
                 }
               >
                 <IconButton onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpen();
-                  }}>
+                  e.stopPropagation();
+                  handleOpen();
+                }}>
                   <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
                 </IconButton>
               </Tooltip>
@@ -2384,37 +2934,37 @@ const MultipleLLMInstructionDrivenChat = ({
               }}
             >
               {isExpanded ? (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633", fontWeight: "bold" }} />
               ) : (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633",fontWeight:"bold" }} />
+                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633", fontWeight: "bold" }} />
               )}
-                </IconButton>
+            </IconButton>
             <Typography
               paragraph={true}
               sx={{
-                  fontSize: {
-                    xs: "0.5rem",
-                    sm: "0.75rem",
-                    md: ".8125rem",
-                    lg: "1rem",
-                  },
-                  padding: "0rem 1rem",
-                  height: "auto",
-                  display: "flex",
-                  minWidth: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  whiteSpace: "pre-wrap",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  maxHeight: isExpanded ? "none" : "60px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  "&:hover": {
-                  }
-                            }}
+                fontSize: {
+                  xs: "0.5rem",
+                  sm: "0.75rem",
+                  md: ".8125rem",
+                  lg: "1rem",
+                },
+                padding: "0rem 1rem",
+                height: "auto",
+                display: "flex",
+                minWidth: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+                whiteSpace: "pre-wrap",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                maxHeight: isExpanded ? "none" : "60px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                "&:hover": {
+                }
+              }}
             >
-              {info.instruction_data}
+           {info.instruction_data}
             </Typography>
           </Box>
         </Box>
@@ -2424,13 +2974,12 @@ const MultipleLLMInstructionDrivenChat = ({
           sx={{
             margin: "0 0",
             overflow: "scroll",
-            overflowX:"hidden",
+            overflowX: "hidden",
             borderRadius: "20px",
             backgroundColor: "#FFF",
             paddingLeft: "0px !important",
             boxSizing: "border-box",
             width: "100%",
-            height:"300px",
           }}
         >
           <Box
