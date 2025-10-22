@@ -1134,7 +1134,7 @@ const SuperCheckerPage = () => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-                navigate(`/projects/${projectId}`);
+                navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } });
                 //window.location.replace(`/#/projects/${projectId}`);
                 //window.location.reload();
               }}
