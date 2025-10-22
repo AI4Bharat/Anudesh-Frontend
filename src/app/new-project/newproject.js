@@ -1759,7 +1759,7 @@ const CreateProject = () => {
                 </Tooltip>
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="body2">Single Model</Typography>
+          <Typography variant="body2">Single Model Response</Typography>
           <Switch
             checked={singleModelResponse}
             onChange={(e) => setSingleModelResponse(e.target.checked)}
