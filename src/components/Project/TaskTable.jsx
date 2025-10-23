@@ -708,9 +708,6 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
-      if (userDetails?.guest_user === true) {
-        setPullDisabled("disable for guest user");
-      }
         // if (userDetails?.guest_user === true) {
         //   setPullDisabled("disable for guest user");
         // }
@@ -734,9 +731,6 @@ const TaskTable = (props) => {
         else if (pullDisabled === "You're no more a part of this project")
           setPullDisabled("");
       });
-      if (userDetails?.guest_user === true) {
-        setPullDisabled("disable for guest user");
-      }
       // if (userDetails?.guest_user === true) {
       //     setPullDisabled("disable for guest user");
       //   }
