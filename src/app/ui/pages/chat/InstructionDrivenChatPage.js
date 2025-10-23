@@ -800,9 +800,7 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
         >
           <Box
             sx={{
-              flexShrink: 0,
               borderRadius: "10px",
-              padding: "0px",
               backgroundColor: "rgba(247, 184, 171, 0.2)",
               display: "flex",
               flexDirection: "column",
@@ -811,8 +809,12 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
               justifyContent: "center",
               transition: "all 0.3s ease",
               cursor: "pointer",
-                transform: isExpanded ? "scale(1)" : "scale(0.98)",
-                
+              margin: "0.5rem",
+              transition: "max-height 0.3s ease, padding 0.3s ease",
+              position: "relative",
+              maxHeight: isExpanded ? "1000px" : "80px",
+              overflow: "hidden",
+              padding: isExpanded ? "1rem" : "0.5rem",                
             }}
             
           >
@@ -888,7 +890,11 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
               sx={{
                 width: "100%",
                 overflow: "hidden",
-                transition: "all 0.3s ease",
+                transition: "max-height 0.28s cubic-bezier(.2,.8,.2,1), padding 0.3s",
+                maxHeight: isExpanded ? "1000px" : 0,
+                paddingTop: isExpanded ? undefined : 0,
+                paddingBottom: isExpanded ? undefined : 0,
+                visibility: isExpanded ? "visible" : "hidden",
               }}
             >
               <Typography
@@ -902,19 +908,18 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
                   },
                   padding: "0rem 1rem",
                   height: "auto",
-                  display: "flex",
+                  display: isExpanded ? "block" : "-webkit-box",
                   minWidth: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  whiteSpace: "pre-wrap",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
-                  maxHeight: isExpanded ? "none" : "60px",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  "&:hover": {
-                  }
+                  WebkitBoxOrient: isExpanded ? "unset" : "vertical",
+                  WebkitLineClamp: isExpanded ? "unset" : 3,
+                  "&:hover": {},
                 }}
-              >
+            >
                 {info.instruction_data}
               </Typography>
             </Box>

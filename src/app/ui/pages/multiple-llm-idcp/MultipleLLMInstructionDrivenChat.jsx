@@ -2882,9 +2882,12 @@ value={
               alignItems: "center",
               justifyContent: "center",
               margin: "0.5rem",
-              transition: "all 0.3s ease",
+              transition: "max-height 0.28s cubic-bezier(.2,.8,.2,1), padding 0.3s",
               cursor: "pointer",
-              transform: isExpanded ? "scale(1)" : "scale(0.98)",
+              position: "relative",
+              maxHeight: isExpanded ? "1000px" : "80px",
+              overflow: "hidden",
+              padding: isExpanded ? "1rem" : "0.5rem",
             }}
           >
             <Box
@@ -2951,18 +2954,16 @@ value={
                 },
                 padding: "0rem 1rem",
                 height: "auto",
-                display: "flex",
+                display: isExpanded ? "block" : "-webkit-box",
                 minWidth: "100%",
-                alignItems: "center",
-                justifyContent: "center",
                 whiteSpace: "pre-wrap",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
-                maxHeight: isExpanded ? "none" : "60px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                "&:hover": {
-                }
+                WebkitBoxOrient: isExpanded ? "unset" : "vertical",
+                WebkitLineClamp: isExpanded ? "unset" : 3,
+                "&:hover": {},
               }}
             >
            {info.instruction_data}
