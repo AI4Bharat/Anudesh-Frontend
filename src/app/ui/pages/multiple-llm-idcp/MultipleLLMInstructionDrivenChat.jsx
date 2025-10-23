@@ -1169,7 +1169,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           expectedParts =
             question?.input_question?.split("<blank>")?.length - 1;
         }
-            if(ProjectDetails?.metadata_json){
+            if(ProjectDetails?.metadata_json?.single_model_response){
       var responseForQuestion = formdata?.find(
           (qr) =>
             qr?.question?.input_question === question?.input_question &&
@@ -1793,7 +1793,7 @@ console.log(evalFormResponse);
                     overflowY: "auto",
                   }}
                 >
-                  {!ProjectDetails?.metadata_json?.single_form_response? (
+                  {!ProjectDetails?.metadata_json?.single_model_response? (
 
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
