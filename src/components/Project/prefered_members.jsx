@@ -130,7 +130,7 @@ const ReviewTasksTable = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Select</TableCell>
-                  <TableCell>Email</TableCell>
+                  <TableCell>UserName</TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
               </TableHead>
@@ -143,7 +143,7 @@ const ReviewTasksTable = () => {
                         onChange={() => handleCheckboxChange(m.annotator_id)}
                       />
                     </TableCell>
-                    <TableCell>{m.annotator_email || "—"}</TableCell>
+                    <TableCell>{m.annotator_username || "—"}</TableCell>
                     <TableCell>{m.unassigned_count ?? 0}</TableCell>
                   </TableRow>
                 ))}
