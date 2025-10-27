@@ -32,9 +32,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
-    fontSize: "1rem !important", // Adjust the font size as needed
+    fontSize: "1rem !important",
   },
 }));
+
 const orange = {
   200: "pink",
   400: "#EE6633",
@@ -81,13 +82,13 @@ const InstructionDrivenChatPage = ({
   disableUpdateButton,
   annotation,
 }) => {
-  /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
-      const [shrinkedMessages, setShrinkedMessages] = useState({});
+  const [shrinkedMessages, setShrinkedMessages] = useState({});
+  const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
 
   const bottomRef = useRef(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -124,20 +125,6 @@ const InstructionDrivenChatPage = ({
         message={snackbar.message}
       />
     );
-  };
-
-  const orange = {
-    200: "pink",
-    400: "#EE6633",
-    600: "#EE663366",
-  };
-
-  const grey = {
-    50: "#F3F6F9",
-    200: "#DAE2ED",
-    300: "#C7D0DD",
-    700: "#434D5B",
-    900: "#1C2025",
   };
 
   const copyToClipboard = async (code) => {
@@ -186,10 +173,8 @@ const InstructionDrivenChatPage = ({
   };
 
   const formatTextWithTooltips = (text, info) => {
-    // Ensure text is a string
     text = String(text);
 
-    // Clean the meta info values
     const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
     const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
     const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
@@ -229,7 +214,6 @@ const InstructionDrivenChatPage = ({
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
   const handleButtonClick = async () => {
-
     if (inputValue) {
       setLoading(true);
       const body = {
@@ -311,8 +295,6 @@ const InstructionDrivenChatPage = ({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
-
 
   useEffect(() => {
     setIsMounted(true);
@@ -329,16 +311,6 @@ const InstructionDrivenChatPage = ({
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
-      // const lc = LanguageCode.languages.find(
-      //   (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
-      // );
-
-      // if (Number(info.meta_info_language) < 3){
-      //   setTargetLang(lc.code);
-      // }else{
-      //   setTargetLang("en");
-      // }
-
       console.log(
         globalTransliteration,
         "lll",
@@ -352,7 +324,7 @@ const InstructionDrivenChatPage = ({
       handleOnchange(text);
     }
   }, [text]);
-
+  
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -399,6 +371,7 @@ const InstructionDrivenChatPage = ({
   if (!isMounted) {
     return null;
   }
+
   const handleTextChange = (e, index, message, fieldType) => {
     if (globalTransliteration) {
       var updatedValue = e;
@@ -422,7 +395,6 @@ const InstructionDrivenChatPage = ({
   };
 
 const renderChatHistory = () => {
-
     const toggleShrink = (index) => {
         setShrinkedMessages(prev => ({
             ...prev,
@@ -431,7 +403,6 @@ const renderChatHistory = () => {
     };
 
     const chatElements = chatHistory?.map((message, index) => (
-
       <Grid
         container
         key={index}
@@ -444,6 +415,8 @@ const renderChatHistory = () => {
           overflow: "hidden",
           maxWidth: "100%",
           boxSizing: "border-box",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <Grid
@@ -460,15 +433,15 @@ const renderChatHistory = () => {
             <Grid item>
               <div
                 style={{
-                  width: "24px",
-                  height: "24px",
+                  width: "20px",
+                  height: "20px",
                   borderRadius: "50%",
                   backgroundColor: "#EE6633",
                   color: "white",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "0.75rem",
+                  fontSize: "0.7rem",
                   fontWeight: "bold",
                   marginRight: "0.5rem",
                 }}
@@ -481,7 +454,11 @@ const renderChatHistory = () => {
               <Avatar
                 alt="user_profile_pic"
                 src={loggedInUserData?.profile_photo || ""}
-                style={{ marginRight: "1rem" }}
+                style={{ 
+                  marginRight: "1rem",
+                  width: "32px",
+                  height: "32px"
+                }}
               />
             </Grid>
             <Grid item xs className="w-full">
@@ -499,14 +476,14 @@ const renderChatHistory = () => {
                         {...props}
                         className=""
                         style={{
-                          fontSize: "1rem",
+                          fontSize: "0.9rem",
                           width: "100%",
                           borderRadius: "12px 12px 0 12px",
                           color: grey[900],
                           background: "#ffffff",
                           border: `1px solid ${grey[200]}`,
                           boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
+                          minHeight: "4rem",
                           resize: "none",
                         }}
                       />
@@ -525,14 +502,14 @@ const renderChatHistory = () => {
                       handleTextChange(e, null, message, "prompt")
                     }
                     style={{
-                      fontSize: "1rem",
+                      fontSize: "0.9rem",
                       width: "100%",
                       borderRadius: "12px 12px 0 12px",
                       color: grey[900],
                       background: "#ffffff",
                       border: `1px solid ${grey[200]}`,
                       boxShadow: `0px 2px 2px ${grey[50]}`,
-                      minHeight: "5rem",
+                      minHeight: "4rem",
                       resize: "none",
                     }}
                     rows={1}
@@ -542,6 +519,9 @@ const renderChatHistory = () => {
                 <ReactMarkdown
                   className="flex-col"
                   children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+                  components={{
+                    p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                  }}
                 />
               )}
             </Grid>
@@ -556,9 +536,9 @@ const renderChatHistory = () => {
               }}
             >
               {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
               ) : (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
               )}
             </IconButton>
 
@@ -577,7 +557,7 @@ const renderChatHistory = () => {
                   onClick={() => handleClick("delete-pair", id?.id, 0.0)}
                 >
                   <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1.2rem" }}
+                    style={{ color: "#EE6633", fontSize: "1rem" }}
                   />
                 </IconButton>
               )}
@@ -593,15 +573,19 @@ const renderChatHistory = () => {
               textAlign: "left",
               position: "relative",
               width: "100%",
+              backgroundColor: "white", // Added white background
+              borderRadius: "0.5rem", // Added border radius
+              border: "1px solid #e0e0e0", // Added border
+              marginTop: "0.5rem", // Added spacing
+              padding: "0.6rem", // Added padding
             }}
           >
             <Grid
               container
               alignItems="start"
-              spacing={2}
+              spacing={1}
               justifyContent="flex-start"
               style={{
-                padding: "1rem 1rem 0.5rem 1rem",
                 borderRadius: "0.5rem",
                 width: "100%",
               }}
@@ -612,19 +596,19 @@ const renderChatHistory = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  minWidth: "50px",
+                  minWidth: "20px",
                 }}
               >
                 <Image
-                  width={50}
-                  height={50}
+                  width={30}
+                  height={30}
                   src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
                   alt="Bot Avatar"
                   priority
                 />
               </Grid>
 
-              <Grid item xs={11} style={{ paddingTop: "1rem" }}>
+              <Grid item xs={11} style={{ paddingTop: "0rem" }}>
                 {message?.output.map((segment, index) =>
                   segment.type === 'text' ? (
                     (ProjectDetails?.metadata_json?.editable_response) || segment.value == "" ? (
@@ -637,13 +621,13 @@ const renderChatHistory = () => {
                           }
                           lang={targetLang}
                           style={{
-                            fontSize: "1rem",
+                            fontSize: "0.9rem",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
                             border: `1px solid ${grey[200]}`,
                             boxShadow: `0px 2px 2px ${grey[50]}`,
-                            minHeight: "5rem",
+                            minHeight: "4rem",
                             width: "100%",
                           }}
                           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
@@ -660,14 +644,14 @@ const renderChatHistory = () => {
                             handleTextChange(e, index, message, "output")
                           }
                           style={{
-                            fontSize: "1rem",
+                            fontSize: "0.9rem",
                             width: "100%",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
                             border: `1px solid ${grey[200]}`,
                             boxShadow: `0px 2px 2px ${grey[50]}`,
-                            minHeight: "5rem",
+                            minHeight: "4rem",
                             resize: "none",
                           }}
                           rows={1}
@@ -677,6 +661,9 @@ const renderChatHistory = () => {
                       <ReactMarkdown
                         key={index}
                         children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                        components={{
+                          p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                        }}
                       />
                     )
                   ) : (
@@ -684,7 +671,11 @@ const renderChatHistory = () => {
                       key={index}
                       language={segment.language}
                       style={gruvboxDark}
-                      customStyle={{ padding: "1rem", borderRadius: "5px" }}
+                      customStyle={{ 
+                        padding: "0.8rem",
+                        borderRadius: "5px",
+                        fontSize: "0.9rem"
+                      }}
                     >
                       {segment.value}
                     </SyntaxHighlighter>
@@ -698,8 +689,10 @@ const renderChatHistory = () => {
     ));
 
     return chatElements;
-};  
-const ChildModal = () => {    const [open, setOpen] = useState(false);
+  };
+
+  const ChildModal = () => {
+    const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
       setOpen(true);
@@ -772,252 +765,243 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
       </>
     );
   };
+
   if (!isMounted) {
     return null;
   }
 
-  return (
-    <>
-      {renderSnackBar()}
-      <Grid
-        container
+return (
+  <>
+    {renderSnackBar()}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        width: "100%",
+        height: "calc(100vh - 120px)", // Reduced height to make space for textarea
+        overflow: "hidden",
+      }}
+    >
+      {/* Instruction Panel */}
+      <Box
         sx={{
+          width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
+          height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
+          maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
+          transition: "all 0.3s ease",
+          padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
+          backgroundColor: "#fafafa",
+          overflow: "auto", // Changed to auto for better scrolling
           display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          overflow: "hidden",
+          flexDirection: "column",
+          flexShrink: 0,
         }}
       >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+            justifyContent: isInstructionExpanded ? "space-between" : "center",
+            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            padding: "0.5rem",
+            backgroundColor: "rgba(247, 184, 171, 0.2)",
+            borderRadius: "8px",
+            cursor: "pointer",
+            minHeight: "40px",
+            flexShrink: 0, // Prevent header from shrinking
           }}
+          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
+          {isInstructionExpanded && (
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#636363",
+                fontWeight: "600",
+                fontSize: { xs: "1rem", md: "1.1rem" },
+              }}
+            >
+              {translate("typography.instructions")}
+            </Typography>
+          )}
+          <Tooltip
+            title={
+              <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                {isInstructionExpanded ? "Collapse" : "Expand"}
+              </span>
+            }
+          >
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsInstructionExpanded(!isInstructionExpanded);
+              }}
+              sx={{ 
+                padding: isInstructionExpanded ? '8px' : '4px',
+                minWidth: 'auto'
+              }}
+            >
+              {isInstructionExpanded ? (
+                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              ) : (
+                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {isInstructionExpanded && (
           <Box
             sx={{
-              flexShrink: 0,
-              borderRadius: "10px",
-              padding: "0px",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.3s ease",
-              cursor: "pointer",
-                transform: isExpanded ? "scale(1)" : "scale(0.98)",
-                
+              flex: 1,
+              overflow: "auto",
+              padding: "0.5rem",
             }}
-            
           >
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    {isExpanded ? "Click to collapse" : "Click to expand"}
-                  </span>
-                }
-              >
-                <Typography
-                  variant="h3"
-                  align="center"
-                  sx={{
-                    color: "#636363",
-                    fontSize: {
-                      xs: "0.8125rem",
-                      sm: "1rem",
-                      md: "1.5rem",
-                      lg: "2rem",
-                    },
-                    fontWeight: "800",
-                  }}
-                >
-                  {translate("typography.instructions")}
-                </Typography>
-              </Tooltip>
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    Hint and Metadata
-                  </span>
-                }
-              >
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpen();
-                  }}
-                >
-                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-                        <IconButton
-              size="small"
-              onClick={() => setIsExpanded(!isExpanded)}
-              style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
-              }}
-            >
-              {isExpanded ? (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633",fontWeight:"bold" }} />
-
-              )}
-            </IconButton>
-
-
-
-            <Box
-              sx={{
-                width: "100%",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "1rem",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
               <Typography
-                paragraph={true}
+                paragraph
                 sx={{
-                  fontSize: {
-                    xs: "0.5rem",
-                    sm: "0.75rem",
-                    md: ".8125rem",
-                    lg: "1rem",
-                  },
-                  padding: "0rem 1rem",
-                  height: "auto",
-                  display: "flex",
-                  minWidth: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  maxHeight: isExpanded ? "none" : "60px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  "&:hover": {
-                  }
+                  fontSize: "0.9rem",
+                  lineHeight: "1.5",
+                  color: "#333",
                 }}
               >
                 {info.instruction_data}
               </Typography>
+              
+              <Box sx={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", mt: 1 }}>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      Hint and Metadata
+                    </span>
+                  }
+                >
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpen();
+                    }}
+                    size="small"
+                  >
+                    <TipsAndUpdatesIcon color="primary" fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <ChildModal />
+              </Box>
             </Box>
           </Box>
-        </Box>
+        )}
+      </Box>
 
-        <Grid
-          item
-          xs={12}
+      {/* Chat Section */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          overflow: "hidden",
+          minWidth: 0,
+        }}
+      >
+        <Box
           sx={{
-            margin: "0rem 0",
-            overflowY: "scroll",
-            // minHeight: "39rem",
-            // maxHeight: "39rem",
-            borderRadius: "20px",
-            backgroundColor: "#FFF",
-            paddingLeft: "0px !important",
-            boxSizing: "border-box",
+            flex: 1,
+            overflowY: "auto",
+            padding: "1rem",
+            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+
+            backgroundColor: "#fff",
             width: "100%",
-            height:"300px",
+            minHeight: 0,
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center !important",
-              padding: "0 0",
-              // height:"200px",
-              // overflow:"scroll"
-            }}
-          >
-            {showChatContainer ? renderChatHistory() : null}
-          </Box>
+          {showChatContainer ? renderChatHistory() : null}
           <div ref={bottomRef} />
-          {stage !== "Alltask" && !disableUpdateButton ? (
-            <Grid
-              item
-              xs={12}
-              sx={{
-                boxSizing: "border-box",
-                width: "100%",
-                height: "5rem",
-                display: "flex",
-                justifyContent: "center",
-                backgroundColor: "white"
-              }}
-            >
-              <Textarea
-                handleButtonClick={handleButtonClick}
-                handleOnchange={handleOnchange}
-                // grid_size={"100vw"}
-                size={12}
-                sx={{
-                  width: "100vw",
-                }}
-                class_name={"w-full"}
-                loading={loading}
-                inputValue={inputValue}
-                // defaultLang={targetLang}
-                overrideGT={true}
-                task_id={taskId}
-                script={info.meta_info_language}
-              />
-            </Grid>
-          ) : null}
-        </Grid>
-      </Grid>
-
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
-      >
-        <Box sx={{ ...style, width: "40%" }}>
-          <Typography
-            color={"#F18359"}
-            fontWeight={"bold"}
-            variant="h6"
-            id="parent-modal-title"
-          >
-            {translate("modal.hint")}
-          </Typography>
-          <Typography variant="subtitle1" id="parent-modal-description">
-            {info.hint}
-          </Typography>
-          <Typography
-            color={"#F18359"}
-            fontWeight={"bold"}
-            variant="h6"
-            id="parent-modal-title"
-          >
-            {translate("modal.examples")}
-          </Typography>
-          <Typography variant="subtitle1" id="parent-modal-description">
-            {info.examples}
-          </Typography>
-          <ChildModal />
         </Box>
-      </Modal>
-    </>
-  );
-};
+      </Box>
+    </Box>
 
+    {/* Textarea placed outside the main container */}
+    {stage !== "Alltask" && !disableUpdateButton ? (
+      <Box
+        sx={{
+          padding: "1rem",
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          width: "100%",
+          boxSizing: "border-box",
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+        }}
+      >
+        <Textarea
+          handleButtonClick={handleButtonClick}
+          handleOnchange={handleOnchange}
+          size={12}
+          sx={{
+            width: "100%",
+          }}
+          class_name={"w-full"}
+          loading={loading}
+          inputValue={inputValue}
+          overrideGT={true}
+          task_id={taskId}
+          script={info.meta_info_language}
+        />
+      </Box>
+    ) : null}
+
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="parent-modal-title"
+      aria-describedby="parent-modal-description"
+    >
+      <Box sx={{ ...style, width: { xs: "90%", md: "40%" } }}>
+        <Typography
+          color={"#F18359"}
+          fontWeight={"bold"}
+          variant="h6"
+          id="parent-modal-title"
+        >
+          {translate("modal.hint")}
+        </Typography>
+        <Typography variant="subtitle1" id="parent-modal-description">
+          {info.hint}
+        </Typography>
+        <Typography
+          color={"#F18359"}
+          fontWeight={"bold"}
+          variant="h6"
+          id="parent-modal-title"
+        >
+          {translate("modal.examples")}
+        </Typography>
+        <Typography variant="subtitle1" id="parent-modal-description">
+          {info.examples}
+        </Typography>
+        <ChildModal />
+      </Box>
+    </Modal>
+  </>
+);
+}
 export default InstructionDrivenChatPage;

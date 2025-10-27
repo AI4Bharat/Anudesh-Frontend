@@ -1095,390 +1095,302 @@ const AnnotatePage = () => {
       <div id="top" ref={topref}></div>
       <Grid container>
         {renderSnackBar()}
-          <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
-
-        <Grid item>
-          <Box
         
-          >
+        {/* Main Button Row - All buttons in one line */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
+            {/* Back to Project Button */}
             <Button
-              value="Back to Project"
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
-              sx={{
-                // px: { xs: 2, sm: 3, md: 4 },
-                // py: { xs: 1, sm: 1.5, md: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "70px", sm: "70px", md: "100px" },
+              size="small"
+              sx={{ 
+                minWidth: 'auto',
+                fontSize: '0.75rem',
+                px: 1.5,
+                py: 0.5
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-
                 navigate(`/projects/${projectId}`);
               }}
             >
-              Back to Project
+              Back
             </Button>
-          </Box>
-        </Grid>
 
-        <Grid item>
+            {/* Notes Button */}
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
+              size="small"
               onClick={handleCollapseClick}
-              sx={{
-                px: { xs: 2, sm: 3, md: 4 },
-                py: { xs: 1, sm: 1.5, md: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "90px", sm: "90px", md: "100px" },
-              }}
-              style={{
-                backgroundColor:
-                  reviewtext.trim().length === 0 ? "#bf360c" : "green",
+              sx={{ 
+                minWidth: 'auto',
+                fontSize: '0.75rem',
+                px: 1.5,
+                py: 0.5,
+                backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
               }}
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
-            </Grid>
-            </Grid>
 
-            <div
-              style={{
-                display: showNotes ? "block" : "none",
-                paddingBottom: "16px",
-                                width:"100%"
-
-              }}
-            >
-              <ReactQuill
-                forwardedRef={annotationNotesRef}
-                modules={modules}
-                formats={formats}
-                bounds={"#note"}
-                placeholder="Annotation Notes"
-              ></ReactQuill>
-              <ReactQuill
-                forwardedRef={reviewNotesRef}
-                modules={modules}
-                formats={formats}
-                bounds={"#note"}
-                placeholder="Review Notes"
-                style={{ marginbottom: "1%", minHeight: "2rem" }}
-                readOnly={true}
-              ></ReactQuill>
-            </div>
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="center"
-            style={{
-              display: "flex",
-              width: "100%",
-              padding: "10px",
-              gap: "0.5rem",
-            }}
-          >
-            <Grid item>
-              <LightTooltip
-                title={
+            {/* Info Button */}
+            
+            <LightTooltip
+              title={
+                <div>
                   <div>
-                    <div>
-                      {ProjectDetails?.conceal == false &&
-                      Array.isArray(assignedUsers)
-                        ? assignedUsers.join(", ")
-                        : assignedUsers || "No assigned users"}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                      }}
-                    >
-                      {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${annotations[0]?.id}`}
-                      {annotations[0]?.annotation_type == 2 &&
-                        `REVIEW ID: ${annotations[0]?.id}`}
-                      {annotations[0]?.annotation_type == 3 &&
-                        `SUPERCHECK ID: ${annotations[0]?.id}`}
-                    </div>
+                    {ProjectDetails?.conceal == false &&
+                    Array.isArray(assignedUsers)
+                      ? assignedUsers.join(", ")
+                      : assignedUsers || "No assigned users"}
                   </div>
-                }
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    {annotations[0]?.annotation_type == 1 &&
+                      `ANNOTATION ID: ${annotations[0]?.id}`}
+                    {annotations[0]?.annotation_type == 2 &&
+                      `REVIEW ID: ${annotations[0]?.id}`}
+                    {annotations[0]?.annotation_type == 3 &&
+                      `SUPERCHECK ID: ${annotations[0]?.id}`}
+                  </div>
+                </div>
+              }
+            >
+              <Button
+                size="small"
+                sx={{
+                  minWidth: '32px',
+                  width: '32px',
+                  height: '32px',
+                  border: "1px solid #e6e6e6",
+                  color: "grey",
+                  backgroundColor: "white",
+                }}
               >
-                <Button
-                  type="default"
-                  className="lsf-button"
-                  style={{
-                    minWidth: "40px",
-                    border: "1px solid #e6e6e6",
-                    color: "grey",
-                    pt: 1,
-                    pl: 1,
-                    pr: 1,
-                    borderBottom: "None",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
-                </Button>
-              </LightTooltip>
-            </Grid>
+                <InfoOutlined sx={{ fontSize: '18px' }} />
+              </Button>
+            </LightTooltip>
 
+            {/* Action Buttons */}
             {!disableBtns &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
-                <Grid item>
-                  <Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        Save task for later
-                      </span>
+                <Tooltip title="Save task for later">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() =>
+                      handleAnnotationClick(
+                        "draft",
+                        Annotation.id,
+                        Annotation.lead_time,
+                      )
                     }
+                    sx={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
+                      color: "black",
+                      border: "0px",
+                      backgroundColor: "#ffe0b2",
+                    }}
                   >
-                    <Button
-                      value="Draft"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "draft",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      sx={{
-                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                      }}
-                      style={{
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        backgroundColor: "#ffe0b2",
-                      }}
-                    >
-                      Draft
-                    </Button>
-                  </Tooltip>
-                  {/* )} */}
-                </Grid>
+                    Draft
+                  </Button>
+                </Tooltip>
               )}
-            <Grid item>
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    Go to next task
-                  </span>
-                }
+
+            <Tooltip title="Go to next task">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => onNextAnnotation("next", getNextTask?.id)}
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ffe0b2",
+                }}
               >
-                <Button
-                  value="Next"
-                  type="default"
-                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  sx={{
-                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                  }}
-                  style={{
-                    color: "black",
-                    borderRadius: "5px",
-                    border: "0px",
-                    backgroundColor: "#ffe0b2",
-                  }}
-                >
-                  Next
-                </Button>
-              </Tooltip>
-            </Grid>
+                Next
+              </Button>
+            </Tooltip>
+
             {!disableSkipButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
-                <Grid item>
-                  <Tooltip
-                    title={
-                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                        Skip to next task
-                      </span>
+                <Tooltip title="Skip to next task">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() =>
+                      handleAnnotationClick(
+                        "skipped",
+                        Annotation.id,
+                        Annotation.lead_time,
+                      )
                     }
+                    sx={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
+                      color: "black",
+                      border: "0px",
+                      backgroundColor: "#ffe0b2",
+                    }}
                   >
-                    <Button
-                      value="Skip"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleAnnotationClick(
-                          "skipped",
-                          Annotation.id,
-                          Annotation.lead_time,
-                        )
-                      }
-                      sx={{
-                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                      }}
-                      style={{
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        backgroundColor: "#ffe0b2",
-                      }}
-                    >
-                      Skip
-                    </Button>
-                  </Tooltip>
-                </Grid>
+                    Skip
+                  </Button>
+                </Tooltip>
               )}
+
             {!disableSkipButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
-                <Grid item>
-                  {ProjectDetails?.project_type == "InstructionDrivenChat" ||
-                  ProjectDetails?.project_type ==
-                    "MultipleLLMInstructionDrivenChat" ? (
-                    <Tooltip
-                      title={
-                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                          clear the entire chat history
-                        </span>
-                      }
-                    >
-                      <Button
-                        value="Clear Chats"
-                        type="default"
-                        variant="outlined"
-                        onClick={() =>
-                          handleAnnotationClick(
-                            "delete",
-                            Annotation.id,
-                            Annotation.lead_time,
-                          )
-                        }
-                        sx={{
-                          fontSize: {
-                            xs: "0.75rem",
-                            sm: "0.875rem",
-                            md: "1rem",
-                          },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                        }}
-                        style={{
-                          color: "black",
-                          borderRadius: "5px",
-                          border: "0px",
-                          backgroundColor: "#ffe0b2",
-                        }}
-                      >
-                        Clear Chats
-                      </Button>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip
-                      title={
-                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                          Reset the entire chat history
-                        </span>
-                      }
-                    >
-                      {" "}
-                      <Button
-                        value="Reset All Forms"
-                        type="default"
-                        variant="outlined"
-                        onClick={() =>
-                          handleAnnotationClick(
-                            "delete",
-                            Annotation.id,
-                            Annotation.lead_time,
-                          )
-                        }
-                        sx={{
-                          fontSize: {
-                            xs: "0.75rem",
-                            sm: "0.875rem",
-                            md: "1rem",
-                          },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                        }}
-                        style={{
-                          color: "black",
-                          borderRadius: "5px",
-                          border: "0px",
-                          backgroundColor: "#ffe0b2",
-                        }}
-                      >
-                        {" "}
-                        Reset All
-                      </Button>
-                    </Tooltip>
-                  )}
-                </Grid>
+                <Tooltip
+                  title={
+                    ProjectDetails?.project_type == "InstructionDrivenChat" ||
+                    ProjectDetails?.project_type ==
+                      "MultipleLLMInstructionDrivenChat"
+                      ? "Clear the entire chat history"
+                      : "Reset the entire chat history"
+                  }
+                >
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() =>
+                      handleAnnotationClick(
+                        "delete",
+                        Annotation.id,
+                        Annotation.lead_time,
+                      )
+                    }
+                    sx={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
+                      color: "black",
+                      border: "0px",
+                      backgroundColor: "#ffe0b2",
+                    }}
+                  >
+                    {ProjectDetails?.project_type == "InstructionDrivenChat" ||
+                    ProjectDetails?.project_type ==
+                      "MultipleLLMInstructionDrivenChat"
+                      ? "Clear Chats"
+                      : "Reset All"}
+                  </Button>
+                </Tooltip>
               )}
+
             {!disableUpdateButton &&
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
-                <Grid item>
-                  <Tooltip>
-                    <Button
-                      value="Updata"
-                      type="default"
-                      variant="contained"
-                      onClick={() => {
-                        if (
-                          ProjectDetails?.project_type ===
-                            "MultipleLLMInstructionDrivenChat" &&
-                          isModelFailing
-                        ) {
-                          setSnackbarInfo({
-                            open: true,
-                            message:
-                              "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
-                            variant: "warning",
-                            severity: "warning",
-                          });
-                          return;
-                        } else {
-                          handleAnnotationClick(
-                            "labeled",
-                            Annotation.id,
-                            Annotation.lead_time,
-                            ProjectDetails?.project_type,
-                          );
-                        }
-                      }}
-                      sx={{
-                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                      }}
-                      style={{
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        backgroundColor: "#ee6633",
-                      }}
-                    >
-                      Submit
-                    </Button>
-                  </Tooltip>
-                </Grid>
+                <Tooltip>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      if (
+                        ProjectDetails?.project_type ===
+                          "MultipleLLMInstructionDrivenChat" &&
+                        isModelFailing
+                      ) {
+                        setSnackbarInfo({
+                          open: true,
+                          message:
+                            "Either of the models appear to be failing! Please submit the task as 'Draft' or 'Skipped'. You can come back later to update the task.",
+                          variant: "warning",
+                          severity: "warning",
+                        });
+                        return;
+                      } else {
+                        handleAnnotationClick(
+                          "labeled",
+                          Annotation.id,
+                          Annotation.lead_time,
+                          ProjectDetails?.project_type,
+                        );
+                      }
+                    }}
+                    sx={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
+                      color: "black",
+                      border: "0px",
+                      backgroundColor: "#ee6633",
+                    }}
+                  >
+                    Submit
+                  </Button>
+                </Tooltip>
               )}
-          </Grid>
-          {filterMessage && (
-            <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
+          </Box>
+        </Grid>
+
+        {/* Notes Section */}
+        <Grid item xs={12}>
+          <div
+            style={{
+              display: showNotes ? "block" : "none",
+              padding: "0 8px 8px 8px",
+            }}
+          >
+            <ReactQuill
+              forwardedRef={annotationNotesRef}
+              modules={modules}
+              formats={formats}
+              bounds={"#note"}
+              placeholder="Annotation Notes"
+            ></ReactQuill>
+            <ReactQuill
+              forwardedRef={reviewNotesRef}
+              modules={modules}
+              formats={formats}
+              bounds={"#note"}
+              placeholder="Review Notes"
+              style={{ marginBottom: "8px", minHeight: "2rem" }}
+              readOnly={true}
+            ></ReactQuill>
+          </div>
+        </Grid>
+
+        {/* Filter Message */}
+        {filterMessage && (
+          <Grid item xs={12}>
+            <Alert severity="info" sx={{ mx: 1, mb: 1 }}>
               {filterMessage}
             </Alert>
-          )}
-        <Grid item container sx={{ width: "100%" }}>
-          {" "}
-          {componentToRender}{" "}
+          </Grid>
+        )}
+
+        {/* Main Content */}
+        <Grid item xs={12}>
+          {componentToRender}
         </Grid>
       </Grid>
     </>
