@@ -41,6 +41,7 @@ import FormGroup from "@mui/material/FormGroup";
 import LanguageCode from "@/utils/LanguageCode";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 const orange = {
   200: "pink",
   400: "#EE6633",
@@ -106,7 +107,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
-  const [activeModalIdentifier, setActiveModalIdentifier] = useState(null); // For dynamic model responses
+  const [activeModalIdentifier, setActiveModalIdentifier] = useState(null);
   const [visibleMessages, setVisibleMessages] = useState({});
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const questions = ProjectDetails?.metadata_json?.questions_json;
@@ -121,7 +122,7 @@ const MultipleLLMInstructionDrivenChat = ({
     variant: "success",
   });
   const [shrinkedMessages, setShrinkedMessages] = useState({});
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -136,20 +137,6 @@ const MultipleLLMInstructionDrivenChat = ({
   useEffect(() => {
     setIsMounted(true);
 
-    // if (typeof window !== "undefined") {
-    //   const storedGlobalTransliteration = localStorage.getItem(
-    //     "globalTransliteration",
-    //   );
-    //   const storedLanguage = localStorage.getItem("language");
-
-    //   if (storedGlobalTransliteration !== null) {
-    //     setGlobalTransliteration(storedGlobalTransliteration === "true");
-    //   }
-    //   if (storedLanguage !== null) {
-    //     setTargetLang(storedLanguage);
-    //   }
-    // }
-
     const lc = LanguageCode.languages.find(
       (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
     );
@@ -158,7 +145,6 @@ const MultipleLLMInstructionDrivenChat = ({
     } else {
       setTargetLang("en");
     }
-
   }, [chatHistory]);
 
   useEffect(() => {
@@ -200,8 +186,6 @@ const MultipleLLMInstructionDrivenChat = ({
 
         allModelsInteractions.forEach((modelData, modelIdx) => {
           const interaction = modelData?.interaction_json?.[i];
-          console.log("lead", interaction);
-
           if (interaction) {
             const response_valid = isString(interaction?.output);
             if (!response_valid) {
@@ -243,7 +227,6 @@ const MultipleLLMInstructionDrivenChat = ({
               ...prev,
               [turnPromptOutputPairId]: eval_form,
             }));
-
             setSubmittedEvalForms((prev) => ({
               ...prev,
               [turnPromptOutputPairId]: eval_form,
@@ -1233,13 +1216,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
   };
 console.log(evalFormResponse);
 
-  const renderChatHistory = () => {
+
+const renderChatHistory = () => {
     const toggleShrink = (index) => {
-      setShrinkedMessages(prev => ({
-        ...prev,
-        [index]: !prev[index]
-      }));
+        setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
+
     const chatElements = chatHistory?.map((message, index) => {
       return (
         <Grid
@@ -1248,25 +1230,54 @@ console.log(evalFormResponse);
           direction="column"
           justifyContent="center"
           alignItems="center"
-          sx={{ marginLeft: "0.5rem" }}
+          sx={{
+            padding: "0.5rem 0.3rem 0rem 0.3rem",
+            margin: "0 auto",
+            overflow: "hidden",
+            maxWidth: "100%",
+            boxSizing: "border-box",
+          }}
         >
           <Grid
             item
-            sx={{
+            style={{
               backgroundColor: "rgba(247, 184, 171, 0.2)",
-              padding: "10px",
-              borderRadius: "0.5rem",
+              padding: "0.4rem",
+              borderRadius: "0.4rem",
               position: "relative",
               width: "100%",
-              marginBottom: "0.6rem",
             }}
           >
-            <Grid container alignItems="center" spacing={2}>
+            <Grid container alignItems="center" spacing={1}>
+              <Grid item>
+                <div
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    backgroundColor: "#EE6633",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "0.6rem",
+                    fontWeight: "bold",
+                    marginRight: "0.3rem",
+                  }}
+                >
+                  {index + 1}
+                </div>
+              </Grid>
+
               <Grid item>
                 <Avatar
                   alt="user_profile_pic"
                   src={loggedInUserData?.profile_photo || ""}
-                  sx={{ marginRight: "1rem" }}
+                  style={{ 
+                    marginRight: "0.8rem",
+                    width: "28px",
+                    height: "28px"
+                  }}
                 />
               </Grid>
               <Grid item xs className="w-full">
@@ -1274,50 +1285,46 @@ console.log(evalFormResponse);
                   globalTransliteration ? (
                     <IndicTransliterate
                       customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                      apiKey={`JWT ${localStorage.getItem(
-                        "anudesh_access_token",
-                      )}`}
+                      apiKey={`JWT ${localStorage.getItem("anudesh_access_token")}`}
                       renderComponent={(props) => (
                         <textarea
-                          maxRows={10}
+                          maxRows={8}
                           placeholder={translate("chat_placeholder")}
                           {...props}
                           className=""
                           style={{
-                            fontSize: "1rem",
+                            fontSize: "0.85rem",
                             width: "100%",
-                            borderRadius: "12px 12px 0 12px",
+                            borderRadius: "8px",
                             color: grey[900],
                             background: "#ffffff",
                             border: `1px solid ${grey[200]}`,
-                            boxShadow: `0px 2px 2px ${grey[50]}`,
-                            minHeight: "5rem",
+                            boxShadow: `0px 1px 1px ${grey[50]}`,
+                            minHeight: "3rem",
                             resize: "none",
+                            padding: "0.5rem",
                           }}
                         />
                       )}
                       value={message.prompt}
-                      onChangeText={(text) =>
-                        handleTextChange(text, message, null, null, "prompt")
-                      }
+                      onChangeText={(text) => handleTextChange(text, message, null, null, "prompt")}
                       lang={targetLang}
                     />
                   ) : (
                     <textarea
                       value={message.prompt}
-                      onChange={(e) =>
-                        handleTextChange(e.target.value, message, null, null, "prompt")
-                      }
+                      onChange={(e) => handleTextChange(e.target.value, message, null, null, "prompt")}
                       style={{
-                        fontSize: "1rem",
+                        fontSize: "0.85rem",
                         width: "100%",
-                        borderRadius: "12px 12px 0 12px",
+                        borderRadius: "8px",
                         color: grey[900],
                         background: "#ffffff",
                         border: `1px solid ${grey[200]}`,
-                        boxShadow: `0px 2px 2px ${grey[50]}`,
-                        minHeight: "5rem",
+                        boxShadow: `0px 1px 1px ${grey[50]}`,
+                        minHeight: "3rem",
                         resize: "none",
+                        padding: "0.5rem",
                       }}
                       rows={1}
                     />
@@ -1326,1453 +1333,393 @@ console.log(evalFormResponse);
                   <ReactMarkdown
                     className="flex-col"
                     children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
+                    components={{
+                      p: ({node, ...props}) => <p style={{fontSize: '0.85rem', margin: '0.3rem 0', lineHeight: '1.3'}} {...props} />,
+                    }}
                   />
                 )}
               </Grid>
+              
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
                 style={{
                   position: "absolute",
-                  bottom: "0.5rem",
-                  right: "0.5rem",
+                  bottom: "0.3rem",
+                  right: "0.3rem",
+                  padding: "2px",
                 }}
               >
                 {shrinkedMessages[index] ? (
-                  <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633", fontWeight: "bold" }} />
+                  <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
                 ) : (
-                  <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
                 )}
               </IconButton>
 
-              {index === chatHistory.length - 1 &&
-                stage !== "Alltask" &&
-                !disableUpdateButton && (
-                  <IconButton
-                    size="large"
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      right: "2rem",
-                      marginTop: "1rem",
-                      borderRadius: "50%",
-                    }}
-                    onClick={() => {
-                      setEvalFormResponse((prev) => {
-                        const newResponse = { ...prev };
-                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
-                        return newResponse;
-                      });
-
-                      setVisibleMessages((prev) => {
-                        const keys = Object.keys(prev);
-                        delete prev[keys[keys.length - 1]];
-                        return { ...prev };
-                      });
-
-                      setSubmittedEvalForms((prev) => {
-                        const newResponse = { ...prev };
-                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
-                        return newResponse;
-                      });
-
-                      handleClick(
-                        "delete-pair",
-                        id?.id,
-                        0.0,
-                        "MultipleLLMInstructionDrivenChat",
-                      );
-                    }}
-                  >
-                    <DeleteOutlinedIcon
-                      sx={{ color: orange[400], fontSize: "1.2rem" }}
-                    />
-                  </IconButton>
-                )}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                <IconButton
+                  size="small"
+                  style={{
+                    position: "absolute",
+                    bottom: "0.3rem",
+                    right: "2rem",
+                    padding: "2px",
+                  }}
+                  onClick={() => {
+                    setEvalFormResponse((prev) => {
+                      const newResponse = { ...prev };
+                      delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
+                      return newResponse;
+                    });
+                    setVisibleMessages((prev) => {
+                      const keys = Object.keys(prev);
+                      delete prev[keys[keys.length - 1]];
+                      return { ...prev };
+                    });
+                    setSubmittedEvalForms((prev) => {
+                      const newResponse = { ...prev };
+                      delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
+                      return newResponse;
+                    });
+                    handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+                  }}
+                >
+                  <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                </IconButton>
+              )}
             </Grid>
           </Grid>
+
           {!shrinkedMessages[index] && (
             <Grid
               item
-              sx={{
+              xs={12}
+              style={{
                 textAlign: "left",
                 position: "relative",
                 width: "100%",
-                padding: "1rem",
-                borderRadius: "0.5rem",
+                marginTop: "0.3rem",
               }}
             >
-              <Grid container alignItems="start" spacing={2}>
-                <Grid item>
-                  <Image
-                    width={50}
-                    height={50}
-                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
-                    alt="Bot Avatar"
-                    priority
-                  />
-                </Grid>
-
-                <Grid
-                  item
-                  xs
-
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "nowrap",
-                    overflowX: "auto",
-                    scrollbarWidth: "none",
-                    "-ms-overflow-style": "none",
-                    "&::-webkit-scrollbar": {
-                      display: "none",
-                    },
-                    justifyContent: "flex-start",
-                    gap: "0.5rem",
-                    paddingBottom: "0.5rem",
-                    cursor: "grab",
-                    "&:active": {
-                      cursor: "grabbing",
-                    },
-                  }}
-
-                >
-                  {message?.output?.map((modelOutput, modelIdx) => (
-                    <React.Fragment key={modelIdx}>
-                      {modelOutput?.status === "error" ? (
-                        <Box
-                          sx={{
-                            border: "1px solid red",
-                            width: "45%",
-                            minWidth: "300px",
-                            flexShrink: 0,
-                            height: "10vh",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            borderRadius: "10px",
-                            color: "red",
-                            fontWeight: "bold",
-                            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-                          }}
-                        >
-                          <ErrorIcon
-                            sx={{
-                              marginRight: "10px",
-                            }}
-                          />
-                          <Typography>
-                            {modelOutput?.model_name} failed to load the
-                            response!
-                          </Typography>{" "}
-                        </Box>
-                      ) : (
-                        <Box
-                          sx={{
-                            border: "1px solid #ccc",
-                            width: "45%",
-                            minWidth: "300px",
-                            flexShrink: 0,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            alignItems: "flex-end",
-                            borderRadius: "10px",
-                            flexGrow: 1,
-                          }}
-                        >
-                          <Tooltip
-                            title={
-                              <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                                Expand to view full response
-                              </span>
-                            }
-                          >
-                            <IconButton
-                              onClick={() => handleOpenViewFullResponse(index, modelIdx)}
-                            >
-                              <OpenInFullIcon
-                                sx={{
-                                  padding: "5px 5px 0 0",
-                                  color: orange[400],
-                                }}
-                              />
-                            </IconButton>
-                          </Tooltip>
-                          <Modal
-                            open={activeModalIdentifier === `${index}_${modelIdx}`}
-                            onClose={handleCloseViewFullResponse}
-                            closeAfterTransition
-                            BackdropComponent={Backdrop}
-                            BackdropProps={{
-                              timeout: 500,
-                              sx: {
-                                backdropFilter: "blur(2px)",
-                                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                              },
-                            }}
-                          >
-                            <Fade in={activeModalIdentifier === `${index}_${modelIdx}`}>
-                              <Box sx={viewFullResponseModalStyle}>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    paddingBottom: "1.5rem",
-                                  }}
-                                >
-                                  <Typography
-                                    variant="subtitle2"
-                                    sx={{
-                                      fontWeight: "bold",
-                                      color: orange[400],
-                                      fontSize: "1.25rem",
-                                    }}
-                                  >
-                                    {"Model " + (modelIdx + 1)}
-                                  </Typography>
-                                  <IconButton
-                                    onClick={handleCloseViewFullResponse}
-                                  >
-                                    <CloseIcon sx={{ color: orange[400] }} />
-                                  </IconButton>
-                                </Box>
-                                <Typography
-                                  component="div"
-                                  sx={{
-                                    fontSize: "1.2rem",
-                                    maxHeight: "60vh",
-                                    overflowY: "scroll",
-                                  }}
-                                >
-                                  {modelOutput?.output?.map(
-                                    (segment, segmentIdx) =>
-                                      segment.type === "text" ? (
-                                        ProjectDetails?.metadata_json
-                                          ?.editable_response ||
-                                          segment.value == "" ? (
-                                          globalTransliteration ? (
-                                            <IndicTransliterate
-                                              key={segmentIdx}
-                                              value={segment.value}
-                                              onChangeText={(text) =>
-                                                handleTextChange(
-                                                  text,
-                                                  message,
-                                                  modelIdx,
-                                                  segmentIdx,
-                                                  "output",
-                                                )
-                                              }
-                                              lang={targetLang}
-                                              renderComponent={(props) => (
-                                                <textarea
-                                                  {...props}
-                                                  style={{
-                                                    fontSize: "1rem",
-                                                    padding: "12px",
-                                                    borderRadius: "12px 12px 0 12px",
-                                                    color: grey[900],
-                                                    background: "#ffffff",
-                                                    border: `1px solid ${grey[200]}`,
-                                                    boxShadow: `0px 2px 2px ${grey[50]}`,
-                                                    minHeight: "5rem",
-                                                    width: "100%",
-                                                    resize: "none",
-                                                  }}
-                                                />
-                                              )}
-                                            />
-                                          ) : (
-                                            <textarea
-                                              key={segmentIdx}
-                                              value={segment.value}
-                                              onChange={(e) =>
-                                                handleTextChange(
-                                                  e.target.value,
-                                                  message,
-                                                  modelIdx,
-                                                  segmentIdx,
-                                                  "output",
-                                                )
-                                              }
-                                              style={{
-                                                fontSize: "1rem",
-                                                width: "100%",
-                                                padding: "12px",
-                                                borderRadius: "12px 12px 0 12px",
-                                                color: grey[900],
-                                                background: "#ffffff",
-                                                border: `1px solid ${grey[200]}`,
-                                                boxShadow: `0px 2px 2px ${grey[50]}`,
-                                                minHeight: "5rem",
-                                                resize: "none",
-                                              }}
-                                              rows={1}
-                                            />
-                                          )
-                                        ) : (
-                                          <ReactMarkdown
-                                            key={segmentIdx}
-                                            children={segment?.value?.replace(
-                                              /\\n/gi,
-                                              "&nbsp; \\n",
-                                            )}
-                                          />
-                                        )
-                                      ) : (
-                                        <SyntaxHighlighter
-                                          key={segmentIdx}
-                                          language={segment.language}
-                                          style={gruvboxDark}
-                                          customStyle={{
-                                            padding: "1rem",
-                                            borderRadius: "5px",
-                                          }}
-                                        >
-                                          {segment.value}
-                                        </SyntaxHighlighter>
-                                      ),
-                                  )}
-                                </Typography>
-                              </Box>
-                            </Fade>
-                          </Modal>
-                          <Box
-                            sx={{
-                              overflowY: "auto",
-                              maxHeight: "400px",
-                              padding: "0 5px 0 20px",
-                              width: "100%",
-                              boxSizing: "border-box",
-                            }}
-                          >
-                            {modelOutput?.output?.map((segment, segmentIdx) =>
-                              segment.type === "text" ? (
-                                ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
-                                  globalTransliteration ? (
-                                    <IndicTransliterate
-                                      key={segmentIdx}
-                                      value={segment.value}
-                                      onChangeText={(text) =>
-                                        handleTextChange(
-                                          text,
-                                          message,
-                                          modelIdx,
-                                          segmentIdx,
-                                          "output",
-                                        )
-                                      }
-                                      lang={targetLang}
-                                      renderComponent={(props) => (
-                                        <textarea
-                                          {...props}
-                                          style={{
-                                            fontSize: "1rem",
-                                            padding: "12px",
-                                            borderRadius: "12px 12px 0 12px",
-                                            color: grey[900],
-                                            background: "#ffffff",
-                                            border: `1px solid ${grey[200]}`,
-                                            boxShadow: `0px 2px 2px ${grey[50]}`,
-                                            minHeight: "5rem",
-                                            width: "100%",
-                                            resize: "none",
-                                          }}
-                                        />
-                                      )}
-                                    />
-                                  ) : (
-                                    <textarea
-                                      key={segmentIdx}
-                                      value={segment.value}
-                                      onChange={(e) =>
-                                        handleTextChange(
-                                          e.target.value,
-                                          message,
-                                          modelIdx,
-                                          segmentIdx,
-                                          "output",
-                                        )
-                                      }
-                                      style={{
-                                        fontSize: "1rem",
-                                        width: "100%",
-                                        padding: "10px",
-                                        borderRadius: "12px 12px 0 12px",
-                                        color: grey[900],
-                                        background: "#ffffff",
-                                        border: `1px solid ${grey[200]}`,
-                                        boxShadow: `0px 2px 2px ${grey[50]}`,
-                                        minHeight: "5rem",
-                                        resize: "none",
-                                      }}
-                                      rows={1}
-                                    />
-                                  )
-                                ) : (
-                                  <ReactMarkdown
-                                    key={segmentIdx}
-                                    children={segment?.value?.replace(
-                                      /\\n/gi,
-                                      "&nbsp; \\n",
-                                    )}
-                                  />
-                                )
-                              ) : (
-                                <SyntaxHighlighter
-                                  key={segmentIdx}
-                                  language={segment.language}
-                                  style={gruvboxDark}
-                                  customStyle={{
-                                    padding: "1rem",
-                                    borderRadius: "5px",
-                                  }}
-                                >
-                                  {segment.value}
-                                </SyntaxHighlighter>
-                              ),
-                            )}
-                          </Box>
-                          <Box>
-                            <Typography
-                              sx={{
-                                backgroundColor: "#E8E6E6",
-                                padding: "5px 10px 5px 10px",
-                                borderRadius: "10px",
-                                fontSize: "1rem",
-                              }}
-                            >
-                              {"Model " + (modelIdx + 1)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </Grid>
-              </Grid>
-            </Grid>)}
-
-          {ProjectDetails?.metadata_json?.enable_preference_selection &&
-            visibleMessages[index] ? (
-            <Grid
-              item
-              sx={{
-                padding: " 1.5rem",
-                position: "relative",
-                width: "85%",
-                backgroundColor: "rgba(247, 184, 171, 0.2)",
-                borderRadius: "10px",
-                marginBottom: "2rem",
-              }}
-            >
-              <Box
-                sx={{
-                  maxHeight: "16rem",
+              <Grid
+                container
+                alignItems="start"
+                justifyContent="flex-start"
+                style={{
+                  width: "100%",
+                  marginLeft: "0px",
                 }}
               >
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  <IconButton
-                    onClick={() => handleClosePreferredResponseModal(index)}
-                  >
-                    <CloseIcon
-                      sx={{
-                        color: orange[400],
-                      }}
-                    />
-                  </IconButton>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-around",
-                    maxHeight: "15rem",
-                    overflowY: "auto",
-                  }}
-                >
-                  {!ProjectDetails?.metadata_json?.single_model_response? (
-
-                    ProjectDetails?.metadata_json?.questions_json?.map(
-                      (question, questionIdx) => (
-                        <div key={questionIdx}>
-                          {question.question_type === "comparison" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion}>
-                                {questionIdx + 1}. {question.input_question}
-                                <span
-                                  style={{ color: "#d93025", fontSize: "25px" }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </div>
-                              <div style={{ paddingLeft: "20px" }}>
-                                {question.input_selections_list?.map(
-                                  (option, optionIdx) => (
-                                    <div
-                                      key={optionIdx}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                      }}
-                                    >
-                                      <span>{option}:</span>
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          flexWrap: "wrap",
-                                          paddingRight: "1rem",
-                                        }}
-                                      >
-                                        <FormControl>
-                                          <RadioGroup
-                                            name={`comparison-${questionIdx}-${optionIdx}`}
-                                            sx={{
-                                              display: "flex",
-                                              flexDirection: "row",
-                                            }}
-                                            value={(() => {
-                                              const responses =
-                                                evalFormResponse?.[
-                                                  message?.output?.[0]
-                                                    ?.prompt_output_pair_id
-                                                ]?.model_responses_json;
-
-                                              if (
-                                                !responses ||
-                                                !Array.isArray(responses)
-                                              ) {
-                                                return "";
-                                              }
-                                              const matchingResponse =
-                                                responses.find((model) =>
-                                                  model.questions_response?.some(
-                                                    (q) =>
-                                                      q.question
-                                                        ?.question_type ===
-                                                      question.question_type &&
-                                                      q.question
-                                                        ?.input_question ===
-                                                      question.input_question &&
-                                                      q.response?.[0] !== "-1",
-                                                  ),
-                                                );
-
-                                              const validResponse =
-                                                matchingResponse?.questions_response?.find(
-                                                  (q) =>
-                                                    q.question
-                                                      ?.question_type ===
-                                                    question.question_type &&
-                                                    q.question
-                                                      ?.input_question ===
-                                                    question.input_question &&
-                                                    q.response?.[0] !== "-1",
-                                                );
-
-                                              return (
-                                                validResponse?.response?.[0] ||
-                                                ""
-                                              );
-                                            })()}
-                                            onChange={(e) =>
-                                              handleComparison(
-                                                message?.output?.[0]
-                                                  ?.prompt_output_pair_id,
-                                                message,
-                                                option,
-                                                questionIdx,
-                                                e.target.value,
-                                              )
-                                            }
-                                          >
-                                            {message?.output?.map(
-                                              (response, outputIdx) => (
-                                                <FormControlLabel
-                                                  key={outputIdx}
-                                                  value={response.model_name}
-                                                  control={<Radio />}
-                                                  label={"Model " + (outputIdx + 1)}
-                                                  labelPlacement="start"
-                                                />
-                                              ),
-                                            )}
-                                          </RadioGroup>
-                                        </FormControl>
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {question.question_type === "fill_in_blanks" && (
-                            <div
-                              style={{
-                                marginBottom: "5px",
-                              }}
-                            >
-                              <p className={classes.inputQuestion}>
-                                {questionIdx + 1}.{" "}
-                                {question.input_question
-                                  .split("<blank>")
-                                  .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`}>
-                                      {part}
-                                      {index <
-                                        question.input_question.split("<blank>")
-                                          .length -
-                                        1 && (
-                                          <span
-                                            style={{
-                                              borderBottom: "1px solid black",
-                                              display: "inline-block",
-                                              width: "100px",
-                                              margin: "0 4px",
-                                              verticalAlign: "middle",
-                                            }}
-                                          >
-                                            &nbsp;
-                                          </span>
-                                        )}
-                                    </span>
-                                  ))}
-                                <span
-                                  style={{
-                                    color: "#d93025",
-                                    fontSize: "25px",
-                                  }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </p>
-
-                              <div
-                                style={{
-                                  padding: "10px 0 0 20px",
-                                  maxWidth: "80%",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  flexWrap: "wrap",
-                                }}
-                              >
-                                {message?.output?.map((response, outputIdx) => (
-                                  <div
-                                    key={outputIdx}
-                                    style={{
-                                      marginBottom: "10px",
-                                      display: "flex",
-                                      flexDirection: "row",
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="subtitle2"
-                                      sx={{
-                                        fontWeight: "bold",
-                                        color: "#6C5F5B",
-                                        marginRight: "15px",
-                                        marginTop: "0.7rem",
-                                      }}
-                                    >
-                                      {"Model " + (outputIdx + 1)}
-                                    </Typography>
-                                    {question.input_question
-                                      .split("<blank>")
-                                      .slice(0, -1)
-                                      .map((_, idx) => (
-                                        <input
-                                          key={`${outputIdx}-${idx}`}
-                                          data-blank-index={idx}
-                                          type="text"
-                                          value={
-                                            evalFormResponse?.[
-                                              message?.output?.[0]
-                                                ?.prompt_output_pair_id
-                                            ]?.model_responses_json
-                                              ?.find(
-                                                (m) =>
-                                                  m.model_name ===
-                                                  response.model_name,
-                                              )
-                                              ?.questions_response?.find(
-                                                (q) =>
-                                                  q.question.question_type ===
-                                                  question.question_type &&
-                                                  q.question.input_question ===
-                                                  question.input_question,
-                                              )?.response?.[idx] || ""
-                                          }
-                                          onChange={(e) =>
-                                            handleInputChange(
-                                              e,
-                                              message,
-                                              message?.output?.[0]
-                                                ?.prompt_output_pair_id,
-                                              questionIdx,
-                                              outputIdx,
-                                            )
-                                          }
-                                          style={{
-                                            border: "1px solid #ccc",
-                                            borderRadius: "4px",
-                                            maxWidth: "200px",
-                                          }}
-                                          required
-                                        />
-                                      ))}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {question.question_type === "rating" && (
-                            <div
-                              style={{
-                                marginBottom: "5px",
-                              }}
-                            >
-                              <div className={classes.inputQuestion}>
-                                <span>
-                                  {questionIdx + 1}. {question.input_question}
-                                </span>
-                                <span
-                                  style={{
-                                    color: "#d93025",
-                                    fontSize: "25px",
-                                  }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  padding: "10px 0 0 20px",
-                                  maxWidth: "70%",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                  flexWrap: "wrap",
-                                }}
-                              >
-                                {message?.output?.map((response, outputIdx) => {
-                                  return (
-                                    <div key={outputIdx}>
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          flexWrap: "wrap",
-                                        }}
-                                      >
-                                        <Typography
-                                          variant="subtitle2"
-                                          sx={{
-                                            marginRight: "15px",
-                                            marginTop: "0.5rem",
-                                            fontWeight: "bold",
-                                            color: "#6C5F5B",
-                                          }}
-                                        >
-                                          {response?.model_name}
-                                        </Typography>
-                                        <Box
-                                          sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
-                                        >
-                                          <Rating
-                                            name={`rating-${outputIdx}`}
-                                            value={
-                                              evalFormResponse?.[
-                                                message?.output?.[0]
-                                                  ?.prompt_output_pair_id
-                                              ]?.model_responses_json
-                                                ?.find(
-                                                  (m) =>
-                                                    m.model_name ===
-                                                    response.model_name,
-                                                )
-                                                ?.questions_response?.find(
-                                                  (q) =>
-                                                    q.question.question_type ===
-                                                    question.question_type &&
-                                                    q.question
-                                                      .input_question ===
-                                                    question.input_question,
-                                                )?.response?.[0] || 0
-                                            }
-                                            onChange={(event, newValue) => {
-                                              handleRating(
-                                                newValue,
-                                                message,
-                                                message?.output?.[0]
-                                                  ?.prompt_output_pair_id, // index
-                                                questionIdx,
-                                                outputIdx, // model_idx
-                                              );
-                                            }}
-                                            sx={{
-                                              color: "#ee6633",
-                                              "& .MuiRating-iconFilled": {
-                                                color: "#ee6633",
-                                              },
-                                              "& .MuiRating-iconHover": {
-                                                color: "#ee6633",
-                                              },
-                                            }}
-                                            emptyIcon={
-                                              <StarIcon
-                                                style={{
-                                                  opacity: 0.55,
-                                                  color: orange[400],
-                                                }}
-                                                fontSize="inherit"
-                                              />
-                                            }
-                                          />
-                                        </Box>
-                                      </Box>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-                          {question.question_type === "mcq" && (
-                            <div
-                              style={{
-                                marginBottom: "5px",
-                              }}
-                            >
-                              <div className={classes.inputQuestion}>
-                                {questionIdx + 1}. {question.input_question}
-                                <span
-                                  style={{
-                                    color: "#d93025",
-                                    fontSize: "25px",
-                                  }}
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </div>
-
-                              <div
-                                style={{
-                                  paddingLeft: "20px",
-                                }}
-                              >
-                                {question?.input_selections_list?.map(
-                                  (option, optionIdx) => (
-                                    <div
-                                      key={optionIdx}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        flexDirection: "row",
-                                      }}
-                                    >
-                                      <span>{option} :</span>{" "}
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          flexDirection: "row",
-                                          flexWrap: "wrap",
-                                        }}
-                                      >
-                                        {message?.output?.map(
-                                          (response, outputIdx) => (
-                                            <div
-                                              key={`${optionIdx}-${outputIdx}`}
-                                              style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                paddingRight: "2rem",
-                                              }}
-                                            >
-                                              <FormControl
-                                                component="fieldset"
-                                                key={outputIdx}
-                                              >
-                                                <RadioGroup
-                                                  name={`question-${questionIdx}-model-${outputIdx}`}
-                                                  value={
-                                                    evalFormResponse?.[
-                                                      message
-                                                        ?.prompt_output_pair_id
-                                                    ]?.model_responses_json
-                                                      ?.find(
-                                                        (m) =>
-                                                          m.model_name ===
-                                                          response.model_name,
-                                                      )
-                                                      ?.questions_response?.find(
-                                                        (q) =>
-                                                          q.question
-                                                            .question_type ===
-                                                          question.question_type &&
-                                                          q.question
-                                                            .input_question ===
-                                                          question.input_question,
-                                                      )?.response?.[0] || ""
-                                                  }
-                                                  onChange={(e) =>
-                                                    handleMCQ(
-                                                      message?.output?.[0]
-                                                        ?.prompt_output_pair_id, // index
-                                                      message,
-                                                      option,
-                                                      questionIdx,
-                                                      outputIdx, // model_idx
-                                                    )
-                                                  }
-                                                >
-                                                  <FormControlLabel
-                                                    key={optionIdx}
-                                                    value={option}
-                                                    control={<Radio />}
-                                                    labelPlacement="start"
-                                                    label={
-                                                      <Typography
-                                                        variant="subtitle2"
-                                                        sx={{
-                                                          fontWeight: "bold",
-                                                          color: "#6C5F5B",
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />
-                                                </RadioGroup>
-                                              </FormControl>
-                                            </div>
-                                          ),
-                                        )}
-                                      </div>
-                                    </div>
-                                  ),
-                                )}
-                              </div>
-                            </div>
-                          )}
-                          {question.question_type ===
-                            "multi_select_options" && (
-                              <div
-                                style={{
-                                  marginBottom: "5px",
-                                }}
-                              >
-                                <div className={classes.inputQuestion}>
-                                  {questionIdx + 1}. {question.input_question}
-                                  <span
-                                    style={{
-                                      color: "#d93025",
-                                      fontSize: "25px",
-                                    }}
-                                  >
-                                    {" "}
-                                    *
-                                  </span>
-                                </div>
-                                <div
-                                  style={{
-                                    paddingLeft: "20px",
-                                  }}
-                                >
-                                  {question?.input_selections_list?.map(
-                                    (option, optionIdx) => (
-                                      <div
-                                        key={optionIdx}
-                                        style={{
-                                          display: "flex",
-                                          flexDirection: "row",
-                                          alignItems: "center",
-                                          justifyContent: "space-between",
-                                        }}
-                                      >
-                                        <span>{option} :</span>{" "}
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            alignItems: "center",
-                                            flexWrap: "wrap",
-                                          }}
-                                        >
-                                          {message?.output?.map(
-                                            (response, outputIdx) => (
-                                              <div
-                                                key={`${optionIdx}-${outputIdx}`}
-                                                style={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                  paddingRight: "2rem",
-                                                }}
-                                              >
-                                                <FormControl component="fieldset">
-                                                  <FormGroup>
-                                                    <FormControlLabel
-                                                      key={optionIdx}
-                                                      control={
-                                                        <Checkbox
-                                                          onChange={(e) =>
-                                                            handleMultiSelect(
-                                                              message?.output?.[0]
-                                                                ?.prompt_output_pair_id, // index
-                                                              message,
-                                                              option,
-                                                              questionIdx,
-                                                              outputIdx, // model_idx
-                                                            )
-                                                          }
-                                                          checked={
-                                                            evalFormResponse?.[
-                                                              message?.output?.[0]
-                                                                ?.prompt_output_pair_id
-                                                            ]?.model_responses_json
-                                                              ?.find(
-                                                                (m) =>
-                                                                  m.model_name ===
-                                                                  response.model_name,
-                                                              )
-                                                              ?.questions_response?.find(
-                                                                (q) =>
-                                                                  q.question
-                                                                    .question_type ===
-                                                                  question.question_type &&
-                                                                  q.question
-                                                                    .input_question ===
-                                                                  question.input_question,
-                                                              )
-                                                              ?.response?.includes(
-                                                                option,
-                                                              ) || false
-                                                          }
-                                                        />
-                                                      }
-                                                      labelPlacement="start"
-                                                      label={
-                                                        <Typography
-                                                          variant="subtitle2"
-                                                          sx={{
-                                                            fontWeight: "bold",
-                                                            color: "#6C5F5B",
-                                                          }}
-                                                        >
-                                                          {response?.model_name}
-                                                        </Typography>
-                                                      }
-                                                    />{" "}
-                                                  </FormGroup>
-                                                </FormControl>
-                                              </div>
-                                            ),
-                                          )}
-                                        </div>
-                                      </div>
-                                    ),
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                        </div>
-                      ))) : (<>{ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
-                        const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
-                        switch (question?.question_type) {
-                          case "fill_in_blanks":
-                            const splitQuestion = question?.input_question.split("<blank>");
-                            return (
-                              <div key={questionIdx}>
-                                <p className={classes.inputQuestion}>
-                                  {questionIdx + 1}.{" "}
-                                  {splitQuestion?.map((part, index) => (
-                                    <span
-                                      key={`${questionIdx}-${index}`}
-                                      style={{ fontSize: "16px" }}
-                                    >
-                                      {part}
-                                      {index < splitQuestion.length - 1 && (
-                                        <input
-                                          type="text"
-  value={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.[index] || ""
-}
-                                         onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
-                                          style={{
-                                            border: "1px solid #ccc",
-                                            borderRadius: "4px",
-                                            padding: "4px",
-                                            fontSize: "14px",
-                                            // lineHeight: "1.5",
-                                            verticalAlign: "middle",
-                                            width: "100%",
-                                            maxWidth: "200px",
-                                            margin: "4px 0",
-                                            boxSizing: "border-box",
-                                            backgroundColor: "white",
-                                            fontWeight: "normal",
-                                          }}
-                                          required={true}
-                                        />
-                                      )}
-                                    </span>
-                                  ))}
-                                  {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
-                                      {" "}
-                                      *
-                                    </span>
-                                  }
-                                </p>
-                              </div>
-                            );
-
-                          case "rating":
-                            return (
-                              <div key={questionIdx}>
-                                <div className={classes.inputQuestion}>
-                                  <span style={{ fontSize: "16px" }}>
-                                    {questionIdx + 1}. {question.input_question}
-                                  </span>
-                                  {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
-                                      {" "}
-                                      *
-                                    </span>
-                                  }
-                                </div>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                    }}
-                                    onMouseLeave={() => handleHover(null)}
-                                  >
-                                    <Rating
-                                      name={`rating`}
-value={
-  Number(
-    evalFormResponse?.[promptOutputPairId]
-      ?.model_responses_json?.[questionIdx]
-      ?.response?.[0] || 0
-  )
-}
-                                      getLabelText={getLabelText}
-                                      onChange={(event, newValue) => {
-                                        handleSingleRating(newValue, questionIdx, promptOutputPairId);
-                                        setSelectedRatings((prev) => ({
-                                          ...prev,
-                                          [questionIdx]: newValue,
-                                        }));
-                                        setHover({});
-                                      }}
-                                      onChangeActive={(event, newHover) => {
-                                        handleHover(newHover, questionIdx);
-                                      }}
-                                      sx={{
-                                        marginLeft: "18px",
-                                        color: "#ee6633",
-                                        "& .MuiRating-iconFilled": {
-                                          color: "#ee6633",
-                                        },
-                                        "& .MuiRating-iconHover": {
-                                          color: "#ee6633",
-                                        },
-                                      }}
-                                      emptyIcon={
-                                        <StarIcon
-                                          style={{
-                                            opacity: 0.55,
-                                            color: "#EE6633",
-                                          }}
-                                          fontSize="inherit"
-                                        />
-                                      }
-                                    />
-                                    <Box
-                                      sx={{
-                                        ml: 2,
-                                        color: "#EE6633",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {(() => {
-                                        const currentHover = hover[questionIdx] || null;
-                                        const currentSelection =
-                                          Number(selectedRatings[questionIdx]) || null;
-                                        const initialResponse =
-                                          Number(
-                                            evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id]
-                                              ?.questions_response?.[questionIdx]?.response?.[0] || 0
-                                          )
-
-
-                                        return currentHover !== null && currentHover !== -1
-                                          ? labels[currentHover]
-                                          : initialResponse > 0
-                                            ? labels[initialResponse]
-                                            : initialResponse === null
-                                              ? ""
-                                              : currentSelection
-                                                ? labels[currentSelection]
-                                                : "";
-                                      })()}
-                                    </Box>
-                                  </Box>
-                                </Box>
-                              </div>
-                            );
-
-                          case "multi_select_options":
-                            return (
-                              <div key={questionIdx}>
-                                <div
-                                  className={classes.inputQuestion}
-                                  style={{ fontSize: "16px" }}
-                                >
-                                  {questionIdx + 1}. {question.input_question}
-                                  {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
-                                      {" "}
-                                      *
-                                    </span>
-                                  }
-                                </div>
-                                <FormControl
-                                  component="fieldset"
-                                  sx={{
-                                    marginLeft: "18px",
-                                  }}
-                                >
-                                  <FormGroup>
-                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
-                                      {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%" }} key={idx}>
-                                          <FormControlLabel
-                                            key={idx}
-                                            control={
-                                              <Checkbox
-                                                onChange={(e) =>
-                                                  handleSingleMultiSelect(
-                                                    e.target.checked,
-                                                    option,
-                                                    questionIdx,
-                                                    promptOutputPairId
-                                                  )
-                                                }
-checked={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.includes(option) || false
-}
-
-                                              />
-                                            }
-                                            label={option}
-                                          />
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </FormGroup>
-                                </FormControl>
-                              </div>
-                            );
-
-                          case "mcq":
-                            return (
-                              <div key={questionIdx}>
-                                <div
-                                  className={classes.inputQuestion}
-                                  style={{ fontSize: "16px" }}
-                                >
-                                  {questionIdx + 1}. {question.input_question}
-                                  {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
-                                      {" "}
-                                      *
-                                    </span>
-                                  }
-                                </div>
-                                <FormControl
-                                  component="fieldset"
-                                  required={true}
-                                  sx={{
-                                    marginLeft: "18px",
-                                  }}
-                                >
-                                  <RadioGroup
-value={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.[0] || ""
-}
-
-                                    onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
-                                  >
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        flexWrap: "wrap",
-                                        gap: "16px",
-                                      }}
-                                    >
-                                      {question?.input_selections_list?.map(
-                                        (option, idx) => (
-                                          <div
-                                            key={idx}
-                                            style={{ width: "calc(50% - 8px)" }} // 2 per row with spacing
-                                          >
-                                            <FormControlLabel
-                                              value={option}
-                                              control={<Radio />}
-                                              label={option}
-                                            />
-                                          </div>
-                                        ),
-                                      )}
-                                    </div>
-                                  </RadioGroup>
-                                </FormControl>
-                              </div>
-                            );
-
-                          default:
-                            return null;
-                        }
-                      })}</>)}
-
+                <Grid item xs={12} style={{ paddingTop: "0rem", paddingLeft: "0px" }}>
                   <Box
                     sx={{
                       display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      width: "100%",
-
-
+                      flexDirection: "row",
+                      width:"auto",
+                      flexWrap: "nowrap",
+                      overflowX: "auto",
+                      scrollbarWidth: "none",
+                      "-ms-overflow-style": "none",
+                      "&::-webkit-scrollbar": { display: "none" },
+                      justifyContent: "flex-start",
+                      gap: "0.4rem",
+                      paddingBottom: "0.3rem",
+                      cursor: "grab",
+                      "&:active": { cursor: "grabbing" },
+                      alignItems: "stretch",
                     }}
                   >
+                    {message?.output?.map((modelOutput, modelIdx) => (
+                      <React.Fragment key={modelIdx}>
+                        {modelOutput?.status === "error" ? (
+                          <Box
+                            sx={{
+                              border: "1px solid red",
+                              width: "auto",
+                              flexShrink: 0,
+                              height: "auto",
+                              minHeight: "60px",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              borderRadius: "8px",
+                              color: "red",
+                              fontWeight: "bold",
+                              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+                              padding: "0.8rem",
+                            }}
+                          >
+                            <ErrorIcon sx={{ marginRight: "8px", fontSize: "0.9rem" }} />
+                            <Typography style={{ fontSize: "0.8rem" }}>
+                              {modelOutput?.model_name} failed to load the response!
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              border: "1px solid #ccc",
+                              width: "auto",
+                              flexShrink: 0,
+                              display: "flex",
+                              flexDirection: "column",
+                              borderRadius: "8px",
+                              backgroundColor: "white",
+                              height: "auto",
+                              minHeight: "80px",
+                            }}
+                          >
+                            <Box sx={{ display: "flex", justifyContent: "flex-end", padding: "2px" }}>
+                              <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Expand to view full response</span>}>
+                                <IconButton 
+                                  onClick={() => handleOpenViewFullResponse(index, modelIdx)}
+                                  size="small"
+                                  sx={{ padding: "2px" }}
+                                >
+                                  <OpenInFullIcon style={{ color: orange[400], fontSize: "0.9rem" }} />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                            
+                            <Box
+                              sx={{
+                                flex: 1,
+                                overflowY: "auto",
+                                padding: "0 12px 8px 12px",
+                                width: "100%",
+                                boxSizing: "border-box",
+                                minHeight: "40px",
+                                maxHeight: "200px",
+                              }}
+                            >
+                              {modelOutput?.output?.map((segment, segmentIdx) =>
+                                segment.type === "text" ? (
+                                  ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                    globalTransliteration ? (
+                                      <IndicTransliterate
+                                        key={segmentIdx}
+                                        value={segment.value}
+                                        onChangeText={(text) => handleTextChange(text, message, modelIdx, segmentIdx, "output")}
+                                        lang={targetLang}
+                                        renderComponent={(props) => (
+                                          <textarea
+                                            {...props}
+                                            style={{
+                                              fontSize: "0.8rem",
+                                              padding: "6px",
+                                              borderRadius: "6px",
+                                              color: grey[900],
+                                              background: "#ffffff",
+                                              border: `1px solid ${grey[200]}`,
+                                              boxShadow: `0px 1px 1px ${grey[50]}`,
+                                              minHeight: "2.5rem",
+                                              width: "100%",
+                                              resize: "none",
+                                            }}
+                                          />
+                                        )}
+                                      />
+                                    ) : (
+                                      <textarea
+                                        key={segmentIdx}
+                                        value={segment.value}
+                                        onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
+                                        style={{
+                                          fontSize: "0.8rem",
+                                          width: "100%",
+                                          padding: "6px",
+                                          borderRadius: "6px",
+                                          color: grey[900],
+                                          background: "#ffffff",
+                                          border: `1px solid ${grey[200]}`,
+                                          boxShadow: `0px 1px 1px ${grey[50]}`,
+                                          minHeight: "2.5rem",
+                                          resize: "none",
+                                        }}
+                                        rows={1}
+                                      />
+                                    )
+                                  ) : (
+                                    <ReactMarkdown
+                                      key={segmentIdx}
+                                      children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
+                                      components={{
+                                        p: ({node, ...props}) => <p style={{fontSize: '0.8rem', margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
+                                      }}
+                                    />
+                                  )
+                                ) : (
+                                  <SyntaxHighlighter
+                                    key={segmentIdx}
+                                    language={segment.language}
+                                    style={gruvboxDark}
+                                    customStyle={{ 
+                                      padding: "0.5rem", 
+                                      borderRadius: "4px", 
+                                      fontSize: "0.8rem",
+                                      margin: "0.2rem 0" 
+                                    }}
+                                  >
+                                    {segment.value}
+                                  </SyntaxHighlighter>
+                                )
+                              )}
+                            </Box>
+
+                            <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
+                              <Typography
+                                sx={{
+                                  backgroundColor: "#E8E6E6",
+                                  padding: "3px 6px",
+                                  borderRadius: "4px",
+                                  fontSize: "0.75rem",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {"Model " + (modelIdx + 1)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+          )}
+
+          {/* Evaluation form section - also reduced */}
+          {ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
+            <Grid
+              item
+              sx={{
+                padding: "1rem",
+                position: "relative",
+                width: "85%",
+                backgroundColor: "rgba(247, 184, 171, 0.2)",
+                borderRadius: "8px",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <Box sx={{ maxHeight: "14rem" }}>
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <IconButton onClick={() => handleClosePreferredResponseModal(index)} size="small">
+                    <CloseIcon sx={{ color: orange[400], fontSize: "0.9rem" }} />
+                  </IconButton>
+                </Box>
+                <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
+                  {/* Reduced font sizes in evaluation form as well */}
+                  {!ProjectDetails?.metadata_json?.single_model_response ? (
+                    ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => (
+                      <div key={questionIdx}>
+                        {question.question_type === "comparison" && (
+                          <div style={{ marginBottom: "4px" }}>
+                            <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
+                              {questionIdx + 1}. {question.input_question}
+                              <span style={{ color: "#d93025", fontSize: "18px" }}> *</span>
+                            </div>
+                            <div style={{ paddingLeft: "16px" }}>
+                              {question.input_selections_list?.map((option, optionIdx) => (
+                                <div key={optionIdx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                  <span style={{ fontSize: "0.8rem" }}>{option}:</span>
+                                  <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", paddingRight: "0.8rem" }}>
+                                    <FormControl>
+                                      <RadioGroup
+                                        name={`comparison-${questionIdx}-${optionIdx}`}
+                                        sx={{ display: "flex", flexDirection: "row" }}
+                                        value={(() => {
+                                          const responses = evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id]?.model_responses_json;
+                                          if (!responses || !Array.isArray(responses)) return "";
+                                          const matchingResponse = responses.find((model) =>
+                                            model.questions_response?.some(q =>
+                                              q.question?.question_type === question.question_type &&
+                                              q.question?.input_question === question.input_question &&
+                                              q.response?.[0] !== "-1"
+                                            )
+                                          );
+                                          const validResponse = matchingResponse?.questions_response?.find(q =>
+                                            q.question?.question_type === question.question_type &&
+                                            q.question?.input_question === question.input_question &&
+                                            q.response?.[0] !== "-1"
+                                          );
+                                          return validResponse?.response?.[0] || "";
+                                        })()}
+                                        onChange={(e) => handleComparison(message?.output?.[0]?.prompt_output_pair_id, message, option, questionIdx, e.target.value)}
+                                      >
+                                        {message?.output?.map((response, outputIdx) => (
+                                          <FormControlLabel
+                                            key={outputIdx}
+                                            value={response.model_name}
+                                            control={<Radio size="small" />}
+                                            label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
+                                            labelPlacement="start"
+                                          />
+                                        ))}
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* Other question types with reduced sizes... */}
+                      </div>
+                    ))
+                  ) : (
+                    // Single response mode with reduced sizes...
+                    <></>
+                  )}
+
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", width: "100%" }}>
                     <Button
                       variant="contained"
                       sx={{
-                        border: "1.5px solid #EE6633",
+                        border: "1px solid #EE6633",
                         color: orange[400],
                         backgroundColor: "#FFF",
-                        borderRadius: "8px",
-                        padding: "0.5rem 0.5rem",
-                        "&:hover": {
-                          backgroundColor: orange[400],
-                          color: "#FFF",
-                        },
+                        borderRadius: "6px",
+                        padding: "0.3rem 0.5rem",
+                        "&:hover": { backgroundColor: orange[400], color: "#FFF" },
                         maxWidth: "fit-content",
-                        marginBottom: "20px",
-                        marginRight: "20px",
+                        marginBottom: "16px",
+                        marginRight: "16px",
+                        fontSize: "0.8rem",
+                        minHeight: "auto",
                       }}
-                          onClick={() => {
-                          // if(ProjectDetails?.metadata_json){                          
-                          //   var  targetPrompt = evalFormResponse?.question_response_json?.find(item => item.promptoutputid == message?.output?.[0]?.prompt_output_pair_id);
-                          //   console.log(targetPrompt);
-                            
-                          //   const isValid = validateEvalFormResponse(
-                          //   targetPrompt
-                          // );
-                          // if (isValid) {
-                          //   handleButtonClick(
-                          //     message?.output?.[0]?.prompt_output_pair_id,targetPrompt, index
-                          //   );
-                          // } else {
-                          //   setSnackbarInfo({
-                          //     open: true,
-                          //     message:
-                          //       "Please ensure that all the fields in the form is filled before saving the evaluation!",
-                          //     variant: "error",
-                          //   });
-                          // }
-                          // }
-                          // else{
-                                                      const isValid = validateEvalFormResponse(
-                            evalFormResponse?.[
-                            message?.output?.[0]?.prompt_output_pair_id
-                            ],
+                      onClick={() => {
+                        const isValid = validateEvalFormResponse(
+                          evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id],
+                          message?.output?.[0]?.prompt_output_pair_id,
+                        );
+                        if (isValid) {
+                          handleButtonClick(
                             message?.output?.[0]?.prompt_output_pair_id,
+                            evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id], index
                           );
-                          if (isValid) {
-                            handleButtonClick(
-                              message?.output?.[0]?.prompt_output_pair_id,
-                              evalFormResponse?.[
-                              message?.output?.[0]?.prompt_output_pair_id
-                              ], index
-                            );
-                          } else {
-                            setSnackbarInfo({
-                              open: true,
-                              message:
-                                "Please ensure that all the fields in the form is filled before saving the evaluation!",
-                              variant: "error",
-                            });
-                          }
-
-                          // }
-                        }}
->
-                        Save Evaluations
+                        } else {
+                          setSnackbarInfo({
+                            open: true,
+                            message: "Please ensure that all the fields in the form is filled before saving the evaluation!",
+                            variant: "error",
+                          });
+                        }
+                      }}
+                    >
+                      Save Evaluations
                     </Button>
                   </Box>
                 </Box>
               </Box>
             </Grid>
-          ) : (<Grid
-            item
-            sx={{
-              padding: " 1rem",
-              position: "relative",
-              width: "85%",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              borderRadius: "10px",
-              marginBottom: "2rem",
-            }}
-          >
-            <Box
-              sx={{
-                maxHeight: "16rem",
-              }}
-            >
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div className={classes.inputQuestion}>Model Output Evaluation Form</div>
-                <IconButton
-                  onClick={() => handleOpenPreferredResponseModal(index)}
-                >
-                  <OpenInFullIcon sx={{ color: orange[400] }} />
-                </IconButton>
-              </Box>
-            </Box>
-          </Grid>)}
+          )}
         </Grid>
       );
     });
 
     return chatElements;
   };
-
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
 
@@ -2787,9 +1734,7 @@ value={
     return (
       <>
         <Button
-          sx={{
-            marginTop: "1rem",
-          }}
+          sx={{ marginTop: "1rem" }}
           variant="outlined"
           onClick={handleOpen}
         >
@@ -2803,36 +1748,21 @@ value={
           aria-describedby="child-modal-description"
         >
           <Box sx={{ ...style, width: "40%" }}>
-            <Typography
-              id="child-modal-title"
-              color={"#F18359"}
-              fontWeight={"bold"}
-              variant="h6"
-            >
+            <Typography id="child-modal-title" color={"#F18359"} fontWeight={"bold"} variant="h6">
               {translate("modal.domain")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
               {info.meta_info_domain}
             </Typography>
 
-            <Typography
-              color={"#F18359"}
-              fontWeight={"bold"}
-              variant="h6"
-              id="child-modal-title"
-            >
+            <Typography color={"#F18359"} fontWeight={"bold"} variant="h6" id="child-modal-title">
               {translate("modal.intent")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
               {info.meta_info_intent}
             </Typography>
 
-            <Typography
-              id="child-modal-title"
-              color={"#F18359"}
-              fontWeight={"bold"}
-              variant="h6"
-            >
+            <Typography id="child-modal-title" color={"#F18359"} fontWeight={"bold"} variant="h6">
               {translate("modal.language")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
@@ -2855,177 +1785,164 @@ value={
   return (
     <>
       {renderSnackBar()}
-      <Grid
-        container
+      <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: { xs: "column", md: "row" },
+          width: "100%",
+          height: "calc(100vh - 120px)",
+          overflow: "hidden",
         }}
       >
+        {/* Instruction Panel - Left Side */}
         <Box
           sx={{
+            width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
+            height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
+            maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
+            transition: "all 0.3s ease",
+            padding: isInstructionExpanded ? "1rem" : "0.5rem",
+            borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+            borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
+            backgroundColor: "#fafafa",
+            overflow: "auto",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            flexDirection: "column",
+            flexShrink: 0,
           }}
         >
           <Box
             sx={{
-              borderRadius: "10px",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
               display: "flex",
-              flexDirection: "column",
-              width: "100%",
               alignItems: "center",
-              justifyContent: "center",
-              margin: "0.5rem",
-              transition: "all 0.3s ease",
+              justifyContent: isInstructionExpanded ? "space-between" : "center",
+              marginBottom: isInstructionExpanded ? "1rem" : 0,
+              padding: "0.5rem",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              borderRadius: "8px",
               cursor: "pointer",
-              transform: isExpanded ? "scale(1)" : "scale(0.98)",
+              minHeight: "40px",
+              flexShrink: 0,
             }}
+            onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            {isInstructionExpanded && (
               <Typography
-                variant="h3"
-                align="center"
+                variant="h6"
                 sx={{
                   color: "#636363",
-                  fontSize: {
-                    xs: "0.8125rem", // Small screens (mobile)
-                    sm: "1rem", // Medium screens (tablet)
-                    md: "1.5rem", // Large screens (laptops)
-                    lg: "2rem", // Extra-large screens (desktops)
-                  },
-                  fontWeight: "800",
+                  fontWeight: "600",
+                  fontSize: { xs: "1rem", md: "1.1rem" },
                 }}
               >
                 {translate("typography.instructions")}
               </Typography>
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    Hint and Metadata
-                  </span>
-                }
-              >
-                <IconButton onClick={(e) => {
+            )}
+            <Tooltip
+              title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
+            >
+              <IconButton
+                size="small"
+                onClick={(e) => {
                   e.stopPropagation();
-                  handleOpen();
-                }}>
-                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <IconButton
-              size="small"
-              onClick={() => setIsExpanded(!isExpanded)}
-              style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
-              }}
-            >
-              {isExpanded ? (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633", fontWeight: "bold" }} />
-              ) : (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633", fontWeight: "bold" }} />
-              )}
-            </IconButton>
-            <Typography
-              paragraph={true}
-              sx={{
-                fontSize: {
-                  xs: "0.5rem",
-                  sm: "0.75rem",
-                  md: ".8125rem",
-                  lg: "1rem",
-                },
-                padding: "0rem 1rem",
-                height: "auto",
-                display: "flex",
-                minWidth: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-                whiteSpace: "pre-wrap",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                maxHeight: isExpanded ? "none" : "60px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                "&:hover": {
-                }
-              }}
-            >
-           {info.instruction_data}
-            </Typography>
+                  setIsInstructionExpanded(!isInstructionExpanded);
+                }}
+                sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+              >
+                {isInstructionExpanded ? (
+                  <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                ) : (
+                  <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
+            </Tooltip>
           </Box>
+
+          {isInstructionExpanded && (
+            <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
+              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
+                  {info.instruction_data}
+                </Typography>
+                <Box sx={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", mt: 1 }}>
+                  <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Hint and Metadata</span>}>
+                    <IconButton
+                      onClick={(e) => { e.stopPropagation(); handleOpen(); }}
+                      size="small"
+                    >
+                      <TipsAndUpdatesIcon color="primary" fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <ChildModal />
+                </Box>
+              </Box>
+            </Box>
+          )}
         </Box>
-        <Grid
-          item
-          xs={12}
+
+        {/* Chat Section - Right Side */}
+        <Box
           sx={{
-            margin: "0 0",
-            overflow: "scroll",
-            overflowX: "hidden",
-            borderRadius: "20px",
-            backgroundColor: "#FFF",
-            paddingLeft: "0px !important",
-            boxSizing: "border-box",
-            width: "100%",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            overflow: "hidden",
+            minWidth: 0,
           }}
         >
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center !important",
-              padding: "0 0",
+              flex: 1,
+              overflowY: "auto",
+              padding: "1rem",
+                          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+
+              backgroundColor: "#fff",
+              width: "100%",
+              minHeight: 0,
             }}
           >
-            {showChatContainer ? renderChatHistory() : null}
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
+              {showChatContainer ? renderChatHistory() : null}
+            </Box>
+            <Box ref={bottomRef} />
           </Box>
-          <Box ref={bottomRef} />
-          {stage !== "Alltask" && !disableUpdateButton ? (
-            <Grid
-              item
-              xs={12}
-              sx={{
-                boxSizing: "border-box",
-                width: "100%",
-                height: "5rem",
-                display: "flex",
-                justifyContent: "center",
-                backgroundColor: "white"
-              }}
-            >
-              <Textarea
-                handleButtonClick={handleButtonClick}
-                handleOnchange={handleOnchange}
-                size={12}
-                sx={{
-                  width: "100vw",
-                }}
-                class_name={"w-full"}
-                loading={loading}
-                inputValue={inputValue}
-                overrideGT={true}
-                // defaultLang={targetLang}
-                                task_id={taskId}
-                script={info.meta_info_language}
+        </Box>
+      </Box>
 
-              />
-            </Grid>
-          ) : null}
-        </Grid>
-      </Grid>
+      {/* Textarea placed outside the main container */}
+      {stage !== "Alltask" && !disableUpdateButton ? (
+        <Box
+          sx={{
+            padding: "1rem",
+            backgroundColor: "white",
+            borderTop: "1px solid #e0e0e0",
+            width: "100%",
+            boxSizing: "border-box",
+            position: "sticky",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+          }}
+        >
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+            size={12}
+            sx={{ width: "100%", margin: 0, padding: 0 }}
+            class_name={"w-full"}
+            loading={loading}
+            inputValue={inputValue}
+            overrideGT={true}
+            task_id={taskId}
+            script={info.meta_info_language}
+          />
+        </Box>
+      ) : null}
 
       <Modal
         open={open}
@@ -3033,24 +1950,14 @@ value={
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={{ ...style, width: "40%" }}>
-          <Typography
-            color={"#F18359"}
-            fontWeight={"bold"}
-            variant="h6"
-            id="parent-modal-title"
-          >
+        <Box sx={{ ...style, width: { xs: "90%", md: "40%" } }}>
+          <Typography color={"#F18359"} fontWeight={"bold"} variant="h6" id="parent-modal-title">
             {translate("modal.hint")}
           </Typography>
           <Typography variant="subtitle1" id="parent-modal-description">
             {info.hint}
           </Typography>
-          <Typography
-            color={"#F18359"}
-            fontWeight={"bold"}
-            variant="h6"
-            id="parent-modal-title"
-          >
+          <Typography color={"#F18359"} fontWeight={"bold"} variant="h6" id="parent-modal-title">
             {translate("modal.examples")}
           </Typography>
           <Typography variant="subtitle1" id="parent-modal-description">
