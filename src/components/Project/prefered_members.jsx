@@ -130,7 +130,9 @@ const ReviewTasksTable = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Select</TableCell>
-                  <TableCell>UserName</TableCell>
+                  <TableCell>
+                      {m.annotator_username ? m.annotator_username : (m.annotator_email || "—")}
+                    </TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
               </TableHead>
