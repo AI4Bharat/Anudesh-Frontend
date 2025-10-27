@@ -29,7 +29,10 @@ import configs from "@/config/config";
 import LanguageCode from "@/utils/LanguageCode";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CodeIcon from '@mui/icons-material/Code';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important",
@@ -769,7 +772,6 @@ const renderChatHistory = () => {
   if (!isMounted) {
     return null;
   }
-
 return (
   <>
     {renderSnackBar()}
@@ -793,7 +795,7 @@ return (
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
           borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
           backgroundColor: "#fafafa",
-          overflow: "auto", // Changed to auto for better scrolling
+          overflow: "auto",
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
@@ -810,7 +812,7 @@ return (
             borderRadius: "8px",
             cursor: "pointer",
             minHeight: "40px",
-            flexShrink: 0, // Prevent header from shrinking
+            flexShrink: 0,
           }}
           onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
@@ -845,9 +847,9 @@ return (
               }}
             >
               {isInstructionExpanded ? (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
               ) : (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
               )}
             </IconButton>
           </Tooltip>
@@ -867,6 +869,7 @@ return (
                 borderRadius: "8px",
                 padding: "1rem",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                marginBottom: "1rem",
               }}
             >
               <Typography
@@ -879,26 +882,110 @@ return (
               >
                 {info.instruction_data}
               </Typography>
-              
-              <Box sx={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", mt: 1 }}>
-                <Tooltip
-                  title={
-                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      Hint and Metadata
-                    </span>
-                  }
+            </Box>
+
+            {/* Metadata Information Section - Now directly in the panel */}
+            <Box
+              sx={{
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "1rem",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                border: "1px solid #e0e0e0",
+              }}
+            >
+              {/* Hint Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
                 >
-                  <IconButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpen();
-                    }}
-                    size="small"
-                  >
-                    <TipsAndUpdatesIcon color="primary" fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <ChildModal />
+                  {translate("modal.hint")}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.85rem",
+                    lineHeight: "1.4",
+                    color: "#555",
+                    backgroundColor: "#f8f9fa",
+                    padding: "0.75rem",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #F18359",
+                  }}
+                >
+                  {info.hint || "No hints available"}
+                </Typography>
+              </Box>
+
+              {/* Examples Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  {translate("modal.examples")}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.85rem",
+                    lineHeight: "1.4",
+                    color: "#555",
+                    backgroundColor: "#f8f9fa",
+                    padding: "0.75rem",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #4CAF50",
+                  }}
+                >
+                  {info.examples || "No examples available"}
+                </Typography>
+              </Box>
+
+              {/* Additional Metadata Information */}
+              <Box>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  Additional Information
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                  }}
+                >
+                  {info.meta_info_language && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <CodeIcon fontSize="small" color="primary" />
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        Language: {info.meta_info_language}
+                      </Typography>
+                    </Box>
+                  )}
+                  {taskId && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <AssignmentIcon fontSize="small" color="secondary" />
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        Task ID: {taskId}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -922,9 +1009,8 @@ return (
             overflowY: "auto",
             padding: "1rem",
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-
+            backgroundSize: "cover",
+            backgroundPosition: "center",
             backgroundColor: "#fff",
             width: "100%",
             minHeight: 0,
@@ -968,39 +1054,6 @@ return (
         />
       </Box>
     ) : null}
-
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="parent-modal-title"
-      aria-describedby="parent-modal-description"
-    >
-      <Box sx={{ ...style, width: { xs: "90%", md: "40%" } }}>
-        <Typography
-          color={"#F18359"}
-          fontWeight={"bold"}
-          variant="h6"
-          id="parent-modal-title"
-        >
-          {translate("modal.hint")}
-        </Typography>
-        <Typography variant="subtitle1" id="parent-modal-description">
-          {info.hint}
-        </Typography>
-        <Typography
-          color={"#F18359"}
-          fontWeight={"bold"}
-          variant="h6"
-          id="parent-modal-title"
-        >
-          {translate("modal.examples")}
-        </Typography>
-        <Typography variant="subtitle1" id="parent-modal-description">
-          {info.examples}
-        </Typography>
-        <ChildModal />
-      </Box>
-    </Modal>
   </>
 );
 }

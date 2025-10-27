@@ -41,6 +41,10 @@ import FormGroup from "@mui/material/FormGroup";
 import LanguageCode from "@/utils/LanguageCode";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CodeIcon from '@mui/icons-material/Code';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 const orange = {
   200: "pink",
@@ -1782,192 +1786,255 @@ const renderChatHistory = () => {
     return null;
   }
 
-  return (
-    <>
-      {renderSnackBar()}
+return (
+  <>
+    {renderSnackBar()}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        width: "100%",
+        height: "calc(100vh - 120px)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Instruction Panel - Left Side */}
       <Box
         sx={{
+          width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
+          height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
+          maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
+          transition: "all 0.3s ease",
+          padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
+          backgroundColor: "#fafafa",
+          overflow: "auto",
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          width: "100%",
-          height: "calc(100vh - 120px)",
-          overflow: "hidden",
+          flexDirection: "column",
+          flexShrink: 0,
         }}
       >
-        {/* Instruction Panel - Left Side */}
         <Box
           sx={{
-            width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
-            height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
-            maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
-            transition: "all 0.3s ease",
-            padding: isInstructionExpanded ? "1rem" : "0.5rem",
-            borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-            borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
-            backgroundColor: "#fafafa",
-            overflow: "auto",
             display: "flex",
-            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: isInstructionExpanded ? "space-between" : "center",
+            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            padding: "0.5rem",
+            backgroundColor: "rgba(247, 184, 171, 0.2)",
+            borderRadius: "8px",
+            cursor: "pointer",
+            minHeight: "40px",
             flexShrink: 0,
           }}
+          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: isInstructionExpanded ? "space-between" : "center",
-              marginBottom: isInstructionExpanded ? "1rem" : 0,
-              padding: "0.5rem",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              borderRadius: "8px",
-              cursor: "pointer",
-              minHeight: "40px",
-              flexShrink: 0,
-            }}
-            onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
-          >
-            {isInstructionExpanded && (
-              <Typography
-                variant="h6"
-                sx={{
-                  color: "#636363",
-                  fontWeight: "600",
-                  fontSize: { xs: "1rem", md: "1.1rem" },
-                }}
-              >
-                {translate("typography.instructions")}
-              </Typography>
-            )}
-            <Tooltip
-              title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
-            >
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsInstructionExpanded(!isInstructionExpanded);
-                }}
-                sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
-              >
-                {isInstructionExpanded ? (
-                  <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                ) : (
-                  <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Box>
-
           {isInstructionExpanded && (
-            <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
-              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-                <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
-                  {info.instruction_data}
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#636363",
+                fontWeight: "600",
+                fontSize: { xs: "1rem", md: "1.1rem" },
+              }}
+            >
+              {translate("typography.instructions")}
+            </Typography>
+          )}
+          <Tooltip
+            title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
+          >
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsInstructionExpanded(!isInstructionExpanded);
+              }}
+              sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+            >
+              {isInstructionExpanded ? (
+                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              ) : (
+                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {isInstructionExpanded && (
+          <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
+            {/* Main Instructions */}
+            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
+              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
+                {info.instruction_data}
+              </Typography>
+            </Box>
+
+            {/* Metadata Information - Now directly in the panel */}
+            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
+              {/* Hint Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  {translate("modal.hint")}
                 </Typography>
-                <Box sx={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", mt: 1 }}>
-                  <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Hint and Metadata</span>}>
-                    <IconButton
-                      onClick={(e) => { e.stopPropagation(); handleOpen(); }}
-                      size="small"
-                    >
-                      <TipsAndUpdatesIcon color="primary" fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <ChildModal />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.85rem",
+                    lineHeight: "1.4",
+                    color: "#555",
+                    backgroundColor: "#f8f9fa",
+                    padding: "0.75rem",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #F18359",
+                  }}
+                >
+                  {info.hint || "No hints available"}
+                </Typography>
+              </Box>
+
+              {/* Examples Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  {translate("modal.examples")}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.85rem",
+                    lineHeight: "1.4",
+                    color: "#555",
+                    backgroundColor: "#f8f9fa",
+                    padding: "0.75rem",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #4CAF50",
+                  }}
+                >
+                  {info.examples || "No examples available"}
+                </Typography>
+              </Box>
+
+              {/* Additional Metadata Information */}
+              <Box>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  Additional Information
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                  }}
+                >
+                  {info.meta_info_language && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <CodeIcon fontSize="small" color="primary" />
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        Language: {info.meta_info_language}
+                      </Typography>
+                    </Box>
+                  )}
+                  {taskId && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <AssignmentIcon fontSize="small" color="secondary" />
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        Task ID: {taskId}
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             </Box>
-          )}
-        </Box>
+          </Box>
+        )}
+      </Box>
 
-        {/* Chat Section - Right Side */}
+      {/* Chat Section - Right Side */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          overflow: "hidden",
+          minWidth: 0,
+        }}
+      >
         <Box
           sx={{
             flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            overflow: "hidden",
-            minWidth: 0,
-          }}
-        >
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "1rem",
-                          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+            overflowY: "auto",
+            padding: "1rem",
+            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-
-              backgroundColor: "#fff",
-              width: "100%",
-              minHeight: 0,
-            }}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
-              {showChatContainer ? renderChatHistory() : null}
-            </Box>
-            <Box ref={bottomRef} />
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Textarea placed outside the main container */}
-      {stage !== "Alltask" && !disableUpdateButton ? (
-        <Box
-          sx={{
-            padding: "1rem",
-            backgroundColor: "white",
-            borderTop: "1px solid #e0e0e0",
+            backgroundColor: "#fff",
             width: "100%",
-            boxSizing: "border-box",
-            position: "sticky",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10,
+            minHeight: 0,
           }}
         >
-          <Textarea
-            handleButtonClick={handleButtonClick}
-            handleOnchange={handleOnchange}
-            size={12}
-            sx={{ width: "100%", margin: 0, padding: 0 }}
-            class_name={"w-full"}
-            loading={loading}
-            inputValue={inputValue}
-            overrideGT={true}
-            task_id={taskId}
-            script={info.meta_info_language}
-          />
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
+            {showChatContainer ? renderChatHistory() : null}
+          </Box>
+          <Box ref={bottomRef} />
         </Box>
-      ) : null}
+      </Box>
+    </Box>
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
+    {/* Textarea placed outside the main container */}
+    {stage !== "Alltask" && !disableUpdateButton ? (
+      <Box
+        sx={{
+          padding: "1rem",
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          width: "100%",
+          boxSizing: "border-box",
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+        }}
       >
-        <Box sx={{ ...style, width: { xs: "90%", md: "40%" } }}>
-          <Typography color={"#F18359"} fontWeight={"bold"} variant="h6" id="parent-modal-title">
-            {translate("modal.hint")}
-          </Typography>
-          <Typography variant="subtitle1" id="parent-modal-description">
-            {info.hint}
-          </Typography>
-          <Typography color={"#F18359"} fontWeight={"bold"} variant="h6" id="parent-modal-title">
-            {translate("modal.examples")}
-          </Typography>
-          <Typography variant="subtitle1" id="parent-modal-description">
-            {info.examples}
-          </Typography>
-          <ChildModal />
-        </Box>
-      </Modal>
-    </>
-  );
+        <Textarea
+          handleButtonClick={handleButtonClick}
+          handleOnchange={handleOnchange}
+          size={12}
+          sx={{ width: "100%", margin: 0, padding: 0 }}
+          class_name={"w-full"}
+          loading={loading}
+          inputValue={inputValue}
+          overrideGT={true}
+          task_id={taskId}
+          script={info.meta_info_language}
+        />
+      </Box>
+    ) : null}
+  </>
+);
 };
 
 export default MultipleLLMInstructionDrivenChat;
