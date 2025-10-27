@@ -1302,425 +1302,379 @@ const ReviewPage = () => {
       />
     );
   };
-
-  return (
-    <>
-      {loading && <Spinner />}
-      <Grid container>
-        {renderSnackBar()}
-        <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
-        <Grid item>
-          <Box
-            
-          >
-            <Button
-              value="Back to Project"
-              startIcon={<ArrowBackIcon />}
-              variant="contained"
-              color="primary"
-              sx={{
-                // px: { xs: 2, sm: 3, md: 4 },
-                // py: { xs: 1, sm: 1.5, md: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "70px", sm: "70px", md: "100px" },
-              }}
-              onClick={() => {
-                if (typeof window !== "undefined") {
-                  localStorage.removeItem("labelAll");
-                }
-
-                navigate(`/projects/${ projectId }`);
-                //window.location.replace(`/#/projects/${projectId}`);
-                //window.location.reload();
-              }}
-            >
-              Back to Project
-            </Button>
-          </Box>
-        </Grid>
-        <Grid item>
-            <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
-              variant="contained"
-              color={reviewtext.trim().length === 0 ? "primary" : "success"}
-              onClick={handleCollapseClick}
-              sx={{
-                px: { xs: 2, sm: 3, md: 4 },
-                py: { xs: 1, sm: 1.5, md: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "90px", sm: "90px", md: "100px" },
-              }}
-              style={{
-                backgroundColor:
-                  annotationtext.trim().length === 0 &&
-                    supercheckertext.trim().length === 0
-                    ? "#bf360c"
-                    : "green",
-              }}
-            >
-              Notes{" "}
-              {annotationtext.trim().length === 0 &&
-                supercheckertext.trim().length === 0
-                ? ""
-                : "*"}
-            </Button>
-             </Grid>
-            </Grid>
-
-            <div
-              // className={styles.collapse}
-              style={{
-                display: showNotes ? "block" : "none",
-                paddingBottom: "16px",
-                                width:"100%"
-
-              }}
-            >
-              <ReactQuill
-                forwardedRef={annotationNotesRef}
-                modules={modules}
-                bounds={"#note"}
-                formats={formats}
-                placeholder="Annotation Notes"
-                readOnly={true}
-              ></ReactQuill>
-              <ReactQuill
-                forwardedRef={reviewNotesRef}
-                modules={modules}
-                bounds={"#note"}
-                formats={formats}
-                placeholder="Review Notes"
-              ></ReactQuill>
-              <ReactQuill
-                forwardedRef={superCheckerNotesRef}
-                modules={modules}
-                bounds={"#note"}
-                formats={formats}
-                placeholder="SuperChecker Notes"
-                readOnly={true}
-              ></ReactQuill>
-            </div>
-          <Grid
-            container
-            justifyContent="center"
-             alignItems="center"
-            style={{
-              display: "flex",
-              width: "100%",
-              padding: "10px",
-              gap: "0.5rem",
+return (
+  <>
+    {loading && <Spinner />}
+    <Grid container>
+      {renderSnackBar()}
+      
+      {/* Main Button Row - All buttons in one line */}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
+          {/* Back to Project Button */}
+          <Button
+            startIcon={<ArrowBackIcon />}
+            variant="contained"
+            color="primary"
+            size="small"
+            sx={{ 
+              minWidth: 'auto',
+              fontSize: '0.75rem',
+              px: 1.5,
+              py: 0.5
+            }}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("labelAll");
+              }
+              navigate(`/projects/${projectId}`);
             }}
           >
-            <Grid item>
-              <LightTooltip
-                title={
-                  <div>
-                    <div>
-                      {ProjectDetails?.conceal == false &&
-                        Array.isArray(assignedUsers)
-                        ? assignedUsers.join(", ")
-                        : assignedUsers || "No assigned users"}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                      }}
-                    >
-                      {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${ annotations[0]?.id }`}
-                      {annotations[0]?.annotation_type == 2 &&
-                        `REVIEW ID: ${ annotations[0]?.id }`}
-                      {annotations[0]?.annotation_type == 3 &&
-                        `SUPERCHECK ID: ${ annotations[0]?.id }`}
-                    </div>
-                  </div>
+            Back
+          </Button>
+
+          {/* Notes Button */}
+          <Button
+            endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+            variant="contained"
+            color={reviewtext.trim().length === 0 ? "primary" : "success"}
+            size="small"
+            onClick={handleCollapseClick}
+            sx={{ 
+              minWidth: 'auto',
+              fontSize: '0.75rem',
+              px: 1.5,
+              py: 0.5,
+              backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
+            }}
+          >
+            Notes {reviewtext.trim().length === 0 ? "" : "*"}
+          </Button>
+
+          {/* Info Button */}
+          <LightTooltip
+            title={
+              <div>
+                <div>
+                  {ProjectDetails?.conceal == false &&
+                  Array.isArray(assignedUsers)
+                    ? assignedUsers.join(", ")
+                    : assignedUsers || "No assigned users"}
+                </div>
+                <div
+                  style={{
+                    marginTop: "4px",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {annotations[0]?.annotation_type == 1 &&
+                    `ANNOTATION ID: ${annotations[0]?.id}`}
+                  {annotations[0]?.annotation_type == 2 &&
+                    `REVIEW ID: ${annotations[0]?.id}`}
+                  {annotations[0]?.annotation_type == 3 &&
+                    `SUPERCHECK ID: ${annotations[0]?.id}`}
+                </div>
+              </div>
+            }
+          >
+            <Button
+              size="small"
+              sx={{
+                minWidth: '32px',
+                width: '32px',
+                height: '32px',
+                border: "1px solid #e6e6e6",
+                color: "grey",
+                backgroundColor: "white",
+              }}
+            >
+              <InfoOutlined sx={{ fontSize: '18px' }} />
+            </Button>
+          </LightTooltip>
+
+          {/* Draft Button */}
+          {!disableBtns && taskData?.review_user === userData?.id && (
+            <Tooltip title="Save task for later">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  handleReviewClick("draft", review.id, review.lead_time)
                 }
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ffe0b2",
+                }}
               >
-                <Button
-                  type="default"
-                  className="lsf-button"
-                  style={{
-                    minWidth: "40px",
-                    border: "1px solid #e6e6e6",
-                    color: "grey",
-                    pt: 1,
-                    pl: 1,
-                    pr: 1,
-                    borderBottom: "None",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
-                </Button>
-              </LightTooltip>
-            </Grid>
+                Draft
+              </Button>
+            </Tooltip>
+          )}
 
-            {!disableBtns && taskData?.review_user === userData?.id && (
-              <Grid item>
-                <Tooltip title="Save task for later">
-                  <Button
-                    value="Draft"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleReviewClick("draft", review.id, review.lead_time)
-                    }
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
-                    }}
-                  >
-                    Draft
-                  </Button>
-                </Tooltip>
-                {/* )} */}
-              </Grid>
-            )}
+          {/* Next Button */}
+          <Tooltip title="Go to next task">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => onNextAnnotation("next", getNextTask?.id)}
+              sx={{
+                minWidth: 'auto',
+                fontSize: '0.75rem',
+                px: 1.5,
+                py: 0.5,
+                color: "black",
+                border: "0px",
+                backgroundColor: "#ffe0b2",
+              }}
+            >
+              Next
+            </Button>
+          </Tooltip>
 
-            <Grid item>
-              <Tooltip title="Go to next task">
-                <Button
-                  value="Next"
-                  type="default"
-                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  sx={{
-                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                        minWidth: { xs: "60px", sm: "80px", md: "100px" },                  }}
-                  style={{
-                    color: "black",
-                    borderRadius: "5px",
-                    border: "0px",
-                    backgroundColor: "#ffe0b2",
-                  }}
-                >
-                  Next
-                </Button>
-              </Tooltip>
-            </Grid>
+          {/* Skip Button */}
+          {!disableSkip && taskData?.review_user === userData?.id && (
+            <Tooltip title="skip to next task">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  handleReviewClick("skipped", review.id, review.lead_time)
+                }
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ffe0b2",
+                }}
+              >
+                Skip
+              </Button>
+            </Tooltip>
+          )}
 
+          {/* Clear Chats/Reset All Button */}
+          {ProjectDetails.project_type == "InstructionDrivenChat" ||
+          ProjectDetails?.project_type == "MultipleLLMInstructionDrivenChat" ? (
             <Grid item>
               {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="skip to next task">
+                <Tooltip title="clear the entire chat history">
                   <Button
-                    value="Skip"
-                    type="default"
                     variant="outlined"
+                    size="small"
                     onClick={() =>
-                      handleReviewClick("skipped", review.id, review.lead_time)
+                      handleReviewClick("delete", review.id, review.lead_time)
                     }
                     sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                                              minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
                       color: "black",
-                      borderRadius: "5px",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
                   >
-                    Skip
+                    Clear Chats
                   </Button>
                 </Tooltip>
               )}
             </Grid>
-            {ProjectDetails.project_type == "InstructionDrivenChat" ||
-              ProjectDetails?.project_type ==
-              "MultipleLLMInstructionDrivenChat" ? (
-              <Grid item>
-                {!disableSkip && taskData?.review_user === userData?.id && (
-                  <Tooltip title="clear the entire chat history">
-                    <Button
-                      value="Clear Chats"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleReviewClick("delete", review.id, review.lead_time)
-                      }
-                      sx={{
-                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                                                minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                      }}
-                      style={{
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        backgroundColor: "#ffe0b2",
-                      }}
-                    >
-                      Clear Chats
-                    </Button>
-                  </Tooltip>
-                )}
-              </Grid>
-            ) : (
-              <Grid item>
-                {!disableSkip && taskData?.review_user === userData?.id && (
-                  <Tooltip title="Reset the entire chat history">
-                    <Button
-                      value="Reset All"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleReviewClick("delete", review.id, review.lead_time)
-                      }
-                      sx={{
-                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                                                minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                      }}
-                      style={{
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        backgroundColor: "#ffe0b2",
-                      }}
-                    >
-                      Reset All
-                    </Button>
-                  </Tooltip>
-                )}
-              </Grid>
-            )}
-            {!disableBtns &&
-              !disableButton &&
-              taskData?.review_user === userData?.id && (
-                <Grid item>
-                  <Tooltip title="Revise Annotation">
-                    <Button
-                      value="to_be_revised"
-                      type="default"
-                      variant="outlined"
-                      onClick={() =>
-                        handleReviewClick(
-                          "to_be_revised",
-                          review?.id,
-                          review?.lead_time,
-                          ProjectDetails?.project_type,
-                          review?.parent_annotation,
-                        )
-                      }
-                      sx={{
-                        fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                                                minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                      }}
-                      style={{
-                        color: "black",
-                        borderRadius: "5px",
-                        border: "0px",
-                        backgroundColor: "#ee6633",
-                      }}
-                    >
-                      Revise
-                    </Button>
-                  </Tooltip>
-                </Grid>
-              )}
+          ) : (
             <Grid item>
-              {!disableBtns && taskData?.review_user === userData?.id && (
-                <Tooltip title="Accept Annotation">
+              {!disableSkip && taskData?.review_user === userData?.id && (
+                <Tooltip title="Reset the entire chat history">
                   <Button
-                    id="accept-button"
-                    value="Accept"
-                    type="default"
-                    aria-controls={open ? "accept-menu" : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? "true" : undefined}
+                    variant="outlined"
+                    size="small"
+                    onClick={() =>
+                      handleReviewClick("delete", review.id, review.lead_time)
+                    }
                     sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                                             minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
                       color: "black",
-                      borderRadius: "5px",
                       border: "0px",
-                      backgroundColor: "#ee6633",
+                      backgroundColor: "#ffe0b2",
                     }}
-                    onClick={handleClick}
-                    endIcon={<KeyboardArrowDownIcon />}
                   >
-                    Accept
+                    Reset All
                   </Button>
                 </Tooltip>
               )}
-              <StyledMenu
-                id="accept-menu"
-                MenuListProps={{
-                  "aria-labelledby": "accept-button",
-                }}
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem
-                  onClick={() => {
-                    handleReviewClick(
-                      "accepted",
-                      review.id,
-                      AnnotationsTaskDetails[1]?.lead_time,
-                      ProjectDetails?.project_type,
-                      review?.parent_annotation,
-                    )
-
-                  }}
-                  disableRipple
-                >
-                  with No Changes
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleReviewClick(
-                      "accepted_with_minor_changes",
-                      review.id,
-                      review.lead_time,
-                      ProjectDetails?.project_type,
-                      review?.parent_annotation,
-                    )
-
-                  }}
-                  disableRipple
-                >
-                  with Minor Changes
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleReviewClick(
-                      "accepted_with_major_changes",
-                      review.id,
-                      review.lead_time,
-                      ProjectDetails?.project_type,
-                      review?.parent_annotation,
-                    )
-
-                  }}
-                  disableRipple
-                >
-                  with Major Changes
-                </MenuItem>
-              </StyledMenu>
             </Grid>
-          </Grid>{" "}
-          {filterMessage && (
-            <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
-              {filterMessage}
-            </Alert>
           )}
-        {filteredReady == false && annotations.length > 0 ? (
-          <Grid item container>
-            {" "}
-            {componentToRender}{" "}
-          </Grid>
-        ) : null}
-        </Grid>
-    </>
-  );
-};
 
+          {/* Revise Button */}
+          {!disableBtns &&
+            !disableButton &&
+            taskData?.review_user === userData?.id && (
+              <Tooltip title="Revise Annotation">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() =>
+                    handleReviewClick(
+                      "to_be_revised",
+                      review?.id,
+                      review?.lead_time,
+                      ProjectDetails?.project_type,
+                      review?.parent_annotation,
+                    )
+                  }
+                  sx={{
+                    minWidth: 'auto',
+                    fontSize: '0.75rem',
+                    px: 1.5,
+                    py: 0.5,
+                    color: "black",
+                    border: "0px",
+                    backgroundColor: "#ee6633",
+                  }}
+                >
+                  Revise
+                </Button>
+              </Tooltip>
+            )}
+
+          {/* Accept Button with Menu */}
+          {!disableBtns && taskData?.review_user === userData?.id && (
+            <Tooltip title="Accept Annotation">
+              <Button
+                variant="outlined"
+                size="small"
+                id="accept-button"
+                aria-controls={open ? "accept-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ee6633",
+                }}
+                onClick={handleClick}
+                endIcon={<KeyboardArrowDownIcon />}
+              >
+                Accept
+              </Button>
+            </Tooltip>
+          )}
+          <StyledMenu
+            id="accept-menu"
+            MenuListProps={{
+              "aria-labelledby": "accept-button",
+            }}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+          >
+            <MenuItem
+              onClick={() => {
+                handleReviewClick(
+                  "accepted",
+                  review.id,
+                  AnnotationsTaskDetails[1]?.lead_time,
+                  ProjectDetails?.project_type,
+                  review?.parent_annotation,
+                )
+              }}
+              disableRipple
+            >
+              with No Changes
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleReviewClick(
+                  "accepted_with_minor_changes",
+                  review.id,
+                  review.lead_time,
+                  ProjectDetails?.project_type,
+                  review?.parent_annotation,
+                )
+              }}
+              disableRipple
+            >
+              with Minor Changes
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleReviewClick(
+                  "accepted_with_major_changes",
+                  review.id,
+                  review.lead_time,
+                  ProjectDetails?.project_type,
+                  review?.parent_annotation,
+                )
+              }}
+              disableRipple
+            >
+              with Major Changes
+            </MenuItem>
+          </StyledMenu>
+        </Box>
+      </Grid>
+
+      {/* Notes Section */}
+      <div
+        style={{
+          display: showNotes ? "block" : "none",
+          padding: "0 8px 8px 8px",
+          width: "100%"
+        }}
+      >
+        <ReactQuill
+          forwardedRef={annotationNotesRef}
+          modules={modules}
+          bounds={"#note"}
+          formats={formats}
+          placeholder="Annotation Notes"
+          readOnly={true}
+        ></ReactQuill>
+        <ReactQuill
+          forwardedRef={reviewNotesRef}
+          modules={modules}
+          bounds={"#note"}
+          formats={formats}
+          placeholder="Review Notes"
+        ></ReactQuill>
+        <ReactQuill
+          forwardedRef={superCheckerNotesRef}
+          modules={modules}
+          bounds={"#note"}
+          formats={formats}
+          placeholder="SuperChecker Notes"
+          readOnly={true}
+        ></ReactQuill>
+      </div>
+
+      {filterMessage && (
+        <Alert severity="info" sx={{ mx: 1, mb: 1, fontSize: "0.75rem" }}>
+          {filterMessage}
+        </Alert>
+      )}
+      
+      {filteredReady == false && annotations.length > 0 ? (
+        <Grid item container>
+          {componentToRender}
+        </Grid>
+      ) : null}
+    </Grid>
+  </>
+);
+
+};
 export default ReviewPage;
