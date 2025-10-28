@@ -1108,22 +1108,84 @@ const SuperCheckerPage = () => {
       />
     );
   };
-  return (
-    <>
-      {loading && <Spinner />}
-      <Grid container>
-        {renderSnackBar()}
-                <Grid item container spacing={2} alignItems="center" sx={{ paddingLeft: 1 }}>
+return (
+  <>
+    {loading && <Spinner />}
+    <Grid container>
+      {renderSnackBar()}
+      
+      {/* Main Button Row - All buttons in one line */}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
+          {/* Back to Project Button */}
+          <Button
+            startIcon={<ArrowBackIcon />}
+            variant="contained"
+            color="primary"
+            size="small"
+            sx={{ 
+              minWidth: 'auto',
+              fontSize: '0.75rem',
+              px: 1.5,
+              py: 0.5
+            }}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("labelAll");
+              }
+              navigate(`/projects/${projectId}`);
+            }}
+          >
+            Back
+          </Button>
 
-        <Grid item>
-          <Box
-            
+          {/* Notes Button */}
+          <Button
+            endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+            variant="contained"
+            color={reviewtext.trim().length === 0 ? "primary" : "success"}
+            size="small"
+            onClick={handleCollapseClick}
+            sx={{ 
+              minWidth: 'auto',
+              fontSize: '0.75rem',
+              px: 1.5,
+              py: 0.5,
+              backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
+            }}
+          >
+            Notes {reviewtext.trim().length === 0 ? "" : "*"}
+          </Button>
+
+          {/* Info Button */}
+          <LightTooltip
+            title={
+              <div>
+                <div>
+                  {ProjectDetails?.conceal == false &&
+                  Array.isArray(assignedUsers)
+                    ? assignedUsers.join(", ")
+                    : assignedUsers || "No assigned users"}
+                </div>
+                <div
+                  style={{
+                    marginTop: "4px",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {annotations[0]?.annotation_type == 1 &&
+                    `ANNOTATION ID: ${annotations[0]?.id}`}
+                  {annotations[0]?.annotation_type == 2 &&
+                    `REVIEW ID: ${annotations[0]?.id}`}
+                  {annotations[0]?.annotation_type == 3 &&
+                    `SUPERCHECK ID: ${annotations[0]?.id}`}
+                </div>
+              </div>
+            }
           >
             <Button
-              value="Back to Project"
-              startIcon={<ArrowBackIcon />}
-              variant="contained"
-              color="primary"
+              size="small"
               sx={{
                 // px: { xs: 2, sm: 3, md: 4 },
                 // py: { xs: 1, sm: 1.5, md: 2 },
@@ -1139,414 +1201,316 @@ const SuperCheckerPage = () => {
                 //window.location.reload();
               }}
             >
-              Back to Project
+              <InfoOutlined sx={{ fontSize: '18px' }} />
             </Button>
-          </Box>
-        </Grid>
-                <Grid item>
+          </LightTooltip>
 
-            <Button
-              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
-              variant="contained"
-              color={reviewtext.trim().length === 0 ? "primary" : "success"}
-              onClick={handleCollapseClick}
-              sx={{
-                // mt: 2,
-                px: { xs: 2, sm: 3, md: 4 },
-                py: { xs: 1, sm: 1.5, md: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "90px", sm: "90px", md: "100px" },
-              }}
-              style={{
-                backgroundColor:
-                  reviewtext.trim().length === 0 ? "#bf360c" : "green",
-              }}
-            >
-              Notes {reviewtext.trim().length === 0 ? "" : "*"}
-            </Button>
-                         </Grid>
-            </Grid>
-
-            <div
-              // className={styles.collapse}
-              style={{
-                display: showNotes ? "block" : "none",
-                paddingBottom: "16px",
-                                width:"100%"
-
-              }}
-            >
-              <ReactQuill
-                forwardedRef={reviewNotesRef}
-                modules={modules}
-                formats={formats}
-                bounds={"#note"}
-                placeholder="Review Notes"
-                style={{ marginbottom: "1%", minHeight: "2rem" }}
-                readOnly={true}
-              ></ReactQuill>
-              <ReactQuill
-                forwardedRef={superCheckerNotesRef}
-                modules={modules}
-                formats={formats}
-                bounds={"#note"}
-                placeholder="Superchecker Notes"
-              ></ReactQuill>
-            </div>
-
-            {ProjectDetails.revision_loop_count >
-            taskData?.revision_loop_count?.super_check_count
-              ? false
-              : true && (
-                  <div
-                    style={{
-                      textAlign: "left",
-                      marginBottom: "5px",
-                      marginLeft: "8px",
-                      marginTop: "5px",
-                    }}
-                  >
-                    <Typography
-                      variant="body"
-                      color="#f5222d"
-                      sx={{
-                        fontSize: {
-                          xs: "14px",
-                          md: "16px",
-                          lg: "18px",
-                          xl: "20px",
-                        },
-                      }}
-                    >
-                      Note: The 'Revision Loop Count' limit has been reached for
-                      this task.
-                    </Typography>
-                  </div>
-                )}
-
-            {ProjectDetails.revision_loop_count -
-              taskData?.revision_loop_count?.super_check_count !==
-              0 && (
-              <div
-                style={{
-                  textAlign: "left",
-                  marginLeft: "8px",
-                  marginTop: "8px",
-                }}
-              >
-                <Typography
-                  variant="body"
-                  color="#f5222d"
-                  sx={{
-                    fontSize: {
-                      xs: "14px",
-                      md: "16px",
-                      lg: "18px",
-                      xl: "20px",
-                    },
-                  }}
-                >
-                  Note: This task can be rejected{" "}
-                  {ProjectDetails.revision_loop_count -
-                    taskData?.revision_loop_count?.super_check_count}{" "}
-                  more times.
-                </Typography>
-              </div>
-            )}
-          <Grid
-            container
-            justifyContent="center"
-             alignItems="center"
-            style={{
-              display: "flex",
-              width: "100%",
-              padding: "10px",
-              gap: "0.5rem",
-            }}
-
-          >
-            <Grid item>
-              <LightTooltip
-                title={
-                  <div>
-                    <div>
-                      {ProjectDetails?.conceal == false &&
-                      Array.isArray(assignedUsers)
-                        ? assignedUsers.join(", ")
-                        : assignedUsers || "No assigned users"}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                      }}
-                    >
-                      {annotations[0]?.annotation_type == 1 &&
-                        `ANNOTATION ID: ${annotations[0]?.id}`}
-                      {annotations[0]?.annotation_type == 2 &&
-                        `REVIEW ID: ${annotations[0]?.id}`}
-                      {annotations[0]?.annotation_type == 3 &&
-                        `SUPERCHECK ID: ${annotations[0]?.id}`}
-                    </div>
-                  </div>
+          {/* Draft Button */}
+          {taskData?.super_check_user === userData?.id && (
+            <Tooltip title="Save task for later">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  handleSuperCheckerClick(
+                    "draft",
+                    SuperChecker.id,
+                    SuperChecker.lead_time,
+                  )
                 }
-              >
-                <Button
-                  type="default"
-                  className="lsf-button"
-                  style={{
-                    minWidth: "40px",
-                    border: "1px solid #e6e6e6",
-                    color: "grey",
-                    pt: 1,
-                    pl: 1,
-                    pr: 1,
-                    borderBottom: "None",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
-                </Button>
-              </LightTooltip>
-            </Grid>
-            {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
-               *{ProjectDetails.project_type} # {taskId} 
-       
-            </Typography>
-            </Grid> */}
-
-            <Grid item>
-              {taskData?.super_check_user === userData?.id && (
-                <Tooltip title="Save task for later">
-                  <Button
-                    value="Draft"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleSuperCheckerClick(
-                        "draft",
-                        SuperChecker.id,
-                        SuperChecker.lead_time,
-                      )
-                    }
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
-                    }}
-                  >
-                    Draft
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>
-
-            <Grid item>
-              <Tooltip title="Go to next task">
-                <Button
-                  value="Next"
-                  type="default"
-                  onClick={() => onNextAnnotation("next", getNextTask?.id)}
-                  sx={{
-                    fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                  }}
-                  style={{
-                    color: "black",
-                    borderRadius: "5px",
-                    border: "0px",
-                    backgroundColor: "#ffe0b2",
-                  }}
-                >
-                  Next
-                </Button>
-              </Tooltip>
-            </Grid>
-
-            <Grid item>
-              {!disableSkip && taskData?.super_check_user === userData?.id && (
-                <Tooltip title="skip to next task">
-                  <Button
-                    value="Skip"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleSuperCheckerClick(
-                        "skipped",
-                        SuperChecker.id,
-                        SuperChecker.lead_time,
-                      )
-                    }
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
-                    }}
-                  >
-                    Skip
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>
-            <Grid item>
-              {!disableSkip && taskData?.super_check_user === userData?.id && (
-                <Tooltip title="clear the entire chat history">
-                  <Button
-                    value="Clear Chats"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleSuperCheckerClick(
-                        "delete",
-                        SuperChecker.id,
-                        SuperChecker.lead_time,
-                      )
-                    }
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
-                    }}
-                  >
-                    Clear Chats
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>
-            <Grid item>
-              {taskData?.super_check_user === userData?.id && (
-                <Tooltip title="Reject">
-                  <Button
-                    value="rejected"
-                    type="default"
-                    variant="outlined"
-                    onClick={() =>
-                      handleSuperCheckerClick(
-                        "rejected",
-                        SuperChecker.id,
-                        SuperChecker.lead_time,
-                        "",
-                        SuperChecker.parent_annotation,
-                      )
-                    }
-                    disabled={
-                      ProjectData.revision_loop_count >
-                      taskData?.revision_loop_count?.super_check_count
-                        ? false
-                        : true
-                    }
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      backgroundColor: "#ee6633",
-                    }}
-                  >
-                    Reject
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>
-            <Grid item>
-              {taskData?.super_check_user === userData?.id && (
-                <Tooltip title="Validate">
-                  <Button
-                    id="accept-button"
-                    value="Validate"
-                    type="default"
-                    aria-controls={open ? "accept-menu" : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? "true" : undefined}
-                    sx={{
-                      fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                      minWidth: { xs: "60px", sm: "80px", md: "100px" },
-                    }}
-                    style={{
-                      color: "black",
-                      borderRadius: "5px",
-                      border: "0px",
-                      backgroundColor: "#ee6633",
-                    }}
-                    onClick={handleClick}
-                    endIcon={<KeyboardArrowDownIcon />}
-                  >
-                    Validate
-                  </Button>
-                </Tooltip>
-              )}
-              <StyledMenu
-                id="accept-menu"
-                MenuListProps={{
-                  "aria-labelledby": "accept-button",
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ffe0b2",
                 }}
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
               >
-                <MenuItem
-                  onClick={() =>
-                    handleSuperCheckerClick(
-                      "validated",
-                      SuperChecker.id,
-                      SuperChecker.lead_time,
-                      "",
-                      SuperChecker.parent_annotation,
-                    )
-                  }
-                  disableRipple
-                >
-                  Validated No Changes
-                </MenuItem>
-                <MenuItem
-                  onClick={() =>
-                    handleSuperCheckerClick(
-                      "validated_with_changes",
-                      SuperChecker.id,
-                      SuperChecker.lead_time,
-                      "",
-                      SuperChecker.parent_annotation,
-                    )
-                  }
-                  disableRipple
-                >
-                  Validated with Changes
-                </MenuItem>
-              </StyledMenu>
-            </Grid>
-          </Grid>{" "}
-          {filterMessage && (
-            <Alert severity="info" sx={{ ml: 2, mb: 2, width: "95%" }}>
-              {filterMessage}
-            </Alert>
+                Draft
+              </Button>
+            </Tooltip>
           )}
-        <Grid item container>
-          {" "}
-          {componentToRender}{" "}
-        </Grid>
+
+          {/* Next Button */}
+          <Tooltip title="Go to next task">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => onNextAnnotation("next", getNextTask?.id)}
+              sx={{
+                minWidth: 'auto',
+                fontSize: '0.75rem',
+                px: 1.5,
+                py: 0.5,
+                color: "black",
+                border: "0px",
+                backgroundColor: "#ffe0b2",
+              }}
+            >
+              Next
+            </Button>
+          </Tooltip>
+
+          {/* Skip Button */}
+          {!disableSkip && taskData?.super_check_user === userData?.id && (
+            <Tooltip title="skip to next task">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  handleSuperCheckerClick(
+                    "skipped",
+                    SuperChecker.id,
+                    SuperChecker.lead_time,
+                  )
+                }
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ffe0b2",
+                }}
+              >
+                Skip
+              </Button>
+            </Tooltip>
+          )}
+
+          {/* Clear Chats Button */}
+          {!disableSkip && taskData?.super_check_user === userData?.id && (
+            <Tooltip title="clear the entire chat history">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  handleSuperCheckerClick(
+                    "delete",
+                    SuperChecker.id,
+                    SuperChecker.lead_time,
+                  )
+                }
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ffe0b2",
+                }}
+              >
+                Clear Chats
+              </Button>
+            </Tooltip>
+          )}
+
+          {/* Reject Button */}
+          {taskData?.super_check_user === userData?.id && (
+            <Tooltip title="Reject">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() =>
+                  handleSuperCheckerClick(
+                    "rejected",
+                    SuperChecker.id,
+                    SuperChecker.lead_time,
+                    "",
+                    SuperChecker.parent_annotation,
+                  )
+                }
+                disabled={
+                  ProjectData.revision_loop_count >
+                  taskData?.revision_loop_count?.super_check_count
+                    ? false
+                    : true
+                }
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ee6633",
+                }}
+              >
+                Reject
+              </Button>
+            </Tooltip>
+          )}
+
+          {/* Validate Button with Menu */}
+          {taskData?.super_check_user === userData?.id && (
+            <Tooltip title="Validate">
+              <Button
+                variant="outlined"
+                size="small"
+                id="accept-button"
+                aria-controls={open ? "accept-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                sx={{
+                  minWidth: 'auto',
+                  fontSize: '0.75rem',
+                  px: 1.5,
+                  py: 0.5,
+                  color: "black",
+                  border: "0px",
+                  backgroundColor: "#ee6633",
+                }}
+                onClick={handleClick}
+                endIcon={<KeyboardArrowDownIcon />}
+              >
+                Validate
+              </Button>
+            </Tooltip>
+          )}
+          <StyledMenu
+            id="accept-menu"
+            MenuListProps={{
+              "aria-labelledby": "accept-button",
+            }}
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+          >
+            <MenuItem
+              onClick={() =>
+                handleSuperCheckerClick(
+                  "validated",
+                  SuperChecker.id,
+                  SuperChecker.lead_time,
+                  "",
+                  SuperChecker.parent_annotation,
+                )
+              }
+              disableRipple
+            >
+              Validated No Changes
+            </MenuItem>
+            <MenuItem
+              onClick={() =>
+                handleSuperCheckerClick(
+                  "validated_with_changes",
+                  SuperChecker.id,
+                  SuperChecker.lead_time,
+                  "",
+                  SuperChecker.parent_annotation,
+                )
+              }
+              disableRipple
+            >
+              Validated with Changes
+            </MenuItem>
+          </StyledMenu>
+        </Box>
       </Grid>
-    </>
-  );
+
+      {/* Notes Section */}
+      <div
+        style={{
+          display: showNotes ? "block" : "none",
+          padding: "0 8px 8px 8px",
+          width: "100%"
+        }}
+      >
+        <ReactQuill
+          forwardedRef={reviewNotesRef}
+          modules={modules}
+          formats={formats}
+          bounds={"#note"}
+          placeholder="Review Notes"
+          style={{ marginBottom: "1%", minHeight: "2rem" }}
+          readOnly={true}
+        ></ReactQuill>
+        <ReactQuill
+          forwardedRef={superCheckerNotesRef}
+          modules={modules}
+          formats={formats}
+          bounds={"#note"}
+          placeholder="Superchecker Notes"
+        ></ReactQuill>
+      </div>
+
+      {/* Revision Loop Count Messages */}
+      {ProjectDetails.revision_loop_count >
+      taskData?.revision_loop_count?.super_check_count
+        ? false
+        : true && (
+            <div
+              style={{
+                textAlign: "left",
+                marginBottom: "5px",
+                marginLeft: "8px",
+                marginTop: "5px",
+              }}
+            >
+              <Typography
+                variant="body"
+                color="#f5222d"
+                sx={{
+                  fontSize: {
+                    xs: "14px",
+                    md: "16px",
+                    lg: "18px",
+                    xl: "20px",
+                  },
+                }}
+              >
+                Note: The 'Revision Loop Count' limit has been reached for
+                this task.
+              </Typography>
+            </div>
+          )}
+
+      {ProjectDetails.revision_loop_count -
+        taskData?.revision_loop_count?.super_check_count !==
+        0 && (
+        <div
+          style={{
+            textAlign: "left",
+            marginLeft: "8px",
+            marginTop: "8px",
+          }}
+        >
+          <Typography
+            variant="body"
+            color="#f5222d"
+            sx={{
+              fontSize: {
+                xs: "14px",
+                md: "16px",
+                lg: "18px",
+                xl: "20px",
+              },
+            }}
+          >
+            Note: This task can be rejected{" "}
+            {ProjectDetails.revision_loop_count -
+              taskData?.revision_loop_count?.super_check_count}{" "}
+            more times.
+          </Typography>
+        </div>
+      )}
+
+      {filterMessage && (
+        <Alert severity="info" sx={{ mx: 1, mb: 1, fontSize: "0.75rem" }}>
+          {filterMessage}
+        </Alert>
+      )}
+      
+      <Grid item container>
+        {componentToRender}
+      </Grid>
+    </Grid>
+  </>
+);
 };
 
 export default SuperCheckerPage;

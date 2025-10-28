@@ -197,7 +197,7 @@ export default function Textarea({
     <Grid
       item
       // xs={size}
-      backgroundColor="transparent"
+      backgroundColor="white"
       justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}

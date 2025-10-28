@@ -43,6 +43,7 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import ChatLang from "@/utils/Chatlang";
+// import TasksSupercheckTable from "./prefered_reviewers";
 
 const defaultColumns = [
   "id",
@@ -584,6 +585,8 @@ const SuperCheckerTasks = (props) => {
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
+      <>
+      
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
         {(roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
@@ -631,6 +634,7 @@ const SuperCheckerTasks = (props) => {
               </Select>
             </FormControl>
           )}
+          {/* <TasksSupercheckTable /> */}
         <ColumnList
           columns={columns}
           setColumns={setSelectedColumns}
@@ -686,6 +690,7 @@ const SuperCheckerTasks = (props) => {
          </Button>
         </Box>
       </Box>
+      </>
     );
   };
 
