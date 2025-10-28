@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   IconButton,
   Tooltip,
@@ -35,7 +35,6 @@ const ReviewTasksTable = () => {
   const fetchMembers = async () => {
     const projectId = getProjectIdFromURL();
     if (!projectId) return alert("❌ Project ID not found in URL.");
-
     setLoading(true);
     try {
       const token = localStorage.getItem("anudesh_access_token");
@@ -77,15 +76,12 @@ const ReviewTasksTable = () => {
   const handleSave = async () => {
     const projectId = getProjectIdFromURL();
     if (!projectId) return alert("❌ Project ID not found.");
-
     const token = localStorage.getItem("anudesh_access_token");
     const endpoint = `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`;
-
     const bodyData = {
       project_id: projectId,
       annotator_ids: annotatorSelection,
     };
-
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -95,7 +91,6 @@ const ReviewTasksTable = () => {
         },
         body: JSON.stringify(bodyData),
       });
-
       const result = await response.json();
       console.log("✅ Save response:", result);
       alert(result?.message || "Preferred annotators saved successfully!");
@@ -130,12 +125,14 @@ const ReviewTasksTable = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Select</TableCell>
+                  <TableCell>Annotator</TableCell>
                   <TableCell>
                       {m.annotator_username ? m.annotator_username : (m.annotator_email || "—")}
                     </TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {members.map((m, index) => (
                   <TableRow key={index}>
@@ -146,7 +143,7 @@ const ReviewTasksTable = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {m.annotator_username ? m.annotator_username : (m.annotator_email || "—")}
+                      {m.annotator_username || m.annotator_email || "—"}
                     </TableCell>
                     <TableCell>{m.unassigned_count ?? 0}</TableCell>
                   </TableRow>
@@ -155,7 +152,6 @@ const ReviewTasksTable = () => {
             </Table>
           )}
         </DialogContent>
-
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button variant="contained" onClick={handleSave}>
