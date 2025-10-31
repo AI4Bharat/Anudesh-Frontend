@@ -630,7 +630,6 @@ const TaskTable = (props) => {
       const email =
         props.type === "review" && annotatorEmail ? "Annotator Email" : "";
       let colList = ["id", ...(!!email ? [email] : [])];
-      // console.log("colList : ", colList)
       colList.push(
         ...Object.keys(taskList[0].data).filter(
           (el) => !excludeCols.includes(el),
