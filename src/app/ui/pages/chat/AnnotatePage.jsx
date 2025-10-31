@@ -446,7 +446,8 @@ const AnnotatePage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${projectId}`);
+          // window.location.replace(`/#/projects/${projectId}`);
+          navigate(`/projects/${projectId}`)
         }, 1000);
       });
   };
@@ -471,8 +472,9 @@ const AnnotatePage = () => {
           localStorage.removeItem("labelAll");
         }
 
-        window.location.replace(`/#/projects/${projectId}`);
-        window.location.reload();
+        // window.location.replace(`/#/projects/${projectId}`);
+        // window.location.reload();
+        navigate(`/projects/${projectId}`);
       }, 1000);
     }
   };
@@ -1124,7 +1126,8 @@ const AnnotatePage = () => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-                navigate(`/projects/${projectId}`);
+                navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } } );
+                // console.log('back to project form annotatePage file')
               }}
             >
               Back
