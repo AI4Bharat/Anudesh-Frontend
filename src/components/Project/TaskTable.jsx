@@ -58,6 +58,8 @@ const defaultColumns = [
   "id",
   "instruction_data",
   "meta_info_language",
+  "revision_count",
+  "rejection_count",
   "status",
   "actions",
 ];
@@ -78,7 +80,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text"];
+const excludeSearch = ["status", "actions", "output_text", "revision_count", "rejection_count"];
 
 const excludeCols = [
   "context",
@@ -572,6 +574,14 @@ const TaskTable = (props) => {
               return el.data[key];
             }),
         );
+
+        if (props.type === "annotation" && taskList[0].revision_loop_count) {
+          row.push(el.revision_loop_count?.review_count); 
+        } else if (props.type === "review" && taskList[0].revision_loop_count) {
+          row.push(el.revision_loop_count?.review_count);
+          row.push(el.revision_loop_count?.super_check_count);
+        }
+
         if (props.type === "annotation" && taskList[0].annotation_status) {
           row.push(el.annotation_status);
         } else if (props.type === "review" && taskList[0].review_status) {
@@ -625,6 +635,14 @@ const TaskTable = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
+      
+      if (props.type === "annotation" && taskList[0].revision_loop_count) {
+        colList.push("revision_count");
+      } else if (props.type === "review" && taskList[0].revision_loop_count) {
+        colList.push("revision_count");
+        colList.push("rejection_count");
+      }
+
       taskList[0].task_status && colList.push("status");
       if (ProjectDetails?.required_annotators_per_task > 1) {
         if (taskList[0].input_data_id) {
