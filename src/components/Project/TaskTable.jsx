@@ -652,7 +652,7 @@ const TaskTable = (props) => {
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
-        if (props.type === "review" && ProjectDetails?.conceal === true) {
+        if (props.type === "review" && ProjectDetails?.conceal === false) {
           const updatedColumns = [...defaultColumns, "Annotator Email"];
           columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
         } else {
