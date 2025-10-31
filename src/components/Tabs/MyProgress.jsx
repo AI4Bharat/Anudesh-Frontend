@@ -116,14 +116,16 @@ const MyProgress = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   setLoading(apiLoading);
+  // }, [apiLoading]);
+
+
   useEffect(() => {
-    setLoading(apiLoading);
-  }, [apiLoading]);
-    useEffect(() => {
-      if( selectedType === ""){
-        setSelectedType("InstructionDrivenChat")
-      }
-      }, []);
+    if (selectedType === "") {
+      setSelectedType("InstructionDrivenChat")
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -140,14 +142,15 @@ const MyProgress = () => {
           if(selectedType ===""){
                       setSelectedType(idc)
 
-          }
         }
+      }
     }
-  }, [ProjectTypes]);    
+  }, [ProjectTypes]);
   useEffect(() => {
     if (UserAnalytics?.message) {
       setSnackbarText(UserAnalytics?.message);
       showSnackbar();
+      setShowSpinner(false); // ✅ stop spinner on error
       return;
     }
     if (UserAnalytics?.length) {
@@ -168,10 +171,12 @@ const MyProgress = () => {
       setColumns(tempColumns);
       setReportData(UserAnalytics);
       setSelectedColumns(tempSelected);
+      setShowSpinner(false); // ✅ stop spinner when data is loaded
     } else {
       setColumns([]);
       setReportData([]);
       setSelectedColumns([]);
+      setShowSpinner(false); //
     }
     setShowSpinner(false);
   }, [UserAnalytics]);
@@ -264,9 +269,9 @@ const MyProgress = () => {
               marginLeft: "0px",
             },
             "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -333,14 +338,14 @@ const MyProgress = () => {
   };
   return (
     <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
+      {/* === Report Type Selection === */}
       <Grid
         container
         direction="row"
         justifyContent="start"
         alignItems="center"
       >
-        <Grid>
+        <Grid item>
           <Typography
             gutterBottom
             component="div"
@@ -376,12 +381,9 @@ const MyProgress = () => {
           </RadioGroup>
         </FormControl>
       </Grid>
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-      >
+
+      {/* === Filters and Date Picker === */}
+      <Grid container direction="row" justifyContent="center" alignItems="center">
         <Grid
           container
           columnSpacing={4}
@@ -412,6 +414,7 @@ const MyProgress = () => {
               </Select>
             </FormControl>
           </Grid>
+
           <Grid item xs={12} sm={12} md={5} lg={5} xl={5}>
             <Button
               endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
@@ -435,6 +438,8 @@ const MyProgress = () => {
             </Button>
           </Grid>
         </Grid>
+
+        {/* === Date Range Picker === */}
         {showPicker && (
           <Box
             sx={{
@@ -456,8 +461,8 @@ const MyProgress = () => {
                       startDate: new Date(
                         Date.parse(
                           UserDetails?.date_joined,
-                          "yyyy-MM-ddTHH:mm:ss.SSSZ",
-                        ),
+                          "yyyy-MM-ddTHH:mm:ss.SSSZ"
+                        )
                       ),
                       endDate: new Date(),
                     }),
@@ -478,8 +483,8 @@ const MyProgress = () => {
                   new Date(
                     Date.parse(
                       UserDetails?.date_joined,
-                      "yyyy-MM-ddTHH:mm:ss.SSSZ",
-                    ),
+                      "yyyy-MM-ddTHH:mm:ss.SSSZ"
+                    )
                   )
                 }
                 maxDate={new Date()}
@@ -488,17 +493,11 @@ const MyProgress = () => {
             </Card>
           </Box>
         )}
+
+        {/* === Total Summary Sections === */}
         {radiobutton === "AnnotatationReports" && totalsummary && (
           <Grid container direction="row" sx={{ mb: 3, mt: 2 }}>
-            <Grid
-              container
-              alignItems="center"
-              direction="row"
-              justifyContent="flex-start"
-            >
-              <Typography variant="h6">Total Summary </Typography>
-            </Grid>
-
+            <Typography variant="h6">Total Summary </Typography>
             <Grid container alignItems="center" direction="row">
               <Typography variant="subtitle1">Annotated Tasks : </Typography>
               <Typography variant="body2" className="TotalSummarydata">
@@ -507,22 +506,13 @@ const MyProgress = () => {
             </Grid>
             <Grid container alignItems="center" direction="row">
               <Typography variant="subtitle1">
-                Average Annotation Time (In Seconds) :{" "}
+                Average Annotation Time (In Seconds) :
               </Typography>
               <Typography variant="body2" className="TotalSummarydata">
-                {
-                  UserAnalyticstotalsummary?.at(0)?.[
-                    "Avg Annotation Time (sec)"
-                  ]
-                }
+                {UserAnalyticstotalsummary?.at(0)?.["Avg Annotation Time (sec)"]}
               </Typography>
             </Grid>
-            <Grid
-              container
-              alignItems="center"
-              direction="row"
-              justifyContent="flex-start"
-            >
+            <Grid container alignItems="center" direction="row">
               <Typography variant="subtitle1">Word Count : </Typography>
               <Typography variant="body2" className="TotalSummarydata">
                 {UserAnalyticstotalsummary?.at(0)?.["Word Count"]}
@@ -584,6 +574,7 @@ const MyProgress = () => {
             </Grid>
           </Grid>
         )}
+
         {radiobutton === "SuperCheckerReports" && totalsummary && (
           <Grid
             container
@@ -623,11 +614,7 @@ const MyProgress = () => {
                 Average Super Checker Time (In Seconds) :{" "}
               </Typography>
               <Typography variant="body2" className="TotalSummarydata">
-                {
-                  UserAnalyticstotalsummary?.at(0)?.[
-                    "Avg SuperCheck Time (sec)"
-                  ]
-                }
+                {UserAnalyticstotalsummary?.at(0)?.["Avg SuperCheck Time (sec)"]}
               </Typography>
             </Grid>
             <Grid
@@ -643,41 +630,63 @@ const MyProgress = () => {
             </Grid>
           </Grid>
         )}
-        {UserAnalytics?.length > 0 ? (
-          <ThemeProvider theme={tableTheme}>
-            <MUIDataTable
-              key={`table-${displayWidth}`}
-              title={
-                radiobutton === "AnnotatationReports"
-                  ? "Annotation Report"
-                  : radiobutton === "ReviewerReports"
-                    ? "Reviewer Report"
-                    : "Super Checker Report"
-              }
-              data={reportData}
-              columns={columns.filter((col) =>
-                selectedColumns.includes(col.name),
+
+        {/* === Table or Spinner === */}
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          sx={{ minHeight: "300px" }}
+        >
+          <Grid item>
+            <Box sx={{ position: "relative", minHeight: "300px" }}>
+              {showSpinner && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 10,
+                  }}
+                >
+                  <CircularProgress color="primary" size={50} />
+                </Box>
               )}
-              options={{
-                ...tableOptions,
-                tableBodyHeight: `${
-                  typeof window !== "undefined" ? window.innerHeight - 200 : 400
-                }px`,
-              }}
-            />
-          </ThemeProvider>
-        ) : (
-          <Grid container justifyContent="center">
-            <Grid item sx={{ mt: "10%" }}>
-              {showSpinner ? (
-                <CircularProgress color="primary" size={50} />
+
+              {!showSpinner && UserAnalytics?.length > 0 ? (
+                <ThemeProvider theme={tableTheme}>
+                  <MUIDataTable
+                    key={`table-${displayWidth}`}
+                    title={
+                      radiobutton === "AnnotatationReports"
+                        ? "Annotation Report"
+                        : radiobutton === "ReviewerReports"
+                          ? "Reviewer Report"
+                          : "Super Checker Report"
+                    }
+                    data={reportData}
+                    columns={columns.filter((col) =>
+                      selectedColumns.includes(col.name)
+                    )}
+                    options={{
+                      ...tableOptions,
+                      tableBodyHeight: `${typeof window !== "undefined"
+                        ? window.innerHeight - 200
+                        : 400
+                        }px`,
+                    }}
+                  />
+                </ThemeProvider>
               ) : (
-                !reportData?.length && submitted && <>No results</>
+                !showSpinner && submitted && <>No results</>
               )}
-            </Grid>
+            </Box>
           </Grid>
-        )}
-      </Grid>
+        </Grid>
+      </Grid> {/* ✅ closes the big "justifyContent=center" Grid */}
+
+      {/* === Snackbar === */}
       <CustomizedSnackbars
         message={snackbarText}
         open={snackbarOpen}
@@ -693,4 +702,6 @@ const MyProgress = () => {
   );
 };
 
+
 export default MyProgress;
+
