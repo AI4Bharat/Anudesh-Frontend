@@ -1187,12 +1187,18 @@ return (
             <Button
               size="small"
               sx={{
-                minWidth: '32px',
-                width: '32px',
-                height: '32px',
-                border: "1px solid #e6e6e6",
-                color: "grey",
-                backgroundColor: "white",
+                // px: { xs: 2, sm: 3, md: 4 },
+                // py: { xs: 1, sm: 1.5, md: 2 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                minWidth: { xs: "70px", sm: "70px", md: "100px" },
+              }}
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("labelAll");
+                }
+                navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } });
+                //window.location.replace(`/#/projects/${projectId}`);
+                //window.location.reload();
               }}
             >
               <InfoOutlined sx={{ fontSize: '18px' }} />
