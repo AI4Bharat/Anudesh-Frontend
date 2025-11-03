@@ -1758,7 +1758,12 @@ const CreateProject = () => {
                   </IconButton>
                 </Tooltip>
                             </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+{questionsJSON?.some(question => question.question_type === "comparison") ? (
+        <Typography variant="caption" color="textSecondary" display="block" sx={{ mb: 1 }}>
+          Single Model Response is automatically disabled for comparison questions
+        </Typography>
+      ) : (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
           <Typography variant="body2">Single Model Response</Typography>
           <Switch
             checked={singleModelResponse}
@@ -1766,6 +1771,7 @@ const CreateProject = () => {
             size="small"
           />
         </Box>
+      )}
 
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                               <input

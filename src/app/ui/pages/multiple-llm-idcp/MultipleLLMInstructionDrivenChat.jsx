@@ -1134,7 +1134,6 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
       return newState;
     });
   };
-
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
     console.log(form);
 
@@ -1220,6 +1219,16 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
   };
 console.log(evalFormResponse);
 
+    const scrollOutputs = (index, direction) => {
+        const container = document.getElementById(`output-container-${index}`);
+        if (container) {
+            const scrollAmount = 300;
+            container.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
 
 const renderChatHistory = () => {
     const toggleShrink = (index) => {
@@ -1415,8 +1424,27 @@ const renderChatHistory = () => {
                   marginLeft: "0px",
                 }}
               >
+                <IconButton
+                  onClick={() => scrollOutputs(index, 'left')}
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    left: "-10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 1,
+                    backgroundColor: "white",
+                    boxShadow: 1,
+                    width: "20px",
+                    height: "20px",
+                  }}
+                >
+                  <ChevronLeftIcon style={{ fontSize: "0.8rem", color: "#EE6633" }} />
+                </IconButton>
+
                 <Grid item xs={12} style={{ paddingTop: "0rem", paddingLeft: "0px" }}>
                   <Box
+                    id={`output-container-${index}`} 
                     sx={{
                       display: "flex",
                       flexDirection: "row",
@@ -1589,6 +1617,24 @@ const renderChatHistory = () => {
                     ))}
                   </Box>
                 </Grid>
+                <IconButton
+                  onClick={() => scrollOutputs(index, 'right')}
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    right: "-10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    zIndex: 1,
+                    backgroundColor: "white",
+                    boxShadow: 1,
+                    width: "20px",
+                    height: "20px",
+                  }}
+                >
+                  <ChevronRightIcon style={{ fontSize: "0.8rem", color: "#EE6633" }} />
+                </IconButton>
+
               </Grid>
             </Grid>
           )}
@@ -1600,7 +1646,7 @@ const renderChatHistory = () => {
               sx={{
                 padding: "1rem",
                 position: "relative",
-                width: "85%",
+                width: "100%",
                 backgroundColor: "rgba(247, 184, 171, 0.2)",
                 borderRadius: "8px",
                 marginBottom: "1.5rem",
@@ -1614,67 +1660,889 @@ const renderChatHistory = () => {
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
                   {/* Reduced font sizes in evaluation form as well */}
-                  {!ProjectDetails?.metadata_json?.single_model_response ? (
-                    ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => (
-                      <div key={questionIdx}>
-                        {question.question_type === "comparison" && (
-                          <div style={{ marginBottom: "4px" }}>
-                            <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
-                              {questionIdx + 1}. {question.input_question}
-                              <span style={{ color: "#d93025", fontSize: "18px" }}> *</span>
-                            </div>
-                            <div style={{ paddingLeft: "16px" }}>
-                              {question.input_selections_list?.map((option, optionIdx) => (
-                                <div key={optionIdx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                  <span style={{ fontSize: "0.8rem" }}>{option}:</span>
-                                  <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", paddingRight: "0.8rem" }}>
-                                    <FormControl>
-                                      <RadioGroup
-                                        name={`comparison-${questionIdx}-${optionIdx}`}
-                                        sx={{ display: "flex", flexDirection: "row" }}
-                                        value={(() => {
-                                          const responses = evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id]?.model_responses_json;
-                                          if (!responses || !Array.isArray(responses)) return "";
-                                          const matchingResponse = responses.find((model) =>
-                                            model.questions_response?.some(q =>
-                                              q.question?.question_type === question.question_type &&
-                                              q.question?.input_question === question.input_question &&
-                                              q.response?.[0] !== "-1"
-                                            )
-                                          );
-                                          const validResponse = matchingResponse?.questions_response?.find(q =>
-                                            q.question?.question_type === question.question_type &&
-                                            q.question?.input_question === question.input_question &&
-                                            q.response?.[0] !== "-1"
-                                          );
-                                          return validResponse?.response?.[0] || "";
-                                        })()}
-                                        onChange={(e) => handleComparison(message?.output?.[0]?.prompt_output_pair_id, message, option, questionIdx, e.target.value)}
+                  {!ProjectDetails?.metadata_json?.single_model_response? (
+
+                    ProjectDetails?.metadata_json?.questions_json?.map(
+                      (question, questionIdx) => (
+                        <div key={questionIdx}>
+                          {question.question_type === "comparison" && (
+                            <div style={{ marginBottom: "4px" }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{ color: "#d93025", fontSize: "18px" }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+                              <div style={{ paddingLeft: "16px" }}>
+                                {question.input_selections_list?.map(
+                                  (option, optionIdx) => (
+                                    <div
+                                      key={optionIdx}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        fontSize:"0.85rem"
+                                      }}
+                                    >
+                                      <span>{option}:</span>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          flexWrap: "wrap",
+                                          paddingRight: "1rem",
+                                        }}
                                       >
-                                        {message?.output?.map((response, outputIdx) => (
-                                          <FormControlLabel
-                                            key={outputIdx}
-                                            value={response.model_name}
-                                            control={<Radio size="small" />}
-                                            label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
-                                            labelPlacement="start"
-                                          />
-                                        ))}
-                                      </RadioGroup>
-                                    </FormControl>
-                                  </div>
-                                </div>
-                              ))}
+                                        <FormControl>
+                                          <RadioGroup
+                                            name={`comparison-${questionIdx}-${optionIdx}`}
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "row",
+                                            }}
+                                            value={(() => {
+                                              const responses =
+                                                evalFormResponse?.[
+                                                  message?.output?.[0]
+                                                    ?.prompt_output_pair_id
+                                                ]?.model_responses_json;
+
+                                              if (
+                                                !responses ||
+                                                !Array.isArray(responses)
+                                              ) {
+                                                return "";
+                                              }
+                                              const matchingResponse =
+                                                responses.find((model) =>
+                                                  model.questions_response?.some(
+                                                    (q) =>
+                                                      q.question
+                                                        ?.question_type ===
+                                                      question.question_type &&
+                                                      q.question
+                                                        ?.input_question ===
+                                                      question.input_question &&
+                                                      q.response?.[0] !== "-1",
+                                                  ),
+                                                );
+
+                                              const validResponse =
+                                                matchingResponse?.questions_response?.find(
+                                                  (q) =>
+                                                    q.question
+                                                      ?.question_type ===
+                                                    question.question_type &&
+                                                    q.question
+                                                      ?.input_question ===
+                                                    question.input_question &&
+                                                    q.response?.[0] !== "-1",
+                                                );
+
+                                              return (
+                                                validResponse?.response?.[0] ||
+                                                ""
+                                              );
+                                            })()}
+                                            onChange={(e) =>
+                                              handleComparison(
+                                                message?.output?.[0]
+                                                  ?.prompt_output_pair_id,
+                                                message,
+                                                option,
+                                                questionIdx,
+                                                e.target.value,
+                                              )
+                                            }
+                                          >
+                                            {message?.output?.map(
+                                              (response, outputIdx) => (
+                                                <FormControlLabel
+                                                  key={outputIdx}
+                                                  value={response.model_name}
+                                                  control={<Radio />}
+                                                  label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
+                                                  labelPlacement="start"
+                                                />
+                                              ),
+                                            )}
+                                          </RadioGroup>
+                                        </FormControl>
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        {/* Other question types with reduced sizes... */}
-                      </div>
-                    ))
-                  ) : (
-                    // Single response mode with reduced sizes...
-                    <></>
-                  )}
+                          )}
+                          {question.question_type === "fill_in_blanks" && (
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <p className={classes.inputQuestion}>
+                                {questionIdx + 1}.{" "}
+                                {question.input_question
+                                  .split("<blank>")
+                                  .map((part, index) => (
+                                    <span key={`${questionIdx}-${index}`}style={{
+                                      fontSize: "0.9rem",
+                                    }}>
+                                      {part}
+                                      {index <
+                                        question.input_question.split("<blank>")
+                                          .length -
+                                        1 && (
+                                          <span
+                                            style={{
+                                              borderBottom: "1px solid black",
+                                              display: "inline-block",
+                                              width: "100px",
+                                              margin: "0 4px",
+                                              verticalAlign: "middle",
+                                              fontSize:"0.85rem"
+                                            }}
+                                          >
+                                            &nbsp;
+                                          </span>
+                                        )}
+                                    </span>
+                                  ))}
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </p>
+
+                              <div
+                                style={{
+                                  padding: "10px 0 0 20px",
+                                  maxWidth: "80%",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  flexWrap: "wrap",
+                                  fontSize:"0.85rem"
+                                }}
+                              >
+                                {message?.output?.map((response, outputIdx) => (
+                                  <div
+                                    key={outputIdx}
+                                    style={{
+                                      marginBottom: "10px",
+                                      display: "flex",
+                                      flexDirection: "row",
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="subtitle2"
+                                      sx={{
+                                        color: "#6C5F5B",
+                                        marginRight: "15px",
+                                        marginTop: "0.7rem",
+                                        fontSize:"0.85rem"
+                                      }}
+                                    >
+                                      {"Model " + (outputIdx + 1)}
+                                    </Typography>
+                                    {question.input_question
+                                      .split("<blank>")
+                                      .slice(0, -1)
+                                      .map((_, idx) => (
+                                        <input
+                                          key={`${outputIdx}-${idx}`}
+                                          data-blank-index={idx}
+                                          type="text"
+                                          value={
+                                            evalFormResponse?.[
+                                              message?.output?.[0]
+                                                ?.prompt_output_pair_id
+                                            ]?.model_responses_json
+                                              ?.find(
+                                                (m) =>
+                                                  m.model_name ===
+                                                  response.model_name,
+                                              )
+                                              ?.questions_response?.find(
+                                                (q) =>
+                                                  q.question.question_type ===
+                                                  question.question_type &&
+                                                  q.question.input_question ===
+                                                  question.input_question,
+                                              )?.response?.[idx] || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              e,
+                                              message,
+                                              message?.output?.[0]
+                                                ?.prompt_output_pair_id,
+                                              questionIdx,
+                                              outputIdx,
+                                            )
+                                          }
+                                          style={{
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                            maxWidth: "200px",
+                                            fontSize:"0.85rem"
+                                          }}
+                                          required
+                                        />
+                                      ))}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {question.question_type === "rating" && (
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion}>
+                                <span style={{
+                                    fontSize: "0.9rem",
+                                  }}>
+                                  {questionIdx + 1}. {question.input_question}
+                                </span>
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  padding: "10px 0 0 20px",
+                                  maxWidth: "70%",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {message?.output?.map((response, outputIdx) => {
+                                  return (
+                                    <div key={outputIdx}>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          flexWrap: "wrap",
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="subtitle2"
+                                          sx={{
+                                            marginRight: "15px",
+                                            marginTop: "0.5rem",
+                                            color: "#6C5F5B",
+                                            fontSize:"0.85rem"
+                                          }}
+                                        >
+                                          {response?.model_name}
+                                        </Typography>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <Rating
+                                            name={`rating-${outputIdx}`}
+                                            value={
+                                              evalFormResponse?.[
+                                                message?.output?.[0]
+                                                  ?.prompt_output_pair_id
+                                              ]?.model_responses_json
+                                                ?.find(
+                                                  (m) =>
+                                                    m.model_name ===
+                                                    response.model_name,
+                                                )
+                                                ?.questions_response?.find(
+                                                  (q) =>
+                                                    q.question.question_type ===
+                                                    question.question_type &&
+                                                    q.question
+                                                      .input_question ===
+                                                    question.input_question,
+                                                )?.response?.[0] || 0
+                                            }
+                                            onChange={(event, newValue) => {
+                                              handleRating(
+                                                newValue,
+                                                message,
+                                                message?.output?.[0]
+                                                  ?.prompt_output_pair_id, // index
+                                                questionIdx,
+                                                outputIdx, // model_idx
+                                              );
+                                            }}
+                                            sx={{
+                                              color: "#ee6633",
+                                              "& .MuiRating-iconFilled": {
+                                                color: "#ee6633",
+                                              },
+                                              "& .MuiRating-iconHover": {
+                                                color: "#ee6633",
+                                              },
+                                            }}
+                                            emptyIcon={
+                                              <StarIcon
+                                                style={{
+                                                  opacity: 0.55,
+                                                  color: orange[400],
+                                                }}
+                                                fontSize="inherit"
+                                              />
+                                            }
+                                          />
+                                        </Box>
+                                      </Box>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          {question.question_type === "mcq" && (
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion} style={{
+                                    fontSize: "0.9rem",
+                                  }}>
+                                {questionIdx + 1}. {question.input_question}
+                                <span
+                                  style={{
+                                    color: "#d93025",
+                                    fontSize: "25px",
+                                  }}
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </div>
+
+                              <div
+                                style={{
+                                  paddingLeft: "20px",
+                                }}
+                              >
+                                {question?.input_selections_list?.map(
+                                  (option, optionIdx) => (
+                                    <div
+                                      key={optionIdx}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        flexDirection: "row",
+                                      }}
+                                    >
+                                      <span style={{
+                                    fontSize: "0.85rem",
+                                  }}>{option} :</span>{" "}
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          flexDirection: "row",
+                                          flexWrap: "wrap",
+                                        }}
+                                      >
+                                        {message?.output?.map(
+                                          (response, outputIdx) => (
+                                            <div
+                                              key={`${optionIdx}-${outputIdx}`}
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                paddingRight: "2rem",
+                                              }}
+                                            >
+                                              <FormControl
+                                                component="fieldset"
+                                                key={outputIdx}
+                                              >
+                                                <RadioGroup
+                                                  name={`question-${questionIdx}-model-${outputIdx}`}
+                                                  value={
+                                                    evalFormResponse?.[
+                                                      message
+                                                        ?.prompt_output_pair_id
+                                                    ]?.model_responses_json
+                                                      ?.find(
+                                                        (m) =>
+                                                          m.model_name ===
+                                                          response.model_name,
+                                                      )
+                                                      ?.questions_response?.find(
+                                                        (q) =>
+                                                          q.question
+                                                            .question_type ===
+                                                          question.question_type &&
+                                                          q.question
+                                                            .input_question ===
+                                                          question.input_question,
+                                                      )?.response?.[0] || ""
+                                                  }
+                                                  onChange={(e) =>
+                                                    handleMCQ(
+                                                      message?.output?.[0]
+                                                        ?.prompt_output_pair_id, // index
+                                                      message,
+                                                      option,
+                                                      questionIdx,
+                                                      outputIdx, // model_idx
+                                                    )
+                                                  }
+                                                >
+                                                  <FormControlLabel
+                                                    key={optionIdx}
+                                                    value={option}
+                                                    control={<Radio />}
+                                                    labelPlacement="start"
+                                                    label={
+                                                      <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                          color: "#6C5F5B",
+                                                          fontSize:"0.85rem"
+                                                        }}
+                                                      >
+                                                        {response?.model_name}
+                                                      </Typography>
+                                                    }
+                                                  />
+                                                </RadioGroup>
+                                              </FormControl>
+                                            </div>
+                                          ),
+                                        )}
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          {question.question_type ===
+                            "multi_select_options" && (
+                              <div
+                                style={{
+                                  marginBottom: "5px",
+                                }}
+                              >
+                                <div className={classes.inputQuestion} style={{
+                                      fontSize: "0.9rem",
+                                    }}>
+                                  {questionIdx + 1}. {question.input_question}
+                                  <span
+                                    style={{
+                                      color: "#d93025",
+                                      fontSize: "25px",
+                                    }}
+                                  >
+                                    {" "}
+                                    *
+                                  </span>
+                                </div>
+                                <div
+                                  style={{
+                                    paddingLeft: "20px",
+                                  }}
+                                >
+                                  {question?.input_selections_list?.map(
+                                    (option, optionIdx) => (
+                                      <div
+                                        key={optionIdx}
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "row",
+                                          alignItems: "center",
+                                          justifyContent: "space-between",
+                                        }}
+                                      >
+                                        <span style={{
+                                      fontSize: "0.85rem",
+                                    }}>{option} :</span>{" "}
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            flexWrap: "wrap",
+                                          }}
+                                        >
+                                          {message?.output?.map(
+                                            (response, outputIdx) => (
+                                              <div
+                                                key={`${optionIdx}-${outputIdx}`}
+                                                style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  paddingRight: "2rem",
+                                                }}
+                                              >
+                                                <FormControl component="fieldset">
+                                                  <FormGroup>
+                                                    <FormControlLabel
+                                                      key={optionIdx}
+                                                      control={
+                                                        <Checkbox
+                                                          onChange={(e) =>
+                                                            handleMultiSelect(
+                                                              message?.output?.[0]
+                                                                ?.prompt_output_pair_id, // index
+                                                              message,
+                                                              option,
+                                                              questionIdx,
+                                                              outputIdx, // model_idx
+                                                            )
+                                                          }
+                                                          checked={
+                                                            evalFormResponse?.[
+                                                              message?.output?.[0]
+                                                                ?.prompt_output_pair_id
+                                                            ]?.model_responses_json
+                                                              ?.find(
+                                                                (m) =>
+                                                                  m.model_name ===
+                                                                  response.model_name,
+                                                              )
+                                                              ?.questions_response?.find(
+                                                                (q) =>
+                                                                  q.question
+                                                                    .question_type ===
+                                                                  question.question_type &&
+                                                                  q.question
+                                                                    .input_question ===
+                                                                  question.input_question,
+                                                              )
+                                                              ?.response?.includes(
+                                                                option,
+                                                              ) || false
+                                                          }
+                                                        />
+                                                      }
+                                                      labelPlacement="start"
+                                                      label={
+                                                        <Typography
+                                                          variant="subtitle2"
+                                                          sx={{
+                                                            color: "#6C5F5B",
+                                                            fontSize:"0.85rem"
+                                                          }}
+                                                        >
+                                                          {response?.model_name}
+                                                        </Typography>
+                                                      }
+                                                    />{" "}
+                                                  </FormGroup>
+                                                </FormControl>
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      ))) : (<>{ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
+                        const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
+                        switch (question?.question_type) {
+                          case "fill_in_blanks":
+                            const splitQuestion = question?.input_question.split("<blank>");
+                            return (
+                              <div key={questionIdx}>
+                                <p className={classes.inputQuestion}>
+                                  {questionIdx + 1}.{" "}
+                                  {splitQuestion?.map((part, index) => (
+                                    <span
+                                      key={`${questionIdx}-${index}`}
+                                      style={{ fontSize: "0.9rem" }}
+                                    >
+                                      {part}
+                                      {index < splitQuestion.length - 1 && (
+                                        <input
+                                          type="text"
+  value={
+  evalFormResponse?.[promptOutputPairId]
+    ?.model_responses_json?.[questionIdx]
+    ?.response?.[index] || ""
+}
+                                         onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
+                                          style={{
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                            padding: "4px",
+                                            fontSize: "0.85rem",
+                                            // lineHeight: "1.5",
+                                            verticalAlign: "middle",
+                                            width: "100%",
+                                            maxWidth: "200px",
+                                            margin: "4px 0",
+                                            boxSizing: "border-box",
+                                            backgroundColor: "white",
+                                            fontWeight: "normal",
+                                          }}
+                                          required={true}
+                                        />
+                                      )}
+                                    </span>
+                                  ))}
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </p>
+                              </div>
+                            );
+
+                          case "rating":
+                            return (
+                              <div key={questionIdx}>
+                                <div className={classes.inputQuestion}>
+                                  <span style={{ fontSize: "0.9rem" }}>
+                                    {questionIdx + 1}. {question.input_question}
+                                  </span>
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </div>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                    onMouseLeave={() => handleHover(null)}
+                                  >
+                                    <Rating
+                                      name={`rating`}
+value={
+  Number(
+    evalFormResponse?.[promptOutputPairId]
+      ?.model_responses_json?.[questionIdx]
+      ?.response?.[0] || 0
+  )
+}
+                                      getLabelText={getLabelText}
+                                      onChange={(event, newValue) => {
+                                        handleSingleRating(newValue, questionIdx, promptOutputPairId);
+                                        setSelectedRatings((prev) => ({
+                                          ...prev,
+                                          [questionIdx]: newValue,
+                                        }));
+                                        setHover({});
+                                      }}
+                                      onChangeActive={(event, newHover) => {
+                                        handleHover(newHover, questionIdx);
+                                      }}
+                                      sx={{
+                                        marginLeft: "18px",
+                                        color: "#ee6633",
+                                        "& .MuiRating-iconFilled": {
+                                          color: "#ee6633",
+                                        },
+                                        "& .MuiRating-iconHover": {
+                                          color: "#ee6633",
+                                        },
+                                      }}
+                                      emptyIcon={
+                                        <StarIcon
+                                          style={{
+                                            opacity: 0.55,
+                                            color: "#EE6633",
+                                          }}
+                                          fontSize="inherit"
+                                        />
+                                      }
+                                    />
+                                    <Box
+                                      sx={{
+                                        ml: 2,
+                                        color: "#EE6633",
+                                      fontSize:"0.85rem"}}
+                                    >
+                                      {(() => {
+                                        const currentHover = hover[questionIdx] || null;
+                                        const currentSelection =
+                                          Number(selectedRatings[questionIdx]) || null;
+                                        const initialResponse =
+                                          Number(
+                                            evalFormResponse?.[message?.output?.[0]?.prompt_output_pair_id]
+                                              ?.questions_response?.[questionIdx]?.response?.[0] || 0
+                                          )
+
+
+                                        return currentHover !== null && currentHover !== -1
+                                          ? labels[currentHover]
+                                          : initialResponse > 0
+                                            ? labels[initialResponse]
+                                            : initialResponse === null
+                                              ? ""
+                                              : currentSelection
+                                                ? labels[currentSelection]
+                                                : "";
+                                      })()}
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              </div>
+                            );
+
+                          case "multi_select_options":
+                            return (
+                              <div key={questionIdx}>
+                                <div
+                                  className={classes.inputQuestion}
+                                  style={{ fontSize: "0.9rem" }}
+                                >
+                                  {questionIdx + 1}. {question.input_question}
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </div>
+                                <FormControl
+                                  component="fieldset"
+                                  sx={{
+                                    marginLeft: "18px",
+                                  }}
+                                >
+                                  <FormGroup>
+                                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                      {question.input_selections_list.map((option, idx) => (
+                                        <div style={{ width: "50%" ,fontSize:"0.85rem"}} key={idx}>
+                                          <FormControlLabel
+                                            key={idx}
+                                            control={
+                                              <Checkbox
+                                                onChange={(e) =>
+                                                  handleSingleMultiSelect(
+                                                    e.target.checked,
+                                                    option,
+                                                    questionIdx,
+                                                    promptOutputPairId
+                                                  )
+                                                }
+checked={
+  evalFormResponse?.[promptOutputPairId]
+    ?.model_responses_json?.[questionIdx]
+    ?.response?.includes(option) || false
+}
+
+                                              />
+                                            }
+                                            label={option}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </FormGroup>
+                                </FormControl>
+                              </div>
+                            );
+
+                          case "mcq":
+                            return (
+                              <div key={questionIdx}>
+                                <div
+                                  className={classes.inputQuestion}
+                                  style={{ fontSize: "0.9rem" }}
+                                >
+                                  {questionIdx + 1}. {question.input_question}
+                                  {
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
+                                  }
+                                </div>
+                                <FormControl
+                                  component="fieldset"
+                                  required={true}
+                                  sx={{
+                                    marginLeft: "18px",
+                                  }}
+                                >
+                                  <RadioGroup
+value={
+  evalFormResponse?.[promptOutputPairId]
+    ?.model_responses_json?.[questionIdx]
+    ?.response?.[0] || ""
+}
+
+                                    onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: "16px",
+                                        fontSize:"0.85rem"
+                                      }}
+                                    >
+                                      {question?.input_selections_list?.map(
+                                        (option, idx) => (
+                                          <div
+                                            key={idx}
+                                            style={{ width: "calc(50% - 8px)" }} // 2 per row with spacing
+                                          >
+                                            <FormControlLabel
+                                              value={option}
+                                              control={<Radio />}
+                                              label={option}
+                                            />
+                                          </div>
+                                        ),
+                                      )}
+                                    </div>
+                                  </RadioGroup>
+                                </FormControl>
+                              </div>
+                            );
+
+                          default:
+                            return null;
+                        }
+                      })}</>)}
 
                   <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", width: "100%" }}>
                     <Button
