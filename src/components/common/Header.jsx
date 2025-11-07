@@ -31,6 +31,7 @@ import GradingSharpIcon from "@mui/icons-material/GradingSharp";
 import { formatDistanceToNow, format } from "date-fns";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
+import NMTModalContent from "./NMTModalContent";
 
 const Header = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -71,6 +72,27 @@ const Header = () => {
   const handleMoreHorizonClose = () => {
     setMoreHorizonAnchorEl(null);
   };
+    const [showTranslationModel, setShowTranslationModel] = useState(false);
+    const handleTranslationModelClose = () => {
+    setShowTranslationModel(false);
+  };
+const translationServices = {
+  "ai4bharat/indictrans--gpu-t4": {
+    service_id: "ai4bharat/indictrans--gpu-t4",
+    languageFilters: {
+      sourceLanguages: [
+        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
+        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
+        "ks", "doi", "pa"
+      ],
+      targetLanguages: [
+        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
+        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
+        "ks", "doi", "pa"
+      ]
+    }
+  }
+};
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
@@ -721,6 +743,14 @@ useEffect(() => {
         setShowTransliterationModel(true);
       },
     },
+        {
+      name: "Translation",
+      onclick: () => {
+        handleCloseSettingsMenu();
+        setShowTranslationModel(true);
+      }
+    },
+
     {
       name: "Enable RTL-typing",
       control: (
@@ -1415,6 +1445,20 @@ useEffect(() => {
           setIsSpaceClicked={setIsSpaceClicked}
           isSpaceClicked={isSpaceClicked}
           setShowTransliterationModel={setShowTransliterationModel}
+        />
+      </Modal>
+      <Modal
+        open={showTranslationModel}
+        onClose={handleTranslationModelClose}
+        top={50}
+        left={50}
+        topTranslate={"40"}
+        leftTranslate={"-50"}
+        style={{ cursor: "pointer" }}
+      >
+        <NMTModalContent
+          onClose={handleTranslationModelClose}
+          services={translationServices}
         />
       </Modal>
     </Grid>
