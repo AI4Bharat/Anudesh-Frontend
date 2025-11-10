@@ -1459,6 +1459,8 @@ useEffect(() => {
         <NMTModalContent
           onClose={handleTranslationModelClose}
           services={translationServices}
+          setIsSpaceClicked={setIsSpaceClicked}
+          isSpaceClicked={isSpaceClicked}
         />
       </Modal>
     </Grid>
