@@ -131,7 +131,7 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
     setTimeout(() => setAlert({ open: false, message: "", severity: "success" }), 4000);
   };
   const onCopyButtonClick = () => {
-    navigator.clipboard.writeText(inputText);
+    navigator.clipboard.writeText(outputText);
     setShowSnackBar({
       message: "Copied to clipboard!",
       variant: "success",
@@ -320,7 +320,7 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
               >
                 Translate
               </Button>
-                      <Button variant="contained" sx={{ mr: 2 }} onClick={onCopyButtonClick} disabled={!inputText}>
+                      <Button variant="contained" sx={{ mr: 2 }} onClick={onCopyButtonClick} disabled={!outputText}>
                         Copy Text
                       </Button>
               
