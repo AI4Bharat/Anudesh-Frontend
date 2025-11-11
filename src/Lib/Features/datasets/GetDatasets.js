@@ -28,7 +28,7 @@ export const fetchDatasets = createAsyncThunk(
         }
       }
     }
-    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/?${queryString}/optimized-list`);
+    const params = fetchParams(`${ENDPOINTS.getDatasets}instances/?${queryString}`);
     return fetch(params.url, params.options)
         .then(response => response.json())
   }
