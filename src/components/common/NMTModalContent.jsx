@@ -24,6 +24,7 @@ import {
 import axios from "axios";
 import { useState } from "react";
 import LanguageCode from "@/utils/LanguageCode";
+import CustomizedSnackbars from "./Snackbar";
 
 const fetchTranslation = async ({
   sourceLanguage,
@@ -51,7 +52,7 @@ const fetchTranslation = async ({
 // const CustomIndicTransliterate = IndicTransliterate;
 
 // Export just the content, not wrapped in Modal
-const NMTModalContent = ({ onClose, services = {} }) => {
+const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked }) => {
   const [service, setService] = useState(Object.keys(services)[0] || "");
   const [sourceLanguage, setSourceLanguage] = useState(
     services[Object.keys(services)[0]]?.languageFilters?.sourceLanguages[0] || ""
@@ -59,21 +60,35 @@ const NMTModalContent = ({ onClose, services = {} }) => {
   const [targetLanguage, setTargetLanguage] = useState(
     services[Object.keys(services)[0]]?.languageFilters?.targetLanguages[0] || ""
   );
-    const classes = GlobalStyles();
-  
-    const [text, setText] = useState("");
-    const renderTextarea = (props) => {
+  const classes = GlobalStyles();
+  const [showSnackBar, setShowSnackBar] = useState({
+    message: "",
+    variant: "",
+    timeout: 1500,
+    visible: false,
+  });
+
+  const [text, setText] = useState("");
+  const renderTextarea = (props) => {
     return (
       <textarea
         {...props}
         placeholder={"Enter text here..."}
-                      minRows={3}
-              maxRows={6}
-              style={{ width: "100%" }}
+        minRows={3}
+        maxRows={6}
+        style={{ width: "100%" }}
       />
     );
   };
-  
+  const handleSnackBarClose = () => {
+    setShowSnackBar({
+      message: "",
+      variant: "",
+      timeout: 1500,
+      visible: false,
+    });
+  };
+
 
   const [transliteration, setTransliteration] = useState(true);
   const [inputText, setInputText] = useState("");
@@ -82,44 +97,53 @@ const NMTModalContent = ({ onClose, services = {} }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [tracking, setTracking] = useState(true);
   const [alert, setAlert] = useState({ open: false, message: "", severity: "success" });
- const LANGUAGE_CODE_NAMES = {
-  gom: "Konkani",
-  mai: "Maithili",
-  kn: "Kannada",
-  ne: "Nepali",
-  ta: "Tamil",
-  ks: "Kashmiri",
-  pa: "Punjabi",
-  sat: "Santali",
-  en: "English",
-  brx: "Bodo",
-  sa: "Sanskrit",
-  doi: "Dogri",
-  te: "Telugu",
-  ur: "Urdu",
-  as: "Assamese",
-  sd: "Sindhi",
-  hi: "Hindi",
-  or: "Odia",
-  ml: "Malayalam",
-  gu: "Gujarati",
-  bn: "Bengali",
-  mr: "Marathi",
-  mni: "Meitei (Manipuri)",
-  raj: "Rajasthani",
-  si: "Sinhala",
-  kok: "Konkani",
-};
+  const LANGUAGE_CODE_NAMES = {
+    gom: "Konkani",
+    mai: "Maithili",
+    kn: "Kannada",
+    ne: "Nepali",
+    ta: "Tamil",
+    ks: "Kashmiri",
+    pa: "Punjabi",
+    sat: "Santali",
+    en: "English",
+    brx: "Bodo",
+    sa: "Sanskrit",
+    doi: "Dogri",
+    te: "Telugu",
+    ur: "Urdu",
+    as: "Assamese",
+    sd: "Sindhi",
+    hi: "Hindi",
+    or: "Odia",
+    ml: "Malayalam",
+    gu: "Gujarati",
+    bn: "Bengali",
+    mr: "Marathi",
+    mni: "Meitei (Manipuri)",
+    raj: "Rajasthani",
+    si: "Sinhala",
+    kok: "Konkani",
+  };
 
   const showAlert = (message, severity = "success") => {
     setAlert({ open: true, message, severity });
     setTimeout(() => setAlert({ open: false, message: "", severity: "success" }), 4000);
   };
+  const onCopyButtonClick = () => {
+    navigator.clipboard.writeText(outputText);
+    setShowSnackBar({
+      message: "Copied to clipboard!",
+      variant: "success",
+      timeout: 1500,
+      visible: true,
+    });
+  };
 
   const handleTranslate = async () => {
     setOutputText("");
     setSuccess(false);
-    
+
     if (inputText === "") {
       showAlert("Provide text to be translated", "warning");
       return;
@@ -135,9 +159,9 @@ const NMTModalContent = ({ onClose, services = {} }) => {
         serviceId: service,
         track: tracking,
       });
-      
+
       setIsLoading(false);
-      
+
       if (response.status === 200) {
         setSuccess(true);
         setOutputText(response.data?.output?.[0]?.target || "");
@@ -168,7 +192,7 @@ const NMTModalContent = ({ onClose, services = {} }) => {
       setTargetLanguage(serviceData.languageFilters.targetLanguages[0] || "");
     }
   };
-console.log(services);
+  console.log(services);
 
   return (
     <Card sx={{ border: 1, borderColor: "orange.main", boxShadow: 3, p: 3, minWidth: "400px" }}>
@@ -235,7 +259,7 @@ console.log(services);
                   color="primary"
                 />
               </Box>
-              
+
               {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <FormLabel sx={{ color: "text.secondary" }}>
                   Allow usage analysis:
@@ -250,12 +274,12 @@ console.log(services);
           </Stack>
 
           <Stack spacing={2} width="100%">
-<IndicTransliterate
-        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-        // enableASR={true}
-        // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
-        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-                      enabled={sourceLanguage !== "en" && transliteration}
+            <IndicTransliterate
+              customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+              // enableASR={true}
+              // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+              apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+              enabled={sourceLanguage !== "en" && transliteration}
 
               value={inputText}
               onChangeText={(text) => {
@@ -263,8 +287,8 @@ console.log(services);
               }}
               lang={sourceLanguage}
 
-        renderComponent={(props) => renderTextarea(props)}
-              />
+              renderComponent={(props) => renderTextarea(props)}
+            />
             <textarea
               value={outputText}
               readOnly
@@ -274,38 +298,50 @@ console.log(services);
             />
 
 
-<Grid
-        container
-        direction="row"
-        justifyContent="end"
-        alignItems="center"
-        spacing={1}
-      >
-
-            <Button
-              variant="contained"
-              onClick={handleTranslate}
-              disabled={isLoading}
-              sx={{
-                mr: 2,
-                bgcolor: "orange.main",
-                "&:hover": {
-                  bgcolor: "orange.dark",
-                },
-              }}
+            <Grid
+              container
+              direction="row"
+              justifyContent="end"
+              alignItems="center"
+              spacing={1}
             >
-              Translate
-            </Button>
-                    <Button variant="contained" sx={{}} onClick={onClose}>
-                      Close
-                    </Button>
-            
-</Grid>
+
+              <Button
+                variant="contained"
+                onClick={handleTranslate}
+                disabled={isLoading}
+                sx={{
+                  mr: 2,
+                  bgcolor: "orange.main",
+                  "&:hover": {
+                    bgcolor: "orange.dark",
+                  },
+                }}
+              >
+                Translate
+              </Button>
+                      <Button variant="contained" sx={{ mr: 2 }} onClick={onCopyButtonClick} disabled={!outputText}>
+                        Copy Text
+                      </Button>
+              
+              <Button variant="contained" sx={{}} onClick={onClose}>
+                Close
+              </Button>
+
+            </Grid>
             {isLoading && (
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <CircularProgress sx={{ color: "orange.main" }} />
               </Box>
             )}
+            <CustomizedSnackbars
+                      hide={showSnackBar.timeout}
+                      open={showSnackBar.visible}
+                      handleClose={handleSnackBarClose}
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                      variant={showSnackBar.variant}
+                      message={showSnackBar.message}
+                    />
           </Stack>
         </Stack>
       </FormControl>
@@ -314,4 +350,3 @@ console.log(services);
 };
 
 export default NMTModalContent;
-
