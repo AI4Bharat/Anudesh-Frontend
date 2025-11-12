@@ -682,7 +682,7 @@ const SuperCheckerPage = () => {
       result: buildResult(value, type, resultValue),
       task_id: taskId,
       auto_save:
-        value === "delete" || value === "delete-pair" || value === "rejected"
+        value === "delete" || value === "delete-pair" 
           ? true
           : false,
       interaction_llm: value === "delete" || value === "delete-pair",
