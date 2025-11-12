@@ -392,7 +392,6 @@ const MultipleLLMInstructionDrivenChat = ({
             message: "Preferred response saved successfully!",
             variant: "success",
           });
-          handleClosePreferredResponseModal(index);
         } else {
           setSnackbarInfo({
             open: true,
