@@ -81,7 +81,7 @@ const translationServices = {
     service_id: "ai4bharat/indictrans--gpu-t4",
     languageFilters: {
       sourceLanguages: [
-        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
+        "en","kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
         "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
         "ks", "doi", "pa"
       ],

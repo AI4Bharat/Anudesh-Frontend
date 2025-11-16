@@ -47,8 +47,25 @@ const Transliteration = (props) => {
       <textarea
         {...props}
         placeholder={"Enter text here..."}
-        rows={5}
-        className={classes.textAreaTransliteration}
+        rows={4}
+        style={{
+          width: "100%",
+          padding: "12px",
+          border: "1px solid #ffb74d",
+          borderRadius: "8px",
+          fontSize: "14px",
+          fontFamily: "inherit",
+          resize: "vertical",
+          outline: "none",
+          minHeight: "120px",
+          backgroundColor: "#fffaf0",
+          transition: "all 0.2s ease",
+          "&:focus": {
+            borderColor: "#ff9800",
+            backgroundColor: "#fff",
+            boxShadow: "0 0 0 2px rgba(255, 152, 0, 0.2)",
+          }
+        }}
       />
     );
   };
@@ -83,6 +100,13 @@ const Transliteration = (props) => {
     <Card
       sx={{
         width: matches ? window.innerWidth * 0.7 : window.innerWidth * 0.3,
+        boxShadow: "0 4px 20px rgba(255, 152, 0, 0.2)",
+        borderRadius: "12px",
+        overflow: "hidden",
+        background: "linear-gradient(135deg, #fffaf0 0%, #fff5e6 100%)",
+        maxHeight: "90vh",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Grid
@@ -91,12 +115,15 @@ const Transliteration = (props) => {
         justifyContent="space-between"
         alignItems="center"
         sx={{
-          backgroundColor: "#f5f5f5",
-          padding: "0.4rem 1rem 0.4rem 1rem",
-          marginBottom: 2,
+          background: "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)",
+          padding: "0.8rem 1rem",
+          marginBottom: 0,
+          flexShrink: 0,
         }}
       >
-        <Typography variant="subtitle1">Select Language:</Typography>
+        <Typography variant="subtitle1" sx={{ color: "white", fontWeight: "bold", fontSize: "0.9rem" }}>
+          Select Language:
+        </Typography>
         <Autocomplete
           value={
             selectedLang
@@ -109,37 +136,103 @@ const Transliteration = (props) => {
           options={languageList}
           size={"small"}
           getOptionLabel={(el) => el.DisplayName}
-          sx={{ width: window.innerWidth * 0.15 }}
+          sx={{ 
+            width: window.innerWidth * 0.15,
+            "& .MuiOutlinedInput-root": {
+              backgroundColor: "white",
+              borderRadius: "6px",
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#ff9800",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "#ff9800",
+                borderWidth: "2px",
+              }
+            }
+          }}
           renderInput={(params) => <TextField {...params} label="" placeholder="Select Language" />}
           disableClearable={true}
         />
       </Grid>
 
-      <IndicTransliterate
-        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-        // enableASR={true}
-        // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
-        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-        lang={selectedLang.LangCode ? selectedLang.LangCode : (data.length > 0 && (params.taskId || params.id) ? data[0]?.LangCode : "hi")}
-        value={text}
-        onChangeText={(val) => {
-          setText(val);
-        }}
-        renderComponent={(props) => renderTextarea(props)}
-              />
+      <Box sx={{ 
+        p: 1.5, 
+        flex: 1, 
+        overflow: "auto",
+        minHeight: 0 
+      }}>
+        <IndicTransliterate
+          customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+          apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+          lang={selectedLang.LangCode ? selectedLang.LangCode : (data.length > 0 && (params.taskId || params.id) ? data[0]?.LangCode : "hi")}
+          value={text}
+          onChangeText={(val) => {
+            setText(val);
+          }}
+          renderComponent={(props) => renderTextarea(props)}
+        />
+      </Box>
+
       <Grid
         container
         direction="row"
-        justifyContent="end"
+        justifyContent="flex-end"
         alignItems="center"
-        sx={{ padding: "1rem" }}
+        sx={{ 
+          padding: "0.8rem 1rem",
+          background: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+          borderTop: "1px solid #ffcc80",
+          flexShrink: 0,
+        }}
+        spacing={1}
       >
-        <Button variant="contained" sx={{ mr: 2 }} onClick={onCopyButtonClick} disabled={!text}>
-          Copy Text
-        </Button>
-        <Button variant="contained" sx={{}} onClick={onCloseButtonClick}>
-          Close
-        </Button>
+        <Grid item>
+          <Button 
+            variant="contained" 
+            onClick={onCopyButtonClick} 
+            disabled={!text}
+            size="small"
+            sx={{
+              bgcolor: "orange.main",
+              fontSize: "0.8rem",
+              px: 2,
+              borderRadius: "6px",
+              boxShadow: "0 2px 4px rgba(255, 152, 0, 0.3)",
+              "&:hover": {
+                bgcolor: "orange.dark",
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 8px rgba(255, 152, 0, 0.4)",
+              },
+              "&:disabled": {
+                bgcolor: "grey.400",
+              }
+            }}
+          >
+            Copy Text
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button 
+            variant="outlined" 
+            onClick={onCloseButtonClick}
+            size="small"
+            sx={{
+              borderColor: "orange.main",
+              color: "orange.main",
+              fontSize: "0.8rem",
+              borderRadius: "6px",
+              fontWeight: "bold",
+              "&:hover": {
+                borderColor: "orange.dark",
+                backgroundColor: "orange.50",
+                transform: "translateY(-1px)",
+                boxShadow: "0 2px 4px rgba(255, 152, 0, 0.2)",
+              }
+            }}
+          >
+            Close
+          </Button>
+        </Grid>
         <CustomizedSnackbars
           hide={showSnackBar.timeout}
           open={showSnackBar.visible}

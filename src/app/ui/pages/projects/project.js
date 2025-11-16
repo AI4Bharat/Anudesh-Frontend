@@ -26,7 +26,8 @@ const ProjectList = React.memo(function ProjectList({ data }) {
   const dispatch = useDispatch();
   const [radiobutton, setRadiobutton] = useState(true);
     const [bookmarkedLoading, setBookmarkedLoading] = useState(false);
-  
+      const [snackbarInfo, setSnackbarInfo] = useState(false);
+
   // console.log(data);
   const theme = useTheme();
 

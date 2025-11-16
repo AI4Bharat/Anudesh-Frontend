@@ -1,7 +1,4 @@
 "use client";
-// import {
-//   IndicTransliterate,
-// } from "@ai4bharat/indic-transliterate";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import "../../IndicTransliterate/index.css"
 import configs from "@/config/config";
@@ -20,7 +17,10 @@ import {
   Box,
   MenuItem,
   Grid,
+  IconButton,
+  Typography,
 } from "@mui/material";
+import { Close } from "@mui/icons-material";
 import axios from "axios";
 import { useState } from "react";
 import LanguageCode from "@/utils/LanguageCode";
@@ -49,17 +49,24 @@ const fetchTranslation = async ({
   }
 };
 
-// const CustomIndicTransliterate = IndicTransliterate;
-
-// Export just the content, not wrapped in Modal
 const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked }) => {
   const [service, setService] = useState(Object.keys(services)[0] || "");
-  const [sourceLanguage, setSourceLanguage] = useState(
-    services[Object.keys(services)[0]]?.languageFilters?.sourceLanguages[0] || ""
-  );
-  const [targetLanguage, setTargetLanguage] = useState(
-    services[Object.keys(services)[0]]?.languageFilters?.targetLanguages[0] || ""
-  );
+  
+  const getDefaultSourceLanguage = () => {
+    const serviceData = services[Object.keys(services)[0]];
+    const sourceLanguages = serviceData?.languageFilters?.sourceLanguages || [];
+    return sourceLanguages.includes("en") ? "en" : sourceLanguages[0] || "";
+  };
+
+  const getDefaultTargetLanguage = () => {
+    const serviceData = services[Object.keys(services)[0]];
+    const targetLanguages = serviceData?.languageFilters?.targetLanguages || [];
+    return targetLanguages[0] || "";
+  };
+
+  const [sourceLanguage, setSourceLanguage] = useState(getDefaultSourceLanguage());
+  const [targetLanguage, setTargetLanguage] = useState(getDefaultTargetLanguage());
+  
   const classes = GlobalStyles();
   const [showSnackBar, setShowSnackBar] = useState({
     message: "",
@@ -69,17 +76,37 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
   });
 
   const [text, setText] = useState("");
+  
   const renderTextarea = (props) => {
     return (
       <textarea
         {...props}
         placeholder={"Enter text here..."}
-        minRows={3}
-        maxRows={6}
-        style={{ width: "100%" }}
+        rows={3}
+        style={{ 
+          width: "100%", 
+          padding: "12px",
+          border: "2px solid #e0e0e0",
+          borderRadius: "8px",
+          fontSize: "14px",
+          fontFamily: "inherit",
+          resize: "vertical",
+          outline: "none",
+          transition: "all 0.3s ease",
+          minHeight: "80px",
+          backgroundColor: "#fafafa",
+          background: "linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)",
+          "&:focus": {
+            borderColor: "#ff9800",
+            backgroundColor: "#fff",
+            boxShadow: "0 0 0 3px rgba(255, 152, 0, 0.15)",
+            transform: "translateY(-1px)"
+          }
+        }}
       />
     );
   };
+
   const handleSnackBarClose = () => {
     setShowSnackBar({
       message: "",
@@ -89,7 +116,6 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
     });
   };
 
-
   const [transliteration, setTransliteration] = useState(true);
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
@@ -97,6 +123,7 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
   const [isLoading, setIsLoading] = useState(false);
   const [tracking, setTracking] = useState(true);
   const [alert, setAlert] = useState({ open: false, message: "", severity: "success" });
+  
   const LANGUAGE_CODE_NAMES = {
     gom: "Konkani",
     mai: "Maithili",
@@ -130,8 +157,9 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
     setAlert({ open: true, message, severity });
     setTimeout(() => setAlert({ open: false, message: "", severity: "success" }), 4000);
   };
+
   const onCopyButtonClick = () => {
-    navigator.clipboard.writeText(inputText);
+    navigator.clipboard.writeText(outputText);
     setShowSnackBar({
       message: "Copied to clipboard!",
       variant: "success",
@@ -165,7 +193,7 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
       if (response.status === 200) {
         setSuccess(true);
         setOutputText(response.data?.output?.[0]?.target || "");
-        showAlert("Translation Inference Successful", "success");
+        showAlert("Translation Successful", "success");
       } else if (response.status === 403) {
         setSuccess(false);
         setOutputText("");
@@ -188,44 +216,125 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
     setService(newService);
     const serviceData = services[newService];
     if (serviceData?.languageFilters) {
-      setSourceLanguage(serviceData.languageFilters.sourceLanguages[0] || "");
-      setTargetLanguage(serviceData.languageFilters.targetLanguages[0] || "");
+      const sourceLanguages = serviceData.languageFilters.sourceLanguages;
+      const targetLanguages = serviceData.languageFilters.targetLanguages;
+      
+      setSourceLanguage(sourceLanguages.includes("en") ? "en" : sourceLanguages[0] || "");
+      setTargetLanguage(targetLanguages[0] || "");
     }
   };
-  console.log(services);
 
   return (
-    <Card sx={{ border: 1, borderColor: "orange.main", boxShadow: 3, p: 3, minWidth: "400px" }}>
+    <Card sx={{ 
+      boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)", 
+      p: 2, 
+      minWidth: "420px",
+      maxWidth: "480px",
+      maxHeight: "90vh",
+      overflow: "auto",
+      border: "1px solid #000000ff",
+      position: "relative",
+      background: "linear-gradient(135deg, #fffaf0 0%, #fff5e6 50%, #fff 100%)",
+      "&:before": {
+        content: '""',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "4px",
+        borderRadius: "4px 4px 0 0"
+      }
+    }}>
+      {/* Close Button */}
+      <IconButton
+        onClick={onClose}
+        sx={{
+          position: "absolute",
+          top: 12,
+          right: 12,
+          color: "text.secondary",
+          zIndex: 10,
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          "&:hover": {
+            backgroundColor: "orange.50",
+            color: "orange.main",
+            transform: "scale(1.1)",
+            transition: "all 0.2s ease"
+          }
+        }}
+      >
+        <Close />
+      </IconButton>
+
+      {/* Header */}
+      <Typography 
+        variant="h6" 
+        sx={{ 
+          mb: 2, 
+          color: "orange.main",
+          fontWeight: "bold",
+          textAlign: "center",
+          fontSize: "1.2rem",
+          textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+          background: "linear-gradient(135deg, #ff9800, #ffb74d)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text"
+        }}
+      >
+        Text Translation
+      </Typography>
+
       <FormControl fullWidth>
-        <Stack spacing={3}>
+        <Stack spacing={2}>
           {alert.open && (
-            <Alert severity={alert.severity} onClose={() => setAlert({ ...alert, open: false })}>
+            <Alert 
+              severity={alert.severity} 
+              onClose={() => setAlert({ ...alert, open: false })}
+              sx={{ 
+                mb: 0, 
+                py: 0.5,
+                borderRadius: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+              }}
+            >
               {alert.message}
             </Alert>
           )}
 
-          <Stack spacing={2}>
-            {/* <Box>
-              <FormLabel sx={{ color: "text.secondary", mb: 1 }}>Select Service:</FormLabel>
+          <Stack spacing={1.5}>
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                border: "1px solid #e0e0e0"
+              }}
+            >
+              <FormLabel sx={{ color: "text.secondary", mb: 1, fontWeight: "bold", fontSize: "0.9rem" }}>
+                Source Language:
+              </FormLabel>
               <Select
                 fullWidth
-                value={service}
-                onChange={handleServiceChange}
-              >
-                {Object.entries(services).map(([key, val]) => (
-                  <MenuItem key={key} value={key}>
-                    {key}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box> */}
-
-            <Box>
-              <FormLabel sx={{ color: "text.secondary", mb: 1 }}>Select Source Language:</FormLabel>
-              <Select
-                fullWidth
+                size="small"
                 value={sourceLanguage}
                 onChange={(event) => setSourceLanguage(event.target.value)}
+                sx={{
+                  borderRadius: "8px",
+                  backgroundColor: "white",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#e0e0e0"
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "orange.main"
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "orange.main",
+                    borderWidth: "2px"
+                  }
+                }}
               >
                 {services[service]?.languageFilters?.sourceLanguages?.map((language, index) => (
                   <MenuItem key={index} value={language}>
@@ -235,12 +344,37 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
               </Select>
             </Box>
 
-            <Box>
-              <FormLabel sx={{ color: "text.secondary", mb: 1 }}>Select Target Language:</FormLabel>
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                border: "1px solid #e0e0e0"
+              }}
+            >
+              <FormLabel sx={{ color: "text.secondary", mb: 1, fontWeight: "bold", fontSize: "0.9rem" }}>
+                Target Language:
+              </FormLabel>
               <Select
                 fullWidth
+                size="small"
                 value={targetLanguage}
                 onChange={(event) => setTargetLanguage(event.target.value)}
+                sx={{
+                  borderRadius: "8px",
+                  backgroundColor: "white",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#e0e0e0"
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "orange.main"
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "orange.main",
+                    borderWidth: "2px"
+                  }
+                }}
               >
                 {services[service]?.languageFilters?.targetLanguages?.map((language, index) => (
                   <MenuItem key={index} value={language}>
@@ -250,98 +384,193 @@ const NMTModalContent = ({ onClose, services, setIsSpaceClicked, isSpaceClicked 
               </Select>
             </Box>
 
-            <Stack spacing={1}>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <FormLabel sx={{ color: "text.secondary" }}>Enable Transliteration:</FormLabel>
-                <Switch
-                  checked={transliteration}
-                  onChange={() => setTransliteration(!transliteration)}
-                  color="primary"
-                />
-              </Box>
-
-              {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <FormLabel sx={{ color: "text.secondary" }}>
-                  Allow usage analysis:
-                </FormLabel>
-                <Switch
-                  checked={tracking}
-                  onChange={(e) => setTracking(e.target.checked)}
-                  color="primary"
-                />
-              </Box> */}
-            </Stack>
+            <Box sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "space-between",
+              p: 2,
+              borderRadius: "10px",
+              background: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+              border: "1px solid #ffcc80",
+              boxShadow: "0 2px 8px rgba(255, 152, 0, 0.1)"
+            }}>
+              <FormLabel sx={{ color: "orange.dark", fontWeight: "bold", fontSize: "0.9rem" }}>
+                Enable Transliteration:
+              </FormLabel>
+              <Switch
+                checked={transliteration}
+                onChange={() => setTransliteration(!transliteration)}
+                color="warning"
+                size="small"
+              />
+            </Box>
           </Stack>
 
-          <Stack spacing={2} width="100%">
-            <IndicTransliterate
-              customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-              // enableASR={true}
-              // asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
-              apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-              enabled={sourceLanguage !== "en" && transliteration}
-
-              value={inputText}
-              onChangeText={(text) => {
-                setInputText(text);
+          <Stack spacing={1.5} width="100%">
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                border: "1px solid #e0e0e0"
               }}
-              lang={sourceLanguage}
-
-              renderComponent={(props) => renderTextarea(props)}
-            />
-            <textarea
-              value={outputText}
-              readOnly
-              minRows={3}
-              maxRows={6}
-              placeholder="Translation will appear here..."
-            />
-
-
-            <Grid
-              container
-              direction="row"
-              justifyContent="end"
-              alignItems="center"
-              spacing={1}
             >
-
-              <Button
-                variant="contained"
-                onClick={handleTranslate}
-                disabled={isLoading}
-                sx={{
-                  mr: 2,
-                  bgcolor: "orange.main",
-                  "&:hover": {
-                    bgcolor: "orange.dark",
-                  },
+              <FormLabel sx={{ color: "text.secondary", mb: 1, fontWeight: "bold", fontSize: "0.9rem" }}>
+                Input Text:
+              </FormLabel>
+              <IndicTransliterate
+                customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                enabled={sourceLanguage !== "en" && transliteration}
+                value={inputText}
+                onChangeText={(text) => {
+                  setInputText(text);
                 }}
-              >
-                Translate
-              </Button>
-                      <Button variant="contained" sx={{ mr: 2 }} onClick={onCopyButtonClick} disabled={!inputText}>
-                        Copy Text
-                      </Button>
-              
-              <Button variant="contained" sx={{}} onClick={onClose}>
-                Close
-              </Button>
+                lang={sourceLanguage}
+                renderComponent={(props) => renderTextarea(props)}
+              />
+            </Box>
 
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                border: "1px solid #e0e0e0"
+              }}
+            >
+              <FormLabel sx={{ color: "text.secondary", mb: 1, fontWeight: "bold", fontSize: "0.9rem" }}>
+                Translation:
+              </FormLabel>
+              <textarea
+                value={outputText}
+                readOnly
+                rows={3}
+                placeholder="Translation will appear here..."
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  border: "2px solid #e0e0e0",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontFamily: "inherit",
+                  resize: "vertical",
+                  backgroundColor: outputText ? "#e8f5e8" : "#fafafa",
+                  background: outputText 
+                    ? "linear-gradient(135deg, #e8f5e8 0%, #d0f0d0 100%)" 
+                    : "linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)",
+                  borderColor: outputText ? "#4caf50" : "#e0e0e0",
+                  transition: "all 0.3s ease",
+                  minHeight: "80px",
+                  outline: "none",
+                  boxShadow: outputText ? "0 2px 8px rgba(76, 175, 80, 0.1)" : "none"
+                }}
+              />
+            </Box>
+
+            <Grid container direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ mt: 1 }}>
+              <Grid item>
+                <Button 
+                  variant="contained" 
+                  size="small"
+                  onClick={onCopyButtonClick} 
+                  disabled={!outputText}
+                  sx={{
+                    bgcolor: "success.main",
+                    fontSize: "0.8rem",
+                    px: 2,
+                    borderRadius: "6px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                    "&:hover": {
+                      bgcolor: "success.dark",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                    },
+                    "&:disabled": {
+                      bgcolor: "grey.400",
+                    }
+                  }}
+                >
+                  Copy Text
+                </Button>
+              </Grid>
+              
+              <Grid item>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={handleTranslate}
+                    disabled={isLoading || !inputText}
+                    sx={{
+                      bgcolor: "orange.main",
+                      minWidth: "100px",
+                      fontSize: "0.8rem",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 6px rgba(255, 152, 0, 0.3)",
+                      "&:hover": {
+                        bgcolor: "orange.dark",
+                        transform: "translateY(-1px)",
+                        boxShadow: "0 4px 12px rgba(255, 152, 0, 0.4)"
+                      },
+                      "&:disabled": {
+                        bgcolor: "grey.400",
+                      }
+                    }}
+                  >
+                    {isLoading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Translate"}
+                  </Button>
+                  
+                  <Button 
+                    variant="outlined" 
+                    size="small"
+                    onClick={onClose}
+                    sx={{
+                      borderColor: "orange.main",
+                      color: "orange.main",
+                      fontSize: "0.8rem",
+                      borderRadius: "6px",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        borderColor: "orange.dark",
+                        backgroundColor: "orange.50",
+                        transform: "translateY(-1px)",
+                        boxShadow: "0 2px 6px rgba(255, 152, 0, 0.2)"
+                      }
+                    }}
+                  >
+                    Close
+                  </Button>
+                </Stack>
+              </Grid>
             </Grid>
+
             {isLoading && (
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <CircularProgress sx={{ color: "orange.main" }} />
+              <Box sx={{ 
+                display: "flex", 
+                justifyContent: "center", 
+                alignItems: "center", 
+                py: 1,
+                p: 2,
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+                border: "1px solid #ffcc80"
+              }}>
+                <CircularProgress size={20} sx={{ color: "orange.main" }} />
+                <Typography variant="body2" sx={{ ml: 1, color: "orange.dark", fontSize: "0.8rem", fontWeight: "bold" }}>
+                  Translating your text...
+                </Typography>
               </Box>
             )}
+            
             <CustomizedSnackbars
-                      hide={showSnackBar.timeout}
-                      open={showSnackBar.visible}
-                      handleClose={handleSnackBarClose}
-                      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                      variant={showSnackBar.variant}
-                      message={showSnackBar.message}
-                    />
+              hide={showSnackBar.timeout}
+              open={showSnackBar.visible}
+              handleClose={handleSnackBarClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              variant={showSnackBar.variant}
+              message={showSnackBar.message}
+            />
           </Stack>
         </Stack>
       </FormControl>
