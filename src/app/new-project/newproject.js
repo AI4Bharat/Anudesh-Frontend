@@ -153,6 +153,8 @@ const CreateProject = () => {
   const workspaceDtails = useSelector(
     (state) => state.getWorkspaceDetails.data,
   );
+  const [singleModelResponse, setSingleModelResponse] = useState(false);
+
   const [taskReviews, setTaskReviews] = useState(1);
   const [columns, setColumns] = useState(null);
   const [selectedColumns, setSelectedColumns] = useState([]);
@@ -604,6 +606,8 @@ const CreateProject = () => {
             models_set: selectedLanguageModels,
             fixed_models: fixedModels,
             num_models: numSelectedModels,
+                        single_model_response:singleModelResponse
+
     };
   } else {
     baseMetadata = questionsJSON;
@@ -1754,6 +1758,14 @@ const CreateProject = () => {
                   </IconButton>
                 </Tooltip>
                             </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body2">Single Model Response</Typography>
+          <Switch
+            checked={singleModelResponse}
+            onChange={(e) => setSingleModelResponse(e.target.checked)}
+            size="small"
+          />
+        </Box>
 
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                               <input
@@ -1784,6 +1796,7 @@ const CreateProject = () => {
                               </Box>
                             </Box>
                           </Box>
+                          
                         </Grid>
                       )}
                     
