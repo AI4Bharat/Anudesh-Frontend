@@ -53,6 +53,7 @@ import GetIndicTransLanguages from './Features/datasets/GetIndicTransLanguages';
 import GetDatasetDownloadCSV from './Features/datasets/GetDatasetDownloadCSV';
 import GetDatasetDownloadTSV from './Features/datasets/GetDatasetDownloadTSV';
 import GetDatasetDownloadJSON from './Features/datasets/GetDatasetDownloadJSON';
+import GetSampleDatasetDownload from './Features/datasets/GetSampleDatasetDownload';
 import GetFileTypes from './Features/datasets/GetFileTypes';
 import DatasetSearchPopup from './Features/datasets/DatasetSearchPopup';
 import searchProjectCard from './Features/searchProjectCard';
@@ -101,6 +102,7 @@ const makeStore = () => {
         GetDatasetDownloadJSON:GetDatasetDownloadJSON,
         GetDatasetDownloadCSV:GetDatasetDownloadCSV,
         GetDatasetDownloadTSV:GetDatasetDownloadTSV,
+        GetSampleDatasetDownload: GetSampleDatasetDownload,
         getDatasetMembers:getDatasetMembers,
         GetDatasetDetailedReports:GetDatasetDetailedReports,
         getDatasetProjectReports:getDatasetProjectReports,
