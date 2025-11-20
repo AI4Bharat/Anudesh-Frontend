@@ -140,8 +140,10 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
-
-
+  
+  const review_supercheckers_length = useSelector(
+    (state) => state.getProjectDetails?.data?.review_supercheckers
+  );
 
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
@@ -578,7 +580,8 @@ const TaskTable = (props) => {
         if (props.type === "annotation" && taskList[0].revision_loop_count) {
           row.push(el.revision_loop_count?.review_count); 
         } else if (props.type === "review" && taskList[0].revision_loop_count) {
-          row.push(el.revision_loop_count?.review_count);
+          row.push(el.revision_loop_count?.review_count);          
+        } else if (props.type === "review" && taskList[0].rejection_count && review_supercheckers_length > 0) {
           row.push(el.revision_loop_count?.super_check_count);
         }
 
@@ -640,6 +643,7 @@ const TaskTable = (props) => {
         colList.push("revision_count");
       } else if (props.type === "review" && taskList[0].revision_loop_count) {
         colList.push("revision_count");
+      } else if (props.type === "review" && taskList[0].rejection_count && review_supercheckers_length > 0) {
         colList.push("rejection_count");
       }
 
