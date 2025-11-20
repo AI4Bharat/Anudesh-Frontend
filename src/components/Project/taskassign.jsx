@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import configs from '../../config/config';
 
-const TasksassignDialog = () => {
+const TasksassignDialog = ({default_reviewer=null, disabled=false}) => {
   const { id } = useParams();
 
   const [open, setOpen] = useState(false);
@@ -41,6 +41,16 @@ const TasksassignDialog = () => {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    if (default_reviewer !== null && users.length > 0) {
+      setFormData((prevData) => ({
+        ...prevData,
+        user_id: default_reviewer,
+        annotation_type: 2,
+      }));
+    }
+  }, [default_reviewer, users]);
 
   // Fetch users when dialog is opened
   useEffect(() => {
@@ -120,6 +130,7 @@ const TasksassignDialog = () => {
         <Button
           variant="contained"
           onClick={handleOpen}
+          disabled={disabled}
           sx={{
             backgroundColor: '#ee6633',
             color: '#fff',
@@ -157,6 +168,7 @@ const TasksassignDialog = () => {
               margin="dense"
               value={formData.user_id}
               onChange={handleChange}
+              disabled={default_reviewer===null ? false : true}
               required
             >
               {users.map((user) => (
@@ -175,6 +187,7 @@ const TasksassignDialog = () => {
               margin="dense"
               value={formData.annotation_type}
               onChange={handleChange}
+              disabled={default_reviewer===null ? false : true}
               required
             >
               <MenuItem value={1}>Annotation</MenuItem>

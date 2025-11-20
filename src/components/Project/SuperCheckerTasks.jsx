@@ -43,11 +43,13 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import ChatLang from "@/utils/Chatlang";
+// import TasksSupercheckTable from "./prefered_reviewers";
 
 const defaultColumns = [
   "id",
   "instruction_data",
   "meta_info_language",
+  "rejection_count",
   "status",
   "actions",
 ];
@@ -68,7 +70,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text"];
+const excludeSearch = ["status", "actions", "output_text", "rejection_count"];
 
 const excludeCols = [
   "context",
@@ -137,7 +139,7 @@ const SuperCheckerTasks = (props) => {
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
   const TaskFilter = AllTaskFilters.find(
     (filter) => filter.id === id && filter.type === props.type,
-  ); 
+  );
   const [expandedRow, setExpandedRow] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -161,11 +163,11 @@ const SuperCheckerTasks = (props) => {
     SuperChecker:
       ProjectDetails?.review_supercheckers?.length > 0
         ? ProjectDetails?.review_supercheckers?.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
   };
 
@@ -321,6 +323,7 @@ const SuperCheckerTasks = (props) => {
               return el.data[key];
             }),
         );
+        taskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count)
         taskList[0].supercheck_status && row.push(el.supercheck_status);
         row.push(
           <Link
@@ -355,6 +358,7 @@ const SuperCheckerTasks = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
+      taskList[0].revision_loop_count?.super_check_count && colList.push("rejection_count");
       taskList[0].task_status && colList.push("status");
       colList.push("actions");
 
@@ -631,6 +635,8 @@ const SuperCheckerTasks = (props) => {
               </Select>
             </FormControl>
           )}
+        {/* <TasksSupercheckTable /> */}
+
         <ColumnList
           columns={columns}
           setColumns={setSelectedColumns}
@@ -648,42 +654,42 @@ const SuperCheckerTasks = (props) => {
             />
           )}
           <Button sx={{ position: "relative" }}>
-              <FilterListIcon sx={{ color: "#515A5A" }} />
-          <CustomTooltip
-            title={
-              filtersApplied ? (
-                <Box
-                  sx={{
-                    padding: "5px",
-                    maxWidth: "300px",
-                    fontSize: "12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "5px",
-                  }}
-                >
-                  {selectedFilters.supercheck_status && (
-                    <div>
-                      <strong>Supercheck Status:</strong>{" "}
-                      {selectedFilters.supercheck_status}
-                    </div>
-                  )}
-                  {selectedFilters.req_user !== -1 && (
-                    <div>
-                      <strong>Assigned User:</strong> {selectedFilters.req_user}
-                    </div>
-                  )}
-                </Box>
-              ) : (
-                <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                  Filter Table
-                </span>
-              )
-            }
-            disableInteractive
-          >
-          </CustomTooltip>
-         </Button>
+            <FilterListIcon sx={{ color: "#515A5A" }} />
+            <CustomTooltip
+              title={
+                filtersApplied ? (
+                  <Box
+                    sx={{
+                      padding: "5px",
+                      maxWidth: "300px",
+                      fontSize: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "5px",
+                    }}
+                  >
+                    {selectedFilters.supercheck_status && (
+                      <div>
+                        <strong>Supercheck Status:</strong>{" "}
+                        {selectedFilters.supercheck_status}
+                      </div>
+                    )}
+                    {selectedFilters.req_user !== -1 && (
+                      <div>
+                        <strong>Assigned User:</strong> {selectedFilters.req_user}
+                      </div>
+                    )}
+                  </Box>
+                ) : (
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    Filter Table
+                  </span>
+                )
+              }
+              disableInteractive
+            >
+            </CustomTooltip>
+          </Button>
         </Box>
       </Box>
     );
@@ -726,9 +732,9 @@ const SuperCheckerTasks = (props) => {
               marginLeft: "0px",
             },
             "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -860,25 +866,25 @@ const SuperCheckerTasks = (props) => {
               selectedFilters.supercheck_status === "unvalidated") ||
               selectedFilters.supercheck_status === "draft" ||
               selectedFilters.supercheck_status === "skipped") && (
-              <Grid item xs={12} sm={12} md={3}>
-                <Tooltip title={deallocateDisabled}>
-                  <Box>
-                    <CustomButton
-                      sx={{
-                        p: 1,
-                        width: "100%",
-                        borderRadius: 2,
-                        margin: "auto",
-                      }}
-                      label={"De-allocate Tasks"}
-                      onClick={() => setDeallocateDialog(true)}
-                      disabled={deallocateDisabled}
-                      color={"warning"}
-                    />
-                  </Box>
-                </Tooltip>
-              </Grid>
-            )}
+                <Grid item xs={12} sm={12} md={3}>
+                  <Tooltip title={deallocateDisabled}>
+                    <Box>
+                      <CustomButton
+                        sx={{
+                          p: 1,
+                          width: "100%",
+                          borderRadius: 2,
+                          margin: "auto",
+                        }}
+                        label={"De-allocate Tasks"}
+                        onClick={() => setDeallocateDialog(true)}
+                        disabled={deallocateDisabled}
+                        color={"warning"}
+                      />
+                    </Box>
+                  </Tooltip>
+                </Grid>
+              )}
             <Dialog
               open={deallocateDialog}
               onClose={() => setDeallocateDialog(false)}
@@ -933,8 +939,8 @@ const SuperCheckerTasks = (props) => {
               md={
                 (props.type === "superChecker" &&
                   selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped"
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
                   ? 2
                   : 3
               }
@@ -980,8 +986,8 @@ const SuperCheckerTasks = (props) => {
               md={
                 (props.type === "superChecker" &&
                   selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped"
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
                   ? 3
                   : 4
               }
@@ -1009,8 +1015,8 @@ const SuperCheckerTasks = (props) => {
               md={
                 (props.type === "superChecker" &&
                   selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped"
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
                   ? 4
                   : 5
               }
@@ -1048,9 +1054,8 @@ const SuperCheckerTasks = (props) => {
           columns={columns}
           options={{
             ...options,
-            tableBodyHeight: `${
-              typeof window !== "undefined" ? window.innerHeight - 200 : 400
-            }px`,
+            tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
+              }px`,
           }}
         />
       </ThemeProvider>
@@ -1067,16 +1072,16 @@ const SuperCheckerTasks = (props) => {
         />
       )}
       {searchOpen && (
- <AllTaskSearchPopup
-                    open={searchOpen}
-                    anchorEl={searchAnchor}
-                     handleClose={handleSearchClose}
-                    updateFilters={setsSelectedFilters}
-                    //filterStatusData={filterData}
-                    currentFilters={selectedFilters}
-                    searchedCol={searchedCol}
-                    onchange={getTaskListData}
-                />
+        <AllTaskSearchPopup
+          open={searchOpen}
+          anchorEl={searchAnchor}
+          handleClose={handleSearchClose}
+          updateFilters={setsSelectedFilters}
+          //filterStatusData={filterData}
+          currentFilters={selectedFilters}
+          searchedCol={searchedCol}
+          onchange={getTaskListData}
+        />
       )}
       {renderSnackBar()}
     </div>

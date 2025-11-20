@@ -5,7 +5,7 @@ import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
-import _ from 'lodash'; 
+import _ from 'lodash';
 
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -50,13 +50,16 @@ import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import FindAndReplaceDialog from "./FindAndReplaceDialog";
 import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
-import {  setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
+import { setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
-
+import TasksassignDialog from "./taskassign";
+import ReviewTasksTable from "./prefered_members";
 const defaultColumns = [
   "id",
   "instruction_data",
   "meta_info_language",
+  "revision_count",
+  "rejection_count",
   "status",
   "actions",
 ];
@@ -77,7 +80,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text"];
+const excludeSearch = ["status", "actions", "output_text", "revision_count", "rejection_count"];
 
 const excludeCols = [
   "context",
@@ -138,7 +141,7 @@ const TaskTable = (props) => {
     (state) => state.getProjectDetails?.data.annotators,
   );
 
-  
+
 
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
@@ -148,15 +151,15 @@ const TaskTable = (props) => {
   const TaskFilter = AllTaskFilters?.find(
     (filter) => filter.id === id && filter.type === props.type,
   )
-    const AllPageFilters = useSelector((state) => state.taskPaginationSlice?.data);
+  const AllPageFilters = useSelector((state) => state.taskPaginationSlice?.data);
 
-    const currentPageFromState = useSelector(state => {
-  const filters = state.taskPaginationSlice?.data || [];
-  const matchingFilter = filters.find(filter => 
-    filter.id === id && filter.type === props.type
-  );
-  return matchingFilter?.page || 1; 
-});
+  const currentPageFromState = useSelector(state => {
+    const filters = state.taskPaginationSlice?.data || [];
+    const matchingFilter = filters.find(filter =>
+      filter.id === id && filter.type === props.type
+    );
+    return matchingFilter?.page || 1;
+  });
 
 
   const [currentPageNumber, setCurrentPageNumber] = useState(currentPageFromState);
@@ -168,41 +171,41 @@ const TaskTable = (props) => {
   const filterData = {
     Status:
       ProjectDetails.project_stage == 2 ||
-      ProjectDetails.project_stage == 3 ||
-      ProjectDetails?.annotation_reviewers?.some(
-        (reviewer) => reviewer.id === userDetails?.id,
-      )
+        ProjectDetails.project_stage == 3 ||
+        ProjectDetails?.annotation_reviewers?.some(
+          (reviewer) => reviewer.id === userDetails?.id,
+        )
         ? props.type === "annotation"
           ? ["unlabeled", "skipped", "draft", "labeled", "to_be_revised"]
           : [
-              "unreviewed",
-              "accepted",
-              "accepted_with_minor_changes",
-              "accepted_with_major_changes",
-              "to_be_revised",
-              "draft",
-              "skipped",
-              "rejected",
-            ]
+            "unreviewed",
+            "accepted",
+            "accepted_with_minor_changes",
+            "accepted_with_major_changes",
+            "to_be_revised",
+            "draft",
+            "skipped",
+            "rejected",
+          ]
         : ["unlabeled", "skipped", "labeled", "draft"],
     Annotators:
       ProjectDetails?.annotators?.length > 0
         ? ProjectDetails?.annotators?.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
 
     Reviewers:
       ProjectDetails?.annotation_reviewers?.length > 0
         ? ProjectDetails?.annotation_reviewers.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
   };
   const [pull, setpull] = useState(
@@ -265,14 +268,14 @@ const TaskTable = (props) => {
   const [expandedRow, setExpandedRow] = useState(null);
 
   const getTaskListData = () => {
-      const existingFilter = AllPageFilters?.find(filter => 
-    filter.id === id && 
-    filter.type === props.type && 
-    _.isEqual(filter.selectedFilters, selectedFilters)
-  );
+    const existingFilter = AllPageFilters?.find(filter =>
+      filter.id === id &&
+      filter.type === props.type &&
+      _.isEqual(filter.selectedFilters, selectedFilters)
+    );
 
-  
-    
+
+
     const taskobj = {
       id: id,
       currentPageNumber: existingFilter?.page || 1,
@@ -382,7 +385,7 @@ const TaskTable = (props) => {
         variant: "success",
       });
       getTaskListData();
-      setTimeout(() => {}, 1000);
+      setTimeout(() => { }, 1000);
     } else {
       setSnackbarInfo({
         open: true,
@@ -501,39 +504,39 @@ const TaskTable = (props) => {
 
   useEffect(() => {
     dispatch(setTaskFilter({
-        id,
-        selectedFilters,
-        type: props.type,
-        pull,
-        rejected,
+      id,
+      selectedFilters,
+      type: props.type,
+      pull,
+      rejected,
     }))
-  const existingFilter = AllPageFilters?.find(filter => 
-    filter.id === id && 
-    filter.type === props.type && 
-    _.isEqual(filter.selectedFilters, selectedFilters)
-  );
-    
+    const existingFilter = AllPageFilters?.find(filter =>
+      filter.id === id &&
+      filter.type === props.type &&
+      _.isEqual(filter.selectedFilters, selectedFilters)
+    );
+
 
     if (!existingFilter) {
-    dispatch(setPageFilter({
-        id,
-        selectedFilters,
-        type: props.type,
-        pull,
-        rejected,
-        page:1
-    }))
-    
-
-    }else{
       dispatch(setPageFilter({
         id,
         selectedFilters,
         type: props.type,
         pull,
         rejected,
-        page:existingFilter?.page
-    }))
+        page: 1
+      }))
+
+
+    } else {
+      dispatch(setPageFilter({
+        id,
+        selectedFilters,
+        type: props.type,
+        pull,
+        rejected,
+        page: existingFilter?.page
+      }))
 
     }
     getTaskListData();
@@ -546,16 +549,16 @@ const TaskTable = (props) => {
           ? selectedFilters.annotation_status
           : selectedFilters.review_status
       );
-        }
-        localStorage.setItem(
-        "filters",
-        JSON.stringify({
-          selectedStatus,
-          pull,
-          rejected,
-        }),
-      );
-      }, [selectedFilters, pull, rejected]);
+    }
+    localStorage.setItem(
+      "filters",
+      JSON.stringify({
+        selectedStatus,
+        pull,
+        rejected,
+      }),
+    );
+  }, [selectedFilters, pull, rejected]);
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
       const data = taskList.map((el) => {
@@ -571,6 +574,14 @@ const TaskTable = (props) => {
               return el.data[key];
             }),
         );
+
+        if (props.type === "annotation" && taskList[0].revision_loop_count) {
+          row.push(el.revision_loop_count?.review_count); 
+        } else if (props.type === "review" && taskList[0].revision_loop_count) {
+          row.push(el.revision_loop_count?.review_count);
+          row.push(el.revision_loop_count?.super_check_count);
+        }
+
         if (props.type === "annotation" && taskList[0].annotation_status) {
           row.push(el.annotation_status);
         } else if (props.type === "review" && taskList[0].review_status) {
@@ -624,6 +635,14 @@ const TaskTable = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
+      
+      if (props.type === "annotation" && taskList[0].revision_loop_count) {
+        colList.push("revision_count");
+      } else if (props.type === "review" && taskList[0].revision_loop_count) {
+        colList.push("revision_count");
+        colList.push("rejection_count");
+      }
+
       taskList[0].task_status && colList.push("status");
       if (ProjectDetails?.required_annotators_per_task > 1) {
         if (taskList[0].input_data_id) {
@@ -633,7 +652,12 @@ const TaskTable = (props) => {
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
-        columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        if (props.type === "review" && ProjectDetails?.conceal === false) {
+          const updatedColumns = [...defaultColumns, "Annotator Email"];
+          columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
+        } else {
+          columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        }
       }
       const metaInfoMapping = {
         meta_info_language: "language",
@@ -707,9 +731,9 @@ const TaskTable = (props) => {
         setPullDisabled("No more unassigned tasks in this project");
       else if (pullDisabled === "No more unassigned tasks in this project")
         setPullDisabled("");
-        if (userDetails?.guest_user === true) {
-          setPullDisabled("disable for guest user");
-        }
+      if (userDetails?.guest_user === true) {
+        setPullDisabled("disable for guest user");
+      }
     }
   }, [ProjectDetails.labeled_task_count]);
 
@@ -731,8 +755,8 @@ const TaskTable = (props) => {
           setPullDisabled("");
       });
       if (userDetails?.guest_user === true) {
-          setPullDisabled("disable for guest user");
-        }
+        setPullDisabled("disable for guest user");
+      }
       setPullSize(ProjectDetails.tasks_pull_count_per_batch * 0.5);
     }
   }, [
@@ -751,13 +775,12 @@ const TaskTable = (props) => {
           selectedFilters.review_status === "unreviewed")) &&
       totalTaskCount >= ProjectDetails?.max_pending_tasks_per_user &&
       Object.keys(selectedFilters).filter((key) => key.startsWith("search_")) ==
-        []
+      []
     ) {
       setPullDisabled(
-        `You have too many ${
-          props.type === "annotation"
-            ? selectedFilters.annotation_status
-            : selectedFilters.review_status
+        `You have too many ${props.type === "annotation"
+          ? selectedFilters.annotation_status
+          : selectedFilters.review_status
         } tasks`,
       );
     } else if (
@@ -791,18 +814,16 @@ const TaskTable = (props) => {
     if (ProjectDetails?.project_type?.includes("Acoustic")) {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
-          `/projects/${id}/${
-            props.type === "annotation"
-              ? "AudioTranscriptionLandingPage"
-              : "ReviewAudioTranscriptionLandingPage"
+          `/projects/${id}/${props.type === "annotation"
+            ? "AudioTranscriptionLandingPage"
+            : "ReviewAudioTranscriptionLandingPage"
           }/${NextTask?.id}`,
         );
       }
     } else {
       if (labellingStarted && Object?.keys(NextTask)?.length > 0) {
         navigate(
-          `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${
-            NextTask?.id
+          `/projects/${id}/${props.type === "annotation" ? "task" : "review"}/${NextTask?.id
           }`,
         );
       }
@@ -922,6 +943,18 @@ const TaskTable = (props) => {
               </Select>
             </FormControl>
           )}
+        {props.type === "review" &&
+          (
+            roles?.WorkspaceManager === userDetails?.role ||
+            roles?.OrganizationOwner === userDetails?.role ||
+            roles?.Admin === userDetails?.role ||
+            roles?.Reviewer === userDetails?.role // ✅ allow reviewers too
+          ) &&
+          !ProjectDetails?.review_supercheckers?.some(
+            (r) => r.id === userDetails?.id
+          ) && (
+            <ReviewTasksTable />
+          )}
         <ColumnList
           columns={columns}
           setColumns={setSelectedColumns}
@@ -935,59 +968,59 @@ const TaskTable = (props) => {
               sx={{ position: "absolute", top: -4, right: -4 }}
             />
           )}
-         <Button sx={{ position: "relative" }} onClick={handleShowFilter}>
-              <FilterListIcon sx={{ color: "#515A5A" }} />
-          <CustomTooltip
-            title={
-              filtersApplied ? (
-                <Box
-                  sx={{
-                    padding: "5px",
-                    maxWidth: "300px",
-                    fontSize: "12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "5px",
-                  }}
-                >
-                  {selectedFilters.annotation_status && (
-                    <div>
-                      <strong>Annotation Status:</strong>{" "}
-                      {selectedFilters.annotation_status}
-                    </div>
-                  )}
-                  {selectedFilters.review_status && (
-                    <div>
-                      <strong>Review Status:</strong>{" "}
-                      {selectedFilters.review_status}
-                    </div>
-                  )}
-                  {selectedFilters.req_user !== -1 && (
-                    <div>
-                      <strong>Assigned User:</strong> {selectedFilters.req_user}
-                    </div>
-                  )}
-                  {pull !== "All" && (
-                    <div>
-                      <strong>Pull Status:</strong> {pull}
-                    </div>
-                  )}
-                  {rejected && (
-                    <div>
-                      <strong>Rejected:</strong> {rejected ? "Yes" : "No"}
-                    </div>
-                  )}
-                </Box>
-              ) : (
-                <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                  Filter Table
-                </span>
-              )
-            }
-            disableInteractive
-          >
-          </CustomTooltip>
-         </Button>
+          <Button sx={{ position: "relative" }} onClick={handleShowFilter}>
+            <FilterListIcon sx={{ color: "#515A5A" }} />
+            <CustomTooltip
+              title={
+                filtersApplied ? (
+                  <Box
+                    sx={{
+                      padding: "5px",
+                      maxWidth: "300px",
+                      fontSize: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "5px",
+                    }}
+                  >
+                    {selectedFilters.annotation_status && (
+                      <div>
+                        <strong>Annotation Status:</strong>{" "}
+                        {selectedFilters.annotation_status}
+                      </div>
+                    )}
+                    {selectedFilters.review_status && (
+                      <div>
+                        <strong>Review Status:</strong>{" "}
+                        {selectedFilters.review_status}
+                      </div>
+                    )}
+                    {selectedFilters.req_user !== -1 && (
+                      <div>
+                        <strong>Assigned User:</strong> {selectedFilters.req_user}
+                      </div>
+                    )}
+                    {pull !== "All" && (
+                      <div>
+                        <strong>Pull Status:</strong> {pull}
+                      </div>
+                    )}
+                    {rejected && (
+                      <div>
+                        <strong>Rejected:</strong> {rejected ? "Yes" : "No"}
+                      </div>
+                    )}
+                  </Box>
+                ) : (
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    Filter Table
+                  </span>
+                )
+              }
+              disableInteractive
+            >
+            </CustomTooltip>
+          </Button>
         </div>
       </Box>
     );
@@ -1044,9 +1077,9 @@ const TaskTable = (props) => {
               marginLeft: "0px",
             },
             "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -1079,7 +1112,7 @@ const TaskTable = (props) => {
       </Box>
     );
   };
-    const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage) => {
     const page = newPage + 1;
     setCurrentPageNumber(page);
     dispatch(setPageFilter({
@@ -1088,7 +1121,7 @@ const TaskTable = (props) => {
       selectedFilters,
       pull,
       rejected,
-      page 
+      page
     }));
     getTaskListData();
 
@@ -1112,7 +1145,7 @@ const TaskTable = (props) => {
     },
     onChangeRowsPerPage: (rowPerPageCount) => {
       setCurrentPageNumber(1);
-      dispatch(setPageFilter({ projectId: id, page : 1}));
+      dispatch(setPageFilter({ projectId: id, page: 1 }));
       setCurrentRowPerPage(rowPerPageCount);
     },
     filterType: "checkbox",
@@ -1191,25 +1224,25 @@ const TaskTable = (props) => {
                 selectedFilters.review_status === "unreviewed") ||
               selectedFilters.review_status === "draft" ||
               selectedFilters.review_status === "skipped") && (
-              <Grid item xs={12} sm={12} md={3}>
-                <Tooltip title={deallocateDisabled}>
-                  <Box>
-                    <CustomButton
-                      sx={{
-                        p: 1,
-                        width: "100%",
-                        borderRadius: 2,
-                        margin: "auto",
-                      }}
-                      label={"De-allocate Tasks"}
-                      onClick={() => setDeallocateDialog(true)}
-                      disabled={deallocateDisabled}
-                      color={"warning"}
-                    />
-                  </Box>
-                </Tooltip>
-              </Grid>
-            )}
+                <Grid item xs={12} sm={12} md={3}>
+                  <Tooltip title={deallocateDisabled}>
+                    <Box>
+                      <CustomButton
+                        sx={{
+                          p: 1,
+                          width: "100%",
+                          borderRadius: 2,
+                          margin: "auto",
+                        }}
+                        label={"De-allocate Tasks"}
+                        onClick={() => setDeallocateDialog(true)}
+                        disabled={deallocateDisabled}
+                        color={"warning"}
+                      />
+                    </Box>
+                  </Tooltip>
+                </Grid>
+              )}
             <Dialog
               open={deallocateDialog}
               onClose={() => setDeallocateDialog(false)}
@@ -1264,17 +1297,17 @@ const TaskTable = (props) => {
               item
               xs={4}
               sm={4}
-              md={
-                (props.type === "annotation" &&
+              md={props.type === "review" ? 1 :
+                ((props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
-                selectedFilters.annotation_status === "draft" ||
-                selectedFilters.annotation_status === "skipped" ||
-                (props.type === "review" &&
-                  selectedFilters.review_status === "unreviewed") ||
-                selectedFilters.review_status === "draft" ||
-                selectedFilters.review_status === "skipped"
+                  selectedFilters.annotation_status === "draft" ||
+                  selectedFilters.annotation_status === "skipped" ||
+                  (props.type === "review" &&
+                    selectedFilters.review_status === "unreviewed") ||
+                  selectedFilters.review_status === "draft" ||
+                  selectedFilters.review_status === "skipped"
                   ? 2
-                  : 3
+                  : 3)
               }
             >
               <FormControl size="small" sx={{ width: "100%" }}>
@@ -1317,20 +1350,20 @@ const TaskTable = (props) => {
               item
               xs={8}
               sm={8}
-              md={
-                (props.type === "annotation" &&
+              md={props.type === "review" ? 2 :
+                ((props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
-                selectedFilters.annotation_status === "draft" ||
-                selectedFilters.annotation_status === "skipped" ||
-                (props.type === "review" &&
-                  selectedFilters.review_status === "unreviewed") ||
-                selectedFilters.review_status === "draft" ||
-                selectedFilters.review_status === "skipped"
+                  selectedFilters.annotation_status === "draft" ||
+                  selectedFilters.annotation_status === "skipped" ||
+                  (props.type === "review" &&
+                    selectedFilters.review_status === "unreviewed") ||
+                  selectedFilters.review_status === "draft" ||
+                  selectedFilters.review_status === "skipped"
                   ? 3
-                  : 4
+                  : 4)
               }
             >
-             <Tooltip title={pullDisabled}>
+              <Tooltip title={pullDisabled}>
                 <Box>
                   <CustomButton
                     sx={{
@@ -1346,6 +1379,19 @@ const TaskTable = (props) => {
                 </Box>
               </Tooltip>
             </Grid>
+            {props.type === "review" &&
+              <Grid
+                item
+                xs={8}
+                sm={8}
+                md={selectedFilters.review_status === "unreviewed" || selectedFilters.review_status === "draft" || selectedFilters.review_status === "skipped" ? 2 : 2}
+              >
+                <Tooltip title={pullDisabled}>
+                  <Box>
+                    <TasksassignDialog default_reviewer={userDetails?.id} disabled={pullDisabled} />
+                  </Box>
+                </Tooltip>
+              </Grid>}
             <Grid
               item
               xs={12}
@@ -1353,12 +1399,12 @@ const TaskTable = (props) => {
               md={
                 (props.type === "annotation" &&
                   selectedFilters.annotation_status === "unlabeled") ||
-                selectedFilters.annotation_status === "draft" ||
-                selectedFilters.annotation_status === "skipped" ||
-                (props.type === "review" &&
-                  selectedFilters.review_status === "unreviewed") ||
-                selectedFilters.review_status === "draft" ||
-                selectedFilters.review_status === "skipped"
+                  selectedFilters.annotation_status === "draft" ||
+                  selectedFilters.annotation_status === "skipped" ||
+                  (props.type === "review" &&
+                    selectedFilters.review_status === "unreviewed") ||
+                  selectedFilters.review_status === "draft" ||
+                  selectedFilters.review_status === "skipped"
                   ? 4
                   : 5
               }
@@ -1405,9 +1451,8 @@ const TaskTable = (props) => {
           columns={columns}
           options={{
             ...options,
-            tableBodyHeight: `${
-              typeof window !== "undefined" ? window.innerHeight - 200 : 400
-            }px`,
+            tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
+              }px`,
           }}
         />
       </ThemeProvider>

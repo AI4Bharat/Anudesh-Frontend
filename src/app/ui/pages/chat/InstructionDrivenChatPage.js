@@ -27,6 +27,8 @@ import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
 import LanguageCode from "@/utils/LanguageCode";
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -85,6 +87,8 @@ const InstructionDrivenChatPage = ({
   const classes = headerStyle();
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
+      const [shrinkedMessages, setShrinkedMessages] = useState({});
+
   const bottomRef = useRef(null);
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
@@ -307,6 +311,8 @@ const InstructionDrivenChatPage = ({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -415,20 +421,28 @@ const InstructionDrivenChatPage = ({
     }
   };
 
-  const renderChatHistory = () => {
+const renderChatHistory = () => {
+
+    const toggleShrink = (index) => {
+        setShrinkedMessages(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
+
     const chatElements = chatHistory?.map((message, index) => (
+
       <Grid
         container
-        spacing={1}
         key={index}
         direction="column"
         justifyContent="center"
         alignItems="center"
         sx={{
-          padding: "1.5rem",
+          padding: "0.8rem 0.5rem 0rem 0.5rem",
           margin: "0 auto",
-          overflowX: "hidden", 
-          maxWidth: "100%",   
+          overflow: "hidden",
+          maxWidth: "100%",
           boxSizing: "border-box",
         }}
       >
@@ -436,13 +450,33 @@ const InstructionDrivenChatPage = ({
           item
           style={{
             backgroundColor: "rgba(247, 184, 171, 0.2)",
-            padding: "1.5rem",
+            padding: "0.5rem",
             borderRadius: "0.5rem",
             position: "relative",
             width: "100%",
           }}
         >
           <Grid container alignItems="center" spacing={1}>
+            <Grid item>
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  backgroundColor: "#EE6633",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.75rem",
+                  fontWeight: "bold",
+                  marginRight: "0.5rem",
+                }}
+              >
+                {index + 1}
+              </div>
+            </Grid>
+
             <Grid item>
               <Avatar
                 alt="user_profile_pic"
@@ -467,7 +501,6 @@ const InstructionDrivenChatPage = ({
                         style={{
                           fontSize: "1rem",
                           width: "100%",
-                          padding: "12px",
                           borderRadius: "12px 12px 0 12px",
                           color: grey[900],
                           background: "#ffffff",
@@ -494,7 +527,6 @@ const InstructionDrivenChatPage = ({
                     style={{
                       fontSize: "1rem",
                       width: "100%",
-                      padding: "12px",
                       borderRadius: "12px 12px 0 12px",
                       color: grey[900],
                       background: "#ffffff",
@@ -513,6 +545,23 @@ const InstructionDrivenChatPage = ({
                 />
               )}
             </Grid>
+            
+            <IconButton
+              size="small"
+              onClick={() => toggleShrink(index)}
+              style={{
+                position: "absolute",
+                bottom: "0.5rem",
+                right: "0.5rem",
+              }}
+            >
+              {shrinkedMessages[index] ? (
+                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+              ) : (
+                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              )}
+            </IconButton>
+
             {index === chatHistory.length - 1 &&
               stage !== "Alltask" &&
               !disableUpdateButton && (
@@ -521,7 +570,7 @@ const InstructionDrivenChatPage = ({
                   style={{
                     position: "absolute",
                     bottom: 0,
-                    right: 0,
+                    right: "2rem",
                     marginTop: "1rem",
                     borderRadius: "50%",
                   }}
@@ -535,126 +584,122 @@ const InstructionDrivenChatPage = ({
           </Grid>
         </Grid>
 
-        <Grid
-          item
-          xs={12}
-          style={{
-            textAlign: "left",
-            position: "relative",
-            width: "100%",
-          }}
-        >
+        {/* Output Section - Only render when not shrinked */}
+        {!shrinkedMessages[index] && (
           <Grid
-            container
-            alignItems="start"
-            spacing={2}
-            justifyContent="flex-start"
+            item
+            xs={12}
             style={{
-              padding: "1.5rem",
-              borderRadius: "0.5rem",
+              textAlign: "left",
+              position: "relative",
               width: "100%",
             }}
           >
             <Grid
-              item
-              xs={1}
+              container
+              alignItems="start"
+              spacing={2}
+              justifyContent="flex-start"
               style={{
-                display: "flex",
-                // justifyContent: "flex-end",
-                alignItems: "center",
-                minWidth: "50px",
+                padding: "1rem 1rem 0.5rem 1rem",
+                borderRadius: "0.5rem",
+                width: "100%",
               }}
             >
-              <Image
-                width={50}
-                height={50}
-                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
-                alt="Bot Avatar"
-                priority
-              />
-            </Grid>
+              <Grid
+                item
+                xs={1}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  minWidth: "50px",
+                }}
+              >
+                <Image
+                  width={50}
+                  height={50}
+                  src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                  alt="Bot Avatar"
+                  priority
+                />
+              </Grid>
 
-    <Grid item  xs={11}  >
-
-              {message?.output.map((segment, index) =>
-                segment.type === 'text' ? (
-                  (ProjectDetails?.metadata_json?.editable_response )||segment.value==""  ? (
-                    globalTransliteration === "true" ? (
-                      <IndicTransliterate
-                        key={index}
-                        value={segment.value}
-                        onChangeText={(e) =>
-                          handleTextChange(e, index, message, "output")
-                        }
-                        lang={targetLang}
-                        style={{
-                          fontSize: "1rem",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          // resize: "none",
-                          width: "100%",
-                        }}
-                        customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
-                        enableASR={true}
-                        asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
-                        apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
-                        enabled={targetLang === "en" ? false : true}
-                      />
+              <Grid item xs={11} style={{ paddingTop: "1rem" }}>
+                {message?.output.map((segment, index) =>
+                  segment.type === 'text' ? (
+                    (ProjectDetails?.metadata_json?.editable_response) || segment.value == "" ? (
+                      globalTransliteration === "true" ? (
+                        <IndicTransliterate
+                          key={index}
+                          value={segment.value}
+                          onChangeText={(e) =>
+                            handleTextChange(e, index, message, "output")
+                          }
+                          lang={targetLang}
+                          style={{
+                            fontSize: "1rem",
+                            borderRadius: "12px 12px 0 12px",
+                            color: grey[900],
+                            background: "#ffffff",
+                            border: `1px solid ${grey[200]}`,
+                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                            minHeight: "5rem",
+                            width: "100%",
+                          }}
+                          customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
+                          enableASR={true}
+                          asrApiUrl={`${configs.BASE_URL_AUTO}/tasks/asr-api/generic/transcribe`}
+                          apiKey={`JWT ${localStorage.getItem('anudesh_access_token')}`}
+                          enabled={targetLang === "en" ? false : true}
+                        />
+                      ) : (
+                        <textarea
+                          key={index}
+                          value={segment.value}
+                          onChange={(e) =>
+                            handleTextChange(e, index, message, "output")
+                          }
+                          style={{
+                            fontSize: "1rem",
+                            width: "100%",
+                            borderRadius: "12px 12px 0 12px",
+                            color: grey[900],
+                            background: "#ffffff",
+                            border: `1px solid ${grey[200]}`,
+                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                            minHeight: "5rem",
+                            resize: "none",
+                          }}
+                          rows={1}
+                        />
+                      )
                     ) : (
-                      <textarea
+                      <ReactMarkdown
                         key={index}
-                        value={segment.value}
-                        onChange={(e) =>
-                          handleTextChange(e, index, message, "output")
-                        }
-                        style={{
-                          fontSize: "1rem",
-                          width: "100%",
-                          padding: "12px",
-                          borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
-                          resize: "none",
-                        }}
-                        rows={1}
+                        children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
                       />
                     )
                   ) : (
-                    <ReactMarkdown
+                    <SyntaxHighlighter
                       key={index}
-                      children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
-                    />
+                      language={segment.language}
+                      style={gruvboxDark}
+                      customStyle={{ padding: "1rem", borderRadius: "5px" }}
+                    >
+                      {segment.value}
+                    </SyntaxHighlighter>
                   )
-                ) : (
-                  <SyntaxHighlighter
-                    key={index}
-                    language={segment.language}
-                    style={gruvboxDark}
-                    customStyle={{ padding: "1rem", borderRadius: "5px" }}
-                  >
-                    {segment.value}
-                  </SyntaxHighlighter>
-                ),
-              )}
+                )}
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
+        )}
       </Grid>
     ));
 
     return chatElements;
-  };
-
-  const ChildModal = () => {
-    const [open, setOpen] = useState(false);
+};  
+const ChildModal = () => {    const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
       setOpen(true);
@@ -742,6 +787,7 @@ const InstructionDrivenChatPage = ({
           alignItems: "center",
           justifyContent: "center",
           width: "100%",
+          overflow: "hidden",
         }}
       >
         <Box
@@ -749,46 +795,59 @@ const InstructionDrivenChatPage = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            width: "100%",
           }}
         >
           <Box
             sx={{
+              flexShrink: 0,
               borderRadius: "10px",
-              padding: "10px",
+              padding: "0px",
               backgroundColor: "rgba(247, 184, 171, 0.2)",
               display: "flex",
               flexDirection: "column",
               width: "100%",
               alignItems: "center",
               justifyContent: "center",
-              margin: "1rem",
+              transition: "all 0.3s ease",
+              cursor: "pointer",
+                transform: isExpanded ? "scale(1)" : "scale(0.98)",
+                
             }}
+            
           >
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                // padding: "1rem",
+                width: "100%",
               }}
             >
-              <Typography
-                variant="h3"
-                align="center"
-                sx={{
-                  color: "#636363",
-                  fontSize: {
-                    xs: "0.8125rem", // Small screens (mobile)
-                    sm: "1rem", // Medium screens (tablet)
-                    md: "1.5rem", // Large screens (laptops)
-                    lg: "2rem", // Extra-large screens (desktops)
-                  },
-                  fontWeight: "800",
-                  // marginRight: "0.5rem",
-                }}
+              <Tooltip
+                title={
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    {isExpanded ? "Click to collapse" : "Click to expand"}
+                  </span>
+                }
               >
-                {translate("typography.instructions")}
-              </Typography>
+                <Typography
+                  variant="h3"
+                  align="center"
+                  sx={{
+                    color: "#636363",
+                    fontSize: {
+                      xs: "0.8125rem",
+                      sm: "1rem",
+                      md: "1.5rem",
+                      lg: "2rem",
+                    },
+                    fontWeight: "800",
+                  }}
+                >
+                  {translate("typography.instructions")}
+                </Typography>
+              </Tooltip>
               <Tooltip
                 title={
                   <span style={{ fontFamily: "Roboto, sans-serif" }}>
@@ -796,38 +855,78 @@ const InstructionDrivenChatPage = ({
                   </span>
                 }
               >
-                <IconButton onClick={handleOpen}>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpen();
+                  }}
+                >
                   <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
                 </IconButton>
               </Tooltip>
             </Box>
-
-            <Typography
-              paragraph={true}
-              sx={{
-                fontSize: {
-                  xs: "0.5rem", // Small screens (mobile)
-                  sm: "0.75rem", // Medium screens (tablet)
-                  md: ".8125rem", // Large screens (laptops)
-                  lg: "1rem", // Extra-large screens (desktops)
-                },
-                padding: "0.5rem 1rem ",
-                height: "auto",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                whiteSpace: "pre-line",
+                        <IconButton
+              size="small"
+              onClick={() => setIsExpanded(!isExpanded)}
+              style={{
+                position: "absolute",
+                bottom: "0.5rem",
+                right: "0.5rem",
               }}
             >
-              {info.instruction_data}
-            </Typography>
+              {isExpanded ? (
+                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+              ) : (
+                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633",fontWeight:"bold" }} />
+
+              )}
+            </IconButton>
+
+
+
+            <Box
+              sx={{
+                width: "100%",
+                overflow: "hidden",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <Typography
+                paragraph={true}
+                sx={{
+                  fontSize: {
+                    xs: "0.5rem",
+                    sm: "0.75rem",
+                    md: ".8125rem",
+                    lg: "1rem",
+                  },
+                  padding: "0rem 1rem",
+                  height: "auto",
+                  display: "flex",
+                  minWidth: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  whiteSpace: "pre-wrap",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  maxHeight: isExpanded ? "none" : "60px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  "&:hover": {
+                  }
+                }}
+              >
+                {info.instruction_data}
+              </Typography>
+            </Box>
           </Box>
         </Box>
+
         <Grid
           item
           xs={12}
           sx={{
-            margin: "0.8rem 0",
+            margin: "0rem 0",
             overflowY: "scroll",
             // minHeight: "39rem",
             // maxHeight: "39rem",
@@ -836,6 +935,7 @@ const InstructionDrivenChatPage = ({
             paddingLeft: "0px !important",
             boxSizing: "border-box",
             width: "100%",
+            height: "calc(100vh - 200px)",
           }}
         >
           <Box
@@ -843,7 +943,9 @@ const InstructionDrivenChatPage = ({
               display: "flex",
               flexDirection: "column",
               alignItems: "center !important",
-              padding: "1rem 0",
+              padding: "0 0",
+              // height:"200px",
+              // overflow:"scroll"
             }}
           >
             {showChatContainer ? renderChatHistory() : null}
@@ -859,6 +961,7 @@ const InstructionDrivenChatPage = ({
                 height: "5rem",
                 display: "flex",
                 justifyContent: "center",
+                backgroundColor: "white"
               }}
             >
               <Textarea
