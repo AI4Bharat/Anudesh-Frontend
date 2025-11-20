@@ -101,6 +101,7 @@ const excludeCols = [
   "unverified_conversation_json",
   "prediction_json",
   "ocr_prediction_json",
+  "model"
 ];
 
 const MUIDataTable = dynamic(() => import("mui-datatables"), {
