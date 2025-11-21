@@ -120,6 +120,9 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 });
 
 const TaskTable = (props) => {
+  console.log('props : ', props)
+  console.log('props.type : ', props.type)
+  console.log('state : ', useSelector(state => state))
   const classes = DatasetStyle();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -141,8 +144,8 @@ const TaskTable = (props) => {
     (state) => state.getProjectDetails?.data.annotators,
   );
   
-  const review_supercheckers_length = useSelector(
-    (state) => state.getProjectDetails?.data?.review_supercheckers
+  const project_stage = useSelector(
+    (state) => state.getProjectDetails?.data?.project_stage
   );
 
   const getProjectReviewers = useSelector(
@@ -581,7 +584,7 @@ const TaskTable = (props) => {
           row.push(el.revision_loop_count?.review_count); 
         } else if (props.type === "review" && taskList[0].revision_loop_count) {
           row.push(el.revision_loop_count?.review_count);          
-        } else if (props.type === "review" && taskList[0].rejection_count && review_supercheckers_length > 0) {
+        } else if (props.type === "review" && taskList[0].rejection_count && project_stage === 3) {
           row.push(el.revision_loop_count?.super_check_count);
         }
 
@@ -643,7 +646,7 @@ const TaskTable = (props) => {
         colList.push("revision_count");
       } else if (props.type === "review" && taskList[0].revision_loop_count) {
         colList.push("revision_count");
-      } else if (props.type === "review" && taskList[0].rejection_count && review_supercheckers_length > 0) {
+      } else if (props.type === "review" && taskList[0].rejection_count && project_stage === 3) {
         colList.push("rejection_count");
       }
 
