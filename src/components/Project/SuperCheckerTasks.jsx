@@ -325,6 +325,13 @@ const SuperCheckerTasks = (props) => {
         );
         taskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count)
         taskList[0].supercheck_status && row.push(el.supercheck_status);
+        if (
+          roles?.WorkspaceManager === userDetails?.role ||
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role
+        ) {
+          row.push(el.updated_at);
+        }
         row.push(
           <Link
             to={
@@ -360,6 +367,13 @@ const SuperCheckerTasks = (props) => {
       );
       taskList[0].revision_loop_count?.super_check_count && colList.push("rejection_count");
       taskList[0].task_status && colList.push("status");
+      if (
+        roles?.WorkspaceManager === userDetails?.role ||
+        roles?.OrganizationOwner === userDetails?.role ||
+        roles?.Admin === userDetails?.role
+      ) {
+        colList.push("updated_at")
+      }
       colList.push("actions");
 
       if (selectedColumns.length === 0) {

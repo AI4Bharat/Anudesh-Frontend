@@ -599,6 +599,13 @@ const TaskTable = (props) => {
         ) {
           row.push(el.input_data_id);
         }
+        if (
+          roles?.WorkspaceManager === userDetails?.role ||
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role
+        ) {
+          row.push(el.updated_at);
+        }
 
         const actionLink =
           props.type === "annotation"
@@ -657,6 +664,13 @@ const TaskTable = (props) => {
         if (taskList[0].input_data_id) {
           colList.push("Input_data_id");
         }
+      }
+      if (
+        roles?.WorkspaceManager === userDetails?.role ||
+        roles?.OrganizationOwner === userDetails?.role ||
+        roles?.Admin === userDetails?.role
+      ) {
+        colList.push("updated_at")
       }
       colList.push("actions");
 
