@@ -56,6 +56,7 @@ import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
 const defaultColumns = [
   "id",
+  "annotator_mail",
   "instruction_data",
   "meta_info_language",
   "revision_count",
@@ -631,9 +632,10 @@ const TaskTable = (props) => {
         );
         return row;
       });
-      const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail");
+      const annotatorEmail = taskList[0]?.annotator_mail;
+      const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
       const email =
-        props.type === "review" && annotatorEmail ? "Annotator Email" : "";
+        props.type === "review" && showEmail ? "annotator_mail" : "";
       let colList = ["id", ...(!!email ? [email] : [])];
       colList.push(
         ...Object.keys(taskList[0].data).filter(
