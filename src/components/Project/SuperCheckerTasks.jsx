@@ -70,7 +70,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text", "rejection_count"];
+const excludeSearch = ["status", "actions", "output_text", "rejection_count", "updated_at"];
 
 const excludeCols = [
   "context",
@@ -368,9 +368,9 @@ const SuperCheckerTasks = (props) => {
       taskList[0].revision_loop_count?.super_check_count && colList.push("rejection_count");
       taskList[0].task_status && colList.push("status");
       if (
-        roles?.WorkspaceManager === userDetails?.role ||
+        (roles?.WorkspaceManager === userDetails?.role ||
         roles?.OrganizationOwner === userDetails?.role ||
-        roles?.Admin === userDetails?.role
+        roles?.Admin === userDetails?.role) && taskList[0].updated_at
       ) {
         colList.push("updated_at")
       }
