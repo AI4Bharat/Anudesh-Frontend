@@ -454,8 +454,6 @@ const translationServices = {
           </Typography>
 
           {loggedInUserData.guest_user == false ? <Typography variant="body1">
-
-          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -479,7 +477,7 @@ const translationServices = {
             </NavLink>
           </Typography>
 
-          </Typography>):null}
+         
 
         </Grid>
       );
@@ -546,7 +544,7 @@ const translationServices = {
               Chat
             </NavLink>
           </Typography>
-          </Typography>:null}
+          
 
         </Grid>
       );
