@@ -81,7 +81,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text", "revision_count", "rejection_count"];
+const excludeSearch = ["status", "actions", "output_text", "revision_count", "rejection_count", "updated_at"];
 
 const excludeCols = [
   "context",
@@ -599,6 +599,14 @@ const TaskTable = (props) => {
         ) {
           row.push(el.input_data_id);
         }
+        if (
+          (roles?.WorkspaceManager === userDetails?.role ||
+            roles?.OrganizationOwner === userDetails?.role ||
+            roles?.Admin === userDetails?.role) &&
+          taskList[0].updated_at
+        ) {
+          row.push(el.updated_at);
+        }
 
         const actionLink =
           props.type === "annotation"
@@ -657,6 +665,14 @@ const TaskTable = (props) => {
         if (taskList[0].input_data_id) {
           colList.push("Input_data_id");
         }
+      }
+      if (
+        (roles?.WorkspaceManager === userDetails?.role ||
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role) &&
+        taskList[0].updated_at
+      ) {
+        colList.push("updated_at")
       }
       colList.push("actions");
 
