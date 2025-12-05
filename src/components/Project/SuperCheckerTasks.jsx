@@ -43,11 +43,13 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import ChatLang from "@/utils/Chatlang";
+// import TasksSupercheckTable from "./prefered_reviewers";
 
 const defaultColumns = [
   "id",
   "instruction_data",
   "meta_info_language",
+  "rejection_count",
   "status",
   "actions",
 ];
@@ -68,7 +70,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text"];
+const excludeSearch = ["status", "actions", "output_text", "rejection_count"];
 
 const excludeCols = [
   "context",
@@ -321,6 +323,7 @@ const SuperCheckerTasks = (props) => {
               return el.data[key];
             }),
         );
+        taskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count)
         taskList[0].supercheck_status && row.push(el.supercheck_status);
         row.push(
           <Link
@@ -355,6 +358,7 @@ const SuperCheckerTasks = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
+      taskList[0].revision_loop_count?.super_check_count && colList.push("rejection_count");
       taskList[0].task_status && colList.push("status");
       colList.push("actions");
 
@@ -584,6 +588,8 @@ const SuperCheckerTasks = (props) => {
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
+      <>
+      
       <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
         {(roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
@@ -631,6 +637,7 @@ const SuperCheckerTasks = (props) => {
               </Select>
             </FormControl>
           )}
+          {/* <TasksSupercheckTable /> */}
         <ColumnList
           columns={columns}
           setColumns={setSelectedColumns}
@@ -686,6 +693,7 @@ const SuperCheckerTasks = (props) => {
          </Button>
         </Box>
       </Box>
+      </>
     );
   };
 

@@ -118,7 +118,6 @@ export default function Textarea({
     width: "60%",
     fontWeight: "400",
     lineHeight: "1.5",
-    padding: "12px",
     borderRadius: "12px 12px 0 12px",
     color: grey[900],
     background: "#ffffff",
@@ -198,7 +197,7 @@ export default function Textarea({
     <Grid
       item
       // xs={size}
-      backgroundColor="transparent"
+      backgroundColor="white"
       justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}
@@ -207,7 +206,7 @@ export default function Textarea({
       width={grid_size}
       className={class_name}
       sx={{ 
-        width:"90%" 
+        width:"90%" ,
       }}
       paddingBottom="8px"
       gap={"8px"}
@@ -224,6 +223,7 @@ export default function Textarea({
       {localTransliteration &&
         <FormControl
           fullWidth
+          size="small"
           sx={{
             backgroundColor: "white",
             position: {
@@ -375,7 +375,7 @@ export default function Textarea({
             width:"100%",
             fontWeight: "400",
             lineHeight: "1.5",
-            padding: "12px",
+            padding: "10px",
             borderRadius: "12px 12px 0 12px",
             color: grey[900],
             background: "#ffffff",

@@ -69,7 +69,7 @@ const MyProgress = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarText, setSnackbarText] = useState("");
   const [projectTypes, setProjectTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState("InstructionDrivenChat");
   const [columns, setColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [reportData, setReportData] = useState([]);
@@ -95,6 +95,19 @@ const MyProgress = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const classes = DatasetStyle();
+  
+  useEffect(() => {
+    const saved = localStorage.getItem("dateRangeSelection");
+    if (saved) {
+      const { startDate, endDate } = JSON.parse(saved);
+      setSelectRange([{
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        key: "selection",
+      }]);
+    }
+  }, []);
+
   useEffect(() => {
     dispatch(fetchProjectDomains());
   }, []);
@@ -136,7 +149,7 @@ const MyProgress = () => {
       setProjectTypes(types);
       if(types?.length)
         {
-          const idc = types.find(type => type.toLowerCase() === "InstructionDrivenChat");
+          const idc = types.find(type => type.toLowerCase() === "instructiondrivenchat");
           if(selectedType ===""){
                       setSelectedType(idc)
 
@@ -180,6 +193,11 @@ const MyProgress = () => {
     const { selection } = ranges;
     if (selection.endDate > new Date()) selection.endDate = new Date();
     setSelectRange([selection]);
+    
+    localStorage.setItem("dateRangeSelection", JSON.stringify({
+      startDate: selection.startDate,
+      endDate: selection.endDate,
+    }));
   };
 
   const handleProgressSubmit = () => {
@@ -644,28 +662,29 @@ const MyProgress = () => {
           </Grid>
         )}
         {UserAnalytics?.length > 0 ? (
-          <ThemeProvider theme={tableTheme}>
-            <MUIDataTable
-              key={`table-${displayWidth}`}
-              title={
-                radiobutton === "AnnotatationReports"
-                  ? "Annotation Report"
-                  : radiobutton === "ReviewerReports"
-                    ? "Reviewer Report"
-                    : "Super Checker Report"
-              }
-              data={reportData}
-              columns={columns.filter((col) =>
-                selectedColumns.includes(col.name),
-              )}
-              options={{
-                ...tableOptions,
-                tableBodyHeight: `${
-                  typeof window !== "undefined" ? window.innerHeight - 200 : 400
-                }px`,
-              }}
-            />
-          </ThemeProvider>
+          <Box sx={{ width: "100%", overflowX: "auto"}} >
+            <ThemeProvider theme={tableTheme}>
+              <MUIDataTable
+                key={`table-${displayWidth}`}
+                title={
+                  radiobutton === "AnnotatationReports"
+                    ? "Annotation Report"
+                    : radiobutton === "ReviewerReports"
+                      ? "Reviewer Report"
+                      : "Super Checker Report"
+                }
+                data={reportData}
+                columns={columns.filter((col) =>
+                  selectedColumns.includes(col.name),
+                )}
+                options={{
+                  ...tableOptions,
+                  tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
+                    }px`,
+                }}
+              />
+            </ThemeProvider>
+          </Box>
         ) : (
           <Grid container justifyContent="center">
             <Grid item sx={{ mt: "10%" }}>

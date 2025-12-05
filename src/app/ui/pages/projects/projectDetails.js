@@ -392,9 +392,9 @@ const Projects = () => {
                   {ProjectDetails.title}
                 </Typography>
 
-                {ProjectDetails?.id && (
+                {id && (
                 <BookmarkButton
-                  project={ProjectDetails}
+                  projectId={id}
                   onBookmarkChange={(projectId, isBookmarked) => {
                     console.log("Bookmark changed:", projectId, isBookmarked);
                   }}

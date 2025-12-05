@@ -34,6 +34,7 @@ import GradingSharpIcon from "@mui/icons-material/GradingSharp";
 import { formatDistanceToNow, format } from "date-fns";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
+import NMTModalContent from "./NMTModalContent";
 
 const Header = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false); // ✅ control fetching
@@ -76,6 +77,27 @@ const Header = () => {
   const handleMoreHorizonClose = () => {
     setMoreHorizonAnchorEl(null);
   };
+    const [showTranslationModel, setShowTranslationModel] = useState(false);
+    const handleTranslationModelClose = () => {
+    setShowTranslationModel(false);
+  };
+const translationServices = {
+  "ai4bharat/indictrans--gpu-t4": {
+    service_id: "ai4bharat/indictrans--gpu-t4",
+    languageFilters: {
+      sourceLanguages: [
+        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
+        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
+        "ks", "doi", "pa"
+      ],
+      targetLanguages: [
+        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
+        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
+        "ks", "doi", "pa"
+      ]
+    }
+  }
+};
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
@@ -430,7 +452,10 @@ const Header = () => {
               Projects
             </NavLink>
           </Typography>
+
           {loggedInUserData.guest_user == false ? <Typography variant="body1">
+
+          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -440,6 +465,7 @@ const Header = () => {
             >
               Analytics
             </NavLink>
+
           </Typography> : null}
           <Typography variant="body1">
             <NavLink
@@ -452,6 +478,9 @@ const Header = () => {
               Chat
             </NavLink>
           </Typography>
+
+          </Typography>):null}
+
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -504,6 +533,7 @@ const Header = () => {
             >
               Analytics
             </NavLink>
+
           </Typography> : null}
           <Typography variant="body1">
             <NavLink
@@ -516,6 +546,8 @@ const Header = () => {
               Chat
             </NavLink>
           </Typography>
+          </Typography>:null}
+
         </Grid>
       );
     } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
@@ -571,17 +603,6 @@ const Header = () => {
               activeClassName={classes.highlightedMenu}
             >
               Analytics
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -650,17 +671,6 @@ const Header = () => {
               activeClassName={classes.highlightedMenu}
             >
               Admin
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
             </NavLink>
           </Typography>
         </Grid>
@@ -812,6 +822,14 @@ const Header = () => {
         setShowTransliterationModel(true);
       },
     },
+        {
+      name: "Translation",
+      onclick: () => {
+        handleCloseSettingsMenu();
+        setShowTranslationModel(true);
+      }
+    },
+
     {
       name: "Enable RTL-typing",
       control: (
@@ -936,7 +954,7 @@ const Header = () => {
                     cursor: "pointer",
                     gap: "10px",
                   }}
-                  onClick={() => navigate("/")}
+                  onClick={() => window.location.href = "/#/"}
                 >
                   <Image
                     src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
@@ -1507,6 +1525,22 @@ const Header = () => {
           setIsSpaceClicked={setIsSpaceClicked}
           isSpaceClicked={isSpaceClicked}
           setShowTransliterationModel={setShowTransliterationModel}
+        />
+      </Modal>
+      <Modal
+        open={showTranslationModel}
+        onClose={handleTranslationModelClose}
+        top={50}
+        left={50}
+        topTranslate={"40"}
+        leftTranslate={"-50"}
+        style={{ cursor: "pointer" }}
+      >
+        <NMTModalContent
+          onClose={handleTranslationModelClose}
+          services={translationServices}
+          setIsSpaceClicked={setIsSpaceClicked}
+          isSpaceClicked={isSpaceClicked}
         />
       </Modal>
     </Grid>

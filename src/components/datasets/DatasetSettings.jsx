@@ -9,6 +9,8 @@ import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { Tooltip, Button } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useDispatch, useSelector } from "react-redux";
 import { translate } from "@/config/localisation";
 import CustomButton from "@/components/common/Button";
@@ -21,6 +23,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeduplicateDataItems from "./DeduplicateDataItems";
 import UploaddataAPI from "@/app/actions/api/dataset/UploaddataAPI";
 import { fetchDatasetDownloadCSV } from "@/Lib/Features/datasets/GetDatasetDownloadCSV";
+import { fetchSampleDatasetDownload } from "@/Lib/Features/datasets/GetSampleDatasetDownload";
 import { fetchFileTypes } from "@/Lib/Features/datasets/GetFileTypes";
 
 
@@ -57,10 +60,14 @@ export default function DatasetSettings() {
   });
 
   const GetFileTypes = useSelector((state) => state.GetFileTypes.data);
+  const sampleDataset = useSelector((state) => state.fetchSampleDatasetDownload?.data);
   const FileTypes = () => {
     // const projectObj = new GetFileTypesAPI();
     dispatch(fetchFileTypes());
   };
+  const handleSampleDatasetDownload = () =>{
+    dispatch(fetchSampleDatasetDownload((datasetId)));
+  }
 
   useEffect(() => {
     if (GetFileTypes && GetFileTypes.length > 0) {
@@ -180,11 +187,22 @@ export default function DatasetSettings() {
                 <DownloadDatasetButton />
               </Grid>
               <Grid item xs={12} sm={6} lg={3}>
-                <CustomButton
-                  sx={{ width: "100%" }}
-                  label={translate("button.uploadData")}
+                <Button
+                  sx={{  p: 2, borderRadius: 5,width:"100%" }}
+                  variant="contained"
                   onClick={handleUpload}
-                />
+                >
+                 {translate("button.uploadData")}
+                 <Tooltip title="Sample Download Button">
+                   <InfoOutlinedIcon 
+                   sx={{ cursor: "pointer", marginLeft: "0.5rem" }}
+                   onClick={(e) =>{ 
+                    e.stopPropagation();
+                    handleSampleDatasetDownload();
+                  }}
+                   />
+                 </Tooltip>
+                </Button>
               </Grid>
               <Grid item xs={12} sm={6} lg={3}>
                 <DeleteDataItems />

@@ -51,7 +51,9 @@ import ENDPOINTS from "../../../../config/apiendpoint";
 import config from '@/config/config';
 import ConsentBanner from './consentBanner';
 import RestoreIcon from '@mui/icons-material/Restore';
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from 'react-router-dom';
+import { FetchLoggedInUserData } from '@/Lib/Features/getLoggedInData';
 import BackButton from '@/components/common/BackButton';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -254,6 +256,7 @@ const formatPrompt = (prompt) => {
 
 function GuestChatPage() {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const [selectedModel, setSelectedModel] = useState('GPT3.5');
   const [selectedLang, setSelectedLang] = useState("en");
   const [showLanguageSelect, setShowLanguageSelect] = useState(false);
@@ -285,6 +288,36 @@ function GuestChatPage() {
     }
     return null;
   }, [selectedModel]);
+  const userDetails = useSelector((state) => state.getLoggedInData.data);
+  const getLoggedInUserData = () => {
+    dispatch(FetchLoggedInUserData("me"));
+  };
+
+  useEffect(() => {
+    getLoggedInUserData();
+  }, []);
+
+  function startNewChatSession() {
+    const newSessionId = crypto.randomUUID();
+    if (typeof window !== "undefined") {
+      localStorage.setItem('chatSessionId', newSessionId);
+    }
+    window.currentSessionId = newSessionId;
+    console.log("New Chat Session ID:", window.currentSessionId);
+  }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedSessionId = localStorage.getItem('chatSessionId');
+      if (!storedSessionId) {
+        startNewChatSession();
+      } else {
+        window.currentSessionId = storedSessionId;
+        console.log("Existing Chat Session ID:", window.currentSessionId);
+      }
+    }
+  }, []);
+
 
   const modelsMap = useMemo(() => {
     const map = {};
@@ -556,9 +589,11 @@ function GuestChatPage() {
         if (localStorage.getItem('cookies_user_consent') === "true") {
           user_data = getBrowserData();
         }
+        newEntry.model = interactionData.model;
         const chatLogBody = {
-          interaction_json: updatedChatHistory,
+          interaction_json: newEntry,
           user_data: user_data,
+          session_id: window.currentSessionId,
         };
         const ChatLogObj = new PostChatLogAPI(chatLogBody);
         const logRes = await fetch(ChatLogObj.apiEndPoint(), {
@@ -615,7 +650,6 @@ function GuestChatPage() {
   const handleSignOut = async () => {
     try {
       handleUserMenuClose();
-      await signOut(auth);
       sessionStorage.removeItem("interaction_json_processed");
       sessionStorage.removeItem("interaction_json");
       if (typeof window !== "undefined") {
@@ -623,7 +657,10 @@ function GuestChatPage() {
         localStorage.removeItem("anudesh_refresh_token");
         localStorage.removeItem("email_id");
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("chatSessionId");
       }
+      await signOut(auth);
+      setUser(null);
       console.log("User signed out successfully.");
     } catch (error) {
       console.error("Sign out error:", error);
@@ -641,12 +678,21 @@ function GuestChatPage() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+    if (userDetails?.username) {
+      setUser(userDetails);
+    } else {
+      setUser(null);
+    }
+    setAuthLoading(false);
+  }, [userDetails]);
+
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, (currentUser) => {
+  //       setUser(currentUser);
+  //       setAuthLoading(false);
+  //       // getLoggedInUserData();
+  //   });
+  // }, [])
 
   if (authLoading) {
     return (
@@ -659,6 +705,7 @@ function GuestChatPage() {
   const resetChat = () => {
     setProcessedChatHistory([]);
     setChatHistory([]);
+    startNewChatSession();
     handleUserMenuClose();
   };
 
@@ -679,7 +726,7 @@ function GuestChatPage() {
         }}
       >
         <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor:'pointer' }} onClick={() => {navigate("/")}} >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4%', cursor: 'pointer' }} onClick={() => { navigate("/") }} >
             <Image
               width={50}
               height={50}
@@ -692,15 +739,15 @@ function GuestChatPage() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" noWrap className={classes.headerTitle} style={{ flexGrow: 1, minWidth: 0 }}>
-              {user && user.displayName.split(" ", 2).join(" ")}
+              {user && user.username.split(" ", 2).join(" ")}
             </Typography>
             <IconButton onClick={handleUserMenuOpen} size="small" sx={{ ml: 1 }}>
               <Avatar
                 sx={{ width: 45, height: 45, bgcolor: 'primary.main' }}
                 src={user && user.photoURL}
-                alt={user && user.displayName}
+                alt={user && user.username}
               >
-                {user && user.displayName ? user && user.displayName[0] : <PersonIcon />}
+                {user && user.username ? user && user.username[0] : <PersonIcon />}
               </Avatar>
             </IconButton>
 
@@ -738,7 +785,7 @@ function GuestChatPage() {
                 </ListItemIcon>
                 Reset Chat
               </MenuItem>
-              <MenuItem onClick={handleSignOut}>
+              <MenuItem onClick={async () => { await handleSignOut(); navigate('/'); }}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
@@ -808,8 +855,8 @@ function GuestChatPage() {
                   </Box>
 
                   {message.role === 'user' && (
-                    <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }} alt={user && user.displayName} src={user && user.photoURL}>
-                      {user && user.displayName ? user && user.displayName[0] : <PersonIcon />}
+                    <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }} alt={user && user.username} src={user && user.photoURL}>
+                      {user && user.username ? user && user.username[0] : <PersonIcon />}
                     </Avatar>
                   )}
                 </Box>
