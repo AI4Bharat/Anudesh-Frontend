@@ -44,6 +44,8 @@ const DialogHeading = {
 
 // fetch all users in the current organization/workspace
 const fetchAllUsers = (userType, id, dispatch) => {
+  if (!id) return;
+  
   switch (userType) {
     case addUserTypes.PROJECT_ANNOTATORS:
     case addUserTypes.PROJECT_SUPERCHECKER:
@@ -121,9 +123,9 @@ const getAvailableUsers = (
       return orgUsers
         ?.filter(
           (orgUser) =>
-            workspaceAnnotators?.findIndex(
-              (annotator) => annotator?.id === orgUser?.id,
-            ) === -1,
+            !workspaceAnnotators?.some(
+              (annotator) => annotator?.id === orgUser?.id
+            )
         )
         .map((user) => ({
           email: user.email,
@@ -390,26 +392,28 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
   /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    let id = "";
-    switch (userType) {
-      case addUserTypes.PROJECT_ANNOTATORS:
-      case addUserTypes.PROJECT_SUPERCHECKER:
-      case addUserTypes.PROJECT_REVIEWER:
-        id = projectDetails?.workspace_id;
-        break;
-      case addUserTypes.ANNOTATOR:
-      case addUserTypes.MANAGER:
-        id = workspaceDetails?.organization;
-        console.log("id", id);
-        break;
-      default:
-        break;
-    }
-    console.log("id1", id);
-    if (id) fetchAllUsers(userType, id, dispatch);
-  }, [userType, id, projectDetails]);
-  const filteruser = (userType) => {
+/* eslint-disable react-hooks/exhaustive-deps */
+useEffect(() => {
+  let fetchId = "";
+  switch (userType) {
+    case addUserTypes.PROJECT_ANNOTATORS:
+    case addUserTypes.PROJECT_SUPERCHECKER:
+    case addUserTypes.PROJECT_REVIEWER:
+      fetchId = projectDetails?.workspace_id;
+      break;
+    case addUserTypes.ANNOTATOR:
+    case addUserTypes.MANAGER:
+      fetchId = workspaceDetails?.organization;
+      break;
+    default:
+      break;
+  }
+  
+  // Always fetch when the dialog opens, not just when id changes
+  if (isOpen && fetchId) {
+    fetchAllUsers(userType, fetchId, dispatch);
+  }
+}, [isOpen, userType, id, projectDetails?.workspace_id, workspaceDetails?.organization]);  const filteruser = (userType) => {
   switch (userType) {
     case addUserTypes.PROJECT_ANNOTATORS:
       return availableUsers?.filter(
