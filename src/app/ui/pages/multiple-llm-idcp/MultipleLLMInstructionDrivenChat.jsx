@@ -174,6 +174,9 @@ const MultipleLLMInstructionDrivenChat = ({
   }, [chatHistory]);
 
   useEffect(() => {
+      setEvalFormResponse({});
+  setSubmittedEvalForms({});
+
     let modifiedChatHistory = [];
     if (
       annotation &&
@@ -1148,77 +1151,76 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     });
   };
 
-  const validateEvalFormResponse = (form, prompt_output_pair_id) => {
-    console.log(form);
+const validateEvalFormResponse = (form, prompt_output_pair_id) => {
+  console.log(form);
 
-      const formdata = form?.model_responses_json
-    console.log(formdata);
+  const formdata = form?.model_responses_json;
+  console.log(formdata);
+  
+  if (!formdata) {
+    return false;
+  }
+
+  const allModelsValid = formdata.every((modelResponse, modelIdx) => {
+    console.log("something");
     
-    if (!formdata) {
-      return false;
-    }
-
-    const allModelsValid = formdata.every((modelResponse) => {
+    const allMandatoryAnswered = questions.every((question, questionIdx) => {
+      let expectedParts = 0;
       console.log("something");
+
+      if (question.question_type === "fill_in_blanks") {
+        expectedParts = question?.input_question?.split("<blank>")?.length - 1;
+      }
       
-      const allMandatoryAnswered = questions.every((question) => {
-        let expectedParts = 0;
-              console.log("something");
-
-        if (question.question_type === "fill_in_blanks") {
-          expectedParts =
-            question?.input_question?.split("<blank>")?.length - 1;
-        }
-            if(ProjectDetails?.metadata_json?.single_model_response){
-      var responseForQuestion = formdata?.find(
+      // FIX: For single response mode, check directly in formdata array
+      if(ProjectDetails?.metadata_json?.single_model_response){
+        // Get response by question index from the array
+        var responseForQuestion = formdata[questionIdx];
+      } else {
+        // Original logic for multi-model
+        var responseForQuestion = modelResponse?.questions_response?.find(
           (qr) =>
             qr?.question?.input_question === question?.input_question &&
             qr?.question?.question_type === question?.question_type,
         );
-    }else{
-      var responseForQuestion = modelResponse?.questions_response?.find(
-          (qr) =>
-            qr?.question?.input_question === question?.input_question &&
-            qr?.question?.question_type === question?.question_type,
+      }
+      
+      console.log("Question", questionIdx, "Response:", responseForQuestion);
+
+      if (!responseForQuestion?.response) {
+        console.log("No response for question", questionIdx);
+        return false;
+      }
+
+      if (question.question_type === "fill_in_blanks") {
+        const isCorrectLength = responseForQuestion.response.length === expectedParts;
+        const hasNoEmptyResponse = !responseForQuestion.response.some(
+          (response) => response === "" || response === undefined,
         );
-    }
-        
+        return isCorrectLength && hasNoEmptyResponse;
+      }
 
-        if (!responseForQuestion?.response) {
-          return false;
-        }
+      if (question.question_type === "comparison") {
+        const isValidComparison =
+          responseForQuestion.response.length === 1 &&
+          responseForQuestion.response[0] !== "";
+        return isValidComparison;
+      }
 
-        if (question.question_type === "fill_in_blanks") {
-          const isCorrectLength =
-            responseForQuestion.response.length === expectedParts;
-          const hasNoEmptyResponse = !responseForQuestion.response.some(
-            (response) => response === "" || response === undefined,
-          );
-          return isCorrectLength && hasNoEmptyResponse;
-        }
-
-        if (question.question_type === "comparison") {
-          const isValidComparison =
-            responseForQuestion.response.length === 1 &&
-            responseForQuestion.response[0] !== "";
-          return isValidComparison;
-        }
-
-        const hasValidResponse =
-          responseForQuestion.response.length > 0 &&
-          !responseForQuestion.response.some(
-            (response) =>
-              response === "" || response === undefined || response === null,
-          );
-        return hasValidResponse;
-      });
-
-      return allMandatoryAnswered;
+      const hasValidResponse =
+        responseForQuestion.response.length > 0 &&
+        !responseForQuestion.response.some(
+          (response) =>
+            response === "" || response === undefined || response === null,
+        );
+      return hasValidResponse;
     });
 
-    return allModelsValid;
-  };
-  function getLabelText(value) {
+    return allMandatoryAnswered;
+  });
+
+  return allModelsValid;
+};function getLabelText(value) {
     return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
   }
 
