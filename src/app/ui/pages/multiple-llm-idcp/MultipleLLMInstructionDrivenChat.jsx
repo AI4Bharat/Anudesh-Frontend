@@ -911,6 +911,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
       return newState;
     });
   };
+
   const handleMultiSelect = (
     index,
     message,
