@@ -36,6 +36,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
+import anudesh_Logo from "../../assets/logo.jpeg"
 
 const modalStyle = {
   position: "absolute",
@@ -573,7 +574,7 @@ function MobileNavbar(props) {
             <Link href="/projects">
               <Image
                 onClick={() => navigate("/")}
-                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                src={anudesh_Logo}
                 alt="anudesh"
                 height="100"
                 width="100"

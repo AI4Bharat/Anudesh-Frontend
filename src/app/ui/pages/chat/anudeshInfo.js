@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Grid, Typography, Container, Paper } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles'; 
+import anudesh_Logo from "../../../../assets/logo.jpeg";
 
 const LOGO_URL = 'https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp';
 
@@ -42,7 +43,7 @@ const AnudeshInfo = () => {
       >
         <Box
           component="img"
-          src={LOGO_URL}
+          src={anudesh_Logo}
           alt="Anudesh Logo"
           sx={{
             width: 80,
