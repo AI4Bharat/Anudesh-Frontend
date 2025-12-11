@@ -138,6 +138,18 @@ const MultipleLLMInstructionDrivenChat = ({
     5: "Excellent",
   };
 
+  // Helper function to get model identifier (prefers model_id, falls back to model_name for compatibility)
+  const getModelId = (model) => {
+    return model?.model_id || model?.model_name;
+  };
+
+  // Helper function to check if two models match (by model_id or model_name)
+  const modelsMatch = (model1, model2) => {
+    const id1 = getModelId(model1);
+    const id2 = getModelId(model2);
+    return id1 && id2 && id1 === id2;
+  };
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -200,11 +212,12 @@ const MultipleLLMInstructionDrivenChat = ({
             }
 
             modelOutputs.push({
-              model_name: modelData?.model_name,
+              model_id: modelData?.model_id || modelData?.model_name,
+              model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
               output: response_valid
                 ? formatResponse(interaction?.output)
                 : formatResponse(
-                  `${modelData?.model_name} failed to generate a response`,
+                  `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
                 ),
               status: response_valid ? "success" : "error",
               prompt_output_pair_id: interaction?.prompt_output_pair_id,
@@ -438,11 +451,12 @@ const MultipleLLMInstructionDrivenChat = ({
                 }
 
                 modelOutputs.push({
-                  model_name: modelData?.model_name,
+                  model_id: modelData?.model_id || modelData?.model_name,
+                  model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
                   output: response_valid
                     ? formatResponse(interaction?.output)
                     : formatResponse(
-                      `${modelData?.model_name} failed to generate a response`,
+                      `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
                     ),
                   status: response_valid ? "success" : "error",
                   prompt_output_pair_id: interaction?.prompt_output_pair_id,
@@ -564,14 +578,16 @@ const MultipleLLMInstructionDrivenChat = ({
       }
 
       const modelResponses = [...newState[index].model_responses_json];
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
       let modelIndex = modelResponses.findIndex(
-        (m) => m.model_name === targetModel,
+        (m) => modelsMatch(m, { model_id: targetModelId, model_name: targetModelName }),
       );
 
       if (modelIndex === -1) {
         modelResponses.push({
-          model_name: targetModel,
+          model_id: targetModelId,
+          model_name: targetModelName,
           questions_response: [],
         });
         modelIndex = modelResponses.length - 1;
@@ -830,7 +846,9 @@ const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex =
 };
 const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
+      const targetModel = { model_id: targetModelId, model_name: targetModelName };
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
@@ -841,7 +859,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
-              if (mr.model_name === targetModel) {
+              if (modelsMatch(mr, targetModel)) {
                 return {
                   ...mr,
                   questions_response: [
@@ -873,11 +891,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               return mr;
             }),
             ...(!prev[index]?.model_responses_json?.some(
-              (mr) => mr.model_name === targetModel,
+              (mr) => modelsMatch(mr, targetModel),
             )
               ? [
                 {
-                  model_name: targetModel,
+                  model_id: targetModelId,
+                  model_name: targetModelName,
                   questions_response: [
                     {
                       question:
@@ -906,7 +925,9 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     model_idx,
   ) => {
     setEvalFormResponse((prev) => {
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
+      const targetModel = { model_id: targetModelId, model_name: targetModelName };
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
@@ -917,7 +938,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
-              if (mr.model_name === targetModel) {
+              if (modelsMatch(mr, targetModel)) {
                 return {
                   ...mr,
                   questions_response: [
@@ -954,11 +975,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               return mr;
             }),
             ...(!prev[index]?.model_responses_json?.some(
-              (mr) => mr.model_name === targetModel,
+              (mr) => modelsMatch(mr, targetModel),
             )
               ? [
                 {
-                  model_name: targetModel,
+                  model_id: targetModelId,
+                  model_name: targetModelName,
                   questions_response: [
                     {
                       question:
@@ -981,7 +1003,9 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
 
   const handleMCQ = (index, message, option, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
+      const targetModel = { model_id: targetModelId, model_name: targetModelName };
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
@@ -992,7 +1016,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
-              if (mr.model_name === targetModel) {
+              if (modelsMatch(mr, targetModel)) {
                 // Update model response
                 return {
                   ...mr,
@@ -1025,11 +1049,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               return mr;
             }),
             ...(!prev[index]?.model_responses_json?.some(
-              (mr) => mr.model_name === targetModel,
+              (mr) => modelsMatch(mr, targetModel),
             )
               ? [
                 {
-                  model_name: targetModel,
+                  model_id: targetModelId,
+                  model_name: targetModelName,
                   questions_response: [
                     {
                       question:
@@ -1076,11 +1101,11 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
             ...(safePrev[index]?.model_responses_json || []).map(
               (existingModel) => {
                 const messageModel = models.find(
-                  (m) => m.model_name === existingModel.model_name,
+                  (m) => modelsMatch(m, existingModel),
                 );
 
                 if (messageModel) {
-                  const isSelected = existingModel.model_name === newValue;
+                  const isSelected = modelsMatch(existingModel, { model_name: newValue }) || existingModel.model_name === newValue;
 
                   return {
                     ...existingModel,
@@ -1109,13 +1134,14 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               .filter(
                 (model) =>
                   !safePrev[index]?.model_responses_json?.some(
-                    (mr) => mr.model_name === model.model_name,
+                    (mr) => modelsMatch(mr, model),
                   ),
               )
-              .map((model) => {
-                const isSelected = model.model_name === newValue;
+              .map((model, idx) => {
+                const isSelected = modelsMatch(model, { model_name: newValue }) || model.model_name === newValue;
                 return {
-                  model_name: model.model_name,
+                  model_id: getModelId(model),
+                  model_name: model.model_name || `Model ${idx + 1}`,
                   questions_response: [
                     {
                       question:
@@ -1869,8 +1895,7 @@ const renderChatHistory = () => {
                                             ]?.model_responses_json
                                               ?.find(
                                                 (m) =>
-                                                  m.model_name ===
-                                                  response.model_name,
+                                                  modelsMatch(m, response),
                                               )
                                               ?.questions_response?.find(
                                                 (q) =>
@@ -1971,8 +1996,7 @@ const renderChatHistory = () => {
                                               ]?.model_responses_json
                                                 ?.find(
                                                   (m) =>
-                                                    m.model_name ===
-                                                    response.model_name,
+                                                    modelsMatch(m, response),
                                                 )
                                                 ?.questions_response?.find(
                                                   (q) =>
@@ -2091,8 +2115,7 @@ const renderChatHistory = () => {
                                                     ]?.model_responses_json
                                                       ?.find(
                                                         (m) =>
-                                                          m.model_name ===
-                                                          response.model_name,
+                                                          modelsMatch(m, response),
                                                       )
                                                       ?.questions_response?.find(
                                                         (q) =>
@@ -2225,8 +2248,7 @@ const renderChatHistory = () => {
                                                             ]?.model_responses_json
                                                               ?.find(
                                                                 (m) =>
-                                                                  m.model_name ===
-                                                                  response.model_name,
+                                                                  modelsMatch(m, response),
                                                               )
                                                               ?.questions_response?.find(
                                                                 (q) =>
