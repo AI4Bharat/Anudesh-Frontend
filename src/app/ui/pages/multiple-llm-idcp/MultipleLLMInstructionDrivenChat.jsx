@@ -77,7 +77,7 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
-  backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+  backgroundImage: `url("../../../../../assets/chat_bg.png")`,
 };
 
 const MultipleLLMInstructionDrivenChat = ({
@@ -1409,7 +1409,7 @@ console.log(evalFormResponse);
                   <Image
                     width={50}
                     height={50}
-                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                    src="https://imgur.com/56Ut9oz.png"
                     alt="Bot Avatar"
                     priority
                   />
@@ -1455,7 +1455,7 @@ console.log(evalFormResponse);
                             borderRadius: "10px",
                             color: "red",
                             fontWeight: "bold",
-                            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+                            backgroundImage: `url("../../../../../assets/chat_bg.png")`,
                           }}
                         >
                           <ErrorIcon

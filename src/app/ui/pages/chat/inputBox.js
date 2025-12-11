@@ -56,7 +56,6 @@ import { useNavigate } from 'react-router-dom';
 import { FetchLoggedInUserData } from '@/Lib/Features/getLoggedInData';
 import BackButton from '@/components/common/BackButton';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -720,7 +719,7 @@ function GuestChatPage() {
           display: 'flex',
           flexDirection: 'column',
           height: '100vh',
-          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+          backgroundImage: `url("../../../../../assets/chat_bg.png"")`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
         }}
@@ -730,7 +729,7 @@ function GuestChatPage() {
             <Image
               width={50}
               height={50}
-              src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+              src="https://i.imgur.com/56Ut9oz.png"
               priority
             />
             <Typography variant="h5" className={classes.headerTitle}>

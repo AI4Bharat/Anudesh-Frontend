@@ -19,7 +19,7 @@ import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { makeStyles } from '@mui/styles';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { motion } from "framer-motion";
-// import bgChat from "./chat_bg.jpg";
+import bgChat from "../../../../assets/chat-bg.jpg";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -253,7 +253,7 @@ const Chat = () => {
             <Image
               width={50}
               height={50}
-              src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+              src="https://i.imgur.com/56Ut9oz.png"
               alt="Bot Avatar"
               style={{
                 marginRight: "1rem",
@@ -349,7 +349,7 @@ const Chat = () => {
         <Image
           onClick={() => navigate("/")}
           alt="Anudesh"
-          src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+          src="https://i.imgur.com/56Ut9oz.png"
           width={90}
           height={90}
           priority
@@ -391,7 +391,7 @@ const Chat = () => {
             >
               <Image
                 alt="Anudesh"
-                src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                src="https://i.imgur.com/56Ut9oz.png"
                 width={50}
                 height={50}
                 className="w-[8rem] h-[8rem]"
@@ -465,7 +465,7 @@ const Chat = () => {
               alignItems: "center",
               width: "100% !important",
               padding: "1rem 0 4rem",
-              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+              backgroundImage: `url(${bgChat})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",

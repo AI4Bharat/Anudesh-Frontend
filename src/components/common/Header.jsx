@@ -32,6 +32,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
 import NMTModalContent from "./NMTModalContent";
+import anudesh_Logo from "../../assets/logo.jpeg"
 
 const Header = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -878,7 +879,7 @@ useEffect(() => {
                   onClick={() => window.location.href = "/#/"}
                 >
                   <Image
-                    src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                    src={anudesh_Logo}
                     alt="anudesh"
                     height="100"
                     width="100"
