@@ -752,7 +752,7 @@ const PreferenceRanking = ({
             setExpandedCurrentFormAccordion((prev) => !prev);
           }}
           sx={{
-            backgroundImage: `url("../../../../../assets/chat_bg.png"")`,
+              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             borderRadius: "20px",
             marginBottom: "2rem",
           }}

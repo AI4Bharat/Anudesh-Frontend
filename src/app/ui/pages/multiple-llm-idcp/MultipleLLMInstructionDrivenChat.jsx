@@ -77,7 +77,7 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
-  backgroundImage: `url("../../../../../assets/chat_bg.png")`,
+    backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
 };
 
 const MultipleLLMInstructionDrivenChat = ({
@@ -1455,7 +1455,7 @@ console.log(evalFormResponse);
                             borderRadius: "10px",
                             color: "red",
                             fontWeight: "bold",
-                            backgroundImage: `url("../../../../../assets/chat_bg.png")`,
+                              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
                           }}
                         >
                           <ErrorIcon

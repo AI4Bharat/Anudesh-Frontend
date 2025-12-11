@@ -719,7 +719,7 @@ function GuestChatPage() {
           display: 'flex',
           flexDirection: 'column',
           height: '100vh',
-          backgroundImage: `url("../../../../../assets/chat_bg.png"")`,
+          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
         }}
