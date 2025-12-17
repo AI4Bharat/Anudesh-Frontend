@@ -434,12 +434,6 @@ const AdvancedOperation = (props) => {
     setLoading(apiLoading);
   }, [apiLoading]);
 
-  useEffect(() => {
-    console.log("loggedInUserData:", loggedInUserData);
-    console.log("ProjectDetails?.tasks?.length:", ProjectDetails?.tasks?.length);
-    console.log("Full ProjectDetails:", ProjectDetails);
-  }, [loggedInUserData, ProjectDetails]);
-
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
