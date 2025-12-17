@@ -434,6 +434,12 @@ const AdvancedOperation = (props) => {
     setLoading(apiLoading);
   }, [apiLoading]);
 
+  useEffect(() => {
+    console.log("loggedInUserData:", loggedInUserData);
+    console.log("ProjectDetails?.tasks?.length:", ProjectDetails?.tasks?.length);
+    console.log("Full ProjectDetails:", ProjectDetails);
+  }, [loggedInUserData, ProjectDetails]);
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -464,6 +470,35 @@ const AdvancedOperation = (props) => {
       window.alert("Invalid credentials, please try again");
     }
   };
+  const navigate = useNavigate();
+
+  const handleDeleteProject = async () => {
+    if (!window.confirm("Delete this project permanently?")) return;
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${id}/`, {
+        method: "DELETE",
+        credentials: "include",  // sends cookies
+        mode: "cors",            // required for credentials on DELETE
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":`JWT ${localStorage.getItem('anudesh_access_token')}`
+        },
+      });
+
+      if (res.ok) {
+        alert("Project deleted");
+        navigate("/projects");
+      } else {
+        const data = await res.json();
+        console.log(data);
+        alert(data.detail || data.error || "Delete failed");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <ThemeProvider theme={themeDefault}>
       {loading && <Spinner />}
@@ -767,7 +802,23 @@ const AdvancedOperation = (props) => {
               />
             </Grid>
           )}
-        </Grid>
+              
+              {userRole.Admin === loggedInUserData?.role && ProjectDetails?.labeled_task_count === 0 &&  (
+                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                    }}
+                    color="error"
+                    onClick={handleDeleteProject}
+                    label="Delete Project"
+                  />
+                </Grid>
+              )}
+        
+          </Grid>
         </Grid>
 
 
