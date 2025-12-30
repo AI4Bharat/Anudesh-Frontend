@@ -634,12 +634,28 @@ const TaskTable = (props) => {
   }, [selectedFilters, pull, rejected]);
 
   const renderedTaskList = filteredTaskList ?? taskList;
+  
+  const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
+    if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
+    
+    const user = getProjectUsers.find(u => u.email === annotatorEmail);
+    if (user && user.first_name && user.last_name && showAnnotatorsNames) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return annotatorEmail;
+  };
 
   useEffect(() => {
     if (renderedTaskList?.length > 0 && renderedTaskList[0]?.data) {
+      const showAnnotatorsNames = getProjectUsers && renderedTaskList?.every((task) => {
+        const user = getProjectUsers.find(u => u.email === task.annotator_mail);
+        return user && user.first_name && user.last_name;
+      });
+
       const data = renderedTaskList.map((el) => {
         const email = props.type === "review" ? el.annotator_mail : "";
-        let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
+        const annotatorDisplay = getAnnotatorName(el.annotator_mail, showAnnotatorsNames);
+        let row = [el.id, ...(!!email ? [annotatorDisplay] : [])];
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
@@ -761,6 +777,12 @@ const TaskTable = (props) => {
         meta_info_domain: "domain",
         meta_info_intent: "intent",
       };
+      if (showAnnotatorsNames) {
+        metaInfoMapping.annotator_mail = "Annotator";
+      } else {
+        metaInfoMapping.annotator_mail = "Annotator Email";
+      }
+      
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
