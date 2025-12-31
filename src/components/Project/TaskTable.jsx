@@ -564,11 +564,25 @@ const TaskTable = (props) => {
       }),
     );
   }, [selectedFilters, pull, rejected]);
+  const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
+    if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
+    
+    const user = getProjectUsers.find(u => u.email === annotatorEmail);
+    if (user && user.first_name && user.last_name && showAnnotatorsNames) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return annotatorEmail;
+  };
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
+      const showAnnotatorsNames = getProjectUsers && taskList?.every((task) => {
+        const user = getProjectUsers.find(u => u.email === task.annotator_mail);
+        return user && user.first_name && user.last_name;
+      });
       const data = taskList.map((el) => {
         const email = props.type === "review" ? el.annotator_mail : "";
-        let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
+        const annotatorDisplay = getAnnotatorName(el.annotator_mail, showAnnotatorsNames);
+        let row = [el.id, ...(!!email ? [annotatorDisplay] : [])];
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
@@ -635,7 +649,7 @@ const TaskTable = (props) => {
       });
       const annotatorEmail = taskList[0]?.hasOwnProperty("annotator_mail");
       const email =
-        props.type === "review" && annotatorEmail ? "Annotator Email" : "";
+        props.type === "review" && annotatorEmail ? "annotator_mail" : "";
       let colList = ["id", ...(!!email ? [email] : [])];
       colList.push(
         ...Object.keys(taskList[0].data).filter(
@@ -662,7 +676,7 @@ const TaskTable = (props) => {
 
       if (selectedColumns.length === 0) {
         if (props.type === "review" && ProjectDetails?.conceal === false) {
-          const updatedColumns = [...defaultColumns, "Annotator Email"];
+          const updatedColumns = [...defaultColumns, "annotator_mail"];
           columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
         } else {
           columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
@@ -673,6 +687,11 @@ const TaskTable = (props) => {
         meta_info_domain: "domain",
         meta_info_intent: "intent",
       };
+      if (showAnnotatorsNames) {
+        metaInfoMapping.annotator_mail = "Annotator";
+      } else {
+        metaInfoMapping.annotator_mail = "Annotator Email";
+      }
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
