@@ -73,7 +73,7 @@ const TimeRangeFilter = ({
           displayMode="date"
         />
       </Box>
-      <Box sx={{ p: 2, display: "flex", justifyContent: "end", gap: 2 }}>
+      <Box sx={{ p: 1, display: "flex", justifyContent: "end", gap: 2 }}>
         <Button
           onClick={handleDateTimeFormat}
           variant="outlined"
