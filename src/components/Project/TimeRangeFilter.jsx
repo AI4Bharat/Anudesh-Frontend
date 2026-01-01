@@ -25,11 +25,11 @@ const TimeRangeFilter = ({
       onClose={handleCalenderClose}
       anchorOrigin={{
         vertical: "bottom",
-        horizontal: "center",
+        horizontal: "right",
       }}
       transformOrigin={{
         vertical: "top",
-        horizontal: "center",
+        horizontal: "right",
       }}
     >
       <Box
@@ -38,7 +38,7 @@ const TimeRangeFilter = ({
           flexDirection: "column",
           justifyContent: "space-between",
           height: "100%",
-          width: "550px",
+          width: "500px",
           overflowX: "auto",
         }}
       >
@@ -67,13 +67,13 @@ const TimeRangeFilter = ({
             }
           ]}
           ranges={selectRange}
-          months={2}
+          months={1}
           maxDate={new Date()}
           direction="horizontal"
           displayMode="date"
         />
       </Box>
-      <Box sx={{ p: 2, display: "flex", justifyContent: "end", gap: 2 }}>
+      <Box sx={{ p: 0.5, display: "flex", justifyContent: "end", gap: 2 }}>
         <Button
           onClick={handleDateTimeFormat}
           variant="outlined"
