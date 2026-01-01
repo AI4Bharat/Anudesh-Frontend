@@ -1,7 +1,8 @@
 import React from "react";
 import { Popover, Box, Button } from "@mui/material";
-import { DateRangePicker } from "react-date-range";
-import { modifiedStaticRanges } from "@/utils/Date_Range/getDateRangeFormat";
+import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+import { isSameDay } from "date-fns";
+import { useSelector } from "react-redux";
 
 const TimeRangeFilter = ({
   calenderOpen,
@@ -14,6 +15,8 @@ const TimeRangeFilter = ({
   clearFilter,
   applyFilter,
 }) => {
+
+  const UserDetails = useSelector((state) => state.getLoggedInData.data);
   
   return (
     <Popover
@@ -41,7 +44,28 @@ const TimeRangeFilter = ({
       >
         <DateRangePicker
           onChange={handleRangeChange}
-          staticRanges={modifiedStaticRanges}
+          staticRanges={[
+            ...defaultStaticRanges,
+            {
+              label: "Till Date",
+              range: () => ({
+                startDate: new Date(
+                  Date.parse(
+                          UserDetails?.date_joined,
+                          "yyyy-MM-ddTHH:mm:ss.SSSZ",
+                        ),
+                ),
+                endDate: new Date(),
+              }),
+              isSelected(range) {
+                const definedRange = this.range();
+                return (
+                  isSameDay(range.startDate, definedRange.startDate) &&
+                  isSameDay(range.endDate, definedRange.endDate)
+                );
+              },
+            }
+          ]}
           ranges={selectRange}
           months={2}
           maxDate={new Date()}
