@@ -111,6 +111,15 @@ const ModelInteractionEvaluation = ({
   );
   const [expandedCurrentFormAccordion, setExpandedCurrentFormAccordion] =
     useState(false);
+  const currentFormIndex = useMemo(() => {
+    if (!forms || forms.length === 0 || !clickedPromptOutputPairId) {
+      return -1;
+    }
+
+    return forms.findIndex(
+      (form) => form?.prompt_output_pair_id == clickedPromptOutputPairId,
+    );
+  }, [forms, clickedPromptOutputPairId]);
 
   const handleAccordionChange = (index) => (event, isExpanded) => {
     setExpanded((prevExpanded) => {
@@ -450,6 +459,59 @@ const ModelInteractionEvaluation = ({
     });
   };
 
+  const selectInteraction = useCallback(
+    (promptOutputPairId) => {
+      if (!promptOutputPairId) return;
+      setclickedPromptOutputPairId(promptOutputPairId);
+
+      const currInteraction = forms?.find(
+        (interaction) =>
+          interaction?.prompt_output_pair_id == promptOutputPairId,
+      );
+
+      if (currInteraction) {
+        setCurrentInteraction({
+          prompt: currInteraction?.prompt,
+          output: Array.isArray(currInteraction.output)
+            ? currInteraction?.output?.map((item) => item.value).join(", ")
+            : currInteraction.output,
+          prompt_output_pair_id: currInteraction?.prompt_output_pair_id,
+          additional_note: currInteraction?.additional_note || "",
+          questions_response:
+            currInteraction?.questions_response ||
+            Array(questions.length).fill(null),
+        });
+      }
+
+      setExpanded(() => {
+        const updated = Array(forms?.length || 0).fill(false);
+        const selectedIndex = forms?.findIndex(
+          (form) => form?.prompt_output_pair_id == promptOutputPairId,
+        );
+        if (selectedIndex !== -1) {
+          updated[selectedIndex] = true;
+        }
+        return updated;
+      });
+    },
+    [forms, setCurrentInteraction, questions],
+  );
+
+  const handleNextTurn = useCallback(() => {
+    if (!forms || forms.length === 0) return;
+
+    const nextIndex =
+      currentFormIndex === -1 ? 0 : Math.min(currentFormIndex + 1, forms.length);
+
+    if (nextIndex < forms.length) {
+      const nextForm = forms[nextIndex];
+      selectInteraction(nextForm?.prompt_output_pair_id);
+    }
+  }, [currentFormIndex, forms, selectInteraction]);
+
+  const isLastInteraction =
+    !forms || forms.length === 0 || currentFormIndex === forms.length - 1;
+
   const formatPrompt = (prompt) => {
     if (!prompt) return "";
     const formattedText = prompt.replace(/(\r\n|\r|\n)/g, "  \n");
@@ -461,7 +523,7 @@ const ModelInteractionEvaluation = ({
     setclickedPromptOutputPairId(e.target.id);
     const currInteraction = forms?.find(
       (interaction) =>
-        interaction?.prompt_output_pair_id == clickedPromptOutputPairId,
+        interaction?.prompt_output_pair_id == e.target.id,
     );
     if (currInteraction) {
       setCurrentInteraction({
@@ -907,6 +969,21 @@ const ModelInteractionEvaluation = ({
           onChange={handleNoteChange}
           className={classes.notesTextarea}
         />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "1rem",
+          }}
+        >
+          <Button
+            label="Next Turn"
+            buttonVariant={"contained"}
+            onClick={handleNextTurn}
+            disabled={isLastInteraction}
+            style={{ minWidth: "140px" }}
+          />
+        </Box>
       </div>
     );
   };
