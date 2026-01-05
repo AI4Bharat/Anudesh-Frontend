@@ -43,6 +43,9 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import ChatLang from "@/utils/Chatlang";
+import CalenderMonthIcon from "@mui/icons-material/CalendarMonth";
+import { parse, format } from "date-fns";
+import TimeRangeFilter from "./TimeRangeFilter";
 // import TasksSupercheckTable from "./prefered_reviewers";
 
 const defaultColumns = [
@@ -70,7 +73,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text", "rejection_count"];
+const excludeSearch = ["status", "actions", "output_text", "rejection_count", "updated_at"];
 
 const excludeCols = [
   "context",
@@ -135,6 +138,17 @@ const SuperCheckerTasks = (props) => {
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const [pullDisabled, setPullDisabled] = useState("");
   const [labellingStarted, setLabellingStarted] = useState(false);
+  const [filteredTaskList, setFilteredTaskList] = useState(null);
+  const [calenderAnchor, setCalenderAnchor] = useState(null);
+  const calenderOpen = Boolean(calenderAnchor);
+  const [selectRange, setSelectRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+  const [dateTimeFormat, SetDateTimeFormat] = useState(false);
 
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
   const TaskFilter = AllTaskFilters.find(
@@ -196,6 +210,44 @@ const SuperCheckerTasks = (props) => {
         taskType: props.type,
       }),
     );
+  };
+
+    const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    setSelectRange([selection]);
+  };
+
+  const clearFilter = () => {
+    setFilteredTaskList(null);
+    setSelectRange([
+      {
+        startDate: null,
+        endDate: null,
+        key: "selection",
+      },
+    ]);
+    setCalenderAnchor(null);
+  };
+
+  const applyFilter = () => {
+    if (selectRange[0].startDate && selectRange[0].endDate && taskList) {
+      const startDate = selectRange[0].startDate;
+      const endDate = new Date(selectRange[0].endDate);
+      endDate.setHours(23, 59, 59, 999);
+
+      const filtered = taskList.filter((task) => {
+        if (!task.updated_at) return false;
+        const taskDate = parse(task.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
+        return taskDate >= startDate && taskDate <= endDate;
+      });
+      setFilteredTaskList(filtered);
+    }
+    setCalenderAnchor(null);
+  };
+
+  const handleDateTimeFormat = () => {
+    SetDateTimeFormat(!dateTimeFormat);
+    setCalenderAnchor(null);
   };
 
   useEffect(() => {
@@ -309,9 +361,11 @@ const SuperCheckerTasks = (props) => {
     }
   }, [selectedFilters]);
 
+  const renderedTaskList = filteredTaskList ?? taskList;
+
   useEffect(() => {
-    if (taskList?.length > 0 && taskList[0]?.data) {
-      const data = taskList.map((el) => {
+    if (renderedTaskList?.length > 0 && renderedTaskList[0]?.data) {
+      const data = renderedTaskList.map((el) => {
         let row = [el.id];
         row.push(
           ...Object.keys(el.data)
@@ -323,8 +377,20 @@ const SuperCheckerTasks = (props) => {
               return el.data[key];
             }),
         );
-        taskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count)
-        taskList[0].supercheck_status && row.push(el.supercheck_status);
+        renderedTaskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count);
+        renderedTaskList[0].supercheck_status && row.push(el.supercheck_status);
+        if (
+          roles?.WorkspaceManager === userDetails?.role ||
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role
+        ) {
+          const taskDate = parse(el.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
+          if (dateTimeFormat) {
+            row.push(format(taskDate, "dd/MM/yyyy HH:mm:ss"));
+          } else {
+            row.push(format(taskDate, "dd/MM/yyyy"));
+          }
+        }
         row.push(
           <Link
             to={
@@ -358,8 +424,17 @@ const SuperCheckerTasks = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
-      taskList[0].revision_loop_count?.super_check_count && colList.push("rejection_count");
-      taskList[0].task_status && colList.push("status");
+      renderedTaskList[0].revision_loop_count?.super_check_count &&
+        colList.push("rejection_count");
+      renderedTaskList[0].task_status && colList.push("status");
+      if (
+        (roles?.WorkspaceManager === userDetails?.role ||
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role) &&
+        renderedTaskList[0].updated_at
+      ) {
+        colList.push("updated_at");
+      }
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
@@ -417,7 +492,7 @@ const SuperCheckerTasks = (props) => {
     } else {
       setTasks([]);
     }
-  }, [taskList, ProjectDetails, expandedRow]);
+  }, [renderedTaskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
@@ -560,6 +635,18 @@ const SuperCheckerTasks = (props) => {
             <SearchIcon id={col.name + "_btn"} />
           </IconButton>
         )}
+        {col.name === "updated_at" &&
+          taskList.length > 0 &&
+          taskList[0]?.updated_at && (
+            <IconButton
+              sx={{ borderRadius: "100%" }}
+              onClick={(e) => {
+                setCalenderAnchor(e.currentTarget);
+              }}
+            >
+              <CalenderMonthIcon />
+            </IconButton>
+          )}
       </Box>
     );
   };
@@ -1081,6 +1168,19 @@ const SuperCheckerTasks = (props) => {
           currentFilters={selectedFilters}
           searchedCol={searchedCol}
           onchange={getTaskListData}
+        />
+      )}
+      {calenderOpen && (
+        <TimeRangeFilter
+          calenderOpen={calenderOpen}
+          calenderAnchor={calenderAnchor}
+          handleCalenderClose={() => setCalenderAnchor(null)}
+          selectRange={selectRange}
+          handleRangeChange={handleRangeChange}
+          dateTimeFormat={dateTimeFormat}
+          handleDateTimeFormat={handleDateTimeFormat}
+          clearFilter={clearFilter}
+          applyFilter={applyFilter}
         />
       )}
       {renderSnackBar()}
