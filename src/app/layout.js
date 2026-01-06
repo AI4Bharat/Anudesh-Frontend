@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
           />
 
 
-          <link rel="preload" href="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp" />
+          <link rel="preload" href="https://i.imgur.com/56Ut9oz.png" />
 
         </Head>
 
