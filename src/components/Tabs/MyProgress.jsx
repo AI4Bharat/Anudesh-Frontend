@@ -384,7 +384,7 @@ const MyProgress = () => {
       >
         <Grid
           container
-          columnSpacing={4}
+          columnSpacing={1}
           rowSpacing={2}
           mt={1}
           mb={1}
@@ -429,7 +429,7 @@ const MyProgress = () => {
               fullWidth
               variant="contained"
               onClick={handleProgressSubmit}
-              sx={{ width: "130px" }}
+              sx={{ minWidth: "100px" ,maxWidth: "130px" }}
             >
               Submit
             </Button>
