@@ -616,11 +616,24 @@ const TaskTable = (props) => {
               : "View"
             : "Review";
 
+        const isArchived = ProjectDetails.is_archived;
         row.push(
-          <Link to={actionLink} className={classes.link}>
+          <Link
+            to={actionLink}
+            className={classes.link}
+            aria-disabled={isArchived}
+            onClick={
+              isArchived
+                ? (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                : undefined
+            }
+          >
             <CustomButton
               onClick={() => localStorage.removeItem("labelAll")}
-              disabled={ProjectDetails.is_archived}
+              disabled={isArchived}
               sx={{ p: 1, borderRadius: 2 }}
               label={
                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
