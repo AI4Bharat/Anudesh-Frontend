@@ -730,7 +730,7 @@ function GuestChatPage() {
             <Image
               width={50}
               height={50}
-              src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+              src="https://i.imgur.com/56Ut9oz.png"
               priority
             />
             <Typography variant="h5" className={classes.headerTitle}>
