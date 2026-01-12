@@ -1235,6 +1235,17 @@ const validateEvalFormResponse = (form, prompt_output_pair_id) => {
   };
 console.log(evalFormResponse);
 
+  
+  // Helper function to detect if text is in Urdu/Kashmiri script
+  const isRTLLanguage = (text) => {
+    if (!text) return false;
+    // Both Urdu and Kashmiri use Arabic/Persian script (Unicode range U+0600 to U+06FF)
+    // This range covers Arabic, Persian, Urdu, and Kashmiri scripts
+    const rtlScriptRegex = /[\u0600-\u06FF]/;
+    const isRTLScript = rtlScriptRegex.test(text);
+    return isRTLScript;
+  };
+
   const renderChatHistory = () => {
     const toggleShrink = (index) => {
       setShrinkedMessages(prev => ({
@@ -1295,6 +1306,8 @@ console.log(evalFormResponse);
                             boxShadow: `0px 2px 2px ${grey[50]}`,
                             minHeight: "5rem",
                             resize: "none",
+                            textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                            direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                           }}
                         />
                       )}
@@ -1320,15 +1333,25 @@ console.log(evalFormResponse);
                         boxShadow: `0px 2px 2px ${grey[50]}`,
                         minHeight: "5rem",
                         resize: "none",
+                        textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                        direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                       }}
                       rows={1}
                     />
                   )
                 ) : (
-                  <ReactMarkdown
-                    className="flex-col"
-                    children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
-                  />
+                  <div
+                    style={{
+                      textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                      direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+                      width: "100%",
+                    }}
+                  >
+                    <ReactMarkdown
+                      className="flex-col"
+                      children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
+                    />
+                  </div>
                 )}
               </Grid>
               <IconButton
@@ -1404,7 +1427,7 @@ console.log(evalFormResponse);
                 borderRadius: "0.5rem",
               }}
             >
-              <Grid container alignItems="start" spacing={2}>
+              <Grid container alignItems="start" spacing={2} sx={{ flexDirection: message?.output?.some(seg => isRTLLanguage(seg?.output || seg?.value)) ? "row-reverse" : "row" }}>
                 <Grid item>
                   <Image
                     width={50}
@@ -1429,10 +1452,11 @@ console.log(evalFormResponse);
                     "&::-webkit-scrollbar": {
                       display: "none",
                     },
-                    justifyContent: "flex-start",
+                    justifyContent: message?.output?.some(seg => isRTLLanguage(seg?.output || seg?.value)) ? "flex-end" : "flex-start",
                     gap: "0.5rem",
                     paddingBottom: "0.5rem",
                     cursor: "grab",
+                    direction: message?.output?.some(seg => isRTLLanguage(seg?.output || seg?.value)) ? "rtl" : "ltr",
                     "&:active": {
                       cursor: "grabbing",
                     },
@@ -1582,6 +1606,8 @@ console.log(evalFormResponse);
                                                     minHeight: "5rem",
                                                     width: "100%",
                                                     resize: "none",
+                                                    textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                                    direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                                                   }}
                                                 />
                                               )}
@@ -1610,18 +1636,28 @@ console.log(evalFormResponse);
                                                 boxShadow: `0px 2px 2px ${grey[50]}`,
                                                 minHeight: "5rem",
                                                 resize: "none",
+                                                textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                                direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                                               }}
                                               rows={1}
                                             />
                                           )
                                         ) : (
-                                          <ReactMarkdown
+                                          <div
                                             key={segmentIdx}
-                                            children={segment?.value?.replace(
-                                              /\\n/gi,
-                                              "&nbsp; \\n",
-                                            )}
-                                          />
+                                            style={{
+                                              textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                              direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
+                                              width: "100%",
+                                            }}
+                                          >
+                                            <ReactMarkdown
+                                              children={segment?.value?.replace(
+                                                /\\n/gi,
+                                                "&nbsp; \\n",
+                                              )}
+                                            />
+                                          </div>
                                         )
                                       ) : (
                                         <SyntaxHighlighter
@@ -1714,13 +1750,21 @@ console.log(evalFormResponse);
                                     />
                                   )
                                 ) : (
-                                  <ReactMarkdown
+                                  <div
                                     key={segmentIdx}
-                                    children={segment?.value?.replace(
-                                      /\\n/gi,
-                                      "&nbsp; \\n",
-                                    )}
-                                  />
+                                    style={{
+                                      textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                      direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
+                                      width: "100%",
+                                    }}
+                                  >
+                                    <ReactMarkdown
+                                      children={segment?.value?.replace(
+                                        /\\n/gi,
+                                        "&nbsp; \\n",
+                                      )}
+                                    />
+                                  </div>
                                 )
                               ) : (
                                 <SyntaxHighlighter

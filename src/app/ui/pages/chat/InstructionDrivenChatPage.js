@@ -326,6 +326,7 @@ const InstructionDrivenChatPage = ({
       if (storedGlobalTransliteration !== null) {
         setGlobalTransliteration(storedGlobalTransliteration);
       }
+      
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
@@ -338,13 +339,11 @@ const InstructionDrivenChatPage = ({
       // }else{
       //   setTargetLang("en");
       // }
-
-      console.log(
-        globalTransliteration,
-        "lll",
-        localStorage.getItem("globalTransliteration"),
-      );
     }
+  }, [info]);  // Dependency on info - runs on mount and when info changes
+
+  useEffect(() => {
+    // This effect runs when chatHistory changes
   }, [chatHistory]);
 
   useEffect(() => {
@@ -419,6 +418,15 @@ const InstructionDrivenChatPage = ({
 
       setChatHistory(updatedChatHistory);
     }
+  };
+
+  // Helper function to detect if text is in Urdu/Kashmiri script
+  const isRTLLanguage = (text) => {
+    if (!text) return false;
+    // Both Urdu and Kashmiri use Arabic/Persian script (Unicode range U+0600 to U+06FF)
+    // This range covers Arabic, Persian, Urdu, and Kashmiri scripts
+    const rtlScriptRegex = /[\u0600-\u06FF]/;
+    return rtlScriptRegex.test(text);
   };
 
 const renderChatHistory = () => {
@@ -508,6 +516,8 @@ const renderChatHistory = () => {
                           boxShadow: `0px 2px 2px ${grey[50]}`,
                           minHeight: "5rem",
                           resize: "none",
+                          textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                          direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                         }}
                       />
                     )}
@@ -534,15 +544,25 @@ const renderChatHistory = () => {
                       boxShadow: `0px 2px 2px ${grey[50]}`,
                       minHeight: "5rem",
                       resize: "none",
+                      textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                      direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                     }}
                     rows={1}
                   />
                 )
               ) : (
-                <ReactMarkdown
-                  className="flex-col"
-                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
-                />
+                <div
+                  style={{
+                    textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                    direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+                    width: "100%",
+                  }}
+                >
+                  <ReactMarkdown
+                    className="flex-col"
+                    children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+                  />
+                </div>
               )}
             </Grid>
             
@@ -599,11 +619,12 @@ const renderChatHistory = () => {
               container
               alignItems="start"
               spacing={2}
-              justifyContent="flex-start"
+              justifyContent={message?.output?.some(seg => isRTLLanguage(seg.value)) ? "flex-end" : "flex-start"}
               style={{
                 padding: "1rem 1rem 0.5rem 1rem",
                 borderRadius: "0.5rem",
                 width: "100%",
+                flexDirection: message?.output?.some(seg => isRTLLanguage(seg.value)) ? "row-reverse" : "row",
               }}
             >
               <Grid
@@ -624,7 +645,7 @@ const renderChatHistory = () => {
                 />
               </Grid>
 
-              <Grid item xs={11} style={{ paddingTop: "1rem" }}>
+              <Grid item xs={11} style={{ paddingTop: "1rem", textAlign: message?.output?.some(seg => isRTLLanguage(seg.value)) ? "right" : "left", direction: message?.output?.some(seg => isRTLLanguage(seg.value)) ? "rtl" : "ltr" }}>
                 {message?.output.map((segment, index) =>
                   segment.type === 'text' ? (
                     (ProjectDetails?.metadata_json?.editable_response) || segment.value == "" ? (
@@ -645,6 +666,8 @@ const renderChatHistory = () => {
                             boxShadow: `0px 2px 2px ${grey[50]}`,
                             minHeight: "5rem",
                             width: "100%",
+                            textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                            direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                           }}
                           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                           enableASR={true}
@@ -669,15 +692,18 @@ const renderChatHistory = () => {
                             boxShadow: `0px 2px 2px ${grey[50]}`,
                             minHeight: "5rem",
                             resize: "none",
+                            textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                            direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                           }}
                           rows={1}
                         />
                       )
                     ) : (
-                      <ReactMarkdown
-                        key={index}
-                        children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
-                      />
+                      <Box key={index} sx={{ textAlign: isRTLLanguage(segment?.value) ? "right" : "left", direction: isRTLLanguage(segment?.value) ? "rtl" : "ltr", width: "100%" }}>
+                        <ReactMarkdown
+                          children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                        />
+                      </Box>
                     )
                   ) : (
                     <SyntaxHighlighter
