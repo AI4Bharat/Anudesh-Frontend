@@ -817,6 +817,8 @@ const SuperCheckerPage = () => {
             }
             if (globalModelFailure) {
               setIsModelFailing(true);
+            } else {
+              setIsModelFailing(false);
             }
             setChatHistory([...modifiedChatHistory]);
           } else {
