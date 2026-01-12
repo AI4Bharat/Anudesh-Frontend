@@ -138,7 +138,6 @@ const SuperCheckerTasks = (props) => {
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const [pullDisabled, setPullDisabled] = useState("");
   const [labellingStarted, setLabellingStarted] = useState(false);
-  const [filteredTaskList, setFilteredTaskList] = useState(null);
   const [calenderAnchor, setCalenderAnchor] = useState(null);
   const calenderOpen = Boolean(calenderAnchor);
   const [selectRange, setSelectRange] = useState([
@@ -300,11 +299,15 @@ const SuperCheckerTasks = (props) => {
 
   const handleRangeChange = (ranges) => {
     const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
     setSelectRange([selection]);
   };
 
   const clearFilter = () => {
-    setFilteredTaskList(null);
+    const newFilters = { ...selectedFilters };
+    delete newFilters.start_date;
+    delete newFilters.end_date;
+    setsSelectedFilters(newFilters);
     setSelectRange([
       {
         startDate: null,
@@ -316,17 +319,12 @@ const SuperCheckerTasks = (props) => {
   };
 
   const applyFilter = () => {
-    if (selectRange[0].startDate && selectRange[0].endDate && taskList) {
-      const startDate = selectRange[0].startDate;
-      const endDate = new Date(selectRange[0].endDate);
-      endDate.setHours(23, 59, 59, 999);
-
-      const filtered = taskList.filter((task) => {
-        if (!task.updated_at) return false;
-        const taskDate = parse(task.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
-        return taskDate >= startDate && taskDate <= endDate;
+    if (selectRange[0].startDate && selectRange[0].endDate) {
+      setsSelectedFilters({
+        ...selectedFilters,
+        start_date: format(selectRange[0].startDate, "yyyy-MM-dd"),
+        end_date: format(selectRange[0].endDate, "yyyy-MM-dd"),
       });
-      setFilteredTaskList(filtered);
     }
     setCalenderAnchor(null);
   };
@@ -361,11 +359,9 @@ const SuperCheckerTasks = (props) => {
     }
   }, [selectedFilters]);
 
-  const renderedTaskList = filteredTaskList ?? taskList;
-
   useEffect(() => {
-    if (renderedTaskList?.length > 0 && renderedTaskList[0]?.data) {
-      const data = renderedTaskList.map((el) => {
+    if (taskList?.length > 0 && taskList[0]?.data) {
+      const data = taskList.map((el) => {
         let row = [el.id];
         row.push(
           ...Object.keys(el.data)
@@ -377,8 +373,8 @@ const SuperCheckerTasks = (props) => {
               return el.data[key];
             }),
         );
-        renderedTaskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count);
-        renderedTaskList[0].supercheck_status && row.push(el.supercheck_status);
+        taskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count);
+        taskList[0].supercheck_status && row.push(el.supercheck_status);
         if (
           roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
@@ -424,14 +420,14 @@ const SuperCheckerTasks = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
-      renderedTaskList[0].revision_loop_count?.super_check_count &&
+      taskList[0].revision_loop_count?.super_check_count &&
         colList.push("rejection_count");
-      renderedTaskList[0].task_status && colList.push("status");
+      taskList[0].task_status && colList.push("status");
       if (
         (roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
           roles?.Admin === userDetails?.role) &&
-        renderedTaskList[0].updated_at
+        taskList[0].updated_at
       ) {
         colList.push("updated_at");
       }
@@ -492,7 +488,7 @@ const SuperCheckerTasks = (props) => {
     } else {
       setTasks([]);
     }
-  }, [renderedTaskList, ProjectDetails, expandedRow, dateTimeFormat]);
+  }, [taskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
