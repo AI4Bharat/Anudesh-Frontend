@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
@@ -271,6 +271,7 @@ const TaskTable = (props) => {
   const [columns, setColumns] = useState([]);
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isInitialMount = useRef(true);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [expandedRow, setExpandedRow] = useState(null);
   const [calenderAnchor, setCalenderAnchor] = useState(null);
@@ -505,6 +506,9 @@ const TaskTable = (props) => {
       },
     ]);
     setCalenderAnchor(null);
+    if (!defaultColumns.includes("updated_at")) {
+      setSelectedColumns(selectedColumns.filter((col) => col !== "updated_at"));
+    }
   };
 
   const applyFilter = () => {
@@ -514,6 +518,9 @@ const TaskTable = (props) => {
         start_date: format(selectRange[0].startDate, "yyyy-MM-dd"),
         end_date: format(selectRange[0].endDate, "yyyy-MM-dd"),
       });
+      if (!selectedColumns.includes("updated_at")) {
+        setSelectedColumns([...selectedColumns, "updated_at"]);
+      }
     }
     setCalenderAnchor(null);
   };
@@ -775,7 +782,13 @@ const TaskTable = (props) => {
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
-        columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        const initialColumns = [...defaultColumns];
+        if (selectedFilters.start_date && selectedFilters.end_date) {
+          if (!initialColumns.includes("updated_at")) {
+            initialColumns.push("updated_at");
+          }
+        }
+        columns.length === 0 ? setSelectedColumns(initialColumns) : setSelectedColumns(columns);
       }
       const metaInfoMapping = {
         meta_info_language: "language",
@@ -953,6 +966,23 @@ const TaskTable = (props) => {
       }
     }
   }, [NextTask]);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      if (!apiLoading) {
+        if (taskList && taskList.length === 0 && selectedFilters.start_date && selectedFilters.end_date) {
+          const newFilters = { ...selectedFilters };
+          delete newFilters.start_date;
+          delete newFilters.end_date;
+          setsSelectedFilters(newFilters);
+          if (!defaultColumns.includes("updated_at")) {
+            setSelectedColumns(prev => prev.filter((col) => col !== "updated_at"));
+          }
+        }
+        isInitialMount.current = false;
+      }
+    }
+  }, [apiLoading, taskList, selectedFilters, setsSelectedFilters, setSelectedColumns]);
 
   const handleShowFilter = (event) => {
     event.stopPropagation();
