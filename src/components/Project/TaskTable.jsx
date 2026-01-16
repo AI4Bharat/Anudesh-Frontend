@@ -489,14 +489,13 @@ const TaskTable = (props) => {
   const handleRangeChange = (ranges) => {
     const { selection } = ranges;
     if (selection.endDate > new Date()) selection.endDate = new Date();
+    selection.endDate.setHours(23, 59, 59, 999);
     console.log("Range changed:", selection);
     setSelectRange([selection]);
   };
 
   const clearFilter = () => {
-    const newFilters = { ...selectedFilters };
-    delete newFilters.start_date;
-    delete newFilters.end_date;
+    const { start_date, end_date, ...newFilters } = selectedFilters;
     setsSelectedFilters(newFilters);
     setSelectRange([
       {
@@ -515,8 +514,8 @@ const TaskTable = (props) => {
     if (selectRange[0].startDate && selectRange[0].endDate) {
       setsSelectedFilters({
         ...selectedFilters,
-        start_date: format(selectRange[0].startDate, "yyyy-MM-dd"),
-        end_date: format(selectRange[0].endDate, "yyyy-MM-dd"),
+        start_date: format(selectRange[0].startDate, "yyyy-MM-dd HH:mm:ss"),
+        end_date: format(selectRange[0].endDate, "yyyy-MM-dd HH:mm:ss"),
       });
       if (!selectedColumns.includes("updated_at")) {
         setSelectedColumns([...selectedColumns, "updated_at"]);
@@ -577,12 +576,39 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
   useEffect(() => {
+    const newFilter = AllTaskFilters?.find(
+      (filter) => filter.id === id && filter.type === props.type
+    );
+
+    if (newFilter?.selectedFilters) {
+      let filtersToSet = newFilter.selectedFilters;
+      if (newFilter?.total_count === 0 && (filtersToSet.start_date || filtersToSet.end_date)) {
+        const { start_date, end_date, ...rest } = filtersToSet;
+        filtersToSet = rest;
+        setSelectRange([
+          {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: "selection",
+          },
+        ]);
+
+        if (!defaultColumns.includes("updated_at")) {
+          setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
+        }
+      }
+      setsSelectedFilters(filtersToSet);
+    }
+  }, [id, props.type]);
+
+  useEffect(() => {
     dispatch(setTaskFilter({
       id,
       selectedFilters,
       type: props.type,
       pull,
       rejected,
+      total_count: totalTaskCount,
     }))
     const existingFilter = AllPageFilters?.find(filter =>
       filter.id === id &&
@@ -632,7 +658,7 @@ const TaskTable = (props) => {
         rejected,
       }),
     );
-  }, [selectedFilters, pull, rejected]);  
+  }, [selectedFilters, pull, rejected, totalTaskCount]);
 
   const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
     if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
@@ -651,10 +677,13 @@ const TaskTable = (props) => {
         return user && user.first_name && user.last_name;
       });
 
+      const annotatorEmail = taskList[0]?.annotator_mail;
+      const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
+      const shouldShowAnnotatorColumn = props.type === "review" && showEmail;
+
       const data = taskList.map((el) => {
         const annotatorDisplay = getAnnotatorName(el.annotator_mail, showAnnotatorsNames);
-        const email = props.type === "review" ? el.annotator_mail : "";
-        let row = [el.id, ...(!!email ? [annotatorDisplay] : [])];
+        let row = [el.id, ...(shouldShowAnnotatorColumn ? [annotatorDisplay || ""] : [])];
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
@@ -667,11 +696,11 @@ const TaskTable = (props) => {
         );
 
         if (props.type === "annotation" && taskList[0].revision_loop_count) {
-          row.push(el.revision_loop_count?.review_count); 
+          row.push(el.revision_loop_count?.review_count);
         } else if (props.type === "review" && taskList[0].revision_loop_count) {
-          row.push(el.revision_loop_count?.review_count);          
+          row.push(el.revision_loop_count?.review_count);
         }
-        if (props.type === "review" && taskList[0].revision_loop_count && project_stage ===3) {
+        if (props.type === "review" && taskList[0].revision_loop_count && project_stage === 3) {
           row.push(el.revision_loop_count?.super_check_count);
         }
 
@@ -745,23 +774,20 @@ const TaskTable = (props) => {
         );
         return row;
       });
-      const annotatorEmail = taskList[0]?.annotator_mail;
-      const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
-      const email =
-        props.type === "review" && showEmail ? "annotator_mail" : "";
-      let colList = ["id", ...(!!email ? [email] : [])];
+      const email = shouldShowAnnotatorColumn ? "annotator_mail" : "";
+      let colList = ["id", ...(shouldShowAnnotatorColumn ? [email] : [])];
       colList.push(
         ...Object.keys(taskList[0].data).filter(
           (el) => !excludeCols.includes(el),
         ),
       );
-      
+
       if (props.type === "annotation" && taskList[0].revision_loop_count) {
         colList.push("revision_count");
       } else if (props.type === "review" && taskList[0].revision_loop_count) {
         colList.push("revision_count");
-      } 
-      if (props.type === "review" && taskList[0].revision_loop_count && project_stage ===3) {
+      }
+      if (props.type === "review" && taskList[0].revision_loop_count && project_stage === 3) {
         colList.push("rejection_count");
       }
 
@@ -966,23 +992,6 @@ const TaskTable = (props) => {
       }
     }
   }, [NextTask]);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      if (!apiLoading) {
-        if (taskList && taskList.length === 0 && selectedFilters.start_date && selectedFilters.end_date) {
-          const newFilters = { ...selectedFilters };
-          delete newFilters.start_date;
-          delete newFilters.end_date;
-          setsSelectedFilters(newFilters);
-          if (!defaultColumns.includes("updated_at")) {
-            setSelectedColumns(prev => prev.filter((col) => col !== "updated_at"));
-          }
-        }
-        isInitialMount.current = false;
-      }
-    }
-  }, [apiLoading, taskList, selectedFilters, setsSelectedFilters, setSelectedColumns]);
 
   const handleShowFilter = (event) => {
     event.stopPropagation();
