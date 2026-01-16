@@ -820,20 +820,20 @@ const TaskTable = (props) => {
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
+        const updatedColumns = [...defaultColumns, "annotator_mail"];
+        
         if (props.type === "review" && ProjectDetails?.conceal === false) {
-          const updatedColumns = [...defaultColumns, "annotator_mail"];
           columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
         } else {
           columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
         }
 
-        // const initialColumns = [...defaultColumns];
-        // if (selectedFilters.start_date && selectedFilters.end_date) {
-        //   if (!initialColumns.includes("updated_at")) {
-        //     initialColumns.push("updated_at");
-        //   }
-        // }
-        // columns.length === 0 ? setSelectedColumns(initialColumns) : setSelectedColumns(columns);
+        if (selectedFilters.start_date && selectedFilters.end_date) {
+          if (!updatedColumns.includes("updated_at")) {
+            updatedColumns.push("updated_at");
+          }
+        }
+        columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
       }
       const metaInfoMapping = {
         meta_info_language: "language",
