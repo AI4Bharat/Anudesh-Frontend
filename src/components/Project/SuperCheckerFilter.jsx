@@ -23,10 +23,11 @@ const SuperCheckerFilter = (props) => {
 
 
   const handleStatusChange = (e) => {
-    let statusvalue =  !!currentFilters?.supercheck_status? "supercheck_status":""
+    let statusvalue = !!currentFilters?.supercheck_status ? "supercheck_status" : ""
+    const { start_date, end_date, ...restFilters } = currentFilters;
     updateFilters({
-      ...currentFilters,
-      [statusvalue]:selectedStatus,
+      ...restFilters,
+      [statusvalue]: selectedStatus,
     })
     props.handleClose();
   };

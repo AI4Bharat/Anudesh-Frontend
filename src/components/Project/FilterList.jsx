@@ -62,8 +62,9 @@ const FilterList = (props) => {
         rejected,
       }),
     );
+    const { start_date, end_date, ...restFilters } = currentFilters;
     updateFilters({
-      ...currentFilters,
+      ...restFilters,
       [statusvalue]: selectedStatus,
       // ["editable"]: pullvalue
     });
@@ -187,7 +188,7 @@ const FilterList = (props) => {
                 </FormControl>
               ) : null}
               {currentFilters?.annotation_status &&
-              selectedStatus !== "unlabeled" ? (
+                selectedStatus !== "unlabeled" ? (
                 <FormControl sx={{ m: 1, minWidth: 125 }} size="small">
                   <FormControlLabel
                     control={
