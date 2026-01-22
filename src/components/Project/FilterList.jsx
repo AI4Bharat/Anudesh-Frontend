@@ -62,8 +62,9 @@ const FilterList = (props) => {
         rejected,
       }),
     );
+    const { start_date, end_date, ...restFilters } = currentFilters;
     updateFilters({
-      ...currentFilters,
+      ...restFilters,
       [statusvalue]: selectedStatus,
       // ["editable"]: pullvalue
     });
