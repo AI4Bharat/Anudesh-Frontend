@@ -138,7 +138,6 @@ const SuperCheckerTasks = (props) => {
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const [pullDisabled, setPullDisabled] = useState("");
   const [labellingStarted, setLabellingStarted] = useState(false);
-  const [filteredTaskList, setFilteredTaskList] = useState(null);
   const [calenderAnchor, setCalenderAnchor] = useState(null);
   const calenderOpen = Boolean(calenderAnchor);
   const [selectRange, setSelectRange] = useState([
@@ -212,13 +211,43 @@ const SuperCheckerTasks = (props) => {
     );
   };
 
-    const handleRangeChange = (ranges) => {
+  useEffect(() => {
+    const newFilter = AllTaskFilters?.find(
+      (filter) => filter.id === id && filter.type === props.type
+    );
+
+    if (newFilter?.selectedFilters) {
+      let filtersToSet = newFilter.selectedFilters;
+      if (newFilter?.total_count === 0 && (filtersToSet.start_date || filtersToSet.end_date)) {
+        const { start_date, end_date, ...rest } = filtersToSet;
+        filtersToSet = rest;
+        setSelectRange([
+          {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: "selection",
+          },
+        ]);
+
+        if (!defaultColumns.includes("updated_at")) {
+          setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
+        }
+      }
+      setsSelectedFilters(filtersToSet);
+    }
+  }, [id, props.type]);
+
+
+  const handleRangeChange = (ranges) => {
     const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    selection.endDate.setHours(23, 59, 59, 999);
     setSelectRange([selection]);
   };
 
   const clearFilter = () => {
-    setFilteredTaskList(null);
+    const { start_date, end_date, ...newFilters } = selectedFilters;
+    setsSelectedFilters(newFilters);
     setSelectRange([
       {
         startDate: null,
@@ -230,17 +259,12 @@ const SuperCheckerTasks = (props) => {
   };
 
   const applyFilter = () => {
-    if (selectRange[0].startDate && selectRange[0].endDate && taskList) {
-      const startDate = selectRange[0].startDate;
-      const endDate = new Date(selectRange[0].endDate);
-      endDate.setHours(23, 59, 59, 999);
-
-      const filtered = taskList.filter((task) => {
-        if (!task.updated_at) return false;
-        const taskDate = parse(task.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
-        return taskDate >= startDate && taskDate <= endDate;
+    if (selectRange[0].startDate && selectRange[0].endDate) {
+      setsSelectedFilters({
+        ...selectedFilters,
+        start_date: format(selectRange[0].startDate, "yyyy-MM-dd HH:mm:ss"),
+        end_date: format(selectRange[0].endDate, "yyyy-MM-dd HH:mm:ss"),
       });
-      setFilteredTaskList(filtered);
     }
     setCalenderAnchor(null);
   };
@@ -349,6 +373,7 @@ const SuperCheckerTasks = (props) => {
       type: props.type,
       pull: "",
       rejected: "",
+      total_count: totalTaskCount,
     };
     dispatch(setTaskFilter(payload));
     if (currentPageNumber !== 1) {
@@ -359,13 +384,11 @@ const SuperCheckerTasks = (props) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("labellingMode", selectedFilters.supercheck_status);
     }
-  }, [selectedFilters]);
-
-  const renderedTaskList = filteredTaskList ?? taskList;
+  }, [selectedFilters, totalTaskCount]);
 
   useEffect(() => {
-    if (renderedTaskList?.length > 0 && renderedTaskList[0]?.data) {
-      const data = renderedTaskList.map((el) => {
+    if (taskList?.length > 0 && taskList[0]?.data) {
+      const data = taskList.map((el) => {
         let row = [el.id];
         row.push(
           ...Object.keys(el.data)
@@ -377,12 +400,13 @@ const SuperCheckerTasks = (props) => {
               return el.data[key];
             }),
         );
-        renderedTaskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count);
-        renderedTaskList[0].supercheck_status && row.push(el.supercheck_status);
+        taskList[0].revision_loop_count?.super_check_count && row.push(el.revision_loop_count?.super_check_count);
+        taskList[0].supercheck_status && row.push(el.supercheck_status);
         if (
-          roles?.WorkspaceManager === userDetails?.role ||
+          (roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
-          roles?.Admin === userDetails?.role
+          roles?.Admin === userDetails?.role) &&
+          taskList[0].updated_at
         ) {
           const taskDate = parse(el.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
           if (dateTimeFormat) {
@@ -424,14 +448,14 @@ const SuperCheckerTasks = (props) => {
           (el) => !excludeCols.includes(el),
         ),
       );
-      renderedTaskList[0].revision_loop_count?.super_check_count &&
+      taskList[0].revision_loop_count?.super_check_count &&
         colList.push("rejection_count");
-      renderedTaskList[0].task_status && colList.push("status");
+      taskList[0].task_status && colList.push("status");
       if (
         (roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
           roles?.Admin === userDetails?.role) &&
-        renderedTaskList[0].updated_at
+        taskList[0].updated_at
       ) {
         colList.push("updated_at");
       }
@@ -492,7 +516,7 @@ const SuperCheckerTasks = (props) => {
     } else {
       setTasks([]);
     }
-  }, [renderedTaskList, ProjectDetails, expandedRow, dateTimeFormat]);
+  }, [taskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
