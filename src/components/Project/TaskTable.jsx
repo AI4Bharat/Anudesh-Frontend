@@ -145,7 +145,7 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
-  
+
   const project_stage = useSelector(
     (state) => state.getProjectDetails?.data?.project_stage
   );
@@ -233,15 +233,19 @@ const TaskTable = (props) => {
       : false,
   );
 
-  const [selectedFilters, setsSelectedFilters] = useState(
-    props.type === "annotation"
-      ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.selectedFilters
-        : { annotation_status: filterData.Status[0], req_user: -1 }
-      : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.selectedFilters
-        : { review_status: filterData.Status[0], req_user: -1 },
-  );
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    let initialFilters = TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.selectedFilters
+      : props.type === "annotation"
+        ? { annotation_status: filterData.Status[0], req_user: -1 }
+        : { review_status: filterData.Status[0], req_user: -1 };
+
+    if (TaskFilter?.total_count === 0 && (initialFilters.start_date || initialFilters.end_date)) {
+      const { start_date, end_date, ...rest } = initialFilters;
+      return rest;
+    }
+    return initialFilters;
+  });
 
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
@@ -309,8 +313,7 @@ const TaskTable = (props) => {
 
   useEffect(() => {
     getTaskListData();
-
-  }, [currentPageNumber, currentRowPerPage]);
+  }, [currentPageNumber, currentRowPerPage, selectedFilters, pull, rejected]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -597,7 +600,9 @@ const TaskTable = (props) => {
           setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
         }
       }
-      setsSelectedFilters(filtersToSet);
+      if (!_.isEqual(filtersToSet, selectedFilters)) {
+        setsSelectedFilters(filtersToSet);
+      }
     }
   }, [id, props.type]);
 
@@ -637,10 +642,8 @@ const TaskTable = (props) => {
         rejected,
         page: existingFilter?.page
       }))
-
     }
-    getTaskListData();
-
+    // getTaskListData();
 
     if (typeof window !== "undefined") {
       localStorage.setItem(
