@@ -234,15 +234,19 @@ const TaskTable = (props) => {
       : false,
   );
 
-  const [selectedFilters, setsSelectedFilters] = useState(
-    props.type === "annotation"
-      ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.selectedFilters
-        : { annotation_status: filterData.Status[0], req_user: -1 }
-      : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.selectedFilters
-        : { review_status: filterData.Status[0], req_user: -1 },
-  );
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    let initialFilters = TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.selectedFilters
+      : props.type === "annotation"
+        ? { annotation_status: filterData.Status[0], req_user: -1 }
+        : { review_status: filterData.Status[0], req_user: -1 };
+
+    if (TaskFilter?.total_count === 0 && (initialFilters.start_date || initialFilters.end_date)) {
+      const { start_date, end_date, ...rest } = initialFilters;
+      return rest;
+    }
+    return initialFilters;
+  });
 
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
@@ -311,7 +315,7 @@ const TaskTable = (props) => {
   useEffect(() => {
     getTaskListData();
 
-  }, [currentPageNumber, currentRowPerPage]);
+  }, [currentPageNumber, currentRowPerPage, selectedFilters, pull, rejected]);
 
   useEffect(() => {
     const newFilter = AllTaskFilters?.find(
@@ -620,7 +624,9 @@ const TaskTable = (props) => {
           setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
         }
       }
-      setsSelectedFilters(filtersToSet);
+      if (!_.isEqual(filtersToSet, selectedFilters)) {
+        setsSelectedFilters(filtersToSet);
+      }
     }
   }, [id, props.type]);
 
@@ -662,7 +668,7 @@ const TaskTable = (props) => {
       }))
 
     }
-    getTaskListData();
+    // getTaskListData();
 
 
     if (typeof window !== "undefined") {
@@ -701,13 +707,9 @@ const TaskTable = (props) => {
       const annotatorEmail = taskList[0]?.annotator_mail;
       const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
       const shouldShowAnnotatorColumn = props.type === "review" && showEmail;
-      console.log("annotatorEmail", annotatorEmail)
-      console.log("showEmail", showEmail)
-      console.log("shouldShowAnnotatorColumn", shouldShowAnnotatorColumn)
 
       const data = taskList.map((el) => {
         const annotatorDisplay = getAnnotatorName(el.annotator_mail, showAnnotatorsNames);
-        console.log('annotatorDisplay ',annotatorDisplay)
         let row = [el.id, ...(shouldShowAnnotatorColumn ? [annotatorDisplay || ""] : [])];
         row.push(
           ...Object.keys(el.data)

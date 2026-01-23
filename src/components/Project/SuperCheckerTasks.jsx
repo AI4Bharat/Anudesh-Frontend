@@ -184,11 +184,17 @@ const SuperCheckerTasks = (props) => {
         : [],
   };
 
-  const [selectedFilters, setsSelectedFilters] = useState(
-    TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    let initialFilters = TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
       ? TaskFilter.selectedFilters
-      : { supercheck_status: filterData.Status[0], req_user: -1 },
-  );
+      : { supercheck_status: filterData.Status[0], req_user: -1 };
+
+    if (TaskFilter?.total_count === 0 && (initialFilters.start_date || initialFilters.end_date)) {
+      const { start_date, end_date, ...rest } = initialFilters;
+      return rest;
+    }
+    return initialFilters;
+  });
   const [pullSize, setPullSize] = useState(
     ProjectDetails.tasks_pull_count_per_batch * 0.5,
   );
@@ -233,7 +239,9 @@ const SuperCheckerTasks = (props) => {
           setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
         }
       }
-      setsSelectedFilters(filtersToSet);
+      if (!_.isEqual(filtersToSet, selectedFilters)) {
+        setsSelectedFilters(filtersToSet);
+      }
     }
   }, [id, props.type]);
 
@@ -276,7 +284,7 @@ const SuperCheckerTasks = (props) => {
 
   useEffect(() => {
     getTaskListData();
-  }, [currentPageNumber, currentRowPerPage]);
+  }, [currentPageNumber, currentRowPerPage, selectedFilters]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -379,7 +387,7 @@ const SuperCheckerTasks = (props) => {
     if (currentPageNumber !== 1) {
       setCurrentPageNumber(1);
     } else {
-      getTaskListData();
+      // getTaskListData();
     }
     if (typeof window !== "undefined") {
       localStorage.setItem("labellingMode", selectedFilters.supercheck_status);
