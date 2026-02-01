@@ -42,7 +42,14 @@ const Layout = (props) => {
       <Suspense fallback={<div>Loading....</div>}>
         <Header type={type} index={index} className={classes.headerContainer} />
       </Suspense>
-      <div className={classes.container} style={{ marginTop: "88px" }}>
+      <div className={classes.container} style={{
+    marginTop: "75px",
+    width: "100%",
+    paddingLeft: "16px",
+    paddingRight: "16px",
+    boxSizing: "border-box",
+  }}
+>
         {Backbutton && (
           <BackButton
             startIcon={<ArrowBackIcon />}
