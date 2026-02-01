@@ -1473,7 +1473,6 @@ const renderChatHistory = () => {
                     sx={{
                       display: "flex",
                       flexDirection: "row",
-                      width:"auto",
                       flexWrap: "nowrap",
                       overflowX: "auto",
                       scrollbarWidth: "none",
@@ -1493,7 +1492,8 @@ const renderChatHistory = () => {
                           <Box
                             sx={{
                               border: "1px solid red",
-                              width: "auto",
+                              width: "45%",
+                              minWidth:"100px",
                               flexShrink: 0,
                               height: "auto",
                               minHeight: "60px",
@@ -1516,7 +1516,8 @@ const renderChatHistory = () => {
                           <Box
                             sx={{
                               border: "1px solid #ccc",
-                              width: "auto",
+                              width: "45%",
+                              minWidth:"100px",
                               flexShrink: 0,
                               display: "flex",
                               flexDirection: "column",
