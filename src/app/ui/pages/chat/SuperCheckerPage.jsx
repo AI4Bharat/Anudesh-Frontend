@@ -501,7 +501,7 @@ const SuperCheckerPage = () => {
       });
   };
 
-  let SuperChecker = AnnotationsTaskDetails.filter(
+  let SuperChecker = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 3,
   )[0];
 

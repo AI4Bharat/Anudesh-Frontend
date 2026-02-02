@@ -1188,7 +1188,7 @@ const ReviewPage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-  let review = AnnotationsTaskDetails.filter(
+  let review = AnnotationsTaskDetails?.filter(
     (annotation) => annotation.annotation_type === 2,
   )[0];
 
