@@ -2,23 +2,26 @@ import { makeStyles } from "@mui/styles";
 
 const IntroStyle = makeStyles({
   dynamicCardsWrapper: {
-    width: "85%",
+    width: "100%",
     height: "auto",
     margin: "auto",
-    borderRadius: "20px",
+    borderRadius: "12px",
     textAlign: "left",
-    fontSize: 40,
+    backgroundColor: "transparent",
+    border: "none",
   },
   dynamicContent: {
-    fontSize: "16px",
-    color: "rgb(55 65 81)",
+    fontSize: "13px",
+    color: "rgb(75 85 99)",
     textAlign: "left",
-    padding: "auto 20rem",
+    lineHeight: 1.4,
+    padding: 0,
   },
   heading: {
-    fontsize: "18px",
+    fontSize: "16px",
     color: "#EA5923",
-    textTransform: "uppercase",
+    textTransform: "none",
+    marginBottom: "4px",
   }
 });
 
