@@ -37,7 +37,7 @@ const DynamicCards = ({ card }) => {
           <ChatIcon
             sx={{
               color: "#EA5923",
-              fontSize: "4rem",
+              fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
         );
@@ -46,7 +46,7 @@ const DynamicCards = ({ card }) => {
           <IntegrationInstructionsIcon
             sx={{
               color: "#EA5923",
-              fontSize: "4rem",
+              fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
         );
@@ -55,7 +55,7 @@ const DynamicCards = ({ card }) => {
           <RateReviewIcon
             sx={{
               color: "#EA5923",
-              fontSize: "4rem",
+              fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
         );
@@ -64,7 +64,7 @@ const DynamicCards = ({ card }) => {
           <QuestionAnswerIcon
             sx={{
               color: "#EA5923",
-              fontSize: "4rem",
+              fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
         );
@@ -73,7 +73,7 @@ const DynamicCards = ({ card }) => {
           <CompareIcon
             sx={{
               color: "#EA5923",
-              fontSize: "4rem",
+              fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
         );
@@ -82,7 +82,7 @@ const DynamicCards = ({ card }) => {
           <PsychologyAltIcon
             sx={{
               color: "#EA5923",
-              fontSize: "4rem",
+              fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
         );
@@ -100,23 +100,23 @@ const DynamicCards = ({ card }) => {
     >
       <CardContent
         sx={{
-          padding: "8px 16px",
+          padding: { xs: "6px 12px", md: "8px 16px" },
           display: "flex",
           justifyContent: "flex-start",
           alignItems: "center",
-          gap: 2,
+          gap: { xs: 1, md: 2 },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
           <DynamicIcon />
         </Box>
         <Box>
-          <Typography className={classes.heading} fontWeight="bold">
+          <Typography className={classes.heading} fontWeight="bold" sx={{ fontSize: { xs: "14px", md: "16px" } }}>
             {card.name}
           </Typography>
           <Typography
             className={classes.dynamicContent}
-            sx={{ fontSize: "small" }}
+            sx={{ fontSize: { xs: "12px", md: "13px" } }}
           >
             {card.content}
           </Typography>
@@ -239,30 +239,30 @@ const Home = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="h-16 flex justify-between items-center px-4 border-b border-orange-400/20 relative z-10 shrink-0 bg-white/50 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
+      <div className="h-12 md:h-14 lg:h-16 flex justify-between items-center px-4 md:px-6 lg:px-10 border-b border-orange-400/20 relative z-10 shrink-0 bg-white/50 backdrop-blur-sm">
+        <div className="flex items-center gap-2 md:gap-3">
           <Image
             alt="Anudesh"
             src="https://i.imgur.com/56Ut9oz.png"
-            className="w-12 h-12 object-contain"
+            className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 object-contain"
             priority
             width={400}
             height={400}
           />
-          <Typography variant="h4" fontWeight={800} sx={{ color: "#EA5923", letterSpacing: "-0.03em", fontSize: "2rem" }}>
+          <Typography variant="h4" fontWeight={800} sx={{ color: "#EA5923", letterSpacing: "-0.03em", fontSize: { xs: "1.25rem", md: "1.5rem", lg: "2rem" } }}>
             Anudesh
           </Typography>
         </div>
-        <div className="flex gap-4 text-base">
+        <div className="flex gap-2 md:gap-3 lg:gap-4">
           <button
             onClick={() => setAboutUsOpen(true)}
-            className="font-medium hover:underline transition-all"
+            className="text-xs md:text-sm lg:text-base font-medium hover:underline transition-all"
           >
             About Us
           </button>
           <button
             onClick={() => navigate("/login")}
-            className="font-medium hover:underline transition-all"
+            className="text-xs md:text-sm lg:text-base font-medium hover:underline transition-all"
           >
             {banner.logIn}
           </button>
@@ -270,11 +270,11 @@ const Home = () => {
             onClick={() =>
               window.open("https://github.com/AI4Bharat/Anudesh", "_blank")
             }
-            className="font-medium hover:underline transition-all"
+            className="text-xs md:text-sm lg:text-base font-medium hover:underline transition-all"
           >
             Codebase
           </button>
-          <button className="font-medium hover:underline transition-all">
+          <button className="text-xs md:text-sm lg:text-base font-medium hover:underline transition-all">
             Analytics
           </button>
         </div>
@@ -285,42 +285,42 @@ const Home = () => {
         <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-xl p-2 grid grid-cols-2 gap-2 items-center border border-orange-400/20 relative w-full overflow-hidden content-center">
 
           <div className="flex flex-col justify-center text-left max-h-full overflow-y-auto custom-scrollbar">
-            <div className="text-orange-600 mb-3 text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight" style={{ letterSpacing: '-0.02em' }}>
+            <div className="text-orange-600 mb-2 md:mb-3 text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold leading-tight" style={{ letterSpacing: '-0.02em' }}>
               {banner.heading}
             </div>
-            <div className="text-orange-600/90 text-sm lg:text-base mb-6 leading-relaxed font-medium opacity-90">
+            <div className="text-orange-600/90 text-xs md:text-sm lg:text-base mb-4 md:mb-6 leading-relaxed font-medium opacity-90">
               {banner.subheading}
             </div>
-            <div className="flex gap-4 flex-wrap">
+            <div className="flex gap-2 md:gap-4 flex-wrap">
               <Link to={"https://www.youtube.com/watch?v=6k7fk3mCk9A"}>
-                <button className="bg-orange-600 text-white text-sm px-5 py-2.5 rounded-lg hover:bg-white hover:text-orange-600 border-2 border-orange-600 transition-all duration-300 font-medium shadow-md hover:shadow-lg">
+                <button className="bg-orange-600 text-white text-xs md:text-sm px-3 md:px-5 py-1.5 md:py-2.5 rounded-lg hover:bg-white hover:text-orange-600 border-2 border-orange-600 transition-all duration-300 font-medium shadow-md hover:shadow-lg">
                   {banner.demo}
                 </button>
               </Link>
               <button
                 onClick={() => navigate("/chat")}
-                className="text-orange-600 bg-white text-sm px-5 py-2.5 rounded-lg border-2 border-orange-600 hover:bg-orange-600 hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
+                className="text-orange-600 bg-white text-xs md:text-sm px-3 md:px-5 py-1.5 md:py-2.5 rounded-lg border-2 border-orange-600 hover:bg-orange-600 hover:text-white transition-all duration-300 font-medium shadow-md hover:shadow-lg"
               >
                 {banner.chat}
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-center p-6 h-full">
+          <div className="flex items-center justify-center p-2 md:p-4 lg:p-6 h-full">
             <Image
               alt="Anudesh Logo"
               src="https://i.imgur.com/56Ut9oz.png"
               width={600}
               height={600}
-              className="w-[180px] h-[180px] md:w-[240px] md:h-[240px] lg:w-[360px] lg:h-[360px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+              className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] lg:w-[280px] lg:h-[280px] xl:w-[360px] xl:h-[360px] object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
               priority={true}
             />
           </div>
         </div>
 
         {/* Operational Dynamics Section */}
-        <div className="bg-white rounded-xl p-1.5 border border-gray-200 shadow-sm flex flex-col overflow-hidden shrink-0 mt-auto">
-          <div className="text-gray-800 font-bold mb-1 text-center shrink-0" style={{ letterSpacing: '-0.02em', fontSize: "1rem" }}>
+        <div className="bg-white rounded-xl p-1 md:p-1.5 border border-gray-200 shadow-sm flex flex-col overflow-hidden shrink-0 mt-auto">
+          <div className="text-gray-800 font-bold mb-1 text-center shrink-0 text-sm md:text-base lg:text-lg" style={{ letterSpacing: '-0.02em' }}>
             {operationalDynamics.heading}
           </div>
           <div className="overflow-hidden flex items-center justify-center relative">
