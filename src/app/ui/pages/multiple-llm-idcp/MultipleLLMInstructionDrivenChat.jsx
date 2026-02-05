@@ -1254,13 +1254,91 @@ console.log(evalFormResponse);
             });
         }
     };
+useEffect(() => {
+    if (chatHistory && chatHistory.length > 0) {
+        const lastIndex = chatHistory.length - 1;
+        
+        // Create new shrinked state based on current state
+        setShrinkedMessages(prev => {
+            const newState = { ...prev };
+            
+            // Ensure all previous messages are shrinked
+            chatHistory.forEach((_, idx) => {
+                if (idx < lastIndex) {
+                    newState[idx] = true; // Shrink all previous
+                } else if (idx === lastIndex) {
+                    newState[idx] = false; // Expand latest
+                }
+            });
+            
+            return newState;
+        });
+    }
+}, [chatHistory?.length]); 
+
 
 const renderChatHistory = () => {
     const toggleShrink = (index) => {
         setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
 
+    // Sample data with 6 responses
+    const sampleMessageWith6Responses = {
+        prompt: "Explain the concept of machine learning in simple terms",
+        output: [
+            { 
+                model_name: "GPT-4", 
+                status: "success", 
+                output: [{ type: "text", value: "Machine learning is like teaching a computer to learn from examples..." }] 
+            },
+            { 
+                model_name: "Claude", 
+                status: "success", 
+                output: [{ type: "text", value: "ML allows computers to learn patterns from data without explicit programming..." }] 
+            },
+            { 
+                model_name: "Gemini", 
+                status: "success", 
+                output: [{ type: "text", value: "Think of ML as training a digital brain to recognize patterns..." }] 
+            },
+            { 
+                model_name: "Llama", 
+                status: "success", 
+                output: [{ type: "text", value: "ML algorithms improve automatically through experience and data..." }] 
+            },
+            { 
+                model_name: "Mistral", 
+                status: "success", 
+                output: [{ type: "text", value: "It's a subset of AI where systems learn from data patterns..." }] 
+            },
+            { 
+                model_name: "Custom Model", 
+                status: "success", 
+                output: [{ type: "text", value: "ML enables predictions and decisions based on historical data..." }] 
+            }
+        ]
+    };
+        const getResponsesPerView = () => {
+        // Check if instruction pane is visible (you'll need to determine this)
+        const isInstructionPaneVisible = false; // Replace with your actual state
+        
+        if (isInstructionPaneVisible) {
+            return 2; // Show only 2 when instruction pane is visible
+        }
+        
+        // Otherwise use default behavior
+        return 3; // Show up to 3 in full width
+    };
+
+    const responsesPerView = getResponsesPerView();
+
+    
+
     const chatElements = chatHistory?.map((message, index) => {
+            const responseCount = message?.output?.length || 0;
+
+            const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
+
       return (
         <Grid
           container
@@ -1429,6 +1507,7 @@ const renderChatHistory = () => {
             </Grid>
           </Grid>
 
+
           {!shrinkedMessages[index] && (
             <Grid
               item
@@ -1449,23 +1528,26 @@ const renderChatHistory = () => {
                   marginLeft: "0px",
                 }}
               >
-                <IconButton
-                  onClick={() => scrollOutputs(index, 'left')}
-                  size="small"
-                  sx={{
-                    position: "absolute",
-                    left: "-10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 1,
-                    backgroundColor: "white",
-                    boxShadow: 1,
-                    width: "20px",
-                    height: "20px",
-                  }}
-                >
-                  <ChevronLeftIcon style={{ fontSize: "0.8rem", color: "#EE6633" }} />
-                </IconButton>
+                {/* Show left scroll arrow only when there are > 3 responses */}
+                {shouldScroll && (
+                  <IconButton
+                    onClick={() => scrollOutputs(index, 'left')}
+                    size="large"
+                    sx={{
+                      position: "absolute",
+                      left: "-10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 1,
+                      backgroundColor: "white",
+                      boxShadow: 1,
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  >
+                    <ChevronLeftIcon style={{  color: "#EE6633" }} />
+                  </IconButton>
+                )}
 
                 <Grid item xs={12} style={{ paddingTop: "0rem", paddingLeft: "0px" }}>
                   <Box
@@ -1473,18 +1555,16 @@ const renderChatHistory = () => {
                     sx={{
                       display: "flex",
                       flexDirection: "row",
-                      fontSize:"0.85rem",
-                      flexWrap: "nowrap",
-                      overflowX: "auto",
+                      flexWrap: "nowrap", // Prevent wrapping
+                      overflowX: shouldScroll ? "auto" : "hidden", // Only scroll when > 3
                       scrollbarWidth: "none",
                       "-ms-overflow-style": "none",
                       "&::-webkit-scrollbar": { display: "none" },
-                      justifyContent: "flex-start",
-                      gap: "0.4rem",
+                      justifyContent: shouldScroll ? "flex-start" : "space-between",
+                      gap: "0.8rem",
                       paddingBottom: "0.3rem",
-                      cursor: "grab",
-                      "&:active": { cursor: "grabbing" },
                       alignItems: "stretch",
+                      width: "100%",
                     }}
                   >
                     {message?.output?.map((modelOutput, modelIdx) => (
@@ -1493,11 +1573,11 @@ const renderChatHistory = () => {
                           <Box
                             sx={{
                               border: "1px solid red",
-                              width: "45%",
-                              minWidth:"100px",
+                              width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
+                              minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
                               height: "auto",
-                              minHeight: "60px",
+                              minHeight: "120px",
                               display: "flex",
                               justifyContent: "center",
                               alignItems: "center",
@@ -1517,16 +1597,19 @@ const renderChatHistory = () => {
                           <Box
                             sx={{
                               border: "1px solid #ccc",
-                              width: "45%",
-                              minWidth:"100px",
+                              // Dynamic width calculation
+                              width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
+                              minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
-                              fontSize:"0.85rem",
+                              fontSize: "0.85rem",
                               display: "flex",
                               flexDirection: "column",
                               borderRadius: "8px",
                               backgroundColor: "white",
                               height: "auto",
-                              minHeight: "80px",
+                              minHeight: "150px",
+                              // Ensure box doesn't overflow
+                              boxSizing: "border-box",
                             }}
                           >
                             <Box sx={{ display: "flex", justifyContent: "flex-end", padding: "2px" }}>
@@ -1548,7 +1631,7 @@ const renderChatHistory = () => {
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
                                 boxSizing: "border-box",
-                                minHeight: "40px",
+                                minHeight: "100px",
                                 maxHeight: "200px",
                               }}
                             >
@@ -1572,7 +1655,7 @@ const renderChatHistory = () => {
                                               background: "#ffffff",
                                               border: `1px solid ${grey[200]}`,
                                               boxShadow: `0px 1px 1px ${grey[50]}`,
-                                              minHeight: "2.5rem",
+                                              minHeight: "3rem",
                                               width: "100%",
                                               resize: "none",
                                             }}
@@ -1593,10 +1676,10 @@ const renderChatHistory = () => {
                                           background: "#ffffff",
                                           border: `1px solid ${grey[200]}`,
                                           boxShadow: `0px 1px 1px ${grey[50]}`,
-                                          minHeight: "2.5rem",
+                                          minHeight: "3rem",
                                           resize: "none",
                                         }}
-                                        rows={1}
+                                        rows={4}
                                       />
                                     )
                                   ) : (
@@ -1644,31 +1727,37 @@ const renderChatHistory = () => {
                       </React.Fragment>
                     ))}
                   </Box>
+                  
+              
                 </Grid>
-                <IconButton
-                  onClick={() => scrollOutputs(index, 'right')}
-                  size="small"
-                  sx={{
-                    position: "absolute",
-                    right: "-10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 1,
-                    backgroundColor: "white",
-                    boxShadow: 1,
-                    width: "20px",
-                    height: "20px",
-                  }}
-                >
-                  <ChevronRightIcon style={{ fontSize: "0.8rem", color: "#EE6633" }} />
-                </IconButton>
+                
+                {/* Show right scroll arrow only when > 3 responses */}
+                {shouldScroll && (
+                  <IconButton
+                    onClick={() => scrollOutputs(index, 'right')}
+                    size="large"
+                    sx={{
+                      position: "absolute",
+                      right: "-10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 1,
+                      backgroundColor: "white",
+                      boxShadow: 1,
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  >
+                    <ChevronRightIcon style={{ color: "#EE6633" }} />
+                  </IconButton>
+                )}
 
               </Grid>
             </Grid>
           )}
 
           {/* Evaluation form section - also reduced */}
-          {ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
+          {!shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
             <Grid
               item
               sx={{
@@ -2294,7 +2383,7 @@ const renderChatHistory = () => {
                               </div>
                             )}
                         </div>
-                      ))) : (<>{ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
+                      ))) : (<>{!shrinkedMessages[index] && ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
                         const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
                         switch (question?.question_type) {
                           case "fill_in_blanks":
