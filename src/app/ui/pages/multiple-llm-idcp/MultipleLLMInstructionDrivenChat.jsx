@@ -348,7 +348,7 @@ const MultipleLLMInstructionDrivenChat = ({
         }),
       };
       console.log(body);
-      
+
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
@@ -1277,47 +1277,11 @@ useEffect(() => {
 }, [chatHistory?.length]); 
 
 
-const renderChatHistory = () => {
+  const renderChatHistory = () => {
     const toggleShrink = (index) => {
-        setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
+      setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
 
-    // Sample data with 6 responses
-    const sampleMessageWith6Responses = {
-        prompt: "Explain the concept of machine learning in simple terms",
-        output: [
-            { 
-                model_name: "GPT-4", 
-                status: "success", 
-                output: [{ type: "text", value: "Machine learning is like teaching a computer to learn from examples..." }] 
-            },
-            { 
-                model_name: "Claude", 
-                status: "success", 
-                output: [{ type: "text", value: "ML allows computers to learn patterns from data without explicit programming..." }] 
-            },
-            { 
-                model_name: "Gemini", 
-                status: "success", 
-                output: [{ type: "text", value: "Think of ML as training a digital brain to recognize patterns..." }] 
-            },
-            { 
-                model_name: "Llama", 
-                status: "success", 
-                output: [{ type: "text", value: "ML algorithms improve automatically through experience and data..." }] 
-            },
-            { 
-                model_name: "Mistral", 
-                status: "success", 
-                output: [{ type: "text", value: "It's a subset of AI where systems learn from data patterns..." }] 
-            },
-            { 
-                model_name: "Custom Model", 
-                status: "success", 
-                output: [{ type: "text", value: "ML enables predictions and decisions based on historical data..." }] 
-            }
-        ]
-    };
         const getResponsesPerView = () => {
         // Check if instruction pane is visible (you'll need to determine this)
         const isInstructionPaneVisible = false; // Replace with your actual state
@@ -1338,7 +1302,6 @@ const renderChatHistory = () => {
             const responseCount = message?.output?.length || 0;
 
             const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
-
       return (
         <Grid
           container
@@ -1419,6 +1382,11 @@ const renderChatHistory = () => {
                             minHeight: "3rem",
                             resize: "none",
                             padding: "0.5rem",
+                            // textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+
+                            // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+
+
                           }}
                         />
                       )}
@@ -1441,21 +1409,39 @@ const renderChatHistory = () => {
                         minHeight: "3rem",
                         resize: "none",
                         padding: "0.5rem",
+                        //                         textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+
+                        // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+
+
                       }}
                       rows={1}
                     />
                   )
                 ) : (
-                  <ReactMarkdown
-                    className="flex-col"
-                    children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
-                    components={{
-                      p: ({node, ...props}) => <p style={{fontSize: '0.85rem', margin: '0.3rem 0', lineHeight: '1.3'}} {...props} />,
+                  <div
+
+                    style={{
+
+                      // textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+
+                      // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+
+                      width: "100%",
+
                     }}
-                  />
+                  >
+                    <ReactMarkdown
+                      className="flex-col"
+                      children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
+                      components={{
+                        p: ({ node, ...props }) => <p style={{ fontSize: '0.85rem', margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
+                      }}
+                    />
+                  </div>
                 )}
               </Grid>
-              
+
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
@@ -1519,6 +1505,7 @@ const renderChatHistory = () => {
                 marginTop: "0.3rem",
               }}
             >
+
               <Grid
                 container
                 alignItems="start"
@@ -1545,13 +1532,13 @@ const renderChatHistory = () => {
                       height: "20px",
                     }}
                   >
-                    <ChevronLeftIcon style={{  color: "#EE6633" }} />
+                    <ChevronLeftIcon style={{ color: "#EE6633" }} />
                   </IconButton>
                 )}
 
                 <Grid item xs={12} style={{ paddingTop: "0rem", paddingLeft: "0px" }}>
                   <Box
-                    id={`output-container-${index}`} 
+                    id={`output-container-${index}`}
                     sx={{
                       display: "flex",
                       flexDirection: "row",
@@ -1565,6 +1552,8 @@ const renderChatHistory = () => {
                       paddingBottom: "0.3rem",
                       alignItems: "stretch",
                       width: "100%",
+                      boxSizing: "border-box"
+
                     }}
                   >
                     {message?.output?.map((modelOutput, modelIdx) => (
@@ -1576,8 +1565,8 @@ const renderChatHistory = () => {
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
+                              flexGrow: 1, 
                               height: "auto",
-                              minHeight: "120px",
                               display: "flex",
                               justifyContent: "center",
                               alignItems: "center",
@@ -1601,6 +1590,7 @@ const renderChatHistory = () => {
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
+                              flexGrow: 1, 
                               fontSize: "0.85rem",
                               display: "flex",
                               flexDirection: "column",
@@ -1614,7 +1604,7 @@ const renderChatHistory = () => {
                           >
                             <Box sx={{ display: "flex", justifyContent: "flex-end", padding: "2px" }}>
                               <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Expand to view full response</span>}>
-                                <IconButton 
+                                <IconButton
                                   onClick={() => handleOpenViewFullResponse(index, modelIdx)}
                                   size="small"
                                   sx={{ padding: "2px" }}
@@ -1622,18 +1612,150 @@ const renderChatHistory = () => {
                                   <OpenInFullIcon style={{ color: orange[400], fontSize: "0.9rem" }} />
                                 </IconButton>
                               </Tooltip>
+
+                              <Modal
+                                open={activeModalIdentifier === `${index}_${modelIdx}`}
+                                onClose={handleCloseViewFullResponse}
+                                closeAfterTransition
+                                BackdropComponent={Backdrop}
+                                BackdropProps={{
+                                  timeout: 500,
+                                  sx: {
+                                    backdropFilter: "blur(2px)",
+                                    backgroundColor: "rgba(0, 0, 0, 0.2)",
+                                  },
+                                }}
+                              >
+                                <Fade in={activeModalIdentifier === `${index}_${modelIdx}`}>
+                                  <Box sx={viewFullResponseModalStyle}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        paddingBottom: "1.5rem",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: orange[400],
+                                          fontSize: "1.25rem",
+                                        }}
+                                      >
+                                        {"Model " + (modelIdx + 1)}
+                                      </Typography>
+                                      <IconButton
+                                        onClick={handleCloseViewFullResponse}
+                                      >
+                                        <CloseIcon sx={{ color: orange[400] }} />
+                                      </IconButton>
+                                    </Box>
+                                    <Typography
+                                      component="div"
+                                      sx={{
+                                        fontSize: "1.2rem",
+                                        maxHeight: "60vh",
+                                        overflowY: "scroll",
+                                      }}
+                                    >
+
+                                      {modelOutput?.output?.map((segment, segmentIdx) =>
+                                        segment.type === "text" ? (
+                                          ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                            globalTransliteration ? (
+                                              <IndicTransliterate
+                                                key={segmentIdx}
+                                                value={segment.value}
+                                                onChangeText={(text) => handleTextChange(text, message, modelIdx, segmentIdx, "output")}
+                                                lang={targetLang}
+                                                renderComponent={(props) => (
+                                                  <textarea
+                                                    {...props}
+                                                    style={{
+                                                      fontSize: "0.8rem",
+                                                      padding: "6px",
+                                                      borderRadius: "6px",
+                                                      color: grey[900],
+                                                      background: "#ffffff",
+                                                      border: `1px solid ${grey[200]}`,
+                                                      boxShadow: `0px 1px 1px ${grey[50]}`,
+                                                      minHeight: "3rem",
+                                                      width: "100%",
+                                                      resize: "none",
+                                                    }}
+                                                  />
+                                                )}
+                                              />
+                                            ) : (
+                                              <textarea
+                                                key={segmentIdx}
+                                                value={segment.value}
+                                                onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
+                                                style={{
+                                                  fontSize: "0.8rem",
+                                                  width: "100%",
+                                                  padding: "6px",
+                                                  borderRadius: "6px",
+                                                  color: grey[900],
+                                                  background: "#ffffff",
+                                                  border: `1px solid ${grey[200]}`,
+                                                  boxShadow: `0px 1px 1px ${grey[50]}`,
+                                                  minHeight: "3rem",
+                                                  resize: "none",
+                                                }}
+                                                rows={4}
+                                              />
+                                            )
+                                          ) : (
+                                            <div
+                                              key={segmentIdx}
+                                              style={{
+                                                // textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                                // direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
+                                                width: "100%",
+                                              }}
+                                            >
+                                              <ReactMarkdown
+                                                key={segmentIdx}
+                                                children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
+                                                components={{
+                                                  p: ({ node, ...props }) => <p style={{ fontSize: '0.8rem', margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                }}
+                                              />
+                                            </div>
+                                          )
+                                        ) : (
+                                          <SyntaxHighlighter
+                                            key={segmentIdx}
+                                            language={segment.language}
+                                            style={gruvboxDark}
+                                            customStyle={{
+                                              padding: "0.5rem",
+                                              borderRadius: "4px",
+                                              fontSize: "0.8rem",
+                                              margin: "0.2rem 0"
+                                            }}
+                                          >
+                                            {segment.value}
+                                          </SyntaxHighlighter>
+                                        )
+                                      )}
+                                    </Typography>
+                                  </Box>
+                                </Fade>
+                              </Modal>
                             </Box>
-                            
                             <Box
                               sx={{
                                 flex: 1,
+                                height:"auto",
                                 overflowY: "auto",
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
                                 boxSizing: "border-box",
-                                minHeight: "100px",
-                                maxHeight: "200px",
-                              }}
+                                minHeight: "100px",                              }}
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
@@ -1709,6 +1831,7 @@ const renderChatHistory = () => {
                               )}
                             </Box>
 
+
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
                                 sx={{
@@ -1727,10 +1850,10 @@ const renderChatHistory = () => {
                       </React.Fragment>
                     ))}
                   </Box>
-                  
-              
+
+
                 </Grid>
-                
+
                 {/* Show right scroll arrow only when > 3 responses */}
                 {shouldScroll && (
                   <IconButton
@@ -1777,7 +1900,7 @@ const renderChatHistory = () => {
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
                   {/* Reduced font sizes in evaluation form as well */}
-                  {!ProjectDetails?.metadata_json?.single_model_response? (
+                  {!ProjectDetails?.metadata_json?.single_model_response ? (
 
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
@@ -1802,7 +1925,7 @@ const renderChatHistory = () => {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        fontSize:"0.85rem"
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       <span>{option}:</span>
@@ -1907,7 +2030,7 @@ const renderChatHistory = () => {
                                 {question.input_question
                                   .split("<blank>")
                                   .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`}style={{
+                                    <span key={`${questionIdx}-${index}`} style={{
                                       fontSize: "0.9rem",
                                     }}>
                                       {part}
@@ -1922,7 +2045,7 @@ const renderChatHistory = () => {
                                               width: "100px",
                                               margin: "0 4px",
                                               verticalAlign: "middle",
-                                              fontSize:"0.85rem"
+                                              fontSize: "0.85rem"
                                             }}
                                           >
                                             &nbsp;
@@ -1949,7 +2072,7 @@ const renderChatHistory = () => {
                                   justifyContent: "space-between",
                                   alignItems: "center",
                                   flexWrap: "wrap",
-                                  fontSize:"0.85rem"
+                                  fontSize: "0.85rem"
                                 }}
                               >
                                 {message?.output?.map((response, outputIdx) => (
@@ -1967,7 +2090,7 @@ const renderChatHistory = () => {
                                         color: "#6C5F5B",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
-                                        fontSize:"0.85rem"
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {"Model " + (outputIdx + 1)}
@@ -2011,7 +2134,7 @@ const renderChatHistory = () => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
-                                            fontSize:"0.85rem"
+                                            fontSize: "0.85rem"
                                           }}
                                           required
                                         />
@@ -2029,8 +2152,8 @@ const renderChatHistory = () => {
                             >
                               <div className={classes.inputQuestion}>
                                 <span style={{
-                                    fontSize: "0.9rem",
-                                  }}>
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                 </span>
                                 <span
@@ -2068,7 +2191,7 @@ const renderChatHistory = () => {
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
                                             color: "#6C5F5B",
-                                            fontSize:"0.85rem"
+                                            fontSize: "0.85rem"
                                           }}
                                         >
                                           {response?.model_name}
@@ -2143,8 +2266,8 @@ const renderChatHistory = () => {
                               }}
                             >
                               <div className={classes.inputQuestion} style={{
-                                    fontSize: "0.9rem",
-                                  }}>
+                                fontSize: "0.9rem",
+                              }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
@@ -2174,8 +2297,8 @@ const renderChatHistory = () => {
                                       }}
                                     >
                                       <span style={{
-                                    fontSize: "0.85rem",
-                                  }}>{option} :</span>{" "}
+                                        fontSize: "0.85rem",
+                                      }}>{option} :</span>{" "}
                                       <div
                                         style={{
                                           display: "flex",
@@ -2240,7 +2363,7 @@ const renderChatHistory = () => {
                                                         variant="subtitle2"
                                                         sx={{
                                                           color: "#6C5F5B",
-                                                          fontSize:"0.85rem"
+                                                          fontSize: "0.85rem"
                                                         }}
                                                       >
                                                         {response?.model_name}
@@ -2267,8 +2390,8 @@ const renderChatHistory = () => {
                                 }}
                               >
                                 <div className={classes.inputQuestion} style={{
-                                      fontSize: "0.9rem",
-                                    }}>
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
@@ -2297,8 +2420,8 @@ const renderChatHistory = () => {
                                         }}
                                       >
                                         <span style={{
-                                      fontSize: "0.85rem",
-                                    }}>{option} :</span>{" "}
+                                          fontSize: "0.85rem",
+                                        }}>{option} :</span>{" "}
                                         <div
                                           style={{
                                             display: "flex",
@@ -2363,7 +2486,7 @@ const renderChatHistory = () => {
                                                           variant="subtitle2"
                                                           sx={{
                                                             color: "#6C5F5B",
-                                                            fontSize:"0.85rem"
+                                                            fontSize: "0.85rem"
                                                           }}
                                                         >
                                                           {response?.model_name}
@@ -2401,12 +2524,12 @@ const renderChatHistory = () => {
                                       {index < splitQuestion.length - 1 && (
                                         <input
                                           type="text"
-  value={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.[index] || ""
-}
-                                         onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
+                                          value={
+                                            evalFormResponse?.[promptOutputPairId]
+                                              ?.model_responses_json?.[questionIdx]
+                                              ?.response?.[index] || ""
+                                          }
+                                          onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
                                           style={{
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
@@ -2466,13 +2589,13 @@ const renderChatHistory = () => {
                                   >
                                     <Rating
                                       name={`rating`}
-value={
-  Number(
-    evalFormResponse?.[promptOutputPairId]
-      ?.model_responses_json?.[questionIdx]
-      ?.response?.[0] || 0
-  )
-}
+                                      value={
+                                        Number(
+                                          evalFormResponse?.[promptOutputPairId]
+                                            ?.model_responses_json?.[questionIdx]
+                                            ?.response?.[0] || 0
+                                        )
+                                      }
                                       getLabelText={getLabelText}
                                       onChange={(event, newValue) => {
                                         handleSingleRating(newValue, questionIdx, promptOutputPairId);
@@ -2509,7 +2632,8 @@ value={
                                       sx={{
                                         ml: 2,
                                         color: "#EE6633",
-                                      fontSize:"0.85rem"}}
+                                        fontSize: "0.85rem"
+                                      }}
                                     >
                                       {(() => {
                                         const currentHover = hover[questionIdx] || null;
@@ -2562,7 +2686,7 @@ value={
                                   <FormGroup>
                                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                                       {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%" ,fontSize:"0.85rem"}} key={idx}>
+                                        <div style={{ width: "50%", fontSize: "0.85rem" }} key={idx}>
                                           <FormControlLabel
                                             key={idx}
                                             control={
@@ -2575,11 +2699,11 @@ value={
                                                     promptOutputPairId
                                                   )
                                                 }
-checked={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.includes(option) || false
-}
+                                                checked={
+                                                  evalFormResponse?.[promptOutputPairId]
+                                                    ?.model_responses_json?.[questionIdx]
+                                                    ?.response?.includes(option) || false
+                                                }
 
                                               />
                                             }
@@ -2616,11 +2740,11 @@ checked={
                                   }}
                                 >
                                   <RadioGroup
-value={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.[0] || ""
-}
+                                    value={
+                                      evalFormResponse?.[promptOutputPairId]
+                                        ?.model_responses_json?.[questionIdx]
+                                        ?.response?.[0] || ""
+                                    }
 
                                     onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
                                   >
@@ -2629,7 +2753,7 @@ value={
                                         display: "flex",
                                         flexWrap: "wrap",
                                         gap: "16px",
-                                        fontSize:"0.85rem"
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {question?.input_selections_list?.map(
@@ -2988,17 +3112,22 @@ return (
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
-          padding: "1rem",
-          backgroundColor: "white",
-          borderTop: "1px solid #e0e0e0",
-          width: "100%",
-          boxSizing: "border-box",
-          position: "sticky",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-        }}
+      padding: "1rem",
+      backgroundColor: "white",
+      borderTop: "1px solid #e0e0e0",
+      width: "100%",
+      boxSizing: "border-box",
+      position: "sticky",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 10,
+      display: "flex",
+      justifyContent: "center", // Centers horizontally
+      alignItems: "center", //
+
+
+    }}
       >
         <Textarea
           handleButtonClick={handleButtonClick}
