@@ -2899,12 +2899,14 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 193px)",
+        height: "calc(100vh - 190px)",
         overflow: "hidden",
-            position: "relative", // Change from sticky to relative
-    // Add these to ensure no scroll
-    maxHeight: "calc(100vh - 193px)",
-    minHeight: "calc(100vh - 193px)",
+                position:"fixed"
+        top: 0,
+    left: 0,
+    right: 0,
+    bottom: "193px", // Leaves space for textarea
+
 
       }}
     >
