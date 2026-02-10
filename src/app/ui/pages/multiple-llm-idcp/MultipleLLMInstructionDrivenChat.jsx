@@ -2901,7 +2901,7 @@ return (
         width: "100%",
         height: "calc(100vh - 190px)",
         overflow: "hidden",
-                position:"fixed"
+                position:"fixed",
         top: 0,
     left: 0,
     right: 0,
