@@ -2899,9 +2899,9 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 165px)",
+        height: "calc(100vh - 150px)",
         overflow: "hidden",
-        position:"sticky"
+        position:"fixed"
       }}
     >
       {/* Instruction Panel - Left Side */}
