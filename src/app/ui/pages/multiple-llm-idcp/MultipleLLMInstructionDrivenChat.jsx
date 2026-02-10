@@ -2901,7 +2901,7 @@ return (
         width: "100%",
         height: "calc(100vh - 150px)",
         overflow: "hidden",
-        position:"fixed"
+        position:"sticky"
       }}
     >
       {/* Instruction Panel - Left Side */}
