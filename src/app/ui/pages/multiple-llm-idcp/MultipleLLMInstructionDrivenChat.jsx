@@ -2901,6 +2901,7 @@ return (
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
         overflow: "hidden",
+        height: "calc(100vh - 250px)",
       }}
     >
       {/* Instruction Panel - Left Side */}
