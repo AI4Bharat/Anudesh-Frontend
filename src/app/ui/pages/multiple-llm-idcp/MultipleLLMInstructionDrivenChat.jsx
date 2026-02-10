@@ -2896,6 +2896,7 @@ return (
     {renderSnackBar()}
     <Box
       sx={{
+        flex:1,
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
