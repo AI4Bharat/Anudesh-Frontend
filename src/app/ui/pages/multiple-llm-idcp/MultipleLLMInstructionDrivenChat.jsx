@@ -2899,8 +2899,9 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 180px)",
+        height: "calc(100vh - 165px)",
         overflow: "hidden",
+        position:"sticky"
       }}
     >
       {/* Instruction Panel - Left Side */}
@@ -2912,7 +2913,7 @@ return (
           transition: "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
           paddingBottom: "0rem!important",
-          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          paddingTop:"0.3rem!important",          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
           backgroundColor: "#fafafa",
           overflow: "auto",
           display: "flex",
@@ -2941,7 +2942,7 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                fontSize: { xs: "1rem", md: "1.1rem" },
+                fontSize: "1rem"
               }}
             >
               {translate("typography.instructions")}
