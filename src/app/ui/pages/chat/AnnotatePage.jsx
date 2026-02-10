@@ -1109,10 +1109,8 @@ const AnnotatePage = () => {
       <Grid container>
         {renderSnackBar()}
         
-        {/* Main Button Row - All buttons in one line */}
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
-            {/* Back to Project Button */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,  flexWrap: 'wrap' }}>
             <Button
               startIcon={<ArrowBackIcon />}
               variant="contained"
@@ -1129,13 +1127,11 @@ const AnnotatePage = () => {
                   localStorage.removeItem("labelAll");
                 }
                 navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } } );
-                // console.log('back to project form annotatePage file')
               }}
             >
               Back
             </Button>
 
-            {/* Notes Button */}
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
@@ -1153,7 +1149,6 @@ const AnnotatePage = () => {
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
 
-            {/* Info Button */}
             
             <LightTooltip
               title={
@@ -1365,8 +1360,6 @@ const AnnotatePage = () => {
               )}
           </Box>
         </Grid>
-
-        {/* Notes Section */}
         <Grid item xs={12}>
           <div
             style={{
