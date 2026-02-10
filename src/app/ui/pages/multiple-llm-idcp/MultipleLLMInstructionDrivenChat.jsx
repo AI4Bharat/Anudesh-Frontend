@@ -2899,7 +2899,7 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 160px)",
+        height: "calc(100vh - 150px)",
         overflow: "hidden",
       }}
     >
@@ -3090,7 +3090,7 @@ return (
           sx={{
             flex: 1,
             overflowY: "auto",
-            padding: "1rem",
+            padding: "0.2rem",
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
