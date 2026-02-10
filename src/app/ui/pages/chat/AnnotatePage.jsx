@@ -1120,7 +1120,7 @@ const AnnotatePage = () => {
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
-                py: 0.5
+                py: 0.2
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
@@ -1142,7 +1142,7 @@ const AnnotatePage = () => {
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
-                py: 0.5,
+                py: 0.2,                
                 backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
               }}
             >
@@ -1211,8 +1211,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1231,8 +1230,7 @@ const AnnotatePage = () => {
                   minWidth: 'auto',
                   fontSize: '0.75rem',
                   px: 1.5,
-                  py: 0.5,
-                  color: "black",
+                  py: 0.2,                  color: "black",
                   border: "0px",
                   backgroundColor: "#ffe0b2",
                 }}
@@ -1260,8 +1258,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1298,8 +1295,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1348,8 +1344,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ee6633",
                     }}
