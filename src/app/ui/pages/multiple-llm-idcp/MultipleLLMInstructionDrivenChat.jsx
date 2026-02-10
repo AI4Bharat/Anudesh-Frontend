@@ -2899,7 +2899,7 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 250px)",
+        height: "calc(100vh - 200px)",
         overflow: "hidden",
         position:"sticky"
       }}
