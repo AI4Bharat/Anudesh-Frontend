@@ -2899,7 +2899,7 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 120px)",
+        height: "calc(100vh - 205px)",
         overflow: "hidden",
       }}
     >
@@ -2912,7 +2912,6 @@ return (
           transition: "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
           backgroundColor: "#fafafa",
           overflow: "auto",
           display: "flex",
