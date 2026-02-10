@@ -1889,7 +1889,7 @@ useEffect(() => {
                 width: "100%",
                 backgroundColor: "rgba(247, 184, 171, 0.2)",
                 borderRadius: "8px",
-                marginBottom: "1.5rem",
+                marginBottom: "0.5rem",
               }}
             >
               <Box sx={{ maxHeight: "14rem" }}>
@@ -2899,7 +2899,7 @@ return (
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 205px)",
+        height: "calc(100vh - 170px)",
         overflow: "hidden",
       }}
     >
@@ -2911,6 +2911,7 @@ return (
           maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
           transition: "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          paddingBottom: "0rem!important",
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
           backgroundColor: "#fafafa",
           overflow: "auto",
@@ -3084,6 +3085,8 @@ return (
           height: "100%",
           overflow: "hidden",
           minWidth: 0,
+          paddingBottom:"0rem!important",
+
         }}
       >
         <Box
@@ -3091,6 +3094,7 @@ return (
             flex: 1,
             overflowY: "auto",
             padding: "1rem",
+            paddingBottom:"0rem!important",
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
