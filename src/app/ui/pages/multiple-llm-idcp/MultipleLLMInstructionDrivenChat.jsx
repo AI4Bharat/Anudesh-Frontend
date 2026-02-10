@@ -2901,7 +2901,11 @@ return (
         width: "100%",
         height: "calc(100vh - 193px)",
         overflow: "hidden",
-        position:"sticky"
+            position: "relative", // Change from sticky to relative
+    // Add these to ensure no scroll
+    maxHeight: "calc(100vh - 193px)",
+    minHeight: "calc(100vh - 193px)",
+
       }}
     >
       {/* Instruction Panel - Left Side */}
