@@ -1106,7 +1106,7 @@ const AnnotatePage = () => {
     <>
       {loading && <Spinner />}
       <div id="top" ref={topref}></div>
-      <Grid container sx={{ overflow: "hidden", height: "100vh" }}>>
+      <Grid container sx={{ overflow: "hidden", height: "100vh" }}>
         {renderSnackBar()}
         
         <Grid item xs={12}>
