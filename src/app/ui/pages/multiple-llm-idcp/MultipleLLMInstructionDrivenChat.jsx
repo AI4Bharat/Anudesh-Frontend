@@ -2901,6 +2901,11 @@ return (
         width: "100%",
         overflow: "hidden",
         height: "calc(100vh - 190px)",
+        "&::-webkit-scrollbar": {
+    display: "none" // Hide scrollbar for Chrome/Safari
+  },
+  msOverflowStyle: "none", // Hide scrollbar for IE/Edge
+  scrollbarWidth: "none" // Hide scrollbar for Firefox
       }}
     >
       {/* Instruction Panel - Left Side */}
