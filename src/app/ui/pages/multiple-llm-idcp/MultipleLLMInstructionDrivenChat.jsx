@@ -2901,17 +2901,15 @@ return (
           md: isInstructionExpanded ? "30% 1fr" : "40px 1fr" 
         },
         gridTemplateRows: { 
-          xs: isInstructionExpanded ? "40vh 1fr auto" : "60px 1fr auto", 
-          md: "1fr auto" 
+          xs: isInstructionExpanded ? "40vh 1fr" : "60px 1fr", 
+          md: "1fr" 
         },
         gridTemplateAreas: { 
-          xs: isInstructionExpanded 
-            ? '"instruction" "chat" "textarea"' 
-            : '"instruction" "chat" "textarea"',
-          md: '"instruction chat" "textarea textarea"'
+          xs: '"instruction" "chat"',
+          md: '"instruction chat"'
         },
         width: "100%",
-        height: "100vh",
+        height: "calc(100vh - 80px)", // Subtract textarea height
         overflow: "hidden",
         position: "relative",
         backgroundColor: "#fff",
@@ -2989,33 +2987,33 @@ return (
             flex: 1,
             overflow: "auto",
             pr: "0.5rem",
+            pb: "10px", // Minimal padding
           }}>
             <Box sx={{ 
               display: "flex", 
               flexDirection: "column", 
-              gap: "1rem",
-              pb: { xs: "20px", md: "20px" }
+              gap: "0.75rem", // Reduced gap
             }}>
               {/* Main Instructions */}
-              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
-                <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333", m: 0 }}>
+              <Box sx={{ backgroundColor: "white", borderRadius: "6px", padding: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                <Typography paragraph sx={{ fontSize: "0.85rem", lineHeight: "1.4", color: "#333", m: 0 }}>
                   {info.instruction_data}
                 </Typography>
               </Box>
 
               {/* Metadata Information */}
-              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+              <Box sx={{ backgroundColor: "white", borderRadius: "6px", padding: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
                 {/* Hint Section */}
-                <Box sx={{ mb: 2 }}>
-                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "1rem", mb: 1 }}>
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
                     {translate("modal.hint")}
                   </Typography>
                   <Typography variant="body2" sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
+                    fontSize: "0.8rem",
+                    lineHeight: "1.3",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
+                    padding: "0.5rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #F18359",
                   }}>
@@ -3024,16 +3022,16 @@ return (
                 </Box>
 
                 {/* Examples Section */}
-                <Box sx={{ mb: 2 }}>
-                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "1rem", mb: 1 }}>
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
                     {translate("modal.examples")}
                   </Typography>
                   <Typography variant="body2" sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
+                    fontSize: "0.8rem",
+                    lineHeight: "1.3",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
+                    padding: "0.5rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #4CAF50",
                   }}>
@@ -3043,22 +3041,22 @@ return (
 
                 {/* Additional Metadata */}
                 <Box>
-                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "1rem", mb: 1 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
                     Additional Information
                   </Typography>
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
                     {info.meta_info_language && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <CodeIcon fontSize="small" color="primary" />
-                        <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        <CodeIcon sx={{ fontSize: "1rem" }} color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", color: "#666" }}>
                           Language: {info.meta_info_language}
                         </Typography>
                       </Box>
                     )}
                     {taskId && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <AssignmentIcon fontSize="small" color="secondary" />
-                        <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        <AssignmentIcon sx={{ fontSize: "1rem" }} color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", color: "#666" }}>
                           Task ID: {taskId}
                         </Typography>
                       </Box>
@@ -3089,9 +3087,9 @@ return (
           sx={{
             flex: 1,
             overflowY: "auto",
-            px: { xs: "0.75rem", md: "1.5rem" },
-            py: { xs: "0.75rem", md: "1.5rem" },
-            pb: { xs: "20px", md: "20px" },
+            px: { xs: "0.75rem", md: "1rem" },
+            py: { xs: "0.75rem", md: "1rem" },
+            pb: "10px", // Minimal padding
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -3116,55 +3114,70 @@ return (
           <Box ref={bottomRef} sx={{ height: "1px" }} />
         </Box>
       </Box>
+    </Box>
 
-      {/* Full Width Textarea at Bottom - Covers both panels */}
-      {stage !== "Alltask" && !disableUpdateButton ? (
+    {/* Full Width Textarea - Completely Separate */}
+    {stage !== "Alltask" && !disableUpdateButton ? (
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: "100%",
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+          py: "0.5rem", // Reduced padding
+          px: { xs: "0.5rem", md: "1rem" },
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1300,
+          height: "70px", // Fixed height
+        }}
+      >
         <Box
           sx={{
-            gridArea: "textarea",
             width: "100%",
-            backgroundColor: "white",
-            borderTop: "1px solid #e0e0e0",
-            boxShadow: "0 -4px 10px rgba(0,0,0,0.03)",
-            py: { xs: "0.75rem", md: "1rem" },
-            px: { xs: "0.75rem", md: "1.5rem" },
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 10,
+            maxWidth: {
+              xs: "100%",
+              md: isInstructionExpanded ? "70%" : "calc(100% - 40px)",
+            },
+            marginLeft: {
+              xs: 0,
+              md: isInstructionExpanded ? "30%" : "40px",
+            },
+            transition: "margin-left 0.3s ease, max-width 0.3s ease",
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: "100%",
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+            size={10} // Reduced from 12
+            sx={{ 
+              width: "100%", 
+              margin: 0, 
+              padding: 0,
+              "& .MuiInputBase-root": {
+                height: "50px", // Fixed height for input
+              },
+              "& textarea": {
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                padding: "8px 12px", // Reduced padding
+              }
             }}
-          >
-            <Textarea
-              handleButtonClick={handleButtonClick}
-              handleOnchange={handleOnchange}
-              size={12}
-              sx={{ 
-                width: "100%", 
-                margin: 0, 
-                padding: 0,
-                "& textarea": {
-                  fontSize: { xs: "0.9rem", md: "1rem" }
-                }
-              }}
-              class_name={"w-full"}
-              loading={loading}
-              inputValue={inputValue}
-              overrideGT={true}
-              task_id={taskId}
-              script={info.meta_info_language}
-            />
-          </Box>
+            class_name={"w-full"}
+            loading={loading}
+            inputValue={inputValue}
+            overrideGT={true}
+            task_id={taskId}
+            script={info.meta_info_language}
+          />
         </Box>
-      ) : null}
-    </Box>
+      </Box>
+    ) : null}
   </>
 );
 };
-
 export default MultipleLLMInstructionDrivenChat;
