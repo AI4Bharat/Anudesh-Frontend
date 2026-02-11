@@ -2890,42 +2890,56 @@ useEffect(() => {
   if (!isMounted) {
     return null;
   }
-
 return (
   <>
     {renderSnackBar()}
     <Box
       sx={{
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
+        display: "grid",
+        gridTemplateColumns: { 
+          xs: "1fr", 
+          md: isInstructionExpanded ? "30% 1fr" : "40px 1fr" 
+        },
+        gridTemplateRows: { 
+          xs: isInstructionExpanded ? "40vh 1fr" : "60px 1fr", 
+          md: "1fr" 
+        },
+        gridTemplateAreas: { 
+          xs: '"instruction" "chat"',
+          md: '"instruction chat"'
+        },
         width: "100%",
+        height: "calc(100vh - 80px)",
         overflow: "hidden",
-        height: "calc(100vh - 190px)",
+        position: "relative",
+        backgroundColor: "#fff",
       }}
     >
       {/* Instruction Panel - Left Side */}
       <Box
         sx={{
-          width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
-          height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
-          maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
+          gridArea: "instruction",
+          width: "100%",
+          height: { xs: isInstructionExpanded ? "40vh" : "60px", md: "100%" },
           transition: "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
-          paddingBottom: "0rem!important",
-          paddingTop:"0.3rem!important",          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          paddingBottom: 0,
+          paddingTop: "0.3rem",
+          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
           backgroundColor: "#fafafa",
-          overflow: "auto",
+          overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          flexShrink: 0,
         }}
       >
+        {/* Header - Always visible */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            marginBottom: isInstructionExpanded ? "0.5rem" : 0,
             padding: "0.5rem",
             backgroundColor: "rgba(247, 184, 171, 0.2)",
             borderRadius: "8px",
@@ -2967,108 +2981,87 @@ return (
           </Tooltip>
         </Box>
 
+        {/* Scrollable Content - Only visible when expanded */}
         {isInstructionExpanded && (
-          <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
-            {/* Main Instructions */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
-                {info.instruction_data}
-              </Typography>
-            </Box>
-
-            {/* Metadata Information - Now directly in the panel */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
-              {/* Hint Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.hint")}
+          <Box sx={{ 
+            flex: 1,
+            overflow: "auto",
+            pr: "0.5rem",
+            pb: "10px",
+          }}>
+            <Box sx={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "0.75rem",
+            }}>
+              {/* Main Instructions */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "6px", padding: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                <Typography paragraph sx={{ fontSize: "0.85rem", lineHeight: "1.4", color: "#333", m: 0 }}>
+                  {info.instruction_data}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
+              </Box>
+
+              {/* Metadata Information */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "6px", padding: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                {/* Hint Section */}
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
+                    {translate("modal.hint")}
+                  </Typography>
+                  <Typography variant="body2" sx={{
+                    fontSize: "0.8rem",
+                    lineHeight: "1.3",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
+                    padding: "0.5rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #F18359",
-                  }}
-                >
-                  {info.hint || "No hints available"}
-                </Typography>
-              </Box>
+                  }}>
+                    {info.hint || "No hints available"}
+                  </Typography>
+                </Box>
 
-              {/* Examples Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.examples")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
+                {/* Examples Section */}
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
+                    {translate("modal.examples")}
+                  </Typography>
+                  <Typography variant="body2" sx={{
+                    fontSize: "0.8rem",
+                    lineHeight: "1.3",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
+                    padding: "0.5rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #4CAF50",
-                  }}
-                >
-                  {info.examples || "No examples available"}
-                </Typography>
-              </Box>
+                  }}>
+                    {info.examples || "No examples available"}
+                  </Typography>
+                </Box>
 
-              {/* Additional Metadata Information */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    mb: 1,
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {info.meta_info_language && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
-                        Language: {info.meta_info_language}
-                      </Typography>
-                    </Box>
-                  )}
-                  {taskId && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
-                        Task ID: {taskId}
-                      </Typography>
-                    </Box>
-                  )}
+                {/* Additional Metadata */}
+                <Box>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
+                    Additional Information
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                    {info.meta_info_language && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <CodeIcon sx={{ fontSize: "1rem" }} color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", color: "#666" }}>
+                          Language: {info.meta_info_language}
+                        </Typography>
+                      </Box>
+                    )}
+                    {taskId && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <AssignmentIcon sx={{ fontSize: "1rem" }} color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", color: "#666" }}>
+                          Task ID: {taskId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -3079,22 +3072,24 @@ return (
       {/* Chat Section - Right Side */}
       <Box
         sx={{
-          flex: 1,
+          gridArea: "chat",
           display: "flex",
           flexDirection: "column",
           height: "100%",
           overflow: "hidden",
           minWidth: 0,
-          paddingBottom:"0rem!important",
-
+          backgroundColor: "#fff",
+          position: "relative",
         }}
       >
+        {/* Chat Messages */}
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            padding: "1rem",
-            paddingBottom:"0rem!important",
+            px: { xs: "0.75rem", md: "1rem" },
+            py: { xs: "0.75rem", md: "1rem" },
+            pb: "10px",
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -3103,51 +3098,82 @@ return (
             minHeight: 0,
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
+          <Box sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "100%",
+            "& > *": {
+              maxWidth: "100%",
+              width: "100%"
+            }
+          }}>
             {showChatContainer ? renderChatHistory() : null}
           </Box>
-          <Box ref={bottomRef} />
+          <Box ref={bottomRef} sx={{ height: "1px" }} />
         </Box>
       </Box>
     </Box>
 
-    {/* Textarea placed outside the main container */}
+    {/* Full Width Textarea - Covers Entire Width */}
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
-      padding: "1rem",
-      backgroundColor: "white",
-      borderTop: "1px solid #e0e0e0",
-      width: "100%",
-      boxSizing: "border-box",
-      position: "sticky",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 10,
-      display: "flex",
-      justifyContent: "center", // Centers horizontally
-      alignItems: "center", //
-
-
-    }}
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: "100vw", // Full viewport width
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+          py: "0.5rem",
+          px: { xs: "0.5rem", md: 0 }, // Remove horizontal padding on desktop
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1300,
+          height: "70px",
+        }}
       >
-        <Textarea
-          handleButtonClick={handleButtonClick}
-          handleOnchange={handleOnchange}
-          size={12}
-          sx={{ width: "100%", margin: 0, padding: 0 }}
-          class_name={"w-full"}
-          loading={loading}
-          inputValue={inputValue}
-          overrideGT={true}
-          task_id={taskId}
-          script={info.meta_info_language}
-        />
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100%", // Always full width
+            mx: 0, // No margin
+            px: { xs: "0.5rem", md: "1rem" }, // Add padding directly to container
+          }}
+        >
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+            size={10}
+            sx={{ 
+              width: "100%", 
+              margin: 0, 
+              padding: 0,
+              "& .MuiInputBase-root": {
+                height: "50px",
+                width: "100%",
+              },
+              "& textarea": {
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                padding: "8px 12px",
+                width: "100%",
+              }
+            }}
+            class_name={"w-full"}
+            loading={loading}
+            inputValue={inputValue}
+            overrideGT={true}
+            task_id={taskId}
+            script={info.meta_info_language}
+          />
+        </Box>
       </Box>
     ) : null}
   </>
 );
 };
-
 export default MultipleLLMInstructionDrivenChat;

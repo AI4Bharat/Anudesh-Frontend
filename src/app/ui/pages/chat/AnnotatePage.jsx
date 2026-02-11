@@ -1109,8 +1109,8 @@ const AnnotatePage = () => {
       <Grid container sx={{ overflow: "hidden" }}>
         {renderSnackBar()}
         
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,  flexWrap: 'wrap' }}>
+        <Grid item xs={12} >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,margin:'0.5rem',  flexWrap: 'wrap' }}>
             <Button
               startIcon={<ArrowBackIcon />}
               variant="contained"
