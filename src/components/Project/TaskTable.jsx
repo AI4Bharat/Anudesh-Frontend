@@ -777,6 +777,8 @@ const TaskTable = (props) => {
               : "View"
             : "Review";
 
+        const isArchived = ProjectDetails.is_archived;
+
         row.push(
           <Link
             to={actionLink}
