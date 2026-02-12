@@ -31,6 +31,30 @@ const TasksSupercheckTable = () => {
     return match && match[1] ? match[1] : null;
   };
 
+  //  Fetch existing preferred reviewers from user profile
+  const fetchExistingPreferences = async () => {
+    try {
+      const token = localStorage.getItem("anudesh_access_token");
+      const response = await fetch(
+        `${configs.BASE_URL_AUTO}/users/account/me/fetch/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${token}`,
+          },
+        }
+      );
+      const userData = await response.json();
+      const projectId = getProjectIdFromURL();
+      const preferredReviewers =
+        userData?.preferred_task_by_json?.preferred_reviewers?.[projectId] || [];
+      return preferredReviewers;
+    } catch (error) {
+      console.error("Error fetching existing preferences:", error);
+      return [];
+    }
+  };
+
   // ✅ Fetch reviewers with unassigned supercheck tasks
   const fetchMembers = async () => {
     const projectId = getProjectIdFromURL();
@@ -59,10 +83,13 @@ const TasksSupercheckTable = () => {
     }
   };
 
-  // ✅ Open dialog and fetch data
-  const handleOpen = () => {
+  const handleOpen = async () => {
     setOpenDialog(true);
-    fetchMembers();
+    const [, existingPrefs] = await Promise.all([
+      fetchMembers(),
+      fetchExistingPreferences(),
+    ]);
+    setSelectedReviewers(existingPrefs);
   };
 
   const handleClose = () => setOpenDialog(false);
