@@ -1,5 +1,7 @@
-import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu,MenuItem,Toolbar,Tooltip,
-  Typography,Popover,Badge,Stack,Tabs,Tab,Switch,Select,InputLabel,FormControl,Dialog,DialogTitle,DialogContent ,DialogActions ,Button } from "@mui/material";
+import {
+  AppBar, Avatar, Box, Checkbox, Divider, FormControlLabel, Grid, IconButton, Menu, MenuItem, Toolbar, Tooltip,
+  Typography, Popover, Badge, Stack, Tabs, Tab, Switch, Select, InputLabel, FormControl, Dialog, DialogTitle, DialogContent, DialogActions, Button
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -72,27 +74,27 @@ const Header = () => {
   const handleMoreHorizonClose = () => {
     setMoreHorizonAnchorEl(null);
   };
-    const [showTranslationModel, setShowTranslationModel] = useState(false);
-    const handleTranslationModelClose = () => {
+  const [showTranslationModel, setShowTranslationModel] = useState(false);
+  const handleTranslationModelClose = () => {
     setShowTranslationModel(false);
   };
-const translationServices = {
-  "ai4bharat/indictrans--gpu-t4": {
-    service_id: "ai4bharat/indictrans--gpu-t4",
-    languageFilters: {
-      sourceLanguages: [
-        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
-        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
-        "ks", "doi", "pa"
-      ],
-      targetLanguages: [
-        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
-        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
-        "ks", "doi", "pa"
-      ]
+  const translationServices = {
+    "ai4bharat/indictrans--gpu-t4": {
+      service_id: "ai4bharat/indictrans--gpu-t4",
+      languageFilters: {
+        sourceLanguages: [
+          "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te",
+          "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en",
+          "ks", "doi", "pa"
+        ],
+        targetLanguages: [
+          "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te",
+          "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en",
+          "ks", "doi", "pa"
+        ]
+      }
     }
-  }
-};
+  };
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
@@ -135,6 +137,30 @@ const translationServices = {
       });
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      let apiObj = new NotificationAPI();
+      const endpoint = `${apiObj.apiEndPoint()}unread`;
+      const response = await fetch(endpoint, {
+        method: "GET",
+        headers: apiObj.getHeaders().headers,
+      });
+      if (!response.ok) {
+        throw new Error(`Error fetching unread notifications: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      // Assuming the response contains a total_count field
+      setNotificationCount(data.total_count || 0);
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      setNotificationCount(0);
+    }
+  };
+  // Fetch unread notifications on mount
+  useEffect(() => {
+    fetchUnreadCount();
+  }, []);
+
 
   const markAsRead = (notificationId) => {
     const task = new NotificationPatchAPI(notificationId);
@@ -159,6 +185,9 @@ const translationServices = {
     markAsRead(notificationId);
   };
 
+  // useEffect(() => {
+  //   fetchNotifications();
+  // }, [unread,selectedNotificationId]);
 
   useEffect(() => {
     getLoggedInUserData();
@@ -258,7 +287,7 @@ const translationServices = {
   const handleRTLChange = (event) => {
     if (typeof window !== "undefined") {
       const value = event.target.checked;
-  setIsRtl(value);
+      setIsRtl(value);
 
       let style;
       if (event.target.checked) {
@@ -378,7 +407,7 @@ const translationServices = {
               Projects
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?<Typography variant="body1">
+          {loggedInUserData.guest_user == false && loggedInUserData.organization.id == 1 ? (<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -388,7 +417,7 @@ const translationServices = {
             >
               Analytics
             </NavLink>
-          </Typography>:null}
+          </Typography>) : null}
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -431,7 +460,7 @@ const translationServices = {
               Datasets
             </NavLink>
           </Typography>
-          {loggedInUserData?.guest_user==false?<Typography variant="body1">
+          {loggedInUserData?.guest_user == false ? <Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -441,8 +470,7 @@ const translationServices = {
             >
               Analytics
             </NavLink>
-          </Typography>:null}
-          
+          </Typography> : null}
         </Grid>
       );
     } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
@@ -578,9 +606,9 @@ const translationServices = {
   const tabs = [
     // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
     loggedInUserData?.guest_user &&
-    (userRole.Annotator === loggedInUserData?.role ||
-      userRole.Reviewer === loggedInUserData?.role ||
-      userRole.SuperChecker === loggedInUserData?.role) ? (
+      (userRole.Annotator === loggedInUserData?.role ||
+        userRole.Reviewer === loggedInUserData?.role ||
+        userRole.SuperChecker === loggedInUserData?.role) ? (
       <Typography key="guest" variant="body1">
         <NavLink
           to="/guest_workspaces"
@@ -595,8 +623,8 @@ const translationServices = {
     ) : null,
 
     // Organization tab - only shown for Organization Owners and Admins
-  userRole.OrganizationOwner === loggedInUserData?.role ||
-  userRole.Admin === loggedInUserData?.role ? (
+    userRole.OrganizationOwner === loggedInUserData?.role ||
+      userRole.Admin === loggedInUserData?.role ? (
       <Typography key="organization" variant="body1">
         <NavLink
           to={
@@ -644,8 +672,8 @@ const translationServices = {
 
     // Datasets tab - only shown for Workspace Managers, Organization Owners, and Admins
     userRole.WorkspaceManager === loggedInUserData?.role ||
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role ? (
+      userRole.OrganizationOwner === loggedInUserData?.role ||
+      userRole.Admin === loggedInUserData?.role ? (
       <Typography key="datasets" variant="body1">
         <NavLink
           to="/datasets"
@@ -717,7 +745,7 @@ const translationServices = {
         setShowTransliterationModel(true);
       },
     },
-        {
+    {
       name: "Translation",
       onclick: () => {
         handleCloseSettingsMenu();
@@ -1211,8 +1239,8 @@ const translationServices = {
                   >
                     <Typography variant="h4">Notifications</Typography>
                     {Notification &&
-                    Notification?.length > 0 &&
-                    unseenNotifications?.length > 0 ? (
+                      Notification?.length > 0 &&
+                      unseenNotifications?.length > 0 ? (
                       <Tooltip title="Mark all as read">
                         <IconButton
                           aria-label="More"
@@ -1288,8 +1316,7 @@ const translationServices = {
                                 variant="subtitle2"
                                 fontFamily="Roboto, sans-serif"
                                 fontWeight="bold"
-                              >{`ID: ${
-                                notification?.title?.split("\n")[0]
+                              >{`ID: ${notification?.title?.split("\n")[0]
                                 }`}</Typography>
                               <Typography
                                 style={{ paddingLeft: "10px" }}
@@ -1338,7 +1365,7 @@ const translationServices = {
                             {index !== Notification?.length - 1 && <Divider />}
                           </Link>
                           {notification?.seen_json == null ||
-                          !notification?.seen_json[loggedInUserData.id] ? (
+                            !notification?.seen_json[loggedInUserData.id] ? (
                             <Tooltip title="Mark as read">
                               <IconButton
                                 aria-label="More"
@@ -1412,7 +1439,7 @@ const translationServices = {
         leftTranslate={"-50"}
         isTransliteration={true}
         style={{ cursor: "pointer" }}
-    // sx={{width: "400px"}}
+      // sx={{width: "400px"}}
       >
         <Transliteration
           onCancelTransliteration={() => handleTransliterationModelClose}
