@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
@@ -52,6 +52,9 @@ import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
 import { setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import CalenderMonthIcon from '@mui/icons-material/CalendarMonth';
+import { parse, format } from "date-fns";
+import TimeRangeFilter from "./TimeRangeFilter";
 import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
 const defaultColumns = [
@@ -81,7 +84,7 @@ const RowContainer = styled(Box)(({ theme, expanded }) => ({
   transition: "all 1.8s ease-in-out",
 }));
 
-const excludeSearch = ["status", "actions", "output_text", "revision_count", "rejection_count"];
+const excludeSearch = ["status", "actions", "output_text", "revision_count", "rejection_count", "updated_at"];
 
 const excludeCols = [
   "context",
@@ -142,7 +145,7 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
-  
+
   const project_stage = useSelector(
     (state) => state.getProjectDetails?.data?.project_stage
   );
@@ -230,15 +233,19 @@ const TaskTable = (props) => {
       : false,
   );
 
-  const [selectedFilters, setsSelectedFilters] = useState(
-    props.type === "annotation"
-      ? TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.selectedFilters
-        : { annotation_status: filterData.Status[0], req_user: -1 }
-      : TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
-        ? TaskFilter.selectedFilters
-        : { review_status: filterData.Status[0], req_user: -1 },
-  );
+  const [selectedFilters, setsSelectedFilters] = useState(() => {
+    let initialFilters = TaskFilter && TaskFilter.id === id && TaskFilter.type === props.type
+      ? TaskFilter.selectedFilters
+      : props.type === "annotation"
+        ? { annotation_status: filterData.Status[0], req_user: -1 }
+        : { review_status: filterData.Status[0], req_user: -1 };
+
+    if (TaskFilter?.total_count === 0 && (initialFilters.start_date || initialFilters.end_date)) {
+      const { start_date, end_date, ...rest } = initialFilters;
+      return rest;
+    }
+    return initialFilters;
+  });
 
   const NextTask = useSelector((state) => state?.getNextTask?.data);
   const [tasks, setTasks] = useState([]);
@@ -268,8 +275,19 @@ const TaskTable = (props) => {
   const [columns, setColumns] = useState([]);
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isInitialMount = useRef(true);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [expandedRow, setExpandedRow] = useState(null);
+  const [calenderAnchor, setCalenderAnchor] = useState(null);
+  const calenderOpen = Boolean(calenderAnchor);
+  const [selectRange, setSelectRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+  const [dateTimeFormat, SetDateTimeFormat] = useState(false)
 
   const getTaskListData = () => {
     const existingFilter = AllPageFilters?.find(filter =>
@@ -295,8 +313,7 @@ const TaskTable = (props) => {
 
   useEffect(() => {
     getTaskListData();
-
-  }, [currentPageNumber, currentRowPerPage]);
+  }, [currentPageNumber, currentRowPerPage, selectedFilters, pull, rejected]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -471,6 +488,50 @@ const TaskTable = (props) => {
     }
   };
 
+
+  const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    selection.endDate.setHours(23, 59, 59, 999);
+    console.log("Range changed:", selection);
+    setSelectRange([selection]);
+  };
+
+  const clearFilter = () => {
+    const { start_date, end_date, ...newFilters } = selectedFilters;
+    setsSelectedFilters(newFilters);
+    setSelectRange([
+      {
+        startDate: null,
+        endDate: null,
+        key: "selection",
+      },
+    ]);
+    setCalenderAnchor(null);
+    if (!defaultColumns.includes("updated_at")) {
+      setSelectedColumns(selectedColumns.filter((col) => col !== "updated_at"));
+    }
+  };
+
+  const applyFilter = () => {
+    if (selectRange[0].startDate && selectRange[0].endDate) {
+      setsSelectedFilters({
+        ...selectedFilters,
+        start_date: format(selectRange[0].startDate, "yyyy-MM-dd HH:mm:ss"),
+        end_date: format(selectRange[0].endDate, "yyyy-MM-dd HH:mm:ss"),
+      });
+      if (!selectedColumns.includes("updated_at")) {
+        setSelectedColumns([...selectedColumns, "updated_at"]);
+      }
+    }
+    setCalenderAnchor(null);
+  };
+
+  const handleDateTimeFormat = () =>{
+    SetDateTimeFormat(!dateTimeFormat);
+    setCalenderAnchor(null);
+  }
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("Stage", props.type);
@@ -498,6 +559,17 @@ const TaskTable = (props) => {
             <SearchIcon id={col.name + "_btn"} />
           </IconButton>
         )}
+        {col.name === "updated_at" && taskList.length > 0 && taskList[0]?.updated_at && (
+          <IconButton
+            sx={{ borderRadius: "100%" }}
+            onClick={(e) => {
+              setCalenderAnchor(e.currentTarget);
+            }}
+          >
+            <CalenderMonthIcon />
+          </IconButton>
+        )
+        }
       </Box>
     );
   };
@@ -507,12 +579,41 @@ const TaskTable = (props) => {
   }, [apiLoading]);
 
   useEffect(() => {
+    const newFilter = AllTaskFilters?.find(
+      (filter) => filter.id === id && filter.type === props.type
+    );
+
+    if (newFilter?.selectedFilters) {
+      let filtersToSet = newFilter.selectedFilters;
+      if (newFilter?.total_count === 0 && (filtersToSet.start_date || filtersToSet.end_date)) {
+        const { start_date, end_date, ...rest } = filtersToSet;
+        filtersToSet = rest;
+        setSelectRange([
+          {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: "selection",
+          },
+        ]);
+
+        if (!defaultColumns.includes("updated_at")) {
+          setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
+        }
+      }
+      if (!_.isEqual(filtersToSet, selectedFilters)) {
+        setsSelectedFilters(filtersToSet);
+      }
+    }
+  }, [id, props.type]);
+
+  useEffect(() => {
     dispatch(setTaskFilter({
       id,
       selectedFilters,
       type: props.type,
       pull,
       rejected,
+      total_count: totalTaskCount,
     }))
     const existingFilter = AllPageFilters?.find(filter =>
       filter.id === id &&
@@ -541,10 +642,8 @@ const TaskTable = (props) => {
         rejected,
         page: existingFilter?.page
       }))
-
     }
-    getTaskListData();
-
+    // getTaskListData();
 
     if (typeof window !== "undefined") {
       localStorage.setItem(
@@ -562,12 +661,32 @@ const TaskTable = (props) => {
         rejected,
       }),
     );
-  }, [selectedFilters, pull, rejected]);
+  }, [selectedFilters, pull, rejected, totalTaskCount]);
+
+  const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
+    if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
+    
+    const user = getProjectUsers.find(u => u.email === annotatorEmail);
+    if (user && user.first_name && user.last_name && showAnnotatorsNames) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return annotatorEmail;
+  };
+
   useEffect(() => {
     if (taskList?.length > 0 && taskList[0]?.data) {
+      const showAnnotatorsNames = getProjectUsers && taskList?.every((task) => {
+        const user = getProjectUsers.find(u => u.email === task.annotator_mail);
+        return user && user.first_name && user.last_name;
+      });
+
+      const annotatorEmail = taskList[0]?.annotator_mail;
+      const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
+      const shouldShowAnnotatorColumn = props.type === "review" && showEmail;
+
       const data = taskList.map((el) => {
-        const email = props.type === "review" ? el.annotator_mail : "";
-        let row = [el.id, ...(!!email ? [el.annotator_mail] : [])];
+        const annotatorDisplay = getAnnotatorName(el.annotator_mail, showAnnotatorsNames);
+        let row = [el.id, ...(shouldShowAnnotatorColumn ? [annotatorDisplay || ""] : [])];
         row.push(
           ...Object.keys(el.data)
             .filter((key) => !excludeCols.includes(key))
@@ -580,11 +699,11 @@ const TaskTable = (props) => {
         );
 
         if (props.type === "annotation" && taskList[0].revision_loop_count) {
-          row.push(el.revision_loop_count?.review_count); 
+          row.push(el.revision_loop_count?.review_count);
         } else if (props.type === "review" && taskList[0].revision_loop_count) {
-          row.push(el.revision_loop_count?.review_count);          
+          row.push(el.revision_loop_count?.review_count);
         }
-        if (props.type === "review" && taskList[0].revision_loop_count && project_stage ===3) {
+        if (props.type === "review" && taskList[0].revision_loop_count && project_stage === 3) {
           row.push(el.revision_loop_count?.super_check_count);
         }
 
@@ -598,6 +717,19 @@ const TaskTable = (props) => {
           taskList[0].input_data_id
         ) {
           row.push(el.input_data_id);
+        }
+        if (
+          (roles?.WorkspaceManager === userDetails?.role ||
+            roles?.OrganizationOwner === userDetails?.role ||
+            roles?.Admin === userDetails?.role) &&
+          taskList[0].updated_at
+        ) {
+          const taskDate = parse(el.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
+          if (dateTimeFormat) {
+            row.push(format(taskDate, "dd/MM/yyyy HH:mm:ss"));
+          } else {
+            row.push(format(taskDate, "dd/MM/yyyy"));
+          }
         }
 
         const actionLink =
@@ -616,11 +748,24 @@ const TaskTable = (props) => {
               : "View"
             : "Review";
 
+        const isArchived = ProjectDetails.is_archived;
         row.push(
-          <Link to={actionLink} className={classes.link}>
+          <Link
+            to={actionLink}
+            className={classes.link}
+            aria-disabled={isArchived}
+            onClick={
+              isArchived
+                ? (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                : undefined
+            }
+          >
             <CustomButton
               onClick={() => localStorage.removeItem("labelAll")}
-              disabled={ProjectDetails.is_archived}
+              disabled={isArchived}
               sx={{ p: 1, borderRadius: 2 }}
               label={
                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
@@ -632,23 +777,20 @@ const TaskTable = (props) => {
         );
         return row;
       });
-      const annotatorEmail = taskList[0]?.annotator_mail;
-      const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
-      const email =
-        props.type === "review" && showEmail ? "annotator_mail" : "";
-      let colList = ["id", ...(!!email ? [email] : [])];
+      const email = shouldShowAnnotatorColumn ? "annotator_mail" : "";
+      let colList = ["id", ...(shouldShowAnnotatorColumn ? [email] : [])];
       colList.push(
         ...Object.keys(taskList[0].data).filter(
           (el) => !excludeCols.includes(el),
         ),
       );
-      
+
       if (props.type === "annotation" && taskList[0].revision_loop_count) {
         colList.push("revision_count");
       } else if (props.type === "review" && taskList[0].revision_loop_count) {
         colList.push("revision_count");
-      } 
-      if (props.type === "review" && taskList[0].revision_loop_count && project_stage ===3) {
+      }
+      if (props.type === "review" && taskList[0].revision_loop_count && project_stage === 3) {
         colList.push("rejection_count");
       }
 
@@ -658,16 +800,36 @@ const TaskTable = (props) => {
           colList.push("Input_data_id");
         }
       }
+      if (
+        (roles?.WorkspaceManager === userDetails?.role ||
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role) &&
+        taskList[0].updated_at
+      ) {
+        colList.push("updated_at")
+      }
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
-        columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        const initialColumns = [...defaultColumns];
+        if (selectedFilters.start_date && selectedFilters.end_date) {
+          if (!initialColumns.includes("updated_at")) {
+            initialColumns.push("updated_at");
+          }
+        }
+        columns.length === 0 ? setSelectedColumns(initialColumns) : setSelectedColumns(columns);
       }
       const metaInfoMapping = {
         meta_info_language: "language",
         meta_info_domain: "domain",
         meta_info_intent: "intent",
       };
+      if (showAnnotatorsNames) {
+        metaInfoMapping.annotator_mail = "Annotator";
+      } else {
+        metaInfoMapping.annotator_mail = "Annotator Email";
+      }
+      
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
@@ -709,7 +871,7 @@ const TaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [taskList, ProjectDetails, expandedRow]);
+  }, [ taskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
@@ -1501,6 +1663,19 @@ const TaskTable = (props) => {
           selectedFilters={selectedFilters}
           Type={props.type}
           submit={() => handleSubmitFindAndReplace()}
+        />
+      )}
+      {calenderOpen && (
+        <TimeRangeFilter
+        calenderOpen={calenderOpen}
+        calenderAnchor={calenderAnchor}
+        handleCalenderClose={() => setCalenderAnchor(null)}
+        selectRange={selectRange}
+        handleRangeChange={handleRangeChange}
+        dateTimeFormat={dateTimeFormat}
+        handleDateTimeFormat={handleDateTimeFormat}
+        clearFilter={clearFilter}
+        applyFilter={applyFilter}
         />
       )}
 

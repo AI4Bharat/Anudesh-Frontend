@@ -758,6 +758,8 @@ const AnnotatePage = () => {
             }
             if (globalModelFailure) {
               setIsModelFailing(true);
+            } else {
+              setIsModelFailing(false);
             }
             setChatHistory([...modifiedChatHistory]);
           } else {
@@ -1104,13 +1106,11 @@ const AnnotatePage = () => {
     <>
       {loading && <Spinner />}
       <div id="top" ref={topref}></div>
-      <Grid container>
+      <Grid container sx={{ overflow: "hidden" }}>
         {renderSnackBar()}
         
-        {/* Main Button Row - All buttons in one line */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
-            {/* Back to Project Button */}
+        <Grid item xs={12} >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,margin:'0.5rem',  flexWrap: 'wrap' }}>
             <Button
               startIcon={<ArrowBackIcon />}
               variant="contained"
@@ -1120,20 +1120,18 @@ const AnnotatePage = () => {
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
-                py: 0.5
+                py: 0.2
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
                 navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } } );
-                // console.log('back to project form annotatePage file')
               }}
             >
               Back
             </Button>
 
-            {/* Notes Button */}
             <Button
               endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
@@ -1144,14 +1142,13 @@ const AnnotatePage = () => {
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
-                py: 0.5,
+                py: 0.2,                
                 backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
               }}
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
 
-            {/* Info Button */}
             
             <LightTooltip
               title={
@@ -1214,8 +1211,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1234,8 +1230,7 @@ const AnnotatePage = () => {
                   minWidth: 'auto',
                   fontSize: '0.75rem',
                   px: 1.5,
-                  py: 0.5,
-                  color: "black",
+                  py: 0.2,                  color: "black",
                   border: "0px",
                   backgroundColor: "#ffe0b2",
                 }}
@@ -1263,8 +1258,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1301,8 +1295,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1351,8 +1344,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.5,
-                      color: "black",
+                      py: 0.2,                      color: "black",
                       border: "0px",
                       backgroundColor: "#ee6633",
                     }}
@@ -1363,8 +1355,6 @@ const AnnotatePage = () => {
               )}
           </Box>
         </Grid>
-
-        {/* Notes Section */}
         <Grid item xs={12}>
           <div
             style={{
@@ -1401,7 +1391,7 @@ const AnnotatePage = () => {
         )}
 
         {/* Main Content */}
-        <Grid item xs={12}>
+        <Grid item xs={12} sx={{ flex: 1, overflow: "hidden" }}>
           {componentToRender}
         </Grid>
       </Grid>

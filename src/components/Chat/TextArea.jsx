@@ -208,7 +208,6 @@ export default function Textarea({
       sx={{ 
         width:"90%" ,
       }}
-      paddingBottom="8px"
       gap={"8px"}
     >
       <Grid container position={"relative"} alignItems="end" sx={{ flexGrow: 1, mb: 2 }}>

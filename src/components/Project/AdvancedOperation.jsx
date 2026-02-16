@@ -43,7 +43,6 @@ import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import TasksassignDialog from './taskassign';
-
 /* eslint-disable react-hooks/exhaustive-deps */
 const ProgressType = [
   "incomplete",
@@ -94,6 +93,7 @@ const AdvancedOperation = (props) => {
     variant: "success",
   });
   const [open, setOpen] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newDetails, setNewDetails] = useState();
   const [OpenExportProjectDialog, setOpenExportProjectDialog] = useState(false);
@@ -461,7 +461,59 @@ const AdvancedOperation = (props) => {
     if (res.ok) {
       handleok();
     } else {
-      window.alert("Invalid credentials, please try again");
+      setSnackbarInfo({
+        open: true,
+        message: "Invalid credentials, please try again",
+        variant: "error",
+      });
+    }
+  };
+  const navigate = useNavigate();
+
+  const handleDeleteProject = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const confirmDeleteProject = async () => {
+    setOpenDeleteDialog(false);
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${id}/`, {
+        method: "DELETE",
+        credentials: "include",  // sends cookies
+        mode: "cors",            // required for credentials on DELETE
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":`JWT ${localStorage.getItem('anudesh_access_token')}`
+        },
+      });
+      setLoading(false);
+
+      if (res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: "Project deleted",
+          variant: "success",
+        });
+        setTimeout(() => {
+          navigate("/projects");
+        }, 1000);
+      } else {
+        const data = await res.json();
+        setSnackbarInfo({
+          open: true,
+          message: data.detail || data.error || "Delete failed",
+          variant: "error",
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+      console.error(err);
+      setSnackbarInfo({
+        open: true,
+        message: "An error occurred while deleting the project",
+        variant: "error",
+      });
     }
   };
   return (
@@ -767,11 +819,24 @@ const AdvancedOperation = (props) => {
               />
             </Grid>
           )}
+        
+              {userRole.Admin === loggedInUserData?.role && ProjectDetails?.labeled_task_count === 0 &&  (
+                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                    }}
+                    color="error"
+                    onClick={handleDeleteProject}
+                    label="Delete Project"
+                  />
+                </Grid>
+              )}
+
+          </Grid>
         </Grid>
-        </Grid>
-
-
-
         <Dialog
           open={open}
           onClose={handleClose}
@@ -804,6 +869,26 @@ const AdvancedOperation = (props) => {
               autoFocus
             >
               Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDeleteDialog}
+          onClose={() => setOpenDeleteDialog(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Delete this project permanently?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDeleteDialog(false)} variant="outlined" color="primary">
+              Cancel
+            </Button>
+            <Button onClick={confirmDeleteProject} variant="contained" color="error" autoFocus>
+              Delete
             </Button>
           </DialogActions>
         </Dialog>

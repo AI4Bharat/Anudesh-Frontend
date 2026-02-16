@@ -605,7 +605,7 @@ const renderChatHistory = () => {
                 <Image
                   width={30}
                   height={30}
-                  src="https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp"
+                  src="https://i.imgur.com/56Ut9oz.png"
                   alt="Bot Avatar"
                   priority
                 />

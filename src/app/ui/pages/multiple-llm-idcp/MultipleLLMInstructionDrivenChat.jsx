@@ -138,6 +138,18 @@ const MultipleLLMInstructionDrivenChat = ({
     5: "Excellent",
   };
 
+  // Helper function to get model identifier (prefers model_id, falls back to model_name for compatibility)
+  const getModelId = (model) => {
+    return model?.model_id || model?.model_name;
+  };
+
+  // Helper function to check if two models match (by model_id or model_name)
+  const modelsMatch = (model1, model2) => {
+    const id1 = getModelId(model1);
+    const id2 = getModelId(model2);
+    return id1 && id2 && id1 === id2;
+  };
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -200,11 +212,12 @@ const MultipleLLMInstructionDrivenChat = ({
             }
 
             modelOutputs.push({
-              model_name: modelData?.model_name,
+              model_id: modelData?.model_id || modelData?.model_name,
+              model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
               output: response_valid
                 ? formatResponse(interaction?.output)
                 : formatResponse(
-                  `${modelData?.model_name} failed to generate a response`,
+                  `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
                 ),
               status: response_valid ? "success" : "error",
               prompt_output_pair_id: interaction?.prompt_output_pair_id,
@@ -335,7 +348,7 @@ const MultipleLLMInstructionDrivenChat = ({
         }),
       };
       console.log(body);
-      
+
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
@@ -438,11 +451,12 @@ const MultipleLLMInstructionDrivenChat = ({
                 }
 
                 modelOutputs.push({
-                  model_name: modelData?.model_name,
+                  model_id: modelData?.model_id || modelData?.model_name,
+                  model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
                   output: response_valid
                     ? formatResponse(interaction?.output)
                     : formatResponse(
-                      `${modelData?.model_name} failed to generate a response`,
+                      `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
                     ),
                   status: response_valid ? "success" : "error",
                   prompt_output_pair_id: interaction?.prompt_output_pair_id,
@@ -564,14 +578,16 @@ const MultipleLLMInstructionDrivenChat = ({
       }
 
       const modelResponses = [...newState[index].model_responses_json];
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
       let modelIndex = modelResponses.findIndex(
-        (m) => m.model_name === targetModel,
+        (m) => modelsMatch(m, { model_id: targetModelId, model_name: targetModelName }),
       );
 
       if (modelIndex === -1) {
         modelResponses.push({
-          model_name: targetModel,
+          model_id: targetModelId,
+          model_name: targetModelName,
           questions_response: [],
         });
         modelIndex = modelResponses.length - 1;
@@ -830,7 +846,9 @@ const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex =
 };
 const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
+      const targetModel = { model_id: targetModelId, model_name: targetModelName };
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
@@ -841,7 +859,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
-              if (mr.model_name === targetModel) {
+              if (modelsMatch(mr, targetModel)) {
                 return {
                   ...mr,
                   questions_response: [
@@ -873,11 +891,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               return mr;
             }),
             ...(!prev[index]?.model_responses_json?.some(
-              (mr) => mr.model_name === targetModel,
+              (mr) => modelsMatch(mr, targetModel),
             )
               ? [
                 {
-                  model_name: targetModel,
+                  model_id: targetModelId,
+                  model_name: targetModelName,
                   questions_response: [
                     {
                       question:
@@ -906,7 +925,9 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     model_idx,
   ) => {
     setEvalFormResponse((prev) => {
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
+      const targetModel = { model_id: targetModelId, model_name: targetModelName };
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
@@ -917,7 +938,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
-              if (mr.model_name === targetModel) {
+              if (modelsMatch(mr, targetModel)) {
                 return {
                   ...mr,
                   questions_response: [
@@ -954,11 +975,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               return mr;
             }),
             ...(!prev[index]?.model_responses_json?.some(
-              (mr) => mr.model_name === targetModel,
+              (mr) => modelsMatch(mr, targetModel),
             )
               ? [
                 {
-                  model_name: targetModel,
+                  model_id: targetModelId,
+                  model_name: targetModelName,
                   questions_response: [
                     {
                       question:
@@ -981,7 +1003,9 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
 
   const handleMCQ = (index, message, option, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
-      const targetModel = message?.output?.[model_idx]?.model_name;
+      const targetModelId = getModelId(message?.output?.[model_idx]);
+      const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
+      const targetModel = { model_id: targetModelId, model_name: targetModelName };
       const targetQuestion =
         ProjectDetails?.metadata_json?.questions_json?.[questionIdx]
           ?.input_question;
@@ -992,7 +1016,7 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
           prompt_output_pair_id: index,
           model_responses_json: [
             ...(prev[index]?.model_responses_json || []).map((mr) => {
-              if (mr.model_name === targetModel) {
+              if (modelsMatch(mr, targetModel)) {
                 // Update model response
                 return {
                   ...mr,
@@ -1025,11 +1049,12 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               return mr;
             }),
             ...(!prev[index]?.model_responses_json?.some(
-              (mr) => mr.model_name === targetModel,
+              (mr) => modelsMatch(mr, targetModel),
             )
               ? [
                 {
-                  model_name: targetModel,
+                  model_id: targetModelId,
+                  model_name: targetModelName,
                   questions_response: [
                     {
                       question:
@@ -1076,11 +1101,11 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
             ...(safePrev[index]?.model_responses_json || []).map(
               (existingModel) => {
                 const messageModel = models.find(
-                  (m) => m.model_name === existingModel.model_name,
+                  (m) => modelsMatch(m, existingModel),
                 );
 
                 if (messageModel) {
-                  const isSelected = existingModel.model_name === newValue;
+                  const isSelected = modelsMatch(existingModel, { model_name: newValue }) || existingModel.model_name === newValue;
 
                   return {
                     ...existingModel,
@@ -1109,13 +1134,14 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
               .filter(
                 (model) =>
                   !safePrev[index]?.model_responses_json?.some(
-                    (mr) => mr.model_name === model.model_name,
+                    (mr) => modelsMatch(mr, model),
                   ),
               )
-              .map((model) => {
-                const isSelected = model.model_name === newValue;
+              .map((model, idx) => {
+                const isSelected = modelsMatch(model, { model_name: newValue }) || model.model_name === newValue;
                 return {
-                  model_name: model.model_name,
+                  model_id: getModelId(model),
+                  model_name: model.model_name || `Model ${idx + 1}`,
                   questions_response: [
                     {
                       question:
@@ -1228,13 +1254,54 @@ console.log(evalFormResponse);
             });
         }
     };
+useEffect(() => {
+    if (chatHistory && chatHistory.length > 0) {
+        const lastIndex = chatHistory.length - 1;
+        
+        // Create new shrinked state based on current state
+        setShrinkedMessages(prev => {
+            const newState = { ...prev };
+            
+            // Ensure all previous messages are shrinked
+            chatHistory.forEach((_, idx) => {
+                if (idx < lastIndex) {
+                    newState[idx] = true; // Shrink all previous
+                } else if (idx === lastIndex) {
+                    newState[idx] = false; // Expand latest
+                }
+            });
+            
+            return newState;
+        });
+    }
+}, [chatHistory?.length]); 
 
-const renderChatHistory = () => {
+
+  const renderChatHistory = () => {
     const toggleShrink = (index) => {
-        setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
+      setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
 
+        const getResponsesPerView = () => {
+        // Check if instruction pane is visible (you'll need to determine this)
+        const isInstructionPaneVisible = false; // Replace with your actual state
+        
+        if (isInstructionPaneVisible) {
+            return 2; // Show only 2 when instruction pane is visible
+        }
+        
+        // Otherwise use default behavior
+        return 3; // Show up to 3 in full width
+    };
+
+    const responsesPerView = getResponsesPerView();
+
+    
+
     const chatElements = chatHistory?.map((message, index) => {
+            const responseCount = message?.output?.length || 0;
+
+            const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
       return (
         <Grid
           container
@@ -1315,6 +1382,11 @@ const renderChatHistory = () => {
                             minHeight: "3rem",
                             resize: "none",
                             padding: "0.5rem",
+                            // textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+
+                            // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+
+
                           }}
                         />
                       )}
@@ -1337,21 +1409,39 @@ const renderChatHistory = () => {
                         minHeight: "3rem",
                         resize: "none",
                         padding: "0.5rem",
+                        //                         textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+
+                        // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+
+
                       }}
                       rows={1}
                     />
                   )
                 ) : (
-                  <ReactMarkdown
-                    className="flex-col"
-                    children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
-                    components={{
-                      p: ({node, ...props}) => <p style={{fontSize: '0.85rem', margin: '0.3rem 0', lineHeight: '1.3'}} {...props} />,
+                  <div
+
+                    style={{
+
+                      // textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+
+                      // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
+
+                      width: "100%",
+
                     }}
-                  />
+                  >
+                    <ReactMarkdown
+                      className="flex-col"
+                      children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
+                      components={{
+                        p: ({ node, ...props }) => <p style={{ fontSize: '0.85rem', margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
+                      }}
+                    />
+                  </div>
                 )}
               </Grid>
-              
+
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
@@ -1403,6 +1493,7 @@ const renderChatHistory = () => {
             </Grid>
           </Grid>
 
+
           {!shrinkedMessages[index] && (
             <Grid
               item
@@ -1414,6 +1505,7 @@ const renderChatHistory = () => {
                 marginTop: "0.3rem",
               }}
             >
+
               <Grid
                 container
                 alignItems="start"
@@ -1423,42 +1515,45 @@ const renderChatHistory = () => {
                   marginLeft: "0px",
                 }}
               >
-                <IconButton
-                  onClick={() => scrollOutputs(index, 'left')}
-                  size="small"
-                  sx={{
-                    position: "absolute",
-                    left: "-10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 1,
-                    backgroundColor: "white",
-                    boxShadow: 1,
-                    width: "20px",
-                    height: "20px",
-                  }}
-                >
-                  <ChevronLeftIcon style={{ fontSize: "0.8rem", color: "#EE6633" }} />
-                </IconButton>
+                {/* Show left scroll arrow only when there are > 3 responses */}
+                {shouldScroll && (
+                  <IconButton
+                    onClick={() => scrollOutputs(index, 'left')}
+                    size="large"
+                    sx={{
+                      position: "absolute",
+                      left: "-10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 1,
+                      backgroundColor: "white",
+                      boxShadow: 1,
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  >
+                    <ChevronLeftIcon style={{ color: "#EE6633" }} />
+                  </IconButton>
+                )}
 
                 <Grid item xs={12} style={{ paddingTop: "0rem", paddingLeft: "0px" }}>
                   <Box
-                    id={`output-container-${index}`} 
+                    id={`output-container-${index}`}
                     sx={{
                       display: "flex",
                       flexDirection: "row",
-                      width:"auto",
-                      flexWrap: "nowrap",
-                      overflowX: "auto",
+                      flexWrap: "nowrap", // Prevent wrapping
+                      overflowX: shouldScroll ? "auto" : "hidden", // Only scroll when > 3
                       scrollbarWidth: "none",
                       "-ms-overflow-style": "none",
                       "&::-webkit-scrollbar": { display: "none" },
-                      justifyContent: "flex-start",
-                      gap: "0.4rem",
+                      justifyContent: shouldScroll ? "flex-start" : "space-between",
+                      gap: "0.8rem",
                       paddingBottom: "0.3rem",
-                      cursor: "grab",
-                      "&:active": { cursor: "grabbing" },
                       alignItems: "stretch",
+                      width: "100%",
+                      boxSizing: "border-box"
+
                     }}
                   >
                     {message?.output?.map((modelOutput, modelIdx) => (
@@ -1467,10 +1562,11 @@ const renderChatHistory = () => {
                           <Box
                             sx={{
                               border: "1px solid red",
-                              width: "auto",
+                              width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
+                              minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
+                              flexGrow: 1, 
                               height: "auto",
-                              minHeight: "60px",
                               display: "flex",
                               justifyContent: "center",
                               alignItems: "center",
@@ -1490,19 +1586,25 @@ const renderChatHistory = () => {
                           <Box
                             sx={{
                               border: "1px solid #ccc",
-                              width: "auto",
+                              // Dynamic width calculation
+                              width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
+                              minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
+                              flexGrow: 1, 
+                              fontSize: "0.85rem",
                               display: "flex",
                               flexDirection: "column",
                               borderRadius: "8px",
                               backgroundColor: "white",
                               height: "auto",
-                              minHeight: "80px",
+                              minHeight: "150px",
+                              // Ensure box doesn't overflow
+                              boxSizing: "border-box",
                             }}
                           >
                             <Box sx={{ display: "flex", justifyContent: "flex-end", padding: "2px" }}>
                               <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Expand to view full response</span>}>
-                                <IconButton 
+                                <IconButton
                                   onClick={() => handleOpenViewFullResponse(index, modelIdx)}
                                   size="small"
                                   sx={{ padding: "2px" }}
@@ -1510,18 +1612,150 @@ const renderChatHistory = () => {
                                   <OpenInFullIcon style={{ color: orange[400], fontSize: "0.9rem" }} />
                                 </IconButton>
                               </Tooltip>
+
+                              <Modal
+                                open={activeModalIdentifier === `${index}_${modelIdx}`}
+                                onClose={handleCloseViewFullResponse}
+                                closeAfterTransition
+                                BackdropComponent={Backdrop}
+                                BackdropProps={{
+                                  timeout: 500,
+                                  sx: {
+                                    backdropFilter: "blur(2px)",
+                                    backgroundColor: "rgba(0, 0, 0, 0.2)",
+                                  },
+                                }}
+                              >
+                                <Fade in={activeModalIdentifier === `${index}_${modelIdx}`}>
+                                  <Box sx={viewFullResponseModalStyle}>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        paddingBottom: "1.5rem",
+                                      }}
+                                    >
+                                      <Typography
+                                        variant="subtitle2"
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: orange[400],
+                                          fontSize: "1.25rem",
+                                        }}
+                                      >
+                                        {"Model " + (modelIdx + 1)}
+                                      </Typography>
+                                      <IconButton
+                                        onClick={handleCloseViewFullResponse}
+                                      >
+                                        <CloseIcon sx={{ color: orange[400] }} />
+                                      </IconButton>
+                                    </Box>
+                                    <Typography
+                                      component="div"
+                                      sx={{
+                                        fontSize: "1.2rem",
+                                        maxHeight: "60vh",
+                                        overflowY: "scroll",
+                                      }}
+                                    >
+
+                                      {modelOutput?.output?.map((segment, segmentIdx) =>
+                                        segment.type === "text" ? (
+                                          ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                            globalTransliteration ? (
+                                              <IndicTransliterate
+                                                key={segmentIdx}
+                                                value={segment.value}
+                                                onChangeText={(text) => handleTextChange(text, message, modelIdx, segmentIdx, "output")}
+                                                lang={targetLang}
+                                                renderComponent={(props) => (
+                                                  <textarea
+                                                    {...props}
+                                                    style={{
+                                                      fontSize: "0.8rem",
+                                                      padding: "6px",
+                                                      borderRadius: "6px",
+                                                      color: grey[900],
+                                                      background: "#ffffff",
+                                                      border: `1px solid ${grey[200]}`,
+                                                      boxShadow: `0px 1px 1px ${grey[50]}`,
+                                                      minHeight: "3rem",
+                                                      width: "100%",
+                                                      resize: "none",
+                                                    }}
+                                                  />
+                                                )}
+                                              />
+                                            ) : (
+                                              <textarea
+                                                key={segmentIdx}
+                                                value={segment.value}
+                                                onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
+                                                style={{
+                                                  fontSize: "0.8rem",
+                                                  width: "100%",
+                                                  padding: "6px",
+                                                  borderRadius: "6px",
+                                                  color: grey[900],
+                                                  background: "#ffffff",
+                                                  border: `1px solid ${grey[200]}`,
+                                                  boxShadow: `0px 1px 1px ${grey[50]}`,
+                                                  minHeight: "3rem",
+                                                  resize: "none",
+                                                }}
+                                                rows={4}
+                                              />
+                                            )
+                                          ) : (
+                                            <div
+                                              key={segmentIdx}
+                                              style={{
+                                                // textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                                // direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
+                                                width: "100%",
+                                              }}
+                                            >
+                                              <ReactMarkdown
+                                                key={segmentIdx}
+                                                children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
+                                                components={{
+                                                  p: ({ node, ...props }) => <p style={{ fontSize: '0.8rem', margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                }}
+                                              />
+                                            </div>
+                                          )
+                                        ) : (
+                                          <SyntaxHighlighter
+                                            key={segmentIdx}
+                                            language={segment.language}
+                                            style={gruvboxDark}
+                                            customStyle={{
+                                              padding: "0.5rem",
+                                              borderRadius: "4px",
+                                              fontSize: "0.8rem",
+                                              margin: "0.2rem 0"
+                                            }}
+                                          >
+                                            {segment.value}
+                                          </SyntaxHighlighter>
+                                        )
+                                      )}
+                                    </Typography>
+                                  </Box>
+                                </Fade>
+                              </Modal>
                             </Box>
-                            
                             <Box
                               sx={{
                                 flex: 1,
+                                height:"auto",
                                 overflowY: "auto",
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
                                 boxSizing: "border-box",
-                                minHeight: "40px",
-                                maxHeight: "200px",
-                              }}
+                                minHeight: "100px",                              }}
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
@@ -1543,7 +1777,7 @@ const renderChatHistory = () => {
                                               background: "#ffffff",
                                               border: `1px solid ${grey[200]}`,
                                               boxShadow: `0px 1px 1px ${grey[50]}`,
-                                              minHeight: "2.5rem",
+                                              minHeight: "3rem",
                                               width: "100%",
                                               resize: "none",
                                             }}
@@ -1564,10 +1798,10 @@ const renderChatHistory = () => {
                                           background: "#ffffff",
                                           border: `1px solid ${grey[200]}`,
                                           boxShadow: `0px 1px 1px ${grey[50]}`,
-                                          minHeight: "2.5rem",
+                                          minHeight: "3rem",
                                           resize: "none",
                                         }}
-                                        rows={1}
+                                        rows={4}
                                       />
                                     )
                                   ) : (
@@ -1597,6 +1831,7 @@ const renderChatHistory = () => {
                               )}
                             </Box>
 
+
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
                                 sx={{
@@ -1615,31 +1850,37 @@ const renderChatHistory = () => {
                       </React.Fragment>
                     ))}
                   </Box>
+
+
                 </Grid>
-                <IconButton
-                  onClick={() => scrollOutputs(index, 'right')}
-                  size="small"
-                  sx={{
-                    position: "absolute",
-                    right: "-10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    zIndex: 1,
-                    backgroundColor: "white",
-                    boxShadow: 1,
-                    width: "20px",
-                    height: "20px",
-                  }}
-                >
-                  <ChevronRightIcon style={{ fontSize: "0.8rem", color: "#EE6633" }} />
-                </IconButton>
+
+                {/* Show right scroll arrow only when > 3 responses */}
+                {shouldScroll && (
+                  <IconButton
+                    onClick={() => scrollOutputs(index, 'right')}
+                    size="large"
+                    sx={{
+                      position: "absolute",
+                      right: "-10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 1,
+                      backgroundColor: "white",
+                      boxShadow: 1,
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  >
+                    <ChevronRightIcon style={{ color: "#EE6633" }} />
+                  </IconButton>
+                )}
 
               </Grid>
             </Grid>
           )}
 
           {/* Evaluation form section - also reduced */}
-          {ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
+          {!shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
             <Grid
               item
               sx={{
@@ -1648,7 +1889,7 @@ const renderChatHistory = () => {
                 width: "100%",
                 backgroundColor: "rgba(247, 184, 171, 0.2)",
                 borderRadius: "8px",
-                marginBottom: "1.5rem",
+                marginBottom: "0.5rem",
               }}
             >
               <Box sx={{ maxHeight: "14rem" }}>
@@ -1659,7 +1900,7 @@ const renderChatHistory = () => {
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
                   {/* Reduced font sizes in evaluation form as well */}
-                  {!ProjectDetails?.metadata_json?.single_model_response? (
+                  {!ProjectDetails?.metadata_json?.single_model_response ? (
 
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
@@ -1684,7 +1925,7 @@ const renderChatHistory = () => {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        fontSize:"0.85rem"
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       <span>{option}:</span>
@@ -1789,7 +2030,7 @@ const renderChatHistory = () => {
                                 {question.input_question
                                   .split("<blank>")
                                   .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`}style={{
+                                    <span key={`${questionIdx}-${index}`} style={{
                                       fontSize: "0.9rem",
                                     }}>
                                       {part}
@@ -1804,7 +2045,7 @@ const renderChatHistory = () => {
                                               width: "100px",
                                               margin: "0 4px",
                                               verticalAlign: "middle",
-                                              fontSize:"0.85rem"
+                                              fontSize: "0.85rem"
                                             }}
                                           >
                                             &nbsp;
@@ -1831,7 +2072,7 @@ const renderChatHistory = () => {
                                   justifyContent: "space-between",
                                   alignItems: "center",
                                   flexWrap: "wrap",
-                                  fontSize:"0.85rem"
+                                  fontSize: "0.85rem"
                                 }}
                               >
                                 {message?.output?.map((response, outputIdx) => (
@@ -1849,7 +2090,7 @@ const renderChatHistory = () => {
                                         color: "#6C5F5B",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
-                                        fontSize:"0.85rem"
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {"Model " + (outputIdx + 1)}
@@ -1869,8 +2110,7 @@ const renderChatHistory = () => {
                                             ]?.model_responses_json
                                               ?.find(
                                                 (m) =>
-                                                  m.model_name ===
-                                                  response.model_name,
+                                                  modelsMatch(m, response),
                                               )
                                               ?.questions_response?.find(
                                                 (q) =>
@@ -1894,7 +2134,7 @@ const renderChatHistory = () => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
-                                            fontSize:"0.85rem"
+                                            fontSize: "0.85rem"
                                           }}
                                           required
                                         />
@@ -1912,8 +2152,8 @@ const renderChatHistory = () => {
                             >
                               <div className={classes.inputQuestion}>
                                 <span style={{
-                                    fontSize: "0.9rem",
-                                  }}>
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                 </span>
                                 <span
@@ -1951,7 +2191,7 @@ const renderChatHistory = () => {
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
                                             color: "#6C5F5B",
-                                            fontSize:"0.85rem"
+                                            fontSize: "0.85rem"
                                           }}
                                         >
                                           {response?.model_name}
@@ -1971,8 +2211,7 @@ const renderChatHistory = () => {
                                               ]?.model_responses_json
                                                 ?.find(
                                                   (m) =>
-                                                    m.model_name ===
-                                                    response.model_name,
+                                                    modelsMatch(m, response),
                                                 )
                                                 ?.questions_response?.find(
                                                   (q) =>
@@ -2027,8 +2266,8 @@ const renderChatHistory = () => {
                               }}
                             >
                               <div className={classes.inputQuestion} style={{
-                                    fontSize: "0.9rem",
-                                  }}>
+                                fontSize: "0.9rem",
+                              }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
@@ -2058,8 +2297,8 @@ const renderChatHistory = () => {
                                       }}
                                     >
                                       <span style={{
-                                    fontSize: "0.85rem",
-                                  }}>{option} :</span>{" "}
+                                        fontSize: "0.85rem",
+                                      }}>{option} :</span>{" "}
                                       <div
                                         style={{
                                           display: "flex",
@@ -2091,8 +2330,7 @@ const renderChatHistory = () => {
                                                     ]?.model_responses_json
                                                       ?.find(
                                                         (m) =>
-                                                          m.model_name ===
-                                                          response.model_name,
+                                                          modelsMatch(m, response),
                                                       )
                                                       ?.questions_response?.find(
                                                         (q) =>
@@ -2125,7 +2363,7 @@ const renderChatHistory = () => {
                                                         variant="subtitle2"
                                                         sx={{
                                                           color: "#6C5F5B",
-                                                          fontSize:"0.85rem"
+                                                          fontSize: "0.85rem"
                                                         }}
                                                       >
                                                         {response?.model_name}
@@ -2152,8 +2390,8 @@ const renderChatHistory = () => {
                                 }}
                               >
                                 <div className={classes.inputQuestion} style={{
-                                      fontSize: "0.9rem",
-                                    }}>
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
@@ -2182,8 +2420,8 @@ const renderChatHistory = () => {
                                         }}
                                       >
                                         <span style={{
-                                      fontSize: "0.85rem",
-                                    }}>{option} :</span>{" "}
+                                          fontSize: "0.85rem",
+                                        }}>{option} :</span>{" "}
                                         <div
                                           style={{
                                             display: "flex",
@@ -2225,8 +2463,7 @@ const renderChatHistory = () => {
                                                             ]?.model_responses_json
                                                               ?.find(
                                                                 (m) =>
-                                                                  m.model_name ===
-                                                                  response.model_name,
+                                                                  modelsMatch(m, response),
                                                               )
                                                               ?.questions_response?.find(
                                                                 (q) =>
@@ -2249,7 +2486,7 @@ const renderChatHistory = () => {
                                                           variant="subtitle2"
                                                           sx={{
                                                             color: "#6C5F5B",
-                                                            fontSize:"0.85rem"
+                                                            fontSize: "0.85rem"
                                                           }}
                                                         >
                                                           {response?.model_name}
@@ -2269,7 +2506,7 @@ const renderChatHistory = () => {
                               </div>
                             )}
                         </div>
-                      ))) : (<>{ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
+                      ))) : (<>{!shrinkedMessages[index] && ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
                         const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
                         switch (question?.question_type) {
                           case "fill_in_blanks":
@@ -2287,12 +2524,12 @@ const renderChatHistory = () => {
                                       {index < splitQuestion.length - 1 && (
                                         <input
                                           type="text"
-  value={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.[index] || ""
-}
-                                         onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
+                                          value={
+                                            evalFormResponse?.[promptOutputPairId]
+                                              ?.model_responses_json?.[questionIdx]
+                                              ?.response?.[index] || ""
+                                          }
+                                          onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
                                           style={{
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
@@ -2352,13 +2589,13 @@ const renderChatHistory = () => {
                                   >
                                     <Rating
                                       name={`rating`}
-value={
-  Number(
-    evalFormResponse?.[promptOutputPairId]
-      ?.model_responses_json?.[questionIdx]
-      ?.response?.[0] || 0
-  )
-}
+                                      value={
+                                        Number(
+                                          evalFormResponse?.[promptOutputPairId]
+                                            ?.model_responses_json?.[questionIdx]
+                                            ?.response?.[0] || 0
+                                        )
+                                      }
                                       getLabelText={getLabelText}
                                       onChange={(event, newValue) => {
                                         handleSingleRating(newValue, questionIdx, promptOutputPairId);
@@ -2395,7 +2632,8 @@ value={
                                       sx={{
                                         ml: 2,
                                         color: "#EE6633",
-                                      fontSize:"0.85rem"}}
+                                        fontSize: "0.85rem"
+                                      }}
                                     >
                                       {(() => {
                                         const currentHover = hover[questionIdx] || null;
@@ -2448,7 +2686,7 @@ value={
                                   <FormGroup>
                                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                                       {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%" ,fontSize:"0.85rem"}} key={idx}>
+                                        <div style={{ width: "50%", fontSize: "0.85rem" }} key={idx}>
                                           <FormControlLabel
                                             key={idx}
                                             control={
@@ -2461,11 +2699,11 @@ value={
                                                     promptOutputPairId
                                                   )
                                                 }
-checked={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.includes(option) || false
-}
+                                                checked={
+                                                  evalFormResponse?.[promptOutputPairId]
+                                                    ?.model_responses_json?.[questionIdx]
+                                                    ?.response?.includes(option) || false
+                                                }
 
                                               />
                                             }
@@ -2502,11 +2740,11 @@ checked={
                                   }}
                                 >
                                   <RadioGroup
-value={
-  evalFormResponse?.[promptOutputPairId]
-    ?.model_responses_json?.[questionIdx]
-    ?.response?.[0] || ""
-}
+                                    value={
+                                      evalFormResponse?.[promptOutputPairId]
+                                        ?.model_responses_json?.[questionIdx]
+                                        ?.response?.[0] || ""
+                                    }
 
                                     onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
                                   >
@@ -2515,7 +2753,7 @@ value={
                                         display: "flex",
                                         flexWrap: "wrap",
                                         gap: "16px",
-                                        fontSize:"0.85rem"
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {question?.input_selections_list?.map(
@@ -2652,42 +2890,56 @@ value={
   if (!isMounted) {
     return null;
   }
-
 return (
   <>
     {renderSnackBar()}
     <Box
       sx={{
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
+        display: "grid",
+        gridTemplateColumns: { 
+          xs: "1fr", 
+          md: isInstructionExpanded ? "30% 1fr" : "40px 1fr" 
+        },
+        gridTemplateRows: { 
+          xs: isInstructionExpanded ? "40vh 1fr" : "60px 1fr", 
+          md: "1fr" 
+        },
+        gridTemplateAreas: { 
+          xs: '"instruction" "chat"',
+          md: '"instruction chat"'
+        },
         width: "100%",
-        height: "calc(100vh - 120px)",
+        height: "calc(100vh - 80px)",
         overflow: "hidden",
+        position: "relative",
+        backgroundColor: "#fff",
       }}
     >
       {/* Instruction Panel - Left Side */}
       <Box
         sx={{
-          width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
-          height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
-          maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
+          gridArea: "instruction",
+          width: "100%",
+          height: { xs: isInstructionExpanded ? "40vh" : "60px", md: "100%" },
           transition: "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          paddingBottom: 0,
+          paddingTop: "0.3rem",
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
           borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
           backgroundColor: "#fafafa",
-          overflow: "auto",
+          overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          flexShrink: 0,
         }}
       >
+        {/* Header - Always visible */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            marginBottom: isInstructionExpanded ? "0.5rem" : 0,
             padding: "0.5rem",
             backgroundColor: "rgba(247, 184, 171, 0.2)",
             borderRadius: "8px",
@@ -2703,7 +2955,7 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                fontSize: { xs: "1rem", md: "1.1rem" },
+                fontSize: "1rem"
               }}
             >
               {translate("typography.instructions")}
@@ -2729,108 +2981,87 @@ return (
           </Tooltip>
         </Box>
 
+        {/* Scrollable Content - Only visible when expanded */}
         {isInstructionExpanded && (
-          <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
-            {/* Main Instructions */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
-                {info.instruction_data}
-              </Typography>
-            </Box>
-
-            {/* Metadata Information - Now directly in the panel */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
-              {/* Hint Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.hint")}
+          <Box sx={{ 
+            flex: 1,
+            overflow: "auto",
+            pr: "0.5rem",
+            pb: "10px",
+          }}>
+            <Box sx={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "0.75rem",
+            }}>
+              {/* Main Instructions */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "6px", padding: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                <Typography paragraph sx={{ fontSize: "0.85rem", lineHeight: "1.4", color: "#333", m: 0 }}>
+                  {info.instruction_data}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
+              </Box>
+
+              {/* Metadata Information */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "6px", padding: "0.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                {/* Hint Section */}
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
+                    {translate("modal.hint")}
+                  </Typography>
+                  <Typography variant="body2" sx={{
+                    fontSize: "0.8rem",
+                    lineHeight: "1.3",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
+                    padding: "0.5rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #F18359",
-                  }}
-                >
-                  {info.hint || "No hints available"}
-                </Typography>
-              </Box>
+                  }}>
+                    {info.hint || "No hints available"}
+                  </Typography>
+                </Box>
 
-              {/* Examples Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.examples")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
+                {/* Examples Section */}
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
+                    {translate("modal.examples")}
+                  </Typography>
+                  <Typography variant="body2" sx={{
+                    fontSize: "0.8rem",
+                    lineHeight: "1.3",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
+                    padding: "0.5rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #4CAF50",
-                  }}
-                >
-                  {info.examples || "No examples available"}
-                </Typography>
-              </Box>
+                  }}>
+                    {info.examples || "No examples available"}
+                  </Typography>
+                </Box>
 
-              {/* Additional Metadata Information */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    mb: 1,
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {info.meta_info_language && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
-                        Language: {info.meta_info_language}
-                      </Typography>
-                    </Box>
-                  )}
-                  {taskId && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
-                        Task ID: {taskId}
-                      </Typography>
-                    </Box>
-                  )}
+                {/* Additional Metadata */}
+                <Box>
+                  <Typography sx={{ color: "#F18359", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5 }}>
+                    Additional Information
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                    {info.meta_info_language && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <CodeIcon sx={{ fontSize: "1rem" }} color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", color: "#666" }}>
+                          Language: {info.meta_info_language}
+                        </Typography>
+                      </Box>
+                    )}
+                    {taskId && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <AssignmentIcon sx={{ fontSize: "1rem" }} color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.75rem", color: "#666" }}>
+                          Task ID: {taskId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -2841,19 +3072,24 @@ return (
       {/* Chat Section - Right Side */}
       <Box
         sx={{
-          flex: 1,
+          gridArea: "chat",
           display: "flex",
           flexDirection: "column",
           height: "100%",
           overflow: "hidden",
           minWidth: 0,
+          backgroundColor: "#fff",
+          position: "relative",
         }}
       >
+        {/* Chat Messages */}
         <Box
           sx={{
             flex: 1,
             overflowY: "auto",
-            padding: "1rem",
+            px: { xs: "0.75rem", md: "1rem" },
+            py: { xs: "0.75rem", md: "1rem" },
+            pb: "10px",
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -2862,46 +3098,82 @@ return (
             minHeight: 0,
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
+          <Box sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "100%",
+            "& > *": {
+              maxWidth: "100%",
+              width: "100%"
+            }
+          }}>
             {showChatContainer ? renderChatHistory() : null}
           </Box>
-          <Box ref={bottomRef} />
+          <Box ref={bottomRef} sx={{ height: "1px" }} />
         </Box>
       </Box>
     </Box>
 
-    {/* Textarea placed outside the main container */}
+    {/* Full Width Textarea - Covers Entire Width */}
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
-          padding: "1rem",
-          backgroundColor: "white",
-          borderTop: "1px solid #e0e0e0",
-          width: "100%",
-          boxSizing: "border-box",
-          position: "sticky",
+          position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 10,
+          width: "100vw", // Full viewport width
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+          py: "0.5rem",
+          px: { xs: "0.5rem", md: 0 }, // Remove horizontal padding on desktop
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1300,
+          height: "70px",
         }}
       >
-        <Textarea
-          handleButtonClick={handleButtonClick}
-          handleOnchange={handleOnchange}
-          size={12}
-          sx={{ width: "100%", margin: 0, padding: 0 }}
-          class_name={"w-full"}
-          loading={loading}
-          inputValue={inputValue}
-          overrideGT={true}
-          task_id={taskId}
-          script={info.meta_info_language}
-        />
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100%", // Always full width
+            mx: 0, // No margin
+            px: { xs: "0.5rem", md: "1rem" }, // Add padding directly to container
+          }}
+        >
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+            size={10}
+            sx={{ 
+              width: "100%", 
+              margin: 0, 
+              padding: 0,
+              "& .MuiInputBase-root": {
+                height: "50px",
+                width: "100%",
+              },
+              "& textarea": {
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                padding: "8px 12px",
+                width: "100%",
+              }
+            }}
+            class_name={"w-full"}
+            loading={loading}
+            inputValue={inputValue}
+            overrideGT={true}
+            task_id={taskId}
+            script={info.meta_info_language}
+          />
+        </Box>
       </Box>
     ) : null}
   </>
 );
 };
-
 export default MultipleLLMInstructionDrivenChat;
