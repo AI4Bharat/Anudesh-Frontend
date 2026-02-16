@@ -1,7 +1,5 @@
-import {
-  AppBar, Avatar, Box, Checkbox, Divider, FormControlLabel, Grid, IconButton, Menu, MenuItem, Toolbar, Tooltip,
-  Typography, Popover, Badge, Stack, Tabs, Tab, Switch, Select, InputLabel, FormControl, Dialog, DialogTitle, DialogContent, DialogActions, Button
-} from "@mui/material";
+import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu,MenuItem,Toolbar,Tooltip,
+  Typography,Popover,Badge,Stack,Tabs,Tab,Switch,Select,InputLabel,FormControl,Dialog,DialogTitle,DialogContent ,DialogActions ,Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -25,7 +23,6 @@ import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import { Link, NavLink } from "react-router-dom";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
 import NotificationAPI from "@/app/actions/api/Notification/Notification";
-import FetchunreadcountAPI from "@/app/actions/api/Notification/notification_unseen";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
@@ -37,8 +34,6 @@ import APITransport from "@/app/actions/apitransport/apitransport";
 import NMTModalContent from "./NMTModalContent";
 
 const Header = () => {
-  const [isNotifOpen, setIsNotifOpen] = useState(false); // ✅ control fetching
-  const [unreadCount, setUnreadCount] = useState(0);
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
 
@@ -139,68 +134,6 @@ const translationServices = {
         console.error("Error fetching notifications:", error);
       });
   };
-  const fetchUnreadCount = async () => {
-    try {
-      let apiObj = new NotificationAPI();
-      const endpoint = `${apiObj.apiEndPoint()}unread`;
-      const response = await fetch(endpoint, {
-        method: "GET",
-        headers: apiObj.getHeaders().headers,
-      });
-      if (!response.ok) {
-        throw new Error(`Error fetching unread notifications: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      // Assuming the response contains a total_count field
-      setNotificationCount(data.total_count || 0);
-    } catch (error) {
-      console.error("Error fetching unread notifications:", error);
-      setNotificationCount(0);
-    }
-  };
-  // Fetch unread notifications on mount
-  // ✅ only call when notif is opened + unread changes
-  useEffect(() => {
-    if (isNotifOpen) {
-      fetchNotifications();
-    }
-  }, [unread, isNotifOpen]);
-
-
-  const FetchUnreadcount = () => {
-    let apiObj = new FetchunreadcountAPI();
-    const endpoint = apiObj.apiEndPoint();
-
-    fetch(endpoint, {
-      method: "GET",
-      headers: apiObj.getHeaders().headers,
-    })
-      .then(async (response) => {
-        if (response.ok) {
-          const data = await response.json();
-
-          // API directly returns a number (85)
-          setUnreadCount(Number(data));
-        } else {
-          console.error("Error fetching unread count:", response.status, response.statusText);
-          setUnreadCount(0);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching unread count:", error);
-        setUnreadCount(0);
-      });
-  };
-
-  useEffect(() => {
-    FetchUnreadcount();
-    const interval = setInterval(() => {
-      FetchUnreadcount();
-    }, 30000); // every 30 seconds
-
-    return () => clearInterval(interval); // cleanup on unmount
-
-  }, []);
 
 
   const markAsRead = (notificationId) => {
@@ -226,9 +159,6 @@ const translationServices = {
     markAsRead(notificationId);
   };
 
-  // useEffect(() => {
-  //   fetchNotifications();
-  // }, [unread,selectedNotificationId]);
 
   useEffect(() => {
     getLoggedInUserData();
@@ -309,14 +239,11 @@ const translationServices = {
   };
 
   const handleOpenNotification = (event) => {
-    event.stopPropagation();
     setAnchorElNotification(event.currentTarget);
-    setIsNotifOpen(true); // ✅ enable fetching
   };
 
   const handleCloseNotification = () => {
     setAnchorElNotification(null);
-    setIsNotifOpen(false); // optional: stop fetching when closed
   };
   const [isRtl, setIsRtl] = useState(false);
 
@@ -331,7 +258,7 @@ const translationServices = {
   const handleRTLChange = (event) => {
     if (typeof window !== "undefined") {
       const value = event.target.checked;
-      setIsRtl(value);
+  setIsRtl(value);
 
       let style;
       if (event.target.checked) {
@@ -379,7 +306,6 @@ const translationServices = {
   //   setunread(newValue === 0 ? "False" : null);
   //   fetchNotifications();
   // };
-
 
   const handleTagsChange = (event) => {
     if (typeof window !== "undefined") {
@@ -452,7 +378,7 @@ const translationServices = {
               Projects
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false?<Typography variant="body1">
+          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -463,17 +389,6 @@ const translationServices = {
               Analytics
             </NavLink>
           </Typography>:null}
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -516,7 +431,7 @@ const translationServices = {
               Datasets
             </NavLink>
           </Typography>
-          {loggedInUserData?.guest_user == false ? <Typography variant="body1">
+          {loggedInUserData?.guest_user==false?<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -527,17 +442,7 @@ const translationServices = {
               Analytics
             </NavLink>
           </Typography>:null}
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
+          
         </Grid>
       );
     } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
@@ -673,9 +578,9 @@ const translationServices = {
   const tabs = [
     // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
     loggedInUserData?.guest_user &&
-      (userRole.Annotator === loggedInUserData?.role ||
-        userRole.Reviewer === loggedInUserData?.role ||
-        userRole.SuperChecker === loggedInUserData?.role) ? (
+    (userRole.Annotator === loggedInUserData?.role ||
+      userRole.Reviewer === loggedInUserData?.role ||
+      userRole.SuperChecker === loggedInUserData?.role) ? (
       <Typography key="guest" variant="body1">
         <NavLink
           to="/guest_workspaces"
@@ -690,8 +595,8 @@ const translationServices = {
     ) : null,
 
     // Organization tab - only shown for Organization Owners and Admins
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-      userRole.Admin === loggedInUserData?.role ? (
+  userRole.OrganizationOwner === loggedInUserData?.role ||
+  userRole.Admin === loggedInUserData?.role ? (
       <Typography key="organization" variant="body1">
         <NavLink
           to={
@@ -739,8 +644,8 @@ const translationServices = {
 
     // Datasets tab - only shown for Workspace Managers, Organization Owners, and Admins
     userRole.WorkspaceManager === loggedInUserData?.role ||
-      userRole.OrganizationOwner === loggedInUserData?.role ||
-      userRole.Admin === loggedInUserData?.role ? (
+    userRole.OrganizationOwner === loggedInUserData?.role ||
+    userRole.Admin === loggedInUserData?.role ? (
       <Typography key="datasets" variant="body1">
         <NavLink
           to="/datasets"
@@ -998,9 +903,7 @@ const translationServices = {
                       }
                     >
                       <IconButton onClick={handleOpenNotification}>
-                        <Badge badgeContent={
-                          unreadCount > 0 ? unreadCount : null
-                          } color="primary">
+                        <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
                           <NotificationsIcon
                             color="primary.dark"
                             fontSize="large"
@@ -1308,8 +1211,8 @@ const translationServices = {
                   >
                     <Typography variant="h4">Notifications</Typography>
                     {Notification &&
-                      Notification?.length > 0 &&
-                      unseenNotifications?.length > 0 ? (
+                    Notification?.length > 0 &&
+                    unseenNotifications?.length > 0 ? (
                       <Tooltip title="Mark all as read">
                         <IconButton
                           aria-label="More"
@@ -1385,7 +1288,8 @@ const translationServices = {
                                 variant="subtitle2"
                                 fontFamily="Roboto, sans-serif"
                                 fontWeight="bold"
-                              >{`ID: ${notification?.title?.split("\n")[0]
+                              >{`ID: ${
+                                notification?.title?.split("\n")[0]
                                 }`}</Typography>
                               <Typography
                                 style={{ paddingLeft: "10px" }}
@@ -1434,7 +1338,7 @@ const translationServices = {
                             {index !== Notification?.length - 1 && <Divider />}
                           </Link>
                           {notification?.seen_json == null ||
-                            !notification?.seen_json[loggedInUserData.id] ? (
+                          !notification?.seen_json[loggedInUserData.id] ? (
                             <Tooltip title="Mark as read">
                               <IconButton
                                 aria-label="More"
@@ -1508,7 +1412,7 @@ const translationServices = {
         leftTranslate={"-50"}
         isTransliteration={true}
         style={{ cursor: "pointer" }}
-      // sx={{width: "400px"}}
+    // sx={{width: "400px"}}
       >
         <Transliteration
           onCancelTransliteration={() => handleTransliterationModelClose}
