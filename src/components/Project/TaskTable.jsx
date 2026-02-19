@@ -760,8 +760,8 @@ const TaskTable = (props) => {
             onClick={
               isArchived
                 ? (e) => {
-                   e.preventDefault();
-                   e.stopPropagation();
+                    e.preventDefault();
+                    e.stopPropagation();
                  }
                 : undefined
             }
