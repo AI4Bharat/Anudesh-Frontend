@@ -57,6 +57,7 @@ import { parse, format } from "date-fns";
 import TimeRangeFilter from "./TimeRangeFilter";
 import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
+import configs from "../../config/config";
 const defaultColumns = [
   "id",
   "annotator_mail",
@@ -258,6 +259,7 @@ const TaskTable = (props) => {
       : selectedFilters.review_status,
   );
   const [pullDisabled, setPullDisabled] = useState("");
+  const [noPreferredAnnotators, setNoPreferredAnnotators] = useState(false);
   const [deallocateDisabled, setDeallocateDisabled] = useState("");
   const apiLoading = useSelector(
     (state) => state.GetTasksByProjectId.status !== "succeeded",
@@ -385,6 +387,7 @@ const TaskTable = (props) => {
     }
     getTaskListData();
     setLoading(false);
+    window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
   };
 
   const unassignTasks = async () => {
@@ -527,7 +530,7 @@ const TaskTable = (props) => {
     setCalenderAnchor(null);
   };
 
-  const handleDateTimeFormat = () =>{
+  const handleDateTimeFormat = () => {
     SetDateTimeFormat(!dateTimeFormat);
     setCalenderAnchor(null);
   }
@@ -665,7 +668,7 @@ const TaskTable = (props) => {
 
   const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
     if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
-    
+
     const user = getProjectUsers.find(u => u.email === annotatorEmail);
     if (user && user.first_name && user.last_name && showAnnotatorsNames) {
       return `${user.first_name} ${user.last_name}`;
@@ -757,9 +760,9 @@ const TaskTable = (props) => {
             onClick={
               isArchived
                 ? (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
                 : undefined
             }
           >
@@ -829,7 +832,7 @@ const TaskTable = (props) => {
       } else {
         metaInfoMapping.annotator_mail = "Annotator Email";
       }
-      
+
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
@@ -871,7 +874,7 @@ const TaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [ taskList, ProjectDetails, expandedRow, dateTimeFormat]);
+  }, [taskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
@@ -903,6 +906,89 @@ const TaskTable = (props) => {
     }
   }, [ProjectDetails.labeled_task_count]);
 
+  // Check if any annotator with unassigned tasks is selected as preferred
+  useEffect(() => {
+    const checkPreferredAnnotators = async () => {
+      if (props.type !== "review") {
+        setNoPreferredAnnotators(false);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("anudesh_access_token");
+
+        const [profileRes, summaryRes] = await Promise.all([
+          fetch(`${configs.BASE_URL_AUTO}/users/account/me/fetch/`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${token}`,
+            },
+          }),
+          fetch(
+            `${configs.BASE_URL_AUTO}/task/unassigned-review-summary/?project_id=${id}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${token}`,
+              },
+            }
+          ),
+        ]);
+
+        const userData = await profileRes.json();
+        const summaryData = await summaryRes.json();
+
+        const projectPrefs = userData?.preferred_task_by_json?.preferred_annotators;
+        const isNewProject = !projectPrefs || !(id in projectPrefs);
+        const preferredAnnotators = projectPrefs?.[id] || [];
+
+        const annotatorsWithTasks = (Array.isArray(summaryData) ? summaryData : [])
+          .filter((m) => (m.unassigned_count ?? 0) > 0)
+          .map((m) => m.annotator_id);
+
+        // New project: auto-select all annotators with tasks as preferred
+        if (isNewProject && annotatorsWithTasks.length > 0) {
+          try {
+            await fetch(
+              `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `JWT ${token}`,
+                },
+                body: JSON.stringify({
+                  project_id: id,
+                  annotator_ids: annotatorsWithTasks,
+                }),
+              }
+            );
+          } catch (_) { }
+          setNoPreferredAnnotators(false);
+          return;
+        }
+
+        const hasMatchingPreferred = annotatorsWithTasks.some((aId) =>
+          preferredAnnotators.includes(aId)
+        );
+
+        if (annotatorsWithTasks.length > 0 && !hasMatchingPreferred) {
+          setNoPreferredAnnotators(true);
+        } else {
+          setNoPreferredAnnotators(false);
+        }
+      } catch (_) {
+        setNoPreferredAnnotators(false);
+      }
+    };
+
+    checkPreferredAnnotators();
+
+    // Re-check when preferred annotators are saved from the dialog
+    window.addEventListener("preferredAnnotatorsUpdated", checkPreferredAnnotators);
+    return () => window.removeEventListener("preferredAnnotatorsUpdated", checkPreferredAnnotators);
+  }, [props.type, id, ProjectDetails.labeled_task_count]);
+
   useEffect(() => {
     if (ProjectDetails) {
       if (
@@ -911,7 +997,10 @@ const TaskTable = (props) => {
         ProjectDetails.is_archived
       )
         setPullDisabled("No more unassigned tasks in this project");
-      else if (pullDisabled === "No more unassigned tasks in this project")
+      else if (
+        props.type === "annotation" &&
+        pullDisabled === "No more unassigned tasks in this project"
+      )
         setPullDisabled("");
 
       ProjectDetails.frozen_users?.forEach((user) => {
@@ -1533,7 +1622,7 @@ const TaskTable = (props) => {
                   : 4)
               }
             >
-              <Tooltip title={pullDisabled}>
+              <Tooltip title={noPreferredAnnotators ? "Please select preferred annotators before pulling tasks" : pullDisabled}>
                 <Box>
                   <CustomButton
                     sx={{
@@ -1543,7 +1632,7 @@ const TaskTable = (props) => {
                       margin: "auto",
                     }}
                     label={"Pull New Batch"}
-                    disabled={pullDisabled}
+                    disabled={pullDisabled || noPreferredAnnotators}
                     onClick={fetchNewTasks}
                   />
                 </Box>
@@ -1667,15 +1756,15 @@ const TaskTable = (props) => {
       )}
       {calenderOpen && (
         <TimeRangeFilter
-        calenderOpen={calenderOpen}
-        calenderAnchor={calenderAnchor}
-        handleCalenderClose={() => setCalenderAnchor(null)}
-        selectRange={selectRange}
-        handleRangeChange={handleRangeChange}
-        dateTimeFormat={dateTimeFormat}
-        handleDateTimeFormat={handleDateTimeFormat}
-        clearFilter={clearFilter}
-        applyFilter={applyFilter}
+          calenderOpen={calenderOpen}
+          calenderAnchor={calenderAnchor}
+          handleCalenderClose={() => setCalenderAnchor(null)}
+          selectRange={selectRange}
+          handleRangeChange={handleRangeChange}
+          dateTimeFormat={dateTimeFormat}
+          handleDateTimeFormat={handleDateTimeFormat}
+          clearFilter={clearFilter}
+          applyFilter={applyFilter}
         />
       )}
 
