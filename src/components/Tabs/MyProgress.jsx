@@ -644,28 +644,29 @@ const MyProgress = () => {
           </Grid>
         )}
         {UserAnalytics?.length > 0 ? (
-          <ThemeProvider theme={tableTheme}>
-            <MUIDataTable
-              key={`table-${displayWidth}`}
-              title={
-                radiobutton === "AnnotatationReports"
-                  ? "Annotation Report"
-                  : radiobutton === "ReviewerReports"
-                    ? "Reviewer Report"
-                    : "Super Checker Report"
-              }
-              data={reportData}
-              columns={columns.filter((col) =>
-                selectedColumns.includes(col.name),
-              )}
-              options={{
-                ...tableOptions,
-                tableBodyHeight: `${
-                  typeof window !== "undefined" ? window.innerHeight - 200 : 400
-                }px`,
-              }}
-            />
-          </ThemeProvider>
+          <Box sx={{ width: "100%", overflowX: "auto" }} >
+            <ThemeProvider theme={tableTheme}>
+              <MUIDataTable
+                key={`table-${displayWidth}`}
+                title={
+                  radiobutton === "AnnotatationReports"
+                    ? "Annotation Report"
+                    : radiobutton === "ReviewerReports"
+                      ? "Reviewer Report"
+                      : "Super Checker Report"
+                }
+                data={reportData}
+                columns={columns.filter((col) =>
+                  selectedColumns.includes(col.name),
+                )}
+                options={{
+                  ...tableOptions,
+                  tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
+                    }px`,
+                }}
+              />
+            </ThemeProvider>
+          </Box>
         ) : (
           <Grid container justifyContent="center">
             <Grid item sx={{ mt: "10%" }}>
