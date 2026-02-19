@@ -691,6 +691,8 @@ const TaskTable = (props) => {
       }),
     );
   }, [selectedFilters, pull, rejected, totalTaskCount]);
+
+
   const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
     if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
 
