@@ -249,11 +249,30 @@ const grey = {
 };
 
 const formatPrompt = (prompt) => {
+  // Split into lines
   const lines = prompt.split('\n');
-  const markdownString = lines.join('  \n');
-  return markdownString;
-}
 
+  // Process lines: trim, remove excessive empty lines, keep single spacing between sections
+  const cleanedLines = [];
+  let emptyLineCount = 0;
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed === '') {
+      emptyLineCount++;
+      // allow max 1 empty line in a row
+      if (emptyLineCount <= 1) {
+        cleanedLines.push('');
+      }
+    } else {
+      emptyLineCount = 0;
+      cleanedLines.push(trimmed);
+    }
+  });
+
+  // Join lines with a single line break
+  return cleanedLines.join('\n');
+};
 function GuestChatPage() {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -336,21 +355,23 @@ function GuestChatPage() {
         elevation={0}
         variant="outlined"
         sx={{
-          p: 2,
+          p: 1.5,
           borderRadius: 4,
           borderColor: '#e0e0e0',
           height: '100%',
+          mb:1,
           backgroundColor: 'background.paper',
+          wordBreak: 'break-word',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: '6px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.2, gap: '6px' }}>
           {model.icon}
           <Typography variant="subtitle2" fontWeight="bold" color="text.primary">{model.name}</Typography>
         </Box>
         {content.map((res, resIndex) => (
           <>
             {res.type === "text" ?
-              <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap',lineHeight: 1.2, }}>
                 <ReactMarkdown>{formatPrompt(res.value)}</ReactMarkdown>
               </Typography>
               : res.type === "code" ?
