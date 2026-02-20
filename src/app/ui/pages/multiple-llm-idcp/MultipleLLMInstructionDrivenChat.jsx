@@ -1275,6 +1275,25 @@ console.log(evalFormResponse);
             }}
           >
             <Grid container alignItems="center" spacing={2}>
+            <Grid item>
+              <div
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  backgroundColor: "#EE6633",
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.75rem",
+                  fontWeight: "bold",
+                  marginRight: "0.5rem",
+                }}
+              >
+                {index + 1}
+              </div>
+            </Grid>
               <Grid item>
                 <Avatar
                   alt="user_profile_pic"
