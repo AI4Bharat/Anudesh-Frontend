@@ -186,7 +186,25 @@ const ReviewTasksTable = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Select</TableCell>
+                  <TableCell>
+                    <Checkbox
+                      checked={
+                        members.length > 0 &&
+                        members.every((m) => annotatorSelection.includes(m.annotator_id))
+                      }
+                      indeterminate={
+                        members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
+                        !members.every((m) => annotatorSelection.includes(m.annotator_id))
+                      }
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAnnotatorSelection(members.map((m) => m.annotator_id));
+                        } else {
+                          setAnnotatorSelection([]);
+                        }
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>Annotator</TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
