@@ -212,17 +212,14 @@ const ReviewTasksTable = () => {
 
               <TableBody>
                 {members.map((m, index) => {
-                  const hasNoTasks = (m.unassigned_count ?? 0) === 0;
-                  const isChecked = annotatorSelection.includes(m.annotator_id);
                   return (
                     <TableRow
                       key={index}
-                      sx={hasNoTasks ? { opacity: 0.5 } : {}}
+                      sx={(m.unassigned_count ?? 0) === 0 ? { opacity: 0.5 } : {}}
                     >
                       <TableCell>
                         <Checkbox
-                          checked={isChecked}
-                          disabled={hasNoTasks}
+                          checked={annotatorSelection.includes(m.annotator_id)}
                           onChange={() => handleCheckboxChange(m.annotator_id)}
                         />
                       </TableCell>
