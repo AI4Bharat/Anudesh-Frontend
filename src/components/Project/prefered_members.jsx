@@ -187,23 +187,25 @@ const ReviewTasksTable = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>
-                    <Checkbox
-                      checked={
-                        members.length > 0 &&
-                        members.every((m) => annotatorSelection.includes(m.annotator_id))
-                      }
-                      indeterminate={
-                        members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
-                        !members.every((m) => annotatorSelection.includes(m.annotator_id))
-                      }
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setAnnotatorSelection(members.map((m) => m.annotator_id));
-                        } else {
-                          setAnnotatorSelection([]);
+                    <Tooltip title="Select/Deselect All">
+                      <Checkbox
+                        checked={
+                          members.length > 0 &&
+                          members.every((m) => annotatorSelection.includes(m.annotator_id))
                         }
-                      }}
-                    />
+                        indeterminate={
+                          members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
+                          !members.every((m) => annotatorSelection.includes(m.annotator_id))
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAnnotatorSelection(members.map((m) => m.annotator_id));
+                          } else {
+                            setAnnotatorSelection([]);
+                          }
+                        }}
+                      />
+                    </Tooltip>
                   </TableCell>
                   <TableCell>Annotator</TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
