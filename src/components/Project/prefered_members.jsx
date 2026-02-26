@@ -219,7 +219,6 @@ const ReviewTasksTable = () => {
                   return (
                     <TableRow
                       key={index}
-                      sx={(m.unassigned_count ?? 0) === 0 ? { opacity: 0.5 } : {}}
                     >
                       <TableCell>
                         <Checkbox
