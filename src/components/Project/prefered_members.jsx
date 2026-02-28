@@ -86,11 +86,43 @@ const ReviewTasksTable = () => {
 
   const handleOpen = async () => {
     setOpenDialog(true);
-    const [, existingPrefs] = await Promise.all([
+    const [membersResult, existingPrefs] = await Promise.all([
       fetchMembers(),
       fetchExistingPreferences(),
     ]);
-    setAnnotatorSelection(existingPrefs);
+
+    if (existingPrefs && existingPrefs.length > 0) {
+      setAnnotatorSelection(existingPrefs);
+    } else {
+      // Default: select all annotators with available tasks
+      const allWithTasks = (membersResult || [])
+        .filter((m) => (m.unassigned_count ?? 0) > 0)
+        .map((m) => m.annotator_id);
+      setAnnotatorSelection(allWithTasks);
+
+      // Auto-save default selection
+      if (allWithTasks.length > 0) {
+        const projectId = getProjectIdFromURL();
+        const token = localStorage.getItem("anudesh_access_token");
+        try {
+          await fetch(
+            `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${token}`,
+              },
+              body: JSON.stringify({
+                project_id: projectId,
+                annotator_ids: allWithTasks,
+              }),
+            }
+          );
+          window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
+        } catch (_) { }
+      }
+    }
   };
 
   const handleClose = () => setOpenDialog(false);
@@ -129,6 +161,7 @@ const ReviewTasksTable = () => {
       console.log("✅ Save response:", result);
       alert(result?.message || "Preferred annotators saved successfully!");
       handleClose();
+      window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
     } catch (error) {
       console.error("Error saving preferred annotators:", error);
       alert("Failed to save preferred annotators.");
@@ -158,24 +191,40 @@ const ReviewTasksTable = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Select</TableCell>
+                  <TableCell>
+                    <Tooltip title="Select/Deselect All">
+                      <Checkbox
+                        checked={
+                          members.length > 0 &&
+                          members.every((m) => annotatorSelection.includes(m.annotator_id))
+                        }
+                        indeterminate={
+                          members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
+                          !members.every((m) => annotatorSelection.includes(m.annotator_id))
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAnnotatorSelection(members.map((m) => m.annotator_id));
+                          } else {
+                            setAnnotatorSelection([]);
+                          }
+                        }}
+                      />
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>Annotator</TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {members.map((m, index) => {
-                  const hasNoTasks = (m.unassigned_count ?? 0) === 0;
-                  const isChecked = annotatorSelection.includes(m.annotator_id);
                   return (
                     <TableRow
                       key={index}
-                      sx={hasNoTasks ? { opacity: 0.5 } : {}}
                     >
                       <TableCell>
                         <Checkbox
-                          checked={isChecked}
-                          disabled={hasNoTasks}
+                          checked={annotatorSelection.includes(m.annotator_id)}
                           onChange={() => handleCheckboxChange(m.annotator_id)}
                         />
                       </TableCell>
