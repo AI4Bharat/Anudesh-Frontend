@@ -74,7 +74,9 @@ const ReviewTasksTable = () => {
       );
       const result = await response.json();
       console.log("📦 API Response:", result);
-      setMembers(Array.isArray(result) ? result : result.data || []);
+      const membersData = Array.isArray(result) ? result : result.data || [];
+      setMembers(membersData);
+      return membersData;
     } catch (error) {
       console.error("Error fetching members:", error);
       alert("Failed to load annotators list.");
@@ -93,14 +95,12 @@ const ReviewTasksTable = () => {
     if (existingPrefs && existingPrefs.length > 0) {
       setAnnotatorSelection(existingPrefs);
     } else {
-      // Default: select all annotators with available tasks
-      const allWithTasks = (membersResult || [])
-        .filter((m) => (m.unassigned_count ?? 0) > 0)
-        .map((m) => m.annotator_id);
-      setAnnotatorSelection(allWithTasks);
+      // Default: select all annotators (even with 0 unassigned tasks)
+      const allAnnotators = (membersResult || []).map((m) => m.annotator_id);
+      setAnnotatorSelection(allAnnotators);
 
       // Auto-save default selection
-      if (allWithTasks.length > 0) {
+      if (allAnnotators.length > 0) {
         const projectId = getProjectIdFromURL();
         const token = localStorage.getItem("anudesh_access_token");
         try {
@@ -114,7 +114,7 @@ const ReviewTasksTable = () => {
               },
               body: JSON.stringify({
                 project_id: projectId,
-                annotator_ids: allWithTasks,
+                annotator_ids: allAnnotators,
               }),
             }
           );
