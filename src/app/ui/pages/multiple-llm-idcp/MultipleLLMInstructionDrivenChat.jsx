@@ -14,7 +14,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useCallback } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -130,6 +130,60 @@ const MultipleLLMInstructionDrivenChat = ({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
+const containerRef = useRef(null);
+
+// Add these handler functions inside the component
+const startDragging = useCallback((e) => {
+  e.preventDefault();
+  setIsDragging(true);
+}, []);
+
+const stopDragging = useCallback(() => {
+  setIsDragging(false);
+}, []);
+
+const onDrag = useCallback((e) => {
+  if (!isDragging || !containerRef.current) return;
+
+  const containerRect = containerRef.current.getBoundingClientRect();
+  let newWidth;
+
+  if (window.innerWidth < 768) {
+    // For mobile, use percentage of screen height
+    const dragY = e.clientY;
+    const containerTop = containerRect.top;
+    const containerBottom = containerRect.bottom;
+    const containerHeight = containerBottom - containerTop;
+    
+    // Calculate percentage based on Y position (inverted for top panel)
+    const percentage = ((dragY - containerTop) / containerHeight) * 100;
+    newWidth = Math.min(70, Math.max(20, percentage)); // Limit between 20% and 70%
+  } else {
+    // For desktop, use percentage of width
+    const dragX = e.clientX;
+    const containerLeft = containerRect.left;
+    const containerWidth = containerRect.width;
+    
+    // Calculate percentage based on X position
+    const percentage = ((dragX - containerLeft) / containerWidth) * 100;
+    newWidth = Math.min(60, Math.max(20, percentage)); // Limit between 20% and 60%
+  }
+
+  setInstructionWidth(newWidth);
+}, [isDragging]);
+
+useEffect(() => {
+  if (isDragging) {
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }
+  return () => {
+    window.removeEventListener('mousemove', onDrag);
+    window.removeEventListener('mouseup', stopDragging);
+  };
+}, [isDragging, onDrag, stopDragging]);
   const labels = {
     1: "Poor",
     2: "Fair",
@@ -2890,17 +2944,18 @@ useEffect(() => {
   if (!isMounted) {
     return null;
   }
+  
 
 return (
   <>
     {renderSnackBar()}
     <Box
+      ref={containerRef}
       sx={{
         display: "flex",
-display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: { xs: "calc(100vh - 290px)", md: "calc(100vh - 190px)" },
+        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
         overflow: "hidden",
         position: { xs: "fixed", md: "relative" },
         top: { xs: "150px", md: "0" },
@@ -2908,27 +2963,58 @@ display: "flex",
         right: { xs: 0, md: "0" },
         bottom: { xs: "0", md: "0" },
         bgcolor: "#fff",
-                zIndex: { xs: 1000, md: "0" },
-
+        zIndex: { xs: 1000, md: "0" },
       }}
-      >
+    >
       {/* Instruction Panel - Left Side */}
       <Box
         sx={{
-          width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
-          height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
-          maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
-          transition: "all 0.3s ease",
+          width: { 
+            xs: "100%", 
+            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
+          },
+          height: { 
+            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
+            md: "100%" 
+          },
+          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+          transition: isDragging ? "none" : "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
           paddingBottom: "0rem!important",
-          paddingTop:"0.3rem!important",          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          paddingTop: "0.3rem!important",
+          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
           backgroundColor: "#fafafa",
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
+          position: "relative",
         }}
       >
+        {/* Draggable handle */}
+        {isInstructionExpanded && (
+          <Box
+            onMouseDown={startDragging}
+            sx={{
+              position: "absolute",
+              [window.innerWidth < 768 ? 'bottom' : 'right']: 0,
+              [window.innerWidth < 768 ? 'left' : 'top']: 0,
+              [window.innerWidth < 768 ? 'height' : 'width']: "4px",
+              [window.innerWidth < 768 ? 'width' : 'height']: "100%",
+              cursor: window.innerWidth < 768 ? 'row-resize' : 'col-resize',
+              backgroundColor: "transparent",
+              zIndex: 10,
+              '&:hover': {
+                backgroundColor: "rgba(238, 102, 51, 0.3)",
+              },
+              '&:active': {
+                backgroundColor: "rgba(238, 102, 51, 0.5)",
+              },
+            }}
+          />
+        )}
+
+        {/* Rest of your instruction panel content remains exactly the same */}
         <Box
           sx={{
             display: "flex",
@@ -3085,7 +3171,7 @@ display: "flex",
         )}
       </Box>
 
-      {/* Chat Section - Right Side */}
+      {/* Chat Section - Right Side - remains exactly the same */}
       <Box
         sx={{
           flex: 1,
@@ -3095,7 +3181,6 @@ display: "flex",
           overflow: "hidden",
           minWidth: 0,
           paddingBottom:"0rem!important",
-
         }}
       >
         <Box
@@ -3120,7 +3205,7 @@ display: "flex",
       </Box>
     </Box>
 
-    {/* Textarea placed outside the main container */}
+    {/* Textarea placed outside the main container - remains exactly the same */}
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
@@ -3134,6 +3219,8 @@ display: "flex",
           zIndex: 9999,
           boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
           height: "auto",
+                justifyContent: "center", // Center the content horizontally
+
           minHeight: { xs: "60px", md: "70px" },
           width: "100%",
           maxWidth: "100vw",
@@ -3143,6 +3230,12 @@ display: "flex",
           },
         }}
       >
+        
+    <Box sx={{ 
+      width: { xs: "95%", sm: "90%", md: "80%", lg: "70%" },
+      maxWidth: "800px",
+      margin: "0 auto",
+    }}>
         <Textarea
           handleButtonClick={handleButtonClick}
           handleOnchange={handleOnchange}
@@ -3155,6 +3248,7 @@ display: "flex",
           task_id={taskId}
           script={info.meta_info_language}
         />
+        </Box>
       </Box>
     ) : null}
   </>
