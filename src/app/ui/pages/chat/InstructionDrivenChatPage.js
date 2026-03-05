@@ -16,7 +16,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef,useCallback } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -100,8 +100,48 @@ const InstructionDrivenChatPage = ({
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
+const [isDragging, setIsDragging] = useState(false);
+const [instructionWidth, setInstructionWidth] = useState(30);
+const containerRef = useRef(null);
 
-  const [snackbar, setSnackbarInfo] = useState({
+const startDragging = useCallback((e) => {
+  e.preventDefault();
+  setIsDragging(true);
+  console.log("Drag");
+  
+}, []);
+
+const stopDragging = useCallback(() => {
+  setIsDragging(false);
+}, []);
+
+const onDrag = useCallback((e) => {
+  console.log("dragg",isDragging);
+  
+  if (!isDragging || !containerRef.current) return;
+console.log(e.clientX,"drag");
+
+  const containerRect = containerRef.current.getBoundingClientRect();
+  const dragX = e.clientX;
+  const containerLeft = containerRect.left;
+  const containerWidth = containerRect.width;
+  
+  const percentage = ((dragX - containerLeft) / containerWidth) * 100;
+  const newWidth = Math.min(60, Math.max(20, percentage));
+  setInstructionWidth(newWidth);
+}, [isDragging]);
+
+useEffect(() => {
+  if (isDragging) {
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }
+  return () => {
+    window.removeEventListener('mousemove', onDrag);
+    window.removeEventListener('mouseup', stopDragging);
+  };
+}, [isDragging, onDrag, stopDragging]);  
+const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
@@ -776,32 +816,80 @@ return (
   <>
     {renderSnackBar()}
     <Box
+    ref={containerRef}
       sx={{
-        display: "flex",
+               display: "flex",
         flexDirection: { xs: "column", md: "row" },
         width: "100%",
-        height: "calc(100vh - 120px)", // Reduced height to make space for textarea
+        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
         overflow: "hidden",
+        position: { xs: "fixed", md: "relative" },
+        top: { xs: "150px", md: "0" },
+        left: { xs: 0, md: "0" },
+        right: { xs: 0, md: "0" },
+        bottom: { xs: "0", md: "0" },
+        zIndex: { xs: 1000, md: "0" },
+
       }}
     >
       {/* Instruction Panel */}
       <Box
         sx={{
-          width: { xs: "100%", md: isInstructionExpanded ? "30%" : "40px" },
-          height: { xs: isInstructionExpanded ? "auto" : "60px", md: "100%" },
-          maxHeight: { xs: isInstructionExpanded ? "30vh" : "none", md: "100%" },
-          transition: "all 0.3s ease",
+             width: { 
+            xs: "100%", 
+            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
+          },
+    height: { 
+      xs: isInstructionExpanded ? "auto" : "60px", 
+      md: "100%" 
+    },
+          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+          transition: isDragging ? "none" : "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          paddingBottom: "0rem!important",
+          paddingTop: "0.3rem!important",
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
           backgroundColor: "#fafafa",
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
+          position: "relative",
         }}
       >
-        <Box
+{isInstructionExpanded && window.innerWidth >= 768 && (
+  <Box
+    onMouseDown={startDragging}
+    sx={{
+      position: "absolute",
+      right: 0,
+      top: 0,
+      width: "6px",
+      height: "100%",
+      cursor: 'col-resize',
+      backgroundColor: "transparent",
+      zIndex: 10,
+      '&:hover': {
+        backgroundColor: "rgba(238, 102, 51, 0.2)",
+      },
+      '&:active': {
+        backgroundColor: "rgba(238, 102, 51, 0.3)",
+      },
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        right: '2px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        width: '4px',
+        height: '40px',
+        backgroundColor: '#EE6633',
+        borderRadius: '2px',
+        opacity: 0.6,
+      }
+    }}
+  />
+)}        <Box
           sx={{
             display: "flex",
             alignItems: "center",
@@ -1026,16 +1114,25 @@ return (
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
-          padding: "1rem",
-          backgroundColor: "white",
+            p: { xs: 1, md: 2 },
+          bgcolor: "white",
           borderTop: "1px solid #e0e0e0",
-          width: "100%",
-          boxSizing: "border-box",
-          position: "sticky",
+          position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 10,
+          zIndex: 9999,
+          boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
+          height: "auto",
+                justifyContent: "center", // Center the content horizontally
+
+          minHeight: { xs: "60px", md: "70px" },
+          width: "100%",
+          maxWidth: "100vw",
+          "& textarea": {
+            fontSize: { xs: "0.8rem", md: "0.9rem" },
+            maxWidth: "100%",
+          },
         }}
       >
         <Textarea
