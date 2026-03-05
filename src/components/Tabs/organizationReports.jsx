@@ -41,6 +41,7 @@ import { fetchOrganizationProjectReports } from "@/Lib/Features/projects/GetOrga
 import { fetchOrganizationDetailedProjectReports } from "@/Lib/Features/projects/GetOrganizationDetailedProjectReports";
 import { fetchSendOrganizationUserReports } from "@/Lib/Features/projects/SendOrganizationUserReports";
 import CircularProgress from "@mui/material/CircularProgress";
+import Preferedworkspace from "./prefered_workspace";
 
 const TruncatedContent = styled(Box)(({ expanded }) => ({
   overflow: "hidden",
@@ -108,6 +109,7 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 });
 
 const OrganizationReports = () => {
+  const [open, setOpen] = useState(false);
   const OrganizationDetails = useSelector(
     (state) => state.getLoggedInData?.data.organization,
   );
@@ -733,6 +735,11 @@ const OrganizationReports = () => {
               </RadioGroup>
             </FormControl>
           </Grid>
+          <Preferedworkspace
+            orgId={orgId}
+            open={open}
+            setOpen={setOpen}
+          />
         </Grid>
 
         {radioButton === "ProjectReports" && (
