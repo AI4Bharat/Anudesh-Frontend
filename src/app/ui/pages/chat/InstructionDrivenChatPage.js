@@ -835,14 +835,14 @@ return (
       {/* Instruction Panel */}
       <Box
         sx={{
-             width: { 
+           width: { 
             xs: "100%", 
             md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
           },
-    height: { 
-      xs: isInstructionExpanded ? "auto" : "60px", 
-      md: "100%" 
-    },
+          height: { 
+            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
+            md: "100%" 
+          },
           maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
           transition: isDragging ? "none" : "all 0.3s ease",
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
@@ -1083,19 +1083,21 @@ return (
       {/* Chat Section */}
       <Box
         sx={{
-          flex: 1,
+        flex: 1,
           display: "flex",
           flexDirection: "column",
           height: "100%",
           overflow: "hidden",
           minWidth: 0,
+          paddingBottom:"0rem!important",
         }}
       >
         <Box
           sx={{
-            flex: 1,
+               flex: 1,
             overflowY: "auto",
             padding: "1rem",
+            paddingBottom:"0rem!important",
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -1104,54 +1106,81 @@ return (
             minHeight: 0,
           }}
         >
-          {showChatContainer ? renderChatHistory() : null}
-          <div ref={bottomRef} />
+     <Box sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "100%",
+            "& > *": {
+              maxWidth: "100%",
+              width: "100%"
+            }
+          }}>
+            {showChatContainer ? renderChatHistory() : null}
+          </Box>
+          <Box ref={bottomRef} sx={{ height: "1px" }} />
         </Box>
       </Box>
     </Box>
 
-    {/* Textarea placed outside the main container */}
+    {/* Full Width Textarea - Covers Entire Width */}
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
-            p: { xs: 1, md: 2 },
-          bgcolor: "white",
-          borderTop: "1px solid #e0e0e0",
           position: "fixed",
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 9999,
-          boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
-          height: "auto",
-                justifyContent: "center", // Center the content horizontally
-
-          minHeight: { xs: "60px", md: "70px" },
-          width: "100%",
-          maxWidth: "100vw",
-          "& textarea": {
-            fontSize: { xs: "0.8rem", md: "0.9rem" },
-            maxWidth: "100%",
-          },
+          width: "100vw", // Full viewport width
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+          py: "0.5rem",
+          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1300,
+          height: "70px",
         }}
       >
-        <Textarea
-          handleButtonClick={handleButtonClick}
-          handleOnchange={handleOnchange}
-          size={12}
+        <Box
           sx={{
             width: "100%",
+            maxWidth: "100%", // Always full width
+            mx: 0, // No margin
+            paddingLeft:"1rem",
           }}
-          class_name={"w-full"}
-          loading={loading}
-          inputValue={inputValue}
-          overrideGT={true}
-          task_id={taskId}
-          script={info.meta_info_language}
-        />
+        >
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+            size={10}
+            sx={{ 
+              width: "100%", 
+              margin: 0, 
+              padding: 0,
+              "& .MuiInputBase-root": {
+                height: "50px",
+                width: "100%",
+              },
+              "& textarea": {
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                width: "100%",
+              }
+            }}
+            class_name={"w-full"}
+            loading={loading}
+            inputValue={inputValue}
+            overrideGT={true}
+            task_id={taskId}
+            script={info.meta_info_language}
+          />
+        </Box>
       </Box>
     ) : null}
   </>
 );
-}
+};
 export default InstructionDrivenChatPage;

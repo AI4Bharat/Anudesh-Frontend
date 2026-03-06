@@ -3209,38 +3209,50 @@ return (
     {stage !== "Alltask" && !disableUpdateButton ? (
       <Box
         sx={{
-          p: { xs: 1, md: 2 },
-          bgcolor: "white",
-          borderTop: "1px solid #e0e0e0",
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
-          height: "auto",
-                justifyContent: "center", // Center the content horizontally
 
-          minHeight: { xs: "60px", md: "70px" },
-          width: "100%",
-          maxWidth: "100vw",
-          "& textarea": {
-            fontSize: { xs: "0.8rem", md: "0.9rem" },
-            maxWidth: "100%",
-          },
+    bgcolor: "white",
+    borderTop: "1px solid #e0e0e0",
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right:0,
+    flex:1,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+              py: "0.5rem",
+          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+
+    alignItems: "center",
+    boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
         }}
       >
         
-    <Box sx={{ 
-      width: { xs: "95%", sm: "90%", md: "80%", lg: "70%" },
-      maxWidth: "800px",
-      margin: "0 auto",
-    }}>
+      <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100%", // Always full width
+            mx: 0, // No margin
+            paddingLeft:"1.5rem",
+          }}
+        >
         <Textarea
           handleButtonClick={handleButtonClick}
           handleOnchange={handleOnchange}
           size={12}
-          sx={{ width: "100%", margin: 0, padding: 0 }}
+            sx={{ 
+              width: "100%", 
+              margin: 0, 
+              padding: 0,
+              "& .MuiInputBase-root": {
+                height: "50px",
+                width: "100%",
+              },
+              "& textarea": {
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                width: "100%",
+              }
+            }}
           class_name={"w-full"}
           loading={loading}
           inputValue={inputValue}
