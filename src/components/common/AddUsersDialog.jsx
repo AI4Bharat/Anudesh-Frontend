@@ -37,7 +37,7 @@ const DialogHeading = {
   [addUserTypes.PROJECT_ANNOTATORS]: "Add Project Annotators",
   [addUserTypes.PROJECT_REVIEWER]: "Add Project Reviewers",
   [addUserTypes.PROJECT_SUPERCHECKER]: "Add Project SuperChecker",
-    dataset:"Add Members to Dataset",
+  dataset: "Add Members to Dataset",
 };
 
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -45,7 +45,7 @@ const DialogHeading = {
 // fetch all users in the current organization/workspace
 const fetchAllUsers = (userType, id, dispatch) => {
   if (!id) return;
-  
+
   switch (userType) {
     case addUserTypes.PROJECT_ANNOTATORS:
     case addUserTypes.PROJECT_SUPERCHECKER:
@@ -67,7 +67,7 @@ const getAvailableUsers = (
   workspaceAnnotators,
   workspaceManagers,
   orgUsers,
-    datasetmembers,
+  datasetmembers,
 ) => {
   if (!Array.isArray(workspaceAnnotators)) {
     return [];
@@ -151,223 +151,226 @@ const getAvailableUsers = (
           username: user.username,
         }));
       break;
-     case 'dataset':
+    case 'dataset':
       return orgUsers
         ?.filter(
           (orgUser) =>
             datasetmembers?.findIndex(
-              (manager) =>  manager?.id === orgUser?.id
-            ) === -1  
+              (manager) => manager?.id === orgUser?.id
+            ) === -1
         )
         .map((user) => ({ id: user.id, email: user.email, username: user.username }));
-        break;
+      break;
     default:
       break;
   }
 };
 
-  const handleAddUsers = async (userType, users, id, dispatch,setSnackbar) => {
-    switch (userType) {
-      case addUserTypes.PROJECT_ANNOTATORS:
-        const addMembersObj = new AddMembersToProjectAPI(
-          id,
-          users.map((user) => user.id),
-        );
-        const res = await fetch(addMembersObj.apiEndPoint(), {
-          method: "POST",
-          body: JSON.stringify(addMembersObj.getBody()),
-          headers: addMembersObj.getHeaders().headers,
+const handleAddUsers = async (userType, users, id, dispatch, setSnackbar) => {
+  switch (userType) {
+    case addUserTypes.PROJECT_ANNOTATORS:
+      const addMembersObj = new AddMembersToProjectAPI(
+        id,
+        users.map((user) => user.id),
+      );
+      const res = await fetch(addMembersObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(addMembersObj.getBody()),
+        headers: addMembersObj.getHeaders().headers,
+      });
+
+      const resp_data = await res.json();
+
+      if (res.ok) {
+        const projectObj = new fetchProjectDetails(id);
+        dispatch(fetchProjectDetails(id));
+        setSnackbar({
+          open: true,
+          message: "successfully added!",
+          severity: "success",
         });
 
-        const resp_data = await res.json();
-
-        if (res.ok) {
-          const projectObj = new fetchProjectDetails(id);
-          dispatch(fetchProjectDetails(id));
-          setSnackbar({
-              open: true,
-              message: "successfully added!",
-              severity: "success",
-            });
-          return resp_data;
-        }
-        else{
-          setSnackbar({
-              open: true,
-              message: resp_data?.message,
-              severity: "error",
-            });
-        }
-        break;
-
-        case addUserTypes.PROJECT_REVIEWER:
-          const addReviewersObj = new AddProjectReviewersAPI(
-            id,
-            users.map((user) => user.id),
-          );
-          const reviewerRes = await fetch(addReviewersObj.apiEndPoint(), {
-            method: "POST",
-            body: JSON.stringify(addReviewersObj.getBody()),
-            headers: addReviewersObj.getHeaders().headers,
-          });
-
-          const reviewerRespData = await reviewerRes.json();
-
-          if (reviewerRes.ok) {
-            const projectObj = new fetchProjectDetails(id);
-            dispatch(fetchProjectDetails(id));
-            setSnackbar({
-              open: true,
-              message: "successfully added!",
-              severity: "success",
-            });
-            return reviewerRespData;
-          }
-          else{
-          setSnackbar({
-              open: true,
-              message: res?.message,
-              severity: "error",
-            });
-        }
-          break;
-          case addUserTypes.PROJECT_SUPERCHECKER:
-          const addsuperCheckerObj = new AddProjectSuperCheckerAPI(
-            id,
-            users.map((user) => user.id),
-          );
-          const superCheckerRes = await fetch(addsuperCheckerObj.apiEndPoint(), {
-            method: "POST",
-            body: JSON.stringify(addsuperCheckerObj.getBody()),
-            headers: addsuperCheckerObj.getHeaders().headers,
-          });
-
-          const superCheckerRespData = await superCheckerRes.json();
-
-          if (superCheckerRes.ok) {
-            const projectObj = new fetchProjectDetails(id);
-            dispatch(fetchProjectDetails(id));
-            setSnackbar({
-              open: true,
-              message: "successfully added!",
-              severity: "success",
-            });
-            return superCheckerRespData;
-          }
-          else{
-          setSnackbar({
-              open: true,
-              message: res?.message,
-              severity: "error",
-            });
-        }
-          break;
-
-      case addUserTypes.ANNOTATOR:
-        const addAnnotatorsObj = new AddAnnotatorsToWorkspaceAPI(
-          id,
-          users.map((user) => user.id).join(','),
-        );
-        const addAnnotatorsRes = await fetch(addAnnotatorsObj.apiEndPoint(), {
-          method: "POST",
-          body: JSON.stringify(addAnnotatorsObj.getBody()),
-          headers: addAnnotatorsObj.getHeaders().headers,
+        // Backend auto-adds new annotators to project.preferred_annotators
+        window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
+        return resp_data;
+      }
+      else {
+        setSnackbar({
+          open: true,
+          message: resp_data?.message,
+          severity: "error",
         });
+      }
+      break;
 
-        const addAnnotatorsRespData = await addAnnotatorsRes.json();
+    case addUserTypes.PROJECT_REVIEWER:
+      const addReviewersObj = new AddProjectReviewersAPI(
+        id,
+        users.map((user) => user.id),
+      );
+      const reviewerRes = await fetch(addReviewersObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(addReviewersObj.getBody()),
+        headers: addReviewersObj.getHeaders().headers,
+      });
 
-        if (addAnnotatorsRes.ok) {
-          const workspaceAnnotatorsObj = new GetWorkspacesAnnotatorsDataAPI(id);
-          setSnackbar({
-              open: true,
-              message: "successfully added!",
-              severity: "success",
-            });
-          return addAnnotatorsRespData;
-        }
-        else{
-          setSnackbar({
-              open: true,
-              message: addAnnotatorsRes?.message,
-              severity: "error",
-            });
-        }
-        break;
+      const reviewerRespData = await reviewerRes.json();
 
-      case addUserTypes.MANAGER:
-        const addManagerObj = new AssignManagerToWorkspaceAPI(
-          id,
-          users.map((user) => user.id),
-        );
-        const assignManagerRes = await fetch(addManagerObj.apiEndPoint(), {
-          method: "POST",
-          body: JSON.stringify(addManagerObj.getBody()),
-          headers: addManagerObj.getHeaders().headers,
+      if (reviewerRes.ok) {
+        const projectObj = new fetchProjectDetails(id);
+        dispatch(fetchProjectDetails(id));
+        setSnackbar({
+          open: true,
+          message: "successfully added!",
+          severity: "success",
         });
+        return reviewerRespData;
+      }
+      else {
+        setSnackbar({
+          open: true,
+          message: res?.message,
+          severity: "error",
+        });
+      }
+      break;
+    case addUserTypes.PROJECT_SUPERCHECKER:
+      const addsuperCheckerObj = new AddProjectSuperCheckerAPI(
+        id,
+        users.map((user) => user.id),
+      );
+      const superCheckerRes = await fetch(addsuperCheckerObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(addsuperCheckerObj.getBody()),
+        headers: addsuperCheckerObj.getHeaders().headers,
+      });
 
-        const assignManagerRespData = await assignManagerRes.json();
+      const superCheckerRespData = await superCheckerRes.json();
 
-        if (assignManagerRes.ok) {
-          const workspaceDetailsObj = new GetWorkspacesDetailsAPI(id);
-          setSnackbar({
-              open: true,
-              message: "successfully added!",
-              severity: "success",
-            });
-          return assignManagerRespData;
-        }
-        else{
-          setSnackbar({
-              open: true,
-              message: assignManagerRes?.message,
-              severity: "error",
-            });
-        }
-        break;
-      case 'dataset':
-        const existingUsers = DatasetDetails?.users ; 
-        const existingUserIds = existingUsers.map((user) => user);
+      if (superCheckerRes.ok) {
+        const projectObj = new fetchProjectDetails(id);
+        dispatch(fetchProjectDetails(id));
+        setSnackbar({
+          open: true,
+          message: "successfully added!",
+          severity: "success",
+        });
+        return superCheckerRespData;
+      }
+      else {
+        setSnackbar({
+          open: true,
+          message: res?.message,
+          severity: "error",
+        });
+      }
+      break;
 
-        const updatedUserIds = [...new Set([...existingUserIds, ...users.map((user) => user.id)])];
+    case addUserTypes.ANNOTATOR:
+      const addAnnotatorsObj = new AddAnnotatorsToWorkspaceAPI(
+        id,
+        users.map((user) => user.id).join(','),
+      );
+      const addAnnotatorsRes = await fetch(addAnnotatorsObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(addAnnotatorsObj.getBody()),
+        headers: addAnnotatorsObj.getHeaders().headers,
+      });
 
-        const DatasetUsersObj = {
-          instance_name: DatasetDetails?.instance_name ,
-          parent_instance_id: DatasetDetails?.parent_instance_id ,
-          instance_description: DatasetDetails?.instance_description ,
-          dataset_type: DatasetDetails?.dataset_type ,
-          organisation_id: DatasetDetails?.organisation_id ,
-          users: updatedUserIds,
-        };
-        const addDatasetUsersObj = new GetSaveButtonAPI(datasetId, DatasetUsersObj);
+      const addAnnotatorsRespData = await addAnnotatorsRes.json();
+
+      if (addAnnotatorsRes.ok) {
+        const workspaceAnnotatorsObj = new GetWorkspacesAnnotatorsDataAPI(id);
+        setSnackbar({
+          open: true,
+          message: "successfully added!",
+          severity: "success",
+        });
+        return addAnnotatorsRespData;
+      }
+      else {
+        setSnackbar({
+          open: true,
+          message: addAnnotatorsRes?.message,
+          severity: "error",
+        });
+      }
+      break;
+
+    case addUserTypes.MANAGER:
+      const addManagerObj = new AssignManagerToWorkspaceAPI(
+        id,
+        users.map((user) => user.id),
+      );
+      const assignManagerRes = await fetch(addManagerObj.apiEndPoint(), {
+        method: "POST",
+        body: JSON.stringify(addManagerObj.getBody()),
+        headers: addManagerObj.getHeaders().headers,
+      });
+
+      const assignManagerRespData = await assignManagerRes.json();
+
+      if (assignManagerRes.ok) {
+        const workspaceDetailsObj = new GetWorkspacesDetailsAPI(id);
+        setSnackbar({
+          open: true,
+          message: "successfully added!",
+          severity: "success",
+        });
+        return assignManagerRespData;
+      }
+      else {
+        setSnackbar({
+          open: true,
+          message: assignManagerRes?.message,
+          severity: "error",
+        });
+      }
+      break;
+    case 'dataset':
+      const existingUsers = DatasetDetails?.users;
+      const existingUserIds = existingUsers.map((user) => user);
+
+      const updatedUserIds = [...new Set([...existingUserIds, ...users.map((user) => user.id)])];
+
+      const DatasetUsersObj = {
+        instance_name: DatasetDetails?.instance_name,
+        parent_instance_id: DatasetDetails?.parent_instance_id,
+        instance_description: DatasetDetails?.instance_description,
+        dataset_type: DatasetDetails?.dataset_type,
+        organisation_id: DatasetDetails?.organisation_id,
+        users: updatedUserIds,
+      };
+      const addDatasetUsersObj = new GetSaveButtonAPI(datasetId, DatasetUsersObj);
 
 
-          const datasetRes = await fetch(addDatasetUsersObj.apiEndPoint(), {
-            method: "PUT",
-            body: JSON.stringify(addDatasetUsersObj.getBody()),
-            headers: addDatasetUsersObj.getHeaders().headers,
-          });
+      const datasetRes = await fetch(addDatasetUsersObj.apiEndPoint(), {
+        method: "PUT",
+        body: JSON.stringify(addDatasetUsersObj.getBody()),
+        headers: addDatasetUsersObj.getHeaders().headers,
+      });
 
-          const datasetRespData = await datasetRes.json();
+      const datasetRespData = await datasetRes.json();
 
-          if (datasetRes.ok) {
-            const datasetDetailsObj = new fetchDatasetDetails(datasetId);
-            dispatch(APITransport(datasetDetailsObj));
-            return datasetRespData;
-          }        else{
-          setSnackbar({
-              open: true,
-              message: datasetRes?.message,
-              severity: "error",
-            });
-        }
-          
-          break;
+      if (datasetRes.ok) {
+        const datasetDetailsObj = new fetchDatasetDetails(datasetId);
+        dispatch(APITransport(datasetDetailsObj));
+        return datasetRespData;
+      } else {
+        setSnackbar({
+          open: true,
+          message: datasetRes?.message,
+          severity: "error",
+        });
+      }
+
+      break;
 
 
-      default:
-        break;
-    }
-  };
+    default:
+      break;
+  }
+};
 const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -387,67 +390,67 @@ const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const workspaceDetails = useSelector(
     (state) => state.getWorkspaceDetails?.data,
   );
-      const DatasetMembers = useSelector((state) => state.getDatasetMembers.data);
-  
+  const DatasetMembers = useSelector((state) => state.getDatasetMembers.data);
+
   const orgUsers = useSelector((state) => state.getOrganizationUsers?.data);
   const dispatch = useDispatch();
   /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-hooks/exhaustive-deps */
-useEffect(() => {
-  let fetchId = "";
-  switch (userType) {
-    case addUserTypes.PROJECT_ANNOTATORS:
-    case addUserTypes.PROJECT_SUPERCHECKER:
-    case addUserTypes.PROJECT_REVIEWER:
-      fetchId = projectDetails?.workspace_id;
-      break;
-    case addUserTypes.ANNOTATOR:
-    case addUserTypes.MANAGER:
-      fetchId = workspaceDetails?.organization;
-      break;
-    default:
-      break;
-  }
-  
-  // Always fetch when the dialog opens, not just when id changes
-  if (isOpen && fetchId) {
-    fetchAllUsers(userType, fetchId, dispatch);
-  }
-}, [isOpen, userType, id, projectDetails?.workspace_id, workspaceDetails?.organization]);  const filteruser = (userType) => {
-  switch (userType) {
-    case addUserTypes.PROJECT_ANNOTATORS:
-      return availableUsers?.filter(
-        availableUser => 
-        !projectDetails?.annotators?.some(
-          annotator => 
-          annotator.id === availableUser.id
-        )
-      );
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    let fetchId = "";
+    switch (userType) {
+      case addUserTypes.PROJECT_ANNOTATORS:
+      case addUserTypes.PROJECT_SUPERCHECKER:
+      case addUserTypes.PROJECT_REVIEWER:
+        fetchId = projectDetails?.workspace_id;
+        break;
+      case addUserTypes.ANNOTATOR:
+      case addUserTypes.MANAGER:
+        fetchId = workspaceDetails?.organization;
+        break;
+      default:
+        break;
+    }
 
-    case addUserTypes.PROJECT_REVIEWER:
-      return availableUsers?.filter(
-        availableUser => 
-        !projectDetails?.annotation_reviewers?.some(
-          reviewer => 
-          reviewer.id === availableUser.id
-        )
-      );
+    // Always fetch when the dialog opens, not just when id changes
+    if (isOpen && fetchId) {
+      fetchAllUsers(userType, fetchId, dispatch);
+    }
+  }, [isOpen, userType, id, projectDetails?.workspace_id, workspaceDetails?.organization]); const filteruser = (userType) => {
+    switch (userType) {
+      case addUserTypes.PROJECT_ANNOTATORS:
+        return availableUsers?.filter(
+          availableUser =>
+            !projectDetails?.annotators?.some(
+              annotator =>
+                annotator.id === availableUser.id
+            )
+        );
 
-    case addUserTypes.PROJECT_SUPERCHECKER:
-      return availableUsers?.filter(
-        availableUser => 
-        !projectDetails?.review_supercheckers?.some(
-          superchecker => 
-          superchecker.id === availableUser.id
-        )
-      );
+      case addUserTypes.PROJECT_REVIEWER:
+        return availableUsers?.filter(
+          availableUser =>
+            !projectDetails?.annotation_reviewers?.some(
+              reviewer =>
+                reviewer.id === availableUser.id
+            )
+        );
 
-    default:
-      return availableUsers;
-  }
-};
+      case addUserTypes.PROJECT_SUPERCHECKER:
+        return availableUsers?.filter(
+          availableUser =>
+            !projectDetails?.review_supercheckers?.some(
+              superchecker =>
+                superchecker.id === availableUser.id
+            )
+        );
 
-  console.log(workspaceAnnotators,"lll");
+      default:
+        return availableUsers;
+    }
+  };
+
+  console.log(workspaceAnnotators, "lll");
   useEffect(() => {
     setAvailableUsers(
       getAvailableUsers(
@@ -455,14 +458,14 @@ useEffect(() => {
         projectDetails,
         workspaceAnnotators,
         workspaceDetails?.managers,
-        orgUsers,DatasetMembers
+        orgUsers, DatasetMembers
       ),
     );
   }, [projectDetails, workspaceAnnotators, workspaceDetails, orgUsers]);
 
   const addBtnClickHandler = async () => {
     setLoading(true);
-    const res = await handleAddUsers(userType, selectedUsers, id, dispatch,setSnackbar);
+    const res = await handleAddUsers(userType, selectedUsers, id, dispatch, setSnackbar);
     setLoading(false);
 
     if (res) {

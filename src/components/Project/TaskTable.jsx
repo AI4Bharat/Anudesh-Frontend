@@ -530,7 +530,7 @@ const TaskTable = (props) => {
     setCalenderAnchor(null);
   };
 
-  const handleDateTimeFormat = () =>{
+  const handleDateTimeFormat = () => {
     SetDateTimeFormat(!dateTimeFormat);
     setCalenderAnchor(null);
   }
@@ -665,10 +665,10 @@ const TaskTable = (props) => {
       }),
     );
   }, [selectedFilters, pull, rejected, totalTaskCount]);
-  
+
   const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
     if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
-    
+
     const user = getProjectUsers.find(u => u.email === annotatorEmail);
     if (user && user.first_name && user.last_name && showAnnotatorsNames) {
       return `${user.first_name} ${user.last_name}`;
@@ -760,9 +760,9 @@ const TaskTable = (props) => {
             onClick={
               isArchived
                 ? (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                 }
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
                 : undefined
             }
           >
@@ -832,7 +832,7 @@ const TaskTable = (props) => {
       } else {
         metaInfoMapping.annotator_mail = "Annotator Email";
       }
-      
+
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
@@ -874,7 +874,7 @@ const TaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [ taskList, ProjectDetails, expandedRow, dateTimeFormat]);
+  }, [taskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
@@ -917,8 +917,8 @@ const TaskTable = (props) => {
       try {
         const token = localStorage.getItem("anudesh_access_token");
 
-        const [profileRes, summaryRes] = await Promise.all([
-          fetch(`${configs.BASE_URL_AUTO}/users/account/me/fetch/`, {
+        const [prefsRes, summaryRes] = await Promise.all([
+          fetch(`${configs.BASE_URL_AUTO}/users/account/get-preferred-annotators/?project_id=${id}`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `JWT ${token}`,
@@ -935,19 +935,17 @@ const TaskTable = (props) => {
           ),
         ]);
 
-        const userData = await profileRes.json();
+        const prefsData = await prefsRes.json();
         const summaryData = await summaryRes.json();
 
-        const projectPrefs = userData?.preferred_task_by_json?.preferred_annotators;
-        const isNewProject = !projectPrefs || !(id in projectPrefs);
-        const preferredAnnotators = projectPrefs?.[id] || [];
+        const preferredAnnotators = prefsData?.preferred_annotators;
 
         const annotatorsWithTasks = (Array.isArray(summaryData) ? summaryData : [])
           .filter((m) => (m.unassigned_count ?? 0) > 0)
           .map((m) => m.annotator_id);
 
-        // New project: auto-select all annotators with tasks as preferred
-        if (isNewProject && annotatorsWithTasks.length > 0) {
+        // null = never set, auto-save all annotators with tasks
+        if (preferredAnnotators === null && annotatorsWithTasks.length > 0) {
           try {
             await fetch(
               `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
@@ -968,8 +966,9 @@ const TaskTable = (props) => {
           return;
         }
 
+        const actualPreferred = preferredAnnotators || [];
         const hasMatchingPreferred = annotatorsWithTasks.some((aId) =>
-          preferredAnnotators.includes(aId)
+          actualPreferred.includes(aId)
         );
 
         if (annotatorsWithTasks.length > 0 && !hasMatchingPreferred) {
@@ -1756,15 +1755,15 @@ const TaskTable = (props) => {
       )}
       {calenderOpen && (
         <TimeRangeFilter
-        calenderOpen={calenderOpen}
-        calenderAnchor={calenderAnchor}
-        handleCalenderClose={() => setCalenderAnchor(null)}
-        selectRange={selectRange}
-        handleRangeChange={handleRangeChange}
-        dateTimeFormat={dateTimeFormat}
-        handleDateTimeFormat={handleDateTimeFormat}
-        clearFilter={clearFilter}
-        applyFilter={applyFilter}
+          calenderOpen={calenderOpen}
+          calenderAnchor={calenderAnchor}
+          handleCalenderClose={() => setCalenderAnchor(null)}
+          selectRange={selectRange}
+          handleRangeChange={handleRangeChange}
+          dateTimeFormat={dateTimeFormat}
+          handleDateTimeFormat={handleDateTimeFormat}
+          clearFilter={clearFilter}
+          applyFilter={applyFilter}
         />
       )}
 
