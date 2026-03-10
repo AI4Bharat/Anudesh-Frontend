@@ -31,12 +31,13 @@ const ReviewTasksTable = () => {
     return match && match[1] ? match[1] : null;
   };
 
-  // Fetch existing preferred annotators from user profile
+  // Fetch existing preferred annotators from project
   const fetchExistingPreferences = async () => {
     try {
       const token = localStorage.getItem("anudesh_access_token");
+      const projectId = getProjectIdFromURL();
       const response = await fetch(
-        `${configs.BASE_URL_AUTO}/users/account/me/fetch/`,
+        `${configs.BASE_URL_AUTO}/users/account/get-preferred-annotators/?project_id=${projectId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -44,15 +45,11 @@ const ReviewTasksTable = () => {
           },
         }
       );
-      const userData = await response.json();
-      const projectId = getProjectIdFromURL();
-      const preferredAnnotators =
-        userData?.preferred_task_by_json?.preferred_annotators?.[projectId] || [];
-      console.log(" Existing preferred annotators:", preferredAnnotators);
-      return preferredAnnotators;
+      const data = await response.json();
+      return data.preferred_annotators;
     } catch (error) {
       console.error("Error fetching existing preferences:", error);
-      return [];
+      return null;
     }
   };
 
@@ -93,14 +90,13 @@ const ReviewTasksTable = () => {
       fetchExistingPreferences(),
     ]);
 
-    if (existingPrefs && existingPrefs.length > 0) {
+    if (existingPrefs !== null) {
       setAnnotatorSelection(existingPrefs);
     } else {
-      // Default: select all annotators (even with 0 unassigned tasks)
       const allAnnotators = (membersResult || []).map((m) => m.annotator_id);
       setAnnotatorSelection(allAnnotators);
 
-      // Auto-save default selection
+      // Auto-save default selection to the project
       if (allAnnotators.length > 0) {
         const projectId = getProjectIdFromURL();
         const token = localStorage.getItem("anudesh_access_token");
