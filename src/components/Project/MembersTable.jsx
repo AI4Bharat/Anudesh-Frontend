@@ -39,6 +39,7 @@ import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSug
 import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
 import APITransport from "@/Lib/apiTransport/apitransport";
+import configs from "@/config/config";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -72,7 +73,7 @@ const options = {
 
 const addLabel = {
   organization: "Invite Users to Organization",
-    dataset:"Add Members to Dataset",
+  dataset: "Add Members to Dataset",
   [addUserTypes.PROJECT_ANNOTATORS]: "Add Annotators to Project",
   [addUserTypes.PROJECT_REVIEWER]: "Add Reviewers to Project",
   [addUserTypes.PROJECT_SUPERCHECKER]: "Add SuperChecker to Project",
@@ -114,21 +115,21 @@ const MembersTable = (props) => {
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
 
   useEffect(() => {
-      const handleResize = () => {
-        setDisplayWidth(window.innerWidth);
-      };
-  
+    const handleResize = () => {
+      setDisplayWidth(window.innerWidth);
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+    }
+
+    return () => {
       if (typeof window !== 'undefined') {
-        handleResize();
-        window.addEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
       }
-  
-      return () => {
-        if (typeof window !== 'undefined') {
-          window.removeEventListener('resize', handleResize);
-        }
-      };
-    }, []);
+    };
+  }, []);
 
   const columns = [
     {
@@ -149,13 +150,13 @@ const MembersTable = (props) => {
       options: {
         filter: false,
         sort: false,
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-          padding: "16px",
-          whiteSpace: "normal", 
-          overflowWrap: "break-word",
-          wordBreak: "break-word",  
-        } 
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
         }),
       },
     },
@@ -173,10 +174,10 @@ const MembersTable = (props) => {
       options: {
         filter: false,
         sort: false,
-        setCellProps: () => ({ 
+        setCellProps: () => ({
           style: {
-          padding: "16px",
-        } 
+            padding: "16px",
+          }
         }),
       },
     },
@@ -401,6 +402,25 @@ const MembersTable = (props) => {
     setUserType(Object.keys(UserRolesList)[0]);
   };
   const handleRemoveFrozenUsers = async (FrozenUserId) => {
+    const token = localStorage.getItem("anudesh_access_token");
+    let existingPreferences = [];
+    try {
+      const prefsRes = await fetch(
+        `${configs.BASE_URL_AUTO}/users/account/get-preferred-annotators/?project_id=${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${token}`,
+          },
+        }
+      );
+      const prefsData = await prefsRes.json();
+      existingPreferences = prefsData.preferred_annotators || [];
+    } catch (error) {
+      console.error("Error fetching existing preferences:", error);
+    }
+    const wasPreferred = existingPreferences.includes(FrozenUserId);
+
     const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
@@ -410,6 +430,29 @@ const MembersTable = (props) => {
     const resp = await res.json();
     setLoading(false);
     if (res.ok) {
+      if (!wasPreferred) {
+        try {
+          const updatedPreferences = existingPreferences.filter(uid => uid !== FrozenUserId);
+          await fetch(
+            `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${token}`,
+              },
+              body: JSON.stringify({
+                project_id: id,
+                annotator_ids: updatedPreferences,
+              }),
+            }
+          );
+          window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
+        } catch (err) {
+          console.error("Error reverting preferred annotators state:", err);
+        }
+      }
+
       setSnackbarInfo({
         open: true,
         message: resp?.message,
@@ -438,28 +481,28 @@ const MembersTable = (props) => {
   const data =
     dataSource && dataSource.length > 0
       ? pageSearch().map((el, i) => {
-          const userRole = el.role && UserMappedByRole(el.role).element;
+        const userRole = el.role && UserMappedByRole(el.role).element;
 
-          return [
-            el.username,
-            el.email,
-            userRole ? userRole : el.role,
-            ...(showInvitedBy ? [el.invited_by] : []),
-            <>
-              {!hideViewButton && (
-                <CustomButton
-                  sx={{ m: 1, borderRadius: 2 }}
-                  onClick={() => {
-                    navigate(`/profile/${el.id}`);
-                  }}
-                  label={"View"}
-                />
-              )}
+        return [
+          el.username,
+          el.email,
+          userRole ? userRole : el.role,
+          ...(showInvitedBy ? [el.invited_by] : []),
+          <>
+            {!hideViewButton && (
+              <CustomButton
+                sx={{ m: 1, borderRadius: 2 }}
+                onClick={() => {
+                  navigate(`/profile/${el.id}`);
+                }}
+                label={"View"}
+              />
+            )}
 
-              {(userRoles.WorkspaceManager === loggedInUserData?.role ||
-                userRoles.OrganizationOwner === loggedInUserData?.role ||
-                (userRoles.Admin === loggedInUserData?.role &&
-                  props.type === addUserTypes.PROJECT_ANNOTATORS)) && (
+            {(userRoles.WorkspaceManager === loggedInUserData?.role ||
+              userRoles.OrganizationOwner === loggedInUserData?.role ||
+              (userRoles.Admin === loggedInUserData?.role &&
+                props.type === addUserTypes.PROJECT_ANNOTATORS)) && (
                 <CustomButton
                   sx={{
                     borderRadius: 2,
@@ -477,161 +520,161 @@ const MembersTable = (props) => {
                   disabled={projectlist(el.id) || ProjectDetails.is_archived}
                 />
               )}
-              {userRoles.WorkspaceManager === loggedInUserData?.role ||
-                userRoles.OrganizationOwner === loggedInUserData?.role ||
-                (userRoles.Admin === loggedInUserData?.role &&
-                  props.type === addUserTypes.PROJECT_REVIEWER && (
-                    <CustomButton
-                      sx={{
-                        borderRadius: 2,
-                        backgroundColor: "#cf5959",
-                        m: 1,
-                        height: "40px",
-                      }}
-                      label="Remove"
-                      onClick={() => {
-                        setElId(el.id);
-                        setElEmail(el.email);
-                        setConfirmationDialog(true);
-                        setMemberOrReviewer("reviewer");
-                      }}
-                      disabled={
-                        projectlist(el.id) || ProjectDetails.is_archived
-                      }
-                    />
-                  ))}
-              {userRoles.WorkspaceManager === loggedInUserData?.role ||
-                userRoles.OrganizationOwner === loggedInUserData?.role ||
-                (userRoles.Admin === loggedInUserData?.role &&
-                  props.type === addUserTypes.PROJECT_SUPERCHECKER && (
-                    <CustomButton
-                      sx={{
-                        borderRadius: 2,
-                        backgroundColor: "#cf5959",
-                        m: 1,
-                        height: "40px",
-                      }}
-                      label="Remove"
-                      onClick={() => {
-                        setElId(el.id);
-                        setElEmail(el.email);
-                        setConfirmationDialog(true);
-                        setMemberOrReviewer("superchecker");
-                      }}
-                      disabled={
-                        projectlist(el.id) || ProjectDetails.is_archived
-                      }
-                    />
-                  ))}
+            {userRoles.WorkspaceManager === loggedInUserData?.role ||
+              userRoles.OrganizationOwner === loggedInUserData?.role ||
+              (userRoles.Admin === loggedInUserData?.role &&
+                props.type === addUserTypes.PROJECT_REVIEWER && (
+                  <CustomButton
+                    sx={{
+                      borderRadius: 2,
+                      backgroundColor: "#cf5959",
+                      m: 1,
+                      height: "40px",
+                    }}
+                    label="Remove"
+                    onClick={() => {
+                      setElId(el.id);
+                      setElEmail(el.email);
+                      setConfirmationDialog(true);
+                      setMemberOrReviewer("reviewer");
+                    }}
+                    disabled={
+                      projectlist(el.id) || ProjectDetails.is_archived
+                    }
+                  />
+                ))}
+            {userRoles.WorkspaceManager === loggedInUserData?.role ||
+              userRoles.OrganizationOwner === loggedInUserData?.role ||
+              (userRoles.Admin === loggedInUserData?.role &&
+                props.type === addUserTypes.PROJECT_SUPERCHECKER && (
+                  <CustomButton
+                    sx={{
+                      borderRadius: 2,
+                      backgroundColor: "#cf5959",
+                      m: 1,
+                      height: "40px",
+                    }}
+                    label="Remove"
+                    onClick={() => {
+                      setElId(el.id);
+                      setElEmail(el.email);
+                      setConfirmationDialog(true);
+                      setMemberOrReviewer("superchecker");
+                    }}
+                    disabled={
+                      projectlist(el.id) || ProjectDetails.is_archived
+                    }
+                  />
+                ))}
 
-              {projectlist(el.id) && (
-                <CustomButton
-                  sx={{m:1, borderRadius: 2 }}
-                  label="Add"
-                  onClick={() => handleRemoveFrozenUsers(el.id)}
-                  disabled={ProjectDetails.is_archived}
-                />
-              )}
+            {projectlist(el.id) && (
+              <CustomButton
+                sx={{ m: 1, borderRadius: 2 }}
+                label="Add"
+                onClick={() => handleRemoveFrozenUsers(el.id)}
+                disabled={ProjectDetails.is_archived}
+              />
+            )}
 
-              {reSendButton && (
-                <CustomButton
-                  sx={{m:1,  borderRadius: 2 }}
-                  onClick={() => handleResendUser(el.email)}
-                  label={"Resend"}
-                />
-              )}
+            {reSendButton && (
+              <CustomButton
+                sx={{ m: 1, borderRadius: 2 }}
+                onClick={() => handleResendUser(el.email)}
+                label={"Resend"}
+              />
+            )}
 
-              {approveButton && (
-                <CustomButton
-                  sx={{  m: 1, borderRadius: 2 }}
-                  onClick={() => handleApproveUser(el.id)}
-                  label={"Approve"}
-                />
-              )}
-              {rejectButton && (
-                <CustomButton
-                  sx={{
-                    
-                    m: 1,
-                    borderRadius: 2,
-                    backgroundColor: "#cf5959",
-                  }}
-                  color="error"
-                  onClick={() => handleRejectUser(el.id)}
-                  label={"Reject"}
-                />
-              )}
-            </>,
-          ];
-        })
+            {approveButton && (
+              <CustomButton
+                sx={{ m: 1, borderRadius: 2 }}
+                onClick={() => handleApproveUser(el.id)}
+                label={"Approve"}
+              />
+            )}
+            {rejectButton && (
+              <CustomButton
+                sx={{
+
+                  m: 1,
+                  borderRadius: 2,
+                  backgroundColor: "#cf5959",
+                }}
+                color="error"
+                onClick={() => handleRejectUser(el.id)}
+                label={"Reject"}
+              />
+            )}
+          </>,
+        ];
+      })
       : [];
 
-      const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-        return (
-          <Box
+  const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "space-between",
+            md: "flex-end"
+          },
+          alignItems: "center",
+          padding: "10px",
+          gap: {
+            xs: "10px",
+            md: "20px"
+          },
+        }}
+      >
+
+        {/* Pagination Controls */}
+        <TablePagination
+          component="div"
+          count={count}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, newPage) => changePage(newPage)}
+          onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
+          sx={{
+            "& .MuiTablePagination-actions": {
+              marginLeft: "0px",
+            },
+            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+              marginRight: "10px",
+            },
+          }}
+        />
+
+        {/* Jump to Page */}
+        <div>
+          <label style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
+          }}>
+            Jump to Page:
+          </label>
+          <Select
+            value={page + 1}
+            onChange={(e) => changePage(Number(e.target.value) - 1)}
             sx={{
-              display: "flex",
-              flexWrap: "wrap", 
-              justifyContent: { 
-                xs: "space-between", 
-                md: "flex-end" 
-              }, 
-              alignItems: "center",
-              padding: "10px",
-              gap: { 
-                xs: "10px", 
-                md: "20px" 
-              }, 
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
             }}
           >
-      
-            {/* Pagination Controls */}
-            <TablePagination
-              component="div"
-              count={count}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={(_, newPage) => changePage(newPage)}
-              onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
-              sx={{
-                "& .MuiTablePagination-actions": {
-                marginLeft: "0px",
-              },
-              "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-                marginRight: "10px",
-              },
-              }}
-            />
-      
-            {/* Jump to Page */}
-            <div>
-              <label style={{ 
-                marginRight: "5px", 
-                fontSize:"0.83rem", 
-              }}>
-              Jump to Page:
-              </label>
-              <Select
-                value={page + 1}
-                onChange={(e) => changePage(Number(e.target.value) - 1)}
-                sx={{
-                  fontSize: "0.8rem",
-                  padding: "4px",
-                  height: "32px",
-                }}
-              >
-                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-                  <MenuItem key={i} value={i + 1}>
-                    {i + 1}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-          </Box>
-        );
-      };
-      
-    
+            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                {i + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+      </Box>
+    );
+  };
+
+
   const options = {
     textLabels: {
       body: {
@@ -728,8 +771,8 @@ const MembersTable = (props) => {
           onClick={handleUserDialogOpen}
           disabled={
             props.type === addUserTypes.PROJECT_ANNOTATORS ||
-            props.type === addUserTypes.PROJECT_REVIEWER ||
-            props.type === addUserTypes.PROJECT_SUPERCHECKER
+              props.type === addUserTypes.PROJECT_REVIEWER ||
+              props.type === addUserTypes.PROJECT_SUPERCHECKER
               ? ProjectDetails.is_archived
               : ""
           }
@@ -752,17 +795,17 @@ const MembersTable = (props) => {
           </DialogContentText>
           {(memberOrReviewer === "member" ||
             memberOrReviewer === "reviewer") && (
-            <TextField
-              autoFocus
-              margin="dense"
-              id="password"
-              label="Password"
-              type="password"
-              fullWidth
-              variant="standard"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          )}
+              <TextField
+                autoFocus
+                margin="dense"
+                id="password"
+                label="Password"
+                type="password"
+                fullWidth
+                variant="standard"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            )}
           {memberOrReviewer === "superchecker" && (
             <TextField
               autoFocus
@@ -823,13 +866,13 @@ const MembersTable = (props) => {
         />
       )}
       {renderSnackBar()}
-      <Grid sx={{ mt: 2,mb:2 }}>
+      <Grid sx={{ mt: 2, mb: 2 }}>
         <Search />
       </Grid>
 
       <ThemeProvider theme={tableTheme} sx={{ marginTop: "20px" }}>
         <MUIDataTable
-        key={`table-${displayWidth}`}
+          key={`table-${displayWidth}`}
           title={""}
           data={data}
           columns={columns}
