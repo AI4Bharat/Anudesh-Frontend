@@ -189,9 +189,6 @@ const getAvailableUsers = (
               message: "successfully added!",
               severity: "success",
             });
-
-            // Backend auto-adds new annotators to project.preferred_annotators
-          window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
           return resp_data;
         }
         else{

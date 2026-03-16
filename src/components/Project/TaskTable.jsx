@@ -917,8 +917,8 @@ const TaskTable = (props) => {
       try {
         const token = localStorage.getItem("anudesh_access_token");
 
-        const [prefsRes, summaryRes] = await Promise.all([
-          fetch(`${configs.BASE_URL_AUTO}/users/account/get-preferred-annotators/?project_id=${id}`, {
+        const [profileRes, summaryRes] = await Promise.all([
+          fetch(`${configs.BASE_URL_AUTO}/users/account/me/fetch/`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `JWT ${token}`,
@@ -935,16 +935,19 @@ const TaskTable = (props) => {
           ),
         ]);
 
-        const prefsData = await prefsRes.json();
+        const userData = await profileRes.json();
         const summaryData = await summaryRes.json();
 
-        const preferredAnnotators = prefsData?.preferred_annotators;
+        const projectPrefs = userData?.preferred_task_by_json?.preferred_annotators;
+        const isNewProject = !projectPrefs || !(id in projectPrefs);
+        const preferredAnnotators = projectPrefs?.[id] || [];
 
         const annotatorsWithTasks = (Array.isArray(summaryData) ? summaryData : [])
           .filter((m) => (m.unassigned_count ?? 0) > 0)
           .map((m) => m.annotator_id);
 
-        if (preferredAnnotators === null && annotatorsWithTasks.length > 0) {
+        // New project: auto-select all annotators with tasks as preferred
+        if (isNewProject && annotatorsWithTasks.length > 0) {
           try {
             await fetch(
               `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
@@ -965,9 +968,8 @@ const TaskTable = (props) => {
           return;
         }
 
-        const actualPreferred = preferredAnnotators || [];
         const hasMatchingPreferred = annotatorsWithTasks.some((aId) =>
-          actualPreferred.includes(aId)
+          preferredAnnotators.includes(aId)
         );
 
         if (annotatorsWithTasks.length > 0 && !hasMatchingPreferred) {
