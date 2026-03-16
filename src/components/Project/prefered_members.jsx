@@ -44,15 +44,18 @@ const ReviewTasksTable = () => {
           },
         }
       );
+      if (!response.ok) return null;
       const userData = await response.json();
       const projectId = getProjectIdFromURL();
-      const preferredAnnotators =
-        userData?.preferred_task_by_json?.preferred_annotators?.[projectId] || [];
-      console.log(" Existing preferred annotators:", preferredAnnotators);
-      return preferredAnnotators;
+      const projectPrefs = userData?.preferred_task_by_json?.preferred_annotators;
+      // If this projectId has never been saved, treat as "no prefs"
+      if (!projectPrefs || !(String(projectId) in projectPrefs)) return null;
+      const ids = projectPrefs[String(projectId)] || [];
+      console.log(" Existing preferred annotators:", ids);
+      return { ids, savedBefore: true };
     } catch (error) {
       console.error("Error fetching existing preferences:", error);
-      return [];
+      return null;
     }
   };
 
@@ -79,6 +82,7 @@ const ReviewTasksTable = () => {
     } catch (error) {
       console.error("Error fetching members:", error);
       alert("Failed to load annotators list.");
+      return [];
     } finally {
       setLoading(false);
     }
@@ -86,23 +90,20 @@ const ReviewTasksTable = () => {
 
   const handleOpen = async () => {
     setOpenDialog(true);
+    const projectId = getProjectIdFromURL();
+    if (!projectId) return alert("❌ Project ID not found in URL.");
+
     const [membersResult, existingPrefs] = await Promise.all([
       fetchMembers(),
       fetchExistingPreferences(),
     ]);
 
-    if (existingPrefs && existingPrefs.length > 0) {
-      setAnnotatorSelection(existingPrefs);
-    } else {
-      // Default: select all annotators with available tasks
-      const allWithTasks = (membersResult || [])
-        .filter((m) => (m.unassigned_count ?? 0) > 0)
-        .map((m) => m.annotator_id);
-      setAnnotatorSelection(allWithTasks);
+    const allCurrentIds = (membersResult || []).map((m) => m.annotator_id);
 
-      // Auto-save default selection
-      if (allWithTasks.length > 0) {
-        const projectId = getProjectIdFromURL();
+    if (!existingPrefs || !existingPrefs.savedBefore) {
+      // First time: select all and auto-save
+      setAnnotatorSelection(allCurrentIds);
+      if (allCurrentIds.length > 0) {
         const token = localStorage.getItem("anudesh_access_token");
         try {
           await fetch(
@@ -115,14 +116,20 @@ const ReviewTasksTable = () => {
               },
               body: JSON.stringify({
                 project_id: projectId,
-                annotator_ids: allWithTasks,
+                annotator_ids: allCurrentIds,
               }),
             }
           );
           window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
         } catch (_) { }
       }
+      return;
     }
+
+    // Restore saved prefs
+    const savedIds = existingPrefs.ids;
+    const validSavedIds = savedIds.filter((id) => allCurrentIds.includes(id));
+    setAnnotatorSelection(validSavedIds);
   };
 
   const handleClose = () => setOpenDialog(false);
