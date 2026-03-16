@@ -44,15 +44,18 @@ const ReviewTasksTable = () => {
           },
         }
       );
+      if (!response.ok) return null;
       const userData = await response.json();
       const projectId = getProjectIdFromURL();
-      const preferredAnnotators =
-        userData?.preferred_task_by_json?.preferred_annotators?.[projectId] || [];
-      console.log(" Existing preferred annotators:", preferredAnnotators);
-      return preferredAnnotators;
+      const projectPrefs = userData?.preferred_task_by_json?.preferred_annotators;
+      // If this projectId has never been saved, treat as "no prefs"
+      if (!projectPrefs || !(String(projectId) in projectPrefs)) return null;
+      const ids = projectPrefs[String(projectId)] || [];
+      console.log(" Existing preferred annotators:", ids);
+      return { ids, savedBefore: true };
     } catch (error) {
       console.error("Error fetching existing preferences:", error);
-      return [];
+      return null;
     }
   };
 
@@ -75,10 +78,13 @@ const ReviewTasksTable = () => {
       );
       const result = await response.json();
       console.log("📦 API Response:", result);
-      setMembers(Array.isArray(result) ? result : result.data || []);
+      const membersData = Array.isArray(result) ? result : result.data || [];
+      setMembers(membersData);
+      return membersData;
     } catch (error) {
       console.error("Error fetching members:", error);
       alert("Failed to load annotators list.");
+      return [];
     } finally {
       setLoading(false);
     }
@@ -86,23 +92,19 @@ const ReviewTasksTable = () => {
 
   const handleOpen = async () => {
     setOpenDialog(true);
+    const projectId = getProjectIdFromURL();
+    if (!projectId) return alert("❌ Project ID not found in URL.");
+
     const [membersResult, existingPrefs] = await Promise.all([
       fetchMembers(),
       fetchExistingPreferences(),
     ]);
+    const allCurrentIds = (membersResult || []).map((m) => Number(m.annotator_id));
 
-    if (existingPrefs && existingPrefs.length > 0) {
-      setAnnotatorSelection(existingPrefs);
-    } else {
-      // Default: select all annotators with available tasks
-      const allWithTasks = (membersResult || [])
-        .filter((m) => (m.unassigned_count ?? 0) > 0)
-        .map((m) => m.annotator_id);
-      setAnnotatorSelection(allWithTasks);
-
-      // Auto-save default selection
-      if (allWithTasks.length > 0) {
-        const projectId = getProjectIdFromURL();
+    if (!existingPrefs || !existingPrefs.savedBefore) {
+      // First time: select all and auto-save
+      setAnnotatorSelection(allCurrentIds);
+      if (allCurrentIds.length > 0) {
         const token = localStorage.getItem("anudesh_access_token");
         try {
           await fetch(
@@ -115,22 +117,29 @@ const ReviewTasksTable = () => {
               },
               body: JSON.stringify({
                 project_id: projectId,
-                annotator_ids: allWithTasks,
+                annotator_ids: allCurrentIds,
               }),
             }
           );
           window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
         } catch (_) { }
       }
+      return;
     }
+
+    // Restore saved prefs
+    const savedIds = (existingPrefs.ids || []).map(Number);
+    const validSavedIds = savedIds.filter((id) => allCurrentIds.includes(id));
+    setAnnotatorSelection(validSavedIds);
   };
 
   const handleClose = () => setOpenDialog(false);
 
   // ✅ Checkbox toggle
   const handleCheckboxChange = (id) => {
+    const numId = Number(id);
     setAnnotatorSelection((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(numId) ? prev.filter((x) => x !== numId) : [...prev, numId]
     );
   };
 
@@ -196,15 +205,15 @@ const ReviewTasksTable = () => {
                       <Checkbox
                         checked={
                           members.length > 0 &&
-                          members.every((m) => annotatorSelection.includes(m.annotator_id))
+                          members.every((m) => annotatorSelection.includes(Number(m.annotator_id)))
                         }
                         indeterminate={
-                          members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
-                          !members.every((m) => annotatorSelection.includes(m.annotator_id))
+                          members.some((m) => annotatorSelection.includes(Number(m.annotator_id))) &&
+                          !members.every((m) => annotatorSelection.includes(Number(m.annotator_id)))
                         }
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setAnnotatorSelection(members.map((m) => m.annotator_id));
+                            setAnnotatorSelection(members.map((m) => Number(m.annotator_id)));
                           } else {
                             setAnnotatorSelection([]);
                           }
@@ -224,7 +233,7 @@ const ReviewTasksTable = () => {
                     >
                       <TableCell>
                         <Checkbox
-                          checked={annotatorSelection.includes(m.annotator_id)}
+                          checked={annotatorSelection.includes(Number(m.annotator_id))}
                           onChange={() => handleCheckboxChange(m.annotator_id)}
                         />
                       </TableCell>
