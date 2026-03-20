@@ -39,7 +39,6 @@ import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSug
 import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
 import APITransport from "@/Lib/apiTransport/apitransport";
-import configs from "@/config/config";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -402,25 +401,6 @@ const MembersTable = (props) => {
     setUserType(Object.keys(UserRolesList)[0]);
   };
   const handleRemoveFrozenUsers = async (FrozenUserId) => {
-    const token = localStorage.getItem("anudesh_access_token");
-    let existingPreferences = [];
-    try {
-      const prefsRes = await fetch(
-        `${configs.BASE_URL_AUTO}/users/account/get-preferred-annotators/?project_id=${id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${token}`,
-          },
-        }
-      );
-      const prefsData = await prefsRes.json();
-      existingPreferences = prefsData.preferred_annotators || [];
-    } catch (error) {
-      console.error("Error fetching existing preferences:", error);
-    }
-    const wasPreferred = existingPreferences.includes(FrozenUserId);
-
     const projectObj = new RemoveFrozenUserAPI(id, { ids: [FrozenUserId] });
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
@@ -430,29 +410,6 @@ const MembersTable = (props) => {
     const resp = await res.json();
     setLoading(false);
     if (res.ok) {
-      if (!wasPreferred) {
-        try {
-          const updatedPreferences = existingPreferences.filter(uid => uid !== FrozenUserId);
-          await fetch(
-            `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `JWT ${token}`,
-              },
-              body: JSON.stringify({
-                project_id: id,
-                annotator_ids: updatedPreferences,
-              }),
-            }
-          );
-          window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
-        } catch (err) {
-          console.error("Error reverting preferred annotators state:", err);
-        }
-      }
-
       setSnackbarInfo({
         open: true,
         message: resp?.message,
