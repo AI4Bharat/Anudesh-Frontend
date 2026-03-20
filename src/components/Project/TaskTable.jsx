@@ -691,8 +691,6 @@ const TaskTable = (props) => {
       }),
     );
   }, [selectedFilters, pull, rejected, totalTaskCount]);
-
-
   const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
     if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
 
@@ -777,22 +775,8 @@ const TaskTable = (props) => {
               : "View"
             : "Review";
 
-        const isArchived = ProjectDetails.is_archived;
-
         row.push(
-          <Link
-            to={actionLink}
-            className={classes.link}
-            aria-disabled={isArchived}
-            onClick={
-              isArchived
-                ? (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-                : undefined
-            }
-          >
+          <Link to={actionLink} className={classes.link}>
             <CustomButton
               onClick={() => localStorage.removeItem("labelAll")}
               disabled={ProjectDetails.is_archived}
@@ -842,7 +826,7 @@ const TaskTable = (props) => {
 
       if (selectedColumns.length === 0) {
         const updatedColumns = [...defaultColumns, "annotator_mail"];
-
+        
         if (props.type === "review" && ProjectDetails?.conceal === false) {
           columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
         } else {
@@ -866,7 +850,6 @@ const TaskTable = (props) => {
       } else {
         metaInfoMapping.annotator_mail = "Annotator Email";
       }
-
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
@@ -1018,7 +1001,6 @@ const TaskTable = (props) => {
 
     checkPreferredAnnotators();
 
-    // Re-check when preferred annotators are saved from the dialog
     window.addEventListener("preferredAnnotatorsUpdated", checkPreferredAnnotators);
     return () => window.removeEventListener("preferredAnnotatorsUpdated", checkPreferredAnnotators);
   }, [props.type, id, ProjectDetails.labeled_task_count]);
