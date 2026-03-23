@@ -31,6 +31,34 @@ const ReviewTasksTable = () => {
     return match && match[1] ? match[1] : null;
   };
 
+  // Fetch existing preferred annotators from user profile
+  const fetchExistingPreferences = async () => {
+    try {
+      const token = localStorage.getItem("anudesh_access_token");
+      const response = await fetch(
+        `${configs.BASE_URL_AUTO}/users/account/me/fetch/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${token}`,
+          },
+        }
+      );
+      if (!response.ok) return null;
+      const userData = await response.json();
+      const projectId = getProjectIdFromURL();
+      const projectPrefs = userData?.preferred_task_by_json?.preferred_annotators;
+      // If this projectId has never been saved, treat as "no prefs"
+      if (!projectPrefs || !(String(projectId) in projectPrefs)) return null;
+      const ids = projectPrefs[String(projectId)] || [];
+      console.log(" Existing preferred annotators:", ids);
+      return { ids, savedBefore: true };
+    } catch (error) {
+      console.error("Error fetching existing preferences:", error);
+      return null;
+    }
+  };
+
   // ✅ Fetch annotators data
   const fetchMembers = async () => {
     const projectId = getProjectIdFromURL();
@@ -49,18 +77,60 @@ const ReviewTasksTable = () => {
       );
       const result = await response.json();
       console.log("📦 API Response:", result);
-      setMembers(Array.isArray(result) ? result : result.data || []);
+      const membersData = Array.isArray(result) ? result : result.data || [];
+      setMembers(membersData);
+      return membersData;
     } catch (error) {
       console.error("Error fetching members:", error);
       alert("Failed to load annotators list.");
+      return [];
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpen = () => {
+  const handleOpen = async () => {
     setOpenDialog(true);
-    fetchMembers();
+    const projectId = getProjectIdFromURL();
+    if (!projectId) return alert("❌ Project ID not found in URL.");
+
+    const [membersResult, existingPrefs] = await Promise.all([
+      fetchMembers(),
+      fetchExistingPreferences(),
+    ]);
+
+    const allCurrentIds = (membersResult || []).map((m) => m.annotator_id);
+
+    if (!existingPrefs || !existingPrefs.savedBefore) {
+      // First time: select all and auto-save
+      setAnnotatorSelection(allCurrentIds);
+      if (allCurrentIds.length > 0) {
+        const token = localStorage.getItem("anudesh_access_token");
+        try {
+          await fetch(
+            `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `JWT ${token}`,
+              },
+              body: JSON.stringify({
+                project_id: projectId,
+                annotator_ids: allCurrentIds,
+              }),
+            }
+          );
+          window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
+        } catch (_) { }
+      }
+      return;
+    }
+
+    // Restore saved prefs
+    const savedIds = existingPrefs.ids;
+    const validSavedIds = savedIds.filter((id) => allCurrentIds.includes(id));
+    setAnnotatorSelection(validSavedIds);
   };
 
   const handleClose = () => setOpenDialog(false);
@@ -95,6 +165,7 @@ const ReviewTasksTable = () => {
       console.log("✅ Save response:", result);
       alert(result?.message || "Preferred annotators saved successfully!");
       handleClose();
+      window.dispatchEvent(new Event("preferredAnnotatorsUpdated"));
     } catch (error) {
       console.error("Error saving preferred annotators:", error);
       alert("Failed to save preferred annotators.");
@@ -124,27 +195,49 @@ const ReviewTasksTable = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Select</TableCell>
+                  <TableCell>
+                    <Tooltip title="Select/Deselect All">
+                      <Checkbox
+                        checked={
+                          members.length > 0 &&
+                          members.every((m) => annotatorSelection.includes(m.annotator_id))
+                        }
+                        indeterminate={
+                          members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
+                          !members.every((m) => annotatorSelection.includes(m.annotator_id))
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAnnotatorSelection(members.map((m) => m.annotator_id));
+                          } else {
+                            setAnnotatorSelection([]);
+                          }
+                        }}
+                      />
+                    </Tooltip>
+                  </TableCell>
                   <TableCell>Annotator</TableCell>
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {members.map((m, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Checkbox
-                        checked={annotatorSelection.includes(m.annotator_id)}
-                        onChange={() => handleCheckboxChange(m.annotator_id)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {m.annotator_username ? m.annotator_username : (m.annotator_email || "—")}
-                    </TableCell>
-                    <TableCell>{m.unassigned_count ?? 0}</TableCell>
-                  </TableRow>
-                ))}
+                {members.map((m, index) => {
+                  return (
+                    <TableRow
+                      key={index}
+                    >
+                      <TableCell>
+                        <Checkbox
+                          checked={annotatorSelection.includes(m.annotator_id)}
+                          onChange={() => handleCheckboxChange(m.annotator_id)}
+                        />
+                      </TableCell>
+                      <TableCell>{m.annotator_username ? m.annotator_username : (m.annotator_email || "—")}</TableCell>
+                      <TableCell>{m.unassigned_count ?? 0}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
