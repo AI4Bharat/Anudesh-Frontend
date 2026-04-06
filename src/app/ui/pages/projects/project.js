@@ -208,6 +208,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
                   projectData={displayedProjects}
                   selectedFilters={selectedFilters}
                   setsSelectedFilters={setsSelectedFilters}
+                  bookmarkedProjectIds={bookmarkedProjectIds}
                 />
               ) : (
                 <ProjectCard

@@ -1475,33 +1475,36 @@ const TaskTable = (props) => {
           ))) &&
         (ProjectDetails.is_published ? (
           <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
-            {((props.type === "annotation" &&
-              selectedFilters.annotation_status === "unlabeled") ||
-              selectedFilters.annotation_status === "draft" ||
-              selectedFilters.annotation_status === "skipped" ||
-              (props.type === "review" &&
-                selectedFilters.review_status === "unreviewed") ||
-              selectedFilters.review_status === "draft" ||
-              selectedFilters.review_status === "skipped") && (
-                <Grid item xs={12} sm={12} md={3}>
-                  <Tooltip title={deallocateDisabled}>
-                    <Box>
-                      <CustomButton
-                        sx={{
-                          p: 1,
-                          width: "100%",
-                          borderRadius: 2,
-                          margin: "auto",
-                        }}
-                        label={"De-allocate Tasks"}
-                        onClick={() => setDeallocateDialog(true)}
-                        disabled={deallocateDisabled}
-                        color={"warning"}
-                      />
-                    </Box>
-                  </Tooltip>
-                </Grid>
-              )}
+           {(roles?.WorkspaceManager === userDetails?.role ||
+  roles?.OrganizationOwner === userDetails?.role ||
+  roles?.Admin === userDetails?.role) &&
+  ((props.type === "annotation" &&
+    selectedFilters.annotation_status === "unlabeled") ||
+    selectedFilters.annotation_status === "draft" ||
+    selectedFilters.annotation_status === "skipped" ||
+    (props.type === "review" &&
+      selectedFilters.review_status === "unreviewed") ||
+    selectedFilters.review_status === "draft" ||
+    selectedFilters.review_status === "skipped") && (
+    <Grid item xs={12} sm={12} md={3}>
+      <Tooltip title={deallocateDisabled}>
+        <Box>
+          <CustomButton
+            sx={{
+              p: 1,
+              width: "100%",
+              borderRadius: 2,
+              margin: "auto",
+            }}
+            label={"De-allocate Tasks"}
+            onClick={() => setDeallocateDialog(true)}
+            disabled={deallocateDisabled}
+            color={"warning"}
+          />
+        </Box>
+      </Tooltip>
+    </Grid>
+  )}
             <Dialog
               open={deallocateDialog}
               onClose={() => setDeallocateDialog(false)}
