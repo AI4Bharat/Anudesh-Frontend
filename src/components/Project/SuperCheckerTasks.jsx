@@ -982,29 +982,32 @@ const SuperCheckerTasks = (props) => {
         ) &&
         (ProjectDetails.is_published ? (
           <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
-            {((props.type === "superChecker" &&
-              selectedFilters.supercheck_status === "unvalidated") ||
-              selectedFilters.supercheck_status === "draft" ||
-              selectedFilters.supercheck_status === "skipped") && (
-              <Grid item xs={12} sm={12} md={3}>
-                <Tooltip title={deallocateDisabled}>
-                  <Box>
-                    <CustomButton
-                      sx={{
-                        p: 1,
-                        width: "100%",
-                        borderRadius: 2,
-                        margin: "auto",
-                      }}
-                      label={"De-allocate Tasks"}
-                      onClick={() => setDeallocateDialog(true)}
-                      disabled={deallocateDisabled}
-                      color={"warning"}
-                    />
-                  </Box>
-                </Tooltip>
-              </Grid>
-            )}
+           {(roles?.WorkspaceManager === userDetails?.role ||
+  roles?.OrganizationOwner === userDetails?.role ||
+  roles?.Admin === userDetails?.role) &&
+  ((props.type === "superChecker" &&
+    selectedFilters.supercheck_status === "unvalidated") ||
+    selectedFilters.supercheck_status === "draft" ||
+    selectedFilters.supercheck_status === "skipped") && (
+  <Grid item xs={12} sm={12} md={3}>
+    <Tooltip title={deallocateDisabled}>
+      <Box>
+        <CustomButton
+          sx={{
+            p: 1,
+            width: "100%",
+            borderRadius: 2,
+            margin: "auto",
+          }}
+          label={"De-allocate Tasks"}
+          onClick={() => setDeallocateDialog(true)}
+          disabled={deallocateDisabled}
+          color={"warning"}
+        />
+      </Box>
+    </Tooltip>
+  </Grid>
+)}
             <Dialog
               open={deallocateDialog}
               onClose={() => setDeallocateDialog(false)}
