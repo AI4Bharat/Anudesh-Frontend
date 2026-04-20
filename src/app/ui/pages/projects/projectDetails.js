@@ -32,6 +32,7 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import AllTaskTable from "@/components/Project/AllTaskTable";
 import { setSelectedTab } from "@/Lib/Features/projects/ProjectTabs";
 import BookmarkButton from "@/components/Project/BookmarkButton";
+import { useTheme } from "@/context/ThemeContext";
 
 const menuOptions = [
   { name: "Tasks", isChecked: false, component: () => null },
@@ -40,7 +41,7 @@ const menuOptions = [
 ];
 
 function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index,dark, ...other } = props;
 
   return (
     <div
@@ -51,7 +52,13 @@ function TabPanel(props) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box
+          sx={{
+            p: 3,
+            backgroundColor: dark ? "#1a1a1a" : "",
+            color: dark ? "#e6e6e6" : "",
+          }}
+        >
           <Typography>{children}</Typography>
         </Box>
       )}
@@ -59,6 +66,8 @@ function TabPanel(props) {
   );
 }
 const Projects = () => {
+  const { dark } = useTheme();
+  
   const { id } = useParams();
   const [projectData, setProjectData] = useState([
     { name: "Project ID", value: null },
@@ -317,11 +326,22 @@ const Projects = () => {
         <Grid>
           <Box>
             <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-              variant="scrollable"
-            >
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+                variant="scrollable"
+                sx={{
+                  "& .MuiTab-root": {
+                    color: dark ? "#b5b5b5" : "",
+                  },
+                  "& .MuiTab-root.Mui-selected": {
+                    color: dark ? "#ffffff" : "",
+                  },
+                  "& .MuiTabs-indicator": {
+                    backgroundColor: dark ? "#fb923c" : "",
+                  },
+                }}
+              >
               {filteredTabPanData.map((el, i) => {
                 return el.tabEle;
               })}
@@ -331,7 +351,7 @@ const Projects = () => {
         {filteredTabPanData.map((el, i, array) => {
           return (
             <>
-              <TabPanel value={value} index={i}>
+             <TabPanel value={value} index={i} dark={dark}>
                 {el.tabPanelEle}
               </TabPanel>
             </>
@@ -352,16 +372,21 @@ const Projects = () => {
           justifyContent="center"
           alignItems="center"
           sx={{
-            padding: { xs: 2, sm: 3, md: 5 },
-          }}
+          padding: { xs: 2, sm: 3, md: 5 },
+          backgroundColor: dark ? "#121212" : "",
+          minHeight: "100vh",
+}}
         >
           <Card
-            sx={{
-              width: "100%",
-              minHeight: 500,
-              padding: { xs: 2, sm: 4, md: 5 },
-            }}
-          >
+          sx={{
+            width: "100%",
+            minHeight: 500,
+            padding: { xs: 2, sm: 4, md: 5 },
+            backgroundColor: dark ? "#1e1e1e" : "",
+            color: dark ? "#e6e6e6" : "",
+            border: dark ? "1px solid #2f2f2f" : "",
+          }}
+        >
             <Grid
               container
               direction="row"
@@ -386,9 +411,12 @@ const Projects = () => {
                 }}
               >
                 <Typography
-                  variant="h5"
-                  sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
-                >
+                variant="h5"
+                sx={{
+                  fontSize: { xs: "1.5rem", md: "2rem" },
+                  color: dark ? "#ffffff" : "",
+                }}
+              >
                   {ProjectDetails.title}
                 </Typography>
 
@@ -418,8 +446,10 @@ const Projects = () => {
                   <Tooltip title={translate("label.showProjectSettings")}>
                     <IconButton onClick={handleOpenSettings}>
                       <SettingsOutlinedIcon
-                        color="primary.dark"
                         fontSize="large"
+                        sx={{
+                          color: dark ? "#ffffff" : "",
+                        }}
                       />
                     </IconButton>
                   </Tooltip>
@@ -434,14 +464,28 @@ const Projects = () => {
                 mb: { xs: 2, md: 3 },
               }}
             >
-              <Grid container spacing={2}>
+              <Grid
+                  container
+                  spacing={2}
+                  sx={{
+                    backgroundColor: dark ? "transparent" : "",
+                  }}
+                >
                 {projectFilterData?.map((des, i) => (
                   <Grid key={i} item xs={12} sm={6} md={3} lg={3} xl={3}>
                     <ProjectDescription
-                      name={des.name}
-                      value={des.value}
-                      index={i}
-                    />
+  name={des.name}
+  value={des.value}
+  index={i}
+  sx={{
+    "& .MuiTypography-root": {
+      color: dark ? "#ffffff !important" : "",
+    },
+    "& .project-name, & .label, & .title": {
+      color: dark ? "#ffffff !important" : "",
+    },
+  }}
+/>
                   </Grid>
                 ))}
               </Grid>

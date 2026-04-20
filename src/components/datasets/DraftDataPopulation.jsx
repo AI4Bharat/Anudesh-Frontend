@@ -23,6 +23,7 @@ import themeDefault from "@/themes/theme";
 import { fetchDataitemsById } from '@/Lib/Features/datasets/GetDataitemsById';
 import intraAutomateDatasetsAPI from '@/app/actions/api/dataset/intraAutomateDatasetsAPI';
 import { fetchDatasetByType } from '@/Lib/Features/datasets/getDatasetByType';
+import { useTheme } from "@/context/ThemeContext";
 
 
 const DraftDataPopulation = () => {
@@ -30,6 +31,7 @@ const DraftDataPopulation = () => {
 
   const classes = DatasetStyle();
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const navigate = useNavigate();
 
 
@@ -143,9 +145,10 @@ const DraftDataPopulation = () => {
   }
 
   return (
-    <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
-      <Grid container direction="row"  paddingTop={3}>
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "", p: dark ? 1 : 0 }}>
+    {loading && <Spinner />}
+    <Grid container direction="row" paddingTop={3}>
         {/* <Card className={classes.workspaceCard}>
           <Grid item xs={2} sm={2} md={2} lg={2} xl={2}></Grid>
           <Grid item xs={8} sm={8} md={8} lg={8} xl={8} sx={{ pb: "6rem" }}>
@@ -155,8 +158,8 @@ const DraftDataPopulation = () => {
               lg={12}
               xl={12}
             > */}
-              <Typography variant="h6" gutterBottom components="div">
-              Populate Draft Data Json
+              <Typography variant="h6" gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
+                Populate Draft Data Json
               </Typography>
             {/* </Grid> */}
             <Grid className={classes.projectsettingGrid}
@@ -166,7 +169,7 @@ const DraftDataPopulation = () => {
               lg={12}
               xl={12}>
             </Grid>
-            <Typography gutterBottom components="div">
+            <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
               Select dataset type:
             </Typography>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -185,19 +188,20 @@ const DraftDataPopulation = () => {
                 lg={12}
                 xl={12}
               >
-                <Typography gutterBottom components="div">
+                <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                   Source dataset instance:
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                <FormControl fullWidth >
-                  <Select
-                    labelId="project-type-label"
-                    id="project-type-select"
-                    value={srcInstance}
-                    onChange={(e)=>handleField(e.target.value)}
-                    MenuProps={MenuProps}
-                  >
+                <FormControl fullWidth sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+                <Select
+                  labelId="project-type-label"
+                  id="project-type-select"
+                  value={srcInstance}
+                  onChange={(e)=>handleField(e.target.value)}
+                  sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                  MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+                >
                     {srcInstances.map((type, index) => (
                       <MenuItem value={type.instance_id} key={index}>
                         {type.instance_name}
@@ -215,23 +219,24 @@ const DraftDataPopulation = () => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Select Field:
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
-                <Select
-                  labelId="demo-multiple-checkbox-label"
-                  id="demo-multiple-checkbox"
-                  multiple
-                  value={field}
-                  onChange={handleChange}
-                  input={<OutlinedInput label="Tag" />}
-                  renderValue={(selected) => selected.join(',')}
-                  MenuProps={MenuProps}
-                >
+              <FormControl fullWidth sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+              <InputLabel id="demo-multiple-checkbox-label" sx={{ color: dark ? "#a0a0a0" : "" }}>Tag</InputLabel>
+              <Select
+                labelId="demo-multiple-checkbox-label"
+                id="demo-multiple-checkbox"
+                multiple
+                value={field}
+                onChange={handleChange}
+                input={<OutlinedInput label="Tag" />}
+                renderValue={(selected) => selected.join(',')}
+                sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+              >
                   {Field.map((name) => (
                     <MenuItem key={name} value={name}>
                       <Checkbox checked={field.indexOf(name) > -1} />
@@ -273,7 +278,8 @@ const DraftDataPopulation = () => {
         hide={2000}
       />
 
-    </ThemeProvider>
+    </Box>
+  </ThemeProvider>
 
   );
 };

@@ -11,6 +11,7 @@ import userRole from "@/utils/UserMappedByRole/Roles";
 import { fetchDownloadCSVProject } from "@/Lib/Features/projects/DownloadProjectCsv";
 import { fetchDownloadTSVProject } from "@/Lib/Features/projects/DownloadProjectTsv";
 import { fetchDownloadJSONProject } from "@/Lib/Features/projects/DownloadJSONProject";
+import { useTheme } from "@/context/ThemeContext";
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -39,6 +40,7 @@ const StyledMenu = styled((props) => (
 function DownloadProjectButton(props) {
   const { taskStatus,SetTask,downloadMetadataToggle} = props;
   const [anchorEl, setAnchorEl] = useState(null);
+  const { dark } = useTheme();
   const [downloadres, setdownloadres] = useState(false);
   const [loading, setLoading] = useState(false);
  const[taskValue ,setTaskValue]= useState(taskStatus)
@@ -203,26 +205,32 @@ function DownloadProjectButton(props) {
         Download Project
       </Button>
       <StyledMenu
-        sytle={{ width: "20px" }}
-        id="demo-customized-menu"
-        MenuListProps={{
-          'aria-labelledby': 'demo-customized-button',
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-
-      >
-        <MenuItem onClick={handleDownloadCSVProject}>
-          CSV
-        </MenuItem>
-        <MenuItem onClick={handleDownloadTSVProject}>
-          TSV
-        </MenuItem>
-        <MenuItem onClick={handleDownloadJSONProject} >
-          JSON
-        </MenuItem>
-      </StyledMenu>
+  sytle={{ width: "20px" }}
+  id="demo-customized-menu"
+  MenuListProps={{
+    'aria-labelledby': 'demo-customized-button',
+  }}
+  anchorEl={anchorEl}
+  open={open}
+  onClose={handleClose}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      color: dark ? "#ececec" : "",
+    }
+  }}
+>
+  <MenuItem onClick={handleDownloadCSVProject} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    CSV
+  </MenuItem>
+  <MenuItem onClick={handleDownloadTSVProject} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    TSV
+  </MenuItem>
+  <MenuItem onClick={handleDownloadJSONProject} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    JSON
+  </MenuItem>
+</StyledMenu>
     </div>
   );
 }

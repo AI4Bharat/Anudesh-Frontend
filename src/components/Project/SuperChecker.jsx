@@ -10,6 +10,7 @@ import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import tableTheme from "../../themes/tableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -32,6 +33,7 @@ const MUIDataTable = dynamic(
 
 
 const SuperChecker = (props) => {
+  const { dark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [displayWidth, setDisplayWidth] = useState(0);
   const [snackbar, setSnackbarInfo] = useState({
@@ -43,21 +45,27 @@ const SuperChecker = (props) => {
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
       <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
-      >
+  sx={{
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: {
+      xs: "space-between",
+      md: "flex-end"
+    },
+    alignItems: "center",
+    padding: "10px",
+    gap: {
+      xs: "10px",
+      md: "20px"
+    },
+
+    ...(dark && {
+      backgroundColor: "#252525",
+      borderTop: "1px solid #3a3a3a",
+      color: "#a0a0a0",
+    }),
+  }}
+>
 
         {/* Pagination Controls */}
         <TablePagination
@@ -68,13 +76,27 @@ const SuperChecker = (props) => {
           onPageChange={(_, newPage) => changePage(newPage)}
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
-            "& .MuiTablePagination-actions": {
-              marginLeft: "0px",
-            },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-              marginRight: "10px",
-            },
-          }}
+  "& .MuiTablePagination-actions": {
+    marginLeft: "0px",
+  },
+  "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+    marginRight: "10px",
+  },
+
+  ...(dark && {
+    color: "#a0a0a0",
+
+    "& .MuiTablePagination-selectLabel": {
+      color: "#a0a0a0",
+    },
+    "& .MuiTablePagination-displayedRows": {
+      color: "#a0a0a0",
+    },
+    "& .MuiSvgIcon-root": {
+      color: "#fb923c",
+    },
+  }),
+}}
         />
 
         {/* Jump to Page */}
@@ -86,18 +108,45 @@ const SuperChecker = (props) => {
             Jump to Page:
           </label>
           <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
+  value={page + 1}
+  onChange={(e) => changePage(Number(e.target.value) - 1)}
+  sx={{
+    fontSize: "0.8rem",
+    padding: "4px",
+    height: "32px",
+
+    ...(dark && {
+      color: "#ececec",
+      backgroundColor: "#2a2a2a",
+
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#3a3a3a",
+      },
+
+      "& .MuiSvgIcon-root": {
+        color: "#a0a0a0",
+      },
+    }),
+  }}
+>
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-              <MenuItem key={i} value={i + 1}>
-                {i + 1}
-              </MenuItem>
+              <MenuItem
+  key={i}
+  value={i + 1}
+  sx={{
+    ...(dark && {
+      color: "#ececec",
+
+      "&:hover": {
+        backgroundColor: "#2a2a2a",
+      },
+
+      "&.Mui-selected": {
+        backgroundColor: "#333",
+      },
+    }),
+  }}
+></MenuItem>
             ))}
           </Select>
         </div>
@@ -178,10 +227,106 @@ const SuperChecker = (props) => {
     <div>
       {renderSnackBar()}
       {loading && <Spinner />}
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
+     <ThemeProvider theme={tableTheme}>
+  <Box
+    sx={{
+      width: "100%",
+      borderRadius: dark ? "8px" : "",
+      overflow: "hidden",
+      border: dark ? "1px solid #3a3a3a" : "",
+
+      ...(dark && {
+        // MAIN WRAPPER
+        "& .MuiPaper-root": {
+          backgroundColor: "#1e1e1e",
+          color: "#ececec",
+          border: "none",
+          boxShadow: "none",
+        },
+
+        // TOOLBAR (title area)
+        "& .MuiToolbar-root": {
+          backgroundColor: "#252525",
+          borderBottom: "1px solid #3a3a3a",
+        },
+
+        // HEADER
+        "& thead th": {
+          backgroundColor: "#252525",
+          color: "#ececec",
+          fontWeight: 700,
+          borderBottom: "2px solid #3a3a3a",
+          fontSize: "0.85rem",
+        },
+
+        // BODY CELLS
+        "& tbody td": {
+          color: "#d0d0d0",
+          borderBottom: "1px solid #2e2e2e",
+        },
+
+        // ROW STRIPING
+        "& tbody tr:nth-of-type(odd)": {
+          backgroundColor: "#1e1e1e",
+        },
+        "& tbody tr:nth-of-type(even)": {
+          backgroundColor: "#242424",
+        },
+
+        // HOVER
+        "& tbody tr:hover": {
+          backgroundColor: "rgba(251,146,60,0.08) !important",
+        },
+
+        // TITLE TEXT
+        "& .MuiTypography-root": {
+          color: "#ececec",
+        },
+
+        // PAGINATION ROOT
+        "& .MuiTablePagination-root": {
+          color: "#a0a0a0",
+          backgroundColor: "#252525",
+          borderTop: "1px solid #3a3a3a",
+        },
+
+        "& .MuiTablePagination-selectLabel": {
+          color: "#a0a0a0",
+        },
+        "& .MuiTablePagination-displayedRows": {
+          color: "#a0a0a0",
+        },
+        "& .MuiTablePagination-select": {
+          color: "#ececec",
+        },
+
+        // ICONS
+        "& .MuiSvgIcon-root": {
+          color: "#fb923c",
+        },
+
+        // SELECT DROPDOWN
+        "& .MuiSelect-select": {
+          color: "#ececec",
+          backgroundColor: "#2a2a2a",
+        },
+        "& .MuiSelect-icon": {
+          color: "#a0a0a0",
+        },
+        "& .MuiOutlinedInput-notchedOutline": {
+          borderColor: "#3a3a3a",
+        },
+
+        // LABEL
+        "& label": {
+          color: "#a0a0a0",
+        },
+      }),
+    }}
+  >
+    <MUIDataTable
           key={`table-${displayWidth}`}
-          title=""
+          title={dark ? " " : ""}
           //   data={data}
           //   columns={columns}
           options={{
@@ -189,6 +334,7 @@ const SuperChecker = (props) => {
             tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
           }}
         />
+        </Box>
       </ThemeProvider>
 
 

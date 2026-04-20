@@ -24,6 +24,7 @@ import { fetchRecentTasks } from "@/Lib/Features/user/getRecentTasks";
 import SearchPopup from "../../components/Project/SearchPopup"
 import AllTaskSearchPopup from "../Project/AllTasksSearchpopup";
 import { useParams } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 
 const TASK_TYPES = ["annotation", "review", "supercheck"]
 
@@ -51,6 +52,7 @@ const RecentTasks = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const { id } = useParams();  
   const dispatch = useDispatch();
+  const { isDarkMode } = useTheme();
   const [displayWidth, setDisplayWidth] = useState(0);
   const [taskType, setTaskType] = useState(TASK_TYPES[0]);
   const [columns, setColumns] = useState([]);
@@ -184,7 +186,14 @@ const RecentTasks = () => {
             <InfoIcon sx={{ color: "grey" }} fontSize="medium" />
           </LightTooltip>
         ) : null}
-        {<IconButton sx={{ borderRadius: "100%" }} onClick={(e) => handleShowSearch(col.name, e)}>
+        {<IconButton
+  sx={{
+    borderRadius: "100%",
+    color: isDarkMode ? "#a0a0a0" : undefined,
+    '&:hover': { backgroundColor: isDarkMode ? "#3a3a3a" : undefined },
+  }}
+  onClick={(e) => handleShowSearch(col.name, e)}
+>
           <SearchIcon id={col.name + "_btn"} />
         </IconButton>}
       </Box>
@@ -206,19 +215,13 @@ const RecentTasks = () => {
     return (
       <Box
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: { xs: "space-between", md: "flex-end" },
+    alignItems: "center",
+    padding: "10px",
+    gap: { xs: "10px", md: "20px" },
+  }}
       >
 
         {/* Pagination Controls */}
@@ -242,24 +245,40 @@ const RecentTasks = () => {
         {/* Jump to Page */}
         <div>
           <label style={{
-            marginRight: "5px",
-            fontSize: "0.83rem",
-          }}>
-            Jump to Page:
-          </label>
-          <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
+          marginRight: "5px",
+          fontSize: "0.83rem",
+          color: isDarkMode ? "#ececec" : undefined,
+        }}>
+          Jump to Page:
+        </label>
+         <Select
+          value={page + 1}
+          onChange={(e) => changePage(Number(e.target.value) - 1)}
+          sx={{
+            fontSize: "0.8rem",
+            padding: "4px",
+            height: "32px",
+            color: isDarkMode ? "#ececec" : undefined,
+            backgroundColor: isDarkMode ? "#2a2a2a" : undefined,
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: isDarkMode ? "#3a3a3a" : undefined,
+            },
+            '& .MuiSvgIcon-root': {
+              color: isDarkMode ? "#ececec" : undefined,
+            },
+          }}
+        >
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-              <MenuItem key={i} value={i + 1}>
-                {i + 1}
-              </MenuItem>
+             <MenuItem
+              key={i}
+              value={i + 1}
+              sx={{
+                backgroundColor: isDarkMode ? "#2a2a2a" : undefined,
+                color: isDarkMode ? "#ececec" : undefined,
+                '&:hover': { backgroundColor: isDarkMode ? "#3a3a3a" : undefined },
+                '&.Mui-selected': { backgroundColor: isDarkMode ? "#3a3a3a" : undefined },
+              }}
+            ></MenuItem>
             ))}
           </Select>
         </div>
@@ -315,14 +334,141 @@ const RecentTasks = () => {
 
   return (
     <ThemeProvider theme={themeDefault}>
-      <Box>
-        <Tabs value={taskType} onChange={(e, newVal) => setTaskType(newVal)} aria-label="basic tabs example" sx={{ mb: 2 }}>
-          <Tab label={translate("label.recentTasks.annotation")} value="annotation" sx={{ fontSize: 16, fontWeight: '700' }} />
-          <Tab label={translate("label.recentTasks.review")} value="review" sx={{ fontSize: 16, fontWeight: '700' }} />
-          <Tab label="Super Check" value="supercheck" sx={{ fontSize: 16, fontWeight: '700' }} />
+      <Box sx={{
+    ...(isDarkMode && {
+      backgroundColor: "#1e1e1e",
+      color: "#ececec",
+      borderRadius: 2,
+      p: 2,
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+      },
+      "& .MuiTableCell-root": {
+        color: "#ececec",
+        borderBottom: "1px solid #3a3a3a",
+      },
+      "& .MuiTableHead-root": {
+        backgroundColor: "#1e1e1e",
+      },
+      "& .MuiTableRow-root:hover": {
+        backgroundColor: "#333",
+      },
+    }),
+  }} >
+      <Tabs
+  value={taskType}
+  onChange={(e, newVal) => setTaskType(newVal)}
+  aria-label="basic tabs example"
+  sx={{
+    mb: 2,
+    '& .MuiTabs-indicator': {
+      backgroundColor: isDarkMode ? "#ececec" : undefined,
+    },
+  }}
+>
+         <Tab
+  label={translate("label.recentTasks.annotation")}
+  value="annotation"
+  sx={{
+    fontSize: 16,
+    fontWeight: '700',
+    color: isDarkMode ? "#a0a0a0" : undefined,
+    '&.Mui-selected': { color: isDarkMode ? "#ececec" : undefined },
+  }}
+/>
+          <Tab label={translate("label.recentTasks.review")} value="review" sx={{ fontSize: 16, fontWeight: '700',color: isDarkMode ? "#a0a0a0" : undefined,
+    '&.Mui-selected': { color: isDarkMode ? "#ececec" : undefined }, }} />
+          <Tab label="Super Check" value="supercheck" sx={{ fontSize: 16, fontWeight: '700',color: isDarkMode ? "#a0a0a0" : undefined,
+    '&.Mui-selected': { color: isDarkMode ? "#ececec" : undefined }, }} />
         </Tabs>
       </Box>
       <ThemeProvider theme={tableTheme}>
+        <Box sx={{
+    width: "100%",
+    borderRadius: isDarkMode ? "8px" : "",
+    overflow: "hidden",
+    border: isDarkMode ? "1px solid #3a3a3a" : "",
+
+    ...(isDarkMode && {
+      "& .MuiPaper-root": {
+        backgroundColor: "#1e1e1e",
+        color: "#ececec",
+        border: "none",
+        boxShadow: "none",
+      },
+      "& .MuiToolbar-root": {
+        backgroundColor: "#252525",
+        borderBottom: "1px solid #3a3a3a",
+      },
+      "& thead th": {
+        backgroundColor: "#252525",
+        color: "#ececec",
+        fontWeight: 700,
+        borderBottom: "2px solid #3a3a3a",
+        fontSize: "0.85rem",
+        letterSpacing: "0.04em",
+      },
+      "& tbody td": {
+        color: "#d0d0d0",
+        borderBottom: "1px solid #2e2e2e",
+        fontSize: "0.875rem",
+      },
+      "& tbody tr:nth-of-type(odd)": {
+        backgroundColor: "#1e1e1e",
+      },
+      "& tbody tr:nth-of-type(even)": {
+        backgroundColor: "#242424",
+      },
+      "& tbody tr:hover": {
+        backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+        transition: "background-color 0.2s ease",
+      },
+      "& .MuiTypography-root": {
+        color: "#ececec",
+      },
+      "& .MuiTablePagination-root": {
+        color: "#a0a0a0",
+        backgroundColor: "#252525",
+        borderTop: "1px solid #3a3a3a",
+      },
+      "& .MuiTablePagination-selectLabel": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-displayedRows": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-select": {
+        color: "#ececec",
+      },
+      "& .MuiIconButton-root": {
+        color: "#fb923c",
+        "&:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.12)",
+        },
+        "&.Mui-disabled": {
+          color: "#555555",
+        },
+      },
+      "& .MuiSelect-select": {
+        color: "#ececec",
+        backgroundColor: "#2a2a2a",
+      },
+      "& .MuiSelect-icon": {
+        color: "#a0a0a0",
+      },
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#3a3a3a",
+      },
+      "& .MuiSvgIcon-root": {
+        color: "#fb923c",
+      },
+      "& label": {
+        color: "#a0a0a0",
+      },
+    }),
+  }}
+        >
         <MUIDataTable
           key={`table-${displayWidth}`}
           title={""}
@@ -333,6 +479,7 @@ const RecentTasks = () => {
             tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
           }}
         />
+        </Box>
       </ThemeProvider>
 
       {searchOpen &&        <AllTaskSearchPopup

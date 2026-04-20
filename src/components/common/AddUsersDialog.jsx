@@ -28,6 +28,7 @@ import addUserTypes from "../../Constants/addUserTypes";
 import CustomButton from "./Button";
 import { fetchDatasetDetails } from "@/Lib/Features/datasets/getDatasetDetails";
 import CustomizedSnackbars from "./Snackbar";
+import { useTheme } from "@/context/ThemeContext";
 import GetWorkspacesAnnotatorsDataAPI from "@/app/actions/api/workspace/GetWorkspacesAnnotatorsDataAPI";
 import GetWorkspacesDetailsAPI from "@/app/actions/api/workspace/getWorkspaceDetails";
 
@@ -370,6 +371,7 @@ const getAvailableUsers = (
   };
 const AddUsersDialog = ({ handleDialogClose, isOpen, userType, id }) => {
   const [availableUsers, setAvailableUsers] = useState([]);
+  const { dark } = useTheme();
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -493,41 +495,76 @@ useEffect(() => {
   // console.log(availableUsers, userType, "helo");
   // console.log('filteruser : ', filteruser(userType));
   return (
-    <Dialog open={isOpen} onClose={dialogCloseHandler} close>
+    <Dialog
+  open={isOpen}
+  onClose={dialogCloseHandler}
+  close
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      boxShadow: dark ? "0 4px 16px rgba(0,0,0,0.5)" : "",
+    }
+  }}
+>
       {renderSnackBar()}
-      <DialogTitle style={{ paddingBottom: 0 }}>
-        {DialogHeading[userType]}
-      </DialogTitle>
+      <DialogTitle style={{ paddingBottom: 0, color: dark ? "#ececec" : "" }}>
+      {DialogHeading[userType]}
+    </DialogTitle>
       <DialogContent>
-        <DialogContentText fontSize={16} marginBottom={2}>
-          Select users to be added.
-        </DialogContentText>
+        <DialogContentText fontSize={16} marginBottom={2} sx={{ color: dark ? "#a0a0a0" : "" }}>
+        Select users to be added.
+      </DialogContentText>
         <Autocomplete
-          multiple
-          limitTags={3}
-          onChange={(e, newVal) =>
-            setSelectedUsers(Array.isArray(newVal) ? newVal : [])
-          }
-          options={
-            filteruser(userType) || availableUsers
-          }
-          value={selectedUsers}
-          style={{ fontSize: "1rem", paddingTop: 4, paddingBottom: 4 }}
-          getOptionLabel={(option) => option.username}
-          size="small"
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Select Users..."
-              style={{ fontSize: "1rem" }}
-              size="small"
-              placeholder="Add Users"
-            />
-          )}
-          sx={{ width: "100%" }}
-        />
+  multiple
+  limitTags={3}
+  onChange={(e, newVal) =>
+    setSelectedUsers(Array.isArray(newVal) ? newVal : [])
+  }
+  options={filteruser(userType) || availableUsers}
+  value={selectedUsers}
+  style={{ fontSize: "1rem", paddingTop: 4, paddingBottom: 4 }}
+  getOptionLabel={(option) => option.username}
+  size="small"
+  slotProps={{
+    paper: {
+      sx: {
+        backgroundColor: dark ? "#2a2a2a" : "",
+        color: dark ? "#ececec" : "",
+        border: dark ? "1px solid #3a3a3a" : "",
+        "& .MuiAutocomplete-option:hover": {
+          backgroundColor: dark ? "#3a3a3a" : "",
+        },
+      }
+    }
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Select Users..."
+      style={{ fontSize: "1rem" }}
+      size="small"
+      placeholder="Add Users"
+      sx={{
+        "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+        "& .MuiOutlinedInput-root": {
+          color: dark ? "#ececec" : "",
+          "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+          "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+        },
+        "& .MuiChip-root": {
+          backgroundColor: dark ? "#3a3a3a" : "",
+          color: dark ? "#ececec" : "",
+        },
+        "& .MuiChip-deleteIcon": { color: dark ? "#a0a0a0" : "" },
+      }}
+    />
+  )}
+  sx={{ width: "100%" }}
+/>
       </DialogContent>
-      <DialogActions style={{ padding: 24 }}>
+     <DialogActions style={{ padding: 24, backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
         <Button onClick={dialogCloseHandler} size="small">
           Cancel
         </Button>

@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/common/Button";
+import Box from "@mui/material/Box";
 import MenuItems from "../common/MenuItems";
 import Spinner from "@/components/common/Spinner";
 import Snackbar from "@/components/common/Snackbar";
@@ -23,6 +24,7 @@ import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import { fetchIndicTransLanguages } from "@/Lib/Features/datasets/GetIndicTransLanguages";
 import AutomateDatasetsAPI from "@/app/actions/api/dataset/AutomateDatasetsAPI";
 import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
+import { useTheme } from "@/context/ThemeContext";
 
 const APi_Type = [
   { Api_Typename: "indic-trans" },
@@ -34,6 +36,7 @@ const InterAutomateDataset = () => {
 
   const navigate = useNavigate();
   const classes = DatasetStyle();
+  const { dark } = useTheme();
   const dispatch = useDispatch();
 
   const [srcDatasetTypes, setSrcDatasetTypes] = useState([]);
@@ -217,14 +220,15 @@ const InterAutomateDataset = () => {
   };
 
   return (
-    <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
-      <Grid container direction="row" paddingTop={3}>
-        <Card className={classes.workspaceCard}>
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100vh" }}>
+    {loading && <Spinner />}
+    <Grid container direction="row" paddingTop={3}>
+        <Card className={classes.workspaceCard} sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "" }}>
           <Grid item xs={2} sm={2} md={2} lg={2} xl={2}></Grid>
           <Grid item xs={8} sm={8} md={8} lg={8} xl={8} sx={{ pb: "6rem" }}>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <Typography variant="h2" gutterBottom components="div">
+              <Typography variant="h2" gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Inter-Automate Datasets
               </Typography>
             </Grid>
@@ -236,7 +240,7 @@ const InterAutomateDataset = () => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Source dataset type:
               </Typography>
             </Grid>
@@ -269,7 +273,7 @@ const InterAutomateDataset = () => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Target dataset type:
               </Typography>
             </Grid>
@@ -290,19 +294,20 @@ const InterAutomateDataset = () => {
                   lg={12}
                   xl={12}
                 >
-                  <Typography gutterBottom components="div">
+                  <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                     Source dataset instance:
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <FormControl fullWidth>
-                    <Select
-                      labelId="project-type-label"
-                      id="project-type-select"
-                      value={srcInstance}
-                      onChange={(e) => setSrcInstance(e.target.value)}
-                      MenuProps={MenuProps}
-                    >
+                  <FormControl fullWidth sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <Select
+    labelId="project-type-label"
+    id="project-type-select"
+    value={srcInstance}
+    onChange={(e) => setSrcInstance(e.target.value)}
+    sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
                       {srcInstances.map((type, index) => (
                         <MenuItem value={type.instance_id} key={index}>
                           {type.instance_name}
@@ -323,19 +328,20 @@ const InterAutomateDataset = () => {
                   lg={12}
                   xl={12}
                 >
-                  <Typography gutterBottom components="div">
+                  <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                     Target dataset instance:
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <FormControl fullWidth>
-                    <Select
-                      labelId="project-type-label"
-                      id="project-type-select"
-                      value={tgtInstance}
-                      onChange={(e) => setTgtInstance(e.target.value)}
-                      MenuProps={MenuProps}
-                    >
+                 <FormControl fullWidth sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <Select
+    labelId="project-type-label"
+    id="project-type-select"
+    value={tgtInstance}
+    onChange={(e) => setTgtInstance(e.target.value)}
+    sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
                       {tgtInstances.map((type, index) => (
                         <MenuItem value={type.instance_id} key={index}>
                           {type.instance_name}
@@ -356,7 +362,7 @@ const InterAutomateDataset = () => {
                   lg={12}
                   xl={12}
                 >
-                  <Typography gutterBottom components="div">
+                  <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                     Choice of translation model:
                   </Typography>
                 </Grid>
@@ -401,22 +407,23 @@ const InterAutomateDataset = () => {
                   lg={12}
                   xl={12}
                 >
-                  <Typography gutterBottom components="div">
+                  <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                     Target Languages:
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                  <FormControl fullWidth sx={{ minWidth: 120 }}>
-                    <Select
-                      labelId="language-select-label"
-                      id="language-select"
-                      onChange={(e) => {
-                        setLanguages(e.target.value);
-                      }}
-                      value={languages}
-                      multiple
-                      MenuProps={MenuProps}
-                    >
+                 <FormControl fullWidth sx={{ minWidth: 120, "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <Select
+    labelId="language-select-label"
+    id="language-select"
+    onChange={(e) => {
+      setLanguages(e.target.value);
+    }}
+    value={languages}
+    multiple
+    sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
                       {languageChoices.map((lang) => (
                         <MenuItem key={lang.name} value={lang.name}>
                           {lang.name}
@@ -435,7 +442,7 @@ const InterAutomateDataset = () => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Checks for particular language:
               </Typography>
             </Grid>
@@ -464,7 +471,7 @@ const InterAutomateDataset = () => {
                 lg={4}
                 xl={4}
               >
-                <Typography gutterBottom components="div">
+                <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                   Automate missing items only:
                 </Typography>
               </Grid>
@@ -486,7 +493,7 @@ const InterAutomateDataset = () => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Api Type:
               </Typography>
             </Grid>
@@ -537,8 +544,9 @@ const InterAutomateDataset = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         hide={2000}
       />
-    </ThemeProvider>
-  );
+    </Box>
+  </ThemeProvider>
+);
 };
 
 export default InterAutomateDataset;

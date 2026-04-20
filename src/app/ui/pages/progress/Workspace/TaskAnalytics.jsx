@@ -19,6 +19,7 @@ import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { KeyboardArrowDown } from "@material-ui/icons";
+import { useTheme } from "@/context/ThemeContext";
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -47,6 +48,7 @@ const TaskAnalytics = () => {
     /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("AllTypes");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
@@ -199,8 +201,8 @@ console.log(selectedType);
   };
 
 
-  return (
-    <>
+ return (
+  <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%", p: dark ? 1 : 0 }}>
 <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={1}>
       <Grid
       container
@@ -212,9 +214,9 @@ console.log(selectedType);
       xl={4}
       spacing={1}
       alignItems="center"
-    ><Grid item xs={12} sm={6} md={6} lg={6} xl={6}>      <FormControl  size="small">
-            <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px",zIndex: 0 }}>
-              Project Type {" "}
+    ><Grid item xs={12} sm={6} md={6} lg={6} xl={6}>   
+     <FormControl size="small" sx={{ "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" }, "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0, color: dark ? "#a0a0a0" : "" }}>
               {
                 <LightTooltip
                   arrow
@@ -232,7 +234,7 @@ console.log(selectedType);
               id="demo-simple-select"
               value={selectedType}
               label="Project Type"
-              sx={{padding:"1px"}}
+              sx={{ padding: "1px", color: dark ? "#ececec" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
               onChange={(e) => setSelectedType(e.target.value)}
               MenuProps={MenuProps}
             >
@@ -265,17 +267,23 @@ console.log(selectedType);
         >
           Download
         </CustomButton>
-            <StyledMenu
+          <StyledMenu
               id="demo-customized-menu"
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
+              PaperProps={{
+                sx: {
+                  backgroundColor: dark ? "#2a2a2a" : "",
+                  border: dark ? "1px solid #3a3a3a" : "",
+                }
+              }}
             >
-              <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-              <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-              <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-            </StyledMenu>
-          </Box>
+          <MenuItem onClick={downloadCSV} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>CSV</MenuItem>
+          <MenuItem onClick={downloadPDF} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>PDF</MenuItem>
+          <MenuItem onClick={downloadJSON} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>JSON</MenuItem>
+        </StyledMenu>
+           </Box>
           </Box>
       </Grid>
         </Grid>
@@ -285,9 +293,10 @@ console.log(selectedType);
         taskAnalyticsData.map((analyticsData,_index)=>{
           
           if(analyticsData.length){ 
-            return <Grid key={_index} style={{marginTop:"15px"}}>
-            <TaskCountAnalyticsChart analyticsData={analyticsData}/>
-          </Grid>}
+           return <Grid key={_index} style={{ marginTop: "15px", backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "" }}>
+  <TaskCountAnalyticsChart analyticsData={analyticsData}/>
+</Grid>
+          }
         })
       :''}
       <CustomizedSnackbars
@@ -301,8 +310,8 @@ console.log(selectedType);
         }}
         variant="error"
       />
-    </>
-  );
+    </Box>
+);
 };
 
 export default TaskAnalytics;

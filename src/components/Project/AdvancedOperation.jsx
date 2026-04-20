@@ -43,6 +43,8 @@ import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import TasksassignDialog from './taskassign';
+import { useTheme } from "@/context/ThemeContext";
+import Box from "@mui/material/Box";
 /* eslint-disable react-hooks/exhaustive-deps */
 const ProgressType = [
   "incomplete",
@@ -86,7 +88,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const AdvancedOperation = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+const { dark } = useTheme();
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -517,11 +519,11 @@ const AdvancedOperation = (props) => {
     }
   };
   return (
-    <ThemeProvider theme={themeDefault}>
-      {loading && <Spinner />}
-      <Grid>{renderSnackBar()}</Grid>
-
-      <div className={classes.rootdiv}>
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%", p: dark ? 1 : 0 }}>
+    {loading && <Spinner />}
+    <Grid>{renderSnackBar()}</Grid>
+    <div className={classes.rootdiv}>
         <Grid
           container
           columns={16}
@@ -580,27 +582,29 @@ const AdvancedOperation = (props) => {
             xl={12}
           >
             {userRole.WorkspaceManager === loggedInUserData?.role ? null : (
-              <FormControl 
-              className={classes.formControl}
-              sx={{
-                width: "100%"
-              }}
-              >
-                <InputLabel
-                  id="Select-Task-Statuses"
-                  sx={{ fontSize: "16px" }}
-                >
-                  Select Task Statuses
-                </InputLabel>
-                <Select
-                  labelId="Select-Task-Statuses"
-                  label="Select Task Statuses"
-                  multiple
-                  value={taskStatus}
-                  onChange={handleChange}
-                  renderValue={(taskStatus) => taskStatus.join(", ")}
-                  MenuProps={MenuProps}
-                >
+             <FormControl 
+  className={classes.formControl}
+  sx={{
+    width: "100%",
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+  }}
+>
+  <InputLabel
+    id="Select-Task-Statuses"
+    sx={{ fontSize: "16px", color: dark ? "#a0a0a0" : "" }}
+  >
+    Select Task Statuses
+  </InputLabel>
+  <Select
+    labelId="Select-Task-Statuses"
+    label="Select Task Statuses"
+    multiple
+    value={taskStatus}
+    onChange={handleChange}
+    renderValue={(taskStatus) => taskStatus.join(", ")}
+    MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+    sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+  >
                   {FilterProgressType.map((option) => (
                     <MenuItem
                       sx={{ textTransform: "capitalize" }}
@@ -743,22 +747,24 @@ const AdvancedOperation = (props) => {
             </Grid> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <FormControl 
-            className={classes.formControl}
-            sx={{
-                width: "100%"
-              }}
-            >
-              <InputLabel id="task-Reviews-label" sx={{ fontSize: "16px" }}>
-                Project Stage
-              </InputLabel>
-              <Select
-                labelId="task-Reviews-label"
-                id="task-Reviews-select"
-                value={taskReviews}
-                label="Task Reviews"
-                onChange={handleReviewToggle}
-                // getOptionDisabled={(option) => option.disabled}
-              >
+  className={classes.formControl}
+  sx={{
+    width: "100%",
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+  }}
+>
+  <InputLabel id="task-Reviews-label" sx={{ fontSize: "16px", color: dark ? "#a0a0a0" : "" }}>
+    Project Stage
+  </InputLabel>
+  <Select
+    labelId="task-Reviews-label"
+    id="task-Reviews-select"
+    value={taskReviews}
+    label="Task Reviews"
+    onChange={handleReviewToggle}
+    sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
                 {filteredProjectStage.map((type, index) => (
                   <MenuItem
                     value={type.value}
@@ -801,6 +807,7 @@ const AdvancedOperation = (props) => {
                   ? true
                   : false
               }
+              sx={{ color: dark ? "#ececec" : "" }}
             />
           </Grid>
           {ProjectDetails?.project_type === "InstructionDrivenChat" && (
@@ -816,6 +823,7 @@ const AdvancedOperation = (props) => {
                     ? true
                     : false
                 }
+                sx={{ color: dark ? "#ececec" : "" }}
               />
             </Grid>
           )}
@@ -838,27 +846,39 @@ const AdvancedOperation = (props) => {
           </Grid>
         </Grid>
         <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to {!isArchived ? "archive" : "unarchive"}{" "}
-              this project?
-            </DialogContentText>
-            <TextField
-              autoFocus
-              id="password"
-              label="Password"
-              type="password"
-              fullWidth
-              variant="standard"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
+  open={open}
+  onClose={handleClose}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+    <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
+      Are you sure you want to {!isArchived ? "archive" : "unarchive"}{" "}
+      this project?
+    </DialogContentText>
+    <TextField
+      autoFocus
+      id="password"
+      label="Password"
+      type="password"
+      fullWidth
+      variant="standard"
+      onChange={(e) => setPassword(e.target.value)}
+      sx={{
+        "& .MuiInput-root": { color: dark ? "#ececec" : "" },
+        "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+        "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+      }}
+    />
+  </DialogContent>
+  <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
             <Button onClick={handleClose} variant="outlined" color="error">
               Cancel
             </Button>
@@ -873,17 +893,24 @@ const AdvancedOperation = (props) => {
           </DialogActions>
         </Dialog>
         <Dialog
-          open={openDeleteDialog}
-          onClose={() => setOpenDeleteDialog(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Delete this project permanently?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
+  open={openDeleteDialog}
+  onClose={() => setOpenDeleteDialog(false)}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+    <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
+      Delete this project permanently?
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
             <Button onClick={() => setOpenDeleteDialog(false)} variant="outlined" color="primary">
               Cancel
             </Button>
@@ -902,9 +929,10 @@ const AdvancedOperation = (props) => {
             handleClose={handleClose}
           />
         )}
-      </div>
-    </ThemeProvider>
-  );
+     </div>
+    </Box>
+  </ThemeProvider>
+);
 };
 
 export default AdvancedOperation;

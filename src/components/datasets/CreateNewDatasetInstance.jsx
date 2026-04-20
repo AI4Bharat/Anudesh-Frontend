@@ -25,11 +25,13 @@ import { useDispatch, useSelector } from "react-redux";
 import MenuItems from "@/components/common/MenuItems"
 import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";
 import CreateNewDatasetInstanceAPI from "@/app/actions/api/dataset/CreateNewDatasetInstance";
+import { useTheme } from "@/context/ThemeContext";
 
 const CollectionProject = (props) => {
         /* eslint-disable react-hooks/exhaustive-deps */
 
   const { id } = useParams();
+  const { dark } = useTheme();
   const navigate = useNavigate();
   const classes = DatasetStyle();
   const dispatch = useDispatch();
@@ -126,7 +128,9 @@ const CollectionProject = (props) => {
 };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100vh" }}>
+    <Grid container direction="row">
       {/* <Header /> */}
       {/* <Grid
                   container
@@ -145,15 +149,15 @@ const CollectionProject = (props) => {
                       xl={5}
                   > */}
 
-      <Grid container direction="row"  >
+      
         {loading && <Spinner /> }
-        <Card className={classes.workspaceCard}>
+        <Card className={classes.workspaceCard} sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "" }}>
           <Grid item xs={2} sm={2} md={2} lg={2} xl={2}></Grid>
           <Grid item xs={8} sm={8} md={8} lg={8} xl={8} sx={{ pb: "6rem" }}>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <Typography variant="h2" gutterBottom components="div">
+             <Typography variant="h2" gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
               Create New Dataset Instance
-              </Typography>
+            </Typography>
             </Grid>
             <Grid
               className={classes.projectsettingGrid}
@@ -163,7 +167,7 @@ const CollectionProject = (props) => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Instance_Name<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
@@ -185,7 +189,7 @@ const CollectionProject = (props) => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Parent_Instance_Id:
               </Typography>
             </Grid>
@@ -206,7 +210,7 @@ const CollectionProject = (props) => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Instance_Description:
               </Typography>
             </Grid>
@@ -227,21 +231,22 @@ const CollectionProject = (props) => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Dataset_Type<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-            <FormControl fullWidth sx={{ minWidth: 120 }} >
-                <Select
-                  labelId="demo-simple-select-standard-label"
-                  id="demo-simple-select-standard"
-                  onChange={(e) => setDatasettype(e.target.value)}
-                  value={datasettype}
-                  helperText={errors.dataset_type ? errors.dataset_type : ""}
-                  error={errors.dataset_type ? true : false}  
-                  sx={{ fontSize: "14px" }}
-                >
+           <FormControl fullWidth sx={{ minWidth: 120, "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              onChange={(e) => setDatasettype(e.target.value)}
+              value={datasettype}
+              helperText={errors.dataset_type ? errors.dataset_type : ""}
+              error={errors.dataset_type ? true : false}
+              sx={{ fontSize: "14px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+              MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+            >
                   {type.map((option, index) => (
                     <MenuItem key={index} value={option.value}>
                       {option.name}
@@ -259,7 +264,7 @@ const CollectionProject = (props) => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 Organisation_Id<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
@@ -281,7 +286,7 @@ const CollectionProject = (props) => {
               lg={12}
               xl={12}
             >
-              <Typography gutterBottom components="div">
+              <Typography gutterBottom components="div" sx={{ color: dark ? "#ececec" : "" }}>
                 User<span style={{ color: '#d93025' }}>*</span> :
               </Typography>
             </Grid>
@@ -326,8 +331,9 @@ const CollectionProject = (props) => {
 
       {/* </Grid>
               </Grid> */}
-    </ThemeProvider>
-  );
+   </Box>
+  </ThemeProvider>
+);
 };
 
 export default CollectionProject;

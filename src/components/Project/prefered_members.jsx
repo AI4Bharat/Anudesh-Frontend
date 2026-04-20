@@ -17,8 +17,10 @@ import {
 } from "@mui/material";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import configs from "../../config/config";
+import { useTheme } from "@/context/ThemeContext";
 
 const ReviewTasksTable = () => {
+  const { dark } = useTheme();
   const [openDialog, setOpenDialog] = useState(false);
   const [members, setMembers] = useState([]);
   const [annotatorSelection, setAnnotatorSelection] = useState([]);
@@ -189,17 +191,39 @@ const ReviewTasksTable = () => {
       </div>
 
       {/* 💬 Dialog Box */}
-      <Dialog open={openDialog} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Unassigned Annotator's Task Summary</DialogTitle>
-        <DialogContent dividers>
+<Dialog
+  open={openDialog}
+  onClose={handleClose}
+  fullWidth
+  maxWidth="sm"
+  sx={{
+    "& .MuiPaper-root": {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogTitle
+    sx={{ color: dark ? "#ececec" : "" }}
+  >
+    Unassigned Annotator's Task Summary
+  </DialogTitle>
+
+  <DialogContent
+    dividers
+    sx={{
+      backgroundColor: dark ? "#2a2a2a" : ""
+    }}
+  >
           {loading ? (
             <CircularProgress sx={{ display: "block", margin: "auto" }} />
           ) : members.length === 0 ? (
-            <div style={{ textAlign: "center" }}>No annotators found.</div>
+            <div style={{ textAlign: "center", color: dark ? "#a0a0a0" : "" }}>No annotators found.</div>
           ) : (
             <Table>
               <TableHead>
-                <TableRow>
+                <TableRow sx={{ "& .MuiTableCell-head": { backgroundColor: dark ? "#252525" : "", color: dark ? "#ececec" : "", borderBottom: dark ? "2px solid #3a3a3a" : "" } }}>
                   <TableCell>
                     <Tooltip title="Select/Deselect All">
                       <Checkbox
@@ -226,11 +250,12 @@ const ReviewTasksTable = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {members.map((m, index) => {
-                  return (
-                    <TableRow
-                      key={index}
-                    >
+               {members.map((m, index) => {
+                return (
+                  <TableRow
+                    key={index}
+                    sx={{ "& .MuiTableCell-body": { color: dark ? "#d0d0d0" : "", borderBottom: dark ? "1px solid #2e2e2e" : "" }, "&:hover": { backgroundColor: dark ? "rgba(251, 146, 60, 0.08)" : "" } }}
+                  >
                       <TableCell>
                         <Checkbox
                           checked={annotatorSelection.includes(Number(m.annotator_id))}
@@ -247,7 +272,7 @@ const ReviewTasksTable = () => {
           )}
         </DialogContent>
 
-        <DialogActions>
+        <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
           <Button onClick={handleClose}>Cancel</Button>
           <Button variant="contained" onClick={handleSave}>
             Save Preferred Annotators

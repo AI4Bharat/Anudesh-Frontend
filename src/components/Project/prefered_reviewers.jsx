@@ -17,9 +17,11 @@ import {
 } from "@mui/material";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import configs from "../../config/config";
+import { useTheme } from "@/context/ThemeContext";
 
 const TasksSupercheckTable = () => {
   const [openDialog, setOpenDialog] = useState(false);
+  const { dark } = useTheme();
   const [members, setMembers] = useState([]);
   const [selectedReviewers, setSelectedReviewers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -146,26 +148,37 @@ const TasksSupercheckTable = () => {
       </div>
 
       {/* 💬 Dialog Box */}
-      <Dialog open={openDialog} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Unassigned Reviewer's Summary</DialogTitle>
-
-        <DialogContent dividers>
+      <Dialog
+  open={openDialog}
+  onClose={handleClose}
+  fullWidth
+  maxWidth="sm"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogTitle sx={{ color: dark ? "#ececec" : "" }}>Unassigned Reviewer's Summary</DialogTitle>
+  <DialogContent dividers sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
           {loading ? (
             <CircularProgress sx={{ display: "block", margin: "auto" }} />
           ) : members.length === 0 ? (
-            <div style={{ textAlign: "center" }}>No reviewers found.</div>
+           <div style={{ textAlign: "center", color: dark ? "#a0a0a0" : "" }}>No reviewers found.</div>
           ) : (
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Select</TableCell>
-                  <TableCell>Reviewer Email</TableCell>
-                  <TableCell>Unassigned Tasks</TableCell>
-                </TableRow>
-              </TableHead>
+              <TableRow sx={{ "& .MuiTableCell-head": { backgroundColor: dark ? "#252525" : "", color: dark ? "#ececec" : "", borderBottom: dark ? "2px solid #3a3a3a" : "" } }}>
+                <TableCell>Select</TableCell>
+                <TableCell>Reviewer Email</TableCell>
+                <TableCell>Unassigned Tasks</TableCell>
+              </TableRow>
+            </TableHead>
               <TableBody>
                 {members.map((m, index) => (
-                  <TableRow key={index}>
+  <TableRow key={index} sx={{ "& .MuiTableCell-body": { color: dark ? "#d0d0d0" : "", borderBottom: dark ? "1px solid #2e2e2e" : "" }, "&:hover": { backgroundColor: dark ? "rgba(251, 146, 60, 0.08)" : "" } }}>
                     <TableCell>
                       <Checkbox
                         checked={selectedReviewers.includes(m.reviewer_id)}
@@ -181,12 +194,12 @@ const TasksSupercheckTable = () => {
           )}
         </DialogContent>
 
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            Save Preferred Reviewers
-          </Button>
-        </DialogActions>
+        <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button variant="contained" onClick={handleSave}>
+          Save Preferred Reviewers
+        </Button>
+      </DialogActions>
       </Dialog>
     </div>
   );

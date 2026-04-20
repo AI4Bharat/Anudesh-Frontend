@@ -15,6 +15,7 @@ import tableTheme from "../../../../themes/tableTheme";
 import Search from "../../../../components/common/Search";
 import { fetchWorkspaceProjectData } from "@/Lib/Features/getWorkspaceProjectData";
 import UserMappedByProjectStage from "../../../../utils/UserMappedByProjectStage";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -36,6 +37,7 @@ const MUIDataTable = dynamic(
 );
 
 const ProjectTable = (props) => {
+  const { dark } = useTheme();
   /* eslint-disable react-hooks/exhaustive-deps */
   const [displayWidth, setDisplayWidth] = useState(0);
   const CustomButton = ({
@@ -253,7 +255,17 @@ const ProjectTable = (props) => {
             to={`/projects/${el.id}`}
             style={{ textDecoration: "none" }}
           >
-            <CustomButton sx={{ borderRadius: 2 }} label="View" />
+            <CustomButton
+            sx={{
+              borderRadius: 2,
+              ...(dark && {
+                backgroundColor: "#fb923c",
+                color: "#000",
+                "&:hover": { backgroundColor: "#ea580c" },
+              }),
+            }}
+            label="View"
+          />
           </Link>,
         ];
       })
@@ -261,21 +273,18 @@ const ProjectTable = (props) => {
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
       <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
-      >
+  sx={{
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: { xs: "space-between", md: "flex-end" },
+    alignItems: "center",
+    padding: "10px",
+    gap: { xs: "10px", md: "20px" },
+    backgroundColor: dark ? "#252525" : "",
+    borderTop: dark ? "1px solid #3a3a3a" : "",
+    color: dark ? "#a0a0a0" : "",
+  }}
+>
 
         {/* Pagination Controls */}
         <TablePagination
@@ -361,22 +370,45 @@ const ProjectTable = (props) => {
   };
 
   return (
-    <div>
-      <Grid sx={{ mb: 1 }}>
-        <Search />
-      </Grid>
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          data={data}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-          }}
-        />
-      </ThemeProvider>
-    </div>
+  <Box sx={{
+    backgroundColor: dark ? "#1e1e1e" : "",
+    borderRadius: dark ? "8px" : "",
+    overflow: "hidden",
+  }}>
+      <Grid sx={{
+  mb: 1,
+  mt: dark ? 1.5 : 0,
+  ml: dark ? 1.5 : 0,
+}}></Grid>
+     <ThemeProvider theme={tableTheme}>
+  <Box sx={{
+    ...(dark && {
+      "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+      "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+      "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+      "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+      "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+      "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+      "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important" },
+      "& .MuiTypography-root": { color: "#ececec" },
+      "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+      "& .MuiIconButton-root": { color: "#fb923c" },
+      "& .MuiSvgIcon-root": { color: "#fb923c" },
+      "& .MuiSelect-select": { color: "#ececec" },
+    })
+  }}>
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      data={data}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+      }}
+    />
+  </Box>
+</ThemeProvider>
+    </Box>
   );
 };
 

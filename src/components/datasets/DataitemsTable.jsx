@@ -20,6 +20,7 @@ import DatasetSearchPopup from "./DatasetSearchPopup";
 import Spinner from "@/components/common/Spinner";
 import { fetchDataitemsById } from "@/Lib/Features/datasets/GetDataitemsById";
 import ReactJson from "react-json-view";
+import { useTheme } from "@/context/ThemeContext";
 
 const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
   overflow: "hidden",
@@ -127,16 +128,16 @@ const JSONViewer = ({ data, initiallyExpanded = false }) => {
           e.stopPropagation();
           setExpanded(!expanded);
         }}
-        sx={{
-          position: "absolute",
-          top: "2px",
-          right: "2px",
-          zIndex: 2,
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-          },
-        }}
+       sx={{
+        position: "absolute",
+        top: "2px",
+        right: "2px",
+        zIndex: 2,
+        backgroundColor: dark ? "rgba(42,42,42,0.9)" : "rgba(255, 255, 255, 0.8)",
+        "&:hover": {
+          backgroundColor: dark ? "rgba(58,58,58,0.9)" : "rgba(255, 255, 255, 0.9)",
+        },
+}}
       >
         {expanded ? (
           <svg width="20" height="20" viewBox="0 0 24 24">
@@ -169,10 +170,11 @@ const JSONViewer = ({ data, initiallyExpanded = false }) => {
                 left: 0,
                 right: 0,
                 height: "40px",
-                background:
-                  "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9))",
+                background: dark
+                  ? "linear-gradient(rgba(42,42,42,0), rgba(42,42,42,0.9))"
+                  : "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9))",
               },
-        }}
+                  }}
       >
         <ReactJson
           src={jsonData}
@@ -196,6 +198,7 @@ const DataitemsTable = () => {
 
   const classes = DatasetStyle();
   const { datasetId } = useParams();
+  const { dark } = useTheme();
   const dispatch = useDispatch();
   const dataitemsList = useSelector((state) => state.GetDataitemsById?.data);
   const DatasetDetails = useSelector((state) => state.getDatasetDetails.data);
@@ -294,9 +297,9 @@ const DataitemsTable = () => {
                         minWidth: "250px",
                         maxWidth: "500px",
                         m: 1,
-                        border: "1px solid rgba(224, 224, 224, 1)",
+                        border: dark ? "1px solid #3a3a3a" : "1px solid rgba(224, 224, 224, 1)",
                         borderRadius: "4px",
-                        backgroundColor: "rgba(250, 250, 250, 0.9)",
+                        backgroundColor: dark ? "#2a2a2a" : "rgba(250, 250, 250, 0.9)",
                       }}
                     >
                       <JSONViewer data={value} />
@@ -422,29 +425,26 @@ const DataitemsTable = () => {
   };
 
   const CustomFooter = ({
-    count,
-    page,
-    rowsPerPage,
-    changeRowsPerPage,
-    changePage,
-  }) => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end",
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px",
-          },
-        }}
-      >
+  count,
+  page,
+  rowsPerPage,
+  changeRowsPerPage,
+  changePage,
+}) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: { xs: "space-between", md: "flex-end" },
+        alignItems: "center",
+        padding: "10px",
+        gap: { xs: "10px", md: "20px" },
+        backgroundColor: dark ? "#252525" : "",
+        borderTop: dark ? "1px solid #3a3a3a" : "",
+        color: dark ? "#a0a0a0" : "",
+      }}
+    >
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -467,22 +467,27 @@ const DataitemsTable = () => {
         {/* Jump to Page */}
         <div>
           <label
-            style={{
-              marginRight: "5px",
-              fontSize: "0.83rem",
-            }}
-          >
+  style={{
+    marginRight: "5px",
+    fontSize: "0.83rem",
+    color: dark ? "#a0a0a0" : "",
+  }}
+>
             Jump to Page:
           </label>
           <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
+          value={page + 1}
+          onChange={(e) => changePage(Number(e.target.value) - 1)}
+          sx={{
+            fontSize: "0.8rem",
+            padding: "4px",
+            height: "32px",
+            color: dark ? "#ececec" : "",
+            backgroundColor: dark ? "#2a2a2a" : "",
+            "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+            "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" },
+          }}
+>
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
                 {i + 1}
@@ -550,21 +555,38 @@ const DataitemsTable = () => {
   };
 
   return (
-    <>
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          title={""}
-          data={dataitems}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${
-              typeof window !== "undefined" ? window.innerHeight - 200 : 400
-            }px`,
-          }}
-        />
-      </ThemeProvider>
+  <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "", overflow: "hidden" }}>
+   <ThemeProvider theme={tableTheme}>
+  <Box sx={{
+    ...(dark && {
+      "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+      "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+      "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+      "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+      "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+      "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+      "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important" },
+      "& .MuiTypography-root": { color: "#ececec" },
+      "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+      "& .MuiIconButton-root": { color: "#fb923c" },
+      "& .MuiSvgIcon-root": { color: "#fb923c" },
+      "& .MuiSelect-select": { color: "#ececec" },
+    })
+  }}>
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={dataitems}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${
+          typeof window !== "undefined" ? window.innerHeight - 200 : 400
+        }px`,
+      }}
+    />
+  </Box>
+</ThemeProvider>
       {searchOpen && (
         <DatasetSearchPopup
           open={searchOpen}
@@ -576,8 +598,8 @@ const DataitemsTable = () => {
         />
       )}
       {loading && <Spinner />}
-    </>
-  );
+    </Box>
+);
 };
 
 export default DataitemsTable;

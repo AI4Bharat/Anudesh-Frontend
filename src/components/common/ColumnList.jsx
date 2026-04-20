@@ -11,12 +11,14 @@ import Box from "@mui/material/Box";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import  "../../styles/Dataset.css";
 import { translate } from "../../config/localisation";
+import { useTheme } from "@/context/ThemeContext";
 
 
 const ColumnList = (props) => {
   
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef();
+  const { dark } = useTheme();
 
   return (
     <div>
@@ -37,24 +39,32 @@ const ColumnList = (props) => {
         <ViewColumnIcon />
       </Button>
     </Tooltip>
-      <Popover
-        id={props.id}
-        open={isOpen}
-        anchorEl={buttonRef.current}
-        onClose={() => setIsOpen(false)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
+     <Popover
+  id={props.id}
+  open={isOpen}
+  anchorEl={buttonRef.current}
+  onClose={() => setIsOpen(false)}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right",
+  }}
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "right",
+  }}
+  sx={{
+    "& .MuiPaper-root": {
+      backgroundColor: dark ? "#2a2a2a" : undefined,
+      color: dark ? "#ececec" : undefined,
+      border: dark ? "1px solid #3a3a3a" : undefined,
+      boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : undefined,
+    },
+  }}
+>
       <Box className="filterContainer">
         <Typography
           variant="body2"
-          sx={{ mr: 5, fontWeight: "700" }}
+          sx={{ mr: 5, fontWeight: "700", color: dark ? "#ececec" : "" }}
           className="filterTypo"
         >
           {translate("label.filter.column")} :

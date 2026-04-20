@@ -20,6 +20,7 @@ import { MenuProps } from "@/utils/utils";
 import WordCountMetaAnalyticsChart from './WordCountMetaAnalyticsChart';
 import { fetchMetaAnalyticsData } from '@/Lib/Features/Analytics/getMetaAnalyticsData';
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import { useTheme } from "@/context/ThemeContext";
 import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -42,8 +43,6 @@ const StyledMenu = styled((props) => (
     borderRadius: 6,
     marginTop: theme.spacing(1),
     minWidth: 100,
-
-
   },
 }));
 
@@ -52,6 +51,7 @@ export default function MetaAnalytics(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
 
     const dispatch = useDispatch();
+    const { dark } = useTheme();
     const {loggedInUserData} = props
     const [loading, setLoading] = useState(false);
     const apiLoading = useSelector((state) => state.apiStatus.loading);
@@ -208,8 +208,8 @@ export default function MetaAnalytics(props) {
     
       };
 
-  return (
-    <div>
+ return (
+  <div style={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%", padding: dark ? "8px" : "" }}>
       <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={1}>
       <Grid
       container
@@ -224,7 +224,7 @@ export default function MetaAnalytics(props) {
     >
       {/* Project Type Dropdown */}
       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-        <FormControl size="small" fullWidth>
+        <FormControl size="small" fullWidth sx={{ "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" }, "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
           <InputLabel
             id="demo-simple-select-label"
             sx={{ fontSize: "16px", zIndex: 0 }}
@@ -240,15 +240,15 @@ export default function MetaAnalytics(props) {
               </LightTooltip>
             }
           </InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedType}
-            label="Project Type"
-            sx={{ padding: "1px" }}
-            onChange={(e) => setSelectedType(e.target.value)}
-            MenuProps={MenuProps}
-          >
+         <Select
+  labelId="demo-simple-select-label"
+  id="demo-simple-select"
+  value={selectedType}
+  label="Project Type"
+  sx={{ padding: "1px", color: dark ? "#ececec" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+  onChange={(e) => setSelectedType(e.target.value)}
+  MenuProps={MenuProps}
+>
             {projectTypes.map((type, index) => (
               <MenuItem value={type} key={index}>
                 {type}
@@ -278,16 +278,22 @@ export default function MetaAnalytics(props) {
         >
           Download
         </CustomButton>
-        <StyledMenu
-          id="demo-customized-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-          <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-          <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-        </StyledMenu>
+<StyledMenu
+  id="demo-customized-menu"
+  anchorEl={anchorEl}
+  open={open}
+  onClose={handleClose}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <MenuItem onClick={downloadCSV} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>CSV</MenuItem>
+  <MenuItem onClick={downloadPDF} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>PDF</MenuItem>
+  <MenuItem onClick={downloadJSON} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>JSON</MenuItem>
+</StyledMenu>
       </Box>
     </Box>
 
@@ -300,7 +306,7 @@ export default function MetaAnalytics(props) {
       {metaAnalyticsData.length ?
         metaAnalyticsData.map((analyticsData,_index)=>{
           if (analyticsData.length && audioProjectTypes.includes(analyticsData[0].projectType)){
-            return (<Grid key={_index} style={{marginTop:"15px"}}>
+            return (<Grid key={_index} style={{ marginTop: "15px", backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "" }}>
             <AudioDurationChart analyticsData={analyticsData}/>
             <AudioDurationChart analyticsData={analyticsData} graphCategory='rawAudioDuration'/>
             <WordCountMetaAnalyticsChart analyticsData={analyticsData} graphCategory='audioWordCount'/>

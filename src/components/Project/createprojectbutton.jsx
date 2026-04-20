@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import configs from "../../config/config";
 import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
 import Spinner from "@/components/common/Spinner";
-
+import { useTheme } from "@/context/ThemeContext";
 
 const CreateProjectDropdown = ({ userRole }) => {
+    const { dark } = useTheme();
     const [anchorEl, setAnchorEl] = useState(null);
     const [workspaces, setWorkspaces] = useState([]);
     const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
@@ -69,7 +70,18 @@ const CreateProjectDropdown = ({ userRole }) => {
                 Create Project
             </Button>
 
-            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            PaperProps={{
+                sx: {
+                backgroundColor: dark ? "#2a2a2a" : "",
+                border: dark ? "1px solid #3a3a3a" : "",
+                color: dark ? "#ececec" : "",
+                }
+            }}
+            >
                 {loadingWorkspaces ? (
                     <MenuItem disabled 
                       sx={{
@@ -92,12 +104,16 @@ const CreateProjectDropdown = ({ userRole }) => {
                     </MenuItem>
                 ) : workspaces.length > 0 ? (
                     workspaces.map((ws) => (
-                        <MenuItem key={ws.id} onClick={() => handleSelect(ws)}>
-                            {ws.workspace_name}
-                        </MenuItem>
+                    <MenuItem
+                        key={ws.id}
+                        onClick={() => handleSelect(ws)}
+                        sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}
+                    >
+                        {ws.workspace_name}
+                    </MenuItem>
                     ))
                 ) : (
-                    <MenuItem disabled>No workspaces found</MenuItem>
+                    <MenuItem disabled sx={{ color: dark ? "#a0a0a0" : "" }}>No workspaces found</MenuItem>
                 )}
             </Menu>
         </>

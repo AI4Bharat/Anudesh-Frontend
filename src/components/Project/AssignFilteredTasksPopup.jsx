@@ -20,8 +20,10 @@ import {
   MenuItem,
 } from "@mui/material";
 import configs from "../../config/config";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function AssignFilteredTasksPopup() {
+  const { dark } = useTheme();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -149,36 +151,48 @@ export default function AssignFilteredTasksPopup() {
             onClick={handleClickOpen}
             sx={{ p: 1, borderRadius: 2 }}
           >
-            Assign Filtered Tasks / Pull New Batch
+            Assign Filtered Tasks 
           </Button>
         </Box>
       </Tooltip>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>Assign Filtered Tasks</DialogTitle>
-        <DialogContent>
+      <Dialog
+  open={open}
+  onClose={handleClose}
+  maxWidth="md"
+  fullWidth
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogTitle sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "" }}>Assign Filtered Tasks</DialogTitle>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
           {loading ? (
             <CircularProgress style={{ display: "block", margin: "auto" }} />
           ) : error ? (
             <div style={{ color: "red", textAlign: "center" }}>{error}</div>
           ) : data.length === 0 ? (
-            <div style={{ textAlign: "center" }}>
+            <div style={{ textAlign: "center", color: dark ? "#a0a0a0" : "" }}>
               No unassigned review tasks found.
             </div>
           ) : (
             <>
               <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Select</TableCell>
-                    <TableCell>Annotator Email</TableCell>
-                    <TableCell>Unassigned Count</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
+              <TableHead>
+                <TableRow sx={{ "& .MuiTableCell-head": { backgroundColor: dark ? "#252525" : "", color: dark ? "#ececec" : "", borderBottom: dark ? "2px solid #3a3a3a" : "" } }}>
+                  <TableCell>Select</TableCell>
+                  <TableCell>Annotator Email</TableCell>
+                  <TableCell>Unassigned Count</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((item, index) => (
+                  <TableRow key={index} sx={{ "& .MuiTableCell-body": { color: dark ? "#d0d0d0" : "", borderBottom: dark ? "1px solid #2e2e2e" : "" }, "&:hover": { backgroundColor: dark ? "rgba(251, 146, 60, 0.08)" : "" } }}>
+                    <TableCell>
                         <Checkbox
                           checked={selectedAnnotators.includes(item.annotator_id)}
                           onChange={() =>
@@ -194,13 +208,15 @@ export default function AssignFilteredTasksPopup() {
               </Table>
 
               {/* ✅ Task count selector */}
-              <FormControl sx={{ mt: 2, minWidth: 150 }}>
-                <InputLabel id="num-tasks-label">Number of Tasks</InputLabel>
+              <FormControl sx={{ mt: 2, minWidth: 150, "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+                <InputLabel id="num-tasks-label" sx={{ color: dark ? "#a0a0a0" : "" }}>Number of Tasks</InputLabel>
                 <Select
                   labelId="num-tasks-label"
                   value={numTasks}
                   label="Number of Tasks"
                   onChange={(e) => setNumTasks(e.target.value)}
+                  sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                  MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                 >
                   <MenuItem value={5}>5</MenuItem>
                   <MenuItem value={10}>10</MenuItem>
@@ -221,7 +237,7 @@ export default function AssignFilteredTasksPopup() {
           )}
         </DialogContent>
 
-        <DialogActions>
+       <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>

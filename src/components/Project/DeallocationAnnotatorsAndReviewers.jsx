@@ -25,6 +25,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import TextField from '@mui/material/TextField';
 import LoginAPI from "@/app/actions/api/user/Login";
 import DeallocationAnnotatorsAndReviewersAPI from "@/app/actions/api/Dashboard/DeallocationAnnotatorsAndReviewers";
+import { useTheme } from "@/context/ThemeContext";
 
 
 let AnnotationStatus = [
@@ -70,6 +71,7 @@ export default function DeallocationAnnotatorsAndReviewers() {
   const classes = DatasetStyle();
   const dispatch = useDispatch();
   const {id} = useParams();
+  const { dark } = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const [radiobutton, setRadiobutton] = useState("annotation");
   const [openDialog, setOpenDialog] = useState(false);
@@ -238,18 +240,26 @@ const renderSnackBar = () => {
       />
 
       <Popover
-        Id={Id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
+                Id={Id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                PaperProps={{
+                  sx: {
+                    backgroundColor: dark ? "#2a2a2a" : "",
+                    color: dark ? "#ececec" : "",
+                    border: dark ? "1px solid #3a3a3a" : "",
+                    boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+                  }
+                }}
+>
         <Grid container className={classes.root}>
           <Grid item style={{ flexGrow: "1", padding: "10px" }}>
-            <FormControl>
+            <FormControl sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
               <RadioGroup
                 row
                 aria-labelledby="demo-row-radio-buttons-group-label"
@@ -261,18 +271,21 @@ const renderSnackBar = () => {
                   control={<Radio />}
                   label="Annotators"
                   onClick={handleAnnotation}
+                  sx={{ color: dark ? "#ececec" : "" }}
                 />
                 <FormControlLabel
                   value="review"
                   control={<Radio />}
                   label="Reviewers"
                   onClick={handleReview}
+                  sx={{ color: dark ? "#ececec" : "" }}
                 />
                 <FormControlLabel
                   value="superChecker"
                   control={<Radio />}
                   label="Super Check"
                   onClick={handlesuperChecker}
+                  sx={{ color: dark ? "#ececec" : "" }}
                 />
               </RadioGroup>
             </FormControl>
@@ -290,20 +303,19 @@ const renderSnackBar = () => {
               }}
             >
               <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="body2" fontWeight="700" label="Required">
+                <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                   Select User:
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <FormControl fullWidth size="small">
+              <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
                   <Select
                     labelId="demo-simple-select-helper-label"
                     id="demo-simple-select-helper"
                     value={annotatorsUser}
                     onChange={(e) => setAnnotatorsUser(e.target.value)}
-                    sx={{
-                      textAlign: "left",
-                    }}
+                    sx={{ textAlign: "left", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                   >
                     {ProjectDetails?.annotators?.map((el, i) => {
                       return <MenuItem key={i} value={el.id}>{el.username}</MenuItem>;
@@ -322,12 +334,12 @@ const renderSnackBar = () => {
               }}
             >
               <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="body2" fontWeight="700" label="Required">
+                <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                   Select Annotation Status :
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                <FormControl fullWidth size="small">
+                <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
 
                 <Select
                 labelId="Select-Task-Statuses"
@@ -335,7 +347,9 @@ const renderSnackBar = () => {
                 value={annotationStatus}
                 onChange={handleChangeAnnotationStatus}
                 renderValue={(annotationStatus) => annotationStatus.join(", ")}
-                MenuProps={MenuProps}
+                
+                sx={{ textAlign: "left", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                
               >
                 {AnnotationStatus.map((option) => (
@@ -369,20 +383,19 @@ const renderSnackBar = () => {
               }}
             >
               <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="body2" fontWeight="700" label="Required">
+                <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                   Select User:
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <FormControl fullWidth size="small">
+              <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
                   <Select
                     labelId="demo-simple-select-helper-label"
                     id="demo-simple-select-helper"
                     value={reviewerssUser}
                      onChange={(e) => setReviewersUser(e.target.value)}
-                    sx={{
-                      textAlign: "left",
-                    }}
+                    sx={{ textAlign: "left", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                    MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                   >
                     {ProjectDetails?.annotation_reviewers.map((el, i) => {
                       return <MenuItem key={i} value={el.id}>{el.username}</MenuItem>;
@@ -401,19 +414,21 @@ const renderSnackBar = () => {
               }}
             >
               <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="body2" fontWeight="700" label="Required">
+                <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                   Select Review Status :
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                <FormControl fullWidth size="small">
+                <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
                 <Select
                 labelId="Select-Task-Statuses"
                 multiple
                 value={reviewStatus}
                 onChange={handleChangeReviewStatus}
                 renderValue={(reviewStatus) => reviewStatus.join(", ")}
-                MenuProps={MenuProps}
+                
+                sx={{ textAlign: "left", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                 MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                
               >
                 {ReviewStatus.map((option) => (
@@ -447,20 +462,19 @@ const renderSnackBar = () => {
               }}
             >
               <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="body2" fontWeight="700" label="Required">
+                <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                   Select User:
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <FormControl fullWidth size="small">
+              <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
                   <Select
                     labelId="demo-simple-select-helper-label"
                     id="demo-simple-select-helper"
                     value={superCheckersUser}
                      onChange={(e) => setSuperCheckersUser(e.target.value)}
-                    sx={{
-                      textAlign: "left",
-                    }}
+                    sx={{ textAlign: "left", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                   MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                   >
                     {ProjectDetails?.review_supercheckers.map((el, i) => {
                       return <MenuItem key={i} value={el.id}>{el.username}</MenuItem>;
@@ -479,19 +493,20 @@ const renderSnackBar = () => {
               }}
             >
               <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
-                <Typography variant="body2" fontWeight="700" label="Required">
+                <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                   Select Super Check Status :
                 </Typography>
               </Grid>
               <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-                <FormControl fullWidth size="small">
+                <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
                 <Select
                 labelId="Select-Task-Statuses"
                 multiple
                 value={superCheckStatus}
                 onChange={handleChangeSuperCheckerStatus}
                 renderValue={(superCheckStatus) => superCheckStatus.join(", ")}
-                MenuProps={MenuProps}
+                sx={{ textAlign: "left", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+               MenuProps={{ ...MenuProps, PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
                
               >
                 {SuperChecker.map((option) => (
@@ -539,16 +554,22 @@ const renderSnackBar = () => {
       </Popover>
 
       <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogContent>
-
-                    <DialogContentText id="alert-dialog-description">
-                    Are you sure want to Deallocate User Tasks ? 
-                    </DialogContentText>
+  open={openDialog}
+  onClose={handleCloseDialog}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+    <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
+      Are you sure want to Deallocate User Tasks ?
+    </DialogContentText>
                     {(radiobutton === "annotation" || radiobutton === "review") && <TextField
                             autoFocus
                             margin="dense"
@@ -558,6 +579,11 @@ const renderSnackBar = () => {
                             fullWidth
                             variant="standard"
                             onChange={(e) => setPassword(e.target.value)}
+                            sx={{
+                            "& .MuiInput-root": { color: dark ? "#ececec" : "" },
+                            "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+                            "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+                          }}
                           />}
                     {radiobutton === "superChecker" && <TextField
                             autoFocus
@@ -568,10 +594,15 @@ const renderSnackBar = () => {
                             fullWidth
                             variant="standard"
                             onChange={(e) => setPin(e.target.value)}
+                            sx={{
+                            "& .MuiInput-root": { color: dark ? "#ececec" : "" },
+                            "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+                            "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+                          }}
                           />}
                           
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
                     <Button onClick={handleCloseDialog}
                         variant="outlined"
                         color="error"

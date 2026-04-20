@@ -51,7 +51,7 @@ import { styled } from "@mui/styles";
 import { Tooltip } from "@mui/material";
 import { InfoOutlined } from "@material-ui/icons";
 import { resetForm, saveProjectFormData } from "@/Lib/Features/projects/projectFormSlice";
-
+import { useTheme } from "@/context/ThemeContext";
 const isNum = (str) => {
   var reg = new RegExp("^[0-9]*$");
   return reg.test(String(str));
@@ -106,6 +106,7 @@ const CreateProject = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const { id } = useParams();
     const formData1 = useSelector((state) => console.log(state)
     );
@@ -859,14 +860,14 @@ const CreateProject = () => {
             Jump to Page:
           </label>
           <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
+          value={page + 1}
+          onChange={(e) => changePage(Number(e.target.value) - 1)}
+          sx={{
+            fontSize: "0.8rem",
+            padding: "4px",
+            height: "32px",
+          }}
+        >
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
                 {i + 1}
@@ -928,7 +929,16 @@ const CreateProject = () => {
   return (
     <ThemeProvider theme={themeDefault}>
       <Grid container direction="row" sx={{ width: "100%" }}>
-        <Card className="workspaceCard">
+        <Card
+        className="workspaceCard"
+        sx={{
+          ...(dark && {
+            backgroundColor: "#1e1e1e",
+            color: "#ececec",
+          }),
+        }}
+      >
+
           <Grid
             item
             xs={12}
@@ -944,9 +954,14 @@ const CreateProject = () => {
                 alignItems: 'center',
                 mb: 2
               }}>
-              <Typography variant="h2" gutterBottom component="div">
-                Create a Project
-              </Typography>
+              <Typography
+              variant="h2"
+              gutterBottom
+              component="div"
+              sx={{ ...(dark && { color: "#ececec" }) }}
+            >
+              Create a Project
+            </Typography>
               <Button
                 label={"Clear Form"}
                 onClick={clearFormState}
@@ -956,7 +971,15 @@ const CreateProject = () => {
               />
             </Grid>
 
-            <Card sx={{ p: 1, mb: 1 }}>
+            <Card sx={{
+              p: 1,
+              mb: 1,
+              ...(dark && {
+                backgroundColor: "#2a2a2a",
+                color: "#ececec",
+                border: "1px solid #3a3a3a",
+              }),
+            }}>
 
               <Grid container spacing={1} p={1}>
                 <Grid item xs={12} md={6}>
@@ -1097,6 +1120,14 @@ const CreateProject = () => {
                             onChange={(e) => setSourceLanguage(e.target.value)}
                             MenuProps={MenuProps}
                             disabled={!selectedDomain}
+                            sx={{
+                        ...(dark && {
+                          color: "#ececec",
+                          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                          "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                          backgroundColor: "#2a2a2a",
+                        }),
+                      }}
                           >
                             {languageOptions?.map((item, index) => (
                               <MenuItem key={index} value={item.value}>
@@ -1130,6 +1161,14 @@ const CreateProject = () => {
                             onChange={(e) => setTargetLanguage(e.target.value)}
                             MenuProps={MenuProps}
                             disabled={!selectedDomain}
+                            sx={{
+                        ...(dark && {
+                          color: "#ececec",
+                          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                          "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                          backgroundColor: "#2a2a2a",
+                        }),
+                      }}
                           >
                             {languageOptions?.map((item, index) => (
                               <MenuItem key={index} value={item.value}>
@@ -1153,7 +1192,14 @@ const CreateProject = () => {
                 <Grid container spacing={2} alignItems="center">
                   {/* Toggle on the left */}
                   <Grid item xs={12} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', p: 1, backgroundColor: 'grey.50', borderRadius: 1, height: '100%' }}>
+                    <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                p: 1,
+                backgroundColor: dark ? "#333" : 'grey.50',
+                borderRadius: 1,
+                height: '100%',
+              }}>
                       <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 'bold', mr: 1 }}>
                         Enable Feedback Form<span style={{ color: "#d93025",fontSize:"20px" }}>*</span><Tooltip 
                   title="Enable or disable the feedback collection form for chat interactions." 
@@ -1255,6 +1301,14 @@ const CreateProject = () => {
                           <Select
                             multiple
                             value={fixedModels}
+                            sx={{
+                          ...(dark && {
+                            color: "#ececec",
+                            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                            "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                            backgroundColor: "#2a2a2a",
+                          }),
+                        }}
                             onChange={(e) => {
                               if (e.target.value.length > 0) {
                                 setFixedModels(e.target.value);
@@ -1315,6 +1369,14 @@ const CreateProject = () => {
                             value={numSelectedModels}
                             onChange={(e) => setNumSelectedModels(e.target.value)}
                             MenuProps={MenuProps}
+                            sx={{
+                          ...(dark && {
+                            color: "#ececec",
+                            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                            "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                            backgroundColor: "#2a2a2a",
+                          }),
+                        }}
                           >
                             {Array.from(
                               { length: selectedLanguageModels.length - fixedModels.length + 1 },
@@ -1370,10 +1432,23 @@ const CreateProject = () => {
             {instanceIds && (
               <>
                 {selectedType && Object.keys(instanceIds)?.length > 0 && (
-                        <Card sx={{ p: 2, mb: 2, border: 1, borderColor: 'divider' }}>
-        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-          Dataset Configuration
-        </Typography>
+              <Card sx={{
+                p: 2,
+                mb: 2,
+                border: 1,
+                borderColor: dark ? "#3a3a3a" : "divider",
+                ...(dark && {
+                  backgroundColor: "#2a2a2a",
+                  color: "#ececec",
+                }),
+              }}>
+        <Typography
+        variant="h6"
+        gutterBottom
+        sx={{ mb: 2, ...(dark && { color: "#ececec" }) }}
+      >
+        Project Configuration
+      </Typography>
 
 
                     <Grid container spacing={2} alignItems="center">
@@ -1397,6 +1472,14 @@ const CreateProject = () => {
                                 multiple
                                 value={selectedInstances}
                                 onChange={onSelectInstances}
+                                sx={{
+                            ...(dark && {
+                              color: "#ececec",
+                              "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                              "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                              backgroundColor: "#2a2a2a",
+                            }),
+                          }}
                                 renderValue={(selected) => (
                                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                                     {selected.map((key) => (
@@ -1427,7 +1510,14 @@ const CreateProject = () => {
                                 MenuProps={MenuProps}
                               >
                                 {Object.keys(instanceIds).map((key) => (
-                                  <MenuItem key={instanceIds[key]} value={key}>
+                                  <MenuItem key={instanceIds[key]} value={key} sx={{
+                              ...(dark && {
+                                backgroundColor: "#2a2a2a",
+                                color: "#ececec",
+                                "&:hover": { backgroundColor: "#3a3a3a" },
+                                "&.Mui-selected": { backgroundColor: "#3a3a3a" },
+                              }),
+                            }}>
                                     {instanceIds[key]}
                                   </MenuItem>
                                 ))}
@@ -1489,23 +1579,41 @@ const CreateProject = () => {
                   lg={12}
                   xl={12}
                 >
-                  <ThemeProvider theme={tableTheme}>
-                    <MUIDataTable
-                      key={`table-${displayWidth}`}
-                      title={""}
-                      data={tableData}
-                      columns={columns.filter((column) =>
-                        selectedColumns?.includes(column.name),
-                      )}
-                      options={{
-                        ...options,
-                        tableBodyHeight: `${typeof window !== "undefined"
-                          ? window.innerHeight - 200
-                          : 400
-                          }px`,
-                      }}
-                    />
-                  </ThemeProvider>
+<ThemeProvider theme={tableTheme}>
+  <Box
+    sx={{
+    ...(dark && {
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+      },
+      "& .MuiTableCell-root": {
+        color: "#ececec",
+        borderBottom: "1px solid #3a3a3a",
+      },
+      "& .MuiTableHead-root": {
+        backgroundColor: "#1e1e1e",
+      },
+      "& .MuiTableRow-root:hover": {
+        backgroundColor: "#333",
+      },
+    }),
+  }}
+  >
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={tableData}
+      columns={columns.filter((column) =>
+        selectedColumns?.includes(column.name),
+      )}
+      options={{
+        ...options,
+        tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400}px`,
+      }}
+    />
+  </Box>
+</ThemeProvider>
                 </Grid>
                 <Card sx={{ p: 1, mb: 1 }}>
                   <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: "bold" }}>
@@ -1533,6 +1641,14 @@ const CreateProject = () => {
                               value: mode[0].toLowerCase(),
                             };
                           })}
+                          sx={{
+                      ...(dark && {
+                        backgroundColor: "#2a2a2a",
+                        color: "#ececec",
+                        "&:hover": { backgroundColor: "#3a3a3a" },
+                        "&.Mui-selected": { backgroundColor: "#3a3a3a" },
+                      }),
+                    }}
                           handleChange={onSelectSamplingMode}
                           defaultValue=""
                           size="small"
@@ -1701,9 +1817,24 @@ const CreateProject = () => {
                           <Select
                             value={taskReviews}
                             onChange={handleReviewToggle}
+                            sx={{
+                        ...(dark && {
+                          color: "#ececec",
+                          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                          "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                          backgroundColor: "#2a2a2a",
+                        }),
+                      }}
                           >
                             {filteredProjectStage.map((type, index) => (
-                              <MenuItem value={type.value} key={index}>
+                              <MenuItem value={type.value} key={index} sx={{
+                        ...(dark && {
+                          backgroundColor: "#2a2a2a",
+                          color: "#ececec",
+                          "&:hover": { backgroundColor: "#3a3a3a" },
+                          "&.Mui-selected": { backgroundColor: "#3a3a3a" },
+                        }),
+                      }}>
                                 {type.name}
                               </MenuItem>
                             ))}
@@ -1730,9 +1861,24 @@ const CreateProject = () => {
                           <Select
                             value={createannotationsAutomatically}
                             onChange={handleChangeCreateAnnotationsAutomatically}
+                            sx={{
+                        ...(dark && {
+                          color: "#ececec",
+                          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+                          "& .MuiSvgIcon-root": { color: "#a0a0a0" },
+                          backgroundColor: "#2a2a2a",
+                        }),
+                      }}
                           >
                             {CreateAnnotationsAutomatically.map((type, index) => (
-                              <MenuItem value={type.value} key={index}>
+                              <MenuItem value={type.value} key={index} sx={{
+                        ...(dark && {
+                          backgroundColor: "#2a2a2a",
+                          color: "#ececec",
+                          "&:hover": { backgroundColor: "#3a3a3a" },
+                          "&.Mui-selected": { backgroundColor: "#3a3a3a" },
+                        }),
+                      }}>
                                 {type.name}
                               </MenuItem>
                             ))}
@@ -1746,7 +1892,11 @@ const CreateProject = () => {
                       selectedType === "MultipleInteractionEvaluation" ||
                       selectedType === "MultipleLLMInstructionDrivenChat") && (
                         <Grid item xs={12}>
-                          <Box sx={{ p: 1, backgroundColor: 'grey.50', borderRadius: 1 }}>
+                          <Box sx={{
+                              p: 1,
+                              backgroundColor: dark ? "#333" : 'grey.50',
+                              borderRadius: 1,
+                            }}>
                             <Typography variant="body2" gutterBottom fontWeight="bold">
                               Upload or Paste Evaluation JSON<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span><Tooltip 
                   title="Paste JSON data to configure the evaluation form" 
@@ -1790,6 +1940,16 @@ const CreateProject = () => {
                                   fullWidth
                                   size="small"
                                   fontSize="8px"
+                                  sx={{
+                                    ...(dark && {
+                                      "& .MuiOutlinedInput-root": {
+                                        backgroundColor: "#2a2a2a",
+                                        color: "#ececec",
+                                        "& fieldset": { borderColor: "#3a3a3a" },
+                                        "&:hover fieldset": { borderColor: "#555" },
+                                      },
+                                    }),
+                                  }}
                                 />
                                 <IconButton
                                   onClick={downloadCsv}

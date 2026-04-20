@@ -7,12 +7,14 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Label } from "recharts";
 import DatasetStyle from "@/styles/dataset";
 import { useEffect, useState } from "react";
 import ResponsiveChartContainer from "@/components/common/ResponsiveChartContainer";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function AudioDurationChart(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
 
   const { analyticsData, graphCategory } = props;
   const classes = DatasetStyle();
+  const { dark } = useTheme();
   const [totalAudioHours, setTotalAudioHours] = useState();
   const [totalAnnotationAudioHours, setTotalAnnotationAudioHours] = useState();
   const [totalReviewAudioHours, setTotalReviewAudioHours] = useState();
@@ -66,7 +68,7 @@ export default function AudioDurationChart(props) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className={classes.toolTips}>
+        <div className={classes.toolTips} style={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "", borderRadius: "6px", padding: "8px" }}>
           {graphCategory=='rawAudioDuration'?<p style={{ fontWeight: "bold" }}>
             {`${label}`}
             <p style={{ fontWeight: "normal" }}>
@@ -143,7 +145,7 @@ export default function AudioDurationChart(props) {
   };
 
   return (
-    <Box className={classes.modelChartSection}>
+    <Box className={classes.modelChartSection} sx={{ backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "", p: dark ? 2 : 0 }}>
       <Typography
         variant="h2"
         style={{ marginBottom: "35px" }}
@@ -155,7 +157,7 @@ export default function AudioDurationChart(props) {
         </Typography>
       </Typography>
       
-      <Paper>
+      <Paper sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" }}>
         <Box className={classes.topBar}>
           <Box className={classes.topBarInnerBox}>
           <Typography
@@ -198,30 +200,32 @@ export default function AudioDurationChart(props) {
             </Box>
         <Grid>
             <ResponsiveChartContainer>
-          <BarChart
-            width={1100}
-            height={600}
-            data={data}
-            fontSize="14px"
-            fontFamily="Roboto"
-            margin={{
-              top: 20,
-              right: 60,
-              left: 40,
-              bottom: 20,
-            }}
-          >
+         <BarChart
+  width={1100}
+  height={600}
+  data={data}
+  fontSize="14px"
+  fontFamily="Roboto"
+  margin={{
+    top: 20,
+    right: 60,
+    left: 40,
+    bottom: 20,
+  }}
+  style={{ backgroundColor: dark ? "#2a2a2a" : "" }}
+>
             {/* <CartesianGrid strokeDasharray="3 3" /> */}
-            <XAxis
-              dataKey="languages"
-              textAnchor={"end"}
-              // tick={<CustomizedAxisTick />}
-              height={90}
-              interval={0}
-              position="insideLeft"
-              type="category"
-              angle={-30}
-            >
+           <XAxis
+  dataKey="languages"
+  textAnchor={"end"}
+  height={90}
+  interval={0}
+  position="insideLeft"
+  type="category"
+  angle={-30}
+  tick={{ fill: dark ? "#a0a0a0" : "#666" }}
+  stroke={dark ? "#3a3a3a" : "#ccc"}
+>
               <Label
                 value="languages"
                 position="insideBottom"
@@ -230,16 +234,16 @@ export default function AudioDurationChart(props) {
               ></Label>
             </XAxis>
             <YAxis
-              tickInterval={10}
-              allowDecimals={false}
-              type="number"
-              dx={0}
-              tickFormatter={(value) =>
-                new Intl.NumberFormat("en", { notation: "compact" }).format(
-                  value
-                )
-              }
-            >
+  tickInterval={10}
+  allowDecimals={false}
+  type="number"
+  dx={0}
+  tick={{ fill: dark ? "#a0a0a0" : "#666" }}
+  stroke={dark ? "#3a3a3a" : "#ccc"}
+  tickFormatter={(value) =>
+    new Intl.NumberFormat("en", { notation: "compact" }).format(value)
+  }
+>
               <Label
                 value="# of hours Completed "
                 angle={-90}
@@ -250,12 +254,8 @@ export default function AudioDurationChart(props) {
               ></Label>
             </YAxis>
             {/* <Label value="Count" position="insideLeft" offset={15} /> */}
-            <Tooltip
-              contentStyle={{ fontFamily: "Roboto", fontSize: "14px" }}
-              formatter={(value) => new Intl.NumberFormat("en").format(value)}
-              cursor={{ fill: "none" }}
-              content={<CustomTooltip />}
-            />
+           <Tooltip
+  contentStyle={{ fontFamily: "Roboto", fontSize: "14px", backgroundColor: dark ? "#2a2a2a" : "", border: dark ? "1px solid #3a3a3a" : "", color: dark ? "#ececec" : "" }}           />
             <Legend verticalAlign="top" />
             <Bar
               dataKey={graphCategory=="rawAudioDuration"?"review_raw_aud_duration_tohour":"review_aud_duration_tohour"}

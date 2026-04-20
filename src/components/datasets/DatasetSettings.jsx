@@ -25,6 +25,7 @@ import UploaddataAPI from "@/app/actions/api/dataset/UploaddataAPI";
 import { fetchDatasetDownloadCSV } from "@/Lib/Features/datasets/GetDatasetDownloadCSV";
 import { fetchSampleDatasetDownload } from "@/Lib/Features/datasets/GetSampleDatasetDownload";
 import { fetchFileTypes } from "@/Lib/Features/datasets/GetFileTypes";
+import { useTheme } from "@/context/ThemeContext";
 
 
 const style = {
@@ -45,6 +46,7 @@ export default function DatasetSettings() {
 
   const { datasetId } = useParams();
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const fileRef = useRef();
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
@@ -162,11 +164,14 @@ export default function DatasetSettings() {
     <Grid container>
       {renderSnackBar()}
       <Card
-        sx={{
-          width: "100%",
-          padding:2
-        }}
-      >
+  sx={{
+    width: "100%",
+    padding: 2,
+    backgroundColor: dark ? "#2a2a2a" : "",
+    border: dark ? "1px solid #3a3a3a" : "",
+    boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "",
+  }}
+>
         <Grid container gap={2} justifyContent="space-between" alignItems="center">
           {loading ? (
             <CircularProgress />
@@ -218,20 +223,19 @@ export default function DatasetSettings() {
                   aria-labelledby="modal-modal-title"
                   aria-describedby="modal-modal-description"
                 >
-                  <Box sx={style}>
+                  <Box sx={{ ...style, backgroundColor: dark ? "#2a2a2a" : "background.paper", color: dark ? "#ececec" : "" }}>
                     <Grid
                       container
-                      // direction="row"
                       justifyContent="center"
                       alignItems="center"
                       sx={{
-                        backgroundColor: "#f5f5f5",
+                        backgroundColor: dark ? "#1e1e1e" : "#f5f5f5",
                         padding: "1rem",
                         marginBottom: 2,
                       }}
                     >
-                      <Typography variant="h5">Upload Data</Typography>
-                    </Grid>
+  <Typography variant="h5" sx={{ color: dark ? "#ececec" : "" }}>Upload Data</Typography>
+</Grid>
                     <Grid container spacing={2} sx={{ padding: 3 }}>
                       <Grid
                         container
@@ -248,6 +252,7 @@ export default function DatasetSettings() {
                             variant="subtitle1"
                             gutterBottom
                             component="div"
+                            sx={{ color: dark ? "#ececec" : "" }}
                           >
                             Select File :
                           </Typography>
@@ -257,6 +262,7 @@ export default function DatasetSettings() {
                             multiple={true}
                             handleChange={handleChange}
                             name="file"
+                            sx={{ color: dark ? "#ececec" : "" }}
                           />
                         </Grid>
                       </Grid>
@@ -275,20 +281,22 @@ export default function DatasetSettings() {
                             variant="subtitle1"
                             gutterBottom
                             component="div"
+                            sx={{ color: dark ? "#ececec" : "" }}
                           >
                             Select File Format :
                           </Typography>
                         </Grid>
                         <Grid item xs={12} md={8} lg={8} xl={8} sm={12}>
                 
-                          <FormControl fullWidth sx={{ minWidth: 120 }}>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={filetype}
-                              onChange={(e) => setFiletype(e.target.value)}
-                              sx={{ fontSize: "14px" }}
-                            >
+                          <FormControl fullWidth sx={{ minWidth: 120, "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+                          <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={filetype}
+                            onChange={(e) => setFiletype(e.target.value)}
+                            sx={{ fontSize: "14px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+                            MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+                          >
                               {type.map((option, index) => (
                                 <MenuItem key={index} value={option.value}>
                                   {option.name}

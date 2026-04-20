@@ -13,6 +13,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import { useTheme } from "@/context/ThemeContext";
 
 
 const DatasetCards = (props) => {
@@ -20,6 +21,7 @@ const DatasetCards = (props) => {
 
   const { datasetList,selectedFilters,setsSelectedFilters } = props;
   const classes = DatasetStyle();
+  const { dark } = useTheme();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(9);
   // const apiLoading = useSelector(state => state.apiStatus.loading);
@@ -96,7 +98,8 @@ const DatasetCards = (props) => {
   }));
 
   return (
-    <React.Fragment>
+  <React.Fragment>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%", borderRadius: dark ? "8px" : "" }}>
       {/* <Header /> */}
       {/* {loading && <Spinner />} */}
       <Grid sx={{textAlign:"end",margin:"-20px 10px 10px 0px"}}>
@@ -151,15 +154,23 @@ const DatasetCards = (props) => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
           </Grid>
           <TablePagination
-            component="div"
-            count={pageSearch().length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            rowsPerPageOptions={[9, 18, 36, 72, { label: "All", value: -1 }]}
-            onRowsPerPageChange={rowChange}
-            ActionsComponent={TablePaginationActions}
-          />
+  component="div"
+  count={pageSearch().length}
+  page={page}
+  onPageChange={handleChangePage}
+  rowsPerPage={rowsPerPage}
+  rowsPerPageOptions={[9, 18, 36, 72, { label: "All", value: -1 }]}
+  onRowsPerPageChange={rowChange}
+  ActionsComponent={TablePaginationActions}
+  sx={{
+    color: dark ? "#a0a0a0" : "",
+    backgroundColor: dark ? "#252525" : "",
+    borderTop: dark ? "1px solid #3a3a3a" : "",
+    borderRadius: dark ? "0 0 8px 8px" : "",
+    "& .MuiSvgIcon-root": { color: dark ? "#fb923c" : "" },
+    "& .MuiSelect-select": { color: dark ? "#ececec" : "" },
+  }}
+/>
         </Box>
       )}
       <DatasetFilterList
@@ -170,8 +181,9 @@ const DatasetCards = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
-    </React.Fragment>
-  );
+    </Box>
+  </React.Fragment>
+);
 };
 
 export default DatasetCards;

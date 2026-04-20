@@ -13,15 +13,17 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomButton from "../common/Button";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
+import Box from "@mui/material/Box";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import getWorkspaceDetails, { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
+import { useTheme } from "@/context/ThemeContext";
 
 
 const BasicSettings = (props) => {
          /* eslint-disable react-hooks/exhaustive-deps */
-
+const { dark } = useTheme();
     const {ProjectDetails } = props;
 
     const [snackbar, setSnackbarInfo] = useState({
@@ -186,21 +188,18 @@ const BasicSettings = (props) => {
         );
     };
     return (
-        <ThemeProvider theme={themeDefault}>
-
-            {/* <Header /> */}
-            {loading && <Spinner />}
-            <Grid>
-                {renderSnackBar()}
-
-            </Grid>
-
-            <Grid
-                container
-                direction='row'
-                justifyContent='center'
-                alignItems='center'
-            >
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "", p: dark ? 2 : 0 }}>
+    {loading && <Spinner />}
+    <Grid>
+      {renderSnackBar()}
+    </Grid>
+    <Grid
+      container
+      direction='row'
+      justifyContent='center'
+      alignItems='center'
+    >
                 <Grid
                     container
                     direction='row'
@@ -217,7 +216,7 @@ const BasicSettings = (props) => {
                         lg={2}
                         xl={2}
                     >
-                        <Typography variant="body2" fontWeight='700' label="Required">
+                        <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                             Project Name
                         </Typography>
                     </Grid>
@@ -234,7 +233,43 @@ const BasicSettings = (props) => {
                             name="title"
                             InputProps={{ style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                             value={newDetails?.title}
-                            onChange={handleProjectName} />
+                            onChange={handleProjectName}
+                            sx={{
+                            ...(dark && {
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: "#2a2a2a",
+                                color: "#ececec",
+
+                                "& fieldset": {
+                                borderColor: "#3a3a3a",
+                                },
+                                "&:hover fieldset": {
+                                borderColor: "#fb923c",
+                                },
+                                "&.Mui-focused fieldset": {
+                                borderColor: "#fb923c",
+                                },
+                            },
+
+                            "& .MuiInputBase-input": {
+                                color: "#ececec",
+                            },
+
+                            "& .MuiInputLabel-root": {
+                                color: "#a0a0a0",
+                            },
+
+                            "& .MuiInputLabel-root.Mui-focused": {
+                                color: "#fb923c",
+                            },
+
+                            "& input::placeholder": {
+                                color: "#888",
+                                opacity: 1,
+                            },
+                            }),
+                        }}
+ />
                     </Grid>
                 </Grid>
                 <Grid
@@ -255,7 +290,7 @@ const BasicSettings = (props) => {
                         xl={2}
                     >
 
-                        <Typography variant="body2" fontWeight='700'>
+                        <Typography variant="body2" fontWeight='700' sx={{ color: dark ? "#ececec" : "" }}>
                             Project Description
                         </Typography>
                     </Grid>
@@ -274,6 +309,42 @@ const BasicSettings = (props) => {
                             InputProps={{ style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                             value={newDetails?.description}
                             onChange={handleProjectName}
+                            sx={{
+    ...(dark && {
+      "& .MuiOutlinedInput-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+
+        "& fieldset": {
+          borderColor: "#3a3a3a",
+        },
+        "&:hover fieldset": {
+          borderColor: "#fb923c",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: "#fb923c",
+        },
+      },
+
+      "& .MuiInputBase-input": {
+        color: "#ececec",
+      },
+
+      "& .MuiInputLabel-root": {
+        color: "#a0a0a0",
+      },
+
+      "& .MuiInputLabel-root.Mui-focused": {
+        color: "#fb923c",
+      },
+
+      "& input::placeholder": {
+        color: "#888",
+        opacity: 1,
+      },
+    }),
+  }}
+
                         />
                     </Grid>
                 </Grid>
@@ -298,7 +369,7 @@ const BasicSettings = (props) => {
                                     lg={2}
                                     xl={2}
                                 >
-                                    <Typography variant="body2" fontWeight='700' label="Required">
+                                    <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                         Source Language
                                     </Typography>
                                 </Grid>
@@ -310,19 +381,35 @@ const BasicSettings = (props) => {
                                     xl={9}
                                     sm={12}
                                 >
-                                    <Autocomplete
-                                        onChange={(e, newVal) => setSourceLanguage(newVal)}
-                                        options={languageOptions}
-                                        value={sourceLanguage}
-                                        style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                inputProps={{ ...params.inputProps, style: { fontSize: "14px" } }}
-                                                placeholder="Enter source language"
-                                            />
-                                        )}
-                                    />
+                <Autocomplete
+                    onChange={(e, newVal) => setSourceLanguage(newVal)}
+                    options={languageOptions}
+                    value={sourceLanguage}
+                    style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
+                    slotProps={{
+                        paper: {
+                        sx: {
+                            backgroundColor: dark ? "#2a2a2a" : "",
+                            color: dark ? "#ececec" : "",
+                            border: dark ? "1px solid #3a3a3a" : "",
+                        }
+                        }
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                        {...params}
+                        inputProps={{ ...params.inputProps, style: { fontSize: "14px", color: dark ? "#ececec" : "" } }}
+                        placeholder="Enter source language"
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                            backgroundColor: dark ? "#2a2a2a" : "",
+                            "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                            "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+                            }
+                        }}
+                        />
+                    )}
+                />
                                 </Grid>
                             </>
                         }
@@ -344,7 +431,7 @@ const BasicSettings = (props) => {
                                 lg={2}
                                 xl={2}
                             >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                                <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                 {ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing"?  "Language" :"Target Language"}
                                 </Typography>
                             </Grid>
@@ -357,18 +444,34 @@ const BasicSettings = (props) => {
                                 sm={12}
                             >
                                 <Autocomplete
-                                    onChange={(e, newVal) => setTargetLanguage(newVal)}
-                                    options={languageOptions}
-                                    value={targetLanguage}
-                                    style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            inputProps={{ ...params.inputProps, style: { fontSize: "14px" } }}
-                                            placeholder={ProjectDetails.project_type==="SingleSpeakerAudioTranscriptionEditing" ?"Enter language":"Enter target language"}
-                                        />
-                                    )}
-                                />
+                        onChange={(e, newVal) => setTargetLanguage(newVal)}
+                        options={languageOptions}
+                        value={targetLanguage}
+                        style={{ fontSize: "14px", width: { xs: "100%", sm: "500px" } }}
+                        slotProps={{
+                            paper: {
+                            sx: {
+                                backgroundColor: dark ? "#2a2a2a" : "",
+                                color: dark ? "#ececec" : "",
+                                border: dark ? "1px solid #3a3a3a" : "",
+                            }
+                            }
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                            {...params}
+                            inputProps={{ ...params.inputProps, style: { fontSize: "14px", color: dark ? "#ececec" : "" } }}
+                            placeholder={ProjectDetails.project_type === "SingleSpeakerAudioTranscriptionEditing" ? "Enter language" : "Enter target language"}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                backgroundColor: dark ? "#2a2a2a" : "",
+                                "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                                "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+                                }
+                            }}
+                            />
+                        )}
+                        />
                             </Grid>
 
                         </Grid>
@@ -388,7 +491,7 @@ const BasicSettings = (props) => {
                                 lg={2}
                                 xl={2}
                             >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                                <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                     Max Pending Tasks Per User
                                 </Typography>
                             </Grid>
@@ -405,7 +508,53 @@ const BasicSettings = (props) => {
                                     name="max_pending_tasks_per_user"
                                     InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                                     value={newDetails?.max_pending_tasks_per_user}
-                                    onChange={handleProjectName} />
+                                    onChange={handleProjectName} 
+                                    sx={{
+    ...(dark && {
+      "& .MuiOutlinedInput-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+
+        "& fieldset": {
+          borderColor: "#3a3a3a",
+        },
+        "&:hover fieldset": {
+          borderColor: "#fb923c",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: "#fb923c",
+        },
+      },
+
+      "& .MuiInputBase-input": {
+        color: "#ececec",
+      },
+
+      "& .MuiInputLabel-root": {
+        color: "#a0a0a0",
+      },
+
+      "& .MuiInputLabel-root.Mui-focused": {
+        color: "#fb923c",
+      },
+
+      "& input::placeholder": {
+        color: "#888",
+        opacity: 1,
+      },
+      "& input[type=number]": {
+      MozAppearance: "textfield", // Firefox
+    },
+
+    "& input[type=number]::-webkit-outer-spin-button": {
+      filter: "invert(1)", // makes arrows visible in dark
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      filter: "invert(1)",
+    },
+    }),
+  }}
+/>
                             </Grid>
                         </Grid>
                         <Grid
@@ -424,7 +573,7 @@ const BasicSettings = (props) => {
                                 lg={2}
                                 xl={2}
                             >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                                <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                     Tasks Pull Count Per Batch
                                 </Typography>
                             </Grid>
@@ -441,7 +590,53 @@ const BasicSettings = (props) => {
                                     name="tasks_pull_count_per_batch"
                                     InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
                                     value={newDetails?.tasks_pull_count_per_batch}
-                                    onChange={handleProjectName} />
+                                    onChange={handleProjectName}
+                                    sx={{
+    ...(dark && {
+      "& .MuiOutlinedInput-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+
+        "& fieldset": {
+          borderColor: "#3a3a3a",
+        },
+        "&:hover fieldset": {
+          borderColor: "#fb923c",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: "#fb923c",
+        },
+      },
+
+      "& .MuiInputBase-input": {
+        color: "#ececec",
+      },
+
+      "& .MuiInputLabel-root": {
+        color: "#a0a0a0",
+      },
+
+      "& .MuiInputLabel-root.Mui-focused": {
+        color: "#fb923c",
+      },
+
+      "& input::placeholder": {
+        color: "#888",
+        opacity: 1,
+      },
+      "& input[type=number]": {
+      MozAppearance: "textfield", // Firefox
+    },
+
+    "& input[type=number]::-webkit-outer-spin-button": {
+      filter: "invert(1)", // makes arrows visible in dark
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      filter: "invert(1)",
+    },
+    }),
+  }}
+ />
                             </Grid>
                         </Grid>
 
@@ -461,7 +656,7 @@ const BasicSettings = (props) => {
                                 lg={2}
                                 xl={2}
                             >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                                <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                 Max Tasks Per User
                                 </Typography>
                             </Grid>
@@ -479,7 +674,53 @@ const BasicSettings = (props) => {
                                     InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" }, readOnly: !isManager } }}
                                     
                                     value={newDetails?.max_tasks_per_user}
-                                    onChange={handleProjectName} />
+                                    onChange={handleProjectName}
+                                    sx={{
+    ...(dark && {
+      "& .MuiOutlinedInput-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+
+        "& fieldset": {
+          borderColor: "#3a3a3a",
+        },
+        "&:hover fieldset": {
+          borderColor: "#fb923c",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: "#fb923c",
+        },
+      },
+
+      "& .MuiInputBase-input": {
+        color: "#ececec",
+      },
+
+      "& .MuiInputLabel-root": {
+        color: "#a0a0a0",
+      },
+
+      "& .MuiInputLabel-root.Mui-focused": {
+        color: "#fb923c",
+      },
+
+      "& input::placeholder": {
+        color: "#888",
+        opacity: 1,
+      },
+      "& input[type=number]": {
+      MozAppearance: "textfield", // Firefox
+    },
+
+    "& input[type=number]::-webkit-outer-spin-button": {
+      filter: "invert(1)", // makes arrows visible in dark
+    },
+    "& input[type=number]::-webkit-inner-spin-button": {
+      filter: "invert(1)",
+    },
+    }),
+  }}
+ />
                             </Grid>
                         </Grid>
                     </>
@@ -507,9 +748,10 @@ const BasicSettings = (props) => {
                         onClick={handleSave}
                         label="Save" />
                 </Grid>
-            </Grid>
-        </ThemeProvider>
-    )
+           </Grid>
+    </Box>
+  </ThemeProvider>
+)
 }
 
 export default BasicSettings;

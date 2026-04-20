@@ -11,12 +11,13 @@ import CustomizedSnackbars from '@/components/common/Snackbar.jsx';
 import FetchUserByIdAPI from '../../../actions/api/user/FetchUserByIDAPI.js';
 import DeleteAnnotationAPI from '../../../actions/api/Dashboard/DeleteAnnotationAPI.js';
 import GetTaskDetailsAPI from '../../../actions/api/Dashboard/getTaskDetails.js';
+import { useTheme } from "@/context/ThemeContext";
 
 
 
 function AnnotationDetails() {
      /* eslint-disable react-hooks/exhaustive-deps */
-
+const { dark } = useTheme();
     const [annotationId, setAnnotationId] = useState('');
     const [annotationDetails, setAnnotationDetails] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -131,15 +132,15 @@ function AnnotationDetails() {
             },
             
         }),
-        arrowContainer: ({ style }, arrowStyle) => ({
-            style: {
-                ...style,
-                paddingRight: '1.375rem',
-                textIndent: '0rem',
-                backgroundColor: 'white',
-                wordBreak:'normal'
-            },
-        }),
+       arrowContainer: ({ style }, arrowStyle) => ({
+    style: {
+        ...style,
+        paddingRight: '1.375rem',
+        textIndent: '0rem',
+        backgroundColor: dark ? '#1e1e1e' : 'white',
+        wordBreak:'normal'
+    },
+}),
       };
       const renderSnackBar = () => {
         return (
@@ -166,16 +167,21 @@ function AnnotationDetails() {
                     gap: '1em', 
                     alignItems: 'center'
                     }}>
-                    <TextField
-                        id="annotation-id"
-                        label="Annotation ID"
-                        variant="outlined"
-                        value={annotationId}
-                        onChange={(event) => setAnnotationId(event.target.value)}
-                        sx={{
-                            width:{xs:"100%",sm:"400px"}
-                        }}
-                    />
+<TextField
+    id="annotation-id"
+    label="Annotation ID"
+    variant="outlined"
+    value={annotationId}
+    onChange={(event) => setAnnotationId(event.target.value)}
+    sx={{
+        width:{xs:"100%",sm:"400px"},
+        input: { color: dark ? "#ececec" : "" },
+        "& .MuiOutlinedInput-root": {
+            "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+        },
+        "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+    }}
+/>
                     <Button 
                     variant="contained" 
                     onClick={fetchAnnotationDetails}

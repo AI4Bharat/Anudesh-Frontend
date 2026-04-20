@@ -10,12 +10,13 @@ import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
 import { fetchDatasetDetails } from "@/Lib/Features/datasets/getDatasetDetails";
 import GetSaveButtonAPI from "@/app/actions/api/dataset/GetSaveButtonAPI";
+import { useTheme } from "@/context/ThemeContext";
 
 
 
 const BasicDatasetSettings = () => {
       /* eslint-disable react-hooks/exhaustive-deps */
-
+const { dark } = useTheme();
     const [snackbar, setSnackbarInfo] = useState({
         open: false,
         message: "",
@@ -108,8 +109,9 @@ const BasicDatasetSettings = () => {
     };
 
     return (
-        <ThemeProvider theme={themeDefault}>
-            {loading && <Spinner />}
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%", p: dark ? 2 : 0, borderRadius: dark ? "8px" : "" }}>
+    {loading && <Spinner />}
             <Grid>
                 {renderSnackBar()}
 
@@ -137,8 +139,8 @@ const BasicDatasetSettings = () => {
                         lg={2}
                         xl={2}
                     >
-                        <Typography variant="body2" fontWeight='700' label="Required">
-                            Dataset Name
+                       <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
+                        Dataset Name
                         </Typography>
                     </Grid>
                     <Grid
@@ -149,13 +151,13 @@ const BasicDatasetSettings = () => {
                         lg={9}
                         xl={9}
                     >
-                        <OutlinedTextField
-                            fullWidth
-                            name="instance_name"
-                            InputProps={{ style: { fontSize: "14px" } }}
-                            // value={ProjectDetails.title}
-                            value={newDetails?.instance_name}
-                            onChange={handleDatasetName} />
+                       <OutlinedTextField
+                    fullWidth
+                    name="instance_name"
+                    InputProps={{ style: { fontSize: "14px", color: dark ? "#ececec" : "" } }}
+                    sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}
+                    value={newDetails?.instance_name}
+                    onChange={handleDatasetName} />
                     </Grid>
                 </Grid>
                 <Grid
@@ -176,8 +178,8 @@ const BasicDatasetSettings = () => {
                         xl={2}
                     >
 
-                        <Typography variant="body2" fontWeight='700'>
-                            Dataset Description
+                        <Typography variant="body2" fontWeight='700' sx={{ color: dark ? "#ececec" : "" }}>
+                        Dataset Description
                         </Typography>
                     </Grid>
                     <Grid
@@ -188,13 +190,14 @@ const BasicDatasetSettings = () => {
                         lg={9}
                         xl={9}
                     >
-                        <OutlinedTextField
-                            fullWidth
-                            name="instance_description"
-                            InputProps={{ style: { fontSize: "14px" } }}
-                            value={newDetails?.instance_description}
-                            onChange={handleDatasetName}
-                        />
+                       <OutlinedTextField
+                        fullWidth
+                        name="instance_description"
+                        InputProps={{ style: { fontSize: "14px", color: dark ? "#ececec" : "" } }}
+                        sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}
+                        value={newDetails?.instance_description}
+                        onChange={handleDatasetName}
+/>
                     </Grid>
                 </Grid>
                 <Grid
@@ -218,9 +221,10 @@ const BasicDatasetSettings = () => {
                         onClick={handleSave}
                         label="Save" />
                 </Grid>
-            </Grid>
-        </ThemeProvider>
-    )
+           </Grid>
+    </Box>
+  </ThemeProvider>
+)
 }
 
 export default BasicDatasetSettings;

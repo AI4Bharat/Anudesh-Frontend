@@ -13,11 +13,13 @@ import Typography from "@mui/material/Typography";
 import DraftDataPopulation from "./DraftDataPopulation";
 import PopulateAiModel from "./PopulateAiModel";
 import { FormControlLabel } from "@mui/material";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ControlledRadioButtonsGroup() {
         /* eslint-disable react-hooks/exhaustive-deps */
 
   const classes = DatasetStyle();
+  const { dark } = useTheme();
   const [draftdata,setdraftdata] = useState(false);
   const [aimodel,setaimodel] = useState(true);
   const [automation,setautomation] = useState();
@@ -33,16 +35,16 @@ export default function ControlledRadioButtonsGroup() {
   setdraftdata(false)
 }
 
-  return (
-    <ThemeProvider theme={themeDefault}>
-      <Grid container direction="row"  paddingTop={3}>
-      <Card className={classes.workspaceCard}>
-      <Typography variant="h2" gutterBottom component="div">
-          Intra-Automate Datasets
+ return (
+  <ThemeProvider theme={themeDefault}>
+    <Grid container direction="row" paddingTop={3} sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100vh" }}>
+      <Card className={classes.workspaceCard} sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "" }}>
+      <Typography variant="h2" gutterBottom component="div" sx={{ color: dark ? "#ececec" : "" }}>
+        Intra-Automate Datasets
       </Typography>
       <Grid container className={classes.root}>
       <Grid item style={{ flexGrow: "0" }}>
-          <Typography variant="h6" sx={{ paddingBottom: "7px" }}>
+          <Typography variant="h6" sx={{ paddingBottom: "7px", color: dark ? "#ececec" : "" }}>
             Type Of Automation :{" "}
           </Typography>
         </Grid>
@@ -55,17 +57,19 @@ export default function ControlledRadioButtonsGroup() {
               defaultValue="Populate Predictions from AI Model"
             >
               <FormControlLabel
-                value="Populate Draft Data Json"
-                control={<Radio />}
-                label="Populate Draft Data Json"
-                onClick={handledraftdropdown}
-              />
-              <FormControlLabel
-                value="Populate Predictions from AI Model"
-                control={<Radio />}
-                label="Populate Predictions from AI Model"
-                onClick={handleaidropdown}
-              />
+  value="Populate Draft Data Json"
+  control={<Radio />}
+  label="Populate Draft Data Json"
+  onClick={handledraftdropdown}
+  sx={{ color: dark ? "#ececec" : "" }}
+/>
+<FormControlLabel
+  value="Populate Predictions from AI Model"
+  control={<Radio />}
+  label="Populate Predictions from AI Model"
+  onClick={handleaidropdown}
+  sx={{ color: dark ? "#ececec" : "" }}
+/>
             </RadioGroup>
           </FormControl>
         </Grid>

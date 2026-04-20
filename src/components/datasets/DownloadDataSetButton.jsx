@@ -11,6 +11,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import GetDatasetDownloadJSON, { fetchDatasetDownloadJSON } from "@/Lib/Features/datasets/GetDatasetDownloadJSON";
 import { fetchDatasetDownloadCSV } from "@/Lib/Features/datasets/GetDatasetDownloadCSV";
 import { fetchDatasetDownloadTSV } from "@/Lib/Features/datasets/GetDatasetDownloadTSV";
+import { useTheme } from "@/context/ThemeContext";
 
 
 const StyledMenu = styled((props) => (
@@ -42,6 +43,7 @@ function DownloadDatasetButton(props) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { dark } = useTheme();
 
   const apiLoading = useSelector(state => state.apiStatus.loading);
   const downloadCSV = useSelector((state) => state.getDatasetDownloadCSV?.data);
@@ -137,26 +139,32 @@ function DownloadDatasetButton(props) {
         Download DataSet
       </Button>
       <StyledMenu
-        sytle={{ width: "px" }}
-        id="demo-customized-menu"
-        MenuListProps={{
-          'aria-labelledby': 'demo-customized-button',
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-
-      >
-        <MenuItem onClick={handleDownloadCSVDataset}>
-          CSV
-        </MenuItem>
-        <MenuItem onClick={handleDownloadTSVDataset}>
-          TSV
-        </MenuItem>
-        <MenuItem onClick={handleDownloadJSONDataset} >
-          JSON
-        </MenuItem>
-      </StyledMenu>
+  sytle={{ width: "px" }}
+  id="demo-customized-menu"
+  MenuListProps={{
+    'aria-labelledby': 'demo-customized-button',
+  }}
+  anchorEl={anchorEl}
+  open={open}
+  onClose={handleClose}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      color: dark ? "#ececec" : "",
+    }
+  }}
+>
+  <MenuItem onClick={handleDownloadCSVDataset} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    CSV
+  </MenuItem>
+  <MenuItem onClick={handleDownloadTSVDataset} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    TSV
+  </MenuItem>
+  <MenuItem onClick={handleDownloadJSONDataset} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    JSON
+  </MenuItem>
+</StyledMenu>
 
       <CustomizedSnackbars
         message={snackbarMessage}

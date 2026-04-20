@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import CustomButton from "@/components/common/Button";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import { useTheme } from "@/context/ThemeContext";
 
 const ReadonlyConfigurations = (props) => {
        /* eslint-disable react-hooks/exhaustive-deps */
+       const { dark } = useTheme();
 
   const classes = DatasetStyle();
   const dispatch = useDispatch();
@@ -28,17 +30,37 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
   <Grid
     container
     spacing={2}
-    sx={{ alignItems: 'flex-start' }}
+    sx={{
+    alignItems: 'flex-start',
+
+    ...(dark && {
+      backgroundColor: "#1e1e1e",
+      color: "#ececec",
+      borderRadius: "8px",
+      padding: "12px",
+    }),
+  }}
   >
     {/* Left Column - Sampling Parameters Section */}
     {ProjectDetails && ProjectDetails.sampling_mode && (
-      <Grid item xs={12} md={ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json ? 6 : 12}>
+      <Grid item xs={12} md={ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json ? 6 : 12} sx={{
+    ...(dark && {
+      backgroundColor: "#252525",
+      border: "1px solid #2e2e2e",
+      borderRadius: "8px",
+      padding: "16px",
+    }),
+  }}>
         <Typography
           variant="h6"
           sx={{
-            fontSize: { xs: "1rem", md: "1.25rem" },
-            textAlign: { xs: "center", sm: "left" },
-            mb: 2
+           fontSize: { xs: "1rem", md: "1.25rem" },
+  textAlign: { xs: "center", sm: "left" },
+  mb: 2,
+
+  ...(dark && {
+    color: "#fb923c",   // highlight headings
+  }),
           }}
         >
           Sampling Parameters
@@ -53,10 +75,20 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
               gap: 2
             }}
           >
-            <Typography variant="subtitle1">Sampling Mode:</Typography>
+            <Typography variant="subtitle1"  sx={{
+              ...(dark && {
+                color: "#a0a0a0",
+              }),
+            }}>Sampling Mode:</Typography>
             <Typography
-              variant="subtitle1"
-            >
+  variant="subtitle1"
+  sx={{
+    ...(dark && {
+      color: "#ececec",
+      fontWeight: 500,
+    }),
+  }}
+>
               {ProjectDetails.sampling_mode === "f" && "Full"}
               {ProjectDetails.sampling_mode === "b" && "Batch"}
               {ProjectDetails.sampling_mode === "r" && "Random"}
@@ -100,6 +132,9 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
                 display:"flex",
                 alignItems:"center",
                 gap:2,
+                ...(dark && {
+    marginTop: "4px",
+  }),
                 ml:{xs:4, md:0}
               }}>
                 <Typography
@@ -114,6 +149,7 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
                   <CustomButton
                     sx={{
                       borderRadius: 2,
+
                     }}
                     label="View Dataset"
                   />
@@ -138,6 +174,9 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
                 display:"flex",
                 alignItems:"center",
                 gap:2,
+                ...(dark && {
+    marginTop: "4px",
+  }),
                 ml:{xs:4, md:0}
               }}
             >
@@ -201,7 +240,14 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
 
     {/* Right Column - Multi LLM Interaction Project Details */}
     {ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json && (
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={6} sx={{
+    ...(dark && {
+      backgroundColor: "#252525",
+      border: "1px solid #2e2e2e",
+      borderRadius: "8px",
+      padding: "16px",
+    }),
+  }}>
         <Typography
           variant="h6"
           sx={{
@@ -294,7 +340,14 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
 
     {/* Variable Parameters Section - Part of right column if Multi LLM exists, otherwise full width */}
     {ProjectDetails?.variable_parameters?.output_language && (
-      <Grid item xs={12} md={ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" ? 6 : 12}>
+      <Grid item xs={12} md={ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" ? 6 : 12} sx={{
+    ...(dark && {
+      backgroundColor: "#252525",
+      border: "1px solid #2e2e2e",
+      borderRadius: "8px",
+      padding: "16px",
+    }),
+  }}>
         <Typography
           variant="h6"
           sx={{ fontSize: { xs: "1rem", md: "1.25rem" }, mb: 2 }}

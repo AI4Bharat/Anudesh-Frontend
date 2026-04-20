@@ -1,3 +1,22 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+}
+
+.dark {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2a2a2a;
+  --text-primary: #ececec;
+  --text-secondary: #a0a0a0;
+  --border-color: #3a3a3a;
+}
+
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
 * {
   ::-webkit-scrollbar {
     width: 4px;

@@ -31,10 +31,12 @@ import { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import CustomizedSnackbars from "../common/Snackbar";
+import { useTheme } from "@/context/ThemeContext";
 
 
 
 const Projectcard = (props) => {
+  const { dark } = useTheme();
        /* eslint-disable react-hooks/exhaustive-deps */
            /* eslint-disable-next-line react/jsx-key */
 
@@ -211,21 +213,27 @@ const Projectcard = (props) => {
   console.log("filtersApplied", filtersApplied);
 
     const CustomTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#e0e0e0',
-      color: 'rgba(0, 0, 0, 0.87)',
-      maxWidth: 300,
-      fontSize: theme.typography.pxToRem(12),
-    },
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#e0e0e0",
-    },
-  }));
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: dark ? "#2a2a2a" : "#e0e0e0",
+    color: dark ? "#ececec" : "rgba(0, 0, 0, 0.87)",
+    maxWidth: 300,
+    fontSize: theme.typography.pxToRem(12),
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: dark ? "#2a2a2a" : "#e0e0e0",
+  },
+}));
 
   return (
-    <React.Fragment>
+    <Box
+  sx={{
+    backgroundColor: dark ? "#1e1e1e" : "",
+    minHeight: "100vh",
+    padding: dark ? "10px" : "",
+  }}
+>
       {/* <Header /> */}
       {renderSnackBar()}
       {loading && <Spinner />}
@@ -248,12 +256,18 @@ const Projectcard = (props) => {
       }
       disableInteractive
     >
-      <FilterListIcon sx={{ color: '#515A5A' }} />
+      <FilterListIcon sx={{ color: dark ? "#a0a0a0" : "#515A5A" }} />
     </CustomTooltip>
       </Button>
       </Grid>
       {pageSearch().length > 0 && (
-        <Box sx={{ margin: "0 auto", pb: 5 }}>
+        <Box
+  sx={{
+    margin: "0 auto",
+    pb: 5,
+    backgroundColor: dark ? "#1e1e1e" : "",
+  }}
+>
           {/* <Typography variant="h5" sx={{mt : 2, mb : 2}}>Projects</Typography> */}
           <Grid
             container
@@ -294,6 +308,20 @@ const Projectcard = (props) => {
             rowsPerPageOptions={[9, 18, 36, 72, { label: "All", value: -1 }]}
             onRowsPerPageChange={rowChange}
             ActionsComponent={TablePaginationActions}
+            sx={{
+    color: dark ? "#a0a0a0" : "",
+    backgroundColor: dark ? "#252525" : "",
+    borderTop: dark ? "1px solid #3a3a3a" : "",
+    "& .MuiSvgIcon-root": {
+      color: dark ? "#fb923c" : "",
+    },
+    "& .MuiIconButton-root": {
+      color: dark ? "#fb923c" : "",
+    },
+    "& .MuiSelect-select": {
+      color: dark ? "#ececec" : "",
+    },
+  }}
           />
         </Box>
       )}
@@ -321,6 +349,7 @@ const Projectcard = (props) => {
                   <IconButton
                     aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
+                    sx={{ color: dark ? "#a0a0a0" : "" }}
                   >
                     {showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
@@ -329,7 +358,7 @@ const Projectcard = (props) => {
             }}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <FormHelperText id="enter-password">
+          <FormHelperText id="enter-password" sx={{ color: dark ? "#a0a0a0" : "" }}>
             To enter{" "}
             <Typography component="span" fontWeight="bold" fontSize={"12px"}>
               {selectedProject?.title}
@@ -338,16 +367,20 @@ const Projectcard = (props) => {
           </FormHelperText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAuthClose} color="primary">
+          <Button onClick={handleAuthClose} color="primary" sx={{
+    color: dark ? "#a0a0a0" : "",
+  }}>
             Cancel
           </Button>
-          <Button onClick={handlePasswordSubmit} color="primary">
+          <Button onClick={handlePasswordSubmit} color="primary" sx={{
+    color: dark ? "#fb923c" : "",
+  }}>
             Submit
           </Button>
         </DialogActions>
       </Dialog>
 
-    </React.Fragment>
+    </Box>
   );
 };
 
