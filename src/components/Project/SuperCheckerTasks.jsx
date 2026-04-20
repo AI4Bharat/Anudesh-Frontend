@@ -396,41 +396,7 @@ const SuperCheckerTasks = (props) => {
     }
   }, [NextTask]);
 
-  const handleRangeChange = (ranges) => {
-    const { selection } = ranges;
-    if (selection.endDate > new Date()) selection.endDate = new Date();
-    selection.endDate.setHours(23, 59, 59, 999);
-    setSelectRange([selection]);
-  };
 
-  const clearFilter = () => {
-    const { start_date, end_date, ...newFilters } = selectedFilters;
-    setsSelectedFilters(newFilters);
-    setSelectRange([
-      {
-        startDate: null,
-        endDate: null,
-        key: "selection",
-      },
-    ]);
-    setCalenderAnchor(null);
-  };
-
-  const applyFilter = () => {
-    if (selectRange[0].startDate && selectRange[0].endDate) {
-      setsSelectedFilters({
-        ...selectedFilters,
-        start_date: format(selectRange[0].startDate, "yyyy-MM-dd HH:mm:ss"),
-        end_date: format(selectRange[0].endDate, "yyyy-MM-dd HH:mm:ss"),
-      });
-    }
-    setCalenderAnchor(null);
-  };
-
-  const handleDateTimeFormat = () => {
-    SetDateTimeFormat(!dateTimeFormat);
-    setCalenderAnchor(null);
-  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {

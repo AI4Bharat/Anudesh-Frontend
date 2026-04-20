@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { useEffect, useState, userRef } from "react";
 import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
@@ -7,7 +6,6 @@ import Button from "@mui/material/Button";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
 import _ from 'lodash';
-
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
@@ -33,7 +31,6 @@ import FilterList from "./FilterList";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import CalenderMonthIcon from '@mui/icons-material/CalendarMonth';
 import { parse, format } from "date-fns";
-import TimeRangeFilter from "./TimeRangeFilter";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup";
 import { snakeToTitleCase } from "../../utils/utils";
@@ -56,8 +53,6 @@ import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
 import { setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
-import CalenderMonthIcon from '@mui/icons-material/CalendarMonth';
-import { parse, format } from "date-fns";
 import TimeRangeFilter from "./TimeRangeFilter";
 import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
@@ -149,10 +144,6 @@ const TaskTable = (props) => {
   const filterId = popoverOpen ? "simple-popover" : undefined;
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
-  );
-
-  const project_stage = useSelector(
-    (state) => state.getProjectDetails?.data?.project_stage
   );
 
   const getProjectReviewers = useSelector(
