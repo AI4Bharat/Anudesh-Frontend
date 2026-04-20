@@ -188,7 +188,7 @@ const FilterList = (props) => {
                 </FormControl>
               ) : null}
               {currentFilters?.annotation_status &&
-              selectedStatus !== "unlabeled" ? (
+                selectedStatus !== "unlabeled" ? (
                 <FormControl sx={{ m: 1, minWidth: 125 }} size="small">
                   <FormControlLabel
                     control={

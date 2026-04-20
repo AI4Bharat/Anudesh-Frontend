@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { useEffect, useState, userRef } from "react";
 import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
@@ -30,6 +31,9 @@ import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterList from "./FilterList";
 import CustomizedSnackbars from "../../components/common/Snackbar";
+import CalenderMonthIcon from '@mui/icons-material/CalendarMonth';
+import { parse, format } from "date-fns";
+import TimeRangeFilter from "./TimeRangeFilter";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup";
 import { snakeToTitleCase } from "../../utils/utils";
@@ -153,6 +157,10 @@ const TaskTable = (props) => {
 
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
+  );
+
+  const project_stage = useSelector(
+    (state) => state.getProjectDetails?.data?.project_stage
   );
 
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
@@ -280,6 +288,7 @@ const TaskTable = (props) => {
   const isInitialMount = useRef(true);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [expandedRow, setExpandedRow] = useState(null);
+
   const [calenderAnchor, setCalenderAnchor] = useState(null);
   const calenderOpen = Boolean(calenderAnchor);
   const [selectRange, setSelectRange] = useState([
@@ -315,7 +324,35 @@ const TaskTable = (props) => {
 
   useEffect(() => {
     getTaskListData();
+
   }, [currentPageNumber, currentRowPerPage, selectedFilters, pull, rejected]);
+
+  useEffect(() => {
+    const newFilter = AllTaskFilters?.find(
+      (filter) => filter.id === id && filter.type === props.type
+    );
+
+    if (newFilter?.selectedFilters) {
+      let filtersToSet = newFilter.selectedFilters;
+      if (newFilter?.total_count === 0 && (filtersToSet.start_date || filtersToSet.end_date)) {
+        const { start_date, end_date, ...rest } = filtersToSet;
+        filtersToSet = rest;
+        setSelectRange([
+          {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: "selection",
+          },
+        ]);
+
+        if (!defaultColumns.includes("updated_at")) {
+          setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
+        }
+      }
+      setsSelectedFilters(filtersToSet);
+    }
+  }, [id, props.type]);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -571,8 +608,7 @@ const TaskTable = (props) => {
           >
             <CalenderMonthIcon />
           </IconButton>
-        )
-        }
+        )}
       </Box>
     );
   };
@@ -645,8 +681,10 @@ const TaskTable = (props) => {
         rejected,
         page: existingFilter?.page
       }))
+
     }
     // getTaskListData();
+
 
     if (typeof window !== "undefined") {
       localStorage.setItem(
@@ -665,10 +703,9 @@ const TaskTable = (props) => {
       }),
     );
   }, [selectedFilters, pull, rejected, totalTaskCount]);
-  
   const getAnnotatorName = (annotatorEmail, showAnnotatorsNames) => {
     if (!annotatorEmail || !getProjectUsers) return annotatorEmail;
-    
+
     const user = getProjectUsers.find(u => u.email === annotatorEmail);
     if (user && user.first_name && user.last_name && showAnnotatorsNames) {
       return `${user.first_name} ${user.last_name}`;
@@ -682,7 +719,6 @@ const TaskTable = (props) => {
         const user = getProjectUsers.find(u => u.email === task.annotator_mail);
         return user && user.first_name && user.last_name;
       });
-
       const annotatorEmail = taskList[0]?.annotator_mail;
       const showEmail = ProjectDetails?.conceal === false || annotatorEmail;
       const shouldShowAnnotatorColumn = props.type === "review" && showEmail;
@@ -814,13 +850,20 @@ const TaskTable = (props) => {
       colList.push("actions");
 
       if (selectedColumns.length === 0) {
-        const initialColumns = [...defaultColumns];
+        const updatedColumns = [...defaultColumns, "annotator_mail"];
+        
+        if (props.type === "review" && ProjectDetails?.conceal === false) {
+          columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
+        } else {
+          columns.length === 0 ? setSelectedColumns(defaultColumns) : setSelectedColumns(columns);
+        }
+
         if (selectedFilters.start_date && selectedFilters.end_date) {
-          if (!initialColumns.includes("updated_at")) {
-            initialColumns.push("updated_at");
+          if (!updatedColumns.includes("updated_at")) {
+            updatedColumns.push("updated_at");
           }
         }
-        columns.length === 0 ? setSelectedColumns(initialColumns) : setSelectedColumns(columns);
+        columns.length === 0 ? setSelectedColumns(updatedColumns) : setSelectedColumns(columns);
       }
       const metaInfoMapping = {
         meta_info_language: "language",
@@ -832,7 +875,6 @@ const TaskTable = (props) => {
       } else {
         metaInfoMapping.annotator_mail = "Annotator Email";
       }
-      
       const cols = colList.map((col) => {
         const isSelectedColumn = selectedColumns.includes(col);
         return {
@@ -874,7 +916,7 @@ const TaskTable = (props) => {
     } else {
       setTasks([]);
     }
-  }, [ taskList, ProjectDetails, expandedRow, dateTimeFormat]);
+  }, [taskList, ProjectDetails, expandedRow, dateTimeFormat]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
@@ -984,7 +1026,6 @@ const TaskTable = (props) => {
 
     checkPreferredAnnotators();
 
-    // Re-check when preferred annotators are saved from the dialog
     window.addEventListener("preferredAnnotatorsUpdated", checkPreferredAnnotators);
     return () => window.removeEventListener("preferredAnnotatorsUpdated", checkPreferredAnnotators);
   }, [props.type, id, ProjectDetails.labeled_task_count]);
@@ -1172,35 +1213,31 @@ const TaskTable = (props) => {
           !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
           !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
           !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
-            <>
-              <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-                <InputLabel
-                  id="reviewer-filter-label"
-                  sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px" }}
-                >
-                  Filter by Reviewer
-                </InputLabel>
-                <Select
-                  labelId="reviewer-filter-label"
-                  id="reviewer-filter"
-                  value={selectedFilters.req_user}
-                  label="Filter by Reviewer"
-                  onChange={(e) =>
-                    setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
-                  }
-                  sx={{ fontSize: "16px" }}
-                >
-                  <MenuItem value="">All</MenuItem>
-                  {filterData.Reviewers?.map((el, i) => (
-                    <MenuItem key={i} value={el.value}>
-                      {el.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <ReviewTasksTable />
-            </>
+            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
+              <InputLabel
+                id="reviewer-filter-label"
+                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px" }}
+              >
+                Filter by Reviewer
+              </InputLabel>
+              <Select
+                labelId="reviewer-filter-label"
+                id="reviewer-filter"
+                value={selectedFilters.req_user}
+                label="Filter by Reviewer"
+                onChange={(e) =>
+                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
+                }
+                sx={{ fontSize: "16px" }}
+              >
+                <MenuItem value="">All</MenuItem>
+                {filterData.Reviewers?.map((el, i) => (
+                  <MenuItem key={i} value={el.value}>
+                    {el.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           )}
         {props.type === "review" &&
           (
@@ -1650,7 +1687,7 @@ const TaskTable = (props) => {
               >
                 <Tooltip title={pullDisabled}>
                   <Box>
-                    <TasksassignDialog disabled={pullDisabled} />
+                    <TasksassignDialog default_reviewer={userDetails?.id} disabled={pullDisabled} />
                   </Box>
                 </Tooltip>
               </Grid>}
@@ -1759,15 +1796,15 @@ const TaskTable = (props) => {
       )}
       {calenderOpen && (
         <TimeRangeFilter
-        calenderOpen={calenderOpen}
-        calenderAnchor={calenderAnchor}
-        handleCalenderClose={() => setCalenderAnchor(null)}
-        selectRange={selectRange}
-        handleRangeChange={handleRangeChange}
-        dateTimeFormat={dateTimeFormat}
-        handleDateTimeFormat={handleDateTimeFormat}
-        clearFilter={clearFilter}
-        applyFilter={applyFilter}
+          calenderOpen={calenderOpen}
+          calenderAnchor={calenderAnchor}
+          handleCalenderClose={() => setCalenderAnchor(null)}
+          selectRange={selectRange}
+          handleRangeChange={handleRangeChange}
+          dateTimeFormat={dateTimeFormat}
+          handleDateTimeFormat={handleDateTimeFormat}
+          clearFilter={clearFilter}
+          applyFilter={applyFilter}
         />
       )}
 

@@ -391,7 +391,6 @@ const Projects = () => {
                 >
                   {ProjectDetails.title}
                 </Typography>
-
                 {id && (
                 <BookmarkButton
                   projectId={id}

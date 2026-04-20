@@ -45,7 +45,6 @@ export default function RootLayout({ children }) {
           />
 
 
-          <link rel="preload" href="https://i.imgur.com/56Ut9oz.png" />
 
         </Head>
 

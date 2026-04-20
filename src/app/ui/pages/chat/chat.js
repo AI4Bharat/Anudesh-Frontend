@@ -19,7 +19,7 @@ import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { makeStyles } from '@mui/styles';
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { motion } from "framer-motion";
-// import bgChat from "./chat_bg.jpg";
+import bgChat from "../../../../assets/chat-bg.jpg";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {

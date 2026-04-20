@@ -124,7 +124,7 @@ export default function UnassignedReviewSummaryPopup() {
                   <TableCell>
                     <strong>Unassigned Count</strong>
                   </TableCell>
-                  
+
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -132,7 +132,7 @@ export default function UnassignedReviewSummaryPopup() {
                   <TableRow key={index}>
                     <TableCell>{item.annotator_email || "—"}</TableCell>
                     <TableCell>{item.unassigned_count ?? 0}</TableCell>
-                    
+
                   </TableRow>
                 ))}
               </TableBody>

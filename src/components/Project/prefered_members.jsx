@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   IconButton,
   Tooltip,
@@ -63,7 +63,6 @@ const ReviewTasksTable = () => {
   const fetchMembers = async () => {
     const projectId = getProjectIdFromURL();
     if (!projectId) return alert("❌ Project ID not found in URL.");
-
     setLoading(true);
     try {
       const token = localStorage.getItem("anudesh_access_token");
@@ -99,7 +98,8 @@ const ReviewTasksTable = () => {
       fetchMembers(),
       fetchExistingPreferences(),
     ]);
-    const allCurrentIds = (membersResult || []).map((m) => Number(m.annotator_id));
+
+    const allCurrentIds = (membersResult || []).map((m) => m.annotator_id);
 
     if (!existingPrefs || !existingPrefs.savedBefore) {
       // First time: select all and auto-save
@@ -128,7 +128,7 @@ const ReviewTasksTable = () => {
     }
 
     // Restore saved prefs
-    const savedIds = (existingPrefs.ids || []).map(Number);
+    const savedIds = existingPrefs.ids;
     const validSavedIds = savedIds.filter((id) => allCurrentIds.includes(id));
     setAnnotatorSelection(validSavedIds);
   };
@@ -137,9 +137,8 @@ const ReviewTasksTable = () => {
 
   // ✅ Checkbox toggle
   const handleCheckboxChange = (id) => {
-    const numId = Number(id);
     setAnnotatorSelection((prev) =>
-      prev.includes(numId) ? prev.filter((x) => x !== numId) : [...prev, numId]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
@@ -147,15 +146,12 @@ const ReviewTasksTable = () => {
   const handleSave = async () => {
     const projectId = getProjectIdFromURL();
     if (!projectId) return alert("❌ Project ID not found.");
-
     const token = localStorage.getItem("anudesh_access_token");
     const endpoint = `${configs.BASE_URL_AUTO}/users/account/save-preferred-annotators/`;
-
     const bodyData = {
       project_id: projectId,
       annotator_ids: annotatorSelection,
     };
-
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -165,7 +161,6 @@ const ReviewTasksTable = () => {
         },
         body: JSON.stringify(bodyData),
       });
-
       const result = await response.json();
       console.log("✅ Save response:", result);
       alert(result?.message || "Preferred annotators saved successfully!");
@@ -205,15 +200,15 @@ const ReviewTasksTable = () => {
                       <Checkbox
                         checked={
                           members.length > 0 &&
-                          members.every((m) => annotatorSelection.includes(Number(m.annotator_id)))
+                          members.every((m) => annotatorSelection.includes(m.annotator_id))
                         }
                         indeterminate={
-                          members.some((m) => annotatorSelection.includes(Number(m.annotator_id))) &&
-                          !members.every((m) => annotatorSelection.includes(Number(m.annotator_id)))
+                          members.some((m) => annotatorSelection.includes(m.annotator_id)) &&
+                          !members.every((m) => annotatorSelection.includes(m.annotator_id))
                         }
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setAnnotatorSelection(members.map((m) => Number(m.annotator_id)));
+                            setAnnotatorSelection(members.map((m) => m.annotator_id));
                           } else {
                             setAnnotatorSelection([]);
                           }
@@ -225,6 +220,7 @@ const ReviewTasksTable = () => {
                   <TableCell>Unassigned Tasks</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {members.map((m, index) => {
                   return (
@@ -233,7 +229,7 @@ const ReviewTasksTable = () => {
                     >
                       <TableCell>
                         <Checkbox
-                          checked={annotatorSelection.includes(Number(m.annotator_id))}
+                          checked={annotatorSelection.includes(m.annotator_id)}
                           onChange={() => handleCheckboxChange(m.annotator_id)}
                         />
                       </TableCell>
@@ -246,7 +242,6 @@ const ReviewTasksTable = () => {
             </Table>
           )}
         </DialogContent>
-
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button variant="contained" onClick={handleSave}>

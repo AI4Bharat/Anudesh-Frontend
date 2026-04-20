@@ -43,10 +43,10 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import { fetchNextTask } from "@/Lib/Features/projects/getNextTask";
 import { setTaskFilter } from "@/Lib/Features/projects/getTaskFilter";
 import ChatLang from "@/utils/Chatlang";
-// import TasksSupercheckTable from "./prefered_reviewers";
 import CalenderMonthIcon from "@mui/icons-material/CalendarMonth";
 import { parse, format } from "date-fns";
 import TimeRangeFilter from "./TimeRangeFilter";
+// import TasksSupercheckTable from "./prefered_reviewers";
 
 const defaultColumns = [
   "id",
@@ -152,7 +152,7 @@ const SuperCheckerTasks = (props) => {
   const AllTaskFilters = useSelector((state) => state.getTaskFilter?.data);
   const TaskFilter = AllTaskFilters.find(
     (filter) => filter.id === id && filter.type === props.type,
-  ); 
+  );
   const [expandedRow, setExpandedRow] = useState(null);
   const popoverOpen = Boolean(anchorEl);
   const filterId = popoverOpen ? "simple-popover" : undefined;
@@ -176,11 +176,11 @@ const SuperCheckerTasks = (props) => {
     SuperChecker:
       ProjectDetails?.review_supercheckers?.length > 0
         ? ProjectDetails?.review_supercheckers?.map((el, i) => {
-            return {
-              label: el.username,
-              value: el.id,
-            };
-          })
+          return {
+            label: el.username,
+            value: el.id,
+          };
+        })
         : [],
   };
 
@@ -215,6 +215,71 @@ const SuperCheckerTasks = (props) => {
         taskType: props.type,
       }),
     );
+  };
+
+  useEffect(() => {
+    const newFilter = AllTaskFilters?.find(
+      (filter) => filter.id === id && filter.type === props.type
+    );
+
+    if (newFilter?.selectedFilters) {
+      let filtersToSet = newFilter.selectedFilters;
+      if (newFilter?.total_count === 0 && (filtersToSet.start_date || filtersToSet.end_date)) {
+        const { start_date, end_date, ...rest } = filtersToSet;
+        filtersToSet = rest;
+        setSelectRange([
+          {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: "selection",
+          },
+        ]);
+
+        if (!defaultColumns.includes("updated_at")) {
+          setSelectedColumns((prev) => prev.filter((col) => col !== "updated_at"));
+        }
+      }
+      if (!_.isEqual(filtersToSet, selectedFilters)) {
+        setsSelectedFilters(filtersToSet);
+      }
+    }
+  }, [id, props.type]);
+
+
+  const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    selection.endDate.setHours(23, 59, 59, 999);
+    setSelectRange([selection]);
+  };
+
+  const clearFilter = () => {
+    const { start_date, end_date, ...newFilters } = selectedFilters;
+    setsSelectedFilters(newFilters);
+    setSelectRange([
+      {
+        startDate: null,
+        endDate: null,
+        key: "selection",
+      },
+    ]);
+    setCalenderAnchor(null);
+  };
+
+  const applyFilter = () => {
+    if (selectRange[0].startDate && selectRange[0].endDate) {
+      setsSelectedFilters({
+        ...selectedFilters,
+        start_date: format(selectRange[0].startDate, "yyyy-MM-dd HH:mm:ss"),
+        end_date: format(selectRange[0].endDate, "yyyy-MM-dd HH:mm:ss"),
+      });
+    }
+    setCalenderAnchor(null);
+  };
+
+  const handleDateTimeFormat = () => {
+    SetDateTimeFormat(!dateTimeFormat);
+    setCalenderAnchor(null);
   };
 
   useEffect(() => {
@@ -411,8 +476,8 @@ const SuperCheckerTasks = (props) => {
         taskList[0].supercheck_status && row.push(el.supercheck_status);
         if (
           (roles?.WorkspaceManager === userDetails?.role ||
-            roles?.OrganizationOwner === userDetails?.role ||
-            roles?.Admin === userDetails?.role) &&
+          roles?.OrganizationOwner === userDetails?.role ||
+          roles?.Admin === userDetails?.role) &&
           taskList[0].updated_at
         ) {
           const taskDate = parse(el.updated_at, "dd-MM-yyyy HH:mm:ss", new Date());
@@ -755,7 +820,8 @@ const SuperCheckerTasks = (props) => {
               </Select>
             </FormControl>
           )}
-          {/* <TasksSupercheckTable /> */}
+        {/* <TasksSupercheckTable /> */}
+
         <ColumnList
           columns={columns}
           setColumns={setSelectedColumns}
@@ -773,42 +839,42 @@ const SuperCheckerTasks = (props) => {
             />
           )}
           <Button sx={{ position: "relative" }}>
-              <FilterListIcon sx={{ color: "#515A5A" }} />
-          <CustomTooltip
-            title={
-              filtersApplied ? (
-                <Box
-                  sx={{
-                    padding: "5px",
-                    maxWidth: "300px",
-                    fontSize: "12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "5px",
-                  }}
-                >
-                  {selectedFilters.supercheck_status && (
-                    <div>
-                      <strong>Supercheck Status:</strong>{" "}
-                      {selectedFilters.supercheck_status}
-                    </div>
-                  )}
-                  {selectedFilters.req_user !== -1 && (
-                    <div>
-                      <strong>Assigned User:</strong> {selectedFilters.req_user}
-                    </div>
-                  )}
-                </Box>
-              ) : (
-                <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                  Filter Table
-                </span>
-              )
-            }
-            disableInteractive
-          >
-          </CustomTooltip>
-         </Button>
+            <FilterListIcon sx={{ color: "#515A5A" }} />
+            <CustomTooltip
+              title={
+                filtersApplied ? (
+                  <Box
+                    sx={{
+                      padding: "5px",
+                      maxWidth: "300px",
+                      fontSize: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "5px",
+                    }}
+                  >
+                    {selectedFilters.supercheck_status && (
+                      <div>
+                        <strong>Supercheck Status:</strong>{" "}
+                        {selectedFilters.supercheck_status}
+                      </div>
+                    )}
+                    {selectedFilters.req_user !== -1 && (
+                      <div>
+                        <strong>Assigned User:</strong> {selectedFilters.req_user}
+                      </div>
+                    )}
+                  </Box>
+                ) : (
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    Filter Table
+                  </span>
+                )
+              }
+              disableInteractive
+            >
+            </CustomTooltip>
+          </Button>
         </Box>
       </Box>
       </>
@@ -852,9 +918,9 @@ const SuperCheckerTasks = (props) => {
               marginLeft: "0px",
             },
             "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -1062,8 +1128,8 @@ const SuperCheckerTasks = (props) => {
               md={
                 (props.type === "superChecker" &&
                   selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped"
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
                   ? 2
                   : 3
               }
@@ -1109,8 +1175,8 @@ const SuperCheckerTasks = (props) => {
               md={
                 (props.type === "superChecker" &&
                   selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped"
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
                   ? 3
                   : 4
               }
@@ -1138,8 +1204,8 @@ const SuperCheckerTasks = (props) => {
               md={
                 (props.type === "superChecker" &&
                   selectedFilters.supercheck_status === "unvalidated") ||
-                selectedFilters.supercheck_status === "draft" ||
-                selectedFilters.supercheck_status === "skipped"
+                  selectedFilters.supercheck_status === "draft" ||
+                  selectedFilters.supercheck_status === "skipped"
                   ? 4
                   : 5
               }
@@ -1177,9 +1243,8 @@ const SuperCheckerTasks = (props) => {
           columns={columns}
           options={{
             ...options,
-            tableBodyHeight: `${
-              typeof window !== "undefined" ? window.innerHeight - 200 : 400
-            }px`,
+            tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
+              }px`,
           }}
         />
       </ThemeProvider>
@@ -1196,16 +1261,29 @@ const SuperCheckerTasks = (props) => {
         />
       )}
       {searchOpen && (
- <AllTaskSearchPopup
-                    open={searchOpen}
-                    anchorEl={searchAnchor}
-                     handleClose={handleSearchClose}
-                    updateFilters={setsSelectedFilters}
-                    //filterStatusData={filterData}
-                    currentFilters={selectedFilters}
-                    searchedCol={searchedCol}
-                    onchange={getTaskListData}
-                />
+        <AllTaskSearchPopup
+          open={searchOpen}
+          anchorEl={searchAnchor}
+          handleClose={handleSearchClose}
+          updateFilters={setsSelectedFilters}
+          //filterStatusData={filterData}
+          currentFilters={selectedFilters}
+          searchedCol={searchedCol}
+          onchange={getTaskListData}
+        />
+      )}
+      {calenderOpen && (
+        <TimeRangeFilter
+          calenderOpen={calenderOpen}
+          calenderAnchor={calenderAnchor}
+          handleCalenderClose={() => setCalenderAnchor(null)}
+          selectRange={selectRange}
+          handleRangeChange={handleRangeChange}
+          dateTimeFormat={dateTimeFormat}
+          handleDateTimeFormat={handleDateTimeFormat}
+          clearFilter={clearFilter}
+          applyFilter={applyFilter}
+        />
       )}
       {renderSnackBar()}
       {calenderOpen && (

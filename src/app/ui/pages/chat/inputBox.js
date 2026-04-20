@@ -56,7 +56,6 @@ import { useNavigate } from 'react-router-dom';
 import { FetchLoggedInUserData } from '@/Lib/Features/getLoggedInData';
 import BackButton from '@/components/common/BackButton';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -795,18 +794,19 @@ function GuestChatPage() {
           </div>
         </Box>
         
-        <Box sx={{ px: '4%', py: 1 }}>
-          <BackButton
-            startIcon={<ArrowBackIcon />}
-            sx={{ 
-              color: "white", 
-              m: {xs:1,md:1,lg:2,xl:2},
-              borderRadius: '18px',
-              textTransform: 'none'
-            }}
-            label={translate("label.backToPreviousPage")}
-          />
-        </Box>
+         <Box sx={{ px: '4%', py: 1 }}>
+           <BackButton
+             startIcon={<ArrowBackIcon />}
+             sx={{ 
+               color: "white", 
+               m: {xs:1,md:1,lg:2,xl:2},
+               borderRadius: '18px',
+               textTransform: 'none'
+             }}
+             label={translate("label.backToPreviousPage")}
+           />
+         </Box>
+        
         <Box
           sx={{
             flexGrow: 1,

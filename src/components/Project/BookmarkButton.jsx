@@ -1,14 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { bookmarkProject, unbookmarkProject, getUserProjects } from '@/Lib/Features/projects/bookmarkService';
+import { bookmarkProject, getUserProjects, unbookmarkProject } from '@/Lib/Features/projects/bookmarkService';
 import { IconButton, CircularProgress, Tooltip } from '@mui/material';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 
 const BookmarkButton = ({ projectId, onBookmarkChange }) => {
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
 
     useEffect(() => {
     async function fetchAndCheckBookmark() {

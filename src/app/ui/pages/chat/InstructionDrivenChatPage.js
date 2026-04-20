@@ -338,6 +338,8 @@ const [snackbar, setSnackbarInfo] = useState({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -351,15 +353,24 @@ const [snackbar, setSnackbarInfo] = useState({
       if (storedGlobalTransliteration !== null) {
         setGlobalTransliteration(storedGlobalTransliteration);
       }
+      
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
-      console.log(
-        globalTransliteration,
-        "lll",
-        localStorage.getItem("globalTransliteration"),
-      );
+      // const lc = LanguageCode.languages.find(
+      //   (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
+      // );
+
+      // if (Number(info.meta_info_language) < 3){
+      //   setTargetLang(lc.code);
+      // }else{
+      //   setTargetLang("en");
+      // }
     }
+  }, [info]);  // Dependency on info - runs on mount and when info changes
+
+  useEffect(() => {
+    // This effect runs when chatHistory changes
   }, [chatHistory]);
 
   useEffect(() => {
@@ -437,7 +448,17 @@ const [snackbar, setSnackbarInfo] = useState({
     }
   };
 
+  // Helper function to detect if text is in Urdu/Kashmiri script
+  const isRTLLanguage = (text) => {
+    if (!text) return false;
+    // Both Urdu and Kashmiri use Arabic/Persian script (Unicode range U+0600 to U+06FF)
+    // This range covers Arabic, Persian, Urdu, and Kashmiri scripts
+    const rtlScriptRegex = /[\u0600-\u06FF]/;
+    return rtlScriptRegex.test(text);
+  };
+
 const renderChatHistory = () => {
+
     const toggleShrink = (index) => {
         setShrinkedMessages(prev => ({
             ...prev,
@@ -446,6 +467,7 @@ const renderChatHistory = () => {
     };
 
     const chatElements = chatHistory?.map((message, index) => (
+
       <Grid
         container
         key={index}
@@ -528,6 +550,8 @@ const renderChatHistory = () => {
                           boxShadow: `0px 2px 2px ${grey[50]}`,
                           minHeight: "4rem",
                           resize: "none",
+                          textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                          direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                         }}
                       />
                     )}
@@ -554,6 +578,8 @@ const renderChatHistory = () => {
                       boxShadow: `0px 2px 2px ${grey[50]}`,
                       minHeight: "4rem",
                       resize: "none",
+                      textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                      direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                     }}
                     rows={1}
                   />
@@ -732,10 +758,8 @@ const renderChatHistory = () => {
     ));
 
     return chatElements;
-  };
-
-  const ChildModal = () => {
-    const [open, setOpen] = useState(false);
+};  
+const ChildModal = () => {    const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
       setOpen(true);

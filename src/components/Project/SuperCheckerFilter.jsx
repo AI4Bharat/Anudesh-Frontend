@@ -27,7 +27,7 @@ const SuperCheckerFilter = (props) => {
     const { start_date, end_date, ...restFilters } = currentFilters;
     updateFilters({
       ...restFilters,
-      [statusvalue]:selectedStatus,
+      [statusvalue]: selectedStatus,
     })
     props.handleClose();
   };

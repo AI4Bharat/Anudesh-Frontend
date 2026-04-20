@@ -25,7 +25,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
 
   const dispatch = useDispatch();
   const [radiobutton, setRadiobutton] = useState(true);
-  const [bookmarkedLoading, setBookmarkedLoading] = useState(false);
+    const [bookmarkedLoading, setBookmarkedLoading] = useState(false);
   
   // console.log(data);
   const theme = useTheme();
@@ -68,7 +68,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
   }, [selectedFilters, loggedInUserData]);
 
     const [bookmarkedProjects, setBookmarkedProjects] = useState([]);
-  
+
     const fetchBookmarkedProjects = async () => {
       try {
         const data = await getUserProjects();
@@ -84,8 +84,8 @@ const ProjectList = React.memo(function ProjectList({ data }) {
       }
       setBookmarkedLoading(false);
     };
-  
-  
+
+
     useEffect(() => {
         fetchBookmarkedProjects();
     }, []);
@@ -116,18 +116,20 @@ const ProjectList = React.memo(function ProjectList({ data }) {
     setRadiobutton(false);
   };
 
+
+  
   const displayedProjects = useMemo(() => {
   if (!projectData || !Array.isArray(projectData)) return [];
-  
+
   // If no bookmarked projects, return original array (no sorting needed)
   if (bookmarkedProjectIds.size === 0) {
     return projectData;
   }
-  
+
   // Separate bookmarked and non-bookmarked projects in a single pass
   const bookmarked = [];
   const nonBookmarked = [];
-  
+
   for (let i = 0; i < projectData.length; i++) {
     const project = projectData[i];
     if (bookmarkedProjectIds.has(project.id)) {
@@ -136,10 +138,11 @@ const ProjectList = React.memo(function ProjectList({ data }) {
       nonBookmarked.push(project);
     }
   }
-  
+
   // Concatenate arrays
   return [...bookmarked, ...nonBookmarked];
 }, [projectData, bookmarkedProjectIds]);
+
 
 
   return (
@@ -226,4 +229,3 @@ const ProjectList = React.memo(function ProjectList({ data }) {
 })
 
 export default ProjectList;
-
