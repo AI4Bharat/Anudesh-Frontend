@@ -82,7 +82,7 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
-  backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+    backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
 };
 
 const MultipleLLMInstructionDrivenChat = ({
@@ -230,6 +230,9 @@ useEffect(() => {
   }, [chatHistory]);
 
   useEffect(() => {
+      setEvalFormResponse({});
+  setSubmittedEvalForms({});
+
     let modifiedChatHistory = [];
     if (
       annotation &&
@@ -1249,37 +1252,37 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     }
         
 
-        if (!responseForQuestion?.response) {
-          return false;
-        }
+      if (!responseForQuestion?.response) {
+        console.log("No response for question", questionIdx);
+        return false;
+      }
 
-        if (question.question_type === "fill_in_blanks") {
-          const isCorrectLength =
-            responseForQuestion.response.length === expectedParts;
-          const hasNoEmptyResponse = !responseForQuestion.response.some(
-            (response) => response === "" || response === undefined,
-          );
-          return isCorrectLength && hasNoEmptyResponse;
-        }
+      if (question.question_type === "fill_in_blanks") {
+        const isCorrectLength = responseForQuestion.response.length === expectedParts;
+        const hasNoEmptyResponse = !responseForQuestion.response.some(
+          (response) => response === "" || response === undefined,
+        );
+        return isCorrectLength && hasNoEmptyResponse;
+      }
 
-        if (question.question_type === "comparison") {
-          const isValidComparison =
-            responseForQuestion.response.length === 1 &&
-            responseForQuestion.response[0] !== "";
-          return isValidComparison;
-        }
+      if (question.question_type === "comparison") {
+        const isValidComparison =
+          responseForQuestion.response.length === 1 &&
+          responseForQuestion.response[0] !== "";
+        return isValidComparison;
+      }
 
-        const hasValidResponse =
-          responseForQuestion.response.length > 0 &&
-          !responseForQuestion.response.some(
-            (response) =>
-              response === "" || response === undefined || response === null,
-          );
-        return hasValidResponse;
-      });
-
-      return allMandatoryAnswered;
+      const hasValidResponse =
+        responseForQuestion.response.length > 0 &&
+        !responseForQuestion.response.some(
+          (response) =>
+            response === "" || response === undefined || response === null,
+        );
+      return hasValidResponse;
     });
+
+    return allMandatoryAnswered;
+  });
 
     return allModelsValid;
   };
@@ -1441,6 +1444,8 @@ useEffect(() => {
                             // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
 
 
+                            textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                            direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                           }}
                         />
                       )}
@@ -1468,6 +1473,8 @@ useEffect(() => {
                         // direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
 
 
+                        textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                        direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
                       }}
                       rows={1}
                     />
@@ -1476,6 +1483,8 @@ useEffect(() => {
                   <div
 
                     style={{
+                      textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
+                      direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
 
                       // textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
 

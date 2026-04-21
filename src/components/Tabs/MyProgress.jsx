@@ -445,7 +445,7 @@ const MyProgress = () => {
               fullWidth
               variant="contained"
               onClick={handleProgressSubmit}
-              sx={{ minWidth: "100px" , maxWidth: "130px"}}
+              sx={{ minWidth: "100px" ,maxWidth: "130px" }}
             >
               Submit
             </Button>
@@ -661,7 +661,7 @@ const MyProgress = () => {
           </Grid>
         )}
         {UserAnalytics?.length > 0 ? (
-          <Box sx={{ width: "100%", overflowX: "auto"}} >
+          <Box sx={{ width: "100%", overflowX: "auto" }} >
             <ThemeProvider theme={tableTheme}>
               <MUIDataTable
                 key={`table-${displayWidth}`}

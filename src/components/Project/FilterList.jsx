@@ -262,10 +262,17 @@ const FilterList = (props) => {
                 </FormControl>
               ) : null}
               {currentFilters?.annotation_status &&
-              selectedStatus !== "unlabeled" ? (
-                <FormControl sx={{ m: 1, minWidth: 125,  "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: dark ? "#3a3a3a" : "",
-    }, }} size="small">
+selectedStatus !== "unlabeled" ? (
+  <FormControl
+    sx={{
+      m: 1,
+      minWidth: 125,
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: dark ? "#3a3a3a" : "",
+      },
+    }}
+    size="small"
+  >
                   <FormControlLabel
                     control={
                       <Checkbox

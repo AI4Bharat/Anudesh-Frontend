@@ -42,7 +42,6 @@ import BookmarkButton from "@/components/Project/BookmarkButton";
 import { Box } from "@mui/material";
 import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 
-
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
   {
@@ -301,7 +300,7 @@ export default function ProfilePage() {
       customBodyRender: (value, tableMeta) => {
         const rowData = tableMeta.rowData;
         const projectId = rowData[0]; 
-        
+
         return (
           <div style={{display:"flex", wordBreak:"normal"}}>
             <Link to={`/projects/${projectId}`} style={{ textDecoration: "none" }}>
@@ -357,7 +356,7 @@ export default function ProfilePage() {
     responsive: "vertical",
   };
 
-  const handleBookmarkChange = (projectId, bookmarked) => {
+const handleBookmarkChange = (projectId, bookmarked) => {
     if (!bookmarked) {
       setBookmarkedProjects((prev) =>
         prev.filter((proj) => proj.id !== projectId)
@@ -547,6 +546,7 @@ export default function ProfilePage() {
             </Grid>
           }
 
+
           {LoggedInUserId === userDetails?.id && (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
              <Card sx={{ borderRadius: "5px", mb: 2, backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
@@ -570,7 +570,6 @@ export default function ProfilePage() {
               </Card>
             </Grid>
           )}
-
 
         </>
       }

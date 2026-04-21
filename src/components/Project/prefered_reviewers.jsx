@@ -33,30 +33,6 @@ const TasksSupercheckTable = () => {
     return match && match[1] ? match[1] : null;
   };
 
-  //  Fetch existing preferred reviewers from user profile
-  const fetchExistingPreferences = async () => {
-    try {
-      const token = localStorage.getItem("anudesh_access_token");
-      const response = await fetch(
-        `${configs.BASE_URL_AUTO}/users/account/me/fetch/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${token}`,
-          },
-        }
-      );
-      const userData = await response.json();
-      const projectId = getProjectIdFromURL();
-      const preferredReviewers =
-        userData?.preferred_task_by_json?.preferred_reviewers?.[projectId] || [];
-      return preferredReviewers;
-    } catch (error) {
-      console.error("Error fetching existing preferences:", error);
-      return [];
-    }
-  };
-
   // ✅ Fetch reviewers with unassigned supercheck tasks
   const fetchMembers = async () => {
     const projectId = getProjectIdFromURL();
@@ -66,7 +42,7 @@ const TasksSupercheckTable = () => {
     try {
       const token = localStorage.getItem("anudesh_access_token");
       const response = await fetch(
-        `${configs.BASE_URL_AUTO}task/unassigned-supercheck-summary/?project_id=${projectId}`,
+        `${configs.BASE_URL_AUTO}/task/unassigned-supercheck-summary/?project_id=${projectId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -85,13 +61,10 @@ const TasksSupercheckTable = () => {
     }
   };
 
-  const handleOpen = async () => {
+  // ✅ Open dialog and fetch data
+  const handleOpen = () => {
     setOpenDialog(true);
-    const [, existingPrefs] = await Promise.all([
-      fetchMembers(),
-      fetchExistingPreferences(),
-    ]);
-    setSelectedReviewers(existingPrefs);
+    fetchMembers();
   };
 
   const handleClose = () => setOpenDialog(false);
@@ -109,7 +82,7 @@ const TasksSupercheckTable = () => {
     if (!projectId) return alert("❌ Project ID not found.");
 
     const token = localStorage.getItem("anudesh_access_token");
-    const endpoint = `${configs.BASE_URL_AUTO}users/account/save-preferred-reviewers/`;
+    const endpoint = `${configs.BASE_URL_AUTO}/users/account/save-preferred-reviewers/`;
 
     const bodyData = {
       project_id: projectId,

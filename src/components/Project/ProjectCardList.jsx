@@ -37,6 +37,8 @@ import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
 import { useTheme } from "@/context/ThemeContext";
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -63,7 +65,7 @@ const ProjectCardList = (props) => {
   const { dark } = useTheme();
   const [loading,setLoading] = useState(false);
 
-  const { projectData, selectedFilters, setsSelectedFilters } = props;
+const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds = new Set() } = props;
   const [displayWidth, setDisplayWidth] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
@@ -320,6 +322,7 @@ const ProjectCardList = (props) => {
         }),
       },
     },
+
     {
       name: "workspace_id",
       label: "Workspace Id",
@@ -339,6 +342,23 @@ const ProjectCardList = (props) => {
       },
     },
     {
+      name: "Bookmarked",
+      label: "Bookmarked",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            height: "70px",
+            fontSize: "16px",
+            padding: "16px",
+            textAlign: "center",
+          }
+        }),
+      },
+    },
+    {
       name: "Action",
       label: "Action",
       options: {
@@ -352,6 +372,7 @@ const ProjectCardList = (props) => {
       },
     },
   ];
+  
   const data =
     combinedData && combinedData.length > 0
       ? pageSearch().map((el, i) => {
@@ -371,6 +392,13 @@ const ProjectCardList = (props) => {
           el.tgt_language == null ? "-" : el.tgt_language,
           // el.project_mode,
           el.workspace_id,
+          bookmarkedProjectIds.has(el.id) ? (
+    <Tooltip title="Bookmarked" key={`bm-${el.id}`}>
+      <StarIcon sx={{ color: 'warning.main', verticalAlign: 'middle' }} />
+    </Tooltip>
+  ) : (
+    <StarBorderIcon key={`bm-${el.id}`} sx={{ color: 'action.disabled', verticalAlign: 'middle' }} />
+  ),
           loggedInUserData.guest_user && isExcluded ? (
             <CustomButton
               key={i}

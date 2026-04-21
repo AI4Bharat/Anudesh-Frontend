@@ -34,6 +34,7 @@ import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPat
 import APITransport from "@/app/actions/apitransport/apitransport";
 import NMTModalContent from "./NMTModalContent";
 import ThemeToggle from "@/components/common/ThemeToggle";
+import anudesh_Logo from "../../assets/logo.jpeg"
 
 const Header = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -938,7 +939,7 @@ useEffect(() => {
                   onClick={() => window.location.href = "/#/"}
                 >
                   <Image
-                    src="https://i.imgur.com/56Ut9oz.png"
+                    src={anudesh_Logo}
                     alt="anudesh"
                     height="100"
                     width="100"
