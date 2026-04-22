@@ -1,5 +1,5 @@
 "use client";
-import RootLayout from "./layout";
+import { useState, useEffect } from "react";
 import Home from "./ui/pages/home/home"
 import { HashRouter, Route, Routes, Navigate } from "react-router-dom"
 import { authenticateUser } from "@/utils/utils";
@@ -37,22 +37,29 @@ import GuestWorkspaceTable from "@/components/GuestWorkspace/table";
 import GuestChatPage from "./ui/pages/chat/inputBox";
 
 export default function Root() {
-  if (typeof window !== 'undefined') {
-    const ProtectedRoute = ({ user, children }) => {
-      if (!authenticateUser()) {
-        return <Navigate to="/login" />;
-      }
-      return children;
-    };
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-    const ProtectedRouteWrapper = (component) => {
-      return <ProtectedRoute>{component}</ProtectedRoute>;
-    };
+  if (!mounted) {
+    return null;
+  }
 
-    return (
-      <RootLayout>
-        <HashRouter>
+  const ProtectedRoute = ({ user, children }) => {
+    if (!authenticateUser()) {
+      return <Navigate to="/login" />;
+    }
+    return children;
+  };
+
+  const ProtectedRouteWrapper = (component) => {
+    return <ProtectedRoute>{component}</ProtectedRoute>;
+  };
+
+  return (
+    <HashRouter>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -208,7 +215,5 @@ export default function Root() {
             />
           </Routes>
         </HashRouter>
-      </RootLayout>
-    )
-  }
-}  
+  );
+}
