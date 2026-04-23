@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles'; 
 import anudesh_Logo from "../../../../assets/logo.jpeg";
 
-const LOGO_URL = 'https://i.postimg.cc/nz91fDCL/undefined-Imgur.webp';
+const LOGO_URL = 'https://i.imgur.com/56Ut9oz.png';
 
 const infoCards = [
   {

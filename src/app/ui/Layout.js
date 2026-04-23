@@ -4,6 +4,7 @@ import BackButton from "@/components/common/BackButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { translate } from "@/config/localisation";
 import ErrorBoundary from "../ErrorBoundary";
+
 const Header = React.lazy(() => import("@/components/common/Header"));
 
 const Layout = (props) => {
@@ -41,11 +42,19 @@ const Layout = (props) => {
       <Suspense fallback={<div>Loading....</div>}>
         <Header type={type} index={index} className={classes.headerContainer} />
       </Suspense>
-      <div className={classes.container} style={{ marginTop: "88px" }}>
+      <div className={classes.container} style={{
+    marginTop: "75px",
+    width: "100%",
+    paddingLeft: "16px",
+    paddingRight: "16px",
+    boxSizing: "border-box",
+  }}
+>
         {Backbutton && (
           <BackButton
             startIcon={<ArrowBackIcon />}
-            sx={{ color: "white", m: {xs:1,md:1,lg:2,xl:2}}}
+            sx={{ color: "white", m: { xs: 1, md: 1, lg: 2, xl: 2 } }}
+            // onClick={handleBack}
             backPressNavigationPath={
               backPressNavigationPath ? backPressNavigationPath : ""
             }
@@ -59,4 +68,5 @@ const Layout = (props) => {
     </div>
   );
 };
+
 export default Layout;

@@ -633,14 +633,21 @@ const WorkspaceReports = () => {
           language: targetLanguage[radioButton],
           sendMail: sendMail,
           reportsType:
-            projectType[radioButton] === "AnnotatationReports"
+            reportType[radioButton] === "AnnotatationReports"
               ? "annotation"
-              : projectType[radioButton] === "ReviewerReports"
+              : reportType[radioButton] === "ReviewerReports"
                 ? "review"
                 : "supercheck",
           reportfilter: reportfilter,
         };
         dispatch(fetchWorkspaceUserReports(userReportObj));
+        if (sendMail){
+          setSnackbarInfo({
+            open: true,
+            message: "Report will be e-mailed to you shortly",
+            variant: "success",
+          });
+        }
       } else if (radioButton === "project") {
         if (projectReportType === 1) {
           const projectReportObj = {
@@ -657,6 +664,13 @@ const WorkspaceReports = () => {
                   : "supercheck",
           };
           dispatch(fetchWorkspaceProjectReport(projectReportObj));
+          if (sendMail){
+            setSnackbarInfo({
+              open: true,
+              message: "Report will be e-mailed to you shortly",
+              variant: "success",
+            });
+          }
         } else if (projectReportType === 2) {
           const projectReportObj = {
             workId: Number(id),
@@ -666,11 +680,13 @@ const WorkspaceReports = () => {
             language: targetLanguage[radioButton],
           };
           dispatch(fetchWorkspaceDetailedProjectReports(projectReportObj));
-          setSnackbarInfo({
-            open: true,
-            message: "Report will be e-mailed to you shortly",
-            variant: "success",
-          });
+          if (sendMail){
+            setSnackbarInfo({
+              open: true,
+              message: "Report will be e-mailed to you shortly",
+              variant: "success",
+            });
+          }
         }
       }
     }

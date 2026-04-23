@@ -1,12 +1,11 @@
 import dynamic from "next/dynamic";
-import { useEffect, useState, userRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CustomButton from "../common/Button";
 import Button from "@mui/material/Button";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Skeleton from "@mui/material/Skeleton";
 import _ from 'lodash';
-
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
@@ -32,7 +31,6 @@ import FilterList from "./FilterList";
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import CalenderMonthIcon from '@mui/icons-material/CalendarMonth';
 import { parse, format } from "date-fns";
-import TimeRangeFilter from "./TimeRangeFilter";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup";
 import { snakeToTitleCase } from "../../utils/utils";
@@ -55,11 +53,13 @@ import LoginAPI from "@/app/actions/api/user/Login";
 import ChatLang from "@/utils/Chatlang";
 import { setPageFilter } from "@/Lib/Features/user/taskPaginationSlice";
 import { fetchWorkspaceDetails } from "@/Lib/Features/getWorkspaceDetails";
+import TimeRangeFilter from "./TimeRangeFilter";
 import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
 import configs from "../../config/config";
 const defaultColumns = [
   "id",
+  "annotator_mail",
   "instruction_data",
   "meta_info_language",
   "revision_count",
@@ -145,8 +145,6 @@ const TaskTable = (props) => {
   const getProjectUsers = useSelector(
     (state) => state.getProjectDetails?.data.annotators,
   );
-
-
 
   const getProjectReviewers = useSelector(
     (state) => state.getProjectDetails?.data.annotation_reviewers,
@@ -278,6 +276,7 @@ const TaskTable = (props) => {
   const [columns, setColumns] = useState([]);
   const [labellingStarted, setLabellingStarted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isInitialMount = useRef(true);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [expandedRow, setExpandedRow] = useState(null);
 
@@ -520,6 +519,7 @@ const TaskTable = (props) => {
     }
   };
 
+
   const handleRangeChange = (ranges) => {
     const { selection } = ranges;
     if (selection.endDate > new Date()) selection.endDate = new Date();
@@ -539,6 +539,9 @@ const TaskTable = (props) => {
       },
     ]);
     setCalenderAnchor(null);
+    if (!defaultColumns.includes("updated_at")) {
+      setSelectedColumns(selectedColumns.filter((col) => col !== "updated_at"));
+    }
   };
 
   const applyFilter = () => {
@@ -555,7 +558,7 @@ const TaskTable = (props) => {
     setCalenderAnchor(null);
   };
 
-  const handleDateTimeFormat = () => {
+  const handleDateTimeFormat = () =>{
     SetDateTimeFormat(!dateTimeFormat);
     setCalenderAnchor(null);
   }
@@ -775,11 +778,24 @@ const TaskTable = (props) => {
               : "View"
             : "Review";
 
+        const isArchived = ProjectDetails.is_archived;
         row.push(
-          <Link to={actionLink} className={classes.link}>
+          <Link
+            to={actionLink}
+            className={classes.link}
+            aria-disabled={isArchived}
+            onClick={
+              isArchived
+                ? (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                 }
+                : undefined
+            }
+          >
             <CustomButton
               onClick={() => localStorage.removeItem("labelAll")}
-              disabled={ProjectDetails.is_archived}
+              disabled={isArchived}
               sx={{ p: 1, borderRadius: 2 }}
               label={
                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
@@ -1487,33 +1503,36 @@ const TaskTable = (props) => {
           ))) &&
         (ProjectDetails.is_published ? (
           <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
-            {((props.type === "annotation" &&
-              selectedFilters.annotation_status === "unlabeled") ||
-              selectedFilters.annotation_status === "draft" ||
-              selectedFilters.annotation_status === "skipped" ||
-              (props.type === "review" &&
-                selectedFilters.review_status === "unreviewed") ||
-              selectedFilters.review_status === "draft" ||
-              selectedFilters.review_status === "skipped") && (
-                <Grid item xs={12} sm={12} md={3}>
-                  <Tooltip title={deallocateDisabled}>
-                    <Box>
-                      <CustomButton
-                        sx={{
-                          p: 1,
-                          width: "100%",
-                          borderRadius: 2,
-                          margin: "auto",
-                        }}
-                        label={"De-allocate Tasks"}
-                        onClick={() => setDeallocateDialog(true)}
-                        disabled={deallocateDisabled}
-                        color={"warning"}
-                      />
-                    </Box>
-                  </Tooltip>
-                </Grid>
-              )}
+           {(roles?.WorkspaceManager === userDetails?.role ||
+  roles?.OrganizationOwner === userDetails?.role ||
+  roles?.Admin === userDetails?.role) &&
+  ((props.type === "annotation" &&
+    selectedFilters.annotation_status === "unlabeled") ||
+    selectedFilters.annotation_status === "draft" ||
+    selectedFilters.annotation_status === "skipped" ||
+    (props.type === "review" &&
+      selectedFilters.review_status === "unreviewed") ||
+    selectedFilters.review_status === "draft" ||
+    selectedFilters.review_status === "skipped") && (
+    <Grid item xs={12} sm={12} md={3}>
+      <Tooltip title={deallocateDisabled}>
+        <Box>
+          <CustomButton
+            sx={{
+              p: 1,
+              width: "100%",
+              borderRadius: 2,
+              margin: "auto",
+            }}
+            label={"De-allocate Tasks"}
+            onClick={() => setDeallocateDialog(true)}
+            disabled={deallocateDisabled}
+            color={"warning"}
+          />
+        </Box>
+      </Tooltip>
+    </Grid>
+  )}
             <Dialog
               open={deallocateDialog}
               onClose={() => setDeallocateDialog(false)}

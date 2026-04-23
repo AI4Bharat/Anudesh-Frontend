@@ -197,7 +197,7 @@ export default function Textarea({
     <Grid
       item
       // xs={size}
-      backgroundColor="transparent"
+      backgroundColor="white"
       justifyContent={"center"}
       alignItems={"center"}
       display={"flex"}
@@ -208,7 +208,6 @@ export default function Textarea({
       sx={{ 
         width:"90%" ,
       }}
-      paddingBottom="8px"
       gap={"8px"}
     >
       <Grid container position={"relative"} alignItems="end" sx={{ flexGrow: 1, mb: 2 }}>

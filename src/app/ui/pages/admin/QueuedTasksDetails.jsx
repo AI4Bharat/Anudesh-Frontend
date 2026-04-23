@@ -94,7 +94,9 @@ const QueuedTasksDetails = (props) => {
           name: el.name,
           state: el.state,
           args: el.args,
-          args: el.kwargs,
+          kwargs: el.kwargs,
+          exception: el.exception,
+          traceback: el.traceback,
         };
       })
       : [];
@@ -184,6 +186,40 @@ const QueuedTasksDetails = (props) => {
         sort: false,
         align: "center",
         setCellProps: () => ({ style: { padding: "16px" } }),
+      },
+    },
+    {
+      name: "exception",
+      label: "Exception",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
+      },
+    },
+    {
+      name: "traceback",
+      label: "Traceback",
+      options: {
+        filter: false,
+        sort: false,
+        align: "center",
+        setCellProps: () => ({
+          style: {
+            padding: "16px",
+            whiteSpace: "normal",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
+          }
+        }),
       },
     },
   ];

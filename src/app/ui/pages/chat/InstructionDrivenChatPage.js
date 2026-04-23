@@ -16,7 +16,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef,useCallback } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -29,12 +29,16 @@ import configs from "@/config/config";
 import LanguageCode from "@/utils/LanguageCode";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CodeIcon from '@mui/icons-material/Code';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 const useStyles = makeStyles((theme) => ({
   tooltip: {
-    fontSize: "1rem !important", // Adjust the font size as needed
+    fontSize: "1rem !important",
   },
 }));
+
 const orange = {
   200: "pink",
   400: "#EE6633",
@@ -81,13 +85,13 @@ const InstructionDrivenChatPage = ({
   disableUpdateButton,
   annotation,
 }) => {
-  /* eslint-disable react-hooks/exhaustive-deps */
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
-      const [shrinkedMessages, setShrinkedMessages] = useState({});
+  const [shrinkedMessages, setShrinkedMessages] = useState({});
+  const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
 
   const bottomRef = useRef(null);
   const [hasMounted, setHasMounted] = useState(false);
@@ -96,8 +100,48 @@ const InstructionDrivenChatPage = ({
   const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
+const [isDragging, setIsDragging] = useState(false);
+const [instructionWidth, setInstructionWidth] = useState(30);
+const containerRef = useRef(null);
 
-  const [snackbar, setSnackbarInfo] = useState({
+const startDragging = useCallback((e) => {
+  e.preventDefault();
+  setIsDragging(true);
+  console.log("Drag");
+  
+}, []);
+
+const stopDragging = useCallback(() => {
+  setIsDragging(false);
+}, []);
+
+const onDrag = useCallback((e) => {
+  console.log("dragg",isDragging);
+  
+  if (!isDragging || !containerRef.current) return;
+console.log(e.clientX,"drag");
+
+  const containerRect = containerRef.current.getBoundingClientRect();
+  const dragX = e.clientX;
+  const containerLeft = containerRect.left;
+  const containerWidth = containerRect.width;
+  
+  const percentage = ((dragX - containerLeft) / containerWidth) * 100;
+  const newWidth = Math.min(60, Math.max(20, percentage));
+  setInstructionWidth(newWidth);
+}, [isDragging]);
+
+useEffect(() => {
+  if (isDragging) {
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }
+  return () => {
+    window.removeEventListener('mousemove', onDrag);
+    window.removeEventListener('mouseup', stopDragging);
+  };
+}, [isDragging, onDrag, stopDragging]);  
+const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
@@ -124,20 +168,6 @@ const InstructionDrivenChatPage = ({
         message={snackbar.message}
       />
     );
-  };
-
-  const orange = {
-    200: "pink",
-    400: "#EE6633",
-    600: "#EE663366",
-  };
-
-  const grey = {
-    50: "#F3F6F9",
-    200: "#DAE2ED",
-    300: "#C7D0DD",
-    700: "#434D5B",
-    900: "#1C2025",
   };
 
   const copyToClipboard = async (code) => {
@@ -186,10 +216,8 @@ const InstructionDrivenChatPage = ({
   };
 
   const formatTextWithTooltips = (text, info) => {
-    // Ensure text is a string
     text = String(text);
 
-    // Clean the meta info values
     const metaInfoIntent = cleanMetaInfo(String(info.meta_info_intent));
     const metaInfoLanguage = cleanMetaInfo(String(info.meta_info_language));
     const metaInfoDomain = cleanMetaInfo(String(info.meta_info_domain));
@@ -229,7 +257,6 @@ const InstructionDrivenChatPage = ({
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
   const handleButtonClick = async () => {
-
     if (inputValue) {
       setLoading(true);
       const body = {
@@ -351,7 +378,7 @@ const InstructionDrivenChatPage = ({
       handleOnchange(text);
     }
   }, [text]);
-
+  
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -398,6 +425,7 @@ const InstructionDrivenChatPage = ({
   if (!isMounted) {
     return null;
   }
+
   const handleTextChange = (e, index, message, fieldType) => {
     if (globalTransliteration) {
       var updatedValue = e;
@@ -452,6 +480,8 @@ const renderChatHistory = () => {
           overflow: "hidden",
           maxWidth: "100%",
           boxSizing: "border-box",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <Grid
@@ -468,15 +498,15 @@ const renderChatHistory = () => {
             <Grid item>
               <div
                 style={{
-                  width: "24px",
-                  height: "24px",
+                  width: "20px",
+                  height: "20px",
                   borderRadius: "50%",
                   backgroundColor: "#EE6633",
                   color: "white",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "0.75rem",
+                  fontSize: "0.7rem",
                   fontWeight: "bold",
                   marginRight: "0.5rem",
                 }}
@@ -489,7 +519,11 @@ const renderChatHistory = () => {
               <Avatar
                 alt="user_profile_pic"
                 src={loggedInUserData?.profile_photo || ""}
-                style={{ marginRight: "1rem" }}
+                style={{ 
+                  marginRight: "1rem",
+                  width: "32px",
+                  height: "32px"
+                }}
               />
             </Grid>
             <Grid item xs className="w-full">
@@ -507,14 +541,14 @@ const renderChatHistory = () => {
                         {...props}
                         className=""
                         style={{
-                          fontSize: "1rem",
+                          fontSize: "0.9rem",
                           width: "100%",
                           borderRadius: "12px 12px 0 12px",
                           color: grey[900],
                           background: "#ffffff",
                           border: `1px solid ${grey[200]}`,
                           boxShadow: `0px 2px 2px ${grey[50]}`,
-                          minHeight: "5rem",
+                          minHeight: "4rem",
                           resize: "none",
                           textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
                           direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
@@ -535,14 +569,14 @@ const renderChatHistory = () => {
                       handleTextChange(e, null, message, "prompt")
                     }
                     style={{
-                      fontSize: "1rem",
+                      fontSize: "0.9rem",
                       width: "100%",
                       borderRadius: "12px 12px 0 12px",
                       color: grey[900],
                       background: "#ffffff",
                       border: `1px solid ${grey[200]}`,
                       boxShadow: `0px 2px 2px ${grey[50]}`,
-                      minHeight: "5rem",
+                      minHeight: "4rem",
                       resize: "none",
                       textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
                       direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
@@ -551,18 +585,13 @@ const renderChatHistory = () => {
                   />
                 )
               ) : (
-                <div
-                  style={{
-                    textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
-                    direction: isRTLLanguage(message.prompt) ? "rtl" : "ltr",
-                    width: "100%",
+                <ReactMarkdown
+                  className="flex-col"
+                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+                  components={{
+                    p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
                   }}
-                >
-                  <ReactMarkdown
-                    className="flex-col"
-                    children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
-                  />
-                </div>
+                />
               )}
             </Grid>
             
@@ -576,9 +605,9 @@ const renderChatHistory = () => {
               }}
             >
               {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
+                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
               ) : (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
               )}
             </IconButton>
 
@@ -597,7 +626,7 @@ const renderChatHistory = () => {
                   onClick={() => handleClick("delete-pair", id?.id, 0.0)}
                 >
                   <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1.2rem" }}
+                    style={{ color: "#EE6633", fontSize: "1rem" }}
                   />
                 </IconButton>
               )}
@@ -613,18 +642,21 @@ const renderChatHistory = () => {
               textAlign: "left",
               position: "relative",
               width: "100%",
+              backgroundColor: "white", // Added white background
+              borderRadius: "0.5rem", // Added border radius
+              border: "1px solid #e0e0e0", // Added border
+              marginTop: "0.5rem", // Added spacing
+              padding: "0.6rem", // Added padding
             }}
           >
             <Grid
               container
               alignItems="start"
-              spacing={2}
-              justifyContent={message?.output?.some(seg => isRTLLanguage(seg.value)) ? "flex-end" : "flex-start"}
+              spacing={1}
+              justifyContent="flex-start"
               style={{
-                padding: "1rem 1rem 0.5rem 1rem",
                 borderRadius: "0.5rem",
                 width: "100%",
-                flexDirection: message?.output?.some(seg => isRTLLanguage(seg.value)) ? "row-reverse" : "row",
               }}
             >
               <Grid
@@ -633,19 +665,19 @@ const renderChatHistory = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  minWidth: "50px",
+                  minWidth: "20px",
                 }}
               >
                 <Image
-                  width={50}
-                  height={50}
-                  src="https://imgur.com/56Ut9oz.png"
+                  width={30}
+                  height={30}
+                  src="https://i.imgur.com/56Ut9oz.png"
                   alt="Bot Avatar"
                   priority
                 />
               </Grid>
 
-              <Grid item xs={11} style={{ paddingTop: "1rem", textAlign: message?.output?.some(seg => isRTLLanguage(seg.value)) ? "right" : "left", direction: message?.output?.some(seg => isRTLLanguage(seg.value)) ? "rtl" : "ltr" }}>
+              <Grid item xs={11} style={{ paddingTop: "0rem" }}>
                 {message?.output.map((segment, index) =>
                   segment.type === 'text' ? (
                     (ProjectDetails?.metadata_json?.editable_response) || segment.value == "" ? (
@@ -658,16 +690,14 @@ const renderChatHistory = () => {
                           }
                           lang={targetLang}
                           style={{
-                            fontSize: "1rem",
+                            fontSize: "0.9rem",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
                             border: `1px solid ${grey[200]}`,
                             boxShadow: `0px 2px 2px ${grey[50]}`,
-                            minHeight: "5rem",
+                            minHeight: "4rem",
                             width: "100%",
-                            textAlign: isRTLLanguage(segment.value) ? "right" : "left",
-                            direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                           }}
                           customApiURL={`${configs.BASE_URL_AUTO}/tasks/xlit-api/generic/transliteration/`}
                           enableASR={true}
@@ -683,34 +713,38 @@ const renderChatHistory = () => {
                             handleTextChange(e, index, message, "output")
                           }
                           style={{
-                            fontSize: "1rem",
+                            fontSize: "0.9rem",
                             width: "100%",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
                             border: `1px solid ${grey[200]}`,
                             boxShadow: `0px 2px 2px ${grey[50]}`,
-                            minHeight: "5rem",
+                            minHeight: "4rem",
                             resize: "none",
-                            textAlign: isRTLLanguage(segment.value) ? "right" : "left",
-                            direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                           }}
                           rows={1}
                         />
                       )
                     ) : (
-                      <Box key={index} sx={{ textAlign: isRTLLanguage(segment?.value) ? "right" : "left", direction: isRTLLanguage(segment?.value) ? "rtl" : "ltr", width: "100%" }}>
-                        <ReactMarkdown
-                          children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
-                        />
-                      </Box>
+                      <ReactMarkdown
+                        key={index}
+                        children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                        components={{
+                          p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                        }}
+                      />
                     )
                   ) : (
                     <SyntaxHighlighter
                       key={index}
                       language={segment.language}
                       style={gruvboxDark}
-                      customStyle={{ padding: "1rem", borderRadius: "5px" }}
+                      customStyle={{ 
+                        padding: "0.8rem",
+                        borderRadius: "5px",
+                        fontSize: "0.9rem"
+                      }}
                     >
                       {segment.value}
                     </SyntaxHighlighter>
@@ -798,253 +832,379 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
       </>
     );
   };
+
   if (!isMounted) {
     return null;
   }
+return (
+  <>
+    {renderSnackBar()}
+    <Box
+    ref={containerRef}
+      sx={{
+               display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        width: "100%",
+        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
+        overflow: "hidden",
+        position: { xs: "fixed", md: "relative" },
+        top: { xs: "150px", md: "0" },
+        left: { xs: 0, md: "0" },
+        right: { xs: 0, md: "0" },
+        bottom: { xs: "0", md: "0" },
+        zIndex: { xs: 1000, md: "0" },
 
-  return (
-    <>
-      {renderSnackBar()}
-      <Grid
-        container
+      }}
+    >
+      {/* Instruction Panel */}
+      <Box
         sx={{
+           width: { 
+            xs: "100%", 
+            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
+          },
+          height: { 
+            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
+            md: "100%" 
+          },
+          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+          transition: isDragging ? "none" : "all 0.3s ease",
+          padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          paddingBottom: "0rem!important",
+          paddingTop: "0.3rem!important",
+          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+          backgroundColor: "#fafafa",
+          overflow: "auto",
           display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          overflow: "hidden",
+          flexDirection: "column",
+          flexShrink: 0,
+          position: "relative",
         }}
       >
-        <Box
+{isInstructionExpanded && window.innerWidth >= 768 && (
+  <Box
+    onMouseDown={startDragging}
+    sx={{
+      position: "absolute",
+      right: 0,
+      top: 0,
+      width: "6px",
+      height: "100%",
+      cursor: 'col-resize',
+      backgroundColor: "transparent",
+      zIndex: 10,
+      '&:hover': {
+        backgroundColor: "rgba(238, 102, 51, 0.2)",
+      },
+      '&:active': {
+        backgroundColor: "rgba(238, 102, 51, 0.3)",
+      },
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        right: '2px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        width: '4px',
+        height: '40px',
+        backgroundColor: '#EE6633',
+        borderRadius: '2px',
+        opacity: 0.6,
+      }
+    }}
+  />
+)}        <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+            justifyContent: isInstructionExpanded ? "space-between" : "center",
+            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            padding: "0.5rem",
+            backgroundColor: "rgba(247, 184, 171, 0.2)",
+            borderRadius: "8px",
+            cursor: "pointer",
+            minHeight: "40px",
+            flexShrink: 0,
           }}
+          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
+          {isInstructionExpanded && (
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#636363",
+                fontWeight: "600",
+                fontSize: { xs: "1rem", md: "1.1rem" },
+              }}
+            >
+              {translate("typography.instructions")}
+            </Typography>
+          )}
+          <Tooltip
+            title={
+              <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                {isInstructionExpanded ? "Collapse" : "Expand"}
+              </span>
+            }
+          >
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsInstructionExpanded(!isInstructionExpanded);
+              }}
+              sx={{ 
+                padding: isInstructionExpanded ? '8px' : '4px',
+                minWidth: 'auto'
+              }}
+            >
+              {isInstructionExpanded ? (
+                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              ) : (
+                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {isInstructionExpanded && (
           <Box
             sx={{
-              flexShrink: 0,
-              borderRadius: "10px",
-              padding: "0px",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.3s ease",
-              cursor: "pointer",
-                transform: isExpanded ? "scale(1)" : "scale(0.98)",
-                
+              flex: 1,
+              overflow: "auto",
+              padding: "0.5rem",
             }}
-            
           >
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    {isExpanded ? "Click to collapse" : "Click to expand"}
-                  </span>
-                }
-              >
-                <Typography
-                  variant="h3"
-                  align="center"
-                  sx={{
-                    color: "#636363",
-                    fontSize: {
-                      xs: "0.8125rem",
-                      sm: "1rem",
-                      md: "1.5rem",
-                      lg: "2rem",
-                    },
-                    fontWeight: "800",
-                  }}
-                >
-                  {translate("typography.instructions")}
-                </Typography>
-              </Tooltip>
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                    Hint and Metadata
-                  </span>
-                }
-              >
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpen();
-                  }}
-                >
-                  <TipsAndUpdatesIcon color="primary.dark" fontSize="large" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-                        <IconButton
-              size="small"
-              onClick={() => setIsExpanded(!isExpanded)}
-              style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
-              }}
-            >
-              {isExpanded ? (
-                <ExpandLessIcon style={{ fontSize: "1.2rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandMoreIcon style={{ fontSize: "1.2rem", color: "#EE6633",fontWeight:"bold" }} />
-
-              )}
-            </IconButton>
-
-
-
-            <Box
-              sx={{
-                width: "100%",
-                overflow: "hidden",
-                transition: "all 0.3s ease",
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "1rem",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                marginBottom: "1rem",
               }}
             >
               <Typography
-                paragraph={true}
+                paragraph
                 sx={{
-                  fontSize: {
-                    xs: "0.5rem",
-                    sm: "0.75rem",
-                    md: ".8125rem",
-                    lg: "1rem",
-                  },
-                  padding: "0rem 1rem",
-                  height: "auto",
-                  display: "flex",
-                  minWidth: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  whiteSpace: "pre-wrap",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  maxHeight: isExpanded ? "none" : "60px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  "&:hover": {
-                  }
+                  fontSize: "0.9rem",
+                  lineHeight: "1.5",
+                  color: "#333",
                 }}
               >
                 {info.instruction_data}
               </Typography>
             </Box>
-          </Box>
-        </Box>
 
-        <Grid
-          item
-          xs={12}
-          sx={{
-            margin: "0rem 0",
-            overflowY: "scroll",
-            // minHeight: "39rem",
-            // maxHeight: "39rem",
-            borderRadius: "20px",
-            backgroundColor: "#FFF",
-            paddingLeft: "0px !important",
-            boxSizing: "border-box",
-            width: "100%",
-            height: "calc(100vh - 200px)",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center !important",
-              padding: "0 0",
-              // height:"200px",
-              // overflow:"scroll"
-            }}
-          >
-            {showChatContainer ? renderChatHistory() : null}
-          </Box>
-          <div ref={bottomRef} />
-          {stage !== "Alltask" && !disableUpdateButton ? (
-            <Grid
-              item
-              xs={12}
+            {/* Metadata Information Section - Now directly in the panel */}
+            <Box
               sx={{
-                boxSizing: "border-box",
-                width: "100%",
-                height: "5rem",
-                display: "flex",
-                justifyContent: "center",
-                backgroundColor: "white"
+                backgroundColor: "white",
+                borderRadius: "8px",
+                padding: "1rem",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                border: "1px solid #e0e0e0",
               }}
             >
-              <Textarea
-                handleButtonClick={handleButtonClick}
-                handleOnchange={handleOnchange}
-                // grid_size={"100vw"}
-                size={12}
-                sx={{
-                  width: "100vw",
-                }}
-                class_name={"w-full"}
-                loading={loading}
-                inputValue={inputValue}
-                // defaultLang={targetLang}
-                overrideGT={true}
-                task_id={taskId}
-                script={info.meta_info_language}
-              />
-            </Grid>
-          ) : null}
-        </Grid>
-      </Grid>
+              {/* Hint Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  {translate("modal.hint")}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.85rem",
+                    lineHeight: "1.4",
+                    color: "#555",
+                    backgroundColor: "#f8f9fa",
+                    padding: "0.75rem",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #F18359",
+                  }}
+                >
+                  {info.hint || "No hints available"}
+                </Typography>
+              </Box>
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
+              {/* Examples Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  {translate("modal.examples")}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.85rem",
+                    lineHeight: "1.4",
+                    color: "#555",
+                    backgroundColor: "#f8f9fa",
+                    padding: "0.75rem",
+                    borderRadius: "4px",
+                    borderLeft: "3px solid #4CAF50",
+                  }}
+                >
+                  {info.examples || "No examples available"}
+                </Typography>
+              </Box>
+
+              {/* Additional Metadata Information */}
+              <Box>
+                <Typography
+                  sx={{
+                    color: "#F18359",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    mb: 1,
+                  }}
+                >
+                  Additional Information
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                  }}
+                >
+                  {info.meta_info_language && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <CodeIcon fontSize="small" color="primary" />
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        Language: {info.meta_info_language}
+                      </Typography>
+                    </Box>
+                  )}
+                  {taskId && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <AssignmentIcon fontSize="small" color="secondary" />
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                        Task ID: {taskId}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        )}
+      </Box>
+
+      {/* Chat Section */}
+      <Box
+        sx={{
+        flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          overflow: "hidden",
+          minWidth: 0,
+          paddingBottom:"0rem!important",
+        }}
       >
-        <Box sx={{ ...style, width: "40%" }}>
-          <Typography
-            color={"#F18359"}
-            fontWeight={"bold"}
-            variant="h6"
-            id="parent-modal-title"
-          >
-            {translate("modal.hint")}
-          </Typography>
-          <Typography variant="subtitle1" id="parent-modal-description">
-            {info.hint}
-          </Typography>
-          <Typography
-            color={"#F18359"}
-            fontWeight={"bold"}
-            variant="h6"
-            id="parent-modal-title"
-          >
-            {translate("modal.examples")}
-          </Typography>
-          <Typography variant="subtitle1" id="parent-modal-description">
-            {info.examples}
-          </Typography>
-          <ChildModal />
+        <Box
+          sx={{
+               flex: 1,
+            overflowY: "auto",
+            padding: "1rem",
+            paddingBottom:"0rem!important",
+            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundColor: "#fff",
+            width: "100%",
+            minHeight: 0,
+          }}
+        >
+     <Box sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "100%",
+            "& > *": {
+              maxWidth: "100%",
+              width: "100%"
+            }
+          }}>
+            {showChatContainer ? renderChatHistory() : null}
+          </Box>
+          <Box ref={bottomRef} sx={{ height: "1px" }} />
         </Box>
-      </Modal>
-    </>
-  );
-};
+      </Box>
+    </Box>
 
+    {/* Full Width Textarea - Covers Entire Width */}
+    {stage !== "Alltask" && !disableUpdateButton ? (
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: "100vw", // Full viewport width
+          backgroundColor: "white",
+          borderTop: "1px solid #e0e0e0",
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+          py: "0.5rem",
+          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1300,
+          height: "70px",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100%", // Always full width
+            mx: 0, // No margin
+            paddingLeft:"1rem",
+          }}
+        >
+          <Textarea
+            handleButtonClick={handleButtonClick}
+            handleOnchange={handleOnchange}
+            size={10}
+            sx={{ 
+              width: "100%", 
+              margin: 0, 
+              padding: 0,
+              "& .MuiInputBase-root": {
+                height: "50px",
+                width: "100%",
+              },
+              "& textarea": {
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                width: "100%",
+              }
+            }}
+            class_name={"w-full"}
+            loading={loading}
+            inputValue={inputValue}
+            overrideGT={true}
+            task_id={taskId}
+            script={info.meta_info_language}
+          />
+        </Box>
+      </Box>
+    ) : null}
+  </>
+);
+};
 export default InstructionDrivenChatPage;
