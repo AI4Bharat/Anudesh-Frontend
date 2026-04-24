@@ -108,11 +108,9 @@ const WorkspaceTable = (props) => {
         align: "center",
         setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
+            fontSize: "16px",
             padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
+            whiteSpace: "nowrap",
           }
         }),
       },
@@ -126,7 +124,7 @@ const WorkspaceTable = (props) => {
         align: "center",
         setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
+            fontSize: "16px",
             padding: "16px",
             whiteSpace: "normal",
             overflowWrap: "break-word",
@@ -145,7 +143,7 @@ const WorkspaceTable = (props) => {
         display: showManager ? "true" : "exclude",
         setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
+            fontSize: "16px",
             padding: "16px",
             whiteSpace: "normal",
             overflowWrap: "break-word",
@@ -164,11 +162,9 @@ const WorkspaceTable = (props) => {
         display: showCreatedBy ? "true" : "exclude",
         setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
+            fontSize: "16px",
             padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
+            whiteSpace: "nowrap",
           }
         }),
       },
@@ -181,11 +177,9 @@ const WorkspaceTable = (props) => {
         sort: false,
         setCellProps: () => ({
           style: {
-            height: "70px", fontSize: "16px",
+            fontSize: "16px",
             padding: "16px",
-            whiteSpace: "normal",
-            overflowWrap: "break-word",
-            wordBreak: "break-word",
+            whiteSpace: "nowrap",
           }
         }),
       },
