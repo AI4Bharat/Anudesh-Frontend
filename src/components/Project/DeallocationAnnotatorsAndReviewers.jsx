@@ -84,8 +84,7 @@ export default function DeallocationAnnotatorsAndReviewers() {
     message: "",
     variant: "success",
 });
-
-
+const [taskIds, setTaskIds] = useState("");
 
 
   const open = Boolean(anchorEl);
@@ -105,6 +104,7 @@ export default function DeallocationAnnotatorsAndReviewers() {
     setReviewStatus([])
     setSuperCheckersUser("")
     setSuperCheckStatus([])
+    setTaskIds("")
   };
 
   const handleAnnotation = () => {
@@ -115,6 +115,9 @@ export default function DeallocationAnnotatorsAndReviewers() {
   };
   const handlesuperChecker = () => {
     setRadiobutton("superChecker");
+  };
+  const handleTaskIdsDeallocation = () => {
+    setRadiobutton("taskIds");
   };
 
   const handleSubmit = () => {
@@ -130,6 +133,7 @@ const handleCloseDialog = () => {
     setReviewStatus([])
     setSuperCheckersUser("")
     setSuperCheckStatus([])
+    setTaskIds("")
 };
 
 const handleChangeAnnotationStatus = (event) => {
@@ -151,13 +155,25 @@ const handleChangeAnnotationStatus = (event) => {
 const handleok = async() => {
     setAnchorEl(null);
     setOpenDialog(false);
-    setAnnotatorsUser("")
-    setAnnotationStatus([])
-    setReviewersUser("")
-    setReviewStatus([])
-    setSuperCheckersUser("")
-    setSuperCheckStatus([])
-    const projectObj = new DeallocationAnnotatorsAndReviewersAPI(id,radiobutton,annotatorsUser,reviewerssUser,annotationStatus,reviewStatus,superCheckersUser,superCheckStatus);
+    
+    // Convert taskIds string to array if it exists
+    let taskIdsArray = [];
+    if (taskIds && taskIds.trim()) {
+      taskIdsArray = taskIds.split(',').map(id => id.trim()).filter(id => id !== '');
+    }
+    
+    const projectObj = new DeallocationAnnotatorsAndReviewersAPI(
+      id, 
+      radiobutton, 
+      annotatorsUser, 
+      reviewerssUser, 
+      annotationStatus, 
+      reviewStatus, 
+      superCheckersUser, 
+      superCheckStatus,
+      taskIdsArray // Send as array instead of string
+    );
+    
     // dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
         method: "POST",
@@ -172,6 +188,14 @@ const handleok = async() => {
             message: resp?.message,
             variant: "success",
         })
+        // Reset all states after successful deallocation
+        setAnnotatorsUser("")
+        setAnnotationStatus([])
+        setReviewersUser("")
+        setReviewStatus([])
+        setSuperCheckersUser("")
+        setSuperCheckStatus([])
+        setTaskIds("")
        
     } else {
         setSnackbarInfo({
@@ -220,6 +244,8 @@ const renderSnackBar = () => {
       }else{
         window.alert("Incorrect pin entered");
       }
+    }else if(radiobutton === "taskIds"){
+      handleok();
     }
   };
 
@@ -273,6 +299,12 @@ const renderSnackBar = () => {
                   control={<Radio />}
                   label="Super Check"
                   onClick={handlesuperChecker}
+                />
+                <FormControlLabel
+                  value="taskIds"
+                  control={<Radio />}
+                  label="Deallocate with Task IDs"
+                  onClick={handleTaskIdsDeallocation}
                 />
               </RadioGroup>
             </FormControl>
@@ -512,7 +544,36 @@ const renderSnackBar = () => {
             </Grid>
           </>
         )}
-        
+
+{radiobutton === "taskIds" && (
+          <>
+            <Grid
+              container
+              direction="row"
+              sx={{
+                alignItems: "center",
+                p: 1,
+                width:"350px"
+              }}
+            >
+              <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Typography variant="body2" fontWeight="700" label="Required">
+                  Enter Task IDs (comma-separated):
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="e.g., 1,2,3,4"
+                  value={taskIds}
+                  onChange={(e) => setTaskIds(e.target.value)}
+                  variant="outlined"
+                />
+              </Grid>
+            </Grid>
+          </>
+        )}
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, p: 1 }}>
           <Button
