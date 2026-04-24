@@ -43,6 +43,7 @@ import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import TasksassignDialog from './taskassign';
+import EmailProjectFile from "./emailprojectfile";
 /* eslint-disable react-hooks/exhaustive-deps */
 const ProgressType = [
   "incomplete",
@@ -708,6 +709,13 @@ const AdvancedOperation = (props) => {
             <DownloadProjectButton
               taskStatus={taskStatus}
               SetTask={setTaskStatus}
+              downloadMetadataToggle={downloadMetadataToggle}
+            />
+          </Grid>
+        
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <EmailProjectFile
+              taskStatus={taskStatus}
               downloadMetadataToggle={downloadMetadataToggle}
             />
           </Grid>
