@@ -36,7 +36,7 @@ export const fetchTaskAnalyticsData = createAsyncThunk(
     project_type_filter=='AllTypes'?
     endpoint = `${ENDPOINTS.getOrganizations}public/1/cumulative_tasks_count/`
     :
-    endpoint = `${ENDPOINTS.getOrganizations}public/1/cumulative_tasks_count/?project_type_filter=${project_type_filter}`
+    endpoint = `${ENDPOINTS.getOrganizations}public/1/cumulative_tasks_count/?project_type=${project_type_filter}`
     const params = fetchParams(endpoint,"GET",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
