@@ -1,10 +1,7 @@
 // Import necessary modules from Next.js
 "use client"
 import Head from 'next/head';
-import { ThemeProvider } from '@emotion/react';
-
-// Import your custom theme
-import themeDefault from '../themes/theme';
+import { AppThemeProvider } from '../contexts/ThemeContext';
 
 // Import the StoreProvider and CSS
 import Providers from './StoreProvider';
@@ -50,9 +47,9 @@ export default function RootLayout({ children }) {
 
         <body>
           <Providers>
-            <ThemeProvider theme={themeDefault}>
+            <AppThemeProvider>
               {children}
-            </ThemeProvider>
+            </AppThemeProvider>
           </Providers>
         </body>
       </html>

@@ -11,6 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { usePathname } from "next/navigation";
 import MobileNavbar from "./MobileNavbar";
 import { useTheme } from "@emotion/react";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import { useThemeMode } from "@/contexts/ThemeContext";
 import { useMediaQuery } from "@mui/material";
 import Logout from "@/Lib/Features/Logout";
 import Modal from "./Modal";
@@ -105,6 +108,7 @@ const translationServices = {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { toggle: toggleDarkMode, mode: themeMode } = useThemeMode();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -761,6 +765,15 @@ useEffect(() => {
         />
       ),
     },
+    {
+      name: "Dark Mode",
+      control: (
+        <Switch
+          onChange={toggleDarkMode}
+          checked={themeMode === "dark"}
+        />
+      ),
+    },
   ];
   const helpMenu = [
     {
@@ -958,6 +971,29 @@ useEffect(() => {
                           color="primary.dark"
                           fontSize="36px"
                         />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <Grid
+                    item
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tooltip
+                      title={
+                        <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                          {themeMode === "dark" ? "Light Mode" : "Dark Mode"}
+                        </span>
+                      }
+                    >
+                      <IconButton onClick={toggleDarkMode}>
+                        {themeMode === "dark" ? (
+                          <Brightness7Icon color="primary.dark" fontSize="large" />
+                        ) : (
+                          <Brightness4Icon color="primary.dark" fontSize="large" />
+                        )}
                       </IconButton>
                     </Tooltip>
                   </Grid>

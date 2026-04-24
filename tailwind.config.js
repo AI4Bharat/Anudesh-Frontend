@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     './src/app/ui/pages/chat/chat.js',
     './src/app/ui/pages/home/home.js',

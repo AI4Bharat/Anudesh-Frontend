@@ -116,3 +116,12 @@ a {
     color-scheme: dark;
   }
 }
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  color: rgb(255, 255, 255);
+  background: #121212;
+}
