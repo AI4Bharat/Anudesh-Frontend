@@ -373,291 +373,139 @@ useEffect(() => {
         !notification?.seen_json[loggedInUserData.id],
     );
 
-  const renderTabs = () => {
-    if (
-      userRole.Annotator === loggedInUserData?.role ||
-      userRole.Reviewer === loggedInUserData?.role ||
-      userRole.SuperChecker === loggedInUserData?.role
-    ) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
-          {loggedInUserData.guest_user ? (
-            <Typography variant="body1">
-              <NavLink
-                to="/guest_workspaces"
-                className={({ isActive }) =>
-                  isActive ? classes.highlightedMenu : classes.headerMenu
-                }
-                activeClassName={classes.highlightedMenu}
-                style={{
+  const navLinkStyle = {
   color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-              >
-                Guest Workspaces
-              </NavLink>
-            </Typography>
-          ) : null}
-          <Typography
-  variant="body1"
-  sx={{
-    color: dark ? "#ffffff !important" : "#000",
-  }}
->
-  <NavLink
-    to="/projects"
-    className={({ isActive }) =>
-      isActive ? classes.highlightedMenu : classes.headerMenu
-    }
-    style={{ textDecoration: "none", color: "inherit" }}
-  >
-    Projects
-  </NavLink>
-</Typography>
-        
-          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Analytics
-            </NavLink>
-          </Typography>):null}
-        </Grid>
-      );
-    } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
+  transition: "background-color 0.2s ease, color 0.2s ease",
+};
+
+const getNavLinkClass = ({ isActive }) => {
+  if (isActive) return classes.highlightedMenu;
+  return classes.headerMenu;
+};
+
+const renderTabs = () => {
+  if (
+    userRole.Annotator === loggedInUserData?.role ||
+    userRole.Reviewer === loggedInUserData?.role ||
+    userRole.SuperChecker === loggedInUserData?.role
+  ) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        {loggedInUserData.guest_user ? (
           <Typography variant="body1">
-            <NavLink
-              to={`/workspaces/${loggedInUserData?.organization?.id}`}
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Workspaces
+            <NavLink to="/guest_workspaces" className={getNavLinkClass} style={navLinkStyle}>
+              Guest Workspaces
             </NavLink>
           </Typography>
+        ) : null}
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        {loggedInUserData.guest_user == false && loggedInUserData.organization.id == 1 ? (
           <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Projects
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Datasets
-            </NavLink>
-          </Typography>
-          {loggedInUserData?.guest_user==false?<Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Analytics
-            </NavLink>
-          </Typography>:null}
-        </Grid>
-      );
-    } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
-          <Typography variant="body1">
-            <NavLink
-              to={
-                loggedInUserData && loggedInUserData?.organization
-                  ? `/organizations/${loggedInUserData?.organization.id}`
-                  : `/organizations/1`
-              }
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Organization
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-              style={{
-  color: dark ? "#ffffff" : "black",
-  padding: "6px 10px",
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-}}
-            >
-              Projects
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Datasets
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
+            <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
               Analytics
             </NavLink>
           </Typography>
-        </Grid>
-      );
-    } else if (userRole.Admin === loggedInUserData?.role) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
+        ) : null}
+      </Grid>
+    );
+  } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        <Typography variant="body1">
+          <NavLink to={`/workspaces/${loggedInUserData?.organization?.id}`} className={getNavLinkClass} style={navLinkStyle}>
+            Workspaces
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/datasets" className={getNavLinkClass} style={navLinkStyle}>
+            Datasets
+          </NavLink>
+        </Typography>
+        {loggedInUserData?.guest_user == false ? (
           <Typography variant="body1">
-            <NavLink
-              to={
-                loggedInUserData && loggedInUserData?.organization
-                  ? `/organizations/${loggedInUserData?.organization.id}`
-                  : `/organizations/1`
-              }
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Organization
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Projects
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Datasets
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
+            <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
               Analytics
             </NavLink>
           </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Admin
-            </NavLink>
-          </Typography>
-        </Grid>
-      );
-    } else {
-      return null;
-    }
-  };
+        ) : null}
+      </Grid>
+    );
+  } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        <Typography variant="body1">
+          <NavLink
+            to={loggedInUserData?.organization ? `/organizations/${loggedInUserData.organization.id}` : `/organizations/1`}
+            className={getNavLinkClass}
+            style={navLinkStyle}
+          >
+            Organization
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/datasets" className={getNavLinkClass} style={navLinkStyle}>
+            Datasets
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
+            Analytics
+          </NavLink>
+        </Typography>
+      </Grid>
+    );
+  } else if (userRole.Admin === loggedInUserData?.role) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        <Typography variant="body1">
+          <NavLink
+            to={loggedInUserData?.organization ? `/organizations/${loggedInUserData.organization.id}` : `/organizations/1`}
+            className={getNavLinkClass}
+            style={navLinkStyle}
+          >
+            Organization
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/datasets" className={getNavLinkClass} style={navLinkStyle}>
+            Datasets
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
+            Analytics
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/admin" className={getNavLinkClass} style={navLinkStyle}>
+            Admin
+          </NavLink>
+        </Typography>
+      </Grid>
+    );
+  } else {
+    return null;
+  }
+};
 
   const tabs = [
     // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
@@ -991,10 +839,10 @@ useEffect(() => {
                     >
                      <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
-                          <NotificationsIcon
-                            color="primary.dark"
-                            fontSize="large"
-                          />
+<NotificationsIcon
+  sx={{ color: dark ? "#ececec" : "" }}
+  fontSize="large"
+/>
                         </Badge>
                       </IconButton>
                     </Tooltip>
@@ -1014,10 +862,10 @@ useEffect(() => {
                       }
                     >
                       <IconButton onClick={handleInfo}>
-                        <InfoOutlinedIcon
-                          color="primary.dark"
-                          fontSize="36px"
-                        />
+                       <InfoOutlinedIcon
+  sx={{ color: dark ? "#ececec" : "" }}
+  fontSize="36px"
+/>
                       </IconButton>
                     </Tooltip>
                   </Grid>
@@ -1036,10 +884,10 @@ useEffect(() => {
                       }
                     >
                       <IconButton onClick={handleOpenSettingsMenu}>
-                        <SettingsOutlinedIcon
-                          color="primary.dark"
-                          fontSize="36px"
-                        />
+                       <SettingsOutlinedIcon
+  sx={{ color: dark ? "#ececec" : "" }}
+  fontSize="36px"
+/>
                       </IconButton>
                     </Tooltip>
                   </Grid>
@@ -1116,19 +964,7 @@ useEffect(() => {
     },
   }),
 },
-"& .MuiPaper-root": {
-  backgroundColor: "#2a2a2a",
-  color: "#ececec",
-  border: "1px solid #3a3a3a",
 
-  "&::-webkit-scrollbar": {
-    width: "6px",
-  },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "#444",
-    borderRadius: "6px",
-  },
-},
 
     ...(dark && {
       "& .MuiPaper-root": {
@@ -1171,7 +1007,7 @@ useEffect(() => {
   </MenuItem>
 ))}
                   <MenuItem sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
-                    <Typography variant="body2" textAlign="center">
+                    <Typography variant="body2" textAlign="center" sx={{ color: dark ? "#ececec" : "" }}>
                       Global Transliteration
                     </Typography>
                     <Switch
@@ -1313,60 +1149,27 @@ useEffect(() => {
   </Typography>
 </MenuItem>
                 </Menu>
+              
                <Menu
-  sx={{ mt: "45px", display: "flex", flexDirection: "row" }}
-  id="menu-appbar"
-  anchorEl={anchorElSettings}
-  anchorOrigin={{
-    vertical: "top",
-    horizontal: "right",
-  }}
-  keepMounted
-  transformOrigin={{
-    vertical: "top",
-    horizontal: "center",
-  }}
-  style={{ overflow: "scroll" }}
-  open={Boolean(anchorElSettings)}
-  onClose={handleCloseSettingsMenu}
-  slotProps={{
-    paper: {
-      sx: {
-        backgroundColor: dark ? "#2a2a2a" : "",
-        color: dark ? "#ececec" : "",
-        border: dark ? "1px solid #3a3a3a" : "",
-      }
-    }
-  }}
->
-                  {helpMenu.map((help) => (
-                    <MenuItem key={help} onClick={help.onclick}>
-                      {help.control ? (
-                        <FormControlLabel
-                          control={help.control}
-                          label={help.name}
-                          labelPlacement="start"
-                          sx={{ ml: 0 }}
-                        />
-                      ) : (
-                        <Typography variant="body2" textAlign="center">
-                          {help.name}
-                        </Typography>
-                      )}
-                    </MenuItem>
-                  ))}
-                </Menu>
-                <Menu
   sx={{
     mt: "45px",
     display: "flex",
     flexDirection: "row",
-    "& .MuiMenuItem-root": {
-      ...(dark && {
+    ...(dark && {
+      "& .MuiMenuItem-root": {
         color: "#ececec",
         "&:hover": { backgroundColor: "#333" },
-      }),
-    },
+        "&.Mui-selected": { backgroundColor: "#fb923c", color: "#000" },
+      },
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+        border: "1px solid #3a3a3a",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+        "&::-webkit-scrollbar": { width: "6px" },
+        "&::-webkit-scrollbar-thumb": { backgroundColor: "#444", borderRadius: "6px" },
+      },
+    }),
   }}
   id="menu-appbar"
   anchorEl={anchorElNotification}
@@ -1382,6 +1185,7 @@ useEffect(() => {
   style={{ overflow: "scroll" }}
   open={Boolean(anchorElNotification)}
   onClose={handleCloseNotification}
+ 
   slotProps={{
     paper: {
       sx: {

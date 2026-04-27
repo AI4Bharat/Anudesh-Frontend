@@ -12,8 +12,27 @@
   --text-primary: #ececec;
   --text-secondary: #a0a0a0;
   --border-color: #3a3a3a;
+  --nav-text-color: #ffffff;
+  --nav-hover-bg: rgba(255, 255, 255, 0.1);
+  --nav-active-bg: rgba(251, 146, 60, 0.15);
+  --nav-active-color: #fb923c;
+  --nav-active-hover-bg: rgba(251, 146, 60, 0.25);
+}
+.dark .headerMenu,
+.dark .highlightedMenu {
+  color: #ececec !important;
 }
 
+.dark .headerMenu:hover,
+.dark .highlightedMenu:hover {
+  background-color: #333333 !important;
+}
+
+.dark .highlightedMenu {
+  background-color: rgba(251, 146, 60, 0.15) !important;
+  color: #fb923c !important;
+  border-radius: 6px;
+}
 body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
