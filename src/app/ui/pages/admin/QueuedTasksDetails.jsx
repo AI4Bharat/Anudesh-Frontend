@@ -15,6 +15,7 @@ import Search from "@/components/common/Search";
 import Spinner from "@/components/common/Spinner";
 import Skeleton from "@mui/material/Skeleton";
 import GetQueuedTaskDetailsAPI from "@/Lib/Features/getQueuedTaskDetails";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -34,9 +35,10 @@ const MUIDataTable = dynamic(
     )
   }
 );
-
 /* eslint-disable react-hooks/exhaustive-deps */
 const QueuedTasksDetails = (props) => {
+  const { dark } = useTheme();
+
   const dispatch = useDispatch();
   const [displayWidth, setDisplayWidth] = useState(0);
   // const [loading, setLoading] = useState(false);
@@ -226,22 +228,26 @@ const QueuedTasksDetails = (props) => {
 
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
-      >
+    <Box
+  sx={{
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: {
+      xs: "space-between",
+      md: "flex-end"
+    },
+    alignItems: "center",
+    padding: "10px",
+    gap: {
+      xs: "10px",
+      md: "20px"
+    },
+
+    
+    backgroundColor: dark ? "#1e1e1e" : "",
+    color: dark ? "#ffffff" : "",
+  }}
+>
 
         {/* Pagination Controls */}
         <TablePagination
@@ -252,13 +258,34 @@ const QueuedTasksDetails = (props) => {
           onPageChange={(_, newPage) => changePage(newPage)}
           onRowsPerPageChange={(e) => changeRowsPerPage(e.target.value)}
           sx={{
-            "& .MuiTablePagination-actions": {
-              marginLeft: "0px",
-            },
-            "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
-              marginRight: "10px",
-            },
-          }}
+    "& .MuiTablePagination-actions": {
+      marginLeft: "0px",
+    },
+    "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+      marginRight: "10px",
+    },
+
+    
+    "& .MuiTablePagination-selectLabel": {
+      color: dark ? "#ffffff" : "",
+    },
+    "& .MuiTablePagination-displayedRows": {
+      color: dark ? "#ffffff" : "",
+    },
+
+    
+    "& .MuiTablePagination-select": {
+      color: dark ? "#ffffff" : "",
+    },
+
+    
+    "& .MuiSvgIcon-root": {
+      color: dark ? "#a0a0a0" : "",
+    },
+
+    
+    color: dark ? "#ffffff" : "",
+  }}
         />
 
         {/* Jump to Page */}
@@ -273,13 +300,33 @@ const QueuedTasksDetails = (props) => {
             value={page + 1}
             onChange={(e) => changePage(Number(e.target.value) - 1)}
             sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
+            fontSize: "0.8rem",
+            padding: "4px",
+            height: "32px",
+            color: dark ? "#ffffff" : "",
+            backgroundColor: dark ? "#2a2a2a" : "",
+
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: dark ? "#3a3a3a" : "",
+            },
+
+            "& .MuiSvgIcon-root": {
+              color: dark ? "#a0a0a0" : "",
+            },
+          }}
           >
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-              <MenuItem key={i} value={i + 1}>
+              <MenuItem key={i} value={i + 1} sx={{
+                color: dark ? "#ffffff" : "",
+
+                "&:hover": {
+                  backgroundColor: dark ? "#2a2a2a" : "",
+                },
+
+                "&.Mui-selected": {
+                  backgroundColor: dark ? "#333333" : "",
+                },
+              }}>
                 {i + 1}
               </MenuItem>
             ))}
@@ -345,13 +392,123 @@ const QueuedTasksDetails = (props) => {
         container
         justifyContent="center"
         sx={{
-          mb: 2,
-          padding: "10px",
-        }}>
+        mb: 2,
+        padding: "10px",
+        backgroundColor: dark ? "#1e1e1e" : "",
+}}>
         <Search />
       </Grid>
       <ThemeProvider theme={tableTheme}>
-        {tableData.length ? <MUIDataTable
+        {tableData.length ? 
+        <Box
+  sx={{
+    width: "100%",
+    borderRadius: dark ? "8px" : "",
+    overflow: "hidden",
+    border: dark ? "1px solid #3a3a3a" : "",
+
+    ...(dark && {
+      // MAIN WRAPPER
+      "& .MuiPaper-root": {
+        backgroundColor: "#1e1e1e",
+        color: "#ececec",
+        border: "none",
+        boxShadow: "none",
+      },
+
+      // TOOLBAR
+      "& .MuiToolbar-root": {
+        backgroundColor: "#252525",
+        borderBottom: "1px solid #3a3a3a",
+      },
+
+      // HEADER
+      "& thead th": {
+        backgroundColor: "#252525",
+        color: "#ececec",
+        fontWeight: 700,
+        borderBottom: "2px solid #3a3a3a",
+        fontSize: "0.85rem",
+        letterSpacing: "0.04em",
+      },
+
+      // BODY CELLS
+      "& tbody td": {
+        color: "#d0d0d0",
+        borderBottom: "1px solid #2e2e2e",
+        fontSize: "0.875rem",
+      },
+
+      // ROW STRIPING
+      "& tbody tr:nth-of-type(odd)": {
+        backgroundColor: "#1e1e1e",
+      },
+      "& tbody tr:nth-of-type(even)": {
+        backgroundColor: "#242424",
+      },
+
+      // HOVER
+      "& tbody tr:hover": {
+        backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+      },
+
+      // TITLE
+      "& .MuiTypography-root": {
+        color: "#ececec",
+      },
+
+      // PAGINATION
+      "& .MuiTablePagination-root": {
+        color: "#a0a0a0",
+        backgroundColor: "#252525",
+        borderTop: "1px solid #3a3a3a",
+      },
+      "& .MuiTablePagination-selectLabel": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-displayedRows": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-select": {
+        color: "#ececec",
+      },
+
+      // ICONS
+      "& .MuiIconButton-root": {
+        color: "#fb923c",
+        "&:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.12)",
+        },
+        "&.Mui-disabled": {
+          color: "#555",
+        },
+      },
+
+      // DROPDOWN
+      "& .MuiSelect-select": {
+        color: "#ececec",
+        backgroundColor: "#2a2a2a",
+      },
+      "& .MuiSelect-icon": {
+        color: "#a0a0a0",
+      },
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#3a3a3a",
+      },
+
+      // SVG ICONS
+      "& .MuiSvgIcon-root": {
+        color: "#fb923c",
+      },
+
+      // LABELS
+      "& label": {
+        color: "#a0a0a0",
+      },
+    }),
+  }}
+>
+  <MUIDataTable
           key={`table-${displayWidth}`}
           title="Queued Task Details"
           data={tableData}
@@ -360,9 +517,12 @@ const QueuedTasksDetails = (props) => {
             ...options,
             tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
           }}
-        /> :
+        />  </Box>:
+        
           <Box sx={{ display: 'flex', gap: '2em', alignItems: 'center', justifyContent: 'center' }}>
-            {!apiLoading && <Typography>
+            {!apiLoading && <Typography sx={{
+    color: dark ? "#ffffff" : "",
+  }}>
               No Queued Tasks to Display
             </Typography>}
           </Box>

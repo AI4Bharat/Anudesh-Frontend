@@ -509,45 +509,37 @@ const AllTaskPage = () => {
 
           >
             <Grid item>
-              <LightTooltip
-                title={
-                  <div>
-                    <div>
-                      {Array.isArray(assignedUsers)
-                        ? assignedUsers.join(", ")
-                        : assignedUsers || "No assigned users"}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: "4px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                      }}
-                    >
-                          {annotations[0]?.annotation_type ==1 && `ANNOTATION ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==2 && `REVIEW ID: ${annotations[0]?.id}`}
-    {annotations[0]?.annotation_type ==3 && `SUPERCHECK ID: ${annotations[0]?.id}`}
-                    </div>
-                  </div>
-                }
-              >
-                <Button
-                  type="default"
-                  className="lsf-button"
-                  style={{
-                    minWidth: "40px",
-                    border: "1px solid #e6e6e6",
-                    color: "grey",
-                    pt: 1,
-                    pl: 1,
-                    pr: 1,
-                    borderBottom: "None",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
-                </Button>
-              </LightTooltip>
+              <Tooltip
+  title={
+    <div>
+      <div>
+        {Array.isArray(assignedUsers)
+          ? assignedUsers.join(", ")
+          : assignedUsers || "No assigned users"}
+      </div>
+      {annotations?.[0] && (
+        <div style={{ marginTop: "4px", fontWeight: "bold", textAlign: "center" }}>
+          {annotations[0].annotation_type === 1 && `ANNOTATION ID: ${annotations[0].id}`}
+          {annotations[0].annotation_type === 2 && `REVIEW ID: ${annotations[0].id}`}
+          {annotations[0].annotation_type === 3 && `SUPERCHECK ID: ${annotations[0].id}`}
+        </div>
+      )}
+    </div>
+  }
+  arrow
+>
+  <Button
+    type="button"                      // ← was "default" which is invalid
+    style={{
+      minWidth: "40px",
+      border: "1px solid #e6e6e6",
+      color: "grey",
+      backgroundColor: "white",
+    }}
+  >
+    <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
+  </Button>
+</Tooltip>
             </Grid>
             {/* <Grid item>
               <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>

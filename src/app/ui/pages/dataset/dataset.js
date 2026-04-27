@@ -19,12 +19,14 @@ import themeDefault from "@/themes/theme";
 import Search from "@/components/common/Search";
 import userRole from "@/utils/Role";
 import { fetchDatasets } from "@/Lib/Features/datasets/GetDatasets";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function DatasetList() {
       /* eslint-disable react-hooks/exhaustive-deps */
 
   const dispatch = useDispatch();
   const classes = DatasetStyle();
+  const { dark } = useTheme();
   const navigate = useNavigate();
   const [radiobutton, setRadiobutton] = useState(true);
   // const [loading, setLoading] = useState(false);
@@ -82,14 +84,16 @@ export default function DatasetList() {
   };
   
   return (
-    <ThemeProvider theme={themeDefault}>
-      {apiLoading ? <Spinner /> : <> 
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100vh" }}>
+    {apiLoading ? <Spinner /> : <>
 
-      <Grid container  className={classes.root}>
-        <Grid item sx={{ml:2}} style={{ flexGrow: "0" }}>
-          <Typography variant="h6" sx={{ paddingBottom: "8px" }}>
-            View :{" "}
-          </Typography>
+
+      <Grid container className={classes.root} sx={{ backgroundColor: dark ? "#252525" : "", borderBottom: dark ? "1px solid #3a3a3a" : "", borderRadius: dark ? "8px 8px 0 0" : "" }}> 
+         <Grid item sx={{ml:2}} style={{ flexGrow: "0" }}>
+        <Typography variant="h6" sx={{ paddingBottom: "8px", color: dark ? "#ececec" : "" }}>
+          View :{" "}
+        </Typography>
         </Grid>
         <Grid item style={{ flexGrow: "1", paddingLeft: "5px" }}>
           <FormControl>
@@ -99,18 +103,20 @@ export default function DatasetList() {
               name="row-radio-buttons-group"
               defaultValue="DatasetList"
             >
-              <FormControlLabel
-                value="DatasetList"
-                control={<Radio />}
-                label="List"
-                onClick={handleProjectlist}
-              />
-              <FormControlLabel
-                value="DatasetCard"
-                control={<Radio />}
-                label="Card"
-                onClick={handleProjectcard}
-              />
+             <FormControlLabel
+              value="DatasetList"
+              control={<Radio />}
+              label="List"
+              onClick={handleProjectlist}
+              sx={{ color: dark ? "#ececec" : "" }}
+/>
+            <FormControlLabel
+              value="DatasetCard"
+              control={<Radio />}
+              label="Card"
+              onClick={handleProjectcard}
+              sx={{ color: dark ? "#ececec" : "" }}
+            />
             </RadioGroup>
           </FormControl>
         </Grid>
@@ -123,7 +129,7 @@ export default function DatasetList() {
         </Grid>
       </Grid>
 
-      <Box sx={{m:1}}>
+      <Box sx={{ m: 1, backgroundColor: dark ? "#1e1e1e" : "" }}>
         <CustomButton
           sx={{
             p: 2,
@@ -149,7 +155,7 @@ export default function DatasetList() {
           onClick={handleAutomateButton}
           label="Automate Datasets"
         />
-        <Box sx={{ p: 1 }}>
+  <Box sx={{ p: 1, backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "" }}>
           {radiobutton ? (
             <DatasetCardList
               datasetList={datasetList}
@@ -166,6 +172,7 @@ export default function DatasetList() {
         </Box>
       </Box>
       </>}
-    </ThemeProvider>
-  );
+    </Box>
+  </ThemeProvider>
+);
 }

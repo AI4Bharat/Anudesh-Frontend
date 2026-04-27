@@ -8,12 +8,25 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Label } from "recharts";
 import DatasetStyle from "@/styles/dataset";
 import { useEffect, useState } from "react";
 import ResponsiveChartContainer from "@/component/common/ResponsiveChartContainer";
+import { useTheme } from "@/context/ThemeContext";
+
 
 export default function SingleSpeakerAudioTranscriptionEditing(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
 
   const { metaAnalyticsData } = props;
   const classes = DatasetStyle();
+  const { dark } = useTheme();
+  const darkPaper   = dark ? { backgroundColor: "#2a2a2a", color: "#ececec" } : {};
+const darkTopBar  = dark ? { borderBottom: "1px solid #3a3a3a" } : {};
+const darkText    = dark ? { color: "#ececec" } : {};
+const darkSubText = dark ? { color: "#a0a0a0" } : {};
+const darkTooltip = dark
+  ? { backgroundColor: "#1e1e1e", border: "1px solid #3a3a3a", color: "#ececec" }
+  : {};
+const chartAxisColor  = dark ? "#a0a0a0" : undefined;
+const chartLabelColor = dark ? "#ececec" : undefined;
+  
   const [totalAudioHours, setTotalAudioHours] = useState();
   const [totalAnnotationAudioHours, setTotalAnnotationAudioHours] = useState();
   const [totalReviewAudioHours, setTotalReviewAudioHours] = useState();
@@ -90,19 +103,15 @@ export default function SingleSpeakerAudioTranscriptionEditing(props) {
 
   return (
     <Box className={classes.modelChartSection}>
-      <Typography
-        variant="h2"
-        style={{ marginBottom: "35px" }}
-        className={classes.heading}
-      >
+      <Typography variant="h2" style={{ marginBottom: "35px", ...darkText }} className={classes.heading}>
        Audio Duration Dashboard - Audio Transcription Editing
-        <Typography variant="body1">
+        <Typography variant="body1" style={darkSubText}>
           Count of Annotated and Reviewed Audio Transcription Editing
         </Typography>
       </Typography>
       
-      <Paper>
-        <Box className={classes.topBar}>
+      <Paper style={darkPaper}>
+        <Box className={classes.topBar} style={darkTopBar}>
           <Box className={classes.topBarInnerBox}>
           <Typography
                 style={{

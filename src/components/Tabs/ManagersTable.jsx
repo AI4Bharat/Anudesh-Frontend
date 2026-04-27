@@ -25,6 +25,7 @@ import Search from "../common/Search";
 import TextField from '@mui/material/TextField';
 import LoginAPI from "@/app/actions/api/user/Login";
 import { fetchWorkspacesManagersData } from "@/Lib/Features/getWorkspaceManagersData";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -46,7 +47,7 @@ const MUIDataTable = dynamic(
 );
 
 const ManagersTable = (props) => {
-
+const { dark } = useTheme();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [displayWidth, setDisplayWidth] = useState(0);
@@ -179,9 +180,16 @@ const ManagersTable = (props) => {
       <>
         <Link to={`/profile/${el.id}`} style={{ textDecoration: "none" }}>
           <CustomButton
-            sx={{ borderRadius: 2, marginRight: 2 }}
-            label="View"
-          />
+  sx={{
+    borderRadius: 2,
+    ...(dark && {
+      backgroundColor: "#fb923c",
+      color: "#000",
+      "&:hover": { backgroundColor: "#ea580c" },
+    }),
+  }}
+  label="View"
+/>
         </Link>
         <CustomButton
           sx={{ borderRadius: 2, backgroundColor: "#cf5959" }}
@@ -329,58 +337,103 @@ const ManagersTable = (props) => {
   };
 
   return (
-    <div>
-      {renderSnackBar()}
-      <Dialog
-        open={confirmationDialog}
-        onClose={() => setConfirmationDialog(false)}
-        aria-labelledby="dialog-title"
-        aria-describedby="dialog-description"
-      >
-        <DialogTitle id="dialog-title">
-          {"Remove Member from Project?"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {elEmail} will be removed from this workspace. Please be careful as
-            this action cannot be undone.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="password"
-            label="Password"
-            type="password"
-            fullWidth
-            variant="standard"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setConfirmationDialog(false)}
-            variant="outlined"
-            color="error"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirm}
-            variant="contained"
-            color="error"
-            autoFocus
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Grid sx={{ mb: 1 }}>
-        <Search />
-      </Grid>
-      <ThemeProvider theme={tableTheme}>
+  <Box sx={{
+    backgroundColor: dark ? "#1e1e1e" : "",
+    borderRadius: dark ? "8px" : "",
+    padding: dark ? "8px" : "",
+  }}>
+    {renderSnackBar()}
+
+    <Dialog
+      open={confirmationDialog}
+      onClose={() => setConfirmationDialog(false)}
+      aria-labelledby="dialog-title"
+      aria-describedby="dialog-description"
+      slotProps={{
+        paper: {
+          sx: {
+            backgroundColor: dark ? "#2a2a2a" : "",
+            color: dark ? "#ececec" : "",
+            border: dark ? "1px solid #3a3a3a" : "",
+          }
+        }
+      }}
+    >
+      <DialogTitle id="dialog-title" sx={{ color: dark ? "#ececec" : "" }}>
+        {"Remove Member from Project?"}
+      </DialogTitle>
+      <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+        <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
+          {elEmail} will be removed from this workspace. Please be careful as
+          this action cannot be undone.
+        </DialogContentText>
+        <TextField
+          autoFocus
+          margin="dense"
+          id="password"
+          label="Password"
+          type="password"
+          fullWidth
+          variant="standard"
+          onChange={(e) => setPassword(e.target.value)}
+          sx={{
+            "& .MuiInputBase-input": { color: dark ? "#ececec" : "" },
+            "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+            "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+            "& .MuiInput-underline:after": { borderBottomColor: dark ? "#fb923c" : "" },
+          }}
+        />
+      </DialogContent>
+      <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
+        <Button
+          onClick={() => setConfirmationDialog(false)}
+          variant="outlined"
+          color="error"
+          sx={{
+            color: dark ? "#f87171" : "",
+            borderColor: dark ? "#f87171" : "",
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+          color="error"
+          autoFocus
+          sx={{
+            backgroundColor: dark ? "#cf5959" : "",
+            "&:hover": { backgroundColor: dark ? "#b91c1c" : "" },
+          }}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </Dialog>
+
+    <Grid sx={{ mb: 1, mt: dark ? 1.5 : 0, ml: dark ? 1.5 : 0 }}>
+      <Search />
+    </Grid>
+
+    <ThemeProvider theme={tableTheme}>
+      <Box sx={{
+        ...(dark && {
+          "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+          "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+          "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+          "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+          "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+          "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+          "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important" },
+          "& .MuiTypography-root": { color: "#ececec" },
+          "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+          "& .MuiIconButton-root": { color: "#fb923c" },
+          "& .MuiSvgIcon-root": { color: "#fb923c" },
+          "& .MuiSelect-select": { color: "#ececec" },
+        })
+      }}>
         <MUIDataTable
           key={`table-${displayWidth}`}
-          title={""}
           data={data}
           columns={columns}
           options={{
@@ -388,10 +441,10 @@ const ManagersTable = (props) => {
             tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
           }}
         />
-      </ThemeProvider>
-    </div>
-
-  )
+      </Box>
+    </ThemeProvider>
+  </Box>
+)
 }
 
 export default ManagersTable;

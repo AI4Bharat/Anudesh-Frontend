@@ -33,6 +33,7 @@ import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "../../utils/Role";
 import { fetchProjectReport } from "@/Lib/Features/getProjectReport";
 import { styled } from "@mui/material/styles";
+import { useTheme } from "@/context/ThemeContext";
 
 const TruncatedContent = styled(Box)(({ expanded }) => ({
   overflow: "hidden",
@@ -67,6 +68,7 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 });
 
 const ReportsTable = (props) => {
+  const { dark } = useTheme();
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const { isSuperChecker, isReviewer, isAnnotators } = props;
@@ -268,6 +270,12 @@ const ReportsTable = (props) => {
           columns={columns}
           setColumns={setSelectedColumns}
           selectedColumns={selectedColumns}
+          sx={{
+    ...(dark && {
+      backgroundColor: "#2a2a2a",
+      borderBottom: "1px solid #3a3a3a",
+    }),
+  }}
         />
       </Box>
     );
@@ -460,13 +468,23 @@ const ReportsTable = (props) => {
 
   return (
     <React.Fragment>
+      <Box
+    sx={{
+      ...(dark && {
+        backgroundColor: "#1e1e1e",
+        color: "#ececec",
+        borderRadius: 2,
+        p: 2,
+      }),
+    }}
+  >
       {renderSnackBar()}
       <Grid container direction="row" rowSpacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={12} md={3} lg={2} xl={2}>
           <Typography
             gutterBottom
             component="div"
-            sx={{ marginTop: "10px", fontSize: "16px" }}
+            sx={{ marginTop: "10px", fontSize: "16px", ...(dark && { color: "#ececec" }), }}
           >
             Select Report Type :
           </Typography>
@@ -490,7 +508,14 @@ const ReportsTable = (props) => {
                 )) && (
                 <FormControlLabel
                   value="AnnotatationReports"
-                  control={<Radio />}
+                  control={<Radio sx={{
+        ...(dark && {
+          color: "#a0a0a0",
+          "&.Mui-checked": {
+            color: "#fb923c",
+          },
+        }),
+      }}/>}
                   label="Annotator"
                 />
               )}
@@ -504,7 +529,14 @@ const ReportsTable = (props) => {
                   )) && (
                 <FormControlLabel
                   value="ReviewerReports"
-                  control={<Radio />}
+                  control={<Radio sx={{
+        ...(dark && {
+          color: "#a0a0a0",
+          "&.Mui-checked": {
+            color: "#fb923c",
+          },
+        }),
+      }}/>}
                   label="Reviewer"
                 />
               )}
@@ -518,7 +550,14 @@ const ReportsTable = (props) => {
                   )) && (
                 <FormControlLabel
                   value="SuperCheckerReports"
-                  control={<Radio />}
+                  control={<Radio sx={{
+        ...(dark && {
+          color: "#a0a0a0",
+          "&.Mui-checked": {
+            color: "#fb923c",
+          },
+        }),
+      }}/>}
                   label="Super Checker"
                 />
               )}
@@ -530,7 +569,18 @@ const ReportsTable = (props) => {
             endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
             variant="contained"
             color="primary"
-            sx={{ width: "130px", marginTop: "8.5px" }}
+            sx={{
+            width: "130px",
+            marginTop: "8.5px",
+            ...(dark && {
+              backgroundColor: "#fb923c",
+              color: "#000",
+              "&:hover": {
+                backgroundColor: "#ea580c",
+              },
+            }),
+          }}
+           
             onClick={() => setShowPicker(!showPicker)}
           >
             Pick Dates
@@ -548,7 +598,7 @@ const ReportsTable = (props) => {
         </Grid>
       </Grid>
       {showPicker && (
-        <Box
+        <Box  className={dark ? "dark-date-picker" : ""}
           sx={{
             mt: 2,
             mb: 2,
@@ -557,7 +607,14 @@ const ReportsTable = (props) => {
             width: "100%",
           }}
         >
-          <Card>
+          <Card sx={{
+    ...(dark && {
+      backgroundColor: "#2a2a2a",
+      color: "#ececec",
+      border: "1px solid #3a3a3a",
+      boxShadow: "0 0 10px rgba(0,0,0,0.6)",
+    }),
+  }}>
             <DateRangePicker
               onChange={handleRangeChange}
               staticRanges={[
@@ -606,14 +663,43 @@ const ReportsTable = (props) => {
           userRole.Reviewer === loggedInUserData?.role
         ) &&
           frozenUsers.length > 0 && (
-            <Typography variant="body2" color="#F8644F">
+            <Typography variant="body2" color="#F8644F" sx={{
+    color: dark ? "#ff8a80" : "#F8644F",
+  }}>
               * User Inactive
             </Typography>
           )}
         <ThemeProvider theme={tableTheme}>
+          <Box
+    sx={{
+      ...(dark && {
+        "& .MuiPaper-root": {
+          backgroundColor: "#2a2a2a",
+          color: "#ececec",
+        },
+
+        "& .MuiTableCell-root": {
+          color: "#ececec",
+          borderBottom: "1px solid #3a3a3a",
+        },
+
+        "& .MuiTableHead-root": {
+          backgroundColor: "#1e1e1e",
+        },
+
+        "& .MuiTableRow-root:hover": {
+          backgroundColor: "#333",
+        },
+      }),
+    }}
+  >
           {reportRequested[radiobutton] && (
             (loading ? (
-              <CircularProgress style={{ marginLeft: "50%" }} />
+              <CircularProgress style={{ marginLeft: "50%" }} sx={{
+    ...(dark && {
+      color: "#fb923c",
+    }),
+  }} />
             ) : isBrowser ? (
               currentData ? (
                 <MUIDataTable
@@ -654,12 +740,17 @@ const ReportsTable = (props) => {
                   my: 3,
                   borderRadius: "4px",
                   transform: "none",
+                  ...(dark && {
+      backgroundColor: "#333",
+    }),
                 }}
               />
             ))
           )}
+          </Box>
         </ThemeProvider>
       </>
+      </Box>
     </React.Fragment>
   );
 };

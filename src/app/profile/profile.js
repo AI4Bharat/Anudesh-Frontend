@@ -38,7 +38,9 @@ import dynamic from 'next/dynamic';
 import { ThemeProvider } from '@mui/material/styles';
 import tableTheme from "../../themes/tableTheme";
 import { getUserProjects } from '@/Lib/Features/projects/bookmarkService';
-import BookmarkButton from '@/components/Project/BookmarkButton';
+import BookmarkButton from "@/components/Project/BookmarkButton";
+import { Box } from "@mui/material";
+import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -53,6 +55,7 @@ export default function ProfilePage() {
 
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { dark } = useDarkTheme();
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -375,7 +378,7 @@ const handleBookmarkChange = (projectId, bookmarked) => {
             mx: { xs: 2, sm: 3, md: 4 },
             fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
           }}>
-            <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px", backgroundColor: 'ButtonHighlight', textAlign: 'center' }}>
+           <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px", backgroundColor: dark ? "#2a2a2a" : 'ButtonHighlight', textAlign: 'center', borderColor: dark ? "#3a3a3a" : "" }}>
               <CardContent>
                 <Typography variant="h4">{userDetails?.organization?.title}</Typography>
               </CardContent>
@@ -387,10 +390,7 @@ const handleBookmarkChange = (projectId, bookmarked) => {
               py: 2,
               fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
             }}>
-              <Card sx={{
-                borderRadius: "5px",
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-              }}>
+             <Card sx={{ borderRadius: "5px", fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" }, backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
                 <CardContent sx={{ display: 'flex', flexDirection: 'column', }}>
                   <div style={{ display: "flex", flexDirection: 'row', border: "none", textAlign: "center", justifyContent: "center", gap: 5 }}>
                     <Card sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', border: "none" }}>
@@ -420,76 +420,76 @@ const handleBookmarkChange = (projectId, bookmarked) => {
 
                     <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                       <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                        <EmailOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /> <span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}>{userDetails?.email}</span>
+                        <EmailOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /> <span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}>{userDetails?.email}</span>
                       </Typography>
                     </Grid>
                     {userDetails?.phone && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <LocalPhoneOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /> <span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}> {userDetails?.phone}</span>
+                          <LocalPhoneOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /> <span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}> {userDetails?.phone}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.gender && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <Person2OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}> {userDetails?.gender == "F" ? "Female" : userDetails?.gender == "M" ? "Male" : null}</span>
+                          <Person2OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}> {userDetails?.gender == "F" ? "Female" : userDetails?.gender == "M" ? "Male" : null}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.city && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <LocationCityOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}> {userDetails?.city}</span>
+                          <LocationCityOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}> {userDetails?.city}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.address && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <LocationOnOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}> {userDetails?.address}</span>
+                          <LocationOnOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}> {userDetails?.address}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.state && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <GpsFixedOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}>  {userDetails?.state}</span>
+                          <GpsFixedOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}>  {userDetails?.state}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.pin_code && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <FiberPinOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}>  {userDetails?.pin_code}</span>
+                          <FiberPinOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}>  {userDetails?.pin_code}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.age && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <Filter1OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}>  {userDetails?.age}</span>
+                          <Filter1OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}>  {userDetails?.age}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.qualification && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <SchoolOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}>  {userDetails?.qualification}</span>
+                          <SchoolOutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}>  {userDetails?.qualification}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.organization && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <Diversity3OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}> {userDetails?.organization?.title}</span>
+                          <Diversity3OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}> {userDetails?.organization?.title}</span>
                         </Typography>
                       </Grid>
                     )}
                     {userDetails?.participation_type && (
                       <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <Typography variant="body1" sx={{ display: "flex", gap: "5px", fontSize: { xs: "0.85rem", sm: "0.85rem", md: "1rem", lg: "1rem", xl: "1rem" }, p: 0.4 }}>
-                          <Diversity2OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px" }}> {userDetails?.participation_type == 1 ? "Full Time" : userDetails?.participation_type == 2 ? "Part Time" : null}</span>
+                          <Diversity2OutlinedIcon sx={{ fontSize: "1.7rem", backgroundColor: dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.3)", borderRadius: "5px", color: "white", padding: "3px" }} /><span style={{ backgroundColor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)", padding: "0.2rem 0.5rem 0.2rem 0.5rem", borderRadius: "3px", color: dark ? "#ececec" : "" }}> {userDetails?.participation_type == 1 ? "Full Time" : userDetails?.participation_type == 2 ? "Part Time" : null}</span>
                         </Typography>
                       </Grid>
                     )}
@@ -533,14 +533,14 @@ const handleBookmarkChange = (projectId, bookmarked) => {
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" }
               }}
             >
-              <Card sx={{ borderRadius: "5px", mb: 2 }}>
-                <ReportBarGraph id={id} />
-              </Card>
+             <Card sx={{ borderRadius: "5px", mb: 2, backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
+              <ReportBarGraph id={id} />
+            </Card>
             </Grid>
           </Grid>
           {LoggedInUserId === userDetails?.id && (userRole.WorkspaceManager === loggedInUserData?.role || userRole.OrganizationOwner === loggedInUserData?.role || userRole.Admin === loggedInUserData?.role) &&
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
-              <Card sx={{ borderRadius: "5px", mb: 2 }}>
+              <Card sx={{ borderRadius: "5px", mb: 2, backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
                 <ScheduleMails />
               </Card>
             </Grid>
@@ -549,9 +549,9 @@ const handleBookmarkChange = (projectId, bookmarked) => {
 
           {LoggedInUserId === userDetails?.id && (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{ p: 2 }}>
-              <Card sx={{ borderRadius: "5px", mb: 2 }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+             <Card sx={{ borderRadius: "5px", mb: 2, backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: dark ? "#ececec" : "" }}>
                     Bookmarked Projects
                   </Typography>
                   {bookmarkedLoading ? (

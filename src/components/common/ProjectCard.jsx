@@ -6,11 +6,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import  "../../styles/Dataset.css";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
 import { useSelector } from "react-redux";
+import { useTheme } from "@/context/ThemeContext";
 
 
 const ProjectCard = (props) => {
   
   const loggedInUserData = useSelector(state => state.getLoggedInData?.data);
+  const { dark } = useTheme();
 
   let navigate = useNavigate();
   let { id } = useParams();
@@ -37,19 +39,25 @@ const ProjectCard = (props) => {
     <div onClick={() => handleCardClick(projectObj)}>
 
       <Grid
-        elevation={2}
-        className={props.classAssigned}
-        sx={{
-          minHeight: 250,
-          cursor: "pointer",
-          borderRadius: 5,
-          p: 2,
-        }}
-      >
+          elevation={2}
+          className={props.classAssigned}
+          sx={{
+            minHeight: 250,
+            cursor: "pointer",
+            borderRadius: 5,
+            p: 2,
+            ...(dark && {
+              backgroundColor: "#2a2a2a",
+              border: "1px solid #3a3a3a",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+            }),
+          }}
+        >
         <Typography
           variant="body2"
           sx={{
-            background: "#FFD981",
+            background: dark ? "#7c5e00" : "#FFD981",
+            color: dark ? "#ffe082" : "inherit",
             p: 1,
             borderRadius: 5,
             width: "fit-content",
@@ -58,20 +66,20 @@ const ProjectCard = (props) => {
           {projectObj.project_mode}
         </Typography>
         <Typography
-          variant="h6"
-          sx={{
-            mt: 3,
-            textAlign: "center",
-            color: "secondary.contrastText",
-            backgroundColor: "primary.contrastText",
-            borderRadius: 3,
-            pt: 1,
-            pb: 1,
-            minHeight: 64,
-            alignItems: "center",
-            display: "grid",
-          }}
-        >
+              variant="h6"
+              sx={{
+                mt: 3,
+                textAlign: "center",
+                color: dark ? "#ececec" : "secondary.contrastText",
+                backgroundColor: dark ? "#1e1e1e" : "primary.contrastText",
+                borderRadius: 3,
+                pt: 1,
+                pb: 1,
+                minHeight: 64,
+                alignItems: "center",
+                display: "grid",
+              }}
+            >
           {projectObj.title}
         </Typography>
         <Grid
@@ -82,11 +90,21 @@ const ProjectCard = (props) => {
           columnSpacing={{ xs: 6, sm: 6, md: 6 }}
         >
           <Grid item sx={{ width: "230px" }}>
-            <Typography variant="lightText">Type</Typography>
+           <Typography
+          variant="lightText"
+          sx={{ ...(dark && { color: "#a0a0a0" }) }}
+        >
+          Type
+        </Typography>
             <Typography
               variant="body2"
-              sx={{ color: "primary.contrastText", mt: 0.5, fontWeight: "500" }}
+              sx={{
+                color: dark ? "#ececec" : "primary.contrastText",
+                mt: 0.5,
+                fontWeight: "500",
+              }}
             >
+
               {projectObj.project_type}
             </Typography>
           </Grid>

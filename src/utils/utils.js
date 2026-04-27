@@ -1,13 +1,23 @@
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 export const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+    sx: {
+      backgroundColor: "var(--bg-secondary) !important",
+      color: "var(--text-primary)",
+      border: "1px solid var(--border-color)",
+      mt: 1,
+
+      "& .MuiList-root": {
+        padding: 0,
       },
     },
-  };
+  },
+};
 
   
 export function snakeToTitleCase(str) {

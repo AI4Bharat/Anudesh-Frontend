@@ -9,6 +9,7 @@ import TextField from "@mui/material/TextField";
 import { translate } from "@/config/localisation";
 import { snakeToTitleCase } from "@/utils/utils";
 import DatasetStyle from "@/styles/dataset";
+import { useTheme } from "@/context/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -16,6 +17,7 @@ const DatasetSearchPopup = (props) => {
     /* eslint-disable react-hooks/exhaustive-deps */
 
     const classes = DatasetStyle();
+    const { dark } = useTheme();
     const dispatch = useDispatch();
     const { datasetId } = useParams();
   const { currentFilters, updateFilters, searchedCol } = props;
@@ -54,19 +56,26 @@ const DatasetSearchPopup = (props) => {
 
   return (
       <Popover
-        id={props.id}
-        open={props.open}
-        anchorEl={props.anchorEl}
-        onClose={props.handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
+          id={props.id}
+          open={props.open}
+          anchorEl={props.anchorEl}
+          onClose={props.handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+          PaperProps={{
+            sx: {
+              backgroundColor: dark ? "#2a2a2a" : "",
+              border: dark ? "1px solid #3a3a3a" : "",
+              boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+            }
+          }}
+>
        <Box sx={{p:2, display: "flex", flexDirection: "column", gap: 2}}>
         <TextField 
             size="small" 
@@ -75,12 +84,20 @@ const DatasetSearchPopup = (props) => {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             inputProps={{
-                style: {
-                    fontSize: "16px"
-                }
-            }}          
-        />
-        <Divider />
+              style: {
+                fontSize: "16px",
+                color: dark ? "#ececec" : "",
+              }
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+                backgroundColor: dark ? "#1e1e1e" : "",
+              },
+            }}
+/>
+        <Divider sx={{ borderColor: dark ? "#3a3a3a" : "" }} />
         <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2}}>
             <Button
                 onClick={handleClearSearch}

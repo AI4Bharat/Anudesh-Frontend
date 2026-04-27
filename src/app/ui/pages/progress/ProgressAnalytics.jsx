@@ -27,6 +27,7 @@ import  { modifiedStaticRanges } from "@/utils/Date_Range/getDateRangeFormat";
 import { MenuProps } from "@/utils/utils";
 import { jsPDF } from "jspdf";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
+import { useTheme } from "@/context/ThemeContext";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -153,6 +154,21 @@ function ProgressList() {
   /* eslint-disable react-hooks/exhaustive-deps */
   const dispatch = useDispatch();
   const classes = DatasetStyle();
+  const { dark } = useTheme();
+const darkText      = dark ? { color: "#ececec" } : {};
+const darkSubText   = dark ? { color: "#a0a0a0" } : {};
+const darkCard      = dark ? { backgroundColor: "#2a2a2a", color: "#ececec" } : {};
+const darkSelect    = dark ? {
+  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+  "& .MuiSvgIcon-root": { color: "#ececec" },
+  color: "#ececec",
+} : {};
+const darkInputLabel = dark ? { color: "#a0a0a0" } : {};
+const chartAxisColor = dark ? "#a0a0a0" : "black";
+
+// Dynamically update chart axis colors
+defaultOptions.scales.x.title.color = chartAxisColor;
+defaultOptions.scales.y.title.color = chartAxisColor;
   const ref = useRef()
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
@@ -813,13 +829,7 @@ function ProgressList() {
   return (
     <ThemeProvider theme={themeDefault}>
       {/* {loading && <Spinner />} */}
-      <Card
-        sx={{
-          width: "100%",
-          minHeight: 500,
-          padding: 3
-        }}
-      >
+      <Card sx={{ width: "100%", minHeight: 500, padding: 3, ...darkCard }}>
 
         <Box >
           <Grid
@@ -836,7 +846,7 @@ function ProgressList() {
             >
 
               <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
-                <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", }}>
+                <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", ...darkText }}>
                   Select Report Type :
                 </Typography>
               </Grid >
@@ -861,7 +871,7 @@ function ProgressList() {
             </Grid>
             <Grid container mb={4} >
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ display: "flex", ml: 1 }} >
-                <Typography gutterBottom component="div" sx={{ fontSize: "16px", mt: 1, }}>
+                <Typography gutterBottom component="div" sx={{ fontSize: "16px", mt: 1, ...darkText }}>
                   Meta-info based stats:
                 </Typography>
                 <Checkbox
@@ -875,7 +885,7 @@ function ProgressList() {
 
               <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small" >
-                  <InputLabel id="Graph-Type-label" sx={{ fontSize: "16px" }}>
+                  <InputLabel id="Graph-Type-label" sx={{ fontSize: "16px", ...darkInputLabel }}>
                     Analytics Type {" "}
                     {
                       <LightTooltip
@@ -895,6 +905,9 @@ function ProgressList() {
                     label="Analytics Type"
                     value={chartTypes}
                     onChange={handleChartType}
+                    sx={darkSelect}
+                  MenuProps={MenuProps}
+
                   >
 
                     {ChartType.map((item, index) => (
@@ -910,8 +923,8 @@ function ProgressList() {
 
               <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px" }}>
-                    Project Type {" "}
+                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", ...darkInputLabel }}>
+  Project Type {" "}
                     {
                       <LightTooltip
                         arrow
@@ -929,7 +942,7 @@ function ProgressList() {
                     id="demo-simple-select"
                     value={selectedType}
                     label="Project Type"
-                    sx={{ padding: "1px" }}
+                    sx={{ padding: "1px", ...darkSelect }}
                     onChange={(e) => setSelectedType(e.target.value)}
                     MenuProps={MenuProps}
                   >
@@ -954,7 +967,7 @@ function ProgressList() {
             <Grid container columnSpacing={2} rowSpacing={2} mt={1} mb={1}>
               {(chartTypes === availableChartType.Individual || chartTypes === availableChartType.Comparison) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", color: "rgba(243, 156, 18 )" }}>
+                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", color: dark ? "rgba(243, 156, 18)" : "rgba(243, 156, 18)" }}>
                     Base period {" "}
                     {
                       <LightTooltip
@@ -974,7 +987,10 @@ function ProgressList() {
                     label="Base period"
                     value={baseperiod}
                     onChange={handleProgressType}
-                  >
+                    sx={darkSelect}
+                    MenuProps={MenuProps}
+
+>
 
 
                     {ProgressType.map((item, index) => (
@@ -1021,6 +1037,7 @@ function ProgressList() {
                     label="Comparison Period"
                     value={comparisonperiod}
                     onChange={handleComparisonProgressType}
+                    sx={darkSelect}
                   >
                     {ProgressType.map((item, index) => (
                       <LightTooltip title={ProgressTypedata[index].title} value={item.ProgressTypename} key={index} placement="right" arrow >
@@ -1049,7 +1066,7 @@ function ProgressList() {
               </Grid>
 
               {showPicker && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
-                <Card sx={{ overflowX: "scroll" }}>
+                <Card sx={{ overflowX: "scroll", ...darkCard }}>
                   <DateRangePicker
                     onChange={item => setBaseperiodDatepicker([item.selection])}
                     weekStartsOn={1}
@@ -1101,7 +1118,7 @@ function ProgressList() {
                 </Card>
               </Box>}
               {showPickers && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
-                <Card sx={{ overflowX: "scroll" }}>
+                <Card sx={{ overflowX: "scroll", ...darkCard }}>
                   <DateRangePicker
                     onChange={handleDateRangePicker} item
                     weekStartsOn={1}

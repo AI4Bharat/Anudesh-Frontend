@@ -13,9 +13,11 @@ import Box from "@mui/material/Box";
 import { translate } from "../../config/localisation";
 import "../../styles/Dataset.css";
 import { snakeToTitleCase } from "@/utils/utils";
+import { useTheme } from "@/context/ThemeContext";
 
 const AllTasksFilterList = (props) => {
   const { filterStatusData, currentFilters, updateFilters, onchange } = props;
+  const { dark } = useTheme();
   const [selectedStatus, setSelectedStatus] = useState(
     currentFilters.task_status,
   );
@@ -34,31 +36,40 @@ const AllTasksFilterList = (props) => {
   return (
     <div>
       <Popover
-        id={props.id}
-        open={props.open}
-        anchorEl={props.anchorEl}
-        onClose={props.handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
+            id={props.id}
+            open={props.open}
+            anchorEl={props.anchorEl}
+            onClose={props.handleClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            PaperProps={{
+              sx: {
+                backgroundColor: dark ? "#2a2a2a" : "",
+                border: dark ? "1px solid #3a3a3a" : "",
+                boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+                color: dark ? "#ececec" : "",
+              }
+            }}
+>
         <Box className="filterContainer">
           <Typography
-            variant="body2"
-            sx={{ mr: 5, fontWeight: "700" }}
-            className="filterTypo"
-          >
-            {translate("label.filter.status")} :
-          </Typography>
+          variant="body2"
+          sx={{ mr: 5, fontWeight: "700", color: dark ? "#ececec" : "" }}
+          className="filterTypo"
+        >
+          {translate("label.filter.status")} :
+        </Typography>
+            
           <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
             {filterStatusData.Status.map((item, i) => {
               return (
-                <FormControlLabel
+               <FormControlLabel
                   key={i}
                   control={
                     <Checkbox
@@ -81,6 +92,7 @@ const AllTasksFilterList = (props) => {
                   label={snakeToTitleCase(item)}
                   sx={{
                     fontSize: "1rem",
+                    color: dark ? "#ececec" : "",
                   }}
                 />
               );
@@ -106,7 +118,7 @@ const AllTasksFilterList = (props) => {
       
                     ))} */}
           </FormGroup>
-          <Divider />
+          <Divider sx={{ borderColor: dark ? "#3a3a3a" : "" }} />
           <Box
             sx={{
               display: "flex",

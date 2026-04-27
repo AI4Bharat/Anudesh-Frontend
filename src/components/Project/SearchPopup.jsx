@@ -8,8 +8,10 @@ import { translate } from "../../config/localisation";
 import { snakeToTitleCase } from "@/utils/utils";
 import "../../styles/Dataset.css";
 import Langcode from "@/utils/searchmap";
+import { useTheme } from "@/context/ThemeContext";
 
 const SearchPopup = (props) => {
+  const { dark } = useTheme();
   const { currentFilters, updateFilters, searchedCol } = props;
   
   const [displayValue, setDisplayValue] = useState(
@@ -61,51 +63,117 @@ const SearchPopup = (props) => {
 
   return (
       <Popover
-        id={props.id}
-        open={props.open}
-        anchorEl={props.anchorEl}
-        onClose={props.handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
+  id={props.id}
+  open={props.open}
+  anchorEl={props.anchorEl}
+  onClose={props.handleClose}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right",
+  }}
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "center",
+  }}
+  sx={{
+    ...(dark && {
+      "& .MuiPaper-root": {
+        backgroundColor: "#1e1e1e",
+        color: "#ececec",
+        border: "1px solid #3a3a3a",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+      },
+    }),
+  }}
+>
+       <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          ...(dark && {
+            backgroundColor: "#1e1e1e",
+          }),
         }}
       >
-       <Box sx={{p:2, display: "flex", flexDirection: "column", gap: 2}}>
         <TextField 
-            size="small" 
-            variant="outlined" 
-            placeholder={`Search ${snakeToTitleCase(searchedCol)}`} 
-            value={displayValue}
-            onChange={(e) => setDisplayValue(e.target.value)}
-            inputProps={{
-                style: {
-                    fontSize: "16px"
-                }
-            }}          
-        />
-        <Divider />
+  size="small" 
+  variant="outlined" 
+  placeholder={`Search ${snakeToTitleCase(searchedCol)}`} 
+  value={displayValue}
+  onChange={(e) => setDisplayValue(e.target.value)}
+  inputProps={{
+    style: {
+      fontSize: "16px",
+      color: dark ? "#ececec" : "",
+    }
+  }}
+  sx={{
+    ...(dark && {
+      "& .MuiOutlinedInput-root": {
+        backgroundColor: "#2a2a2a",
+        "& fieldset": {
+          borderColor: "#3a3a3a",
+        },
+        "&:hover fieldset": {
+          borderColor: "#fb923c",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: "#fb923c",
+        },
+      },
+      "& .MuiInputBase-input::placeholder": {
+        color: "#a0a0a0",
+        opacity: 1,
+      },
+    }),
+  }}
+/>
+        <Divider
+  sx={{
+    ...(dark && {
+      borderColor: "#3a3a3a",
+    }),
+  }}
+/>
         <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2}}>
             <Button
-                onClick={handleClearSearch}
-                variant="outlined"
-                color="primary"
-                size="small"
-                className="clearAllBtn"
-            >
+  onClick={handleClearSearch}
+  variant="outlined"
+  color="primary"
+  size="small"
+  className="clearAllBtn"
+  sx={{
+    ...(dark && {
+      color: "#ececec",
+      borderColor: "#3a3a3a",
+      "&:hover": {
+        borderColor: "#fb923c",
+        backgroundColor: "rgba(251,146,60,0.08)",
+      },
+    }),
+  }}
+>
                 {" "}
                 {translate("button.clear")}
             </Button>
-            <Button
-                onClick={handleSearchSubmit}
-                variant="contained"
-                color="primary"
-                size="small"
-                className="clearAllBtn"
-                >
+           <Button
+  onClick={handleSearchSubmit}
+  variant="contained"
+  color="primary"
+  size="small"
+  className="clearAllBtn"
+  sx={{
+    ...(dark && {
+      backgroundColor: "#fb923c",
+      color: "#000",
+      "&:hover": {
+        backgroundColor: "#ea580c",
+      },
+    }),
+  }}
+>
                 {" "}
                 {translate("button.Apply")}
             </Button>

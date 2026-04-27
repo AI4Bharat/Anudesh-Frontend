@@ -36,6 +36,7 @@ import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
+import { useTheme } from "@/context/ThemeContext";
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 
@@ -61,6 +62,7 @@ const MUIDataTable = dynamic(
 const ProjectCardList = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
+  const { dark } = useTheme();
   const [loading,setLoading] = useState(false);
 
 const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds = new Set() } = props;
@@ -427,13 +429,13 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#e0e0e0',
-      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: dark ? "#2a2a2a" : "#e0e0e0",
+color: dark ? "#ececec" : "rgba(0, 0, 0, 0.87)",
       maxWidth: 300,
       fontSize: theme.typography.pxToRem(12),
     },
     [`& .${tooltipClasses.arrow}`]: {
-      color: "#e0e0e0",
+      color: dark ? "#2a2a2a" : "#e0e0e0",
     },
   }));
 
@@ -458,7 +460,7 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
             }
             disableInteractive
           >
-            <FilterListIcon sx={{ color: '#515A5A' }} />
+           <FilterListIcon sx={{ color: dark ? "#a0a0a0" : "#515A5A" }} />
           </CustomTooltip>
         </Button>
       </div>
@@ -471,6 +473,27 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
     return (
       <Box
         sx={{
+          ...(dark && {
+      "& .MuiTablePagination-selectLabel": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-displayedRows": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-select": {
+        color: "#ececec",
+      },
+      "& .MuiTablePagination-actions button": {
+        color: "#fb923c",
+      },
+    }),
+          "& .MuiTablePagination-actions": {
+    marginLeft: "0px",
+  },
+  "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input": {
+    marginRight: "10px",
+  },
+  color: dark ? "#a0a0a0" : "",
           display: "flex",
           flexWrap: "wrap",
           justifyContent: {
@@ -478,6 +501,9 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
             md: "flex-end"
           },
           alignItems: "center",
+          backgroundColor: dark ? "#252525" : "",
+          borderTop: dark ? "1px solid #3a3a3a" : "",
+          
           padding: "10px",
           gap: {
             xs: "10px",
@@ -516,10 +542,26 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
             value={page + 1}
             onChange={(e) => changePage(Number(e.target.value) - 1)}
             sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
+  fontSize: "0.8rem",
+  padding: "4px",
+  height: "32px",
+  color: dark ? "#ececec" : "",
+  backgroundColor: dark ? "#2a2a2a" : "",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: dark ? "#3a3a3a" : "",
+  },
+  "& .MuiSvgIcon-root": {
+    color: dark ? "#a0a0a0" : "",
+  },
+}}
+MenuProps={{
+  PaperProps: {
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+    },
+  },
+}}
           >
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
@@ -574,10 +616,68 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
   };
 
   return (
-    <>
+    <Box
+  sx={{
+    backgroundColor: dark ? "#1e1e1e" : "",
+    borderRadius: dark ? "8px" : "",
+    overflow: "hidden",
+  }}
+>
     {renderSnackBar()}
     {loading && <Spinner />} 
       <ThemeProvider theme={tableTheme}>
+  <Box
+    sx={{
+      ...(dark && {
+        "& .MuiPaper-root": {
+          backgroundColor: "#1e1e1e",
+          color: "#ececec",
+          border: "none",
+          boxShadow: "none",
+        },
+        "& .MuiToolbar-root": {
+          backgroundColor: "#252525",
+          borderBottom: "1px solid #3a3a3a",
+        },
+        "& thead th": {
+          backgroundColor: "#252525",
+          color: "#ececec",
+          fontWeight: 700,
+          borderBottom: "2px solid #3a3a3a",
+        },
+        "& tbody td": {
+          color: "#d0d0d0",
+          borderBottom: "1px solid #2e2e2e",
+        },
+        "& tbody tr:nth-of-type(odd)": {
+          backgroundColor: "#1e1e1e",
+        },
+        "& tbody tr:nth-of-type(even)": {
+          backgroundColor: "#242424",
+        },
+        "& tbody tr:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+        },
+        "& .MuiTypography-root": {
+          color: "#ececec",
+        },
+        "& .MuiTablePagination-root": {
+          color: "#a0a0a0",
+          backgroundColor: "#252525",
+          borderTop: "1px solid #3a3a3a",
+        },
+        "& .MuiIconButton-root": {
+          color: "#fb923c",
+        },
+        "& .MuiSvgIcon-root": {
+          color: "#fb923c",
+        },
+        "& .MuiSelect-select": {
+          color: "#ececec",
+        },
+      }),
+    }}
+  >
         <MUIDataTable
           key={`table-${displayWidth}`}
           title={""}
@@ -588,6 +688,7 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
             tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
           }}
         />
+        </Box>
       </ThemeProvider>
       <ProjectFilterList
         id={filterId}
@@ -597,8 +698,15 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
-      <Dialog open={openAuthDialog} onClose={handleAuthClose}>
-        <DialogTitle>Enter Password</DialogTitle>
+      <Dialog open={openAuthDialog} onClose={handleAuthClose} slotProps={{
+      paper: {
+        sx: {
+          backgroundColor: dark ? "#1e1e1e" : "",
+          color: dark ? "#ececec" : "",
+        },
+      },
+    }}>
+        <DialogTitle sx={{ color: dark ? "#ececec" : "" }}>Enter Password</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -607,12 +715,23 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
             type={showPassword ? "text" : "password"}
             fullWidth
             value={password}
+            sx={{
+            input: { color: dark ? "#ececec" : "" },
+            label: { color: dark ? "#a0a0a0" : "" },
+            "& .MuiInput-underline:before": {
+              borderBottomColor: dark ? "#3a3a3a" : "",
+            },
+            "& .MuiInput-underline:hover:before": {
+              borderBottomColor: dark ? "#fb923c" : "",
+            },
+          }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
+                    sx={{ color: dark ? "#a0a0a0" : "" }}
                   >
                     {showPassword ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
@@ -622,7 +741,7 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
             onChange={(e) => setPassword(e.target.value)}
 
           />
-          <FormHelperText id="enter-password">
+          <FormHelperText id="enter-password" sx={{ color: dark ? "#a0a0a0" : "" }}>
             To enter {" "}
             <Typography
               component="span"
@@ -635,16 +754,16 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
           </FormHelperText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAuthClose} color="primary">
+          <Button onClick={handleAuthClose} color="primary" sx={{ color: dark ? "#a0a0a0" : "" }}>
             Cancel
           </Button>
-          <Button onClick={handlePasswordSubmit} color="primary">
+          <Button onClick={handlePasswordSubmit} color="primary" sx={{ color: dark ? "#fb923c" : "" }}>
             Submit
           </Button>
         </DialogActions>
       </Dialog>
 
-    </>
+    </Box>
   );
 };
 

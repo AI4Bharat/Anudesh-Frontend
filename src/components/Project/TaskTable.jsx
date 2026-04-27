@@ -57,6 +57,7 @@ import TimeRangeFilter from "./TimeRangeFilter";
 import TasksassignDialog from "./taskassign";
 import ReviewTasksTable from "./prefered_members";
 import configs from "../../config/config";
+import { useTheme } from "@/context/ThemeContext";
 const defaultColumns = [
   "id",
   "annotator_mail",
@@ -128,6 +129,7 @@ const TaskTable = (props) => {
   const classes = DatasetStyle();
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const navigate = useNavigate();
   const taskList = useSelector(
     (state) => state.GetTasksByProjectId?.data?.result,
@@ -1171,23 +1173,24 @@ const TaskTable = (props) => {
           !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
           !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
           !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
-            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-              <InputLabel
-                id="annotator-filter-label"
-                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-20px" }}
-              >
-                Filter by Annotator
-              </InputLabel>
-              <Select
-                labelId="annotator-filter-label"
-                id="annotator-filter"
-                value={selectedFilters.req_user}
-                label="Filter by Annotator"
-                onChange={(e) =>
-                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
-                }
-                sx={{ fontSize: "16px" }}
-              >
+            <FormControl size="small" sx={{ width: "30%", minWidth: "100px", "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+          <InputLabel
+            id="annotator-filter-label"
+            sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-20px", color: dark ? "#a0a0a0" : "" }}
+          >
+            Filter by Annotator
+          </InputLabel>
+          <Select
+            labelId="annotator-filter-label"
+            id="annotator-filter"
+            value={selectedFilters.req_user}
+            label="Filter by Annotator"
+            onChange={(e) =>
+              setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
+            }
+            sx={{ fontSize: "16px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+            MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+          >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.Annotators.map((el, i) => (
                   <MenuItem key={i} value={el.value}>
@@ -1204,31 +1207,35 @@ const TaskTable = (props) => {
           !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
           !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
           !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
-            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-              <InputLabel
-                id="reviewer-filter-label"
-                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px" }}
-              >
-                Filter by Reviewer
-              </InputLabel>
-              <Select
-                labelId="reviewer-filter-label"
-                id="reviewer-filter"
-                value={selectedFilters.req_user}
-                label="Filter by Reviewer"
-                onChange={(e) =>
-                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
-                }
-                sx={{ fontSize: "16px" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {filterData.Reviewers?.map((el, i) => (
-                  <MenuItem key={i} value={el.value}>
-                    {el.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+<>
+  <FormControl size="small" sx={{ width: "30%", minWidth: "100px", "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+    <InputLabel
+      id="reviewer-filter-label"
+      sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px", color: dark ? "#a0a0a0" : "" }}
+    >
+      Filter by Reviewer
+    </InputLabel>
+    <Select
+      labelId="reviewer-filter-label"
+      id="reviewer-filter"
+      value={selectedFilters.req_user}
+      label="Filter by Reviewer"
+      onChange={(e) =>
+        setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
+      }
+      sx={{ fontSize: "16px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+      MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+    >
+      <MenuItem value="">All</MenuItem>
+      {filterData.Reviewers?.map((el, i) => (
+        <MenuItem key={i} value={el.value}>
+          {el.label}
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+  <ReviewTasksTable />
+</>
           )}
         {props.type === "review" &&
           (
@@ -1327,30 +1334,27 @@ const TaskTable = (props) => {
       />
     );
   };
-  const CustomFooter = ({
-    count,
-    page,
-    rowsPerPage,
-    changeRowsPerPage,
-    changePage,
-  }) => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end",
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px",
-          },
-        }}
-      >
+ const CustomFooter = ({
+  count,
+  page,
+  rowsPerPage,
+  changeRowsPerPage,
+  changePage,
+}) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: { xs: "space-between", md: "flex-end" },
+        alignItems: "center",
+        padding: "10px",
+        gap: { xs: "10px", md: "20px" },
+        backgroundColor: dark ? "#252525" : "",
+        borderTop: dark ? "1px solid #3a3a3a" : "",
+        color: dark ? "#a0a0a0" : "",
+      }}
+    >
         {/* Pagination Controls */}
         <TablePagination
           component="div"
@@ -1373,22 +1377,27 @@ const TaskTable = (props) => {
         {/* Jump to Page */}
         <div>
           <label
-            style={{
-              marginRight: "5px",
-              fontSize: "0.83rem",
-            }}
-          >
+          style={{
+            marginRight: "5px",
+            fontSize: "0.83rem",
+            color: dark ? "#a0a0a0" : "",
+          }}
+        >
             Jump to Page:
           </label>
           <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
+          value={page + 1}
+          onChange={(e) => changePage(Number(e.target.value) - 1)}
+          sx={{
+            fontSize: "0.8rem",
+            padding: "4px",
+            height: "32px",
+            color: dark ? "#ececec" : "",
+            backgroundColor: dark ? "#2a2a2a" : "",
+            "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+            "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" },
+          }}
+>
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
                 {i + 1}
@@ -1492,7 +1501,7 @@ const TaskTable = (props) => {
   };
 
   return (
-    <div>
+  <div style={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%" }}>
       {((props.type === "annotation" &&
         ProjectDetails?.annotators?.some(
           (annotation) => annotation.id === userDetails?.id,
@@ -1503,7 +1512,7 @@ const TaskTable = (props) => {
           ))) &&
         (ProjectDetails.is_published ? (
           <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
-           {(roles?.WorkspaceManager === userDetails?.role ||
+{(roles?.WorkspaceManager === userDetails?.role ||
   roles?.OrganizationOwner === userDetails?.role ||
   roles?.Admin === userDetails?.role) &&
   ((props.type === "annotation" &&
@@ -1514,36 +1523,43 @@ const TaskTable = (props) => {
       selectedFilters.review_status === "unreviewed") ||
     selectedFilters.review_status === "draft" ||
     selectedFilters.review_status === "skipped") && (
-    <Grid item xs={12} sm={12} md={3}>
-      <Tooltip title={deallocateDisabled}>
-        <Box>
-          <CustomButton
-            sx={{
-              p: 1,
-              width: "100%",
-              borderRadius: 2,
-              margin: "auto",
-            }}
-            label={"De-allocate Tasks"}
-            onClick={() => setDeallocateDialog(true)}
-            disabled={deallocateDisabled}
-            color={"warning"}
-          />
-        </Box>
-      </Tooltip>
-    </Grid>
-  )}
-            <Dialog
-              open={deallocateDialog}
-              onClose={() => setDeallocateDialog(false)}
-              aria-labelledby="deallocate-dialog-title"
-              aria-describedby="deallocate-dialog-description"
-            >
-              <DialogTitle id="deallocate-dialog-title">
-                {"De-allocate Tasks?"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
+  <Grid item xs={12} sm={12} md={3}>
+    <Tooltip title={deallocateDisabled}>
+      <Box>
+        <CustomButton
+          sx={{
+            p: 1,
+            width: "100%",
+            borderRadius: 2,
+            margin: "auto",
+          }}
+          label={"De-allocate Tasks"}
+          onClick={() => setDeallocateDialog(true)}
+          disabled={deallocateDisabled}
+          color={"warning"}
+        />
+      </Box>
+    </Tooltip>
+  </Grid>
+)}
+<Dialog
+  open={deallocateDialog}
+  onClose={() => setDeallocateDialog(false)}
+  aria-labelledby="deallocate-dialog-title"
+  aria-describedby="deallocate-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogTitle id="deallocate-dialog-title" sx={{ color: dark ? "#ececec" : "" }}>
+    {"De-allocate Tasks?"}
+  </DialogTitle>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+    <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
                   All{" "}
                   <snap style={{ color: "#1DA3CE" }}>
                     {props.type === "annotation"
@@ -1554,18 +1570,23 @@ const TaskTable = (props) => {
                   will be de-allocated from this project. Please be careful as
                   this action cannot be undone.
                 </DialogContentText>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="password"
-                  label="Password"
-                  type="password"
-                  fullWidth
-                  variant="standard"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                        <TextField
+            autoFocus
+            margin="dense"
+            id="password"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="standard"
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{
+              "& .MuiInput-root": { color: dark ? "#ececec" : "" },
+              "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+              "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+            }}
+          />
               </DialogContent>
-              <DialogActions>
+              <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
                 <Button
                   onClick={() => setDeallocateDialog(false)}
                   variant="outlined"
@@ -1600,22 +1621,23 @@ const TaskTable = (props) => {
                   : 3)
               }
             >
-              <FormControl size="small" sx={{ width: "100%" }}>
-                <InputLabel
-                  id="pull-select-label"
-                  sx={{ fontSize: "16px", zIndex: 0 }}
-                >
-                  Pull Size
-                </InputLabel>
-                <Select
-                  labelId="pull-select-label"
-                  id="pull-select"
-                  value={pullSize}
-                  label="Pull Size"
-                  onChange={(e) => setPullSize(e.target.value)}
-                  disabled={pullDisabled}
-                  sx={{ fontSize: "16px" }}
-                >
+              <FormControl size="small" sx={{ width: "100%", "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <InputLabel
+    id="pull-select-label"
+    sx={{ fontSize: "16px", zIndex: 0, color: dark ? "#a0a0a0" : "" }}
+  >
+    Pull Size
+  </InputLabel>
+  <Select
+    labelId="pull-select-label"
+    id="pull-select"
+    value={pullSize}
+    label="Pull Size"
+    onChange={(e) => setPullSize(e.target.value)}
+    disabled={pullDisabled}
+    sx={{ fontSize: "16px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
                   <MenuItem
                     value={ProjectDetails?.tasks_pull_count_per_batch * 0.5}
                   >
@@ -1734,18 +1756,34 @@ const TaskTable = (props) => {
           <></>
         ))}
       <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          title={""}
-          data={tasks}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
-              }px`,
-          }}
-        />
-      </ThemeProvider>
+  <Box sx={{
+    ...(dark && {
+      "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+      "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+      "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+      "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+      "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+      "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+      "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important" },
+      "& .MuiTypography-root": { color: "#ececec" },
+      "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+      "& .MuiIconButton-root": { color: "#fb923c", "&.Mui-disabled": { color: "#555555" } },
+      "& .MuiSvgIcon-root": { color: "#fb923c" },
+      "& .MuiSelect-select": { color: "#ececec" },
+    })
+  }}>
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={tasks}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400}px`,
+      }}
+    />
+  </Box>
+</ThemeProvider>
       {searchOpen && (
         <SearchPopup
           open={searchOpen}

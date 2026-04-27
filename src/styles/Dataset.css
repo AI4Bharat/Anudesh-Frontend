@@ -419,3 +419,221 @@
   border-radius: 20px;
   color: #ffffff;
 }
+
+/* ================= DARK MODE DATE PICKER ================= */
+/* TOP DATE DISPLAY BOX (THIS IS YOUR ISSUE) */
+.dark-date-picker .rdrDateDisplayWrapper {
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #3a3a3a !important;
+}
+
+/* Each date input box */
+.dark-date-picker .rdrDateDisplayItem {
+  background-color: #2a2a2a !important;
+  border: 1px solid #3a3a3a !important;
+  color: #ececec !important;
+}
+
+/* Text inside date */
+.dark-date-picker .rdrDateDisplayItem input {
+  color: #ececec !important;
+}
+
+/* Active/focused date box */
+.dark-date-picker .rdrDateDisplayItemActive {
+  border: 1px solid #fb923c !important;
+}
+
+/* Placeholder / faded text */
+.dark-date-picker .rdrDateDisplayItem input::placeholder {
+  color: #a0a0a0 !important;
+}
+/* ACTUAL DATE BOX BACKGROUND FIX */
+.dark-date-picker .rdrDay {
+  background-color: transparent !important;
+}
+
+.dark-date-picker .rdrDayBg {
+  background-color: transparent !important;
+}
+
+/* Ensure no white flash on hover */
+.dark-date-picker .rdrDay:hover .rdrDayBg {
+  background-color: #3a3a3a !important;
+}
+
+
+.dark-date-picker .rdrCalendarWrapper {
+  background: #2a2a2a !important;
+  color: #ececec !important;
+  border-radius: 8px;
+}
+
+/* Month header */
+.dark-date-picker .rdrMonthAndYearWrapper {
+  background: #1e1e1e !important;
+  color: #ececec !important;
+}
+
+/* Week days (Mon Tue etc) */
+.dark-date-picker .rdrWeekDays {
+  background: #1e1e1e !important;
+  color: #a0a0a0 !important;
+}
+
+/* Day numbers */
+.dark-date-picker .rdrDayNumber span {
+  color: #ececec !important;
+}
+
+/* Disabled days */
+.dark-date-picker .rdrDayDisabled span {
+  color: #555 !important;
+}
+
+/* Hover */
+.dark-date-picker .rdrDay:hover {
+  background: #3a3a3a !important;
+}
+
+/* Selected range */
+.dark-date-picker .rdrSelected,
+.dark-date-picker .rdrInRange {
+  background: #fb923c !important;
+  color: #000 !important;
+}
+
+/* Range edges */
+.dark-date-picker .rdrStartEdge,
+.dark-date-picker .rdrEndEdge {
+  background: #ea580c !important;
+}
+
+/* Today highlight */
+.dark-date-picker .rdrDayToday .rdrDayNumber span {
+  border-bottom: 2px solid #fb923c !important;
+}
+
+/* Static ranges (left side like "Today", "Last 7 days") */
+.dark-date-picker .rdrStaticRanges {
+  background: #1e1e1e !important;
+  border-right: 1px solid #3a3a3a;
+}
+
+.dark-date-picker .rdrStaticRangeLabel {
+  color: #ececec !important;
+}
+
+.dark-date-picker .rdrStaticRange:hover {
+  background: #333 !important;
+}
+
+/* Month container */
+.dark-date-picker .rdrMonth {
+  background: #2a2a2a !important;
+}
+
+/* Inputs (if shown) */
+.dark-date-picker input {
+  background: #2a2a2a !important;
+  color: #ececec !important;
+  border: 1px solid #3a3a3a !important;
+}
+.dark-date-picker .rdrNextPrevButton {
+  background: #333 !important;
+}
+
+.dark-date-picker .rdrNextPrevButton:hover {
+  background: #444 !important;
+}
+/* Wrapper */
+.dark-date-picker .rdrCalendarWrapper {
+  background: #2a2a2a !important;
+  color: #ececec !important;
+}
+
+/* LEFT SIDE PANEL (THIS IS WHAT YOU'RE MISSING) */
+.dark-date-picker .rdrDefinedRangesWrapper {
+  background-color: #1e1e1e !important;
+  border-right: 1px solid #3a3a3a !important;
+}
+
+/* Each option like Today, Yesterday */
+.dark-date-picker .rdrStaticRange {
+  background-color: #1e1e1e !important;
+  color: #ececec !important;
+}
+
+/* Hover effect */
+.dark-date-picker .rdrStaticRange:hover {
+  background-color: #333 !important;
+}
+
+/* Selected range */
+.dark-date-picker .rdrStaticRangeSelected {
+  background-color: #fb923c !important;
+  color: #000 !important;
+}
+
+/* Label text */
+.dark-date-picker .rdrStaticRangeLabel {
+  color: #ececec !important;
+}
+
+/* Fix active label */
+.dark-date-picker .rdrStaticRangeSelected .rdrStaticRangeLabel {
+  color: #000 !important;
+}
+.dark-date-picker .rdrMonth {
+  background-color: #2a2a2a !important;
+}
+
+.dark-date-picker .rdrDayPassive {
+  color: #777 !important;
+}
+/* Top header wrapper (MONTH + YEAR bar) */
+.dark-date-picker .rdrMonthAndYearWrapper {
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #3a3a3a !important;
+}
+
+/* Month dropdown */
+.dark-date-picker .rdrMonthPicker select {
+  background-color: #2a2a2a !important;
+  color: #ececec !important;
+  border: 1px solid #3a3a3a !important;
+}
+
+/* Year dropdown */
+.dark-date-picker .rdrYearPicker select {
+  background-color: #2a2a2a !important;
+  color: #ececec !important;
+  border: 1px solid #3a3a3a !important;
+}
+
+/* Dropdown arrow fix */
+.dark-date-picker .rdrMonthPicker,
+.dark-date-picker .rdrYearPicker {
+  color: #ececec !important;
+}
+
+/* Arrows (left/right navigation) */
+.dark-date-picker .rdrNextPrevButton {
+  background-color: #2a2a2a !important;
+  border: 1px solid #3a3a3a !important;
+}
+
+.dark-date-picker .rdrNextPrevButton:hover {
+  background-color: #333 !important;
+}
+/* Fix arrow button shape */
+.dark-date-picker .rdrNextPrevButton {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dark-date-picker .rdrNextPrevButton:hover {
+  background: #3a3a3a !important;
+  border-radius: 50% !important;
+}

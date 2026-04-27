@@ -12,11 +12,13 @@ import SuperCheckSettingsAPI from "@/app/actions/api/Dashboard/SuperCheckerSetti
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from 'react-router-dom';
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import { useTheme } from "@/context/ThemeContext";
 
 
 export default function SuperCheckSettings(props) {
     const{ProjectDetails}=props
     const classes = DatasetStyle();
+    const { dark } = useTheme();
     const { id } = useParams();
     const dispatch = useDispatch();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -108,18 +110,24 @@ export default function SuperCheckSettings(props) {
             </Button>
 
             <Popover
-                Id={Id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-                PaperProps={{
-                    style: { width: '330px' },
-                  }}
-            >
+  Id={Id}
+  open={open}
+  anchorEl={anchorEl}
+  onClose={handleClose}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'left',
+  }}
+  PaperProps={{
+    style: { width: '330px' },
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+    }
+  }}
+>
 
 
                 <Grid
@@ -133,8 +141,8 @@ export default function SuperCheckSettings(props) {
                     }}
                 >
                     <Grid items xs={12} sm={12} md={9} lg={9} xl={9}>
-                        <Typography variant="body2" fontWeight="700" label="Required">
-                            Super Checking K% value:
+                        <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
+                        Super Checking K% value:
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={9} lg={9} xl={9} sm={12}>
@@ -145,8 +153,16 @@ export default function SuperCheckSettings(props) {
                             onChange={(e) => setSupercheckvalue(e.target.value)}
                             inputProps={{
                                 style: {
-                                    fontSize: "16px"
+                                    fontSize: "16px",
+                                    color: dark ? "#ececec" : "",
                                 }
+                            }}
+                            sx={{
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: dark ? "#1e1e1e" : "",
+                                "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                                "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+                            }
                             }}
                         />
 
@@ -162,8 +178,8 @@ export default function SuperCheckSettings(props) {
                     }}
                 >
                     <Grid items xs={12} sm={12} md={9} lg={9} xl={9}>
-                        <Typography variant="body2" fontWeight="700" label="Required">
-                            Super Check Revision Loop Count :
+                       <Typography variant="body2" fontWeight="700" label="Required" sx={{ color: dark ? "#ececec" : "" }}>
+                        Super Check Revision Loop Count :
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={9} lg={9} xl={9} sm={12}>
@@ -174,10 +190,18 @@ export default function SuperCheckSettings(props) {
                             onChange={(e) => setSupercheckLoopCount(e.target.value)}
                             inputProps={{
                                 style: {
-                                    fontSize: "16px"
+                                    fontSize: "16px",
+                                    color: dark ? "#ececec" : "",
 
                                 }
                             }}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    backgroundColor: dark ? "#1e1e1e" : "",
+                                    "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                                    "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+                                }
+                                }}
                         />
 
                     </Grid>

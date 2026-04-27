@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
+import { useTheme } from "@/context/ThemeContext";
 
 const ExportProjectDialog = ({
   OpenExportProjectDialog,
@@ -30,7 +31,7 @@ const ExportProjectDialog = ({
   projectType,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+const { dark } = useTheme();
   const dispatch = useDispatch();
   const classes = DatasetStyle();
   const [instanceIds, setInstanceIds] = useState([]);
@@ -65,11 +66,23 @@ const ExportProjectDialog = ({
   return (
     <Dialog
       open={OpenExportProjectDialog}
+      PaperProps={{
+        sx: {
+          backgroundColor: dark ? "#1e1e1e" : "",
+          color: dark ? "#ececec" : "",
+          borderRadius: dark ? "10px" : "",
+        }
+      }}
       onClose={handleClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogContent>
+      <DialogContent
+      sx={{
+        backgroundColor: dark ? "#1e1e1e" : "",
+        color: dark ? "#ececec" : "",
+      }}
+    >
         <DialogContentText id="alert-dialog-description">
           <Grid
             container
@@ -80,21 +93,61 @@ const ExportProjectDialog = ({
             }}
           >
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="language-label" sx={{ fontSize: "16px" }}>
-                  Dataset Instance Id
-                </InputLabel>
-                <Select
-                  labelId="language-label"
+              <FormControl
+  fullWidth
+  size="small"
+  variant="outlined"
+  sx={{
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: dark ? "#3a3a3a" : "",
+    },
+  }}
+>
+  <InputLabel
+    id="language-label"
+    sx={{
+      fontSize: "16px",
+      color: dark ? "#a0a0a0" : "",
+      backgroundColor: dark ? "#1e1e1e" : "#fff",
+      px: 0.5,
+    }}
+  >
+    Dataset Instance Id
+  </InputLabel>
+               <Select
+                labelId="language-label"
+                label="Dataset Instance Id"
+                sx={{
+                  color: dark ? "#ececec" : "",
+                  backgroundColor: dark ? "#2a2a2a" : "",
+                  "& .MuiSvgIcon-root": {
+                    color: dark ? "#a0a0a0" : "",
+                  },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      backgroundColor: dark ? "#2a2a2a" : "",
+                      color: dark ? "#ececec" : "",
+                      border: dark ? "1px solid #3a3a3a" : "",
+                    }
+                  }
+                }}
                   id="language-select"
                   value={datasetId}
-                  label="Dataset Instance Id"
                   onChange={(e) => setDatasetId(e.target.value)}
                 >
                   {instanceIds?.map((el) => (
-                    <MenuItem key={el.instance_id} value={el.instance_id}>
-                      {el.instance_name}
-                    </MenuItem>
+                   <MenuItem
+                  key={el.instance_id}
+                  value={el.instance_id}
+                  sx={{
+                    color: dark ? "#ececec" : "",
+                    "&:hover": {
+                      backgroundColor: dark ? "#3a3a3a" : "",
+                    },
+                  }}
+                ></MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -106,11 +159,17 @@ const ExportProjectDialog = ({
         <Button
           variant="text"
           onClick={handleClose}
-          sx={{ lineHeight: "1", borderRadius: "6px" }}
+          sx={{ lineHeight: "1", borderRadius: "6px",color: dark ? "#fb923c" : "","&:hover": {
+      backgroundColor: dark ? "rgba(251,146,60,0.1)" : "",
+    }, }}
+          
         >
           Close
         </Button>
-        <Button variant="text" onClick={datavalue} sx={{ borderRadius: "6px" }}>
+        <Button variant="text" onClick={datavalue} sx={{ borderRadius: "6px", color: dark ? "#fb923c" : "",
+    "&:hover": {
+      backgroundColor: dark ? "rgba(251,146,60,0.1)" : "",
+    }, }}>
           Submit
         </Button>
       </DialogActions>

@@ -25,6 +25,7 @@ import { fetchDatasetProjectReports } from "@/Lib/Features/datasets/getDatasetPr
 import { fetchDatasetDetailedReports } from "@/Lib/Features/datasets/GetDatasetDetailedReports";
 import { CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useTheme } from "@/context/ThemeContext";
 
 const TruncatedContent = styled(Box)(({ expanded }) => ({
   overflow: "hidden",
@@ -62,6 +63,7 @@ const DatasetReports = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
 
   const [projectTypes, setProjectTypes] = useState([]);
+  const { dark } = useTheme();
   const [selectedType, setSelectedType] = useState("");
   const [language, setLanguage] = useState("all");
   const [columns, setColumns] = useState([]);
@@ -250,6 +252,9 @@ const DatasetReports = () => {
             xs: "10px",
             md: "20px",
           },
+          backgroundColor: dark ? "#252525" : "",
+				borderTop: dark ? "1px solid #3a3a3a" : "",
+				color: dark ? "#a0a0a0" : "",
         }}
       >
         {/* Pagination Controls */}
@@ -376,18 +381,23 @@ const DatasetReports = () => {
   };
 
   return (
-    <React.Fragment>
-      {renderSnackBar()}
-      <Grid
-        container
-        direction="row"
-        spacing={3}
-        sx={{
-          marginBottom: "24px",
-        }}
-      >
+  <React.Fragment>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "", p: dark ? 1 : 0 }}>
+    {renderSnackBar()}
+    <Grid
+      container
+      direction="row"
+      spacing={3}
+      sx={{
+        marginBottom: "24px",
+      }}
+    >
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small" variant="outlined">
+          <FormControl fullWidth size="small" variant="outlined" sx={{
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: dark ? "#3a3a3a" : "",
+    },
+  }}>
             <InputLabel
               id="project-report-type-label"
               sx={{
@@ -395,6 +405,7 @@ const DatasetReports = () => {
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                color: dark ? "#a0a0a0" : "",
               }}
             >
               Type
@@ -402,11 +413,30 @@ const DatasetReports = () => {
             <Select
               style={{ zIndex: "0", minWidth: "auto" }}
               inputProps={{ "aria-label": "Without label" }}
-              MenuProps={MenuProps}
+              
               labelId="project-report-type-label"
               id="project-report-type-select"
               value={projectReportType}
               label="Type"
+              sx={{
+                color: dark ? "#ececec" : "",
+                backgroundColor: dark ? "#2a2a2a" : "",
+                "& .MuiSvgIcon-root": {
+                  color: dark ? "#a0a0a0" : "",
+                },
+              }}
+              MenuProps={{
+                ...MenuProps,
+                PaperProps: {
+                  ...MenuProps?.PaperProps,
+                  sx: {
+                    ...(MenuProps?.PaperProps?.sx || {}),
+                    backgroundColor: dark ? "#2a2a2a" : "",
+                    color: dark ? "#ececec" : "",
+                    border: dark ? "1px solid #3a3a3a" : "",
+                  },
+                },
+              }}
               onChange={(e) => setProjectReportType(e.target.value)}
               fullWidth
             >
@@ -416,21 +446,51 @@ const DatasetReports = () => {
           </FormControl>
         </Grid>
         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <FormControl fullWidth size="small">
+          <FormControl
+  fullWidth
+  size="small"
+  variant="outlined" 
+  sx={{
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: dark ? "#3a3a3a" : "",
+    },
+  }}
+>
             <InputLabel
-              id="project-type-label"
-              sx={{ fontSize: "19px", zIndex: 0 }}
-            >
+  id="project-type-label"
+  sx={{
+    fontSize: "19px",
+    color: dark ? "#a0a0a0" : "",
+  }}
+>
               Project Type
             </InputLabel>
-            <Select
-              labelId="project-type-label"
-              id="project-type-select"
-              value={selectedType}
-              label="Project Type"
-              onChange={(e) => setSelectedType(e.target.value)}
-              MenuProps={MenuProps}
-            >
+           <Select
+                labelId="project-type-label"
+                id="project-type-select"
+                value={selectedType}
+                label="Project Type"
+                onChange={(e) => setSelectedType(e.target.value)}
+                sx={{
+                  color: dark ? "#ececec" : "",
+                  backgroundColor: dark ? "#2a2a2a" : "",
+                  "& .MuiSvgIcon-root": {
+                    color: dark ? "#a0a0a0" : "",
+                  },
+                }}
+                MenuProps={{
+                  ...MenuProps,
+                  PaperProps: {
+                    ...MenuProps?.PaperProps,
+                    sx: {
+                      ...(MenuProps?.PaperProps?.sx || {}),
+                      backgroundColor: dark ? "#2a2a2a" : "",
+                      color: dark ? "#ececec" : "",
+                      border: dark ? "1px solid #3a3a3a" : "",
+                    },
+                  },
+                }}
+              >
               {projectTypes.map((type, index) => (
                 <MenuItem value={type} key={index}>
                   {type}
@@ -441,10 +501,14 @@ const DatasetReports = () => {
         </Grid>
         {projectReportType === 1 && (
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" variant="outlined"  sx={{
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: dark ? "#3a3a3a" : "",
+    },
+  }}>
               <InputLabel
                 id="language-label"
-                sx={{ fontSize: "19px", zIndex: 0 }}
+                sx={{ fontSize: "19px", color: dark ? "#a0a0a0" : "",}}
               >
                 Target Language
               </InputLabel>
@@ -454,7 +518,25 @@ const DatasetReports = () => {
                 value={language}
                 label="Target Language"
                 onChange={(e) => setLanguage(e.target.value)}
-                MenuProps={MenuProps}
+                sx={{
+    color: dark ? "#ececec" : "",
+    backgroundColor: dark ? "#2a2a2a" : "",
+    "& .MuiSvgIcon-root": {
+      color: dark ? "#a0a0a0" : "",
+    },
+  }}
+  MenuProps={{
+    ...MenuProps,
+    PaperProps: {
+      ...MenuProps?.PaperProps,
+      sx: {
+        ...(MenuProps?.PaperProps?.sx || {}),
+        backgroundColor: dark ? "#2a2a2a" : "",
+        color: dark ? "#ececec" : "",
+        border: dark ? "1px solid #3a3a3a" : "",
+      },
+    },
+  }}
               >
                 <MenuItem value={"all"}>All languages</MenuItem>
                 {LanguageChoices?.language?.map((lang) => (
@@ -468,10 +550,14 @@ const DatasetReports = () => {
         )}
         {projectReportType === 2 && (
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" variant="outlined"  sx={{
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: dark ? "#3a3a3a" : "",
+    },
+  }}>
               <InputLabel
                 id="statistics-label"
-                sx={{ fontSize: "16px", zIndex: 0 }}
+                sx={{ fontSize: "16px",color: dark ? "#a0a0a0" : "", }}
               >
                 Statistics
               </InputLabel>
@@ -481,7 +567,25 @@ const DatasetReports = () => {
                 value={statisticsType}
                 label="Statistics"
                 onChange={(e) => setStatisticsType(e.target.value)}
-                MenuProps={MenuProps}
+                sx={{
+    color: dark ? "#ececec" : "",
+    backgroundColor: dark ? "#2a2a2a" : "",
+    "& .MuiSvgIcon-root": {
+      color: dark ? "#a0a0a0" : "",
+    },
+  }}
+  MenuProps={{
+    ...MenuProps,
+    PaperProps: {
+      ...MenuProps?.PaperProps,
+      sx: {
+        ...(MenuProps?.PaperProps?.sx || {}),
+        backgroundColor: dark ? "#2a2a2a" : "",
+        color: dark ? "#ececec" : "",
+        border: dark ? "1px solid #3a3a3a" : "",
+      },
+    },
+  }}
               >
                 <MenuItem value={1}>Annotation Statistics</MenuItem>
                 <MenuItem value={2}>Meta-Info Statistics</MenuItem>
@@ -506,18 +610,34 @@ const DatasetReports = () => {
       ) : (
         reportRequested && (
           <ThemeProvider theme={tableTheme}>
-            {loading ? (
-              <CircularProgress style={{ marginLeft: "50%" }} />
-            ) : isBrowser ? (
-              <MUIDataTable
-                key={`table-${displayWidth}`}
-                title={DatasetReports.length > 0 ? "Reports" : ""}
-                data={reportData}
-                columns={columns.filter((col) =>
-                  selectedColumns.includes(col.name),
-                )}
-                options={options}
-              />
+  <Box sx={{
+    ...(dark && {
+      "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+      "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+      "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+      "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+      "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+      "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+      "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important" },
+      "& .MuiTypography-root": { color: "#ececec" },
+      "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+      "& .MuiIconButton-root": { color: "#fb923c" },
+      "& .MuiSvgIcon-root": { color: "#fb923c" },
+      "& .MuiSelect-select": { color: "#ececec" },
+    })
+  }}>
+  {loading ? (
+    <CircularProgress style={{ marginLeft: "50%" }} />
+  ) : isBrowser ? (
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={DatasetReports.length > 0 ? "Reports" : ""}
+      data={reportData}
+      columns={columns.filter((col) =>
+        selectedColumns.includes(col.name),
+      )}
+      options={options}
+    />
             ) : (
               <Skeleton
                 variant="rectangular"
@@ -530,11 +650,13 @@ const DatasetReports = () => {
                 }}
               />
             )}
+            </Box>
           </ThemeProvider>
         )
       )}
-    </React.Fragment>
-  );
+    </Box>
+  </React.Fragment>
+);
 };
 
 export default DatasetReports;

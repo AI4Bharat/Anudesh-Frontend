@@ -24,6 +24,7 @@ import FetchLanguagesAPI from "@/app/actions/api/UserManagement/FetchLanguages.j
 import { MenuProps } from "@/utils/utils";
 import UserRolesList from "@/utils/UserMappedByRole/UserRolesList";
 import OrganizationAPI from "@/app/actions/api/UserManagement/Organizations";
+import { useTheme } from "@/context/ThemeContext";
 
 const participationTypes = [
   { name: "FULL TIME", value: 1 },
@@ -58,6 +59,7 @@ const EditProfile = (props) => {
   } = props;
   const classes = DatasetStyle();
   const dispatch = useDispatch();
+  const { isDarkMode: dark } = useTheme();
   const [languageOptions, setLanguageOptions] = useState([]);
 const [org,setorg] = useState([])
 
@@ -105,7 +107,11 @@ const [org,setorg] = useState([])
 
   return (
     <Grid>
-      <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
+      <Typography
+  variant="h5"
+  gutterBottom
+  sx={{ mb: 3, color: dark ? "#ececec" : "" }}
+>
         Edit Profile
       </Typography>
 
@@ -122,7 +128,7 @@ const [org,setorg] = useState([])
             placeholder="First Name"
             sx={{
               m: 1,
-              input: { color: "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
+              input: { color: dark ? "#ececec" : "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
             }}
             value={FirstName}
             onChange={(e) => setFirstName(e.target.value)}
@@ -134,7 +140,7 @@ const [org,setorg] = useState([])
             placeholder="UserName"
             sx={{
               m: 1,
-              input: { color: "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
+              input: { color: dark ? "#ececec" : "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
             }}
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
@@ -146,7 +152,7 @@ const [org,setorg] = useState([])
             placeholder="Last Name"
             sx={{
               m: 1,
-              input: { color: "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
+              input: { color: dark ? "#ececec" : "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
             }}
             value={LastName}
             onChange={(e) => setLastName(e.target.value)}
@@ -159,7 +165,7 @@ const [org,setorg] = useState([])
             placeholder="Email"
             sx={{
               m: 1,
-              input: { color: "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
+              input: { color: dark ? "#ececec" : "rgba(0, 0, 0, 0.6)", fontSize: "16px" },
             }}
             value={Email}
           />
@@ -174,7 +180,8 @@ const [org,setorg] = useState([])
                 position: "absolute",
                 display: "block",
                 transform: "translate(14px, -9px) scale(0.75)",
-                backgroundColor: "white",
+                backgroundColor: dark ? "#2a2a2a" : "white",
+                color: dark ? "#ececec" : "",
                 paddingLeft: "4px",
                 paddingRight: "4px",
               }}
@@ -189,13 +196,20 @@ const [org,setorg] = useState([])
               name="languages"
               value={Language ? Language : []}
               onChange={(e) => setLanguage(e.target.value)}
-              style={{ zIndex: "0" }}
+              style={{ zIndex: "0", color: dark ? "#ececec" : "" }}
               MenuProps={MenuProps}
               input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
               renderValue={(selected) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                   {selected.map((value) => (
-                    <Chip key={value} label={value} />
+                    <Chip
+  key={value}
+  label={value}
+  sx={{
+    backgroundColor: dark ? "#3a3a3a" : "",
+    color: dark ? "#ececec" : "",
+  }}
+/>
                   ))}
                 </Box>
               )}
@@ -222,6 +236,7 @@ const [org,setorg] = useState([])
               onChange={(e) => setParticipationType(e.target.value)}
               sx={{
                 textAlign: "left",
+                color: dark ? "#ececec" : "",
               }}
               MenuProps={MenuProps}
             >
@@ -234,7 +249,7 @@ const [org,setorg] = useState([])
           </FormControl>
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ mb: 2 }}>
-          <FormControl sx={{ m: 1, minWidth: 210 }}>
+          <FormControl sx={{ m: 1, minWidth: 210  }}>
             <InputLabel id="demo-simple-select-helper-label">Role</InputLabel>
             <Select
               labelId="demo-simple-select-helper-label"
@@ -252,6 +267,7 @@ const [org,setorg] = useState([])
               }}
               sx={{
                 textAlign: "left",
+                color: dark ? "#ececec" : "",
               }}
               MenuProps={MenuProps}
             >
@@ -274,6 +290,7 @@ const [org,setorg] = useState([])
               onChange={(e) => setActive(e.target.value)}
               sx={{
                 textAlign: "left",
+                color: dark ? "#ececec" : "",
               }}
               MenuProps={MenuProps}
             >
@@ -295,6 +312,7 @@ const [org,setorg] = useState([])
               onChange={(e) => setorganization(e.target.value)}
               sx={{
                 textAlign: "left",
+                color: dark ? "#ececec" : "",
               }}
               MenuProps={MenuProps}
             >
@@ -309,7 +327,12 @@ const [org,setorg] = useState([])
 
         </Grid>):null}
       <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{display:"flex",ml:1}}>
-            <Typography gutterBottom component="div" label="Required">
+            <Typography
+  gutterBottom
+  component="div"
+  label="Required"
+  sx={{ color: dark ? "#ececec" : "" }}
+>
                     Guest User :
                   </Typography>
           <FormControlLabel
@@ -333,7 +356,8 @@ const [org,setorg] = useState([])
           sx={{
             borderRadius: 2,
             textDecoration: "none",
-          }}
+            color: dark ? "#fff" : "",
+            }}
           disabled={organization==null&&guest_user==false}
         />
         <CustomButton

@@ -39,6 +39,7 @@ import RejectManagerSuggestionsAPI from "@/app/actions/api/user/RejectManagerSug
 import ApproveManagerSuggestions from "@/app/actions/api/user/ApproveManagerSuggestions";
 import Spinner from "@/components/common/Spinner";
 import APITransport from "@/Lib/apiTransport/apitransport";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -79,6 +80,7 @@ const addLabel = {
 };
 
 const MembersTable = (props) => {
+  const { dark } = useTheme();
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
   const [displayWidth, setDisplayWidth] = useState(0);
   const { orgId, id } = useParams();
@@ -572,6 +574,9 @@ const MembersTable = (props) => {
             sx={{
               display: "flex",
               flexWrap: "wrap", 
+              backgroundColor: dark ? "#252525" : "",
+borderTop: dark ? "1px solid #3a3a3a" : "",
+color: dark ? "#a0a0a0" : "",
               justifyContent: { 
                 xs: "space-between", 
                 md: "flex-end" 
@@ -615,21 +620,37 @@ const MembersTable = (props) => {
                 value={page + 1}
                 onChange={(e) => changePage(Number(e.target.value) - 1)}
                 sx={{
-                  fontSize: "0.8rem",
-                  padding: "4px",
-                  height: "32px",
-                }}
-              >
-                {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
-                  <MenuItem key={i} value={i + 1}>
-                    {i + 1}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-          </Box>
-        );
-      };
+              fontSize: "0.8rem",
+              padding: "4px",
+              height: "32px",
+              color: dark ? "#ececec" : "",
+              backgroundColor: dark ? "#2a2a2a" : "",
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: dark ? "#3a3a3a" : "",
+              },
+              "& .MuiSvgIcon-root": {
+                color: dark ? "#a0a0a0" : "",
+              },
+            }}
+                          MenuProps={{
+                            PaperProps: {
+                              sx: {
+                                backgroundColor: dark ? "#2a2a2a" : "",
+                                color: dark ? "#ececec" : "",
+                              },
+                            },
+                          }}
+                          >
+                            {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
+                              <MenuItem key={i} value={i + 1}>
+                                {i + 1}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </div>
+                      </Box>
+                    );
+                  };
       
     
   const options = {
@@ -742,11 +763,11 @@ const MembersTable = (props) => {
         aria-labelledby="dialog-title"
         aria-describedby="dialog-description"
       >
-        <DialogTitle id="dialog-title">
+        <DialogTitle id="dialog-title" sx={{ color: dark ? "#ececec" : "" }}>
           {"Remove Member from Project?"}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
             {elEmail} will be removed from this project. Please be careful as
             this action cannot be undone.
           </DialogContentText>
@@ -761,6 +782,16 @@ const MembersTable = (props) => {
               fullWidth
               variant="standard"
               onChange={(e) => setPassword(e.target.value)}
+              sx={{
+              input: { color: dark ? "#ececec" : "" },
+              label: { color: dark ? "#a0a0a0" : "" },
+              "& .MuiInput-underline:before": {
+                borderBottomColor: dark ? "#3a3a3a" : "",
+              },
+              "& .MuiInput-underline:hover:before": {
+                borderBottomColor: dark ? "#fb923c" : "",
+              },
+            }}
             />
           )}
           {memberOrReviewer === "superchecker" && (
@@ -773,6 +804,16 @@ const MembersTable = (props) => {
               fullWidth
               variant="standard"
               onChange={(e) => setPin(e.target.value)}
+              sx={{
+              input: { color: dark ? "#ececec" : "" },
+              label: { color: dark ? "#a0a0a0" : "" },
+              "& .MuiInput-underline:before": {
+                borderBottomColor: dark ? "#3a3a3a" : "",
+              },
+              "& .MuiInput-underline:hover:before": {
+                borderBottomColor: dark ? "#fb923c" : "",
+              },
+            }}
             />
           )}
         </DialogContent>
@@ -781,6 +822,10 @@ const MembersTable = (props) => {
             onClick={() => setConfirmationDialog(false)}
             variant="outlined"
             color="error"
+            sx={{
+    color: dark ? "#f87171" : "",
+    borderColor: dark ? "#f87171" : "",
+  }}
           >
             Cancel
           </Button>
@@ -788,6 +833,12 @@ const MembersTable = (props) => {
             onClick={handleConfirm}
             variant="contained"
             color="error"
+            sx={{
+          backgroundColor: dark ? "#cf5959" : "",
+          "&:hover": {
+            backgroundColor: dark ? "#b91c1c" : "",
+          },
+        }}
             autoFocus
           >
             Confirm
@@ -823,22 +874,87 @@ const MembersTable = (props) => {
         />
       )}
       {renderSnackBar()}
-      <Grid sx={{ mt: 2,mb:2 }}>
+      <Grid sx={{
+    mt: 2,
+    mb: 2,
+    backgroundColor: dark ? "#1e1e1e" : "",
+    padding: dark ? "10px" : "",
+    borderRadius: dark ? "8px" : "",
+  }}>
         <Search />
       </Grid>
 
-      <ThemeProvider theme={tableTheme} sx={{ marginTop: "20px" }}>
-        <MUIDataTable
-        key={`table-${displayWidth}`}
-          title={""}
-          data={data}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-          }}
-        />
-      </ThemeProvider>
+      
+        
+      <ThemeProvider theme={tableTheme}>
+  <Box
+    sx={{
+      ...(dark && {
+        backgroundColor: "#1e1e1e",
+        borderRadius: "8px",
+        overflow: "hidden",
+
+        "& .MuiPaper-root": {
+          backgroundColor: "#1e1e1e",
+          color: "#ececec",
+          border: "none",
+          boxShadow: "none",
+        },
+        "& .MuiToolbar-root": {
+          backgroundColor: "#252525",
+          borderBottom: "1px solid #3a3a3a",
+        },
+        "& thead th": {
+          backgroundColor: "#252525",
+          color: "#ececec",
+          fontWeight: 700,
+          borderBottom: "2px solid #3a3a3a",
+        },
+        "& tbody td": {
+          color: "#d0d0d0",
+          borderBottom: "1px solid #2e2e2e",
+        },
+        "& tbody tr:nth-of-type(odd)": {
+          backgroundColor: "#1e1e1e",
+        },
+        "& tbody tr:nth-of-type(even)": {
+          backgroundColor: "#242424",
+        },
+        "& tbody tr:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+        },
+        "& .MuiTypography-root": {
+          color: "#ececec",
+        },
+        "& .MuiTablePagination-root": {
+          color: "#a0a0a0",
+          backgroundColor: "#252525",
+          borderTop: "1px solid #3a3a3a",
+        },
+        "& .MuiIconButton-root": {
+          color: "#fb923c",
+        },
+        "& .MuiSvgIcon-root": {
+          color: "#fb923c",
+        },
+        "& .MuiSelect-select": {
+          color: "#ececec",
+        },
+      }),
+    }}
+  >
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={data}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+      }}
+    />
+  </Box>
+</ThemeProvider>
     </React.Fragment>
   );
 };

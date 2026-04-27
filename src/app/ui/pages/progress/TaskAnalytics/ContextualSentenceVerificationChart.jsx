@@ -15,11 +15,20 @@ import {
   Label,
 } from "recharts";
 import ResponsiveChartContainer from "@/components/common/ResponsiveChartContainer"
+import { useTheme } from "@/context/ThemeContext";
 
 
 function ContextualSentenceVerificationChart(props) {
      /* eslint-disable react-hooks/exhaustive-deps */
+const { dark } = useTheme();
+const darkPaper = dark
+  ? { backgroundColor: "#2a2a2a", color: "#ececec" }
+  : {};
 
+const darkText = dark ? { color: "#ececec" } : {};
+const darkSubText = dark ? { color: "#a0a0a0" } : {};
+
+const axisColor = dark ? "#a0a0a0" : "#000";
   const classes = DatasetStyle();
   const { taskAnalyticsData } = props;
 
@@ -54,13 +63,13 @@ function ContextualSentenceVerificationChart(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
-        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+        <Typography variant="h2" style={{ marginBottom: "35px", ...darkText }} className={classes.heading} >
           Tasks Dashboard - Sentence Verification
-          <Typography variant="body1">
+          <Typography variant="body1" style={darkSubText}>
             Count of Annotated Sentence Verification
           </Typography>
         </Typography>
-        <Paper>
+        <Paper sx={darkPaper}>
           <Box className={classes.topBar}>
             <Box className={classes.topBarInnerBox}>
               <Typography
@@ -68,17 +77,18 @@ function ContextualSentenceVerificationChart(props) {
                   fontSize: "1rem",
                   fontWeight: "600",
                   padding: "16px 0",
+                  ...darkText
                 }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400", ...darkSubText }}>
               Total Annotated Tasks
 
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400", ...darkText }}>
                 {totalTaskCount &&
                   new Intl.NumberFormat("en").format(totalTaskCount)}
               </Typography>
@@ -109,12 +119,15 @@ function ContextualSentenceVerificationChart(props) {
                 position="insideLeft"
                 type="category"
                 angle={-30}
+                 stroke={axisColor}
+                tick={{ fill: axisColor }}
               >
                 <Label
                   value="Languages"
                   position="insideBottom"
                   fontWeight="bold"
                   fontSize={16}
+                  fill={axisColor}
                 ></Label>
               </XAxis>
               <YAxis
@@ -122,6 +135,8 @@ function ContextualSentenceVerificationChart(props) {
                 allowDecimals={false}
                 type="number"
                 dx={0}
+                stroke={axisColor}
+                tick={{ fill: axisColor }}
                 tickFormatter={(value) =>
                   new Intl.NumberFormat("en", { notation: "compact" }).format(
                     value
@@ -135,13 +150,18 @@ function ContextualSentenceVerificationChart(props) {
                   fontWeight="bold"
                   fontSize={16}
                   offset={-15}
+                  fill={axisColor}
                 ></Label>
               </YAxis>
               {/* <Label value="Count" position="insideLeft" offset={15} /> */}
               <Tooltip
-                contentStyle={{ fontFamily: "Roboto", fontSize: "14px" }}
-                formatter={(value) => new Intl.NumberFormat("en").format(value)}
-                cursor={{ fill: "none" }}
+              contentStyle={{
+                fontFamily: "Roboto",
+                fontSize: "14px",
+                backgroundColor: dark ? "#2a2a2a" : "#fff",
+                border: dark ? "1px solid #3a3a3a" : "1px solid #ccc",
+                color: dark ? "#ececec" : "#000"
+  }}
                 //content={<CustomTooltip />}
               />
               <Legend verticalAlign="top" />

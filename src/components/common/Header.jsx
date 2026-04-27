@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { usePathname } from "next/navigation";
 import MobileNavbar from "./MobileNavbar";
 import { useTheme } from "@emotion/react";
+import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 import { useMediaQuery } from "@mui/material";
 import Logout from "@/Lib/Features/Logout";
 import Modal from "./Modal";
@@ -32,6 +33,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
 import NMTModalContent from "./NMTModalContent";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import anudesh_Logo from "../../assets/logo.jpeg"
 
 const Header = () => {
@@ -104,6 +106,7 @@ const translationServices = {
   };
 
   const theme = useTheme();
+  const { dark } = useDarkTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const dispatch = useDispatch();
@@ -370,237 +373,139 @@ useEffect(() => {
         !notification?.seen_json[loggedInUserData.id],
     );
 
-  const renderTabs = () => {
-    if (
-      userRole.Annotator === loggedInUserData?.role ||
-      userRole.Reviewer === loggedInUserData?.role ||
-      userRole.SuperChecker === loggedInUserData?.role
-    ) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
-          {loggedInUserData.guest_user ? (
-            <Typography variant="body1">
-              <NavLink
-                to="/guest_workspaces"
-                className={({ isActive }) =>
-                  isActive ? classes.highlightedMenu : classes.headerMenu
-                }
-                activeClassName={classes.highlightedMenu}
-              >
-                Guest Workspaces
-              </NavLink>
-            </Typography>
-          ) : null}
+  const navLinkStyle = {
+  color: dark ? "#ffffff" : "black",
+  transition: "background-color 0.2s ease, color 0.2s ease",
+};
+
+const getNavLinkClass = ({ isActive }) => {
+  if (isActive) return classes.highlightedMenu;
+  return classes.headerMenu;
+};
+
+const renderTabs = () => {
+  if (
+    userRole.Annotator === loggedInUserData?.role ||
+    userRole.Reviewer === loggedInUserData?.role ||
+    userRole.SuperChecker === loggedInUserData?.role
+  ) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        {loggedInUserData.guest_user ? (
           <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Projects
+            <NavLink to="/guest_workspaces" className={getNavLinkClass} style={navLinkStyle}>
+              Guest Workspaces
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Analytics
-            </NavLink>
-          </Typography>):null}
-        </Grid>
-      );
-    } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
+        ) : null}
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        {loggedInUserData.guest_user == false && loggedInUserData.organization.id == 1 ? (
           <Typography variant="body1">
-            <NavLink
-              to={`/workspaces/${loggedInUserData?.organization?.id}`}
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Workspaces
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Projects
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Datasets
-            </NavLink>
-          </Typography>
-          {loggedInUserData?.guest_user==false?<Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Analytics
-            </NavLink>
-          </Typography>:null}
-        </Grid>
-      );
-    } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
-          <Typography variant="body1">
-            <NavLink
-              to={
-                loggedInUserData && loggedInUserData?.organization
-                  ? `/organizations/${loggedInUserData?.organization.id}`
-                  : `/organizations/1`
-              }
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Organization
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Projects
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Datasets
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
+            <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
               Analytics
             </NavLink>
           </Typography>
-        </Grid>
-      );
-    } else if (userRole.Admin === loggedInUserData?.role) {
-      return (
-        <Grid
-          container
-          direction="row"
-          sx={{ width: "fit-content", gap: "5px" }}
-        >
+        ) : null}
+      </Grid>
+    );
+  } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        <Typography variant="body1">
+          <NavLink to={`/workspaces/${loggedInUserData?.organization?.id}`} className={getNavLinkClass} style={navLinkStyle}>
+            Workspaces
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/datasets" className={getNavLinkClass} style={navLinkStyle}>
+            Datasets
+          </NavLink>
+        </Typography>
+        {loggedInUserData?.guest_user == false ? (
           <Typography variant="body1">
-            <NavLink
-              to={
-                loggedInUserData && loggedInUserData?.organization
-                  ? `/organizations/${loggedInUserData?.organization.id}`
-                  : `/organizations/1`
-              }
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Organization
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Projects
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/datasets"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Datasets
-            </NavLink>
-          </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/analytics"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
+            <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
               Analytics
             </NavLink>
           </Typography>
-          <Typography variant="body1">
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Admin
-            </NavLink>
-          </Typography>
-        </Grid>
-      );
-    } else {
-      return null;
-    }
-  };
+        ) : null}
+      </Grid>
+    );
+  } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        <Typography variant="body1">
+          <NavLink
+            to={loggedInUserData?.organization ? `/organizations/${loggedInUserData.organization.id}` : `/organizations/1`}
+            className={getNavLinkClass}
+            style={navLinkStyle}
+          >
+            Organization
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/datasets" className={getNavLinkClass} style={navLinkStyle}>
+            Datasets
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
+            Analytics
+          </NavLink>
+        </Typography>
+      </Grid>
+    );
+  } else if (userRole.Admin === loggedInUserData?.role) {
+    return (
+      <Grid container direction="row" sx={{ width: "fit-content", gap: "5px" }}>
+        <Typography variant="body1">
+          <NavLink
+            to={loggedInUserData?.organization ? `/organizations/${loggedInUserData.organization.id}` : `/organizations/1`}
+            className={getNavLinkClass}
+            style={navLinkStyle}
+          >
+            Organization
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/projects" className={getNavLinkClass} style={navLinkStyle}>
+            Projects
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/datasets" className={getNavLinkClass} style={navLinkStyle}>
+            Datasets
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/analytics" className={getNavLinkClass} style={navLinkStyle}>
+            Analytics
+          </NavLink>
+        </Typography>
+        <Typography variant="body1">
+          <NavLink to="/admin" className={getNavLinkClass} style={navLinkStyle}>
+            Admin
+          </NavLink>
+        </Typography>
+      </Grid>
+    );
+  } else {
+    return null;
+  }
+};
 
   const tabs = [
     // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
@@ -852,14 +757,17 @@ useEffect(() => {
             loggedInUserData={loggedInUserData}
           />
         ) : (
-          <AppBar
-            sx={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+<AppBar
+  elevation={0}
+  sx={{
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: dark ? "#1e1e1e !important" : "#ffffff !important",
+    borderBottom: dark ? "1px solid #3a3a3a" : "1px solid #e2e8f0",
+  }}
+>
             <Toolbar className={classes.toolbar}>
               <Grid
                 sx={{
@@ -886,9 +794,9 @@ useEffect(() => {
                     className={classes.headerLogo}
                     priority
                   />
-                  <Typography variant="h4" className={classes.headerTitle}>
-                    Anudesh
-                  </Typography>
+                  <Typography variant="h4" className={classes.headerTitle} sx={{ color: dark ? "#ececec !important" : "#373939" }}>
+                  Anudesh
+                </Typography>
                 </a>
               </Grid>
 
@@ -931,10 +839,10 @@ useEffect(() => {
                     >
                      <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
-                          <NotificationsIcon
-                            color="primary.dark"
-                            fontSize="large"
-                          />
+<NotificationsIcon
+  sx={{ color: dark ? "#ececec" : "" }}
+  fontSize="large"
+/>
                         </Badge>
                       </IconButton>
                     </Tooltip>
@@ -954,10 +862,10 @@ useEffect(() => {
                       }
                     >
                       <IconButton onClick={handleInfo}>
-                        <InfoOutlinedIcon
-                          color="primary.dark"
-                          fontSize="36px"
-                        />
+                       <InfoOutlinedIcon
+  sx={{ color: dark ? "#ececec" : "" }}
+  fontSize="36px"
+/>
                       </IconButton>
                     </Tooltip>
                   </Grid>
@@ -976,12 +884,22 @@ useEffect(() => {
                       }
                     >
                       <IconButton onClick={handleOpenSettingsMenu}>
-                        <SettingsOutlinedIcon
-                          color="primary.dark"
-                          fontSize="36px"
-                        />
+                       <SettingsOutlinedIcon
+  sx={{ color: dark ? "#ececec" : "" }}
+  fontSize="36px"
+/>
                       </IconButton>
                     </Tooltip>
+                  </Grid>
+                  <Grid
+                    item
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      ml: 1,
+                    }}
+                  >
+                    <ThemeToggle />
                   </Grid>
                   <Grid item>
                     <Tooltip
@@ -1006,61 +924,90 @@ useEffect(() => {
                             loggedInUserData?.username &&
                             loggedInUserData?.username.split("")[0]}
                         </Avatar>
-                        <Typography
-                          variant="body1"
-                          color="black"
-                          sx={{
-                            ml: 1,
-                            fontSize: "1rem",
-                            fontWeight: 500,
-                            display: {
-                              xs: "block",
-                              sm: "block",
-                              md: "none",
-                              lg: "block",
-                            },
-                          }}
-                        >
-                          {loggedInUserData?.username}
-                        </Typography>
+                       <Typography
+  variant="body1"
+  sx={{
+    ml: 1,
+    fontSize: "1rem",
+    fontWeight: 500,
+    color: dark ? "#ececec" : "black",
+    display: {
+      xs: "block",
+      sm: "block",
+      md: "none",
+      lg: "block",
+    },
+  }}
+>
+  {loggedInUserData?.username}
+</Typography>
                       </IconButton>
                     </Tooltip>
                   </Grid>
                 </Grid>
-                <Menu
-                  sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElSettings}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  open={Boolean(anchorElSettings)}
-                  onClose={handleCloseSettingsMenu}
-                >
-                  {appSettings.map((setting) => (
-                    <MenuItem key={setting} onClick={setting.onclick}>
-                      {setting.control ? (
-                        <FormControlLabel
-                          control={setting.control}
-                          label={setting.name}
-                          labelPlacement="start"
-                          sx={{ ml: 0 }}
-                        />
-                      ) : (
-                        <Typography variant="body2" textAlign="center">
-                          {setting.name}
-                        </Typography>
-                      )}
-                    </MenuItem>
-                  ))}
-                  <MenuItem>
-                    <Typography variant="body2" textAlign="center">
+<Menu
+  sx={{
+    mt: "45px",
+    display: "flex",
+    flexDirection: "row",
+    "& .MuiMenuItem-root": {
+  ...(dark && {
+    color: "#ececec",
+
+    "&:hover": {
+      backgroundColor: "#333",
+    },
+
+    "&.Mui-selected": {
+      backgroundColor: "#fb923c",
+      color: "#000",
+    },
+  }),
+},
+
+
+    ...(dark && {
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+        border: "1px solid #3a3a3a",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+      },
+    }),
+  }}
+  id="menu-appbar"
+  anchorEl={anchorElSettings}
+  anchorOrigin={{
+    vertical: "top",
+    horizontal: "right",
+  }}
+  keepMounted
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "center",
+  }}
+  style={{ overflow: "scroll" }}
+  open={Boolean(anchorElSettings)}
+  onClose={handleCloseSettingsMenu}
+>         
+{appSettings.map((setting) => (
+  <MenuItem key={setting} onClick={setting.onclick} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    {setting.control ? (
+      <FormControlLabel
+        control={setting.control}
+        label={setting.name}
+        labelPlacement="start"
+        sx={{ ml: 0, color: dark ? "#ececec" : "" }}
+      />
+    ) : (
+      <Typography variant="body2" textAlign="center" sx={{ color: dark ? "#ececec" : "" }}>
+        {setting.name}
+      </Typography>
+    )}
+  </MenuItem>
+))}
+                  <MenuItem sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+                    <Typography variant="body2" textAlign="center" sx={{ color: dark ? "#ececec" : "" }}>
                       Global Transliteration
                     </Typography>
                     <Switch
@@ -1070,20 +1017,22 @@ useEffect(() => {
                       checked={globalTransliteration}
                     />
                   </MenuItem>
-                  <MenuItem>
-                    {globalTransliteration && (
-                      <FormControl fullWidth>
-                        <InputLabel id="language-select-label">
-                          Language
-                        </InputLabel>
-                        <Select
-                          label="Language"
-                          labelId="language-select-label"
-                          value={language}
-                          onChange={(e) => {
-                            setLanguage(e.target.value);
-                          }}
-                        >
+                 <MenuItem sx={{ "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+  {globalTransliteration && (
+    <FormControl fullWidth sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+      <InputLabel id="language-select-label" sx={{ color: dark ? "#a0a0a0" : "" }}>
+        Language
+      </InputLabel>
+      <Select
+        label="Language"
+        labelId="language-select-label"
+        value={language}
+        onChange={(e) => {
+          setLanguage(e.target.value);
+        }}
+        sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+        MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+      >
                           <MenuItem disabled value=""></MenuItem>
                           <MenuItem value="en">English</MenuItem>
                           <MenuItem value="hi">Hindi</MenuItem>
@@ -1114,53 +1063,73 @@ useEffect(() => {
                     )}
                   </MenuItem>
                 </Menu>
-                <Menu
-                  sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  <Typography variant="body2" sx={{ pl: "1rem", mt: 1 }}>
-                    Signed in as <b>{loggedInUserData?.last_name}</b>
-                  </Typography>
-                  <Divider sx={{ mb: 2, mt: 1 }} />
-                  {userSettings.map((setting) => (
-                    <MenuItem key={setting} onClick={setting.onclick}>
-                      <Typography variant="body2" textAlign="center">
-                        {setting.name}
-                      </Typography>
-                    </MenuItem>
-                  ))}
+               <Menu
+  sx={{ mt: "45px" }}
+  id="menu-appbar"
+  anchorEl={anchorElUser}
+  anchorOrigin={{
+    vertical: "top",
+    horizontal: "right",
+  }}
+  keepMounted
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "center",
+  }}
+  open={Boolean(anchorElUser)}
+  onClose={handleCloseUserMenu}
+  slotProps={{         
+    paper: {
+      sx: {
+        backgroundColor: dark ? "#2a2a2a" : "",
+        color: dark ? "#ececec" : "",
+        border: dark ? "1px solid #3a3a3a" : "",
+      }
+    }
+  }}
+>
+                  <Typography variant="body2" sx={{ pl: "1rem", mt: 1, color: dark ? "#a0a0a0" : "" }}>
+  Signed in as <b style={{ color: dark ? "#ececec" : "" }}>{loggedInUserData?.last_name}</b>
+</Typography>
+<Divider sx={{ mb: 2, mt: 1, borderColor: dark ? "#3a3a3a" : "" }} />
+                 
+                 {userSettings.map((setting) => (
+  <MenuItem key={setting} onClick={setting.onclick} sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}>
+    <Typography variant="body2" textAlign="center" sx={{ color: dark ? "#ececec" : "" }}>
+      {setting.name}
+    </Typography>
+  </MenuItem>
+))}
                   {!loggedInUserData.guest_user && (
-                    <MenuItem
-                      key={4}
-                      onClick={() => {
-                        handleCloseUserMenu();
-                        handleClickOpen(loggedInUserData.email);
-                        // handleChangePassword(loggedInUserData.email);
-                      }}
-                    >
-                      <Typography variant="body2" textAlign="center">
-                        Change Password
-                      </Typography>
-                    </MenuItem>
+                   <MenuItem
+                  key={4}
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    handleClickOpen(loggedInUserData.email);
+                  }}
+                  sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}
+                >
+                  <Typography variant="body2" textAlign="center" sx={{ color: dark ? "#ececec" : "" }}>
+                    Change Password
+                  </Typography>
+                </MenuItem>
                   )}
-                <Dialog open={open} onClose={handleClose}>
-                  <DialogTitle>Change Password:</DialogTitle>
-                  <DialogContent>
-                   Are you sure you want to change your password?
-                 </DialogContent>
-                 <DialogActions>
+               <Dialog
+  open={open}
+  onClose={handleClose}
+  slotProps={{ paper: {
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  } }}>
+
+  <DialogTitle sx={{ color: dark ? "#ececec" : "" }}>Change Password:</DialogTitle>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#a0a0a0" : "" }}>
+   Are you sure you want to change your password?
+ </DialogContent>
+ <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
                  <Button onClick={handleApply} color="primary" variant="contained">
                    Confirm
                   </Button>
@@ -1169,74 +1138,75 @@ useEffect(() => {
                   </Button>
                  </DialogActions>
                 </Dialog>
-                  <MenuItem
-                    key={5}
-                    onClick={() => onLogoutClick()}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <Typography variant="body2" textAlign="center">
-                      Logout
-                    </Typography>
-                  </MenuItem>
+                 <MenuItem
+  key={5}
+  onClick={() => onLogoutClick()}
+  style={{ cursor: "pointer" }}
+  sx={{ color: dark ? "#ececec" : "", "&:hover": { backgroundColor: dark ? "#3a3a3a" : "" } }}
+>
+  <Typography variant="body2" textAlign="center" sx={{ color: dark ? "#ececec" : "" }}>
+    Logout
+  </Typography>
+</MenuItem>
                 </Menu>
-                <Menu
-                  sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElHelp}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  open={Boolean(anchorElHelp)}
-                  onClose={handleCloseHelpMenu}
-                >
-                  {helpMenu.map((help) => (
-                    <MenuItem key={help} onClick={help.onclick}>
-                      {help.control ? (
-                        <FormControlLabel
-                          control={help.control}
-                          label={help.name}
-                          labelPlacement="start"
-                          sx={{ ml: 0 }}
-                        />
-                      ) : (
-                        <Typography variant="body2" textAlign="center">
-                          {help.name}
-                        </Typography>
-                      )}
-                    </MenuItem>
-                  ))}
-                </Menu>
-                <Menu
-                  sx={{ mt: "45px", display: "flex", flexDirection: "row" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElNotification}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  style={{ overflow: "scroll" }}
-                  open={Boolean(anchorElNotification)}
-                  onClose={handleCloseNotification}
-                >
-                  <Stack
+              
+               <Menu
+  sx={{
+    mt: "45px",
+    display: "flex",
+    flexDirection: "row",
+    ...(dark && {
+      "& .MuiMenuItem-root": {
+        color: "#ececec",
+        "&:hover": { backgroundColor: "#333" },
+        "&.Mui-selected": { backgroundColor: "#fb923c", color: "#000" },
+      },
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+        border: "1px solid #3a3a3a",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+        "&::-webkit-scrollbar": { width: "6px" },
+        "&::-webkit-scrollbar-thumb": { backgroundColor: "#444", borderRadius: "6px" },
+      },
+    }),
+  }}
+  id="menu-appbar"
+  anchorEl={anchorElNotification}
+  anchorOrigin={{
+    vertical: "top",
+    horizontal: "right",
+  }}
+  keepMounted
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "center",
+  }}
+  style={{ overflow: "scroll" }}
+  open={Boolean(anchorElNotification)}
+  onClose={handleCloseNotification}
+ 
+  slotProps={{
+    paper: {
+      sx: {
+        backgroundColor: dark ? "#2a2a2a" : "",
+        color: dark ? "#ececec" : "",
+        border: dark ? "1px solid #3a3a3a" : "",
+        boxShadow: dark ? "0 4px 20px rgba(0,0,0,0.6)" : "",
+        "&::-webkit-scrollbar": { width: "6px" },
+        "&::-webkit-scrollbar-thumb": { backgroundColor: "#444", borderRadius: "6px" },
+      }
+    }
+  }}
+>
+  <Stack
                     direction="row"
                     style={{
                       justifyContent: "space-between",
                       padding: "0 10px 0 10px",
                     }}
                   >
-                    <Typography variant="h4">Notifications</Typography>
+                    <Typography variant="h4" sx={{ color: dark ? "#ececec" : "" }}>Notifications</Typography>
                     {Notification &&
                     Notification?.length > 0 &&
                     unseenNotifications?.length > 0 ? (
@@ -1255,17 +1225,18 @@ useEffect(() => {
                     spacing={2}
                     style={{ padding: "0 0 10px 10px" }}
                   >
-                    <Tabs
-                      value={value}
-                      onChange={handleChange}
-                      sx={{
-                        "& .MuiTabs-indicator": {
-                          backgroundColor: (theme) =>
-                            theme.palette.primary.main,
-                        },
-                      }}
-                    >
-                      <Tab label="All" onClick={() => handleTabChange(0)} />
+      <Tabs
+        value={value}
+        onChange={handleChange}
+        sx={{
+          "& .MuiTabs-indicator": {
+            backgroundColor: (theme) => theme.palette.primary.main,
+          },
+          "& .MuiTab-root": { color: dark ? "#a0a0a0" : "" },
+          "& .Mui-selected": { color: dark ? "#fb923c" : "" },
+        }}
+      >
+                            <Tab label="All" onClick={() => handleTabChange(0)} />
                       <Tab label="Unread" onClick={() => handleTabChange(1)} />
                     </Tabs>
                   </Stack>
@@ -1294,16 +1265,16 @@ useEffect(() => {
                             />
                           </div>
                           <Link
-                            style={{
-                              color: "rgba(0, 0, 0, 0.87)",
-                              display: "flex",
-                              flexDirection: "column",
-                              width: "100%",
-                              cursor: "pointer",
-                              textDecoration: "none",
-                            }}
-                            to={notification.on_click}
-                          >
+                          style={{
+                            color: dark ? "#d0d0d0" : "rgba(0, 0, 0, 0.87)",
+                            display: "flex",
+                            flexDirection: "column",
+                            width: "100%",
+                            cursor: "pointer",
+                            textDecoration: "none",
+                          }}
+                          to={notification.on_click}
+                        >
                             <div
                               style={{
                                 display: "flex",
@@ -1311,27 +1282,30 @@ useEffect(() => {
                                 width: "100%",
                               }}
                             >
-                              <Typography
-                                variant="subtitle2"
-                                fontFamily="Roboto, sans-serif"
-                                fontWeight="bold"
-                              >{`ID: ${
-                                notification?.title?.split("\n")[0]
-                              }`}</Typography>
-                              <Typography
-                                style={{ paddingLeft: "10px" }}
-                                variant="subtitle2"
-                                fontFamily="Roboto, sans-serif"
-                                fontWeight="bold"
-                              >{`TITLE: ${notification?.notification_type}`}</Typography>
-                              <Typography
-                                style={{ padding: "5px 5px 0px 5px" }}
-                                variant="caption"
-                                color="action"
-                              >{`${formatDistanceToNow(
-                                new Date(notification?.created_at),
-                                { addSuffix: true },
-                              )}`}</Typography>
+              <Typography
+                variant="subtitle2"
+                fontFamily="Roboto, sans-serif"
+                fontWeight="bold"
+                sx={{ color: dark ? "#ececec" : "" }}
+              >{`ID: ${
+                notification?.title?.split("\n")[0]
+              }`}</Typography>
+              <Typography
+                style={{ paddingLeft: "10px" }}
+                variant="subtitle2"
+                fontFamily="Roboto, sans-serif"
+                fontWeight="bold"
+                sx={{ color: dark ? "#ececec" : "" }}
+              >{`TITLE: ${notification?.notification_type}`}</Typography>
+  <Typography
+  style={{ padding: "5px 5px 0px 5px" }}
+  variant="caption"
+  color="action"
+  sx={{ color: dark ? "#a0a0a0" : "" }}
+>{`${formatDistanceToNow(
+  new Date(notification?.created_at),
+  { addSuffix: true },
+)}`}</Typography>
                             </div>
 
                             <div
@@ -1342,27 +1316,29 @@ useEffect(() => {
                               }}
                             >
                               <Typography
-                                style={{
-                                  justifyContent: "flex-start",
-                                  width: "100%",
-                                }}
-                                variant="body2"
-                              >
-                                {notification?.title?.split("\n")[1]}
-                              </Typography>
+                              style={{
+                                justifyContent: "flex-start",
+                                width: "100%",
+                              }}
+                              variant="body2"
+                              sx={{ color: dark ? "#d0d0d0" : "" }}
+                            >
+                              {notification?.title?.split("\n")[1]}
+                            </Typography>
                               {/* {notification?.seen_json==null || !notification?.seen_json[loggedInUserData.id] ?
                               <Tooltip title="Mark as read"><IconButton aria-label="More" onClick={() => handleMarkAsRead(notification?.id)}>
                                 <CheckCircleOutlineRoundedIcon color="primary"/>
                               </IconButton></Tooltip>:null} */}
                             </div>
                             <Typography
-                              variant="caption"
-                              color="action"
-                            >{`Sent on: ${format(
-                              new Date(notification?.created_at),
-                              "MMM d, yyyy",
-                            )}`}</Typography>
-                            {index !== Notification?.length - 1 && <Divider />}
+  variant="caption"
+  color="action"
+  sx={{ color: dark ? "#a0a0a0" : "" }}
+>{`Sent on: ${format(
+  new Date(notification?.created_at),
+  "MMM d, yyyy",
+)}`}</Typography>
+                            {index !== Notification?.length - 1 && <Divider sx={{ borderColor: dark ? "#3a3a3a" : "" }} />}
                           </Link>
                           {notification?.seen_json == null ||
                           !notification?.seen_json[loggedInUserData.id] ? (
@@ -1383,32 +1359,59 @@ useEffect(() => {
                   ) : (
                     <div style={{ textAlign: "center", padding: "20px" }}>
                       <NotificationsOffIcon color="disabled" fontSize="large" />
-                      <Typography
-                        variant="h5"
-                        color="textSecondary"
-                        style={{ marginTop: "10px" }}
-                      >
-                        No notifications found
-                      </Typography>
+                     <Typography
+  variant="h5"
+  color="textSecondary"
+  style={{ marginTop: "10px" }}
+  sx={{ color: dark ? "#a0a0a0" : "" }}
+>
+  No notifications found
+</Typography>
                     </div>
                   )}
                 </Menu>
-                <Popover
-                  open={Boolean(moreHorizonAnchorEl)}
-                  anchorEl={moreHorizonAnchorEl}
-                  onClose={handleMoreHorizonClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                >
-                  <MenuItem onClick={handleMarkAllAsReadClick}>
-                    Mark All as read
-                  </MenuItem>
+               <Popover
+  open={Boolean(moreHorizonAnchorEl)}
+  anchorEl={moreHorizonAnchorEl}
+  onClose={handleMoreHorizonClose}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right",
+  }}
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "right",
+  }}
+  sx={{
+    ...(dark && {
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        border: "1px solid #3a3a3a",
+        color: "#ececec",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+      },
+    }),
+  }}
+>
+                  <MenuItem
+  onClick={handleMarkAllAsReadClick}
+  sx={{
+    ...(dark && {
+      color: "#ececec",
+
+      "&:hover": {
+        backgroundColor: "#333",
+      },
+
+      "&.Mui-selected": {
+        backgroundColor: "#fb923c",
+        color: "#000",
+      },
+    }),
+  }}
+>
+  Mark All as read
+</MenuItem>
                 </Popover>
                 <Popover
                   open={Boolean(popoverAnchorEl)}

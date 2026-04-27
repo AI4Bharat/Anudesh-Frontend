@@ -11,6 +11,7 @@ import {useNavigate, useParams} from "react-router-dom"
 import ToggleMailsAPI from '../actions/api/user/ToggleMailsAPI';
 import { fetchUserById } from '@/Lib/Features/user/getUserById';
 import CustomizedSnackbars from '../../components/common/Snackbar';
+import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 
 export default function ProgressPage () {
   const { id } = useParams();
@@ -21,6 +22,7 @@ export default function ProgressPage () {
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { dark } = useDarkTheme();
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -98,9 +100,9 @@ export default function ProgressPage () {
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{           mx: { xs: 2, sm: 3, md: 4 },
           fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
  }}>
-                <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px" ,backgroundColor:'ButtonHighlight', textAlign:'center'}}>
+               <Paper variant="outlined" sx={{ minWidth: 275, borderRadius: "5px", backgroundColor: dark ? "#2a2a2a" : 'ButtonHighlight', textAlign: 'center', borderColor: dark ? "#3a3a3a" : "" }}>
                   <CardContent>
-                    <Typography variant="h4">{userDetails?.organization?.title}</Typography>
+                    <Typography variant="h4" sx={{ color: dark ? "#ececec" : "" }}>{userDetails?.organization?.title}</Typography>
                   </CardContent>
                 </Paper>
               </Grid>
@@ -108,20 +110,20 @@ export default function ProgressPage () {
               <>
               <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ p: 2 , display:'flex', justifyContent:'center' }}>
                   
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h4" sx={{mb: 1}}>Recent Tasks</Typography>
-                      <RecentTasks />
-                    </CardContent>
-                  </Card> 
-              </Grid>
-              <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ p: 2 , display:'flex', justifyContent:'center' }}>
-                <Card>
+                  <Card sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
                   <CardContent>
-                  <Typography variant="h4" sx={{mb: 1}}>{LoggedInUserId===userDetails?.id?  "My Progress": `Progress of ${userDetails?.first_name} ${userDetails?.last_name}` }</Typography>
-                    <MyProgress />
+                    <Typography variant="h4" sx={{ mb: 1, color: dark ? "#ececec" : "" }}>Recent Tasks</Typography>
+                    <RecentTasks />
                   </CardContent>
                 </Card>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ p: 2 , display:'flex', justifyContent:'center' }}>
+               <Card sx={{ backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
+                <CardContent>
+                  <Typography variant="h4" sx={{ mb: 1, color: dark ? "#ececec" : "" }}>{LoggedInUserId===userDetails?.id? "My Progress": `Progress of ${userDetails?.first_name} ${userDetails?.last_name}`}</Typography>
+                  <MyProgress />
+                </CardContent>
+              </Card>
               
               </Grid>
               </>:

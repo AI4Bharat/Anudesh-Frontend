@@ -10,10 +10,12 @@ import Box from "@mui/material/Box";
 import { translate } from "../../config/localisation";
 import  "../../styles/Dataset.css";
 import { snakeToTitleCase } from "@/utils/utils";
+import { useTheme } from "@mui/material/styles";
 
 
 
 const SuperCheckerFilter = (props) => {
+  const { dark } = useTheme();
   
   const { filterStatusData, currentFilters, updateFilters } = props;
   const [selectedStatus, setSelectedStatus] = useState(currentFilters?.supercheck_status);
@@ -48,33 +50,55 @@ const SuperCheckerFilter = (props) => {
           horizontal: "right",
         }}
       >
-        <Box className="filterContainer">
-            <Typography variant="body2" sx={{ mr: 5, fontWeight: "700" }} className="filterTypo">
+        <Box  className="filterContainer"
+  sx={{
+    backgroundColor: dark ? "#1f1f1f" : "",
+    color: dark ? "#eaeaea" : "",
+  }}>
+            <Typography
+  variant="body2"
+  sx={{
+    mr: 5,
+    fontWeight: "700",
+    color: dark ? "#f0f0f0" : "",
+  }}
+  className="filterTypo"
+>
               {translate("label.filter.status")} :
             </Typography>
             <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
               {filterStatusData.Status.map((type,i) => {
                 return (
                   <FormControlLabel
+                  
                   key={i}
                     control={
                       <Radio
-                        checked={selectedStatus === type ? true : false}
-                        name={type}
-                        color="primary"
-                      />
+  checked={selectedStatus === type ? true : false}
+  name={type}
+  sx={{
+    color: dark ? "#888" : "",
+    "&.Mui-checked": {
+      color: dark ? "#fb923c" : "",
+    },
+  }}
+/>
                     }
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     value={type}
                     label={snakeToTitleCase(type)}
                     sx={{
                       fontSize: "1rem",
+                      color: dark ? "#d6d6d6" : "",
+                      "& .MuiFormControlLabel-label": {
+                        color: dark ? "#d6d6d6" : "",
+                      },
                     }} 
                   />
                 );
               })}
             </FormGroup>
-            <Divider />
+            <Divider sx={{ borderColor: dark ? "#333" : "" }} />
             <Box 
               sx={{
                 display: "flex",
@@ -86,6 +110,13 @@ const SuperCheckerFilter = (props) => {
             >
               <Button
                 onClick={props.handleClose}
+                sx={{
+                  color: dark ? "#e5e5e5" : "",
+                  borderColor: dark ? "#444" : "",
+                  "&:hover": {
+                    backgroundColor: dark ? "#2a2a2a" : "",
+                  },
+                }}
                 variant="outlined"
                 color="primary"
                 size="small"
@@ -96,6 +127,13 @@ const SuperCheckerFilter = (props) => {
               </Button>
               <Button
                 onClick={handleStatusChange}
+                sx={{
+                  backgroundColor: dark ? "#fb923c" : "",
+                  color: dark ? "#111" : "",
+                  "&:hover": {
+                    backgroundColor: dark ? "#f97316" : "",
+                  },
+                }}
                 variant="contained"
                 color="primary"
                 size="small"

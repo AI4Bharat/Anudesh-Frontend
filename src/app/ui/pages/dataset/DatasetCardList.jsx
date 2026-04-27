@@ -17,6 +17,7 @@ import DatasetFilterList from "./DatasetFilterList";
 import InfoIcon from '@mui/icons-material/Info';
 import { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -40,6 +41,7 @@ const MUIDataTable = dynamic(
 const DatasetCardList = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [displayWidth, setDisplayWidth] = useState(0);
+  const { dark } = useTheme();
   const { datasetList, selectedFilters, setsSelectedFilters } = props;
   const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -239,23 +241,20 @@ const DatasetCardList = (props) => {
     );
   };
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
-      >
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: { xs: "space-between", md: "flex-end" },
+        alignItems: "center",
+        padding: "10px",
+        gap: { xs: "10px", md: "20px" },
+        backgroundColor: dark ? "#252525" : "",
+        borderTop: dark ? "1px solid #3a3a3a" : "",
+        color: dark ? "#a0a0a0" : "",
+      }}
+    >
 
         {/* Pagination Controls */}
         <TablePagination
@@ -277,21 +276,26 @@ const DatasetCardList = (props) => {
 
         {/* Jump to Page */}
         <div>
-          <label style={{
-            marginRight: "5px",
-            fontSize: "0.83rem",
-          }}>
+         <label style={{
+  marginRight: "5px",
+  fontSize: "0.83rem",
+  color: dark ? "#a0a0a0" : "",
+}}>
             Jump to Page:
           </label>
           <Select
-            value={page + 1}
-            onChange={(e) => changePage(Number(e.target.value) - 1)}
-            sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
-          >
+  value={page + 1}
+  onChange={(e) => changePage(Number(e.target.value) - 1)}
+  sx={{
+    fontSize: "0.8rem",
+    padding: "4px",
+    height: "32px",
+    color: dark ? "#ececec" : "",
+    backgroundColor: dark ? "#2a2a2a" : "",
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+    "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" },
+  }}
+>
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
                 {i + 1}
@@ -342,19 +346,51 @@ const DatasetCardList = (props) => {
   };
 
   return (
-    <>
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          title={""}
-          data={data}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-          }}
-        />
-      </ThemeProvider>
+  <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", borderRadius: dark ? "8px" : "", overflow: "hidden" }}>
+   <ThemeProvider theme={tableTheme}>
+  <Box sx={{
+    ...(dark && {
+      "& .MuiTablePagination-selectLabel": {
+  color: "#a0a0a0",   // "Rows per page"
+},
+
+"& .MuiTablePagination-displayedRows": {
+  color: "#a0a0a0",   // "1–10 of 2166"
+},
+
+"& .MuiTablePagination-select": {
+  color: "#ececec",   // the "10" dropdown value
+},
+
+"& .MuiTablePagination-actions button": {
+  color: "#fb923c",   // next/prev arrows
+},
+      "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+      "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+      "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+      "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+      "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+      "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+      "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important", transition: "background-color 0.2s ease" },
+      "& .MuiTypography-root": { color: "#ececec" },
+      "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+      "& .MuiIconButton-root": { color: "#fb923c", "&:hover": { backgroundColor: "rgba(251, 146, 60, 0.12)" }, "&.Mui-disabled": { color: "#555555" } },
+      "& .MuiSelect-select": { color: "#ececec", backgroundColor: "#2a2a2a" },
+      "& .MuiSvgIcon-root": { color: "#fb923c" },
+    })
+  }}>
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={data}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+      }}
+    />
+  </Box>
+</ThemeProvider>
       <DatasetFilterList
         id={filterId}
         open={popoverOpen}
@@ -363,8 +399,8 @@ const DatasetCardList = (props) => {
         updateFilters={setsSelectedFilters}
         currentFilters={selectedFilters}
       />
-    </>
-  );
+   </Box>
+);
 };
 
 export default DatasetCardList;

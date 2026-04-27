@@ -22,6 +22,7 @@ import tableTheme from "@/themes/tableTheme";
 import Spinner from "@/components/common/Spinner";
 import GetProjectLogsAPI from "@/app/actions/api/Projects/getProjectLogsAPI";
 import { styled } from "@mui/material/styles";
+import { useTheme } from "@/context/ThemeContext";
 
 
 const TruncatedContent = styled(Box)(({ theme, expanded }) => ({
@@ -62,6 +63,7 @@ const MUIDataTable = dynamic(
 
 const ProjectLogs = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { dark } = useTheme();
   const { id } = useParams();
   const [taskName, setTaskName] = useState(
     "projects.tasks.export_project_in_place",
@@ -200,19 +202,40 @@ const ProjectLogs = () => {
     return (
       <Box
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: {
-            xs: "space-between",
-            md: "flex-end"
-          },
-          alignItems: "center",
-          padding: "10px",
-          gap: {
-            xs: "10px",
-            md: "20px"
-          },
-        }}
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: {
+      xs: "space-between",
+      md: "flex-end",
+    },
+    alignItems: "center",
+    padding: "10px",
+    gap: {
+      xs: "10px",
+      md: "20px",
+    },
+
+    ...(dark && {
+      backgroundColor: "#252525",
+      borderTop: "1px solid #3a3a3a",
+
+      "& .MuiTablePagination-selectLabel": {
+        color: "#a0a0a0",
+      },
+
+      "& .MuiTablePagination-displayedRows": {
+        color: "#a0a0a0",
+      },
+
+      "& .MuiTablePagination-select": {
+        color: "#ececec",
+      },
+
+      "& .MuiTablePagination-actions button": {
+        color: "#fb923c",
+      },
+    }),
+  }}
       >
 
         {/* Pagination Controls */}
@@ -245,10 +268,33 @@ const ProjectLogs = () => {
             value={page + 1}
             onChange={(e) => changePage(Number(e.target.value) - 1)}
             sx={{
-              fontSize: "0.8rem",
-              padding: "4px",
-              height: "32px",
-            }}
+    fontSize: "0.8rem",
+    padding: "4px",
+    height: "32px",
+
+    ...(dark && {
+      color: "#ececec",
+      backgroundColor: "#2a2a2a",
+
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#3a3a3a",
+      },
+
+      "& .MuiSvgIcon-root": {
+        color: "#a0a0a0",
+      },
+    }),
+  }}
+  MenuProps={{
+    PaperProps: {
+      sx: {
+        ...(dark && {
+          backgroundColor: "#2a2a2a",
+          color: "#ececec",
+        }),
+      },
+    },
+  }}
           >
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
               <MenuItem key={i} value={i + 1}>
@@ -311,7 +357,10 @@ const ProjectLogs = () => {
       >
         <Grid item xs={12} sm={6} md={4} lg={4} xl={4}>
           <FormControl fullWidth size="small">
-            <InputLabel id="task-type-filter-label" sx={{ fontSize: "16px" }}>
+            <InputLabel id="task-type-filter-label" sx={{
+    fontSize: "16px",
+    ...(dark && { color: "#a0a0a0" }),
+  }}>
               Filter by Task Type
             </InputLabel>
             <Select
@@ -322,7 +371,32 @@ const ProjectLogs = () => {
               onChange={(e) => {
                 setTaskName(e.target.value);
               }}
-              sx={{ fontSize: "16px" }}
+              sx={{
+    fontSize: "16px",
+
+    ...(dark && {
+      color: "#ececec",
+      backgroundColor: "#2a2a2a",
+
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#3a3a3a",
+      },
+
+      "& .MuiSvgIcon-root": {
+        color: "#a0a0a0",
+      },
+    }),
+  }}
+  MenuProps={{
+    PaperProps: {
+      sx: {
+        ...(dark && {
+          backgroundColor: "#2a2a2a",
+          color: "#ececec",
+        }),
+      },
+    },
+  }}
             >
               {[
                 "projects.tasks.add_new_data_items_into_project",
@@ -343,6 +417,16 @@ const ProjectLogs = () => {
             endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
             variant="contained"
             color="primary"
+            sx={{
+    ...(dark && {
+      backgroundColor: "#fb923c",
+      color: "#000",
+
+      "&:hover": {
+        backgroundColor: "#ea7f1a",
+      },
+    }),
+  }}
             onClick={() => setShowPicker(!showPicker)}
             fullWidth
           >
@@ -366,6 +450,17 @@ const ProjectLogs = () => {
                 ranges={selectRange}
                 maxDate={new Date()}
                 direction="horizontal"
+                sx={{
+    ...(dark && {
+      "& .rdrCalendarWrapper": {
+        backgroundColor: "#1e1e1e",
+        color: "#ececec",
+      },
+      "& .rdrDayNumber span": {
+        color: "#ececec",
+      },
+    }),
+  }}
               />
             </Card>
           </Box>
@@ -374,17 +469,50 @@ const ProjectLogs = () => {
       {loading ? (
         <Spinner />
       ) : (
-        <ThemeProvider theme={tableTheme}>
-          <MUIDataTable
-            key={`table-${displayWidth}`}
-            title={""}
-            data={projectLogs}
-            columns={columns}
-            options={{
-              ...options,
-              tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-            }}
-          />
+       <ThemeProvider theme={tableTheme}>
+  <Box
+    sx={{
+      ...(dark && {
+        backgroundColor: "#1e1e1e",
+        borderRadius: "8px",
+        overflow: "hidden",
+
+        "& .MuiPaper-root": {
+          backgroundColor: "#1e1e1e",
+          color: "#ececec",
+          boxShadow: "none",
+        },
+
+        "& .MuiToolbar-root": {
+          backgroundColor: "#252525",
+          borderBottom: "1px solid #3a3a3a",
+        },
+
+        "& thead th": {
+          backgroundColor: "#252525",
+          color: "#ececec",
+          borderBottom: "2px solid #3a3a3a",
+        },
+
+        "& tbody td": {
+          color: "#d0d0d0",
+          borderBottom: "1px solid #2e2e2e",
+        },
+
+        "& tbody tr:nth-of-type(odd)": {
+          backgroundColor: "#1e1e1e",
+        },
+
+        "& tbody tr:nth-of-type(even)": {
+          backgroundColor: "#242424",
+        },
+
+        "& tbody tr:hover": {
+          backgroundColor: "rgba(251,146,60,0.08) !important",
+        },
+      }),
+    }}
+  ></Box>
         </ThemeProvider>
       )}
     </React.Fragment>

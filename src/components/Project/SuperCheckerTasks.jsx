@@ -46,8 +46,7 @@ import ChatLang from "@/utils/Chatlang";
 import CalenderMonthIcon from "@mui/icons-material/CalendarMonth";
 import { parse, format } from "date-fns";
 import TimeRangeFilter from "./TimeRangeFilter";
-// import TasksSupercheckTable from "./prefered_reviewers";
-
+import { useTheme } from "@/context/ThemeContext";
 const defaultColumns = [
   "id",
   "instruction_data",
@@ -118,6 +117,7 @@ const SuperCheckerTasks = (props) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const { dark } = useTheme();
   const { id } = useParams();
   const [snackbar, setSnackbarInfo] = useState({
     open: false,
@@ -752,31 +752,33 @@ const SuperCheckerTasks = (props) => {
           !ProjectDetails?.review_supercheckers?.some(
             (reviewer) => reviewer.id === userDetails?.id,
           ) && (
-            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-              <InputLabel
-                id="annotator-filter-label"
-                sx={{
-                  fontSize: "16px",
-                  position: "inherit",
-                  top: "23px",
-                  left: "-6px",
-                }}
-              >
-                Filter by SuperChecker
-              </InputLabel>
-              <Select
-                labelId="annotator-filter-label"
-                id="annotator-filter"
-                value={selectedFilters.req_user}
-                label="Filter by SuperChecker"
-                onChange={(e) =>
-                  setsSelectedFilters({
-                    ...selectedFilters,
-                    req_user: e.target.value,
-                  })
-                }
-                sx={{ fontSize: "16px" }}
-              >
+           <FormControl size="small" sx={{ width: "30%", minWidth: "100px", "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <InputLabel
+    id="annotator-filter-label"
+    sx={{
+      fontSize: "16px",
+      position: "inherit",
+      top: "23px",
+      left: "-6px",
+      color: dark ? "#a0a0a0" : "",
+    }}
+  >
+    Filter by SuperChecker
+  </InputLabel>
+  <Select
+    labelId="annotator-filter-label"
+    id="annotator-filter"
+    value={selectedFilters.req_user}
+    label="Filter by SuperChecker"
+    onChange={(e) =>
+      setsSelectedFilters({
+        ...selectedFilters,
+        req_user: e.target.value,
+      })
+    }
+    sx={{ fontSize: "16px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
                 <MenuItem value={-1}>All</MenuItem>
                 {filterData.SuperChecker.map((el, i) => (
                   <MenuItem key={i} value={el.value}>
@@ -869,6 +871,9 @@ const SuperCheckerTasks = (props) => {
             xs: "10px",
             md: "20px",
           },
+          backgroundColor: dark ? "#252525" : "",
+          borderTop: dark ? "1px solid #3a3a3a" : "",
+          color: dark ? "#a0a0a0" : "",
         }}
       >
         {/* Pagination Controls */}
@@ -896,6 +901,7 @@ const SuperCheckerTasks = (props) => {
             style={{
               marginRight: "5px",
               fontSize: "0.83rem",
+              color: dark ? "#a0a0a0" : ""
             }}
           >
             Jump to Page:
@@ -907,6 +913,7 @@ const SuperCheckerTasks = (props) => {
               fontSize: "0.8rem",
               padding: "4px",
               height: "32px",
+              color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : ""
             }}
           >
             {Array.from({ length: Math.ceil(count / rowsPerPage) }, (_, i) => (
@@ -1007,8 +1014,8 @@ const SuperCheckerTasks = (props) => {
   };
 
   return (
-    <div>
-      {props.type === "superChecker" &&
+  <div style={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%" }}>
+    {props.type === "superChecker" &&
         ProjectDetails?.review_supercheckers?.some(
           (supercheckers) => supercheckers.id === userDetails?.id,
         ) &&
@@ -1100,20 +1107,20 @@ const SuperCheckerTasks = (props) => {
                   : 3
               }
             >
-              <FormControl size="small" sx={{ width: "100%" }}>
-                <InputLabel id="pull-select-label" sx={{ fontSize: "16px" }}>
-                  Pull Size
-                </InputLabel>
-                <Select
-                  labelId="pull-select-label"
-                  id="pull-select"
-                  value={pullSize}
-                  // defaultValue={5}
-                  label="Pull Size"
-                  onChange={(e) => setPullSize(e.target.value)}
-                  disabled={pullDisabled}
-                  sx={{ fontSize: "16px" }}
-                >
+              <FormControl size="small" sx={{ width: "100%", "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+            <InputLabel id="pull-select-label" sx={{ fontSize: "16px", color: dark ? "#a0a0a0" : "" }}>
+              Pull Size
+            </InputLabel>
+            <Select
+              labelId="pull-select-label"
+              id="pull-select"
+              value={pullSize}
+              label="Pull Size"
+              onChange={(e) => setPullSize(e.target.value)}
+              disabled={pullDisabled}
+              sx={{ fontSize: "16px", color: dark ? "#ececec" : "", backgroundColor: dark ? "#2a2a2a" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+              MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+            >
                   <MenuItem
                     value={ProjectDetails?.tasks_pull_count_per_batch * 0.5}
                   >
@@ -1202,18 +1209,73 @@ const SuperCheckerTasks = (props) => {
         ))}
 
       <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          title={""}
-          data={tasks}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== "undefined" ? window.innerHeight - 200 : 400
-              }px`,
-          }}
-        />
-      </ThemeProvider>
+  <Box
+    sx={{
+      ...(dark && {
+        "& .MuiPaper-root": {
+          backgroundColor: "#1e1e1e",
+          color: "#ececec",
+          border: "none",
+          boxShadow: "none",
+        },
+        "& .MuiToolbar-root": {
+          backgroundColor: "#252525",
+          borderBottom: "1px solid #3a3a3a",
+        },
+        "& thead th": {
+          backgroundColor: "#252525",
+          color: "#ececec",
+          fontWeight: 700,
+          borderBottom: "2px solid #3a3a3a",
+        },
+        "& tbody td": {
+          color: "#d0d0d0",
+          borderBottom: "1px solid #2e2e2e",
+        },
+        "& tbody tr:nth-of-type(odd)": {
+          backgroundColor: "#1e1e1e",
+        },
+        "& tbody tr:nth-of-type(even)": {
+          backgroundColor: "#242424",
+        },
+        "& tbody tr:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+        },
+        "& .MuiTypography-root": {
+          color: "#ececec",
+        },
+        "& .MuiTablePagination-root": {
+          color: "#a0a0a0",
+          backgroundColor: "#252525",
+          borderTop: "1px solid #3a3a3a",
+        },
+        "& .MuiIconButton-root": {
+          color: "#fb923c",
+        },
+        "& .MuiSvgIcon-root": {
+          color: "#fb923c",
+        },
+        "& .MuiSelect-select": {
+          color: "#ececec",
+        },
+      }),
+    }}
+  >
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={tasks}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${
+          typeof window !== "undefined" ? window.innerHeight - 200 : 400
+        }px`,
+      }}
+    />
+  </Box>
+</ThemeProvider>
+
       {popoverOpen && (
         <SuperCheckerFilter
           id={filterId}

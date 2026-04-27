@@ -36,6 +36,7 @@ import Spinner from "../../components/common/Spinner";
 import { MenuProps } from "../../utils/utils";
 import { fetchProjectDomains } from "@/Lib/Features/getProjectDomains";
 import { fetchUserAnalytics } from "@/Lib/Features/user/getUserAnalytics";
+import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(() => import("mui-datatables"), {
   ssr: false,
@@ -54,10 +55,12 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 });
 
 const MyProgress = () => {
+  const { dark } = useDarkTheme();
   /* eslint-disable react-hooks/exhaustive-deps */
   const { id } = useParams();
   const UserDetails = useSelector((state) => state.getLoggedInData.data);
   const [displayWidth, setDisplayWidth] = useState(0);
+  
   const [selectRange, setSelectRange] = useState([
     {
       startDate: new Date(),
@@ -289,12 +292,7 @@ const MyProgress = () => {
         />
 
         <div>
-          <label
-            style={{
-              marginRight: "5px",
-              fontSize: "0.83rem",
-            }}
-          >
+          <label style={{ marginRight: "5px", fontSize: "0.83rem", color: dark ? "#ececec" : "" }}>
             Jump to Page:
           </label>
           <Select
@@ -463,7 +461,8 @@ const MyProgress = () => {
               width: "100%",
             }}
           >
-            <Card sx={{ overflowX: "scroll" }}>
+           <Card sx={{ overflowX: "scroll", backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" }}>
+
               <DateRangePicker
                 onChange={handleRangeChange}
                 staticRanges={[
@@ -514,20 +513,20 @@ const MyProgress = () => {
               direction="row"
               justifyContent="flex-start"
             >
-              <Typography variant="h6">Total Summary </Typography>
+                <Typography variant="h6" sx={{ color: dark ? "#ececec" : "" }}>Total Summary </Typography>
             </Grid>
 
             <Grid container alignItems="center" direction="row">
-              <Typography variant="subtitle1">Annotated Tasks : </Typography>
-              <Typography variant="body2" className="TotalSummarydata">
+              <Typography variant="subtitle1" sx={{ color: dark ? "#ececec" : "" }}>Annotated Tasks : </Typography>
+              <Typography variant="body2" className="TotalSummarydata" sx={{ color: dark ? "#a0a0a0" : "" }}>
                 {UserAnalyticstotalsummary?.at(0)?.["Annotated Tasks"]}
               </Typography>
             </Grid>
             <Grid container alignItems="center" direction="row">
-              <Typography variant="subtitle1">
+              <Typography variant="subtitle1" sx={{ color: dark ? "#ececec" : "" }}>
                 Average Annotation Time (In Seconds) :{" "}
               </Typography>
-              <Typography variant="body2" className="TotalSummarydata">
+              <Typography variant="body2" className="TotalSummarydata" sx={{ color: dark ? "#ececec" : "" }}>
                 {
                   UserAnalyticstotalsummary?.at(0)?.[
                     "Avg Annotation Time (sec)"

@@ -43,6 +43,8 @@ import PerformanceAnalyticsAPI from "@/app/actions/api/Progress/PerformanceAnaly
 import { fetchDomains } from "@/Lib/Features/actions/domains";
 import {fetchLanguages} from "@/Lib/Features/fetchLanguages";
 import CustomizedSnackbars from "@/components/common/Snackbar";
+import { useTheme } from "@/context/ThemeContext";
+
 
 ChartJS.register(
   CategoryScale,
@@ -134,6 +136,18 @@ const options = {
 
 export default function PerformanceAnalytics() {
      /* eslint-disable react-hooks/exhaustive-deps */
+     const { dark } = useTheme();
+  const darkText    = dark ? { color: "#ececec" } : {};
+const darkSubText = dark ? { color: "#a0a0a0" } : {};
+const darkCard    = dark ? { backgroundColor: "#2a2a2a", color: "#ececec" } : {};
+const darkSelect  = dark ? {
+  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+  "& .MuiSvgIcon-root": { color: "#ececec" },
+  color: "#ececec",
+} : {};
+const chartAxisColor = dark ? "#a0a0a0" : "black";
+options.scales.x.title.color = chartAxisColor;
+  options.scales.y.title.color = chartAxisColor;
 
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
@@ -147,6 +161,8 @@ export default function PerformanceAnalytics() {
   const [performanceAnalyticsTasksData, setPerformanceAnalyticsTasksData] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+const darkInputLabel = dark ? { color: "#a0a0a0" } : {};
+
   
 
   const ref = useRef();
@@ -332,7 +348,7 @@ export default function PerformanceAnalytics() {
           <Typography
             gutterBottom
             component="div"
-            sx={{ marginTop: "10px", fontSize: "16px" }}
+            sx={{ marginTop: "10px", fontSize: "16px", ...darkText }}
           >
             Select Report Type :
           </Typography>
@@ -379,7 +395,7 @@ export default function PerformanceAnalytics() {
             <Typography
               gutterBottom
               component="div"
-              sx={{ fontSize: "16px", mt: 1 }}
+              sx={{ fontSize: "16px", mt: 1, ...darkText }}
             >
               Meta-info based stats:
             </Typography>
@@ -411,17 +427,18 @@ export default function PerformanceAnalytics() {
         <Grid container columnSpacing={3} rowSpacing={2} mb={1}>
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
             <FormControl fullWidth size="small">
-              <InputLabel id="language-label" sx={{ fontSize: "19px", zIndex: 0 }}>
+            <InputLabel id="language-label" sx={{ fontSize: "19px", zIndex: 0, ...darkInputLabel }}>
                 Target Language
               </InputLabel>
               <Select
-                labelId="language-label"
-                id="language-select"
-                value={language}
-                label="Target Language"
-                onChange={(e) => setLanguage(e.target.value)}
-                MenuProps={MenuProps}
-              >
+                  labelId="language-label"
+                  id="language-select"
+                  value={language}
+                  label="Target Language"
+                  onChange={(e) => setLanguage(e.target.value)}
+                  MenuProps={MenuProps}
+                  sx={darkSelect}
+                >
                 {/* <MenuItem value={"all"}>All languages</MenuItem> */}
                 {LanguageChoices?.language?.map((lang) => (
                   <MenuItem value={lang} key={lang}>
@@ -434,17 +451,19 @@ export default function PerformanceAnalytics() {
 
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                 <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "19px", zIndex: 0 }}>
-                  Plot Range {""}
+                  <InputLabel id="demo-simple-select-label" 
+                  sx={{ fontSize: "19px", zIndex: 0, ...darkInputLabel }}>
+                   Plot Range {""}
                   </InputLabel>
                   <Select
                     labelId="project-type-label"
                     id="project-type-select"
                     label="Plot Range"
                     value={baseperiod}
+                    MenuProps={MenuProps}
                     onChange={handleProgressType}
-                    sx={{ textTransform: "capitalize"}}
-                  >
+                    sx={{ ...darkSelect,textTransform: "capitalize" }}
+>
                     {ProgressType.map((item, index) => (
                         <MenuItem key={index} value={item.ProgressTypename} sx={{ textTransform: "capitalize"}}>{item.ProgressTypename}</MenuItem>  
                     ))}
@@ -454,10 +473,7 @@ export default function PerformanceAnalytics() {
 
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
             <FormControl fullWidth size="small">
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ fontSize: "19px", zIndex: 0 }}
-              >
+              <InputLabel id="demo-simple-select-label" sx={{ fontSize: "19px", zIndex: 0, ...darkInputLabel }}>
                 Project Type {""}
                 {/* {
                     <LightTooltip
@@ -476,7 +492,7 @@ export default function PerformanceAnalytics() {
                 id="demo-simple-select"
                 value={selectedType}
                 label="Project Type"
-                sx={{ padding: "1px" }}
+                sx={{ padding: "1px", ...darkSelect }}
                 onChange={(e) => setSelectedType(e.target.value)}
                 MenuProps={MenuProps}
               >
@@ -542,7 +558,7 @@ export default function PerformanceAnalytics() {
             }}
             ref={ref}
           >
-            <Card sx={{ overflowX: "scroll" }}>
+            <Card sx={{ overflowX: "scroll", ...darkCard }}>
               <DateRangePicker
                 // ranges={[selectionRange]}
                 // onChange={handleSelect}

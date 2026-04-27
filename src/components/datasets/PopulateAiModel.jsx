@@ -17,6 +17,7 @@ import themeDefault from "@/themes/theme";
 import { fetchDatasetByType } from '@/Lib/Features/datasets/getDatasetByType';
 import { fetchDataitemsById } from '@/Lib/Features/datasets/GetDataitemsById';
 import aiModel from '@/app/actions/api/dataset/aiModel';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
 
 
 const PopulateAiModel = () => {

@@ -24,12 +24,15 @@ import DatasetLogs from './DatasetLogs';
 import DatasetReports from './DatasetReports';
 import { fetchDatasetDetails } from '@/Lib/Features/datasets/getDatasetDetails';
 import { fetchDatasetMembers } from '@/Lib/Features/datasets/getDatasetMembers';
+import { useTheme } from "@/context/ThemeContext";
 import DatasetDescription from './DatasetDescription';
+
 
 const DatasetDetails = () => {
     /* eslint-disable react-hooks/exhaustive-deps */
 
     const { datasetId } = useParams();
+    const { dark } = useTheme();
     const [selectedTab, setSelectedTab] = useState(0);
         const [loading, setLoading] = useState(false);
     const [datasetData, setDatasetData] = useState(
@@ -85,20 +88,24 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
       }, [apiLoading]);
 
     return (
-        <ThemeProvider theme={themeDefault}>
-                      {loading && <Spinner />}
-            <Grid
-                container
-                direction='row'
-                justifyContent='center'
-                alignItems='center'
-            >
-                <Card
-                    sx={{
-                        // width: window.innerWidth * 0.8,
-                        width: '100%',
-                        padding: 5,
-                    }}
+  <ThemeProvider theme={themeDefault}>
+    <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100vh" }}>
+    {loading && <Spinner />}
+    <Grid
+      container
+      direction='row'
+      justifyContent='center'
+      alignItems='center'
+    >
+               <Card
+                sx={{
+                    width: '100%',
+                    padding: 5,
+                    backgroundColor: dark ? "#2a2a2a" : "",
+                    color: dark ? "#ececec" : "",
+                    border: dark ? "1px solid #3a3a3a" : "",
+                    boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "",
+                }}
                 >
                     {/* <Typography variant="h3">
                         {DatasetDetails.instance_name}
@@ -111,7 +118,7 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
                         sx={{ mb: 3 }}
                     >
                         <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
-                            <Typography variant="h3">{DatasetDetails.instance_name}</Typography>
+                           <Typography variant="h3" sx={{ color: dark ? "#ececec" : "" }}>{DatasetDetails.instance_name}</Typography>
                         </Grid>
 
                         {(userRole.Annotator !== userDetails?.role || userRole.Reviewer !== userDetails?.role || userRole.SuperChecker !== userDetails?.role) && <Grid item xs={12} sm={12} md={2} lg={2} xl={2}>
@@ -183,13 +190,25 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
                         </Grid>
                     </Grid>
                     <Box >
-                        <Tabs value={selectedTab} onChange={(_event, value) => setSelectedTab(value)} aria-label="nav tabs example" variant="scrollable" TabIndicatorProps={{ style: { backgroundColor: "#FD7F23 " } }}>
-                            <Tab label={translate("label.datasets")} sx={{ fontSize: 16, fontWeight: '700' }} />
-                            <Tab label={translate("label.members")} sx={{ fontSize: 16, fontWeight: '700' }} />
-                            <Tab label={translate("label.projects")} sx={{ fontSize: 16, fontWeight: '700' }} />
-                            <Tab label={translate("label.logs")} sx={{ fontSize: 16, fontWeight: '700' }} />
-                            <Tab label={translate("label.reports")} sx={{ fontSize: 16, fontWeight: '700' }} />
-                            {/* <Tab label={translate("label.settings")} sx={{ fontSize: 16, fontWeight: '700' }} /> */}
+                        <Tabs
+                        value={selectedTab}
+                        onChange={(_event, value) => setSelectedTab(value)}
+                        aria-label="nav tabs example"
+                        variant="scrollable"
+                        TabIndicatorProps={{ style: { backgroundColor: "#FD7F23" } }}
+                        sx={{
+                            backgroundColor: dark ? "#252525" : "",
+                            borderBottom: dark ? "1px solid #3a3a3a" : "",
+                            borderRadius: dark ? "8px 8px 0 0" : "",
+                            "& .MuiTab-root": { color: dark ? "#a0a0a0" : "" },
+                            "& .MuiTab-root.Mui-selected": { color: dark ? "#ffffff" : "" },
+                        }}
+                        >
+                        <Tab label={translate("label.datasets")} sx={{ fontSize: 16, fontWeight: '700' }} />
+                        <Tab label={translate("label.members")} sx={{ fontSize: 16, fontWeight: '700' }} />
+                        <Tab label={translate("label.projects")} sx={{ fontSize: 16, fontWeight: '700' }} />
+                        <Tab label={translate("label.logs")} sx={{ fontSize: 16, fontWeight: '700' }} />
+                        <Tab label={translate("label.reports")} sx={{ fontSize: 16, fontWeight: '700' }} />
                         </Tabs>
                     </Box>
                     <TabPanel value={selectedTab} index={0}>
@@ -211,9 +230,10 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
                         <DatasetSettings datasetId={datasetId} />
                     </TabPanel> */}
                 </Card>
-            </Grid>
-        </ThemeProvider>
-    );
+           </Grid>
+    </Box>
+  </ThemeProvider>
+);
 }
 
 export default DatasetDetails;

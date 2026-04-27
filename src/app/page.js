@@ -35,6 +35,7 @@ import OutputSelection from "./ui/pages/dual-screen-preference-ranking/Preferenc
 import PreferenceRanking from "./ui/pages/n-screen-preference-ranking/PreferenceRanking";
 import GuestWorkspaceTable from "@/components/GuestWorkspace/table";
 import GuestChatPage from "./ui/pages/chat/inputBox";
+import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 
 export default function Root() {
   if (typeof window !== 'undefined') {
