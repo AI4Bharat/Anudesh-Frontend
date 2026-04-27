@@ -1660,16 +1660,14 @@ return (
           formats={formats}
           placeholder="Review Notes"
         ></ReactQuill>
-        {ProjectDetails?.project_stage === 3 && (
-          <ReactQuill
-            forwardedRef={superCheckerNotesRef}
-            modules={modules}
-            bounds={"#note"}
-            formats={formats}
-            placeholder="SuperChecker Notes"
-            readOnly={true}
-          ></ReactQuill>
-        )}
+        <ReactQuill
+          forwardedRef={superCheckerNotesRef}
+          modules={modules}
+          bounds={"#note"}
+          formats={formats}
+          placeholder="SuperChecker Notes"
+          readOnly={true}
+        ></ReactQuill>
       </div>
 
       {filterMessage && (
