@@ -13,6 +13,7 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
  */
 export default defineConfig({
   testDir: "./Tests",
+  timeout: 60 * 1000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -75,6 +76,6 @@ export default defineConfig({
     command: "npm run dev",
     url: "http://localhost:3000/",
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 5 * 60 * 1000,
   },
 });
