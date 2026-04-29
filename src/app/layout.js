@@ -36,8 +36,6 @@ export default function RootLayout({ children }) {
         <link
           href="https://fonts.googleapis.com/css2?family=Rowdies:wght@400;700&family=Roboto:wght@400;700&display=swap"
           rel="stylesheet"
-          media="print"
-          onLoad="this.onload=null;this.removeAttribute('media');"
         />
       </head>
 
