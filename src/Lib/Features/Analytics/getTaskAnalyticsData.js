@@ -12,18 +12,15 @@ const initialState = {
 const diffAnnotationReview = (payload) => {
   const respObjKeys = Object.keys(payload);
   const returnData = respObjKeys?.map((objName) => {
-    if (Array.isArray(payload[objName])) {
-      return payload[objName].map(value => {
-        return {
-          projectType: (objName),
-          languages: (value?.language),
-          annotation_cumulative_tasks_count: (value?.ann_cumulative_tasks_count),
-          review_cumulative_tasks_count: (value?.rew_cumulative_tasks_count),
-          diff_annotation_review: (value?.ann_cumulative_tasks_count - value?.rew_cumulative_tasks_count)
-        };
-      })
-    }
-    return [];
+    return payload[objName]?.map(value => {
+      return {
+        projectType:(objName),
+        languages: (value?.language),
+        annotation_cumulative_tasks_count: (value?.ann_cumulative_tasks_count),
+        review_cumulative_tasks_count: (value?.rew_cumulative_tasks_count),
+        diff_annotation_review: (value?.ann_cumulative_tasks_count - value?.rew_cumulative_tasks_count)
+      };
+    })
   })
   return returnData;
 
