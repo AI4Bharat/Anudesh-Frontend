@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../fetchParams';
 import ENDPOINTS from "../../config/apiendpoint";
+import { customFetch } from '../customFetch';
 
 const initialState = {
   data: [], 
@@ -13,7 +14,7 @@ export const fetchGuestWorkspaceData = createAsyncThunk(
   'getGuestWorkspace/fetchGuestWorkspaceData',
   async (pageNumber) => {
     const params = fetchParams(`${ENDPOINTS.getWorkspaces}list_guest_workspaces/`);
-    return fetch(params.url, params.options)
+    return customFetch(params.url, params.options)
       .then((response) => response.json());
   }
 );

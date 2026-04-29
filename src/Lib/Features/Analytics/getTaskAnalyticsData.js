@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint";
+import { customFetch } from '../../customFetch';
 
 const initialState = {
   data: [],
@@ -41,7 +42,7 @@ export const fetchTaskAnalyticsData = createAsyncThunk(
     :
     endpoint = `${ENDPOINTS.getOrganizations}public/1/cumulative_tasks_count/?project_type_filter=${project_type_filter}`
     const params = fetchParams(endpoint,"GET",JSON.stringify(body));
-    return fetch(params.url, params.options)
+    return customFetch(params.url, params.options)
         .then(response => response.json())
   }
 );

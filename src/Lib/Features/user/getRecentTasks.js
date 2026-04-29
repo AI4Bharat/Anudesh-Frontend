@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
+import { customFetch } from '../../customFetch';
 const initialState = {
   data: [],
   status: 'idle',
@@ -17,7 +18,7 @@ export const fetchRecentTasks = createAsyncThunk(
       }
     }
     const params = fetchParams(`${ENDPOINTS.getTasks}annotated_and_reviewed_tasks/get_users_recent_tasks/?${queryString}`);
-    return fetch(params.url, params.options)
+    return customFetch(params.url, params.options)
         .then(response => response.json())
   }
 );

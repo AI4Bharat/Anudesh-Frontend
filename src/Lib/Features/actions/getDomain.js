@@ -1,3 +1,4 @@
+import { customFetch } from '../../customFetch';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import ENDPOINTS from "../../../config/apiendpoint"
 
@@ -25,7 +26,7 @@ export const fetchDomain = createAsyncThunk('getDomain/fetchDomain', async (glos
   };
 
   try {
-      const response = await fetch(url, options);
+      const response = await customFetch(url, options);
       if (!response.ok) {
           throw new Error('Network response was not ok');
       }

@@ -1,6 +1,7 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import apiendpoint from '@/config/apiendpoint';
 import fetchParams from '@/Lib/fetchParams';
+import { customFetch } from '../../customFetch';
 
 // Desc: Reducer for getting manager suggestions
 let initialState = {
@@ -13,7 +14,7 @@ export const fetchManagerSuggestions = createAsyncThunk(
     'getManagerSuggestions/fetchManagerSuggestions',
     async ({id}) => {
         const params = fetchParams(`${apiendpoint.inviteUsers}pending_users/?organisation_id=${id}`);
-        return fetch(params.url, params.options)
+        return customFetch(params.url, params.options)
             .then(response => response.json())
     }
 );

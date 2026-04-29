@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
+import { customFetch } from '../../customFetch';
 const initialState = {
   data: [],
   status: 'idle',
@@ -21,7 +22,7 @@ export const fetchWorkspaceProjectReport = createAsyncThunk(
           send_mail: sendMail,
         };
     const params = fetchParams(`${ENDPOINTS.getWorkspaces}${workspaceId}/project_analytics/`,"POST",JSON.stringify(body));
-    return fetch(params.url, params.options)
+    return customFetch(params.url, params.options)
         .then(response => response.json())
   }
 );

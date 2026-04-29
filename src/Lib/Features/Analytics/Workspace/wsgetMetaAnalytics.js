@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../../fetchParams';
 import ENDPOINTS from "../../../../config/apiendpoint"
+import { customFetch } from '../../../customFetch';
 
 const initialState = {
   data: [],
@@ -61,7 +62,7 @@ export const fetchwsMetaAnalyticsData = createAsyncThunk(
     :
     endpoint = `${ENDPOINTS.getWorkspaces}${wsID}/cumulative_tasks_count_all/?metainfo=true&project_type_filter=${project_type_filter}`
     const params = fetchParams(endpoint);
-    return fetch(params.url, params.options)
+    return customFetch(params.url, params.options)
         .then(response => response.json())
   }
 );
