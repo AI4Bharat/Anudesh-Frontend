@@ -76,11 +76,6 @@ const ProjectList = React.memo(function ProjectList({ data }) {
         setBookmarkedProjects(data.results || []);
       } catch (error) {
         console.error('Error fetching bookmarked projects:', error);
-        setSnackbarInfo({
-          open: true,
-          message: "Failed to fetch bookmarked projects",
-          variant: "error",
-        });
       }
       setBookmarkedLoading(false);
     };
