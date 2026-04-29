@@ -606,7 +606,7 @@ const ModelInteractionEvaluation = ({
             setExpandedCurrentFormAccordion((prev) => !prev);
           }}
           sx={{
-              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+             background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
             borderRadius: "20px",
             marginBottom: "2rem",
           }}
