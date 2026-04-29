@@ -11,7 +11,7 @@
     "@next/next/no-page-custom-font": "off",
     "react/display-name": "off" ,
     "react/no-unknown-property": ["error", { "ignore": ["suppressHydrationWarning"] }],
-    "no-unused-vars": ["warn", { "suppressWarnings": ["unused-imports"] }],
+    "no-unused-vars": "warn",
     "react/jsx-key": "off"
 
   }
