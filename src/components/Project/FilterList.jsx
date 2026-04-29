@@ -35,11 +35,19 @@ const FilterList = (props) => {
   const [selectAnnotator, setSelectAnnotator] = useState("All");
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
   const userDetails = useSelector((state) => state.getLoggedInData?.data);
+  
+  // Get default status based on type
+  const getDefaultStatus = () => {
+    return currentFilters?.annotation_status 
+      ? "unlabeled" 
+      : "unreviewed";
+  };
+
   useEffect(() => {
     const savedFilters = localStorage.getItem("filters");
     if (savedFilters) {
       const parsedFilters = JSON.parse(savedFilters);
-      setSelectedStatus(parsedFilters.selectedStatus || "");
+      setSelectedStatus(parsedFilters.selectedStatus || getDefaultStatus());
       setpull(parsedFilters.pull || "All");
       setRejected(parsedFilters.rejected || false);
     }
@@ -50,6 +58,55 @@ const FilterList = (props) => {
     : currentFilters?.review_status
       ? ["Pulled By SuperChecker", "Not Pulled By SuperChecker"]
       : null;
+
+  // Direct status change handler without Apply button
+  const handleDirectStatusChange = (newStatus) => {
+    setSelectedStatus(newStatus);
+    let statusvalue = !!currentFilters?.annotation_status
+      ? "annotation_status"
+      : "review_status";
+    
+    localStorage.setItem(
+      "filters",
+      JSON.stringify({
+        selectedStatus: newStatus,
+        pull,
+        rejected,
+      })
+    );
+
+    const { start_date, end_date, ...restFilters } = currentFilters;
+    updateFilters({
+      ...restFilters,
+      [statusvalue]: newStatus,
+    });
+  };
+
+  // NEW: Clear button handler - resets to default status
+  const handleClearStatus = () => {
+    const defaultStatus = getDefaultStatus();
+    setSelectedStatus(defaultStatus);
+    
+    let statusvalue = !!currentFilters?.annotation_status
+      ? "annotation_status"
+      : "review_status";
+    
+    localStorage.setItem(
+      "filters",
+      JSON.stringify({
+        selectedStatus: defaultStatus,
+        pull,
+        rejected,
+      })
+    );
+
+    const { start_date, end_date, ...restFilters } = currentFilters;
+    updateFilters({
+      ...restFilters,
+      [statusvalue]: defaultStatus,
+    });
+  };
+
   const handleStatusChange = (e) => {
     let statusvalue = !!currentFilters?.annotation_status
       ? "annotation_status"
@@ -66,10 +123,10 @@ const FilterList = (props) => {
     updateFilters({
       ...restFilters,
       [statusvalue]: selectedStatus,
-      // ["editable"]: pullvalue
     });
     props.handleClose();
   };
+
   return (
     <div>
       <Popover
@@ -88,41 +145,59 @@ const FilterList = (props) => {
       >
         <Box className="filterContainer">
           <Stack direction="row">
-            <FormGroup sx={{ display: "flex", flexDirection: "column" }}>
-              <Typography
-                variant="body2"
-                sx={{ ml: 1, fontWeight: "700", fontSize: "16px" }}
-                className="filterTypo"
-              >
-                {translate("label.filter.status")}
-              </Typography>
-              {filterStatusData.Status.map((type) => {
-                return (
-                  <FormControlLabel
-                    control={
-                      <Radio
-                        checked={selectedStatus === type ? true : false}
-                        name={type}
-                        color="primary"
-                      />
-                    }
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    value={type}
-                    label={snakeToTitleCase(type)}
-                    sx={{
-                      fontSize: "1rem",
-                    }}
-                    disabled={
-                      (ProjectDetails.project_stage === 2 ||
-                        ProjectDetails?.review_supercheckers?.some(
-                          (superchecker) => superchecker.id === userDetails?.id,
-                        )) &&
-                      type === "rejected"
-                    }
-                  />
-                );
-              })}
+            <FormGroup sx={{ display: "flex", flexDirection: "column", minWidth: 250 }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "700", fontSize: "16px" }}
+                  className="filterTypo"
+                >
+                  {translate("label.filter.status")}
+                </Typography>
+                
+                {/* NEW: Clear button */}
+                <Button 
+                  size="small" 
+                  onClick={handleClearStatus}
+                  sx={{ 
+                    textTransform: 'none',
+                    color: 'primary.main',
+                    fontSize: '12px',
+                    minWidth: 'auto',
+                    p: '4px 8px'
+                  }}
+                >
+                  Clear
+                </Button>
+              </Box>
+              
+              {/* Status dropdown */}
+              <FormControl sx={{ width: '100%' }} size="small">
+                <Select
+                  value={selectedStatus}
+                  onChange={(e) => handleDirectStatusChange(e.target.value)}
+                  sx={{ fontSize: "14px" }}
+                >
+                  {filterStatusData.Status.map((type) => (
+                    <MenuItem 
+                      key={type} 
+                      value={type}
+                      disabled={
+                        (ProjectDetails.project_stage === 2 ||
+                          ProjectDetails?.review_supercheckers?.some(
+                            (superchecker) => superchecker.id === userDetails?.id,
+                          )) &&
+                        type === "rejected"
+                      }
+                    >
+                      {snakeToTitleCase(type)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </FormGroup>
+            
+            {/* Rest of your existing code remains exactly the same */}
             <Stack direction="column">
               {currentFilters?.annotation_status ? (
                 <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
@@ -188,7 +263,7 @@ const FilterList = (props) => {
                 </FormControl>
               ) : null}
               {currentFilters?.annotation_status &&
-                selectedStatus !== "unlabeled" ? (
+              selectedStatus !== "unlabeled" ? (
                 <FormControl sx={{ m: 1, minWidth: 125 }} size="small">
                   <FormControlLabel
                     control={
@@ -245,18 +320,7 @@ const FilterList = (props) => {
               size="small"
               className="clearAllBtn"
             >
-              {" "}
               {translate("button.cancel")}
-            </Button>
-            <Button
-              onClick={handleStatusChange}
-              variant="contained"
-              color="primary"
-              size="small"
-              className="clearAllBtn"
-            >
-              {" "}
-              {translate("button.Apply")}
             </Button>
           </Box>
         </Box>
@@ -264,4 +328,5 @@ const FilterList = (props) => {
     </div>
   );
 };
+
 export default FilterList;

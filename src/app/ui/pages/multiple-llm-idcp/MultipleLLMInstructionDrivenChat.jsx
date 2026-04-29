@@ -143,6 +143,7 @@ const startDragging = useCallback((e) => {
 const stopDragging = useCallback(() => {
   setIsDragging(false);
 }, []);
+  
 
 const onDrag = useCallback((e) => {
   if (!isDragging || !containerRef.current) return;
@@ -1332,7 +1333,14 @@ useEffect(() => {
         });
     }
 }, [chatHistory?.length]); 
-
+ // Helper function to detect if text is in Urdu/Kashmiri script
+  const isRTLLanguage = (text) => {
+    if (!text) return false;
+    // Both Urdu and Kashmiri use Arabic/Persian script (Unicode range U+0600 to U+06FF)
+    // This range covers Arabic, Persian, Urdu, and Kashmiri scripts
+    const rtlScriptRegex = /[\u0600-\u06FF]/;
+    return rtlScriptRegex.test(text);
+  };
 
   const renderChatHistory = () => {
     const toggleShrink = (index) => {
