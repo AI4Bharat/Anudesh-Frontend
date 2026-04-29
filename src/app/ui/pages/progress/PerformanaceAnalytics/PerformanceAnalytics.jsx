@@ -315,10 +315,8 @@ export default function PerformanceAnalytics() {
     if (ProjectTypes) {
       let types = [];
       Object.keys(ProjectTypes).forEach((key) => {
-        if (ProjectTypes[key] && ProjectTypes[key]["project_types"]) {
-          let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
-          types.push(...subTypes);
-        }
+        let subTypes = Object.keys(ProjectTypes[key]["project_types"]);
+        types.push(...subTypes);
       });
       setProjectTypes(types);
       types?.length && setSelectedType(types[3]);
