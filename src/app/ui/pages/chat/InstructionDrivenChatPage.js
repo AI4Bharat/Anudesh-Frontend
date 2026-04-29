@@ -1122,10 +1122,7 @@ return (
             overflowY: "auto",
             padding: "1rem",
             paddingBottom:"0rem!important",
-            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundColor: "#fff",
+            background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
             width: "100%",
             minHeight: 0,
           }}
