@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
-import { customFetch } from '../../customFetch';
 
 const initialState = {
   data: [],
@@ -24,7 +23,7 @@ export const fetchAllTaskData = createAsyncThunk(
         }
       }
     const params = fetchParams(`${ENDPOINTS.getTasks+queryString}`);
-    return customFetch(params.url, params.options)
+    return fetch(params.url, params.options)
         .then(response => response.json())
   }
 );

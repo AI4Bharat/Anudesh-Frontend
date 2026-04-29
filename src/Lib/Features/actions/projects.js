@@ -1,6 +1,5 @@
 import fetchParams from '@/Lib/fetchParams';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { customFetch } from '../../customFetch';
 
 const initialState = {
     status: 'idle',
@@ -15,13 +14,13 @@ const initialState = {
 
 export const createProject = createAsyncThunk('projects/createProject', async (body) => {
     const params = fetchParams("/projects/", "POST", JSON.stringify(body));
-    return customFetch(params.url, params.options)
+    return fetch(params.url, params.options)
         .then(response => response.json())
 });
 
 export const setPasswordForProject = createAsyncThunk('projects/setPasswordForProject', async ({ projectId, password }) => {
   const params = fetchParams(`/projects/${projectId}/set_password/`, 'POST', JSON.stringify({ password }));
-  const response = await customFetch(params.url, params.options);
+  const response = await fetch(params.url, params.options);
   if (!response.ok) {
     throw new Error('Failed to set password');
   }

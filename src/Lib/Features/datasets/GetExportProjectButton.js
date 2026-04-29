@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
-import { customFetch } from '../../customFetch';
 const initialState = {
     data: [],
     status: 'idle',
@@ -16,7 +15,7 @@ const initialState = {
            
           } : {}
       const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/project_export/`,"POST",JSON.stringify(body));
-      return customFetch(params.url, params.options)
+      return fetch(params.url, params.options)
           .then(response => response.json())
     }
   );

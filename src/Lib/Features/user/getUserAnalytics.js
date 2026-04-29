@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
-import { customFetch } from '../../customFetch';
 const initialState = {
   data: [],
   status: 'idle',
@@ -14,7 +13,7 @@ export const fetchUserAnalytics = createAsyncThunk(
     console.log(progressObj);
     
     const params = fetchParams(`${ENDPOINTS.getUsers}user_analytics/`,"POST",JSON.stringify(progressObj));
-    return customFetch(params.url, params.options)
+    return fetch(params.url, params.options)
         .then(response => response.json())
   }
 );

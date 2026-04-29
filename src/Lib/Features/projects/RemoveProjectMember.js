@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
-import { customFetch } from '../../customFetch';
 const initialState = {
   data: [],
   status: 'idle',
@@ -15,7 +14,7 @@ export const fetchRemoveProjectMember = createAsyncThunk(
       ids:projectObj
     }
     const params = fetchParams(`${ENDPOINTS.getProjects}${projectId}/remove_annotator/`,"POST",JSON.stringify(body));
-    return customFetch(params.url, params.options)
+    return fetch(params.url, params.options)
         .then(response => response.json())
   }
 );

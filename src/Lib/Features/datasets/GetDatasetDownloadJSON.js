@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import fetchParams from '../../fetchParams';
 import ENDPOINTS from "../../../config/apiendpoint"
-import { customFetch } from '../../customFetch';
 const initialState = {
   data: [],
   status: 'idle',
@@ -13,7 +12,7 @@ export const fetchDatasetDownloadJSON = createAsyncThunk(
   async (datasetId, { dispatch }) => {
    
     const params = fetchParams(`${ENDPOINTS.getDatasets}instances/${datasetId}/download/?export_type=JSON`);
-    return customFetch(params.url, params.options)
+    return fetch(params.url, params.options)
         .then(response => response.json())
   }
 );

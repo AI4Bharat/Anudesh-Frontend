@@ -1,6 +1,5 @@
 import fetchParams from '@/Lib/fetchParams';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { customFetch } from '../../customFetch';
 
 const initialState = {
     status: 'idle',
@@ -10,7 +9,7 @@ const initialState = {
 
 export const fetchDomains = createAsyncThunk('domains/fetchDomains', async () => {
     const params = fetchParams("/projects/types");
-    return customFetch(params.url, params.options)
+    return fetch(params.url, params.options)
         .then(response => response.json())
 });
 
