@@ -719,9 +719,7 @@ function GuestChatPage() {
           display: 'flex',
           flexDirection: 'column',
           height: '100vh',
-          backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
+          background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
         }}
       >
         <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
