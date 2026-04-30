@@ -191,11 +191,6 @@ const translationServices = {
     getLoggedInUserData();
   }, []);
 
-  /* useEffect(()=>{
-    if(loggedInUserData?.prefer_cl_ui !== undefined){
-      setCheckClUI(loggedInUserData?.prefer_cl_ui)
-    }
-  },[loggedInUserData]) */
 
   // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
   const onLogoutClick = () => {

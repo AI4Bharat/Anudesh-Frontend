@@ -6,13 +6,11 @@ import constants from "@/Constants/constants";
 export default class UpdateUIPrefsAPI extends API {
     /**
      * @param {Object} payload - Any subset of:
-     *   { prefer_cl_ui, instruction_panel_width, annotation_font_size, instruction_panel_pinned }
+     *   { instruction_panel_width, annotation_font_size, instruction_panel_pinned }
      */
     constructor(payload, timeout = 2000) {
         super("POST", timeout, false);
-        this.payload = typeof payload === "boolean"
-            ? { prefer_cl_ui: payload }  // backward-compat: old callers pass a bool directly
-            : payload;
+        this.payload = payload;
         this.type = constants.UPDATE_UI_PREFS;
         this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.fetch}update_ui_prefs/`;
     }
