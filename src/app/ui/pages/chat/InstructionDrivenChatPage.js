@@ -33,6 +33,11 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Slider from '@mui/material/Slider';
+import UpdateUIPrefsAPI from '@/Lib/Features/user/UpdateUIPrefs';
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important",
@@ -102,34 +107,74 @@ const InstructionDrivenChatPage = ({
   const load_time = useRef();
 const [isDragging, setIsDragging] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30);
+const [isPinned, setIsPinned] = useState(false);
+const [fontSize, setFontSize] = useState(0.9);
 const containerRef = useRef(null);
 
+const saveAnnotationPref = useCallback(async (payload) => {
+  try {
+    const obj = new UpdateUIPrefsAPI(payload);
+    await fetch(obj.apiEndPoint(), {
+      method: 'POST',
+      body: JSON.stringify(obj.getBody()),
+      headers: obj.getHeaders().headers,
+    });
+  } catch (err) {
+    console.error('Failed to save annotation UI preference', err);
+  }
+}, []);
+
 const startDragging = useCallback((e) => {
+  if (isPinned) return;
   e.preventDefault();
   setIsDragging(true);
-  console.log("Drag");
-  
-}, []);
+}, [isPinned]);
 
 const stopDragging = useCallback(() => {
+  if (!isDragging) return;
   setIsDragging(false);
-}, []);
+  // Persist width when drag ends (only if not pinned — pin locks it after first save)
+  setInstructionWidth((currentWidth) => {
+    saveAnnotationPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
+    return currentWidth;
+  });
+}, [isDragging, saveAnnotationPref]);
 
 const onDrag = useCallback((e) => {
-  console.log("dragg",isDragging);
-  
   if (!isDragging || !containerRef.current) return;
-console.log(e.clientX,"drag");
-
   const containerRect = containerRef.current.getBoundingClientRect();
-  const dragX = e.clientX;
-  const containerLeft = containerRect.left;
-  const containerWidth = containerRect.width;
-  
-  const percentage = ((dragX - containerLeft) / containerWidth) * 100;
-  const newWidth = Math.min(60, Math.max(20, percentage));
+  const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+  const newWidth = Math.min(60, Math.max(25, percentage));
   setInstructionWidth(newWidth);
 }, [isDragging]);
+
+const handlePinToggle = useCallback(() => {
+  const newPinned = !isPinned;
+  setIsPinned(newPinned);
+  saveAnnotationPref({
+    instruction_panel_pinned: newPinned,
+    instruction_panel_width: Math.round(instructionWidth * 10) / 10,
+  });
+}, [isPinned, instructionWidth, saveAnnotationPref]);
+
+const handleFontSizeChange = useCallback((_e, newVal) => {
+  setFontSize(newVal);
+}, []);
+
+const handleFontSizeCommit = useCallback((_e, newVal) => {
+  saveAnnotationPref({ annotation_font_size: newVal });
+}, [saveAnnotationPref]);
+
+const handleResetUIPrefs = useCallback(() => {
+  setFontSize(0.9);
+  setInstructionWidth(30);
+  setIsPinned(false);
+  saveAnnotationPref({
+    annotation_font_size: 0.9,
+    instruction_panel_width: 30,
+    instruction_panel_pinned: false
+  });
+}, [saveAnnotationPref]);
 
 useEffect(() => {
   if (isDragging) {
@@ -149,6 +194,24 @@ const [snackbar, setSnackbarInfo] = useState({
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
+
+  // Sync annotation UI preferences from user profile on mount / when user data loads
+  useEffect(() => {
+    if (loggedInUserData?.annotation_ui_preferences) {
+      const prefs = loggedInUserData.annotation_ui_preferences;
+      if (typeof prefs.instruction_panel_width === 'number') {
+        setInstructionWidth(prefs.instruction_panel_width);
+      }
+      if (typeof prefs.annotation_font_size === 'number') {
+        setFontSize(prefs.annotation_font_size);
+      }
+      if (typeof prefs.instruction_panel_pinned === 'boolean') {
+        setIsPinned(prefs.instruction_panel_pinned);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loggedInUserData?.id]);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -541,7 +604,7 @@ const renderChatHistory = () => {
                         {...props}
                         className=""
                         style={{
-                          fontSize: "0.9rem",
+                          fontSize: `${fontSize}rem`,
                           width: "100%",
                           borderRadius: "12px 12px 0 12px",
                           color: grey[900],
@@ -569,7 +632,7 @@ const renderChatHistory = () => {
                       handleTextChange(e, null, message, "prompt")
                     }
                     style={{
-                      fontSize: "0.9rem",
+                      fontSize: `${fontSize}rem`,
                       width: "100%",
                       borderRadius: "12px 12px 0 12px",
                       color: grey[900],
@@ -589,7 +652,7 @@ const renderChatHistory = () => {
                   className="flex-col"
                   children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
                   components={{
-                    p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                    p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
                   }}
                 />
               )}
@@ -690,7 +753,7 @@ const renderChatHistory = () => {
                           }
                           lang={targetLang}
                           style={{
-                            fontSize: "0.9rem",
+                            fontSize: `${fontSize}rem`,
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
@@ -713,7 +776,7 @@ const renderChatHistory = () => {
                             handleTextChange(e, index, message, "output")
                           }
                           style={{
-                            fontSize: "0.9rem",
+                            fontSize: `${fontSize}rem`,
                             width: "100%",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
@@ -731,7 +794,7 @@ const renderChatHistory = () => {
                         key={index}
                         children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
                         components={{
-                          p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                          p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
                         }}
                       />
                     )
@@ -743,7 +806,7 @@ const renderChatHistory = () => {
                       customStyle={{ 
                         padding: "0.8rem",
                         borderRadius: "5px",
-                        fontSize: "0.9rem"
+                        fontSize: `${fontSize}rem`
                       }}
                     >
                       {segment.value}
@@ -913,12 +976,13 @@ return (
       }
     }}
   />
-)}        <Box
+)}
+        <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            marginBottom: isInstructionExpanded ? "0.5rem" : 0,
             padding: "0.5rem",
             backgroundColor: "rgba(247, 184, 171, 0.2)",
             borderRadius: "8px",
@@ -940,32 +1004,98 @@ return (
               {translate("typography.instructions")}
             </Typography>
           )}
-          <Tooltip
-            title={
-              <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                {isInstructionExpanded ? "Collapse" : "Expand"}
-              </span>
-            }
-          >
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsInstructionExpanded(!isInstructionExpanded);
-              }}
-              sx={{ 
-                padding: isInstructionExpanded ? '8px' : '4px',
-                minWidth: 'auto'
-              }}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            {isInstructionExpanded && (
+              <Tooltip
+                title={
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      {isPinned ? "Unpin panel width" : "Pin panel width"}
+                    </span>
+                  }
+                >
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                  sx={{ padding: "4px", minWidth: "auto" }}
+                >
+                  {isPinned
+                    ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                    : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                </IconButton>
+              </Tooltip>
+            )}
+            <Tooltip
+              title={
+                <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                  {isInstructionExpanded ? "Collapse" : "Expand"}
+                </span>
+              }
             >
-              {isInstructionExpanded ? (
-                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              ) : (
-                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInstructionExpanded(!isInstructionExpanded);
+                }}
+                sx={{ 
+                  padding: isInstructionExpanded ? '8px' : '4px',
+                  minWidth: 'auto'
+                }}
+              >
+                {isInstructionExpanded ? (
+                  <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                ) : (
+                  <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
+
+        {/* Font size slider — shown when expanded */}
+        {isInstructionExpanded && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              px: "0.5rem",
+              pb: "0.5rem",
+              flexShrink: 0,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+              Aa
+            </Typography>
+            <Slider
+              value={fontSize}
+              min={0.7}
+              max={1.4}
+              step={0.05}
+              onChange={handleFontSizeChange}
+              onChangeCommitted={handleFontSizeCommit}
+              size="small"
+              sx={{
+                color: "#EE6633",
+                width: "100%",
+                "& .MuiSlider-thumb": { width: 12, height: 12 },
+              }}
+            />
+            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+              {Math.round(fontSize * 16)}px
+            </Typography>
+            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
+                sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+              >
+                <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
 
         {isInstructionExpanded && (
           <Box
@@ -987,7 +1117,7 @@ return (
               <Typography
                 paragraph
                 sx={{
-                  fontSize: "0.9rem",
+                  fontSize: `${fontSize}rem`,
                   lineHeight: "1.5",
                   color: "#333",
                 }}
@@ -1012,7 +1142,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                    fontSize: `${fontSize + 0.1}rem`,
                     mb: 1,
                   }}
                 >
@@ -1021,7 +1151,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                    fontSize: "0.85rem",
+                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -1040,7 +1170,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                    fontSize: `${fontSize + 0.1}rem`,
                     mb: 1,
                   }}
                 >
@@ -1049,7 +1179,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                    fontSize: "0.85rem",
+                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -1068,7 +1198,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                    fontSize: `${fontSize + 0.1}rem`,
                     mb: 1,
                   }}
                 >
@@ -1084,7 +1214,7 @@ return (
                   {info.meta_info_language && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
                         Language: {info.meta_info_language}
                       </Typography>
                     </Box>
@@ -1092,7 +1222,7 @@ return (
                   {taskId && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
                         Task ID: {taskId}
                       </Typography>
                     </Box>
