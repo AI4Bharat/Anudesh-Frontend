@@ -1,7 +1,32 @@
+div:has(> .custom-transliterate-container) {
+  overflow: visible !important;
+}
+
+
+div:has(> div > .custom-transliterate-container) {
+  overflow: visible !important;
+}
+
+
+div:has(> div > div > .custom-transliterate-container) {
+  overflow: visible !important;
+}
 .custom-transliterate-container div[style] > button[style] {
   bottom: 13px !important;
   right: -40px !important; /* Default for mobile */
   top: auto !important;
+  z-index: 1000 !important;
+}
+.custom-transliterate-container div[style] {
+  overflow: visible !important;  
+}
+.custom-transliterate-container {
+  overflow: visible !important;  
+}
+.custom-transliterate-container,
+.custom-transliterate-container ~ *,
+div:has(> .custom-transliterate-container) {
+  overflow: visible !important;
 }
 
 @media (min-width: 768px) {
