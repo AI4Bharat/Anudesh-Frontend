@@ -14,6 +14,8 @@ import UserInfo from "./UserInfo";
 import Spinner from "../../../../components/common/Spinner";
 import GetUserDetailUpdateAPI from "@/app/actions/api/Admin/EditProfile";
 import GetUserDetailAPI from "@/app/actions/api/Admin/UserDetail";
+import { useTheme } from "@/context/ThemeContext";
+
 
 import { fetchUserDetails } from "@/Lib/Features/user/getUserDetails";
 
@@ -39,6 +41,7 @@ const MUIDataTable = dynamic(
 
 const UserDetail = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { dark } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [displayWidth, setDisplayWidth] = useState(0);
@@ -498,27 +501,155 @@ const UserDetail = (props) => {
     <div>
       {renderSnackBar()}
       {loading && <Spinner />}
-      <Grid
-        container
-        justifyContent="center"
-        sx={{
-          mb: 2,
-          padding: "10px",
-        }}>
-        <Search />
-      </Grid>
+<Grid
+  container
+  justifyContent="center"
+  sx={{
+    mb: 2,
+    padding: "10px",
+    backgroundColor: dark ? "#1e1e1e" : "",
+  }}>
+  <Search />
+</Grid>
       <ThemeProvider theme={tableTheme}>
-        <MUIDataTable
-          key={`table-${displayWidth}`}
-          title="User Details"
-          data={data}
-          columns={columns}
-          options={{
-            ...options,
-            tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-          }}
-        />
-      </ThemeProvider>
+  <Box
+  sx={{
+    width: "100%",
+    borderRadius: dark ? "8px" : "",
+    overflow: "hidden",
+    border: dark ? "1px solid #3a3a3a" : "",
+
+    ...(dark && {
+      // MAIN TABLE WRAPPER
+      "& .MuiPaper-root": {
+        backgroundColor: "#1e1e1e",
+        color: "#ececec",
+        border: "none",
+        boxShadow: "none",
+      },
+
+      // TOOLBAR (title row)
+      "& .MuiToolbar-root": {
+        backgroundColor: "#252525",
+        borderBottom: "1px solid #3a3a3a",
+      },
+
+      // TABLE HEADER
+      "& thead th": {
+        backgroundColor: "#252525",
+        color: "#ececec",
+        fontWeight: 700,
+        borderBottom: "2px solid #3a3a3a",
+        fontSize: "0.85rem",
+        letterSpacing: "0.04em",
+      },
+
+      // BODY CELLS
+      "& tbody td": {
+        color: "#d0d0d0",
+        borderBottom: "1px solid #2e2e2e",
+        fontSize: "0.875rem",
+      },
+
+      // ROW STRIPING
+      "& tbody tr:nth-of-type(odd)": {
+        backgroundColor: "#1e1e1e",
+      },
+      "& tbody tr:nth-of-type(even)": {
+        backgroundColor: "#242424",
+      },
+
+      // HOVER
+      "& tbody tr:hover": {
+        backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+        transition: "background-color 0.2s ease",
+      },
+
+      // TITLE TEXT
+      "& .MuiTypography-root": {
+        color: "#ececec",
+      },
+      "& .MuiTablePagination-selectLabel": {
+  color: "#a0a0a0",   // "Rows per page"
+},
+
+"& .MuiTablePagination-displayedRows": {
+  color: "#a0a0a0",   // "1–10 of 2166"
+},
+
+"& .MuiTablePagination-select": {
+  color: "#ececec",   // the "10" dropdown value
+},
+
+"& .MuiTablePagination-actions button": {
+  color: "#fb923c",   // next/prev arrows
+},
+
+      // PAGINATION
+      "& .MuiTablePagination-root": {
+        color: "#a0a0a0",
+        backgroundColor: "#252525",
+        borderTop: "1px solid #3a3a3a",
+      },
+      "& .MuiTablePagination-selectLabel": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-displayedRows": {
+        color: "#a0a0a0",
+      },
+      "& .MuiTablePagination-select": {
+        color: "#ececec",
+      },
+
+      // ACTION ICONS
+      "& .MuiIconButton-root": {
+        color: "#fb923c",
+        "&:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.12)",
+        },
+        "&.Mui-disabled": {
+          color: "#555555",
+        },
+      },
+
+      // SELECT DROPDOWN
+      "& .MuiSelect-select": {
+        color: "#ececec",
+        backgroundColor: "#2a2a2a",
+      },
+      "& .MuiSelect-icon": {
+        color: "#a0a0a0",
+      },
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#3a3a3a",
+      },
+
+      // SVG ICONS
+      "& .MuiSvgIcon-root": {
+        color: "#fb923c",
+      },
+
+      // JUMP TO PAGE LABEL
+      "& label": {
+        color: "#a0a0a0",
+      },
+    }),
+  }}
+>
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title="User Details"
+      data={data}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${
+          typeof window !== "undefined" ? window.innerHeight - 200 : 400
+        }px`,
+      }}
+    />
+  </Box>
+</ThemeProvider>
 
       {openDialog && (
         <UserInfo

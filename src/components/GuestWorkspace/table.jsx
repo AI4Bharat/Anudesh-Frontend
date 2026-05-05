@@ -36,6 +36,7 @@ import VerifyProject from "@/app/actions/api/Projects/VerifyProject";
 import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "../common/Snackbar";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -61,7 +62,8 @@ const GuestWorkspaceTable = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-    const [displayWidth, setDisplayWidth] = useState(0);
+  const { dark } = useTheme();
+  const [displayWidth, setDisplayWidth] = useState(0);
   const [filteredProjects, setFilteredProjects] = useState(null); 
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -414,16 +416,13 @@ const GuestWorkspaceTable = (props) => {
             sx={{
               display: "flex",
               flexWrap: "wrap", 
-              justifyContent: { 
-                xs: "space-between", 
-                md: "flex-end" 
-              }, 
+              justifyContent: { xs: "space-between", md: "flex-end" }, 
               alignItems: "center",
               padding: "10px",
-              gap: { 
-                xs: "10px", 
-                md: "20px" 
-              }, 
+              gap: { xs: "10px", md: "20px" },
+              backgroundColor: dark ? "#252525" : "",
+              borderTop: dark ? "1px solid #3a3a3a" : "",
+              color: dark ? "#a0a0a0" : "",
             }}
           >
       
@@ -509,58 +508,90 @@ const GuestWorkspaceTable = (props) => {
 
   };
 
-  return (
+ return (
+  <div style={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100%" }}>
+    {renderSnackBar()}
+    {loading && <Spinner />} 
     <div>
-      {renderSnackBar()}
-      {loading && <Spinner />} 
-      <div>
 
         <Grid sx={{ mb: 1 }}>
           <Search />
         </Grid>
         {filteredProjects && (
-          <ThemeProvider theme={tableTheme}>
-            <MUIDataTable
-              key={`table-${displayWidth}`}
-              title={""}
-              data={data}
-              columns={columns}
-              options={{
-                ...options,
-                tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-              }}
-            />
+         <ThemeProvider theme={tableTheme}>
+            <Box sx={{
+              ...(dark && {
+                "& .MuiPaper-root": { backgroundColor: "#1e1e1e", color: "#ececec", border: "none", boxShadow: "none" },
+                "& .MuiToolbar-root": { backgroundColor: "#252525", borderBottom: "1px solid #3a3a3a" },
+                "& thead th": { backgroundColor: "#252525", color: "#ececec", fontWeight: 700, borderBottom: "2px solid #3a3a3a" },
+                "& tbody td": { color: "#d0d0d0", borderBottom: "1px solid #2e2e2e" },
+                "& tbody tr:nth-of-type(odd)": { backgroundColor: "#1e1e1e" },
+                "& tbody tr:nth-of-type(even)": { backgroundColor: "#242424" },
+                "& tbody tr:hover": { backgroundColor: "rgba(251, 146, 60, 0.08) !important" },
+                "& .MuiTypography-root": { color: "#ececec" },
+                "& .MuiTablePagination-root": { color: "#a0a0a0", backgroundColor: "#252525", borderTop: "1px solid #3a3a3a" },
+                "& .MuiIconButton-root": { color: "#fb923c" },
+                "& .MuiSvgIcon-root": { color: "#fb923c" },
+                "& .MuiSelect-select": { color: "#ececec" },
+              })
+            }}>
+              <MUIDataTable
+                key={`table-${displayWidth}`}
+                title={""}
+                data={data}
+                columns={columns}
+                options={{
+                  ...options,
+                  tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+                }}
+              />
+            </Box>
           </ThemeProvider>
         )}
         
       </div>
-      <Dialog open={openAuthDialog} onClose={handleAuthClose}>
-        <DialogTitle>Enter Password</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            fullWidth
-            value={password}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            onChange={(e) => setPassword(e.target.value)}
-
-          />
-          <FormHelperText id="enter-password">
-            To enter {" "}
+      <Dialog
+  open={openAuthDialog}
+  onClose={handleAuthClose}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogTitle sx={{ color: dark ? "#ececec" : "" }}>Enter Password</DialogTitle>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+   <TextField
+  autoFocus
+  margin="dense"
+  label="Password"
+  type={showPassword ? "text" : "password"}
+  fullWidth
+  value={password}
+  InputProps={{
+    endAdornment: (
+      <InputAdornment position="end">
+        <IconButton
+          aria-label="toggle password visibility"
+          onClick={handleClickShowPassword}
+          sx={{ color: dark ? "#a0a0a0" : "" }}
+        >
+          {showPassword ? <Visibility /> : <VisibilityOff />}
+        </IconButton>
+      </InputAdornment>
+    ),
+  }}
+  onChange={(e) => setPassword(e.target.value)}
+  sx={{
+    "& .MuiInputBase-root": { color: dark ? "#ececec" : "" },
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+    "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+  }}
+/>
+          <FormHelperText id="enter-password" sx={{ color: dark ? "#a0a0a0" : "" }}>
+           To enter {" "}
             <Typography
               component="span"
               fontWeight="bold"
@@ -571,8 +602,8 @@ const GuestWorkspaceTable = (props) => {
             project you must type in the password.
           </FormHelperText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAuthClose} color="primary">
+    <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
+  <Button onClick={handleAuthClose} color="primary">
             Cancel
           </Button>
           <Button onClick={handlePasswordSubmit} color="primary">

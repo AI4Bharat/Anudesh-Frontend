@@ -3,6 +3,8 @@ import { Grid, ThemeProvider, Box, Typography, Paper } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
 import React, { PureComponent } from "react";
+import { useTheme } from "@/context/ThemeContext";
+
 import {
   BarChart,
   Bar,
@@ -18,6 +20,20 @@ import ResponsiveChartContainer from "@/components/common/ResponsiveChartContain
 function AudioTaskAnalyticsChart(props) {
   const classes = DatasetStyle();
   const dispatch = useDispatch();
+  const { dark } = useTheme();
+  const darkPaper = dark
+  ? { backgroundColor: "#2a2a2a", color: "#ececec" }
+  : {};
+
+const darkText = dark
+  ? { color: "#ececec" }
+  : {};
+
+const darkSubText = dark
+  ? { color: "#a0a0a0" }
+  : {};
+
+const axisColor = dark ? "#a0a0a0" : "#000";
   const { analyticsData } = props;
   const [totalTaskCount, setTotalTaskCount] = useState();
   const [totalAnnotationTasksCount, setTotalAnnotationTasksCount] = useState();
@@ -52,7 +68,13 @@ function AudioTaskAnalyticsChart(props) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className={classes.toolTip}>
+        <div className={classes.toolTip} style={{
+              backgroundColor: dark ? "#2a2a2a" : "#fff",
+              color: dark ? "#ececec" : "#000",
+              border: dark ? "1px solid #3a3a3a" : "1px solid #ccc",
+              padding: "8px",
+              borderRadius: "6px"
+  }}>
           <p style={{ fontWeight: "bold" }}>
             {`${label}`}
             <p style={{ fontWeight: "normal" }}>
@@ -91,14 +113,14 @@ function AudioTaskAnalyticsChart(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
-        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+        <Typography variant="h2" style={{ marginBottom: "35px", ...darkText }} className={classes.heading}>
           {`Tasks Dashboard - ${analyticsData[0].projectType}`}
-          <Typography variant="body1">
+          <Typography variant="body1" style={darkSubText}>
             Count of Annotated and Reviewed Audio Data
           </Typography>
         </Typography>
        
-        <Paper>
+        <Paper sx={darkPaper}>
           <Box className={classes.topBar}>
             <Box className={classes.topBarInnerBox}>
               <Typography
@@ -106,13 +128,14 @@ function AudioTaskAnalyticsChart(props) {
                   fontSize: "1rem",
                   fontWeight: "600",
                   padding: "16px 0",
+                  ...darkText
                 }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400", ...darkSubText }}>
               Total Annotated Tasks
               </Typography>
               <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
@@ -164,18 +187,25 @@ function AudioTaskAnalyticsChart(props) {
                 position="insideLeft"
                 type="category"
                 angle={-30}
+                stroke={axisColor}
+                 tick={{ fill: axisColor }}
               >
                 <Label
-                  value="Language"
-                  position="insideBottom"
-                  fontWeight="bold"
-                  fontSize={16}
-                ></Label>
+  value="Language"
+  position="insideBottom"
+  fontWeight="bold"
+  fontSize={16}
+  fill={axisColor}
+>
+
+                </Label>
               </XAxis>
               <YAxis
                 tickInterval={10}
                 allowDecimals={false}
                 type="number"
+                stroke={axisColor}
+               tick={{ fill: axisColor }}
                 dx={0}
                 tickFormatter={(value) =>
                   new Intl.NumberFormat("en", { notation: "compact" }).format(
@@ -190,14 +220,18 @@ function AudioTaskAnalyticsChart(props) {
                   fontWeight="bold"
                   fontSize={16}
                   offset={-15}
+                  fill={axisColor}
                 ></Label>
               </YAxis>
               {/* <Label value="Count" position="insideLeft" offset={15} /> */}
               <Tooltip
-                contentStyle={{ fontFamily: "Roboto", fontSize: "14px" }}
-                formatter={(value) => new Intl.NumberFormat("en").format(value)}
-                cursor={{ fill: "none" }}
-                content={<CustomTooltip />}
+              contentStyle={{
+                fontFamily: "Roboto",
+                fontSize: "14px",
+                backgroundColor: dark ? "#2a2a2a" : "#fff",
+                border: dark ? "1px solid #3a3a3a" : "1px solid #ccc",
+                color: dark ? "#ececec" : "#000"
+  }}
               />
               <Legend verticalAlign="top" />
               <Bar

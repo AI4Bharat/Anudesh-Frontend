@@ -27,6 +27,7 @@ import { KeyboardArrowDown } from "@material-ui/icons";
 import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
+import { useTheme } from "@/context/ThemeContext";
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -52,7 +53,33 @@ const StyledMenu = styled((props) => (
 
 const TaskAnalytics = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+const { dark } = useTheme();
+const darkInputLabel = dark
+  ? { color: "#a0a0a0", "&.Mui-focused": { color: "#ececec" } }
+  : {};
 
+const darkSelect = dark
+  ? {
+      color: "#ececec",
+      "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#555" },
+      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#888" },
+      "& .MuiSvgIcon-root": { color: "#ececec" },
+    }
+  : {};
+
+const darkPaper = dark
+  ? { backgroundColor: "#2a2a2a", color: "#ececec" }
+  : {};
+
+const darkMenu = dark
+  ? {
+      "& .MuiPaper-root": {
+        backgroundColor: "#2a2a2a",
+        color: "#ececec",
+      },
+    }
+  : {};
   const dispatch = useDispatch();
   const [projectTypes, setProjectTypes] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -250,10 +277,7 @@ if(isWorkspaceLevel && submit==true){
           {/* Project Type Dropdown */}
           <Grid item xs={12} sm={4}>
             <FormControl size="small" fullWidth>
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ fontSize: "16px", zIndex: 0 }}
-              >
+             <InputLabel sx={{ fontSize: "16px", zIndex: 0, ...darkInputLabel }}>
                 Project Type{" "}
                 {
                   <LightTooltip
@@ -270,7 +294,7 @@ if(isWorkspaceLevel && submit==true){
                 id="demo-simple-select"
                 value={selectedType}
                 label="Project Type"
-                sx={{ padding: "1px" }}
+                sx={{ padding: "1px", ...darkSelect }}
                 onChange={(e) => setSelectedType(e.target.value)}
                 MenuProps={MenuProps}
               >
@@ -309,6 +333,7 @@ if(isWorkspaceLevel && submit==true){
                 value={selectedWorkspace}
                 label="Workspace"
                 onChange={(e) => setSelectedWorkspace(e.target.value)}
+                sx={darkSelect}
               >
                 {workspaces?.map((workspace, index) => (
                   <MenuItem value={workspace?.id} key={index}>
@@ -354,10 +379,11 @@ if(isWorkspaceLevel && submit==true){
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
+                sx={darkMenu}
               >
-                <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-                <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-                <MenuItem onClick={downloadJSON}>JSON</MenuItem>
+                <MenuItem onClick={downloadCSV} sx={dark ? { color: "#ececec" } : {}}>CSV</MenuItem>
+                <MenuItem onClick={downloadPDF} sx={dark ? { color: "#ececec" } : {}}>PDF</MenuItem>
+                <MenuItem onClick={downloadJSON} sx={dark ? { color: "#ececec" } : {}}>JSON</MenuItem>
               </StyledMenu>
             </Box>
           </Box>

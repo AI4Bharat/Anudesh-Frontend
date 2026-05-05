@@ -23,6 +23,7 @@ import { useParams } from 'react-router-dom';
 import CustomizedSnackbars from "@/components/common/Snackbar"
 import LoginAPI from "@/app/actions/api/user/Login";
 import removeDuplicatesDatasetInstanceAPI from "@/app/actions/api/dataset/removeDuplicatesDatasetInstanceAPI";
+import { useTheme } from "@/context/ThemeContext";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -49,6 +50,7 @@ export default function DeduplicateDataItems() {
 
   const classes = DatasetStyle();
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const { datasetId } = useParams();
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -207,15 +209,22 @@ const renderSnackBar = () => {
       </Button>
 
       <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
+  id={id}
+  open={open}
+  anchorEl={anchorEl}
+  onClose={handleClose}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "left",
+  }}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+    }
+  }}
+>
         <>
           <Grid
             container
@@ -227,18 +236,19 @@ const renderSnackBar = () => {
           >
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{mt:2}}>
 
-            <FormControl className={classes.formControl} size="small">
-      <InputLabel id="Select-fields-to-deduplicate" sx={{ fontSize: "16px" }}>Select Fields to Deduplicate</InputLabel>
-      <Select
-        labelId="Select-fields-to-deduplicate"
-        label= "Select Fields to Deduplicate"
-        id="Select-fields-to-deduplicate"
-        multiple
-        value={dataitems}
-        onChange={handleChange}
-        renderValue={(selected) => selected.join(", ")}
-        MenuProps={MenuProps}
-      >
+           <FormControl className={classes.formControl} size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <InputLabel id="Select-fields-to-deduplicate" sx={{ fontSize: "16px", color: dark ? "#a0a0a0" : "" }}>Select Fields to Deduplicate</InputLabel>
+  <Select
+    labelId="Select-fields-to-deduplicate"
+    label="Select Fields to Deduplicate"
+    id="Select-fields-to-deduplicate"
+    multiple
+    value={dataitems}
+    onChange={handleChange}
+    renderValue={(selected) => selected.join(", ")}
+    sx={{ color: dark ? "#ececec" : "", backgroundColor: dark ? "#1e1e1e" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ ...MenuProps, PaperProps: { ...MenuProps.PaperProps, sx: { ...MenuProps.PaperProps.style, backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "" } } }}
+  >
         
         {selectedColumns.map((option) => (
           <MenuItem key={option.name} value={option.name}>
@@ -285,28 +295,39 @@ const renderSnackBar = () => {
       </Popover>
 
       <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogContent>
-
-                    <DialogContentText id="alert-dialog-description">
+  open={openDialog}
+  onClose={handleCloseDialog}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+    <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
                     Are you sure you want to delete the Duplicate Data Items ? Please note this action cannot be undone. 
                     </DialogContentText>
                     <TextField
-                        autoFocus
-                        margin="dense"
-                        id="password"
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                      autoFocus
+                      margin="dense"
+                      id="password"
+                      label="Password"
+                      type="password"
+                      fullWidth
+                      variant="standard"
+                      onChange={(e) => setPassword(e.target.value)}
+                      sx={{
+                        "& .MuiInput-root": { color: dark ? "#ececec" : "" },
+                        "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+                        "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+  }}
+/>
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
                     <Button onClick={handleCloseDialog}
                         variant="outlined"
                         color="primary"

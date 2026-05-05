@@ -6,8 +6,9 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-  import React from "react";
-  import { useState } from "react";
+ import React from "react";
+import { useState } from "react";
+import { useTheme } from "@/context/ThemeContext";
   import EditProfile from "../../../../components/admin/EditProfile";
   
   function TabPanel(props) {
@@ -57,6 +58,7 @@ import Tabs from "@mui/material/Tabs";
       organization,
       setorganization
     } = props;
+    const { dark } = useTheme();
     const [tabValue, setTabValue] = useState(0);
   
     const handleTabChange = (e, v) => {
@@ -66,13 +68,22 @@ import Tabs from "@mui/material/Tabs";
     return (
       <>
         <Dialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
+  open={openDialog}
+  onClose={handleCloseDialog}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "#ffffff",
+      color: dark ? "#ececec" : "#0f172a",
+    }
+  }}
+>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "#ffffff" }}>
+    <DialogContentText
+      id="alert-dialog-description"
+      sx={{ color: dark ? "#ececec" : "#0f172a" }}
+    >
               <Grid>
                 {/* <Grid>{renderSnackBar()}</Grid> */}
                 <Box sx={{ mb: 2 }}>

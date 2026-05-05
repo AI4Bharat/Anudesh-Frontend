@@ -2,13 +2,14 @@ import  InputBase from "@mui/material/InputBase";
 import  Grid from "@mui/material/Grid";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "@mui/material/styles";
+import { useTheme as useMuiTheme } from "@mui/material/styles";
 import themeDefault from "../../themes/theme";
 import "../../styles/Dataset.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchProjectCard } from "@/Lib/Features/searchProjectCard";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
+import { useTheme } from "@/context/ThemeContext";
 
 const Search = (props) => {
   const ref = useRef(null);
@@ -54,10 +55,15 @@ const Search = (props) => {
     );
   }, [searchValue]);
 
-  const theme = useTheme();
+  const { dark } = useTheme();
+  const muiTheme = useMuiTheme(); 
   return (
     <Grid container sx={{ width: "100%", height: "100%" }}>
-      <Grid className="search">
+      <Grid className="search"
+  sx={{
+    backgroundColor: dark ? "#2a2a2a" : "",
+    borderRadius: dark ? "16px" : "",
+  }}>
         <Grid
           className="searchIcon"
           sx={{
@@ -66,7 +72,7 @@ const Search = (props) => {
             justifyContent: "center",
           }}
         >
-          <SearchIcon fontSize="small" />
+          <SearchIcon fontSize="small" sx={{ color: dark ? "#a0a0a0" : "" }} />
         </Grid>
         {globalTransliteration == "true" ? (
           <IndicTransliterate
@@ -80,6 +86,7 @@ const Search = (props) => {
                 {...props}
                 style={{
                   background: "transparent",
+                  color: dark ? "#ffffff" : "",
                   borderRadius: "1px",
                   padding: "2px",
                   height: "24px",
@@ -104,7 +111,8 @@ const Search = (props) => {
             }}
             lang={targetLang}
             style={{
-              background: "#F0F0F0",
+              background: dark ? "#2a2a2a" : "#F0F0F0",
+              color: dark ? "#ffffff" : "",
               borderRadius: "16px",
               padding: "2px",
               height: "24px",
@@ -117,6 +125,13 @@ const Search = (props) => {
           <InputBase
             sx={{
               fontSize: "20px",
+              ...(dark && {
+              color: "#ffffff",
+              "& input::placeholder": {
+                color: "#a0a0a0",
+                opacity: 1,
+              },
+    }),
             }}
             placeholder="Search here"
             value={searchValue}

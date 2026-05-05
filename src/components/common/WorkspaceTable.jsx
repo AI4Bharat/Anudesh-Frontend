@@ -10,22 +10,24 @@ import Search from "../common/Search";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
 import Spinner from "@/components/common/Spinner";
 import { Tab } from "@material-ui/icons";
+import { useTheme } from "@/context/ThemeContext";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
   {
     ssr: false,
     loading: () => (
-      <Skeleton
-        variant="rectangular"
-        height={400}
-        sx={{
-          mx: 2,
-          my: 3,
-          borderRadius: '4px',
-          transform: 'none'
-        }}
-      />
+<Skeleton
+  variant="rectangular"
+  height={400}
+  sx={{
+    mx: 2,
+    my: 3,
+    borderRadius: '4px',
+    transform: 'none',
+    
+  }}
+/>
     )
   }
 );
@@ -35,6 +37,7 @@ const WorkspaceTable = (props) => {
 
   const classes = DatasetStyle();
   const dispatch = useDispatch();
+  const { dark } = useTheme();
   const { showManager, showCreatedBy } = props;
   const [displayWidth, setDisplayWidth] = useState(0);
   const workspaceData = useSelector((state) => state.GetWorkspace.data);
@@ -209,7 +212,14 @@ const WorkspaceTable = (props) => {
             to={`/workspaces/${el.id}`}
             style={{ textDecoration: "none" }}
           >
-            <CustomButton sx={{ borderRadius: 2 }} label="View" />
+            <CustomButton sx={{
+    borderRadius: 2,
+    ...(dark && {
+      backgroundColor: "#fb923c",
+      color: "#000",
+      "&:hover": { backgroundColor: "#ea580c" },
+    }),
+  }} label="View" />
           </Link>,
         ];
       })
@@ -323,22 +333,93 @@ const WorkspaceTable = (props) => {
         <Spinner />
       ) : (
         <div>
-          <Grid sx={{ mb: 1 }}>
+        <Grid sx={{
+          mb: 1,
+          ...(dark && { backgroundColor: "#1e1e1e", padding: "8px" }),
+        }}>
             <Search />
           </Grid>
           {workspaceData && (
             <ThemeProvider theme={tableTheme}>
-              <MUIDataTable
-                key={`table-${displayWidth}`}
-                title={""}
-                data={data}
-                columns={columns}
-                options={{
-                  ...options,
-                  tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
-                }}
-              />
-            </ThemeProvider>
+  <Box
+    sx={{
+      width: "100%",
+      borderRadius: dark ? "8px" : "",
+      overflow: "hidden",
+      border: dark ? "1px solid #3a3a3a" : "",
+      ...(dark && {
+        "& .MuiPaper-root": {
+          backgroundColor: "#1e1e1e",
+          color: "#ececec",
+          border: "none",
+          boxShadow: "none",
+        },
+        "& .MuiToolbar-root": {
+          backgroundColor: "#252525",
+          borderBottom: "1px solid #3a3a3a",
+        },
+        "& thead th": {
+          backgroundColor: "#252525",
+          color: "#ececec",
+          fontWeight: 700,
+          borderBottom: "2px solid #3a3a3a",
+          fontSize: "0.85rem",
+          letterSpacing: "0.04em",
+        },
+        "& tbody td": {
+          color: "#d0d0d0",
+          borderBottom: "1px solid #2e2e2e",
+          fontSize: "0.875rem",
+        },
+        "& tbody tr:nth-of-type(odd)": {
+          backgroundColor: "#1e1e1e",
+        },
+        "& tbody tr:nth-of-type(even)": {
+          backgroundColor: "#242424",
+        },
+        "& tbody tr:hover": {
+          backgroundColor: "rgba(251, 146, 60, 0.08) !important",
+          transition: "background-color 0.2s ease",
+        },
+        "& .MuiTypography-root": {
+          color: "#ececec",
+        },
+        "& .MuiTablePagination-root": {
+          color: "#a0a0a0",
+          backgroundColor: "#252525",
+          borderTop: "1px solid #3a3a3a",
+        },
+        "& .MuiTablePagination-selectLabel": { color: "#a0a0a0" },
+        "& .MuiTablePagination-displayedRows": { color: "#a0a0a0" },
+        "& .MuiTablePagination-select": { color: "#ececec" },
+        "& .MuiIconButton-root": {
+          color: "#fb923c",
+          "&:hover": { backgroundColor: "rgba(251, 146, 60, 0.12)" },
+          "&.Mui-disabled": { color: "#555555" },
+        },
+        "& .MuiSelect-select": {
+          color: "#ececec",
+          backgroundColor: "#2a2a2a",
+        },
+        "& .MuiSelect-icon": { color: "#a0a0a0" },
+        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#3a3a3a" },
+        "& .MuiSvgIcon-root": { color: "#fb923c" },
+        "& label": { color: "#a0a0a0" },
+      }),
+    }}
+  >
+    <MUIDataTable
+      key={`table-${displayWidth}`}
+      title={""}
+      data={data}
+      columns={columns}
+      options={{
+        ...options,
+        tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
+      }}
+    />
+  </Box>
+</ThemeProvider>
           )}
         </div>
       )}

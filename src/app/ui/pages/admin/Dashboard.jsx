@@ -10,9 +10,10 @@ import AnnotationDetails from './AnnotationDetails';
 import TaskDetails from './TaskDetails';
 import UserDetail from './UserDetails';
 import QueuedTasksDetails from './QueuedTasksDetails';
+import { useTheme } from "@/context/ThemeContext";
 
 function TabPanel(props) {
-    const { children, value, index, ...other } = props;
+    const { children, value, index, dark, ...other } = props;
 
     return (
         <div
@@ -24,7 +25,7 @@ function TabPanel(props) {
         >
             {value === index && (
                 <Box p={2}>
-                    <Typography>{children}</Typography>
+                    <Typography component="div" sx={{ color: dark ? "#ececec" : "" }}>{children}</Typography>
                 </Box>
             )}
         </div>
@@ -32,6 +33,7 @@ function TabPanel(props) {
 }
 
 const Admin = () => {
+    const { dark } = useTheme();
     const [tabValue, setTabValue] = useState(0);
  /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -40,19 +42,30 @@ const Admin = () => {
     }
 
     return (
-      
-        < >
-            <Box sx={{mb:2,}} >
+      <Box sx={{ backgroundColor: dark ? "#1e1e1e" : "", minHeight: "100vh", p: dark ? 1 : 0 }}>
+            <Box sx={{ mb: 2, backgroundColor: dark ? "#252525" : "", borderRadius: dark ? "8px" : "", border: dark ? "1px solid #3a3a3a" : "" }}>
                 <Tabs
-                    value={tabValue}
-                    onChange={handleTabChange}
-                    aria-label="admin-tabs"
-                    variant="scrollable"
-                    sx={{ 
-                        '& .MuiTab-root': { fontSize: 17, fontWeight: '700', marginRight: '32px' },
-                        padding:"20px"
-                    }}
-                >
+    value={tabValue}
+    onChange={handleTabChange}
+    aria-label="admin-tabs"
+    variant="scrollable"
+    sx={{ 
+        '& .MuiTab-root': { 
+            fontSize: 17, 
+            fontWeight: '700', 
+            marginRight: '32px',
+            color: dark ? "#a0a0a0" : "",
+        },
+        '& .MuiTab-root.Mui-selected': {
+            color: dark ? "#ffffff" : "",
+        },
+        '& .MuiTabs-indicator': {
+            backgroundColor: dark ? "#fb923c" : "",
+        },
+        padding: "20px",
+        borderBottom: dark ? "1px solid #3a3a3a" : "",
+    }}
+>
                     <Tab label="Task Details" />
                     <Tab label="Annotation Details" />
                     <Tab label="User Details" />
@@ -60,28 +73,28 @@ const Admin = () => {
                 </Tabs>
             </Box>
             <Box sx={{ p: 1}}>
-                <TabPanel value={tabValue} index={0}>
-                <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight', padding: '16px'}}>
+                <TabPanel value={tabValue} index={0} dark={dark}>
+                    <Paper variant="outlined" sx={{ borderRadius: "8px", backgroundColor: dark ? "#2a2a2a" : 'ButtonHighlight', padding: '16px', border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.4)" : "" }}>
                     <TaskDetails  />  
+               </Paper>
+                </TabPanel> 
+                <TabPanel value={tabValue} index={1} dark={dark}>
+                    <Paper variant="outlined" sx={{ borderRadius: "8px", backgroundColor: dark ? "#2a2a2a" : 'ButtonHighlight', padding: '16px', border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.4)" : "" }}>
+                    <AnnotationDetails  />  
                 </Paper>
                 </TabPanel> 
-                <TabPanel value={tabValue} index={1}>
-                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight', padding: '16px'}}>
-                        <AnnotationDetails  />  
+                <TabPanel value={tabValue} index={2} dark={dark}>
+                    <Paper variant="outlined" sx={{ borderRadius: "8px", backgroundColor: dark ? "#2a2a2a" : 'ButtonHighlight', border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.4)" : "" }}>
+                        <UserDetail  />
                     </Paper>
                 </TabPanel> 
-                <TabPanel value={tabValue} index={2}>
-                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight' }}>
-                        <UserDetail  />
-                    </Paper>  
-                </TabPanel> 
-                <TabPanel value={tabValue} index={3}>
-                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight' }}>
+                <TabPanel value={tabValue} index={3} dark={dark}>
+                    <Paper variant="outlined" sx={{ borderRadius: "8px", backgroundColor: dark ? "#2a2a2a" : 'ButtonHighlight', border: dark ? "1px solid #3a3a3a" : "", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.4)" : "" }}>
                         <QueuedTasksDetails  /> 
-                    </Paper> 
+                    </Paper>
                 </TabPanel> 
             </Box>
-        </>
+        </Box>
        
     )
 }

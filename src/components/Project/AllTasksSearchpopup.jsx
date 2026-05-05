@@ -12,12 +12,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 // import APITransport from '../../../../redux/actions/apitransport/apitransport';
 import { snakeToTitleCase } from "@/utils/utils";
+import { useTheme } from "@/context/ThemeContext";
 
 const AllTaskSearchPopup = (props) => {
         /* eslint-disable react-hooks/exhaustive-deps */
 
     const dispatch = useDispatch();
     const { datasetId } = useParams();
+    const { dark } = useTheme();
   const { currentFilters, updateFilters, searchedCol ,onchange} = props;
   const [searchValue, setSearchValue] = useState(currentFilters["search_"+searchedCol]);
   const [loading, setLoading] = useState(false);
@@ -65,19 +67,26 @@ const AllTaskSearchPopup = (props) => {
 
   return (
       <Popover
-        id={props.id}
-        open={props.open}
-        anchorEl={props.anchorEl}
-        onClose={props.handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
+  id={props.id}
+  open={props.open}
+  anchorEl={props.anchorEl}
+  onClose={props.handleClose}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right",
+  }}
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "center",
+  }}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+    }
+  }}
+>
        <Box sx={{p:2, display: "flex", flexDirection: "column", gap: 2}}>
         <TextField 
             size="small" 
@@ -86,12 +95,20 @@ const AllTaskSearchPopup = (props) => {
             value={searchValue}
             onChange={handlesubmitSearchValue}
             inputProps={{
-                style: {
-                    fontSize: "16px"
-                }
-            }}          
-        />
-        <Divider />
+              style: {
+                fontSize: "16px",
+                color: dark ? "#ececec" : "",
+              }
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: dark ? "#1e1e1e" : "",
+                "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+              }
+            }}
+/>
+        <Divider sx={{ borderColor: dark ? "#3a3a3a" : "" }} />
         <Box sx={{display: "flex", justifyContent: "flex-end", gap: 2}}>
             <Button
                 onClick={handleClearSearch}

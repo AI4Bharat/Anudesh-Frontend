@@ -29,6 +29,7 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import LoginAPI from "@/app/actions/api/user/Login";
 import DeleteDataItemsAPI from "@/app/actions/api/dataset/DeleteDataItemsAPI";
 import fetchParams from "@/Lib/fetchParams";
+import { useTheme } from "@/context/ThemeContext";
 import ENDPOINTS from "../../config/apiendpoint"
 
 export default function DeleteDataItems() {
@@ -36,6 +37,7 @@ export default function DeleteDataItems() {
 
     const classes = DatasetStyle();
     const { datasetId } = useParams();
+    const { dark } = useTheme();
     const dispatch = useDispatch();
     const [anchorEl, setAnchorEl] = useState(null);
     const [startdataid, setStartDataId] = useState("");
@@ -240,7 +242,7 @@ export default function DeleteDataItems() {
                 Delete Data Item
             </Button>
 
-            <Popover
+           <Popover
                 id={id}
                 open={open}
                 anchorEl={anchorEl}
@@ -249,7 +251,15 @@ export default function DeleteDataItems() {
                     vertical: 'bottom',
                     horizontal: 'left',
                 }}
-            >
+                PaperProps={{
+                    sx: {
+                    backgroundColor: dark ? "#2a2a2a" : "",
+                    color: dark ? "#ececec" : "",
+                    border: dark ? "1px solid #3a3a3a" : "",
+                    boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+                    }
+                }}
+                >
                 <Grid container className={classes.root} >
                     <Grid item style={{ flexGrow: "1", padding: "10px" }}>
                         <FormControl >
@@ -261,8 +271,8 @@ export default function DeleteDataItems() {
 
                             >
 
-                                <FormControlLabel value="deletebyrange" control={<Radio />} label="Delete by Range" onClick={handleDeletebyids} />
-                                <FormControlLabel value="deletebyids" control={<Radio />} label="Delete by IDs" onClick={handleDeletebyrange} />
+                                <FormControlLabel value="deletebyrange" control={<Radio />} label="Delete by Range" onClick={handleDeletebyids} sx={{ color: dark ? "#ececec" : "" }} />
+                                <FormControlLabel value="deletebyids" control={<Radio />} label="Delete by IDs" onClick={handleDeletebyrange} sx={{ color: dark ? "#ececec" : "" }} />
 
                             </RadioGroup>
                         </FormControl>
@@ -289,7 +299,7 @@ export default function DeleteDataItems() {
                                 lg={4}
                                 xl={4}
                             >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                                <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                     Start Data ID:
                                 </Typography>
                             </Grid>
@@ -301,17 +311,25 @@ export default function DeleteDataItems() {
                                 xl={6}
                                 sm={6}
                             >
-                                <TextField
-                                    size="small"
-                                    variant="outlined"
-                                    value={startdataid}
-                                    onChange={(e) => setStartDataId(e.target.value)}
-                                    inputProps={{
-                                        style: {
-                                            fontSize: "16px"
-                                        }
-                                    }}
-                                />
+                               <TextField
+                            size="small"
+                            variant="outlined"
+                            value={startdataid}
+                            onChange={(e) => setStartDataId(e.target.value)}
+                            inputProps={{
+                                style: {
+                                fontSize: "16px",
+                                color: dark ? "#ececec" : "",
+                                }
+                            }}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                backgroundColor: dark ? "#1e1e1e" : "",
+                                "& fieldset": { borderColor: dark ? "#3a3a3a" : "" },
+                                "&:hover fieldset": { borderColor: dark ? "#fb923c" : "" },
+                                }
+                            }}
+                            />
 
                             </Grid>
                         </Grid>
@@ -331,7 +349,7 @@ export default function DeleteDataItems() {
                                 lg={4}
                                 xl={4}
                             >
-                                <Typography variant="body2" fontWeight='700' label="Required">
+                                <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                     End Data ID:
                                 </Typography>
                             </Grid>
@@ -375,7 +393,7 @@ export default function DeleteDataItems() {
                             lg={3}
                             xl={3}
                         >
-                            <Typography variant="body2" fontWeight='700' label="Required">
+                            <Typography variant="body2" fontWeight='700' label="Required" sx={{ color: dark ? "#ececec" : "" }}>
                                 Data IDs:
                             </Typography>
                         </Grid>
@@ -429,20 +447,27 @@ export default function DeleteDataItems() {
                 </Box>
             </Popover>
             <Dialog
-                open={openPreview}
-                onClose={closePreview}
-                fullWidth
-                maxWidth="md"
-            >
-                <DialogTitle>Preview of Data Items to Delete</DialogTitle>
-                <DialogContent>
+  open={openPreview}
+  onClose={closePreview}
+  fullWidth
+  maxWidth="md"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogTitle sx={{ color: dark ? "#ececec" : "" }}>Preview of Data Items to Delete</DialogTitle>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
                 {filteredData.length > 0 ? (
     <Box sx={{ width: '100%', overflowX: 'auto' }}>
-        <TableContainer component={Paper}>
-            <Table stickyHeader>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Id</TableCell>
+        <TableContainer component={Paper} sx={{ backgroundColor: dark ? "#1e1e1e" : "" }}>
+  <Table stickyHeader>
+    <TableHead>
+      <TableRow sx={{ "& .MuiTableCell-head": { backgroundColor: dark ? "#252525" : "", color: dark ? "#ececec" : "", borderBottom: dark ? "2px solid #3a3a3a" : "" } }}>
+        <TableCell>Id</TableCell>
                         <TableCell>Metadata Json</TableCell>
                         <TableCell>Draft Data Json</TableCell>
                         <TableCell>Model</TableCell>
@@ -457,8 +482,9 @@ export default function DeleteDataItems() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {filteredData.map((item) => (
-                        <TableRow key={item.id}>
+                        {filteredData.map((item) => (
+                            <TableRow key={item.id} sx={{ "& .MuiTableCell-body": { color: dark ? "#d0d0d0" : "", borderBottom: dark ? "1px solid #2e2e2e" : "" }, "&:hover": { backgroundColor: dark ? "rgba(251, 146, 60, 0.08)" : "" } }}>
+                            <TableCell>{item.id}</TableCell>
                             <TableCell>{item.id}</TableCell>
                             <TableCell>{item.metadata_json}</TableCell>
                             <TableCell>{item.draft_data_json}</TableCell>
@@ -482,10 +508,10 @@ export default function DeleteDataItems() {
 
 
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={closePreview} color="primary">
-                        Cancel
-                    </Button>
+                <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
+                <Button onClick={closePreview} color="primary">
+                    Cancel
+                </Button>
                     <Button
                         onClick={() => {
                             closePreview();
@@ -499,28 +525,39 @@ export default function DeleteDataItems() {
                 </DialogActions>
             </Dialog>
             <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogContent>
-
-                    <DialogContentText id="alert-dialog-description">
-                    Are you sure you want to delete the data items? Please note this action cannot be undone. 
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="password"
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
+  open={openDialog}
+  onClose={handleCloseDialog}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+    }
+  }}
+>
+  <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
+    <DialogContentText id="alert-dialog-description" sx={{ color: dark ? "#a0a0a0" : "" }}>
+      Are you sure you want to delete the data items? Please note this action cannot be undone.
+    </DialogContentText>
+    <TextField
+      autoFocus
+      margin="dense"
+      id="password"
+      label="Password"
+      type="password"
+      fullWidth
+      variant="standard"
+      onChange={(e) => setPassword(e.target.value)}
+      sx={{
+        "& .MuiInput-root": { color: dark ? "#ececec" : "" },
+        "& .MuiInput-underline:before": { borderBottomColor: dark ? "#3a3a3a" : "" },
+        "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+      }}
+    />
+  </DialogContent>
+  <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
                     <Button onClick={handleCloseDialog}
                         variant="outlined"
                         color="primary"

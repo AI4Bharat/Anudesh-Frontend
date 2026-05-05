@@ -16,12 +16,14 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";;
 import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
+import { useTheme } from "@/context/ThemeContext";
 import { snakeToTitleCase } from "@/utils/utils";
 import { fetchDatasetType } from "@/Lib/Features/datasets/GetDatasetType";
 
 const datasetvisibility = ["all_public_datasets", "my_datasets"];
 const DatasetFilterList = (props) => {
   const classes = DatasetStyle();
+  const { dark } = useTheme();
   const dispatch = useDispatch();
 
   const {
@@ -86,19 +88,27 @@ const DatasetFilterList = (props) => {
   return (
     <div>
       <Popover
-        id={props.id}
-        open={props.open}
-        anchorEl={props.anchorEl}
-        onClose={props.handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
+  id={props.id}
+  open={props.open}
+  anchorEl={props.anchorEl}
+  onClose={props.handleClose}
+  anchorOrigin={{
+    vertical: "bottom",
+    horizontal: "right",
+  }}
+  transformOrigin={{
+    vertical: "top",
+    horizontal: "right",
+  }}
+  PaperProps={{
+    sx: {
+      backgroundColor: dark ? "#2a2a2a" : "",
+      color: dark ? "#ececec" : "",
+      border: dark ? "1px solid #3a3a3a" : "",
+      boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.5)" : "",
+    }
+  }}
+>
         <Grid container className={classes.filterContainer}>
         {/* <Grid item xs={12} md={12} lg={12} xl={12} sm={12} sx={{width:"120px"}}>
         <Typography
@@ -116,16 +126,17 @@ const DatasetFilterList = (props) => {
               />
             </Grid> */}
 
-  <FormControl fullWidth size="small" >
-            <InputLabel id="dataset-type-label" sx={{ fontSize: "16px"}}>Dataset Type: </InputLabel>
-            <Select
-              labelId="dataset-type-label"
-              id="dataset-type-select"
-              value={selectedDatasetType}
-              label="Dataset Type"
-              onChange={(e) => setSelectedDatasetType(e.target.value)}
-             
-            >
+  <FormControl fullWidth size="small" sx={{ "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" } }}>
+  <InputLabel id="dataset-type-label" sx={{ fontSize: "16px", color: dark ? "#a0a0a0" : "" }}>Dataset Type: </InputLabel>
+  <Select
+    labelId="dataset-type-label"
+    id="dataset-type-select"
+    value={selectedDatasetType}
+    label="Dataset Type"
+    onChange={(e) => setSelectedDatasetType(e.target.value)}
+    sx={{ color: dark ? "#ececec" : "", "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" } }}
+    MenuProps={{ PaperProps: { sx: { backgroundColor: dark ? "#2a2a2a" : "", color: dark ? "#ececec" : "", border: dark ? "1px solid #3a3a3a" : "" } } }}
+  >
               {datasetType.map((type, index) => (
                 <MenuItem key={index} value={type} >
                   {type}
@@ -135,32 +146,33 @@ const DatasetFilterList = (props) => {
           </FormControl>
        
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} sx={{mt:2}}>
-            <Typography
-              variant="body2"
-              sx={{  mb: 1, fontWeight: "900" }}
-            >
-            Dataset Visibility :
-            </Typography>
+           <Typography
+  variant="body2"
+  sx={{ mb: 1, fontWeight: "900", color: dark ? "#ececec" : "" }}
+>
+  Dataset Visibility :
+</Typography>
             <FormGroup>
               {datasetvisibility.map((type,i) => {
                 return (
-                  <FormControlLabel
-                  key={i}
-                    control={
-                      <Radio
-                        checked={ selectDatasetVisibility === type }
-                        key={i}
-                        name={type}
-                        color="primary"
-                      />
-                    }
-                    onChange={(e) => setSelectDatasetVisibility(e.target.value)}
-                    value={type}
-                    label={snakeToTitleCase(type)}
-                    sx={{
-                      fontSize: "1rem",
-                    }}
-                  />
+                 <FormControlLabel
+  key={i}
+  control={
+    <Radio
+      checked={ selectDatasetVisibility === type }
+      key={i}
+      name={type}
+      color="primary"
+    />
+  }
+  onChange={(e) => setSelectDatasetVisibility(e.target.value)}
+  value={type}
+  label={snakeToTitleCase(type)}
+  sx={{
+    fontSize: "1rem",
+    color: dark ? "#ececec" : "",
+  }}
+/>
                 );
               })}
             </FormGroup>
@@ -169,15 +181,17 @@ const DatasetFilterList = (props) => {
         </Grid>
         <Divider />
         <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            columnGap: "10px",
-            padding:"15px"
-          }}
-        >
+  sx={{
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    columnGap: "10px",
+    padding: "15px",
+    backgroundColor: dark ? "#2a2a2a" : "",
+    borderTop: dark ? "1px solid #3a3a3a" : "",
+  }}
+>
           <Button
             onClick={handleChangeCancelAll}
             variant="outlined"

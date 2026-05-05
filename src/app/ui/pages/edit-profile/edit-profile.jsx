@@ -23,12 +23,13 @@ import { MenuProps } from "../../../../utils/utils";
 import { fetchLanguages } from "@/Lib/Features/fetchLanguages";
 import UpdateEmailAPI from "@/app/actions/api/user/UpdateEmailAPI";
 import UpdateProfileAPI from "@/app/actions/api/user/UpdateProfileAPI";
+import { useTheme } from "@/context/ThemeContext";
 
 
 
 const MyProfile = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+  const { dark } = useTheme();
   const [newDetails, setNewDetails] = useState();
   const [initLangs, setInitLangs] = useState([]);
   const [snackbarState, setSnackbarState] = useState({ open: false, message: '', variant: '' });
@@ -167,13 +168,17 @@ const MyProfile = () => {
       >
         <Card
           sx={{
-            // width: window.innerWidth * 0.8,
             width: "100%",
             minHeight: 500,
             padding: 5,
             border: 0,
+            backgroundColor: "var(--bg-secondary)",
+            color: "var(--text-primary)",
+            boxShadow: dark
+              ? "0 4px 20px rgba(0,0,0,0.6)"
+              : "0 4px 20px rgba(0,0,0,0.08)",
           }}
-        >
+>
           <Grid container spacing={4}>
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
               <Typography variant="h3" align="center">
@@ -185,7 +190,21 @@ const MyProfile = () => {
                 fullWidth
                 label="First Name"
                 name="first_name"
-                sx = {{zIndex: 0}}
+                sx={{
+                zIndex: 0,
+                input: { color: "var(--text-primary)" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "var(--border-color)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "var(--text-secondary)",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "var(--text-secondary)",
+                },
+}}
                 value={newDetails?.first_name}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -196,7 +215,21 @@ const MyProfile = () => {
                 fullWidth
                 label="Last Name"
                 name="last_name"
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 value={newDetails?.last_name}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -207,7 +240,21 @@ const MyProfile = () => {
                 fullWidth
                 label="Email"
                 value={email}
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 onChange={handleEmailChange}
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
@@ -231,7 +278,21 @@ const MyProfile = () => {
                 fullWidth
                 label="Phone"
                 name="phone"
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 value={newDetails?.phone}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -242,7 +303,28 @@ const MyProfile = () => {
                 disabled
                 fullWidth
                 label="Role"
-                sx = {{zIndex: 0}}
+                sx={{
+                      zIndex: 0,
+
+                      ...(dark && {
+                        "& .MuiOutlinedInput-root.Mui-disabled": {
+                          backgroundColor: "#252525", // dark bg ONLY for disabled
+                        },
+
+                        "& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-input": {
+                          color: "#a0a0a0",
+                          WebkitTextFillColor: "#a0a0a0", // fixes MUI override
+                        },
+
+                        "& .MuiOutlinedInput-root.Mui-disabled fieldset": {
+                          borderColor: "#3a3a3a",
+                        },
+
+                        "& .MuiInputLabel-root.Mui-disabled": {
+                          color: "#7a7a7a",
+                        },
+                      }),
+                    }}
                 value={UserMappedByRole(userDetails?.role)?.name}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -253,26 +335,77 @@ const MyProfile = () => {
                 fullWidth
                 label="Username"
                 name="username"
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 value={newDetails?.username}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Gender</InputLabel>
+              <InputLabel id="lang-label" style={{
+  fontSize: "1.25rem",
+  zIndex: "1",
+  position: "absolute",
+  display: "block",
+  transform: "translate(14px, -9px) scale(0.75)",
+  backgroundColor: "var(--bg-secondary)",
+  color: "var(--text-secondary)",
+  paddingLeft: "4px",
+  paddingRight: "4px",
+}}>Gender</InputLabel>
               <Select
                 fullWidth
                 labelId="gender-label"
-                name="gender"  
-                sx = {{zIndex: 0}}
+                name="gender"
+                MenuProps={MenuProps}  
+                sx={{
+                zIndex: 0,
+                color: "var(--text-primary)",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--border-color)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--text-secondary)",
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "var(--text-secondary)",
+                },
+              }}
                 value={newDetails?.gender || ''}
                 onChange={handleFieldChange}
                 style={{ zIndex: "0" }}
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
               >
                 {genderOptions.map((option, index) => (
-                  <MenuItem key={index} value={option.value}>
+                  <MenuItem key={index} value={option.value} sx={{
+  color: "var(--text-primary)",
+
+  "&:hover": {
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+
+  "&.Mui-selected": {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+
+  "&.Mui-selected:hover": {
+    backgroundColor: "rgba(255,255,255,0.18)",
+  },
+}}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -283,7 +416,21 @@ const MyProfile = () => {
                 fullWidth
                 label="City"
                 name="city"
-                sx = {{zIndex: 0}}
+                sx={{
+  zIndex: 0,
+  input: { color: "var(--text-primary)" },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "var(--border-color)",
+    },
+    "&:hover fieldset": {
+      borderColor: "var(--text-secondary)",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "var(--text-secondary)",
+  },
+}}
                 value={newDetails?.city}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -294,7 +441,21 @@ const MyProfile = () => {
                 fullWidth
                 label="Address"
                 name="address"
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 value={newDetails?.address}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -305,7 +466,21 @@ const MyProfile = () => {
                 fullWidth
                 label="State"
                 name="state"
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 value={newDetails?.state}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -316,8 +491,22 @@ const MyProfile = () => {
                 fullWidth
                 label="Pincode"
                 name="pincode"
-                sx = {{zIndex: 0}}
-                value={newDetails?.pin_code}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
+                                value={newDetails?.pin_code}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -327,7 +516,21 @@ const MyProfile = () => {
                 fullWidth
                 label="Age"
                 name="age"
-                sx = {{zIndex: 0}}
+                sx={{
+                zIndex: 0,
+                input: { color: "var(--text-primary)" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "var(--border-color)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "var(--text-secondary)",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "var(--text-secondary)",
+                },
+              }}
                 value={newDetails?.age}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -338,7 +541,21 @@ const MyProfile = () => {
                 fullWidth
                 label="Qualification"
                 name="qualification"
-                sx = {{zIndex: 0}}
+                sx={{
+                  zIndex: 0,
+                  input: { color: "var(--text-primary)" },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "var(--border-color)",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "var(--text-secondary)",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "var(--text-secondary)",
+                  },
+                }}
                 value={newDetails?.qualification}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
@@ -349,7 +566,28 @@ const MyProfile = () => {
                 disabled
                 fullWidth
                 label="Organization"
-                sx = {{zIndex: 0}}
+                sx={{
+                        zIndex: 0,
+
+                        ...(dark && {
+                          "& .MuiOutlinedInput-root.Mui-disabled": {
+                            backgroundColor: "#252525", // dark bg ONLY for disabled
+                          },
+
+                          "& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-input": {
+                            color: "#a0a0a0",
+                            WebkitTextFillColor: "#a0a0a0", // fixes MUI override
+                          },
+
+                          "& .MuiOutlinedInput-root.Mui-disabled fieldset": {
+                            borderColor: "#3a3a3a",
+                          },
+
+                          "& .MuiInputLabel-root.Mui-disabled": {
+                            color: "#7a7a7a",
+                          },
+                        }),
+                      }}
                 value={userDetails.organization?.title}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
@@ -370,13 +608,35 @@ const MyProfile = () => {
               </Select>
             </Grid> */}
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Languages</InputLabel>
+              <InputLabel id="lang-label" style={{
+  fontSize: "1.25rem",
+  zIndex: "1",
+  position: "absolute",
+  display: "block",
+  transform: "translate(14px, -9px) scale(0.75)",
+  backgroundColor: "var(--bg-secondary)",
+  color: "var(--text-secondary)",
+  paddingLeft: "4px",
+  paddingRight: "4px",
+}}>Languages</InputLabel>
               <Select
                 multiple
                 fullWidth
                 labelId="lang-label"
                 name="languages"
-                sx = {{zIndex: 0}}
+               sx={{
+                zIndex: 0,
+                color: "var(--text-primary)",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--border-color)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--text-secondary)",
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "var(--text-secondary)",
+                },
+              }}
                 value={newDetails?.languages ? newDetails.languages : []}
                 onChange={handleFieldChange}
                 style={{ zIndex: "0" }}
@@ -385,7 +645,15 @@ const MyProfile = () => {
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {selected.map((value) => (
-                      <Chip key={value} label={value} />
+                     <Chip
+                      key={value}
+                      label={value}
+                      sx={{
+                        backgroundColor: "var(--bg-primary)",
+                        color: "var(--text-primary)",
+                        border: "1px solid var(--border-color)",
+                      }}
+                      />
                     ))}
                   </Box>
                 )}
@@ -394,6 +662,22 @@ const MyProfile = () => {
                   <MenuItem
                     key={lang}
                     value={lang}
+                    sx={{
+                  color: "var(--text-primary)",
+
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                  },
+
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(255,255,255,0.12)",
+                  },
+
+                  "&.Mui-selected:hover": {
+                    backgroundColor: "rgba(255,255,255,0.18)",
+                  },
+                }}
+                    
                   >
                     {lang}
                   </MenuItem>
@@ -405,19 +689,56 @@ const MyProfile = () => {
                 fullWidth
                 label="Availability Status"
                 name="availability_status"
-                sx = {{zIndex: 0}}
+                sx={{
+  zIndex: 0,
+  input: { color: "var(--text-primary)" },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "var(--border-color)",
+    },
+    "&:hover fieldset": {
+      borderColor: "var(--text-secondary)",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "var(--text-secondary)",
+  },
+}}
                 value={newDetails?.availability_status}
                 onChange={handleFieldChange}
                 InputLabelProps={{ shrink: true }}
               ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Participation Type</InputLabel>
+              <InputLabel id="lang-label" style={{
+  fontSize: "1.25rem",
+  zIndex: "1",
+  position: "absolute",
+  display: "block",
+  transform: "translate(14px, -9px) scale(0.75)",
+  backgroundColor: "var(--bg-secondary)",
+  color: "var(--text-secondary)",
+  paddingLeft: "4px",
+  paddingRight: "4px",
+}}>Participation Type</InputLabel>
               <Select
                 fullWidth
                 labelId="lang-label"
+                MenuProps={MenuProps}
                 name="participation_type"
-                sx = {{zIndex: 0}}
+                sx={{
+                zIndex: 0,
+                color: "var(--text-primary)",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--border-color)",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "var(--text-secondary)",
+                },
+                "& .MuiSvgIcon-root": {
+                  color: "var(--text-secondary)",
+                },
+              }}
                 value={newDetails?.participation_type ? newDetails.participation_type : []}
                 onChange={handleFieldChange}
                 style={{ zIndex: "0" }}
@@ -427,6 +748,21 @@ const MyProfile = () => {
                   <MenuItem
                     key={i + 1}
                     value={i + 1}
+                    sx={{
+  color: "var(--text-primary)",
+
+  "&:hover": {
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+
+  "&.Mui-selected": {
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+
+  "&.Mui-selected:hover": {
+    backgroundColor: "rgba(255,255,255,0.18)",
+  },
+}}
                   >
                     {type}
                   </MenuItem>
@@ -443,6 +779,12 @@ const MyProfile = () => {
                 variant="contained"
                 color="primary"
                 onClick={handleSubmit}
+                sx={{
+                  backgroundColor: dark ? "primary" : "",
+                  "&:hover": {
+                    backgroundColor: dark ? "primary" : "",
+                  },
+                }}
               >
                 Update Profile
               </Button>

@@ -14,8 +14,10 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import configs from '@/config/config';
+import { useTheme as useDarkTheme } from "@/context/ThemeContext";
 
 const AssignMembersDialog = () => {
+  const { dark } = useDarkTheme();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState('');
@@ -118,9 +120,32 @@ const AssignMembersDialog = () => {
         </Button>
       </Grid>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Assign Members</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: dark ? "#2a2a2a" : "#fff",
+        color: dark ? "#ececec" : "#000",
+        border: dark ? "1px solid #3a3a3a" : "",
+            }
+          }
+        }}
+      >
+<DialogTitle
+  sx={{
+    backgroundColor: dark ? "#252525" : "",
+    color: dark ? "#ececec" : "",
+    borderBottom: dark ? "1px solid #3a3a3a" : "",
+    fontWeight: 600,
+  }}
+>
+  Assign Members
+</DialogTitle>
+        <DialogContent sx={{ backgroundColor: dark ? "#2a2a2a" : "" }}>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
@@ -132,6 +157,12 @@ const AssignMembersDialog = () => {
               onChange={handleChange}
               required
               InputLabelProps={{ required: false }}
+              sx={{
+              "& .MuiInputBase-input": { color: dark ? "#ececec" : "" },
+              "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+              "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" },
+            }}
             />
             <TextField
               fullWidth
@@ -143,6 +174,12 @@ const AssignMembersDialog = () => {
               onChange={handleChange}
               required
               InputLabelProps={{ required: false }}
+              sx={{
+              "& .MuiInputBase-input": { color: dark ? "#ececec" : "" },
+              "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+              "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" },
+            }}
             />
             <TextField
               fullWidth
@@ -155,6 +192,24 @@ const AssignMembersDialog = () => {
               onChange={handleChange}
               required
               InputLabelProps={{ required: false }}
+              sx={{
+                "& .MuiInputBase-input": { color: dark ? "#ececec" : "" },
+                "& .MuiInputLabel-root": { color: dark ? "#a0a0a0" : "" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: dark ? "#3a3a3a" : "" },
+                "& .MuiSvgIcon-root": { color: dark ? "#a0a0a0" : "" },
+              }}
+              SelectProps={{
+              MenuProps: {
+                slotProps: {
+                  paper: {
+                    sx: {
+                      backgroundColor: dark ? "#2a2a2a" : "#fff",
+                      color: dark ? "#ececec" : "#000",
+                    },
+                  },
+                },
+              },
+            }}
             >
               <MenuItem value="annotator">Annotator</MenuItem>
               <MenuItem value="reviewer">Reviewer</MenuItem>
@@ -162,8 +217,8 @@ const AssignMembersDialog = () => {
             </TextField>
           </form>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+        <DialogActions sx={{ backgroundColor: dark ? "#2a2a2a" : "", borderTop: dark ? "1px solid #3a3a3a" : "" }}>
+          <Button onClick={handleClose} sx={{ color: dark ? "#a0a0a0" : "" }}>Cancel</Button>
           <Button
             onClick={handleSubmit}
             variant="contained"

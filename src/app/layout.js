@@ -2,7 +2,7 @@
 "use client"
 import Head from 'next/head';
 import { ThemeProvider } from '@emotion/react';
-
+import { ThemeProvider as DarkThemeProvider } from '@/context/ThemeContext';
 // Import your custom theme
 import themeDefault from '../themes/theme';
 
@@ -50,10 +50,12 @@ export default function RootLayout({ children }) {
 
         <body>
           <Providers>
-            <ThemeProvider theme={themeDefault}>
-              {children}
-            </ThemeProvider>
-          </Providers>
+  <ThemeProvider theme={themeDefault}>
+    <DarkThemeProvider>
+      {children}
+    </DarkThemeProvider>
+  </ThemeProvider>
+</Providers>
         </body>
       </html>
     </>

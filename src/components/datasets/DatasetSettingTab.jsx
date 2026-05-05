@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import React from 'react'
 import { useState } from 'react'
+import { useTheme } from "@/context/ThemeContext";
 import BasicDatasetSettings from './BasicDatasetSettings';
 import DatasetSettings from './DatasetSettings';
 
@@ -24,7 +25,7 @@ function TabPanel(props) {
         >
             {value === index && (
                 <Box p={4}>
-                    <Typography>{children}</Typography>
+                    <Typography component="div" sx={{ color: dark ? "#ececec" : "" }}>{children}</Typography>
                 </Box>
             )}
         </div>
@@ -35,21 +36,25 @@ const DatasetSettingTabs = () => {
         /* eslint-disable react-hooks/exhaustive-deps */
 
     const [tabValue, setTabValue] = useState(0);
+    const { dark } = useTheme();
     const handleTabChange = (e, v) => {
         setTabValue(v)
     }
     return (
         <Card
-        sx={{
-            // width: window.innerWidth * 0.8,
-            width: "100%",
-            minHeight: 500,
-            padding: 5,
-        '@media (max-width: 600px)': {
-            padding: 2, 
-        },
-        }}
-    >
+  sx={{
+    width: "100%",
+    minHeight: 500,
+    padding: 5,
+    '@media (max-width: 600px)': {
+      padding: 2, 
+    },
+    backgroundColor: dark ? "#2a2a2a" : "",
+    color: dark ? "#ececec" : "",
+    border: dark ? "1px solid #3a3a3a" : "",
+    boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.4)" : "",
+  }}
+>
       
         <Box >
               <Grid
@@ -67,36 +72,40 @@ const DatasetSettingTabs = () => {
                 },
                         }}
                     >
-                        <Typography variant="h3" gutterBottom component="div"sx={{fontWeight: 900}}>
-                            DataSet Settings
+                        <Typography variant="h3" gutterBottom component="div" sx={{ fontWeight: 900, color: dark ? "#ececec" : "" }}>
+                        DataSet Settings
                         </Typography>
                     </Grid>
             <Box sx={{
                 mb:2
                 }} >
                 <Tabs 
-                    value={tabValue} 
-                    onChange={handleTabChange} 
-                    aria-label="user-tabs"
-                    sx={{
+                value={tabValue} 
+                onChange={handleTabChange} 
+                aria-label="user-tabs"
+                sx={{
                     '& .MuiTabs-flexContainer': {
-                        justifyContent: {
-                            xs: 'center',
-                            sm: 'flex-start'
-                        }
+                    justifyContent: {
+                        xs: 'center',
+                        sm: 'flex-start'
                     }
-                }}
-                    >
-                    <Tab label="Basic " sx={{ fontSize: 17, fontWeight: '700',marginRight: {xs:4, sm:6}}} />
-                    <Tab label=" Advanced " sx={{ fontSize: 17, fontWeight: '700' }} />
-                </Tabs>
+                    },
+                    "& .MuiTab-root": { color: dark ? "#a0a0a0" : "" },
+                    "& .MuiTab-root.Mui-selected": { color: dark ? "#ffffff" : "" },
+                    "& .MuiTabs-indicator": { backgroundColor: dark ? "#fb923c" : "" },
+  }}
+>
+  <Tab label="Basic " sx={{ fontSize: 17, fontWeight: '700', marginRight: {xs:4, sm:6}}} />
+  <Tab label=" Advanced " sx={{ fontSize: 17, fontWeight: '700' }} />
+</Tabs>
+                    
             </Box>
-            <Divider/>
+            <Divider sx={{ borderColor: dark ? "#3a3a3a" : "" }}/>
             <Box>
-                <TabPanel value={tabValue} index={0}>
+                <TabPanel value={tabValue} index={0} dark={dark}>
                     <BasicDatasetSettings />  
                 </TabPanel>
-                <TabPanel value={tabValue} index={1}>
+                <TabPanel value={tabValue} index={1} dark={dark}>
                     <DatasetSettings />
                 </TabPanel>
             </Box>

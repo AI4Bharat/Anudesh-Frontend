@@ -14,12 +14,14 @@ import ProjectLogs from './ProjectLogs';
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from 'react-router-dom';
 import { fetchProjectDetails } from '@/Lib/Features/projects/getProjectDetails';
+import { useTheme } from "@/context/ThemeContext";
 
 
 function TabPanel(props) {
          /* eslint-disable react-hooks/exhaustive-deps */
+         
 
-    const { children, value, index, ...other } = props;
+    const { children, value, index,dark, ...other } = props;
 
     return (
         <div
@@ -39,6 +41,7 @@ function TabPanel(props) {
 }
 
 const ProjectSetting = () => {
+    const { dark } = useTheme();
     const dispatch = useDispatch();
     const { id } = useParams();
     const [tabValue, setTabValue] = useState(0);
@@ -57,14 +60,21 @@ const ProjectSetting = () => {
     }, [])
     return (
         <Card
-    sx={{
-        width: "100%",
-        minHeight: 500,
-        padding: 5,
-        '@media (max-width: 600px)': {
-            padding: 2, 
-        },
-    }}
+     sx={{
+    width: "100%",
+    minHeight: 500,
+    padding: 5,
+    '@media (max-width: 600px)': {
+      padding: 2,
+    },
+
+    ...(dark && {
+      backgroundColor: "#1e1e1e",
+      color: "#ececec",
+      boxShadow: "none",
+      border: "1px solid #2e2e2e",
+    }),
+  }}
 >
     <Box>
         <Grid
@@ -83,12 +93,16 @@ const ProjectSetting = () => {
                 gutterBottom
                 component="div"
                 sx={{
-                    fontWeight: 900,
-                    fontSize: {
-                        xs: "1.5rem", 
-                        sm: "1.6875rem", 
-                    },
-                }}
+    fontWeight: 900,
+    fontSize: {
+      xs: "1.5rem",
+      sm: "1.6875rem",
+    },
+
+    ...(dark && {
+      color: "#ececec",
+    }),
+  }}
             >
                 Project Settings
             </Typography>
@@ -102,21 +116,53 @@ const ProjectSetting = () => {
                 scrollButtons="auto"
                 sx={{
                     '& .MuiTabs-flexContainer': {
-                        justifyContent: {
-                            xs: 'center',
-                            sm: 'flex-start'
-                        }
+                    justifyContent: {
+                        xs: 'center',
+                        sm: 'flex-start'
                     }
+                    },
+
+                    ...(dark && {
+                    borderBottom: "1px solid #2e2e2e",
+
+                    "& .MuiTab-root": {
+                        color: "#a0a0a0",
+                    },
+
+                    "& .Mui-selected": {
+                        color: "#fb923c !important",
+                    },
+
+                    "& .MuiTabs-indicator": {
+                        backgroundColor: "#fb923c",
+                    },
+                    }),
                 }}
             >
-                <Tab label="Basic" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6} }} />
-                <Tab label="Advanced" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6} }} />
-                <Tab label="Read-only" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6} }} />
-                <Tab label="Logs" sx={{ fontSize: 15, fontWeight: 700 }} />
+                <Tab label="Basic" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6}, ...(dark && {
+      color: "#a0a0a0",
+    }), }} />
+                <Tab label="Advanced" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6}, ...(dark && {
+      color: "#a0a0a0",
+    }), }} />
+                <Tab label="Read-only" sx={{ fontSize: 15, fontWeight: 700, marginRight: {sm:6}, ...(dark && {
+      color: "#a0a0a0",
+    }), }} />
+                <Tab label="Logs" sx={{ fontSize: 15, fontWeight: 700, ...(dark && {
+      color: "#a0a0a0",
+    }), }} />
             </Tabs>
         </Box>
-        <Divider />
-        <Box sx={{ p: 1 }}>
+        <Divider
+  sx={{
+    ...(dark && {
+      borderColor: "#2e2e2e",
+    }),
+  }}
+/>
+        <Box sx={{ p: 1 , ...(dark && {
+    backgroundColor: "#1e1e1e",
+  })}}>
             <TabPanel value={tabValue} index={0}>
                 <BasicSettings ProjectDetails={ProjectDetails} />
             </TabPanel>

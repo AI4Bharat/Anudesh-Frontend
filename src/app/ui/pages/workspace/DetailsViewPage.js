@@ -11,7 +11,8 @@ import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { ThemeProvider, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { useTheme as useMuiTheme } from "@mui/material/styles";
+import { useTheme } from "@/context/ThemeContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
@@ -48,8 +49,7 @@ import PerformanceAnalytics from "../progress/Workspace/PerformanceAnalytics";
 import AssignMembersDialog from "./bulkassignmembers";
 import APITransport from "@/Lib/apiTransport/apitransport";
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+function TabPanel({ children, value, index, dark, ...other }) {
   return (
     <div
       role="tabpanel"
@@ -59,7 +59,11 @@ function TabPanel(props) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{
+          p: 3,
+          backgroundColor: dark ? "#121212" : "transparent",
+          color: dark ? "#ececec" : "inherit",
+        }}>
           <Typography>{children}</Typography>
         </Box>
       )}
@@ -133,7 +137,21 @@ const DetailsViewPage = (props) => {
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+const getTabStyle = (index) => ({
+  fontSize: 16,
+  fontWeight: "700",
+  bgcolor: value === index
+    ? (dark ? "#333" : "#d3d3d3")
+    : (dark ? "#1e1e1e" : "#F5F5F5"),
+  color: value === index
+    ? (dark ? "#fff" : "black")
+    : (dark ? "#aaa" : "text.primary"),
+  margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
+  borderRadius: 1,
+  "&:hover": {
+    bgcolor: dark ? "#2a2a2a" : "#e0e0e0",
+  },
+});
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -259,8 +277,9 @@ const DetailsViewPage = (props) => {
     setUserType(Object.keys(UserRolesList)[0]);
   };
 
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const muiTheme = useMuiTheme();
+const isSmallScreen = useMediaQuery(muiTheme.breakpoints.down("md"));
+const { dark } = useTheme();
 
   return (
     <ThemeProvider theme={themeDefault}>
@@ -269,21 +288,24 @@ const DetailsViewPage = (props) => {
       ) : (
         <Grid container direction="row" sx={{ maxWidth: "100%" }}>
           <Card
-            className={classes.workspaceCard}
-            sx={{ width: "100%", padding: 2 }}
-          >
+          className={classes.workspaceCard}
+          sx={{
+            width: "100%",
+            padding: 2,
+            ...(dark && {
+              backgroundColor: "#1e1e1e",
+              color: "#ececec",
+            }),
+          }}
+        >
             {pageType === componentType.Type_Organization && (
-              <Typography
-                variant="h3"
-                gutterBottom
-                component="div"
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                  fontSize: "1.5rem",
-                }}
-              >
+            <Typography
+  variant="h3"
+  gutterBottom
+  component="div"
+  style={{ justifyContent: "center", alignItems: "center", textAlign: "center", fontSize: "1.5rem" }}
+  sx={{ ...(dark && { color: "#ececec" }) }}
+>
                 {title}
               </Typography>
             )}
@@ -315,10 +337,11 @@ const DetailsViewPage = (props) => {
                     }
                   >
                     <IconButton onClick={handleOpenSettings}>
-                      <SettingsOutlinedIcon
-                        sx={{ color: "grey.600" }}
-                        fontSize="large"
-                      />
+                     <SettingsOutlinedIcon
+                      sx={{ color: dark ? "#bbb" : "grey.600" }}
+                      fontSize="large"
+                    />
+
                     </IconButton>
                   </Tooltip>
                 )}
@@ -328,12 +351,8 @@ const DetailsViewPage = (props) => {
               variant="body1"
               gutterBottom
               component="div"
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                fontSize: "1rem",
-              }}
+              style={{ justifyContent: "center", alignItems: "center", textAlign: "center", fontSize: "1rem" }}
+              sx={{ ...(dark && { color: "#a0a0a0" }) }}
             >
               Created by : {createdBy}
             </Typography>
@@ -352,16 +371,18 @@ const DetailsViewPage = (props) => {
                   <Tab
                     label={translate("label.projects")}
                     sx={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 0 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
-                      borderRadius: 1,
-                      "&:hover": {
-                        bgcolor: "#e0e0e0",
-                      },
-                    }}
+                    fontSize: 16,
+                    fontWeight: "700",
+                    bgcolor: value === 0
+                      ? (dark ? "#333" : "#d3d3d3")
+                      : (dark ? "#1e1e1e" : "#F5F5F5"),
+                    color: value === 0
+                      ? (dark ? "#fff" : "black")
+                      : (dark ? "#aaa" : "text.primary"),
+                    margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
+                    borderRadius: 1,
+                    "&:hover": { bgcolor: dark ? "#2a2a2a" : "#e0e0e0" },
+                  }}
                   />
                 )}
                 {pageType === componentType.Type_Organization && (
@@ -383,19 +404,23 @@ const DetailsViewPage = (props) => {
 
                 {pageType === componentType.Type_Workspace && (
                   <Tab
-                    label={translate("label.members")}
-                    sx={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 1 ? "black" : "text.primary",
-                      margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
-                      borderRadius: 1,
-                      "&:hover": {
-                        bgcolor: "#e0e0e0",
-                      },
-                    }}
-                  />
+  label={translate("label.members")}
+  sx={{
+    fontSize: 16,
+    fontWeight: "700",
+    bgcolor: value === 1
+      ? (dark ? "#333" : "#d3d3d3")
+      : (dark ? "#1e1e1e" : "#F5F5F5"),
+    color: value === 1
+      ? (dark ? "#fff" : "black")
+      : (dark ? "#aaa" : "text.primary"),
+    margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
+    borderRadius: 1,
+    "&:hover": {
+      bgcolor: dark ? "#2a2a2a" : "#e0e0e0",
+    },
+  }}
+/>
                 )}
                 {pageType === componentType.Type_Organization && (
                   <Tab
@@ -531,10 +556,22 @@ const DetailsViewPage = (props) => {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
+              sx={{
+                "& .MuiPaper-root": {
+                  backgroundColor: dark ? "#2a2a2a" : "#fff",
+                  color: dark ? "#ececec" : "inherit",
+                },
+              }}
             >
               <MenuItem
                 selected={selectmenu === "TaskAnalytics"}
                 onClick={() => handleClickMenu("TaskAnalytics")}
+                sx={{
+                color: dark ? "#ececec" : "inherit",
+                "&:hover": { backgroundColor: dark ? "#3a3a3a" : undefined },
+                "&.Mui-selected": { backgroundColor: dark ? "#3a3a3a" : "#e0e0e0" },
+              }}
+                
               >
                 {" "}
                 Task Analytics{" "}
@@ -542,18 +579,33 @@ const DetailsViewPage = (props) => {
               <MenuItem
                 selected={selectmenu === "MetaAnalytics"}
                 onClick={() => handleClickMenu("MetaAnalytics")}
+                 sx={{
+                color: dark ? "#ececec" : "inherit",
+                "&:hover": { backgroundColor: dark ? "#3a3a3a" : undefined },
+                "&.Mui-selected": { backgroundColor: dark ? "#3a3a3a" : "#e0e0e0" },
+              }}
               >
                 Meta Analytics
               </MenuItem>
               <MenuItem
                 selected={selectmenu === "AdvanceAnalytics"}
                 onClick={() => handleClickMenu("AdvanceAnalytics")}
+                 sx={{
+                color: dark ? "#ececec" : "inherit",
+                "&:hover": { backgroundColor: dark ? "#3a3a3a" : undefined },
+                "&.Mui-selected": { backgroundColor: dark ? "#3a3a3a" : "#e0e0e0" },
+              }}
               >
                 Advance Analytics
               </MenuItem>
               <MenuItem
                 selected={selectmenu === "PerformanceAnalytics"}
                 onClick={() => handleClickMenu("PerformanceAnalytics")}
+                 sx={{
+                color: dark ? "#ececec" : "inherit",
+                "&:hover": { backgroundColor: dark ? "#3a3a3a" : undefined },
+                "&.Mui-selected": { backgroundColor: dark ? "#3a3a3a" : "#e0e0e0" },
+              }}
               >
                 Performance Analytics
               </MenuItem>
@@ -561,6 +613,7 @@ const DetailsViewPage = (props) => {
             <TabPanel
               value={value}
               index={0}
+              dark={dark}
               style={{ maxWidth: "100%", width: "100%" }}
             >
               {pageType === componentType.Type_Workspace && (
@@ -594,7 +647,7 @@ const DetailsViewPage = (props) => {
                 </>
               )}
             </TabPanel>
-            <TabPanel value={value} index={1}>
+            <TabPanel value={value} index={1} dark={dark}>
               {pageType === componentType.Type_Workspace && (
                 <>
                   <Grid
@@ -666,7 +719,7 @@ const DetailsViewPage = (props) => {
                 </>
               )}
             </TabPanel>
-            <TabPanel value={value} index={2}>
+            <TabPanel value={value} index={2} dark={dark}>
               {pageType === componentType.Type_Workspace && (
                 <>
                   <CustomButton
@@ -687,7 +740,7 @@ const DetailsViewPage = (props) => {
                 <Invites hideButton={true} reSendButton={true} />
               )}
             </TabPanel>
-            <TabPanel value={value} index={3}>
+            <TabPanel value={value} index={3} dark={dark}>
               {pageType === componentType.Type_Organization && (
                 <OrganizationReports />
               )}
@@ -695,7 +748,7 @@ const DetailsViewPage = (props) => {
                 <WorkspaceReports />
               )}
             </TabPanel>
-            <TabPanel value={value} index={4}>
+            <TabPanel value={value} index={4} dark={dark}>
               {pageType === componentType.Type_Workspace &&
                 selectmenu === "TaskAnalytics" && <TaskAnalytics />}
               {pageType === componentType.Type_Workspace &&
