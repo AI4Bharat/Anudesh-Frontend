@@ -1,5 +1,7 @@
-import {AppBar,Avatar,Box,Checkbox,Divider,FormControlLabel,Grid,IconButton,Menu,MenuItem,Toolbar,Tooltip,
-  Typography,Popover,Badge,Stack,Tabs,Tab,Switch,Select,InputLabel,FormControl,Dialog,DialogTitle,DialogContent ,DialogActions ,Button } from "@mui/material";
+import {
+  AppBar, Avatar, Box, Checkbox, Divider, FormControlLabel, Grid, IconButton, Menu, MenuItem, Toolbar, Tooltip,
+  Typography, Popover, Badge, Stack, Tabs, Tab, Switch, Select, InputLabel, FormControl, Dialog, DialogTitle, DialogContent, DialogActions, Button
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import headerStyle from "@/styles/Header";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
@@ -73,27 +75,27 @@ const Header = () => {
   const handleMoreHorizonClose = () => {
     setMoreHorizonAnchorEl(null);
   };
-    const [showTranslationModel, setShowTranslationModel] = useState(false);
-    const handleTranslationModelClose = () => {
+  const [showTranslationModel, setShowTranslationModel] = useState(false);
+  const handleTranslationModelClose = () => {
     setShowTranslationModel(false);
   };
-const translationServices = {
-  "ai4bharat/indictrans--gpu-t4": {
-    service_id: "ai4bharat/indictrans--gpu-t4",
-    languageFilters: {
-      sourceLanguages: [
-        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
-        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
-        "ks", "doi", "pa"
-      ],
-      targetLanguages: [
-        "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te", 
-        "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en", 
-        "ks", "doi", "pa"
-      ]
+  const translationServices = {
+    "ai4bharat/indictrans--gpu-t4": {
+      service_id: "ai4bharat/indictrans--gpu-t4",
+      languageFilters: {
+        sourceLanguages: [
+          "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te",
+          "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en",
+          "ks", "doi", "pa"
+        ],
+        targetLanguages: [
+          "kn", "mni", "sd", "as", "brx", "or", "gom", "ta", "sa", "te",
+          "ml", "ne", "gu", "sat", "mr", "hi", "bn", "ur", "mai", "en",
+          "ks", "doi", "pa"
+        ]
+      }
     }
-  }
-};
+  };
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
@@ -135,6 +137,7 @@ const translationServices = {
         console.error("Error fetching notifications:", error);
       });
   };
+
   const fetchUnreadCount = async () => {
     try {
       let apiObj = new NotificationAPI();
@@ -160,7 +163,7 @@ const translationServices = {
   }, []);
 
 
-  const markAsRead =  (notificationId) => {
+  const markAsRead = (notificationId) => {
     const task = new NotificationPatchAPI(notificationId);
     setSelectedNotificationId(notificationId);
     dispatch(APITransport(task));
@@ -186,7 +189,7 @@ const translationServices = {
   // useEffect(() => {
   //   fetchNotifications();
   // }, [unread,selectedNotificationId]);
-  
+
   useEffect(() => {
     getLoggedInUserData();
   }, []);
@@ -272,20 +275,20 @@ const translationServices = {
   const handleCloseNotification = () => {
     setAnchorElNotification(null);
   };
-const [isRtl, setIsRtl] = useState(false);
+  const [isRtl, setIsRtl] = useState(false);
 
-useEffect(() => {
-  if (typeof window !== "undefined") {
-    setIsRtl(localStorage.getItem("rtl") === "true");
-  }
-}, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsRtl(localStorage.getItem("rtl") === "true");
+    }
+  }, []);
 
 
 
   const handleRTLChange = (event) => {
     if (typeof window !== "undefined") {
-        const value = event.target.checked;
-  setIsRtl(value);
+      const value = event.target.checked;
+      setIsRtl(value);
 
       let style;
       if (event.target.checked) {
@@ -334,7 +337,6 @@ useEffect(() => {
   //   fetchNotifications();
   // };
 
-  
   const handleTagsChange = (event) => {
     if (typeof window !== "undefined") {
       if (event.target.checked) {
@@ -406,7 +408,7 @@ useEffect(() => {
               Projects
             </NavLink>
           </Typography>
-          {loggedInUserData.guest_user==false && loggedInUserData.organization.id == 1?(<Typography variant="body1">
+          {loggedInUserData.guest_user == false && loggedInUserData.organization.id == 1 ? (<Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -416,7 +418,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>):null}
+          </Typography>) : null}
         </Grid>
       );
     } else if (userRole.WorkspaceManager === loggedInUserData?.role) {
@@ -459,7 +461,7 @@ useEffect(() => {
               Datasets
             </NavLink>
           </Typography>
-          {loggedInUserData?.guest_user==false?<Typography variant="body1">
+          {loggedInUserData?.guest_user == false ? <Typography variant="body1">
             <NavLink
               to="/analytics"
               className={({ isActive }) =>
@@ -469,7 +471,7 @@ useEffect(() => {
             >
               Analytics
             </NavLink>
-          </Typography>:null}
+          </Typography> : null}
         </Grid>
       );
     } else if (userRole.OrganizationOwner === loggedInUserData?.role) {
@@ -605,9 +607,9 @@ useEffect(() => {
   const tabs = [
     // Guest Workspaces tab - only shown for guest users who are Annotators, Reviewers, or SuperCheckers
     loggedInUserData?.guest_user &&
-    (userRole.Annotator === loggedInUserData?.role ||
-      userRole.Reviewer === loggedInUserData?.role ||
-      userRole.SuperChecker === loggedInUserData?.role) ? (
+      (userRole.Annotator === loggedInUserData?.role ||
+        userRole.Reviewer === loggedInUserData?.role ||
+        userRole.SuperChecker === loggedInUserData?.role) ? (
       <Typography key="guest" variant="body1">
         <NavLink
           to="/guest_workspaces"
@@ -623,7 +625,7 @@ useEffect(() => {
 
     // Organization tab - only shown for Organization Owners and Admins
     userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role ? (
+      userRole.Admin === loggedInUserData?.role ? (
       <Typography key="organization" variant="body1">
         <NavLink
           to={
@@ -671,8 +673,8 @@ useEffect(() => {
 
     // Datasets tab - only shown for Workspace Managers, Organization Owners, and Admins
     userRole.WorkspaceManager === loggedInUserData?.role ||
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role ? (
+      userRole.OrganizationOwner === loggedInUserData?.role ||
+      userRole.Admin === loggedInUserData?.role ? (
       <Typography key="datasets" variant="body1">
         <NavLink
           to="/datasets"
@@ -744,7 +746,7 @@ useEffect(() => {
         setShowTransliterationModel(true);
       },
     },
-        {
+    {
       name: "Translation",
       onclick: () => {
         handleCloseSettingsMenu();
@@ -929,7 +931,7 @@ useEffect(() => {
                         </span>
                       }
                     >
-                     <IconButton onClick={handleOpenNotification}>
+                      <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
                           <NotificationsIcon
                             color="primary.dark"
@@ -1155,20 +1157,20 @@ useEffect(() => {
                       </Typography>
                     </MenuItem>
                   )}
-                <Dialog open={open} onClose={handleClose}>
-                  <DialogTitle>Change Password:</DialogTitle>
-                  <DialogContent>
-                   Are you sure you want to change your password?
-                 </DialogContent>
-                 <DialogActions>
-                 <Button onClick={handleApply} color="primary" variant="contained">
-                   Confirm
-                  </Button>
-                  <Button onClick={handleClose} color="error" variant="contained">
-                   Cancel
-                  </Button>
-                 </DialogActions>
-                </Dialog>
+                  <Dialog open={open} onClose={handleClose}>
+                    <DialogTitle>Change Password:</DialogTitle>
+                    <DialogContent>
+                      Are you sure you want to change your password?
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleApply} color="primary" variant="contained">
+                        Confirm
+                      </Button>
+                      <Button onClick={handleClose} color="error" variant="contained">
+                        Cancel
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                   <MenuItem
                     key={5}
                     onClick={() => onLogoutClick()}
@@ -1238,8 +1240,8 @@ useEffect(() => {
                   >
                     <Typography variant="h4">Notifications</Typography>
                     {Notification &&
-                    Notification?.length > 0 &&
-                    unseenNotifications?.length > 0 ? (
+                      Notification?.length > 0 &&
+                      unseenNotifications?.length > 0 ? (
                       <Tooltip title="Mark all as read">
                         <IconButton
                           aria-label="More"
@@ -1315,9 +1317,8 @@ useEffect(() => {
                                 variant="subtitle2"
                                 fontFamily="Roboto, sans-serif"
                                 fontWeight="bold"
-                              >{`ID: ${
-                                notification?.title?.split("\n")[0]
-                              }`}</Typography>
+                              >{`ID: ${notification?.title?.split("\n")[0]
+                                }`}</Typography>
                               <Typography
                                 style={{ paddingLeft: "10px" }}
                                 variant="subtitle2"
@@ -1365,7 +1366,7 @@ useEffect(() => {
                             {index !== Notification?.length - 1 && <Divider />}
                           </Link>
                           {notification?.seen_json == null ||
-                          !notification?.seen_json[loggedInUserData.id] ? (
+                            !notification?.seen_json[loggedInUserData.id] ? (
                             <Tooltip title="Mark as read">
                               <IconButton
                                 aria-label="More"
@@ -1439,7 +1440,7 @@ useEffect(() => {
         leftTranslate={"-50"}
         isTransliteration={true}
         style={{ cursor: "pointer" }}
-        // sx={{width: "400px"}}
+      // sx={{width: "400px"}}
       >
         <Transliteration
           onCancelTransliteration={() => handleTransliterationModelClose}
