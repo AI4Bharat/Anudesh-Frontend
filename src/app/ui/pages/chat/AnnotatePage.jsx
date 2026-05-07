@@ -1325,15 +1325,17 @@ const AnnotatePage = () => {
                 setannotationtext(editor.getText());
               }}
             />
-            <ReactQuill
-              forwardedRef={reviewNotesRef}
-              modules={modules}
-              formats={formats}
-              bounds={"#note"}
-              placeholder="Review Notes"
-              style={{ marginBottom: "8px", minHeight: "2rem" }}
-              readOnly={true}
-            />
+            <div style={{ display: ProjectDetails?.project_stage >= 2 ? "block" : "none" }}>
+              <ReactQuill
+                forwardedRef={reviewNotesRef}
+                modules={modules}
+                formats={formats}
+                bounds={"#note"}
+                placeholder="Review Notes"
+                style={{ marginBottom: "8px", minHeight: "2rem" }}
+                readOnly={true}
+              ></ReactQuill>
+            </div>
           </div>
         </Grid>
 
