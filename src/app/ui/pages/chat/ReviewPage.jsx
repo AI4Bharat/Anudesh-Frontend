@@ -7,7 +7,6 @@ import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
-import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { styled, alpha } from "@mui/material/styles";
@@ -1257,7 +1256,6 @@ return (
   <MenuItem value="small">Small</MenuItem>
   <MenuItem value="medium">Medium</MenuItem>
   <MenuItem value="large">Large</MenuItem>
-  <MenuItem value="xlarge">X-Large</MenuItem>
 </Select>
 
           {/* Info Button */}

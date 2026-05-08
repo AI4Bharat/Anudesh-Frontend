@@ -14,7 +14,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
-import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
@@ -1129,7 +1128,6 @@ return (
   <MenuItem value="small">Small</MenuItem>
   <MenuItem value="medium">Medium</MenuItem>
   <MenuItem value="large">Large</MenuItem>
-  <MenuItem value="xlarge">X-Large</MenuItem>
 </Select>
 
           {/* Info Button */}
