@@ -5,6 +5,7 @@ import {
     Box,
     TextField,
     Grid, Typography,
+    Tooltip,
 } from "@mui/material";
 import { translate } from "@/config/localisation";
 import DatasetStyle from "@/styles/dataset";
@@ -92,20 +93,22 @@ export default function SuperCheckSettings(props) {
     return (
         <div >
             {renderSnackBar()}
-            <Button
-                sx={{
-                    inlineSize: "max-content",
-                    p: 2,
-                    borderRadius: 3,
-                    ml: 2,
-                    width: "300px"
-                }}
-                aria-describedby={Id}
-                variant="contained"
-                onClick={handleClick}
-            >
-                Super Check Settings
-            </Button>
+            <Tooltip title="Configure the K% value and revision loop count for super-checking">
+                <Button
+                    sx={{
+                        inlineSize: "max-content",
+                        p: 2,
+                        borderRadius: 3,
+                        ml: 2,
+                        width: "300px"
+                    }}
+                    aria-describedby={Id}
+                    variant="contained"
+                    onClick={handleClick}
+                >
+                    Super Check Settings
+                </Button>
+            </Tooltip>
 
             <Popover
                 Id={Id}

@@ -8,6 +8,7 @@ import FormControl from "@mui/material/FormControl";
 import Checkbox from "@mui/material/Checkbox";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import Tooltip from "@mui/material/Tooltip";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -542,33 +543,42 @@ const AdvancedOperation = (props) => {
           }}
         >
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <CustomButton
-              sx={{
-                inlineSize: "max-content",
-                borderRadius: 3,
-                width: "100%"
-              }}
-              onClick={handlePublishProject}
-              label="Publish Project"
-            />
+            <Tooltip title="Make this project visible and available to assigned annotators">
+              <span style={{ display: "block", width: "100%" }}>
+                <CustomButton
+                  sx={{
+                    inlineSize: "max-content",
+                    borderRadius: 3,
+                    width: "100%"
+                  }}
+                  onClick={handlePublishProject}
+                  label="Publish Project"
+                />
+              </span>
+            </Tooltip>
           </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <CustomButton
-              sx={{
-                inlineSize: "max-content",
-                borderRadius: 3,
-                width: "100%"
-              }}
-              color="error"
-              onClick={handleClickOpen}
-              label={isArchived ? "Archived" : "Archive"}
-              disabled={
-                userRole.WorkspaceManager === loggedInUserData?.role
-                  ? true
-                  : false
-              }
-            />
+            <Tooltip title={isArchived ? "This project is already archived" : "Archive this project to hide it from active projects"}
+            >
+              <span>
+                <CustomButton
+                  sx={{
+                    inlineSize: "max-content",
+                    borderRadius: 3,
+                    width: "100%"
+                  }}
+                  color="error"
+                  onClick={handleClickOpen}
+                  label={isArchived ? "Archived" : "Archive"}
+                  disabled={
+                    userRole.WorkspaceManager === loggedInUserData?.role
+                      ? true
+                      : false
+                  }
+                />
+              </span>
+            </Tooltip>
           </Grid>
 
           <Grid
@@ -631,15 +641,17 @@ const AdvancedOperation = (props) => {
         >
           {ProjectDetails.project_type == "ContextualTranslationEditing" ? (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%"
-                }}
-                onClick={handleDownloadProjectAnnotations}
-                label="Downoload Project Annotations"
-              />
+              <Tooltip title="Download annotation data for this project type">
+                <CustomButton
+                  sx={{
+                    inlineSize: "max-content",
+                    borderRadius: 3,
+                    width: "100%"
+                  }}
+                  onClick={handleDownloadProjectAnnotations}
+                  label="Downoload Project Annotations"
+                />
+              </Tooltip>
             </Grid>
           ) : (
             " "
@@ -647,59 +659,71 @@ const AdvancedOperation = (props) => {
           {/* <div className={classes.divider} ></div> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             {ProjectTypes?.output_dataset?.save_type === "new_record" ? (
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%",
-                  height: "50px",
-                }}
-                onClick={handleOpenExportProjectDialog}
-                label="Export Project into Dataset"
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+              <Tooltip title="Export all project tasks into a new dataset record">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
+                    }}
+                    onClick={handleOpenExportProjectDialog}
+                    label="Export Project into Dataset"
+                    disabled={
+                      userRole.WorkspaceManager === loggedInUserData?.role
+                        ? true
+                        : false
+                    }
+                  />
+                </span>
+              </Tooltip>
             ) : (
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%",
-                  height: "50px",
+              <Tooltip title="Export all project tasks into the existing dataset">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
 
-                }}
-                onClick={handleExportProject}
-                label="Export Project into Dataset"
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+                    }}
+                    onClick={handleExportProject}
+                    label="Export Project into Dataset"
+                    disabled={
+                      userRole.WorkspaceManager === loggedInUserData?.role
+                        ? true
+                        : false
+                    }
+                  />
+                </span>
+              </Tooltip>
             )}
           </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             {ProjectDetails.sampling_mode == "f" ||
             ProjectDetails.sampling_mode == "b" ? (
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%",
-                  height: "50px",
-                }}
-                onClick={handlePullNewData}
-                label="Pull New Data Items from Source Dataset"
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+              <Tooltip title="Pull new data items from the source dataset into this project">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
+                    }}
+                    onClick={handlePullNewData}
+                    label="Pull New Data Items from Source Dataset"
+                    disabled={
+                      userRole.WorkspaceManager === loggedInUserData?.role
+                        ? true
+                        : false
+                    }
+                  />
+                </span>
+              </Tooltip>
             ) : (
               " "
             )}
@@ -822,16 +846,20 @@ const AdvancedOperation = (props) => {
         
               {userRole.Admin === loggedInUserData?.role && ProjectDetails?.labeled_task_count === 0 &&  (
                 <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                  <CustomButton
-                    sx={{
-                      inlineSize: "max-content",
-                      borderRadius: 3,
-                      width: "100%",
-                    }}
-                    color="error"
-                    onClick={handleDeleteProject}
-                    label="Delete Project"
-                  />
+                  <Tooltip title="Permanently delete this project and all its tasks. This action cannot be undone.">
+                    <span>
+                      <CustomButton
+                        sx={{
+                          inlineSize: "max-content",
+                          borderRadius: 3,
+                          width: "100%",
+                        }}
+                        color="error"
+                        onClick={handleDeleteProject}
+                        label="Delete Project"
+                      />
+                    </span>
+                  </Tooltip>
                 </Grid>
               )}
 

@@ -13,6 +13,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
+import Tooltip from "@mui/material/Tooltip";
 import { translate } from "@/config/localisation";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
@@ -165,19 +166,24 @@ export default function DeleteProjectTasks() {
     return (
         <div >
             {renderSnackBar()}
-            <Button
-                sx={{
-                    inlineSize: "max-content",
-                    borderRadius: 3,
-                    width: "100%"
-                }}
-                aria-describedby={Id}
-                variant="contained"
-                onClick={handleClick}
-                disabled ={userRole.WorkspaceManager === loggedInUserData?.role?true:false}
-                color="error">
-                Delete Project Tasks
-            </Button>
+            <Tooltip title={userRole.WorkspaceManager === loggedInUserData?.role ? "Workspace managers cannot delete tasks" : "Delete a range or set of project tasks by ID"}
+            >
+              <span>
+                <Button
+                    sx={{
+                        inlineSize: "max-content",
+                        borderRadius: 3,
+                        width: "100%"
+                    }}
+                    aria-describedby={Id}
+                    variant="contained"
+                    onClick={handleClick}
+                    disabled ={userRole.WorkspaceManager === loggedInUserData?.role?true:false}
+                    color="error">
+                    Delete Project Tasks
+                </Button>
+              </span>
+            </Tooltip>
 
             <Popover
                 Id={Id}
