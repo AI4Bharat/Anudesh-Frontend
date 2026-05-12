@@ -166,7 +166,7 @@ export default function DeleteProjectTasks() {
     return (
         <div >
             {renderSnackBar()}
-            <Tooltip title={userRole.WorkspaceManager === loggedInUserData?.role ? "Workspace managers cannot delete tasks" : "Delete a range or set of project tasks by ID"}
+            <Tooltip title="Delete a range or set of project tasks by ID"
             >
               <span>
                 <Button
