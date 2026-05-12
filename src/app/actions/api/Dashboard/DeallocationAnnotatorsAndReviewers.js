@@ -7,16 +7,21 @@ import constant from "../../constants";
 /* eslint-disable react-hooks/exhaustive-deps */
 
 export default class DeallocationAnnotatorsAndReviewersAPI extends API {
-  constructor(projectId, radiobutton, annotatorsUser, reviewerssUser, annotationStatus, reviewStatus, superCheckUser, SuperCheckStatus, taskIdsArray, timeout = 2000) {
+  constructor(projectId, radiobutton, annotatorsUser, reviewerssUser, annotationStatus, reviewStatus, superCheckUser, SuperCheckStatus, taskIdsArray, taskIdStatusArray = [], taskIdStatusType = "annotation", timeout = 2000) {
     super("POST", timeout, false);
     
     let endpoint = "";
     let body = {};
     
-    // Handle taskIds deallocation
+    // Handle taskIds deallocation with status
     if (radiobutton === "taskIds") {
       endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_tasks/`;
       body = { task_ids: taskIdsArray };
+      
+      // Add status filter if provided
+      if (taskIdStatusArray && taskIdStatusArray.length > 0) {
+        body.annotation_status = taskIdStatusArray;
+      }
     } 
     // Handle annotation deallocation
     else if (radiobutton === "annotation") {

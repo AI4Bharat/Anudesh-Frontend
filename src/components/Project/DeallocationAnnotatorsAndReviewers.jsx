@@ -85,6 +85,9 @@ export default function DeallocationAnnotatorsAndReviewers() {
     variant: "success",
 });
 const [taskIds, setTaskIds] = useState("");
+// NEW STATE VARIABLES FOR TASK IDS STATUS
+const [taskIdStatus, setTaskIdStatus] = useState([]);
+const [taskIdStatusType, setTaskIdStatusType] = useState("annotation");
 
 
   const open = Boolean(anchorEl);
@@ -105,6 +108,9 @@ const [taskIds, setTaskIds] = useState("");
     setSuperCheckersUser("")
     setSuperCheckStatus([])
     setTaskIds("")
+    // RESET NEW STATES
+    setTaskIdStatus([])
+    setTaskIdStatusType("annotation")
   };
 
   const handleAnnotation = () => {
@@ -134,6 +140,9 @@ const handleCloseDialog = () => {
     setSuperCheckersUser("")
     setSuperCheckStatus([])
     setTaskIds("")
+    // RESET NEW STATES
+    setTaskIdStatus([])
+    setTaskIdStatusType("annotation")
 };
 
 const handleChangeAnnotationStatus = (event) => {
@@ -150,7 +159,11 @@ const handleChangeAnnotationStatus = (event) => {
     setSuperCheckStatus(value);
   }
 
-  
+// NEW FUNCTION FOR STATUS TYPE CHANGE
+const handleTaskIdStatusTypeChange = (event) => {
+  setTaskIdStatusType(event.target.value);
+  setTaskIdStatus([]); // Clear status values when type changes
+}
 
 const handleok = async() => {
     setAnchorEl(null);
@@ -171,7 +184,9 @@ const handleok = async() => {
       reviewStatus, 
       superCheckersUser, 
       superCheckStatus,
-      taskIdsArray // Send as array instead of string
+      taskIdsArray,
+      taskIdStatus, // Pass the selected status values
+      taskIdStatusType // Pass the status type
     );
     
     // dispatch(APITransport(projectObj));
@@ -196,6 +211,8 @@ const handleok = async() => {
         setSuperCheckersUser("")
         setSuperCheckStatus([])
         setTaskIds("")
+        setTaskIdStatus([])
+        setTaskIdStatusType("annotation")
        
     } else {
         setSnackbarInfo({
@@ -570,6 +587,76 @@ const renderSnackBar = () => {
                   onChange={(e) => setTaskIds(e.target.value)}
                   variant="outlined"
                 />
+              </Grid>
+            </Grid>
+            
+            {/* NEW STATUS TYPE SELECTOR */}
+            <Grid
+              container
+              direction="row"
+              sx={{
+                alignItems: "center",
+                p: 1,
+                width: "350px",
+                mt: 1
+              }}
+            >
+              <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Typography variant="body2" fontWeight="700" label="Required">
+                  Select Status Type:
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={taskIdStatusType}
+                    onChange={handleTaskIdStatusTypeChange}
+                    sx={{ textAlign: "left" }}
+                  >
+                    <MenuItem value="annotation">Annotation Status</MenuItem>
+                    <MenuItem value="review">Review Status</MenuItem>
+                    <MenuItem value="superChecker">Super Check Status</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
+            {/* NEW STATUS VALUES MULTISELECT */}
+            <Grid
+              container
+              direction="row"
+              sx={{
+                alignItems: "center",
+                p: 1,
+                width: "350px"
+              }}
+            >
+              <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Typography variant="body2" fontWeight="700" label="Required">
+                  Select Status Values:
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                <FormControl fullWidth size="small">
+                  <Select
+                    multiple
+                    value={taskIdStatus}
+                    onChange={(e) => setTaskIdStatus(e.target.value)}
+                    renderValue={(selected) => selected.join(", ")}
+                    MenuProps={MenuProps}
+                  >
+                    {(taskIdStatusType === "annotation" ? AnnotationStatus : 
+                      taskIdStatusType === "review" ? ReviewStatus : SuperChecker).map((option) => (
+                      <MenuItem
+                        sx={{ textTransform: "capitalize" }}
+                        key={option}
+                        value={option}
+                      >
+                        <ListItemText primary={snakeToTitleCase(option)} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
           </>
