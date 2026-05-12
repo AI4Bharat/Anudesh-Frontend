@@ -93,7 +93,7 @@ export default function SuperCheckSettings(props) {
     return (
         <div >
             {renderSnackBar()}
-            <Tooltip title="Configure the K% value and revision loop count for super-checking">
+            <Tooltip title="Configure the % of reviewed tasks that has to be superchecked and the number of times a task can be rejected">
                 <Button
                     sx={{
                         inlineSize: "max-content",
