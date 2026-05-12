@@ -84,8 +84,10 @@ export default function DeallocationAnnotatorsAndReviewers() {
     message: "",
     variant: "success",
 });
-
-
+const [taskIds, setTaskIds] = useState("");
+// NEW STATE VARIABLES FOR TASK IDS STATUS
+const [taskIdStatus, setTaskIdStatus] = useState([]);
+const [taskIdStatusType, setTaskIdStatusType] = useState("annotation");
 
 
   const open = Boolean(anchorEl);
@@ -105,6 +107,10 @@ export default function DeallocationAnnotatorsAndReviewers() {
     setReviewStatus([])
     setSuperCheckersUser("")
     setSuperCheckStatus([])
+    setTaskIds("")
+    // RESET NEW STATES
+    setTaskIdStatus([])
+    setTaskIdStatusType("annotation")
   };
 
   const handleAnnotation = () => {
@@ -115,6 +121,9 @@ export default function DeallocationAnnotatorsAndReviewers() {
   };
   const handlesuperChecker = () => {
     setRadiobutton("superChecker");
+  };
+  const handleTaskIdsDeallocation = () => {
+    setRadiobutton("taskIds");
   };
 
   const handleSubmit = () => {
@@ -130,6 +139,10 @@ const handleCloseDialog = () => {
     setReviewStatus([])
     setSuperCheckersUser("")
     setSuperCheckStatus([])
+    setTaskIds("")
+    // RESET NEW STATES
+    setTaskIdStatus([])
+    setTaskIdStatusType("annotation")
 };
 
 const handleChangeAnnotationStatus = (event) => {
@@ -146,18 +159,36 @@ const handleChangeAnnotationStatus = (event) => {
     setSuperCheckStatus(value);
   }
 
-  
+// NEW FUNCTION FOR STATUS TYPE CHANGE
+const handleTaskIdStatusTypeChange = (event) => {
+  setTaskIdStatusType(event.target.value);
+  setTaskIdStatus([]); // Clear status values when type changes
+}
 
 const handleok = async() => {
     setAnchorEl(null);
     setOpenDialog(false);
-    setAnnotatorsUser("")
-    setAnnotationStatus([])
-    setReviewersUser("")
-    setReviewStatus([])
-    setSuperCheckersUser("")
-    setSuperCheckStatus([])
-    const projectObj = new DeallocationAnnotatorsAndReviewersAPI(id,radiobutton,annotatorsUser,reviewerssUser,annotationStatus,reviewStatus,superCheckersUser,superCheckStatus);
+    
+    // Convert taskIds string to array if it exists
+    let taskIdsArray = [];
+    if (taskIds && taskIds.trim()) {
+      taskIdsArray = taskIds.split(',').map(id => id.trim()).filter(id => id !== '');
+    }
+    
+    const projectObj = new DeallocationAnnotatorsAndReviewersAPI(
+      id, 
+      radiobutton, 
+      annotatorsUser, 
+      reviewerssUser, 
+      annotationStatus, 
+      reviewStatus, 
+      superCheckersUser, 
+      superCheckStatus,
+      taskIdsArray,
+      taskIdStatus, // Pass the selected status values
+      taskIdStatusType // Pass the status type
+    );
+    
     // dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
         method: "POST",
@@ -172,6 +203,16 @@ const handleok = async() => {
             message: resp?.message,
             variant: "success",
         })
+        // Reset all states after successful deallocation
+        setAnnotatorsUser("")
+        setAnnotationStatus([])
+        setReviewersUser("")
+        setReviewStatus([])
+        setSuperCheckersUser("")
+        setSuperCheckStatus([])
+        setTaskIds("")
+        setTaskIdStatus([])
+        setTaskIdStatusType("annotation")
        
     } else {
         setSnackbarInfo({
@@ -220,6 +261,8 @@ const renderSnackBar = () => {
       }else{
         window.alert("Incorrect pin entered");
       }
+    }else if(radiobutton === "taskIds"){
+      handleok();
     }
   };
 
@@ -273,6 +316,12 @@ const renderSnackBar = () => {
                   control={<Radio />}
                   label="Super Check"
                   onClick={handlesuperChecker}
+                />
+                <FormControlLabel
+                  value="taskIds"
+                  control={<Radio />}
+                  label="Deallocate with Task IDs"
+                  onClick={handleTaskIdsDeallocation}
                 />
               </RadioGroup>
             </FormControl>
@@ -512,7 +561,106 @@ const renderSnackBar = () => {
             </Grid>
           </>
         )}
-        
+
+{radiobutton === "taskIds" && (
+          <>
+            <Grid
+              container
+              direction="row"
+              sx={{
+                alignItems: "center",
+                p: 1,
+                width:"350px"
+              }}
+            >
+              <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Typography variant="body2" fontWeight="700" label="Required">
+                  Enter Task IDs (comma-separated):
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="e.g., 1,2,3,4"
+                  value={taskIds}
+                  onChange={(e) => setTaskIds(e.target.value)}
+                  variant="outlined"
+                />
+              </Grid>
+            </Grid>
+            
+            {/* NEW STATUS TYPE SELECTOR */}
+            <Grid
+              container
+              direction="row"
+              sx={{
+                alignItems: "center",
+                p: 1,
+                width: "350px",
+                mt: 1
+              }}
+            >
+              <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Typography variant="body2" fontWeight="700" label="Required">
+                  Select Status Type:
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={taskIdStatusType}
+                    onChange={handleTaskIdStatusTypeChange}
+                    sx={{ textAlign: "left" }}
+                  >
+                    <MenuItem value="annotation">Annotation Status</MenuItem>
+                    <MenuItem value="review">Review Status</MenuItem>
+                    <MenuItem value="superChecker">Super Check Status</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
+            {/* NEW STATUS VALUES MULTISELECT */}
+            <Grid
+              container
+              direction="row"
+              sx={{
+                alignItems: "center",
+                p: 1,
+                width: "350px"
+              }}
+            >
+              <Grid items xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Typography variant="body2" fontWeight="700" label="Required">
+                  Select Status Values:
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
+                <FormControl fullWidth size="small">
+                  <Select
+                    multiple
+                    value={taskIdStatus}
+                    onChange={(e) => setTaskIdStatus(e.target.value)}
+                    renderValue={(selected) => selected.join(", ")}
+                    MenuProps={MenuProps}
+                  >
+                    {(taskIdStatusType === "annotation" ? AnnotationStatus : 
+                      taskIdStatusType === "review" ? ReviewStatus : SuperChecker).map((option) => (
+                      <MenuItem
+                        sx={{ textTransform: "capitalize" }}
+                        key={option}
+                        value={option}
+                      >
+                        <ListItemText primary={snakeToTitleCase(option)} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </>
+        )}
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, p: 1 }}>
           <Button
