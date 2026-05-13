@@ -176,6 +176,7 @@ const CreateProject = () => {
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
   const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
   const [defaultValue, setDefaultValue] = useState(0);
+  const [systemPrompt, setSystemPrompt] = useState('');
 
   const handleTextareaChange = (event) => {
     setDefaultValue(event.target.value);
@@ -204,7 +205,8 @@ const CreateProject = () => {
       selectedLanguageModels,
       fixedModels,
       numSelectedModels,
-      defaultValue
+      defaultValue,
+      systemPrompt
     }));
   };
 
@@ -214,7 +216,7 @@ const CreateProject = () => {
     title, description, selectedDomain, selectedType, sourceLanguage, targetLanguage,
     selectedInstances, confirmed, samplingMode, random, batchSize, batchNumber,
     selectedAnnotatorsNum, taskReviews, createannotationsAutomatically, is_published, conceal, jsonInput, isModelSelectionEnabled, selectedLanguageModels,
-    fixedModels, numSelectedModels, defaultValue
+    fixedModels, numSelectedModels, defaultValue, systemPrompt
   ]);
     useEffect(() => {
     setTitle(formData.title);
@@ -240,6 +242,7 @@ const CreateProject = () => {
     setFixedModels(formData.fixedModels);
     setNumSelectedModels(formData.numSelectedModels);
     setDefaultValue(formData.defaultValue);
+    setSystemPrompt(formData.systemPrompt || '');
   }, []);
 
   // Clear form function
@@ -270,6 +273,7 @@ const CreateProject = () => {
     setFixedModels(fixed_Models);
     setNumSelectedModels();
     setDefaultValue(0);
+    setSystemPrompt('');
   };
 
   useEffect(() => {
@@ -611,6 +615,15 @@ const CreateProject = () => {
     };
   } else {
     baseMetadata = questionsJSON;
+  }
+
+  // Add system_prompt to metadata if provided
+  if (systemPrompt && systemPrompt.trim() !== '') {
+    if (typeof baseMetadata === 'object' && baseMetadata !== null) {
+      baseMetadata = { ...baseMetadata, system_prompt: systemPrompt.trim() };
+    } else {
+      baseMetadata = { system_prompt: systemPrompt.trim() };
+    }
   }
 
   if (workspaceDtails?.guest_workspace_display === "Yes") {
@@ -1144,12 +1157,13 @@ const CreateProject = () => {
                 </Grid>
               </Card>
             )}
-            {selectedType === "MultipleLLMInstructionDrivenChat" && selectedDomain === "Chat" && (
+            {(selectedType === "MultipleLLMInstructionDrivenChat" || selectedType === "InstructionDrivenChat") && selectedDomain === "Chat" && (
               <Card sx={{ p: 1, mb: 1 }}>
                 <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
                   Chat Configuration
                 </Typography>
 
+                {selectedType === "MultipleLLMInstructionDrivenChat" && (
                 <Grid container spacing={2} alignItems="center">
                   {/* Toggle on the left */}
                   <Grid item xs={12} md={2}>
@@ -1333,6 +1347,39 @@ const CreateProject = () => {
                   ) : null}
 
                 </Grid>
+                )}
+
+                  {/* System Prompt Field */}
+                  <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid item xs={12}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal' }}>
+                          System Prompt:
+                          <Tooltip
+                            title="Optional custom system prompt for the LLM. If left empty, a default system prompt will be used."
+                            arrow
+                            placement="top"
+                          >
+                            <IconButton size="small" sx={{ color: 'primary.main' }}>
+                              <InfoOutlined fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Typography>
+                        <TextField
+                          fullWidth
+                          multiline
+                          minRows={3}
+                          maxRows={6}
+                          size="small"
+                          value={systemPrompt}
+                          onChange={(e) => setSystemPrompt(e.target.value)}
+                          placeholder="Enter a custom system prompt for the LLM (optional)"
+                          variant="outlined"
+                        />
+                      </Box>
+                    </Grid>
+                  </Grid>
+
               </Card>
             )}
             {/* {selectedType === "MultipleLLMInstructionDrivenChat" &&
