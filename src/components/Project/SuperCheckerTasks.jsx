@@ -29,6 +29,7 @@ import ColumnList from "../../components/common/ColumnList";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CustomButton from "../../components/common/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import SearchPopup from "./SearchPopup";
@@ -469,7 +470,7 @@ const SuperCheckerTasks = (props) => {
                   localStorage.removeItem("labelAll");
                 }
               }}
-              sx={{ p: 1, borderRadius: 2 }}
+              sx={{ p: 1, borderRadius: 1 }}
               label={
                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                   Validate
@@ -734,12 +735,30 @@ const SuperCheckerTasks = (props) => {
     },
   }));
 
+  // Shared sx for all filter dropdowns in the toolbar
+  const filterSelectSx = {
+    color: "#374151",
+    bgcolor: "white",
+    borderRadius: "8px",
+    height: "36px",
+    "& .MuiSelect-select": {
+      padding: "6px 24px 6px 12px",
+      fontSize: "0.875rem",
+      fontWeight: 500,
+      display: "flex",
+      alignItems: "center",
+    },
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: "#d1d5db" },
+    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#d1d5db" },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#d1d5db", borderWidth: "1px" },
+  };
+
   const renderToolBar = () => {
     // const buttonSXStyle = { borderRadius: 2, margin: 2 }
     return (
       <>
       
-      <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
+      <Box className={classes.filterToolbarContainer} sx={{ minHeight: { xs: "auto", sm: "52px" }, py: { xs: 1, sm: 0 } }}>
         {(roles?.WorkspaceManager === userDetails?.role ||
           roles?.OrganizationOwner === userDetails?.role ||
           roles?.Admin === userDetails?.role) &&
@@ -752,39 +771,23 @@ const SuperCheckerTasks = (props) => {
           !ProjectDetails?.review_supercheckers?.some(
             (reviewer) => reviewer.id === userDetails?.id,
           ) && (
-            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-              <InputLabel
-                id="annotator-filter-label"
-                sx={{
-                  fontSize: "16px",
-                  position: "inherit",
-                  top: "23px",
-                  left: "-6px",
-                }}
-              >
-                Filter by SuperChecker
-              </InputLabel>
-              <Select
-                labelId="annotator-filter-label"
-                id="annotator-filter"
-                value={selectedFilters.req_user}
-                label="Filter by SuperChecker"
-                onChange={(e) =>
-                  setsSelectedFilters({
-                    ...selectedFilters,
-                    req_user: e.target.value,
-                  })
-                }
-                sx={{ fontSize: "16px" }}
-              >
-                <MenuItem value={-1}>All</MenuItem>
-                {filterData.SuperChecker.map((el, i) => (
-                  <MenuItem key={i} value={el.value}>
-                    {el.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Select
+              id="annotator-filter"
+              value={selectedFilters.req_user}
+              displayEmpty
+              renderValue={(selected) => {
+                if (selected === -1 || !selected) return "Filter by SuperChecker";
+                const selectedSC = filterData.SuperChecker.find(a => a.value === selected);
+                return selectedSC ? `SuperChecker: ${selectedSC.label}` : "Filter by SuperChecker";
+              }}
+              onChange={(e) => setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })}
+              sx={filterSelectSx}
+            >
+              <MenuItem value={-1}>All</MenuItem>
+              {filterData.SuperChecker.map((el, i) => (
+                <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
+              ))}
+            </Select>
           )}
         {/* <TasksSupercheckTable /> */}
 
@@ -797,15 +800,24 @@ const SuperCheckerTasks = (props) => {
           sx={{ position: "relative", display: "inline-block" }}
           onClick={handleShowFilter}
         >
-          {filtersApplied && (
+          {/* {filtersApplied && (
             <InfoIcon
               color="primary"
               fontSize="small"
               sx={{ position: "absolute", top: -4, right: -4 }}
             />
-          )}
-          <Button sx={{ position: "relative" }}>
-            <FilterListIcon sx={{ color: "#515A5A" }} />
+          )} */}
+          <Button 
+            variant="outlined"
+            sx={{ 
+              position: "relative",
+              borderRadius: "4px",
+              borderWidth: "1px",
+              borderColor: "#ebebeb",
+              gap: 0.5,
+            }}
+          >
+            <FilterAltIcon/>
             <CustomTooltip
               title={
                 filtersApplied ? (
@@ -1013,7 +1025,7 @@ const SuperCheckerTasks = (props) => {
           (supercheckers) => supercheckers.id === userDetails?.id,
         ) &&
         (ProjectDetails.is_published ? (
-          <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
+          <Grid container direction="row" spacing={{ xs: 1, sm: 2 }} sx={{ px: { xs: 1.5, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 0.5, sm: 1 } }}>
            {(roles?.WorkspaceManager === userDetails?.role ||
   roles?.OrganizationOwner === userDetails?.role ||
   roles?.Admin === userDetails?.role) &&
@@ -1028,7 +1040,7 @@ const SuperCheckerTasks = (props) => {
           sx={{
             p: 1,
             width: "100%",
-            borderRadius: 2,
+            borderRadius: 1,
             margin: "auto",
           }}
           label={"De-allocate Tasks"}
@@ -1153,7 +1165,7 @@ const SuperCheckerTasks = (props) => {
                     sx={{
                       p: 1,
                       width: "100%",
-                      borderRadius: 2,
+                      borderRadius: 1,
                       margin: "auto",
                     }}
                     label={"Pull New Batch"}
@@ -1183,7 +1195,7 @@ const SuperCheckerTasks = (props) => {
                   <CustomButton
                     sx={{
                       p: 1,
-                      borderRadius: 2,
+                      borderRadius: 1,
                       margin: "auto",
                       width: "100%",
                     }}

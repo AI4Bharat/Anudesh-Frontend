@@ -209,7 +209,7 @@ const AllTaskTable = (props) => {
                 onClick={() => {
                   localStorage.removeItem("labelAll");
                 }}
-                sx={{ p: 1, borderRadius: 2 }}
+                sx={{ p: 1, borderRadius: 1 }}
                 label={
                   <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                     View
@@ -324,9 +324,18 @@ const AllTaskTable = (props) => {
 
   const renderToolBar = () => {
     return (
-      <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
+      <Box className={classes.filterToolbarContainer} sx={{ minHeight: "52px", py: 0 }}>
         <Tooltip title="Filter Table">
-          <Button onClick={handleShowFilter}>
+          <Button 
+            variant="outlined"
+            onClick={handleShowFilter}
+            sx={{ 
+              borderColor: "#ebebeb",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              gap: 0.5,
+            }}
+          >
             <FilterListIcon />
           </Button>
         </Tooltip>

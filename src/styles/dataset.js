@@ -38,14 +38,16 @@ const DatasetStyle = makeStyles({
     margin: "20px 0px 10px 0px",
   },
   filterToolbarContainer: {
-    // alignItems : 'center',
-    // display : 'inline',
-    // textAlign : "end"
     display: "flex",
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "flex-end",
     alignItems: "center",
     columnGap: "10px",
+    rowGap: "10px",
+    backgroundColor: "#f2f4f6",
+    borderBottom: "1px solid #e0e0e0",
+    padding: "0px 16px",
   },
 
   clearAllBtn: {
