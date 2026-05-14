@@ -28,6 +28,7 @@ import tableTheme from "../../themes/tableTheme";
 import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterList from "./FilterList";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CustomizedSnackbars from "../../components/common/Snackbar";
 import CalenderMonthIcon from '@mui/icons-material/CalendarMonth';
 import { parse, format } from "date-fns";
@@ -796,7 +797,7 @@ const TaskTable = (props) => {
             <CustomButton
               onClick={() => localStorage.removeItem("labelAll")}
               disabled={isArchived}
-              sx={{ p: 1, borderRadius: 2 }}
+              sx={{ p: 1, borderRadius: 1 }}
               label={
                 <Typography sx={{ color: "#FFFFFF" }} variant="body2">
                   {actionLabel}
@@ -1160,9 +1161,27 @@ const TaskTable = (props) => {
     },
   }));
 
+  // Shared sx for all filter dropdowns in the toolbar
+  const filterSelectSx = {
+    color: "#374151",
+    bgcolor: "white",
+    borderRadius: "8px",
+    height: "36px",
+    '& .MuiSelect-select': {
+      padding: "6px 24px 6px 12px",
+      fontSize: "0.875rem",
+      fontWeight: 500,
+      display: "flex",
+      alignItems: "center",
+    },
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: "#d1d5db" },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: "#d1d5db" },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: "#d1d5db", borderWidth: "1px" },
+  };
+
   const renderToolBar = () => {
     return (
-      <Box className={classes.filterToolbarContainer} sx={{ height: "80px" }}>
+      <Box className={classes.filterToolbarContainer} sx={{ minHeight: { xs: "auto", sm: "52px" }, py: { xs: 1, sm: 0 } }}>
 
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role ||
@@ -1171,31 +1190,23 @@ const TaskTable = (props) => {
           !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
           !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
           !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
-            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-              <InputLabel
-                id="annotator-filter-label"
-                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-20px" }}
-              >
-                Filter by Annotator
-              </InputLabel>
-              <Select
-                labelId="annotator-filter-label"
-                id="annotator-filter"
-                value={selectedFilters.req_user}
-                label="Filter by Annotator"
-                onChange={(e) =>
-                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
-                }
-                sx={{ fontSize: "16px" }}
-              >
-                <MenuItem value={-1}>All</MenuItem>
-                {filterData.Annotators.map((el, i) => (
-                  <MenuItem key={i} value={el.value}>
-                    {el.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Select
+              id="annotator-filter"
+              value={selectedFilters.req_user}
+              displayEmpty
+              renderValue={(selected) => {
+                if (selected === -1 || !selected) return "Filter by Annotator";
+                const selectedAnnotator = filterData.Annotators.find(a => a.value === selected);
+                return selectedAnnotator ? `Annotator: ${selectedAnnotator.label}` : "Filter by Annotator";
+              }}
+              onChange={(e) => setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })}
+              sx={filterSelectSx}
+            >
+              <MenuItem value={-1}>All</MenuItem>
+              {filterData.Annotators.map((el, i) => (
+                <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
+              ))}
+            </Select>
           )}
         {props.type === "review" &&
           (roles?.WorkspaceManager === userDetails?.role ||
@@ -1204,31 +1215,23 @@ const TaskTable = (props) => {
           !getProjectUsers?.some((annotator) => annotator.id === userDetails?.id) &&
           !getProjectReviewers?.some((reviewer) => reviewer.id === userDetails?.id) &&
           !ProjectDetails?.review_supercheckers?.some((reviewer) => reviewer.id === userDetails?.id) && (
-            <FormControl size="small" sx={{ width: "30%", minWidth: "100px" }}>
-              <InputLabel
-                id="reviewer-filter-label"
-                sx={{ fontSize: "16px", position: "inherit", top: "23px", left: "-25px" }}
-              >
-                Filter by Reviewer
-              </InputLabel>
-              <Select
-                labelId="reviewer-filter-label"
-                id="reviewer-filter"
-                value={selectedFilters.req_user}
-                label="Filter by Reviewer"
-                onChange={(e) =>
-                  setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })
-                }
-                sx={{ fontSize: "16px" }}
-              >
-                <MenuItem value="">All</MenuItem>
-                {filterData.Reviewers?.map((el, i) => (
-                  <MenuItem key={i} value={el.value}>
-                    {el.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Select
+              id="reviewer-filter"
+              value={selectedFilters.req_user}
+              displayEmpty
+              renderValue={(selected) => {
+                if (selected === -1 || !selected) return "Filter by Reviewer";
+                const selectedReviewer = filterData.Reviewers.find(r => r.value === selected);
+                return selectedReviewer ? `Reviewer: ${selectedReviewer.label}` : "Filter by Reviewer";
+              }}
+              onChange={(e) => setsSelectedFilters({ ...selectedFilters, req_user: e.target.value })}
+              sx={filterSelectSx}
+            >
+              <MenuItem value="">All</MenuItem>
+              {filterData.Reviewers?.map((el, i) => (
+                <MenuItem key={i} value={el.value}>{el.label}</MenuItem>
+              ))}
+            </Select>
           )}
         {props.type === "review" &&
           (
@@ -1255,8 +1258,18 @@ const TaskTable = (props) => {
               sx={{ position: "absolute", top: -4, right: -4 }}
             />
           )}
-          <Button sx={{ position: "relative" }} onClick={handleShowFilter}>
-            <FilterListIcon sx={{ color: "#515A5A" }} />
+          <Button 
+            variant="outlined"
+            onClick={handleShowFilter}
+            sx={{ 
+              position: "relative",
+              borderRadius: "4px",
+              borderWidth: "1px",
+              borderColor: "#ebebeb",
+              gap: 0.5,
+            }} 
+          >
+            <FilterAltIcon />
             <CustomTooltip
               title={
                 filtersApplied ? (
@@ -1502,7 +1515,7 @@ const TaskTable = (props) => {
             (reviewer) => reviewer.id === userDetails?.id,
           ))) &&
         (ProjectDetails.is_published ? (
-          <Grid container direction="row" spacing={2} sx={{ mb: 2 }}>
+          <Grid container direction="row" spacing={{ xs: 1, sm: 2 }} sx={{ px: { xs: 1.5, sm: 2 }, pt: { xs: 0, sm: 2 }, pb: { xs: 0.5, sm: 1 } }}>
            {(roles?.WorkspaceManager === userDetails?.role ||
   roles?.OrganizationOwner === userDetails?.role ||
   roles?.Admin === userDetails?.role) &&
@@ -1521,7 +1534,7 @@ const TaskTable = (props) => {
             sx={{
               p: 1,
               width: "100%",
-              borderRadius: 2,
+              borderRadius: 1,
               margin: "auto",
             }}
             label={"De-allocate Tasks"}
@@ -1659,7 +1672,7 @@ const TaskTable = (props) => {
                     sx={{
                       p: 1,
                       width: "100%",
-                      borderRadius: 2,
+                      borderRadius: 1,
                       margin: "auto",
                     }}
                     label={"Pull New Batch"}
@@ -1712,7 +1725,7 @@ const TaskTable = (props) => {
                   <CustomButton
                     sx={{
                       p: 1,
-                      borderRadius: 2,
+                      borderRadius: 1,
                       margin: "auto",
                       width: "100%",
                     }}

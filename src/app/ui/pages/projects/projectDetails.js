@@ -10,6 +10,8 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import Collapse from "@mui/material/Collapse";
+import Chip from "@mui/material/Chip";
 
 import React, { useEffect, useState } from "react";
 import themeDefault from "../../../../themes/theme";
@@ -27,7 +29,11 @@ import SuperCheckerTasks from "@/components/Project/SuperCheckerTasks";
 import DatasetStyle from "../../../../styles/dataset";
 import ProjectDescription from "../../../../components/Tabs/ProjectDescription";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import userRole from "../../../../utils/UsersRolesList";
+import BackButton from "../../../../components/common/BackButton";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import AllTaskTable from "@/components/Project/AllTaskTable";
 import { setSelectedTab } from "@/Lib/Features/projects/ProjectTabs";
@@ -51,15 +57,41 @@ function TabPanel(props) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+        <Box sx={{ p: 0, overflowX: "auto" }}>
+          {children}
         </Box>
       )}
     </div>
   );
 }
+
+//(Row 1)
+const MetaBadge = ({ label, value, chipSx }) => (
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <Typography sx={{ fontSize: "0.65rem", fontWeight: "bold", color: "text.secondary", letterSpacing: "1px" }}>
+      {label}
+    </Typography>
+    <Chip
+      label={value}
+      size="small"
+      sx={{ fontWeight: "bold", borderRadius: "4px", height: "20px", fontSize: "0.75rem", ...chipSx }}
+    />
+  </Box>
+);
+
+// Used in the expanded details section (Row 2)
+const DetailItem = ({ label, value, chipSx }) => (
+  <Box>
+    <Typography sx={{ fontSize: "0.7rem", fontWeight: "bold", color: "text.secondary", mb: 0.5, textTransform: "uppercase" }}>
+      {label}
+    </Typography>
+    <Chip label={value} size="small" sx={{ borderRadius: "16px", ...chipSx }} />
+  </Box>
+);
+
 const Projects = () => {
   const { id } = useParams();
+  const [showDetails, setShowDetails] = useState(false);
   const [projectData, setProjectData] = useState([
     { name: "Project ID", value: null },
     { name: "Description", value: null },
@@ -151,21 +183,21 @@ const Projects = () => {
 
   const isReviewer =
     userRole.WorkspaceManager === loggedInUserData?.role ||
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role
+      userRole.OrganizationOwner === loggedInUserData?.role ||
+      userRole.Admin === loggedInUserData?.role
       ? ProjectDetails?.project_stage == 2 || ProjectDetails?.project_stage == 3
       : ProjectDetails?.annotation_reviewers?.some(
-          (reviewer) => reviewer.id === userDetails?.id,
-        );
+        (reviewer) => reviewer.id === userDetails?.id,
+      );
   const isSuperChecker =
     userRole.WorkspaceManager === loggedInUserData?.role ||
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role
+      userRole.OrganizationOwner === loggedInUserData?.role ||
+      userRole.Admin === loggedInUserData?.role
       ? ProjectDetails?.project_stage == 3
       : false ||
-        ProjectDetails?.review_supercheckers?.some(
-          (superchecker) => superchecker.id === userDetails?.id,
-        );
+      ProjectDetails?.review_supercheckers?.some(
+        (superchecker) => superchecker.id === userDetails?.id,
+      );
 
   const allTask =
     userRole.WorkspaceManager === loggedInUserData?.role ||
@@ -198,45 +230,25 @@ const Projects = () => {
 
   const TabPanData = [
     {
-      tabEle: (
-        <Tab
-          label={translate("label.annotationTasks")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
+      label: translate("label.annotationTasks"),
       tabPanelEle: (
         <TaskTable type="annotation" ProjectDetails={ProjectDetails} />
       ),
       showTab: isAnnotators,
     },
     {
-      tabEle: (
-        <Tab
-          label={translate("label.reviewTasks")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
+      label: translate("label.reviewTasks"),
       tabPanelEle: <TaskTable type="review" />,
       showTab: isReviewer,
     },
     {
-      tabEle: (
-        <Tab
-          label="Super Check Tasks"
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
+      label: "Super Check Tasks",
       tabPanelEle: <SuperCheckerTasks type="superChecker" />,
       showTab: isSuperChecker,
     },
 
     {
-      tabEle: (
-        <Tab
-          label={translate("label.annotators")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
+      label: translate("label.annotators"),
       tabPanelEle: (
         <MembersTable
           onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
@@ -247,12 +259,7 @@ const Projects = () => {
       showTab: isAnnotators,
     },
     {
-      tabEle: (
-        <Tab
-          label={translate("label.reviewers")}
-          sx={{ fontSize: 16, fontWeight: "700" }}
-        />
-      ),
+      label: translate("label.reviewers"),
       tabPanelEle: (
         <MembersTable
           onRemoveSuccessGetUpdatedMembers={() => getProjectDetails()}
@@ -263,9 +270,7 @@ const Projects = () => {
       showTab: isReviewer,
     },
     {
-      tabEle: (
-        <Tab label="Super Checkers " sx={{ fontSize: 16, fontWeight: "700" }} />
-      ),
+      label: "Super Checkers ",
       tabPanelEle: (
         <MembersTable
           dataSource={ProjectDetails.review_supercheckers}
@@ -277,17 +282,7 @@ const Projects = () => {
     },
 
     {
-      tabEle: (
-        <Tab
-          label={translate("label.reports")}
-          sx={{
-            fontSize: 16,
-            fontWeight: "700",
-            flexDirection: "row-reverse",
-          }}
-          onClick={handleClick}
-        />
-      ),
+      label: translate("label.reports"),
       tabPanelEle: (
         <ReportsTable
           annotationreviewertype={annotationreviewertype}
@@ -301,9 +296,7 @@ const Projects = () => {
     },
 
     {
-      tabEle: (
-        <Tab label="All Tasks" sx={{ fontSize: 16, fontWeight: "700" }} />
-      ),
+      label: "All Tasks",
       tabPanelEle: <AllTaskTable />,
       showTab: allTask,
     },
@@ -313,31 +306,61 @@ const Projects = () => {
 
   const renderTabs = () => {
     return (
-      <>
-        <Grid>
-          <Box>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-              variant="scrollable"
-            >
-              {filteredTabPanData.map((el, i) => {
-                return el.tabEle;
-              })}
-            </Tabs>
-          </Box>
-        </Grid>
-        {filteredTabPanData.map((el, i, array) => {
+      <Box sx={{ width: "100%" }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "white" }}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="project details tabs"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            TabIndicatorProps={{
+              style: {
+                backgroundColor: "#F05A22",
+              }
+            }}
+            sx={{
+              minHeight: "40px",
+              height: "40px",
+              "& .MuiTabs-flexContainer": {
+                px: 0,
+                py: 0,
+              }
+            }}
+          >
+            {filteredTabPanData.map((el, i) => {
+              return (
+                <Tab
+                  key={i}
+                  label={el.label}
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    color: value === i ? "#e65100 !important" : "text.secondary",
+                    textTransform: "none",
+                    minHeight: "40px",
+                    padding: "4px 8px",
+                    minWidth: "auto",
+                    marginRight: { xs: "8px", sm: "16px" },
+                    borderRadius: "6px",
+                    "& .MuiTouchRipple-root": {
+                      color: "#e65100"
+                    }
+                  }}
+                />
+              );
+            })}
+          </Tabs>
+        </Box>
+        {filteredTabPanData.map((el, i) => {
           return (
-            <>
-              <TabPanel value={value} index={i}>
-                {el.tabPanelEle}
-              </TabPanel>
-            </>
+            <TabPanel value={value} index={i} key={i}>
+              {el.tabPanelEle}
+            </TabPanel>
           );
         })}
-      </>
+      </Box>
     );
   };
 
@@ -346,108 +369,118 @@ const Projects = () => {
       {apiLoading ? (
         <Spinner />
       ) : (
-        <Grid
-          container
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
+        <Box
           sx={{
-            padding: { xs: 2, sm: 3, md: 5 },
+            padding: { xs: 1.5, sm: 2, md: 3 },
+            display: "flex",
+            flexDirection: "column",
+            gap: { xs: 1, sm: 1.5 },
+            width: "100%",
+            maxWidth: "1440px",
+            margin: "0 auto",
           }}
         >
-          <Card
-            sx={{
-              width: "100%",
-              minHeight: 500,
-              padding: { xs: 2, sm: 4, md: 5 },
-            }}
-          >
-            <Grid
-              container
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              sx={{ mb: { xs: 2, md: 3 } }}
-            >
-              <Grid
-                item
-                xs={12}
-                md={
-                  loggedInUserData?.role &&
-                  (userRole.WorkspaceManager === loggedInUserData.role ||
-                    userRole.OrganizationOwner === loggedInUserData.role ||
-                    userRole.Admin === loggedInUserData.role)
-                    ? 10
-                    : 12
-                }
+          {/* Top Action Row */}
+          <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+            <BackButton
+              startIcon={<ArrowBackIcon fontSize="small" />}
+              label="Back To Previous Page"
+              sx={{
+                bgcolor: "#F05A22",
+                color: "white",
+                textTransform: "none",
+                fontWeight: "600",
+                fontSize: "0.875rem",
+                padding: "4px 12px",
+                borderRadius: "4px",
+                boxShadow: "none",
+                "&:hover": { bgcolor: "#D94F1A", boxShadow: "none" },
+              }}
+            />
+          </Box>
+
+          {/* Hero Card */}
+          <Card sx={{ width: "100%", border: "1px solid #e0e0e0", boxShadow: "none", borderRadius: 2 }}>
+            {/* Row 1 */}
+              <Box
                 sx={{
-                  textAlign: { xs: "center", md: "left" },
-                  mb: { xs: 2, md: 0 },
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}
-                >
+                  p: { xs: 1.5, sm: 2 },
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: { xs: 1.5, sm: 2 }
+                }}>
+              {/* Left */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#191c1e" }}>
                   {ProjectDetails.title}
                 </Typography>
                 {id && (
-                <BookmarkButton
-                  projectId={id}
-                  onBookmarkChange={(projectId, isBookmarked) => {
-                    console.log("Bookmark changed:", projectId, isBookmarked);
-                  }}
-                />
+                  <BookmarkButton
+                    projectId={id}
+                    onBookmarkChange={(projectId, isBookmarked) => {
+                      console.log("Bookmark changed:", projectId, isBookmarked);
+                    }}
+                  />
+                )}
+                {(userRole.WorkspaceManager === loggedInUserData?.role ||
+                  userRole.OrganizationOwner === loggedInUserData?.role ||
+                  userRole.Admin === loggedInUserData?.role) && (
+                    <Tooltip title={translate("label.showProjectSettings")}>
+                      <IconButton onClick={handleOpenSettings} size="small" sx={{ color: "text.secondary" }}>
+                        <SettingsOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+              </Box>
+              {/* Right */}
+              <Box sx={{ display: "flex", alignItems: "center", columnGap: { xs: 2, sm: 3 }, rowGap: { xs: 1, sm: 1.5 }, flexWrap: "wrap" }}>
+              <MetaBadge label="PROJECT ID:" value={ProjectDetails.id} chipSx={{ bgcolor: "#E6F4EA", color: "#1E8E3E" }} />
+              <MetaBadge label="TYPE:" value={ProjectDetails.project_type} chipSx={{ bgcolor: "#F3E8FD", color: "#7627BB" }} />
+              {ProjectDetails.unassigned_task_count !== undefined && (
+                <MetaBadge label="TASKS:" value={`${ProjectDetails.unassigned_task_count} Unassigned`} chipSx={{ bgcolor: "#FEF7E0", color: "#B06000" }} />
               )}
-              </Grid>
-
-              {(userRole.WorkspaceManager === loggedInUserData?.role ||
-                userRole.OrganizationOwner === loggedInUserData?.role ||
-                userRole.Admin === loggedInUserData?.role) && (
-                <Grid
-                  item
-                  xs={12}
-                  md={2}
+                <Button
+                  onClick={() => setShowDetails(!showDetails)}
+                  endIcon={showDetails ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
                   sx={{
-                    display: "flex",
-                    justifyContent: { xs: "center", md: "flex-end" },
-                    mt: { xs: 2, md: 0 },
+                    textTransform: "none",
+                    color: "#F05A22",
+                    fontWeight: "600",
+                    fontSize: "0.75rem",
+                    px: 0.5,
+                    minWidth: "auto",
+                    alignSelf: "center",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    "&:hover": { bgcolor: "transparent", textDecoration: "underline" }
                   }}
                 >
-                  <Tooltip title={translate("label.showProjectSettings")}>
-                    <IconButton onClick={handleOpenSettings}>
-                      <SettingsOutlinedIcon
-                        color="primary.dark"
-                        fontSize="large"
-                      />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-              )}
-            </Grid>
+                  {showDetails ? "Less Details" : "More Details"}
+                </Button>
+              </Box>
+            </Box>
 
-            <Grid
-              item
-              xs={12}
-              sx={{
-                mb: { xs: 2, md: 3 },
-              }}
-            >
-              <Grid container spacing={2}>
-                {projectFilterData?.map((des, i) => (
-                  <Grid key={i} item xs={12} sm={6} md={3} lg={3} xl={3}>
-                    <ProjectDescription
-                      name={des.name}
-                      value={des.value}
-                      index={i}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </Grid>
+            {/* Row 2 */}
+            <Collapse in={showDetails}>
+              <Box sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: "#f8fafc", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: { xs: 2, sm: 3 } }}>
+                <DetailItem label="Description" value={ProjectDetails.description || "N/A"} chipSx={{ bgcolor: "#CFFAFE", color: "#0E7490" }} />
+                <DetailItem label="Status" value={ProjectDetails.is_archived ? "Archived" : ProjectDetails.is_published ? "Published" : "Draft"} chipSx={{ bgcolor: "#E8F0FE", color: "#1967D2" }} />
+                <DetailItem label="Unassigned Tasks" value={ProjectDetails.unassigned_task_count || "0"} chipSx={{ bgcolor: "#FEF7E0", color: "#B06000" }} />
+                <DetailItem label="Unassigned Review Tasks" value={ProjectDetails.labeled_task_count} chipSx={{ bgcolor: "#E6F4EA", color: "#1E8E3E" }} />
+                {isSuperChecker && (
+                  <DetailItem label="Unassigned Super Check Tasks" value={ProjectDetails.reviewed_task_count} chipSx={{ bgcolor: "#FCE8E6", color: "#C5221F" }} />
+                )}
+              </Box>
+            </Collapse>
+          </Card>
+
+          {/* Tabs and Data Section */}
+          <Card sx={{ width: "100%", border: "1px solid #e0e0e0", boxShadow: "none", borderRadius: 2 }}>
             {renderTabs()}
           </Card>
-        </Grid>
+        </Box>
       )}
     </ThemeProvider>
   );

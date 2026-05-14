@@ -38,6 +38,27 @@ const tableTheme = createTheme({
         },
       },
     },
+    MUIDataTableToolbar: {
+      styleOverrides: {
+        root: {
+          paddingLeft: "0px !important",
+          paddingRight: "0px !important",
+          paddingTop: "0px !important",
+          paddingBottom: "0px !important",
+          minHeight: "auto !important",
+        },
+        actions: {
+          flex: "1 1 100%",
+          textAlign: "right",
+        },
+        titleRoot: {
+          display: "none !important",
+        },
+        left: {
+          display: "none !important",
+        },
+      },
+    },
     MuiTableCell: {
       styleOverrides: {
         root: {

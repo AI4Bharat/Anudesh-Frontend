@@ -721,7 +721,7 @@ const MembersTable = (props) => {
     <React.Fragment>
       {loggedInUserData?.role !== 1 && !hideButton ? (
         <CustomButton
-          sx={{ borderRadius: 2, whiteSpace: "nowrap" }}
+          sx={{ borderRadius: 2, whiteSpace: "nowrap", mt: { xs: 1.5, sm: 2 } }}
           startIcon={<PersonAddAlt />}
           label={props.type ? addLabel[props.type] : "Add Users"}
           fullWidth
