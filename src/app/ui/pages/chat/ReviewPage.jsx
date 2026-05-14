@@ -7,7 +7,6 @@ import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import headerStyle from "@/styles/Header";
-import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { styled, alpha } from "@mui/material/styles";
@@ -20,6 +19,8 @@ import "quill/dist/quill.snow.css";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import "./chat.css";
 import Spinner from "@/components/common/Spinner";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
@@ -160,7 +161,7 @@ const ReviewPage = () => {
   const [filteredReady, setFilteredReady] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+const [fontSize, setFontSize] = useState("medium");
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
@@ -1084,46 +1085,46 @@ const ReviewPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
-            }`}
-          handleClick={handleReviewClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={review}
-          stage={"Review"}
-          notes={reviewNotesRef}
-          info={info}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-        />
+      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
+      handleClick={handleReviewClick}
+      chatHistory={chatHistory}
+      setChatHistory={setChatHistory}
+      formatResponse={formatResponse}
+      formatPrompt={formatPrompt}
+      id={review}
+      stage={"Review"}
+      notes={reviewNotesRef}
+      info={info}
+      annotation={annotations}
+      setLoading={setLoading}
+      loading={loading}
+      fontSize={fontSize}
+    />
       );
       break;
     case "MultipleLLMInstructionDrivenChat":
       componentToRender = (
         <MultipleLLMInstructionDrivenChat
-          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
-            }`}
-          handleClick={handleReviewClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={review}
-          stage={"Review"}
-          notes={reviewNotesRef}
-          info={info}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-          evalFormResponse={evalFormResponse}
-          setEvalFormResponse={setEvalFormResponse}
-          setIsModelFailing={setIsModelFailing}
-          submittedEvalForms={submittedEvalForms}
-          setSubmittedEvalForms={setSubmittedEvalForms}
-        />
+      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
+      handleClick={handleReviewClick}
+      chatHistory={chatHistory}
+      setChatHistory={setChatHistory}
+      formatResponse={formatResponse}
+      formatPrompt={formatPrompt}
+      id={review}
+      stage={"Review"}
+      notes={reviewNotesRef}
+      info={info}
+      annotation={annotations}
+      setLoading={setLoading}
+      loading={loading}
+      evalFormResponse={evalFormResponse}
+      setEvalFormResponse={setEvalFormResponse}
+      setIsModelFailing={setIsModelFailing}
+      submittedEvalForms={submittedEvalForms}
+      setSubmittedEvalForms={setSubmittedEvalForms}
+      fontSize={fontSize}
+    />
       );
       break;
     case "ModelInteractionEvaluation":
@@ -1239,6 +1240,23 @@ return (
           >
             Notes {reviewtext.trim().length === 0 ? "" : "*"}
           </Button>
+          <Select
+  value={fontSize}
+  onChange={(e) => setFontSize(e.target.value)}
+  size="small"
+  sx={{
+    fontSize: "0.75rem",
+    height: "28px",
+    minWidth: "90px",
+    backgroundColor: "white",
+    border: "1px solid #e6e6e6",
+    "& .MuiSelect-select": { py: 0.3, px: 1 },
+  }}
+>
+  <MenuItem value="small">Small</MenuItem>
+  <MenuItem value="medium">Medium</MenuItem>
+  <MenuItem value="large">Large</MenuItem>
+</Select>
 
           {/* Info Button */}
           <LightTooltip

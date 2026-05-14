@@ -30,6 +30,7 @@ import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
+import { MenuItem, Select } from "@mui/material";
 
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
@@ -126,6 +127,7 @@ const AnnotatePage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
+  const [fontSize, setFontSize] = useState("medium");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -920,121 +922,122 @@ const AnnotatePage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-  let componentToRender;
-  switch (ProjectDetails.project_type) {
-    case "InstructionDrivenChat":
-      componentToRender = (
-        <InstructionDrivenChatPage
-          key={
-            annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
-              : "annotations-default"
-          }
-          handleClick={handleAnnotationClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={Annotation}
-          stage={"Annotation"}
-          notes={annotationNotesRef}
-          info={info}
-          disableUpdateButton={disableUpdateButton}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-        />
-      );
-      break;
-    case "MultipleLLMInstructionDrivenChat":
-      componentToRender = (
-        <MultipleLLMInstructionDrivenChat
-          key={
-            annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
-              : "annotations-default"
-          }
-          handleClick={handleAnnotationClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={Annotation}
-          stage={"Annotation"}
-          notes={annotationNotesRef}
-          info={info}
-          disableUpdateButton={disableUpdateButton}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-          evalFormResponse={evalFormResponse}
-          setEvalFormResponse={setEvalFormResponse}
-          setIsModelFailing={setIsModelFailing}
-          submittedEvalForms={submittedEvalForms}
-          setSubmittedEvalForms={setSubmittedEvalForms}
-        />
-      );
-      break;
-    case "ModelInteractionEvaluation":
-      componentToRender = (
-        <ModelInteractionEvaluation
-          key={
-            annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
-              : "annotations-default"
-          }
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
-          stage={"Annotation"}
-          answered={answered}
-          setAnswered={setAnswered}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-        />
-      );
-      break;
-    case "MultipleInteractionEvaluation":
-      componentToRender = (
-        <PreferenceRanking
-          key={
-            annotations?.length > 0
-              ? `annotations-${annotations[0]?.id}`
-              : "annotations-default"
-          }
-          setCurrentInteraction={setCurrentInteraction}
-          currentInteraction={currentInteraction}
-          interactions={interactions}
-          setInteractions={setInteractions}
-          forms={forms}
-          setForms={setForms}
-          stage={"Annotation"}
-          answered={answered}
-          setAnswered={setAnswered}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-          handleClick={handleAnnotationClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={Annotation}
-          notes={annotationNotesRef}
-          info={info}
-          disableUpdateButton={disableUpdateButton}
-        />
-      );
-      break;
-    default:
-      componentToRender = null;
-      break;
-  }
-
+let componentToRender;
+switch (ProjectDetails.project_type) {
+  case "InstructionDrivenChat":
+    componentToRender = (
+      <InstructionDrivenChatPage
+        key={
+          annotations?.length > 0
+            ? `annotations-${annotations[0]?.id}`
+            : "annotations-default"
+        }
+        handleClick={handleAnnotationClick}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+        formatResponse={formatResponse}
+        formatPrompt={formatPrompt}
+        id={Annotation}
+        stage={"Annotation"}
+        notes={annotationNotesRef}
+        info={info}
+        disableUpdateButton={disableUpdateButton}
+        annotation={annotations}
+        setLoading={setLoading}
+        loading={loading}
+        fontSize={fontSize}
+      />
+    );
+    break;
+  case "MultipleLLMInstructionDrivenChat":
+    componentToRender = (
+      <MultipleLLMInstructionDrivenChat
+        key={
+          annotations?.length > 0
+            ? `annotations-${annotations[0]?.id}`
+            : "annotations-default"
+        }
+        handleClick={handleAnnotationClick}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+        formatResponse={formatResponse}
+        formatPrompt={formatPrompt}
+        id={Annotation}
+        stage={"Annotation"}
+        notes={annotationNotesRef}
+        info={info}
+        disableUpdateButton={disableUpdateButton}
+        annotation={annotations}
+        setLoading={setLoading}
+        loading={loading}
+        evalFormResponse={evalFormResponse}
+        setEvalFormResponse={setEvalFormResponse}
+        setIsModelFailing={setIsModelFailing}
+        submittedEvalForms={submittedEvalForms}
+        setSubmittedEvalForms={setSubmittedEvalForms}
+        fontSize={fontSize}
+      />
+    );
+    break;
+  case "ModelInteractionEvaluation":
+    componentToRender = (
+      <ModelInteractionEvaluation
+        key={
+          annotations?.length > 0
+            ? `annotations-${annotations[0]?.id}`
+            : "annotations-default"
+        }
+        setCurrentInteraction={setCurrentInteraction}
+        currentInteraction={currentInteraction}
+        interactions={interactions}
+        setInteractions={setInteractions}
+        forms={forms}
+        setForms={setForms}
+        stage={"Annotation"}
+        answered={answered}
+        setAnswered={setAnswered}
+        annotation={annotations}
+        setLoading={setLoading}
+        loading={loading}
+      />
+    );
+    break;
+  case "MultipleInteractionEvaluation":
+    componentToRender = (
+      <PreferenceRanking
+        key={
+          annotations?.length > 0
+            ? `annotations-${annotations[0]?.id}`
+            : "annotations-default"
+        }
+        setCurrentInteraction={setCurrentInteraction}
+        currentInteraction={currentInteraction}
+        interactions={interactions}
+        setInteractions={setInteractions}
+        forms={forms}
+        setForms={setForms}
+        stage={"Annotation"}
+        answered={answered}
+        setAnswered={setAnswered}
+        annotation={annotations}
+        setLoading={setLoading}
+        loading={loading}
+        handleClick={handleAnnotationClick}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+        formatResponse={formatResponse}
+        formatPrompt={formatPrompt}
+        id={Annotation}
+        notes={annotationNotesRef}
+        info={info}
+        disableUpdateButton={disableUpdateButton}
+      />
+    );
+    break;
+  default:
+    componentToRender = null;
+  break;
+}
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -1098,7 +1101,25 @@ const AnnotatePage = () => {
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
+{/* Font Size Dropdown */}
+<Select
 
+  value={fontSize}
+  onChange={(e) => setFontSize(e.target.value)}
+  size="small"
+  sx={{
+    fontSize: "0.75rem",
+    height: "28px",
+    minWidth: "90px",
+    backgroundColor: "white",
+    border: "1px solid #e6e6e6",
+    "& .MuiSelect-select": { py: 0.3, px: 1 },
+  }}
+>
+  <MenuItem value="small">Small</MenuItem>
+  <MenuItem value="medium">Medium</MenuItem>
+  <MenuItem value="large">Large</MenuItem>
+</Select>
             
             <LightTooltip
               title={

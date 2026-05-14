@@ -84,7 +84,24 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+  fontSize = "medium", // ADD THIS LINE
 }) => {
+  // ADD THIS HELPER FUNCTION
+  const getFontSize = () => {
+    switch(fontSize) {
+      case 'small':
+        return '0.75rem';
+      case 'medium':
+        return '1rem';
+      case 'large':
+        return '1.25rem';
+      case 'xlarge':
+        return '1.5rem';
+      default:
+        return '1rem';
+    }
+  };
+
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
@@ -408,7 +425,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const textareaStyle = {
     resize: "none",
-    fontSize: "1rem",
+    fontSize: getFontSize(), // UPDATED
     width: "60%",
     fontWeight: "400",
     lineHeight: "1.5",
@@ -541,7 +558,7 @@ const renderChatHistory = () => {
                         {...props}
                         className=""
                         style={{
-                          fontSize: "0.9rem",
+                          fontSize: getFontSize(), // UPDATED
                           width: "100%",
                           borderRadius: "12px 12px 0 12px",
                           color: grey[900],
@@ -569,7 +586,7 @@ const renderChatHistory = () => {
                       handleTextChange(e, null, message, "prompt")
                     }
                     style={{
-                      fontSize: "0.9rem",
+                      fontSize: getFontSize(), // UPDATED
                       width: "100%",
                       borderRadius: "12px 12px 0 12px",
                       color: grey[900],
@@ -589,7 +606,7 @@ const renderChatHistory = () => {
                   className="flex-col"
                   children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
                   components={{
-                    p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                    p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.5rem 0'}} {...props} />, // UPDATED
                   }}
                 />
               )}
@@ -690,7 +707,7 @@ const renderChatHistory = () => {
                           }
                           lang={targetLang}
                           style={{
-                            fontSize: "0.9rem",
+                            fontSize: getFontSize(), // UPDATED
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
@@ -713,7 +730,7 @@ const renderChatHistory = () => {
                             handleTextChange(e, index, message, "output")
                           }
                           style={{
-                            fontSize: "0.9rem",
+                            fontSize: getFontSize(), // UPDATED
                             width: "100%",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
@@ -731,7 +748,7 @@ const renderChatHistory = () => {
                         key={index}
                         children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
                         components={{
-                          p: ({node, ...props}) => <p style={{fontSize: '0.9rem', margin: '0.5rem 0'}} {...props} />,
+                          p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.5rem 0'}} {...props} />, // UPDATED
                         }}
                       />
                     )
@@ -743,7 +760,7 @@ const renderChatHistory = () => {
                       customStyle={{ 
                         padding: "0.8rem",
                         borderRadius: "5px",
-                        fontSize: "0.9rem"
+                        fontSize: getFontSize() // UPDATED
                       }}
                     >
                       {segment.value}
@@ -934,7 +951,7 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                fontSize: { xs: "1rem", md: "1.1rem" },
+                  fontSize: getFontSize(), // UPDATED
               }}
             >
               {translate("typography.instructions")}
@@ -987,7 +1004,7 @@ return (
               <Typography
                 paragraph
                 sx={{
-                  fontSize: "0.9rem",
+                fontSize: getFontSize(), // UPDATED
                   lineHeight: "1.5",
                   color: "#333",
                 }}
@@ -1012,7 +1029,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                      fontSize: getFontSize(), // UPDATED
                     mb: 1,
                   }}
                 >
@@ -1021,7 +1038,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                    fontSize: "0.85rem",
+                      fontSize: getFontSize(), // UPDATED
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -1040,7 +1057,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                      fontSize: getFontSize(), // UPDATED
                     mb: 1,
                   }}
                 >
@@ -1049,7 +1066,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                    fontSize: "0.85rem",
+                      fontSize: getFontSize(), // UPDATED
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -1068,7 +1085,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                      fontSize: getFontSize(), // UPDATED
                     mb: 1,
                   }}
                 >
@@ -1187,7 +1204,7 @@ return (
                 width: "100%",
               },
               "& textarea": {
-                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                  fontSize: getFontSize(), // UPDATED
                 width: "100%",
               }
             }}
