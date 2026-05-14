@@ -1569,14 +1569,16 @@ return (
             setreviewtext(editor.getText());
           }}
         ></ReactQuill>
-        <ReactQuill
-          forwardedRef={superCheckerNotesRef}
-          modules={modules}
-          bounds={"#note"}
-          formats={formats}
-          placeholder="SuperChecker Notes"
-          readOnly={true}
-        ></ReactQuill>
+        <div style={{ display: ProjectDetails?.project_stage === 3 ? "block" : "none" }}>
+          <ReactQuill
+            forwardedRef={superCheckerNotesRef}
+            modules={modules}
+            bounds={"#note"}
+            formats={formats}
+            placeholder="SuperChecker Notes"
+            readOnly={true}
+          ></ReactQuill>
+        </div>
       </div>
 
       {filterMessage && (
