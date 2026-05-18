@@ -42,7 +42,9 @@ const initialState = {
         })
         .addCase(fetchDownloadCSVProject.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          CsvDownload(action.payload); 
+          if (typeof action.payload === "string") {
+            CsvDownload(action.payload);
+          }
           state.data += 1; 
         })
         .addCase(fetchDownloadCSVProject.rejected, (state, action) => {
