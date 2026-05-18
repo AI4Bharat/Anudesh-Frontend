@@ -24,7 +24,7 @@ import TablePagination from "@mui/material/TablePagination";
 import { styled } from "@mui/material/styles";
 import InfoIcon from "@mui/icons-material/Info";
 import { tooltipClasses } from "@mui/material/Tooltip";
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "../../themes/projectDetailTableTheme";
 import DatasetStyle from "../../styles/dataset";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterList from "./FilterList";
@@ -1181,7 +1181,18 @@ const TaskTable = (props) => {
 
   const renderToolBar = () => {
     return (
-      <Box className={classes.filterToolbarContainer} sx={{ minHeight: { xs: "auto", sm: "52px" }, py: { xs: 1, sm: 0 } }}>
+      <Box
+        className={classes.filterToolbarContainer}
+        sx={{
+          flexWrap: "wrap",
+          rowGap: "10px",
+          backgroundColor: "#f2f4f6",
+          borderBottom: "1px solid #e0e0e0",
+          padding: "0px 16px",
+          minHeight: { xs: "auto", sm: "52px" },
+          py: { xs: 1, sm: 0 },
+        }}
+      >
 
         {props.type === "annotation" &&
           (roles?.WorkspaceManager === userDetails?.role ||

@@ -112,16 +112,16 @@ const themeDefault = createTheme({
       styleOverrides: {
         root: {
           "&:nth-of-type(odd)": {
-            backgroundColor: "#fff5f1",
+            backgroundColor: "#ffe0b2",
           },
           "&:nth-of-type(even)": {
-            backgroundColor: "#ffffff",
+            backgroundColor: "#fffde7",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(odd)": {
-            backgroundColor: "#ffebe3",
+            backgroundColor: "#ffe0b2",
           },
           "&.MuiTableRow-hover:hover:nth-of-type(even)": {
-            backgroundColor: "#f5f5f5",
+            backgroundColor: "#fff3e0",
           },
           "&.MuiTableRow-footer": {
             backgroundColor: "#fff",
@@ -217,7 +217,6 @@ const themeDefault = createTheme({
           padding: ".5rem .5rem .5rem .8rem",
           textTransform: "capitalize",
           fontFamily: '"Roboto" ,"sans-serif"',
-          color: "#374151",
         },
 
         stackedParent: {
@@ -398,10 +397,10 @@ const themeDefault = createTheme({
     MUIDataTableBodyRow: {
       root: {
         "&:nth-of-type(odd)": {
-          backgroundColor: "#fff5f1",
+          backgroundColor: "#D6EAF8",
         },
         "&:nth-of-type(even)": {
-          backgroundColor: "#ffffff",
+          backgroundColor: "#E9F7EF",
         },
       },
     },
@@ -459,7 +458,7 @@ const themeDefault = createTheme({
       },
     },
     MUIDataTableBodyCell: {
-      root: { padding: ".5rem .5rem .5rem .8rem", textTransform: "capitalize", color: "#374151" },
+      root: { padding: ".5rem .5rem .5rem .8rem", textTransform: "capitalize" },
     },
     MuiSelect: {
       styleOverrides: {

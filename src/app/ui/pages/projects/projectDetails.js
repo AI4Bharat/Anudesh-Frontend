@@ -68,13 +68,13 @@ function TabPanel(props) {
 //(Row 1)
 const MetaBadge = ({ label, value, chipSx }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-    <Typography sx={{ fontSize: "0.65rem", fontWeight: "bold", color: "text.secondary", letterSpacing: "1px" }}>
+    <Typography sx={{ fontSize: { xs: "0.65rem", sm: "0.72rem" }, fontWeight: "bold", color: "text.secondary", letterSpacing: "1px" }}>
       {label}
     </Typography>
     <Chip
       label={value}
       size="small"
-      sx={{ fontWeight: "bold", borderRadius: "4px", height: "20px", fontSize: "0.75rem", ...chipSx }}
+      sx={{ fontWeight: "bold", borderRadius: "4px", height: "20px", fontSize: { xs: "0.72rem", sm: "0.82rem" }, ...chipSx }}
     />
   </Box>
 );
@@ -82,7 +82,7 @@ const MetaBadge = ({ label, value, chipSx }) => (
 // Used in the expanded details section (Row 2)
 const DetailItem = ({ label, value, chipSx }) => (
   <Box>
-    <Typography sx={{ fontSize: "0.7rem", fontWeight: "bold", color: "text.secondary", mb: 0.5, textTransform: "uppercase" }}>
+    <Typography sx={{ fontSize: { xs: "0.7rem", sm: "0.76rem" }, fontWeight: "bold", color: "text.secondary", mb: 0.5, textTransform: "uppercase" }}>
       {label}
     </Typography>
     <Chip label={value} size="small" sx={{ borderRadius: "16px", ...chipSx }} />
@@ -413,7 +413,7 @@ const Projects = () => {
                 }}>
               {/* Left */}
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#191c1e" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#191c1e", fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" }, lineHeight: 1.3 }}>
                   {ProjectDetails.title}
                 </Typography>
                 {id && (

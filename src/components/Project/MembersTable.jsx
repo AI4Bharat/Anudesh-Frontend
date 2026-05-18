@@ -22,7 +22,7 @@ import TablePagination from '@mui/material/TablePagination';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "../../themes/projectDetailTableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Search from "../common/Search";
 import UserRolesList from "../../utils/UsersRolesList";
