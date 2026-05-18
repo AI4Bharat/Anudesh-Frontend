@@ -2,12 +2,7 @@ import themeDefault from "./theme";
 import { createTheme } from "@mui/material/styles";
 
 /**
- * Same as tableTheme but adds MUIDataTableToolbar overrides that compact the
- * toolbar shell and hide its default title/left section — scoped ONLY to
- * ProjectDetail child tables (TaskTable, SuperCheckerTasks, MembersTable).
- *
- * Construction pattern mirrors tableTheme exactly (spread themeDefault, spread
- * themeDefault.components) so all base styles are preserved correctly.
+ * ProjectDetail-specific table theme
  */
 const projectDetailTableTheme = createTheme({
   ...themeDefault,
