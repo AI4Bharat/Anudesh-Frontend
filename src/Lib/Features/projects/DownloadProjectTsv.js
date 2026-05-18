@@ -42,7 +42,9 @@ const initialState = {
         })
         .addCase(fetchDownloadTSVProject.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          TsvDownload(action.payload); 
+          if (typeof action.payload === "string") {
+            TsvDownload(action.payload);
+          }
           state.data += 1; 
         })
         .addCase(fetchDownloadTSVProject.rejected, (state, action) => {

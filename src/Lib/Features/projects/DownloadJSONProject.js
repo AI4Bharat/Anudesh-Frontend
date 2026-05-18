@@ -45,7 +45,9 @@ const initialState = {
         })
         .addCase(fetchDownloadJSONProject.fulfilled, (state, action) => {
           state.status = 'succeeded';
-          jsonDownload(action.payload); 
+          if (!action.payload.message) {
+            jsonDownload(action.payload);
+          }
           state.data += 1; 
         })
         .addCase(fetchDownloadJSONProject.rejected, (state, action) => {
