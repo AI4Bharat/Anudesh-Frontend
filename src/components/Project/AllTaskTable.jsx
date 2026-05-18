@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import TablePagination from "@mui/material/TablePagination";
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "../../themes/projectDetailTableTheme";
 import DatasetStyle from "../../styles/dataset";
 import { snakeToTitleCase } from "../../utils/utils";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -324,7 +324,18 @@ const AllTaskTable = (props) => {
 
   const renderToolBar = () => {
     return (
-      <Box className={classes.filterToolbarContainer} sx={{ minHeight: "52px", py: 0 }}>
+      <Box
+        className={classes.filterToolbarContainer}
+        sx={{
+          flexWrap: "wrap",
+          rowGap: "10px",
+          backgroundColor: "#f2f4f6",
+          borderBottom: "1px solid #e0e0e0",
+          padding: "0px 16px",
+          minHeight: { xs: "auto", sm: "52px" },
+          py: { xs: 1, sm: 0 },
+        }}
+      >
         <Tooltip title="Filter Table">
           <Button 
             variant="outlined"
