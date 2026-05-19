@@ -1,67 +1,83 @@
-/**
- * Login API
- */
 import API from "../../api"; 
 import ENDPOINTS from "../../../../config/apiendpoint"
 import constant from "../../constants";
-/* eslint-disable react-hooks/exhaustive-deps */
 
-export default class DeallocationAnnotatorsAndReviewersAPI extends API {
-  constructor(projectId, radiobutton, annotatorsUser, reviewerssUser, annotationStatus, reviewStatus, superCheckUser, SuperCheckStatus, taskIdsArray, taskIdStatusArray = [], taskIdStatusType = "annotation", timeout = 2000) {
+
+export class DeallocateTaskById extends API {
+  constructor(projectId, taskId, selectedUser, timeout = 2000) {
     super("POST", timeout, false);
+    this.projectId = projectId;
+
+    this.payload = {
+
+      task_ids: taskId.split(',').map(i => parseInt(i)),
+    };
+    const baseEndpoint = `${super.apiEndPointAuto()}/${ENDPOINTS.getProjects}${projectId}/`;
+
+    const endpointMap = {
+      annotation: 'unassign_tasks/',
+      review: `unassign_review_tasks/`,
+      superChecker: 'unassign_supercheck_tasks/',
+    };
     
-    let endpoint = "";
-    let body = {};
+    const selectedUserEndpoint = endpointMap[selectedUser];
     
-    // Handle taskIds deallocation with status
-    if (radiobutton === "taskIds") {
-      endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_tasks/`;
-      body = { task_ids: taskIdsArray };
-      
-      // Add status filter if provided
-      if (taskIdStatusArray && taskIdStatusArray.length > 0) {
-        body.annotation_status = taskIdStatusArray;
-      }
-    } 
-    // Handle annotation deallocation
-    else if (radiobutton === "annotation") {
-      endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_tasks/?annotator_id=${annotatorsUser}&annotation_status=["${annotationStatus}"]`;
-      body = {};
-    } 
-    // Handle review deallocation
-    else if (radiobutton === "review") {
-      endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_review_tasks/?reviewer_id=${reviewerssUser}&review_status=["${reviewStatus}"]`;
-      body = {};
-    } 
-    // Handle supercheck deallocation
-    else if (radiobutton === "superChecker") {
-      endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/unassign_supercheck_tasks/?superchecker_id=${superCheckUser}&supercheck_status=["${SuperCheckStatus}"]`;
-      body = {};
+    if (selectedUserEndpoint) {
+      this.endpoint = baseEndpoint + selectedUserEndpoint;
+    } else {
+      console.error('Invalid selectedUser:', selectedUser);
     }
-    
-    this.endpoint = endpoint;
-    this.body = body;
   }
 
   processResponse(res) {
     super.processResponse(res);
     if (res) {
-      this.deallocationAnnotatorsAndReviewers = res;
+      this.deallocateTaskById = res;
     }
   }
+  apiEndPoint() {
+    return this.endpoint;
+  }
+  getBody() {
+    return this.payload;
+  }
+  getHeaders() {
+    return {
+      "Content-Type": "application/json",
+        "Authorization": `JWT ${localStorage.getItem('anudesh_access_token')}`
+    };
+  }
+  getPayload() {
+    return this.deallocateTaskById;
+  }
+}
+
+export default class DeallocationAnnotatorsAndReviewersAPI extends API {
+  constructor(projectId,radiobutton,annotatorsUser,reviewerssUser,annotationStatus,reviewStatus,superCheckUser,SuperCheckStatus,projectObj, timeout = 2000) {
+   super("POST", timeout, false);
+    this.projectObj = projectObj;
+    const queryString = radiobutton === "annotation" ? `unassign_tasks/?annotator_id=${annotatorsUser}&annotation_status=["${annotationStatus}"]` : radiobutton === "review"? `unassign_review_tasks/?reviewer_id=${reviewerssUser}&review_status=["${reviewStatus}"]`:`unassign_supercheck_tasks/?superchecker_id=${superCheckUser}&supercheck_status=["${SuperCheckStatus}"]`;
+    this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.getProjects}${projectId}/${queryString}`;
+  }
+
+  processResponse(res) {
+    super.processResponse(res);
+    if (res) {
+        this.deallocationAnnotatorsAndReviewers= res;
+    }
+}
 
   apiEndPoint() {
     return this.endpoint;
   }
-  
   getBody() {
-    return this.body;
-  }
+   return this.projectObj;
+ }
 
   getHeaders() {
     this.headers = {
       headers: {
-        "Content-Type": "application/json",
+       "Content-Type": "application/json", 
         "Authorization": `JWT ${localStorage.getItem('anudesh_access_token')}`
       },
     };
@@ -69,6 +85,6 @@ export default class DeallocationAnnotatorsAndReviewersAPI extends API {
   }
 
   getPayload() {
-    return this.deallocationAnnotatorsAndReviewers;
+    return this.deallocationAnnotatorsAndReviewers 
   }
 }
