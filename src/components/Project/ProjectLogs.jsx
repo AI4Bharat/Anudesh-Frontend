@@ -11,6 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Skeleton from "@mui/material/Skeleton";
 import TablePagination from "@mui/material/TablePagination";
+import Tooltip from "@mui/material/Tooltip";
 import CustomizedSnackbars from "../common/Snackbar";
 import { addMonths, parse } from "date-fns";
 import { DateRangePicker } from "react-date-range";
@@ -339,15 +340,17 @@ const ProjectLogs = () => {
           </FormControl>
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3} xl={3}>
-          <Button
-            endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
-            variant="contained"
-            color="primary"
-            onClick={() => setShowPicker(!showPicker)}
-            fullWidth
-          >
-            Pick Dates
-          </Button>
+          <Tooltip title={showPicker ? "Hide the date range picker" : "Open the date range picker to filter logs by date"}>
+            <Button
+              endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+              variant="contained"
+              color="primary"
+              onClick={() => setShowPicker(!showPicker)}
+              fullWidth
+            >
+              Pick Dates
+            </Button>
+          </Tooltip>
         </Grid>
         {showPicker && (
           <Box
