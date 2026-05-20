@@ -242,7 +242,8 @@ const AnnotatorsTable = (props) => {
 
         </Link>
         <CustomButton
-          sx={{ m: 1, borderRadius: 2, backgroundColor: "#cf5959", mr: 2 }}
+          sx={{ m: 1, borderRadius: 2, mr: 2 }}
+          color="error"
           label="Remove"
           onClick={() => { setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); }}
           disabled={projectlist(el.id)}

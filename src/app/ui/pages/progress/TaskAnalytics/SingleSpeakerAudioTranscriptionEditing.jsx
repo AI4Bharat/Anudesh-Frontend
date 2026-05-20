@@ -96,7 +96,7 @@ function SingleSpeakerAudioTranscriptionEditing(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
-        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading} >
           Tasks Dashboard - Audio Transcription Editing
           <Typography variant="body1">
             Count of Annotated and Reviewed Audio Transcription Editing
@@ -112,34 +112,35 @@ function SingleSpeakerAudioTranscriptionEditing(props) {
                   fontWeight: "600",
                   padding: "16px 0",
                 }}
+                sx={{ color: "#111111" }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
               Total Annotated Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
                 {totalTaskCount &&
                   new Intl.NumberFormat("en").format(totalTaskCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
               Pending Review Tasks
 
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
                 {totalAnnotationTasksCount &&
                   new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
               Review Completed Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
                 {totalReviewTasksCount &&
                   new Intl.NumberFormat("en").format(totalReviewTasksCount)}
               </Typography>

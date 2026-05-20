@@ -394,7 +394,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
 
   const handleBlur = (event) => {
-    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+    event.target.style.boxShadow = `0px 2px 2px rgba(0, 0, 0, 0.04)`;
   };
 
   const handleKeyDown = (event) => {
@@ -407,20 +407,20 @@ const [snackbar, setSnackbarInfo] = useState({
     }
   };
   const textareaStyle = {
-    resize: "none",
-    fontSize: "1rem",
-    width: "60%",
-    fontWeight: "400",
-    lineHeight: "1.5",
-    padding: "12px",
-    borderRadius: "12px 12px 0 12px",
-    color: grey[900],
-    background: "#ffffff",
-    border: `1px solid ${grey[200]}`,
-    boxShadow: `0px 2px 2px ${grey[50]}`,
-    outline: 0,
-    transition: "border-color 0.2s, box-shadow 0.2s",
-  };
+  resize: "none",
+  fontSize: "1rem",
+  width: "60%",
+  fontWeight: "400",
+  lineHeight: "1.5",
+  padding: "12px",
+  borderRadius: "12px 12px 0 12px",
+  color: "var(--text-primary)",
+  background: "var(--surface)",
+  border: `1px solid var(--paper-border)`,
+  boxShadow: `0px 2px 2px rgba(0, 0, 0, 0.04)`,
+  outline: 0,
+  transition: "border-color 0.2s, box-shadow 0.2s",
+};
 
   if (!isMounted) {
     return null;
@@ -502,7 +502,7 @@ const renderChatHistory = () => {
                   height: "20px",
                   borderRadius: "50%",
                   backgroundColor: "#EE6633",
-                  color: "white",
+                  color: "var(--surface)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -544,10 +544,10 @@ const renderChatHistory = () => {
                           fontSize: "0.9rem",
                           width: "100%",
                           borderRadius: "12px 12px 0 12px",
-                          color: grey[900],
-                          background: "#ffffff",
-                          border: `1px solid ${grey[200]}`,
-                          boxShadow: `0px 2px 2px ${grey[50]}`,
+                          color: "var(--text-primary)",
+                          background: "var(--surface)",
+                          border: `1px solid var(--paper-border)`,
+                          boxShadow: `0px 2px 2px rgba(0, 0, 0, 0.04)`,
                           minHeight: "4rem",
                           resize: "none",
                           textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
@@ -572,10 +572,10 @@ const renderChatHistory = () => {
                       fontSize: "0.9rem",
                       width: "100%",
                       borderRadius: "12px 12px 0 12px",
-                      color: grey[900],
-                      background: "#ffffff",
-                      border: `1px solid ${grey[200]}`,
-                      boxShadow: `0px 2px 2px ${grey[50]}`,
+                      color: "var(--text-primary)",
+                      background: "var(--surface)",
+                      border: `1px solid var(--paper-border)`,
+                      boxShadow: `0px 2px 2px rgba(0, 0, 0, 0.04)`,
                       minHeight: "4rem",
                       resize: "none",
                       textAlign: isRTLLanguage(message.prompt) ? "right" : "left",
@@ -605,9 +605,9 @@ const renderChatHistory = () => {
               }}
             >
               {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
+                <ExpandMoreIcon style={{ fontSize: "1rem", color: "var(--primary)" ,fontWeight:"bold"}} />
               ) : (
-                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                <ExpandLessIcon style={{ fontSize: "1rem", color: "var(--primary)" }} />
               )}
             </IconButton>
 
@@ -642,9 +642,9 @@ const renderChatHistory = () => {
               textAlign: "left",
               position: "relative",
               width: "100%",
-              backgroundColor: "white", // Added white background
+              backgroundColor: "var(--surface)", // Added var(--surface) background
               borderRadius: "0.5rem", // Added border radius
-              border: "1px solid #e0e0e0", // Added border
+              border: "1px solid var(--divider)", // Added border
               marginTop: "0.5rem", // Added spacing
               padding: "0.6rem", // Added padding
             }}
@@ -692,10 +692,10 @@ const renderChatHistory = () => {
                           style={{
                             fontSize: "0.9rem",
                             borderRadius: "12px 12px 0 12px",
-                            color: grey[900],
-                            background: "#ffffff",
-                            border: `1px solid ${grey[200]}`,
-                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                            color: "var(--text-primary)",
+                            background: "var(--surface)",
+                            border: `1px solid var(--paper-border)`,
+                            boxShadow: `0px 2px 2px rgba(0, 0, 0, 0.04)`,
                             minHeight: "4rem",
                             width: "100%",
                           }}
@@ -716,10 +716,10 @@ const renderChatHistory = () => {
                             fontSize: "0.9rem",
                             width: "100%",
                             borderRadius: "12px 12px 0 12px",
-                            color: grey[900],
-                            background: "#ffffff",
-                            border: `1px solid ${grey[200]}`,
-                            boxShadow: `0px 2px 2px ${grey[50]}`,
+                            color: "var(--text-primary)",
+                            background: "var(--surface)",
+                            border: `1px solid var(--paper-border)`,
+                            boxShadow: `0px 2px 2px rgba(0, 0, 0, 0.04)`,
                             minHeight: "4rem",
                             resize: "none",
                           }}
@@ -790,7 +790,7 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
           <Box sx={{ ...style, width: "40%" }}>
             <Typography
               id="child-modal-title"
-              color={"#F18359"}
+              color={"var(--primary)"}
               fontWeight={"bold"}
               variant="h6"
             >
@@ -801,7 +801,7 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
             </Typography>
 
             <Typography
-              color={"#F18359"}
+              color={"var(--primary)"}
               fontWeight={"bold"}
               variant="h6"
               id="child-modal-title"
@@ -814,7 +814,7 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
 
             <Typography
               id="child-modal-title"
-              color={"#F18359"}
+              color={"var(--primary)"}
               fontWeight={"bold"}
               variant="h6"
             >
@@ -872,8 +872,8 @@ return (
           padding: isInstructionExpanded ? "1rem" : "0.5rem",
           paddingBottom: "0rem!important",
           paddingTop: "0.3rem!important",
-          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          backgroundColor: "#fafafa",
+          borderRight: { xs: "none", md: "1px solid var(--divider)" },
+          backgroundColor: "var(--table-header-bg)",
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
@@ -915,24 +915,24 @@ return (
   />
 )}        <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
-            padding: "0.5rem",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            minHeight: "40px",
-            flexShrink: 0,
-          }}
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isInstructionExpanded ? "space-between" : "center",
+              marginBottom: isInstructionExpanded ? "1rem" : 0,
+              padding: "0.5rem",
+              backgroundColor: "rgba(238, 102, 51, 0.1)",
+              borderRadius: "8px",
+              cursor: "pointer",
+              minHeight: "40px",
+              flexShrink: 0,
+            }}
           onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
           {isInstructionExpanded && (
             <Typography
               variant="h6"
               sx={{
-                color: "#636363",
+                color: "var(--text-secondary)",
                 fontWeight: "600",
                 fontSize: { xs: "1rem", md: "1.1rem" },
               }}
@@ -977,7 +977,7 @@ return (
           >
             <Box
               sx={{
-                backgroundColor: "white",
+                backgroundColor: "var(--surface)",
                 borderRadius: "8px",
                 padding: "1rem",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
@@ -999,18 +999,18 @@ return (
             {/* Metadata Information Section - Now directly in the panel */}
             <Box
               sx={{
-                backgroundColor: "white",
+                backgroundColor: "var(--surface)",
                 borderRadius: "8px",
                 padding: "1rem",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                border: "1px solid #e0e0e0",
+                border: "1px solid var(--divider)",
               }}
             >
               {/* Hint Section */}
               <Box sx={{ mb: 2 }}>
                 <Typography
                   sx={{
-                    color: "#F18359",
+                    color: "var(--primary)",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     mb: 1,
@@ -1023,12 +1023,12 @@ return (
                   sx={{
                     fontSize: "0.85rem",
                     lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
+                    color: "var(--text-secondary)",
+                    backgroundColor: "var(--surface-subtle)",
                     padding: "0.75rem",
                     borderRadius: "4px",
-                    borderLeft: "3px solid #F18359",
-                  }}
+                    borderLeft: "3px solid var(--primary)",
+}}
                 >
                   {info.hint || "No hints available"}
                 </Typography>
@@ -1038,7 +1038,7 @@ return (
               <Box sx={{ mb: 2 }}>
                 <Typography
                   sx={{
-                    color: "#F18359",
+                    color: "var(--primary)",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     mb: 1,
@@ -1049,14 +1049,14 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                    fontSize: "0.85rem",
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #4CAF50",
-                  }}
+                      fontSize: "0.85rem",
+                      lineHeight: "1.4",
+                      color: "var(--text-secondary)",
+                      backgroundColor: "var(--surface-subtle)",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #4CAF50",
+                    }}
                 >
                   {info.examples || "No examples available"}
                 </Typography>
@@ -1066,7 +1066,7 @@ return (
               <Box>
                 <Typography
                   sx={{
-                    color: "#F18359",
+                    color: "var(--primary)",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     mb: 1,
@@ -1125,7 +1125,7 @@ return (
             backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            backgroundColor: "#fff",
+            backgroundColor: "var(--surface)",
             width: "100%",
             minHeight: 0,
           }}
@@ -1157,8 +1157,8 @@ return (
           left: 0,
           right: 0,
           width: "100vw", // Full viewport width
-          backgroundColor: "white",
-          borderTop: "1px solid #e0e0e0",
+          backgroundColor: "var(--surface)",
+          borderTop: "1px solid var(--divider)",
           boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
           py: "0.5rem",
           px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop

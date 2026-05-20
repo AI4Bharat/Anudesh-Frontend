@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Grid, ThemeProvider, Box, Typography, Paper } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
 import { useDispatch, useSelector } from "react-redux";
 import DatasetStyle from "@/styles/dataset";
 import React, { PureComponent } from "react";
@@ -91,7 +94,7 @@ function AudioTaskAnalyticsChart(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
-        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading} >
           {`Tasks Dashboard - ${analyticsData[0].projectType}`}
           <Typography variant="body1">
             Count of Annotated and Reviewed Audio Data
@@ -107,33 +110,34 @@ function AudioTaskAnalyticsChart(props) {
                   fontWeight: "600",
                   padding: "16px 0",
                 }}
+                sx={{ color: "#111111" }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
               Total Annotated Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}sx={{ color: "#111111" }}>
                 {totalTaskCount &&
                   new Intl.NumberFormat("en").format(totalTaskCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}sx={{ color: "#111111" }}>
               Pending Review Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}sx={{ color: "#111111" }}>
                 {totalAnnotationTasksCount &&
                   new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}sx={{ color: "#111111" }}>
               Review Completed Tasks
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}sx={{ color: "#111111" }}>
                 {totalReviewTasksCount &&
                   new Intl.NumberFormat("en").format(totalReviewTasksCount)}
               </Typography>

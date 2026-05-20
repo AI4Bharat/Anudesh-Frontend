@@ -7,7 +7,10 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Skeleton from "@mui/material/Skeleton";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
-import tableTheme from "../../themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
 
@@ -32,6 +35,8 @@ const MUIDataTable = dynamic(
 
 
 const SuperChecker = (props) => {
+  const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const [loading, setLoading] = useState(false);
   const [displayWidth, setDisplayWidth] = useState(0);
   const [snackbar, setSnackbarInfo] = useState({

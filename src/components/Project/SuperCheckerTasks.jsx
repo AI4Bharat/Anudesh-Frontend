@@ -471,7 +471,7 @@ const SuperCheckerTasks = (props) => {
               }}
               sx={{ p: 1, borderRadius: 2 }}
               label={
-                <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                <Typography sx={{ color: "var(--text-secondary)" }} variant="body2">
                   Validate
                 </Typography>
               }
@@ -724,13 +724,13 @@ const SuperCheckerTasks = (props) => {
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#e0e0e0",
-      color: "rgba(0, 0, 0, 0.87)",
+      backgroundColor: "var(--surface-subtle)",   
+      color: "var(--text-primary)",              
       maxWidth: 300,
       fontSize: theme.typography.pxToRem(12),
     },
     [`& .${tooltipClasses.arrow}`]: {
-      color: "#e0e0e0",
+      color: "var(--surface-subtle)",
     },
   }));
 
@@ -805,7 +805,7 @@ const SuperCheckerTasks = (props) => {
             />
           )}
           <Button sx={{ position: "relative" }}>
-            <FilterListIcon sx={{ color: "#515A5A" }} />
+            <FilterListIcon sx={{ color: "var(--text-secondary)" }} />
             <CustomTooltip
               title={
                 filtersApplied ? (
@@ -1052,7 +1052,7 @@ const SuperCheckerTasks = (props) => {
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   All{" "}
-                  <snap style={{ color: "#1DA3CE" }}>
+                  <snap style={{ color: "var(--link-btn-bg)" }}>
                     {selectedFilters.supercheck_status} tasks
                   </snap>{" "}
                   will be de-allocated from this project. Please be careful as

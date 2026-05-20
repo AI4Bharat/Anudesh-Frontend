@@ -4,26 +4,25 @@
   }
   
   .output {
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  cursor: pointer;
+}
   
   .selected {
-    border: 1px solid #ee6633;
-  }
+  border: 1px solid var(--primary);
+}
   
   .feedback-section {
     margin-top: 20px;
   }
   
   .feedback-section textarea {
-    border: 1px solid #ccc;
-    width: 60.5vw;
-    margin-top: 10px;
-  }
-  
+  border: 1px solid var(--border-color);
+  width: 60.5vw;
+  margin-top: 10px;
+}
   .reasons {
     margin-top: 10px;
   }
@@ -33,7 +32,6 @@
     margin: 5px 0;
   }
   
-  .reasons input[type="radio"]:checked {
-    accent-color: #ee6633;
-  }
-  
+ .reasons input[type="radio"]:checked {
+  accent-color: var(--primary);
+}

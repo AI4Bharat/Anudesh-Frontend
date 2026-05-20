@@ -25,7 +25,7 @@ const CodeBlock = ({ language, codeString }) => {
       elevation={0}
       sx={{ 
         my: 2,
-        backgroundColor: '#f7f8fa',
+        backgroundColor: "var(--surface-subtle)",
         borderRadius: 2,
         overflow: 'hidden',
         border: `1px solid ${theme.palette.divider}`,
@@ -59,7 +59,7 @@ const CodeBlock = ({ language, codeString }) => {
         customStyle={{
           margin: 0,
           padding: theme.spacing(2),
-          backgroundColor: '#ffffff',
+          backgroundColor: "var(--surface)",
         }}
         codeTagProps={{
           style: {

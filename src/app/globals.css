@@ -1,4 +1,5 @@
 :root {
+  
   --max-width: 1100px;
   --border-radius: 12px;
   --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
@@ -8,6 +9,7 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --model-muted: #6C5F5B;
 
   --primary-glow: conic-gradient(
     from 180deg at 50% 50%,
@@ -38,40 +40,60 @@
   --callout-border-rgb: 172, 175, 176;
   --card-rgb: 180, 185, 188;
   --card-border-rgb: 131, 134, 135;
+
+  --surface: #ffffff;
+  --on-surface: #111111;
+  --surface-subtle: #f5f5f5;
+  --border-color: rgba(0,0,0,0.12);
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --profile-header-bg: #FEE0B3;
+  --notification-unread: #FFFDE6;
+  --notification-border: #FEE0B3;
+  --card-badge: #FFD981;
+  --color-error: #d32f2f;
+  --primary: #ee6633;
+  --primary-light: #fa723e;
+  --primary-dark: #b33a0c;
+  --primary-contrast: #ffffff;
+
+  --surface: #ffffff;
+  --surface-subtle: #f5f5f5;
+
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --text-disabled: #aaaaaa;
+
+  --divider: rgba(0,0,0,0.12);
+  --paper-border: rgba(0,0,0,0.12);
+  --table-header-bg: #fafafa;
+}
+[data-theme="dark"] {
+  --surface: #1e1e1e;
+  --on-surface: #ffffff;
+  --surface-subtle: #2a2a2a;
+  --border-color: rgba(255,255,255,0.12);
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+   --model-muted: #a89e9a;
+   --profile-header-bg: #2a1a00;
+  --notification-unread: #2a2500;
+  --notification-border: rgba(255,255,255,0.12);
+  --card-badge: #5a4a00;
+  --color-error: #f44336;
+   --primary: #ee6633;
+    --surface: #121212;
+    --surface-subtle: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #aaaaaa;
+    --text-disabled: #555555;
+    --divider: rgba(255,255,255,0.12);
+    --paper-border: rgba(255,255,255,0.12);
+    --table-header-bg: #1a1a1a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
 
-    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-    --secondary-glow: linear-gradient(
-      to bottom right,
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0.3)
-    );
 
-    --tile-start-rgb: 2, 13, 46;
-    --tile-end-rgb: 2, 5, 19;
-    --tile-border: conic-gradient(
-      #ffffff80,
-      #ffffff40,
-      #ffffff30,
-      #ffffff20,
-      #ffffff10,
-      #ffffff10,
-      #ffffff80
-    );
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
-  }
-}
 
 * {
   box-sizing: border-box;
@@ -97,13 +119,8 @@ body {
 
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--text-primary);
+  background: var(--surface);
 }
 
 a {
@@ -111,8 +128,47 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+[data-theme="dark"] .rdrCalendarWrapper,
+[data-theme="dark"] .rdrDateRangeWrapper,
+[data-theme="dark"] .rdrDateDisplayWrapper {
+  background-color: var(--surface);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .rdrMonthAndYearWrapper,
+[data-theme="dark"] .rdrMonths,
+[data-theme="dark"] .rdrMonth {
+  background-color: var(--surface);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .rdrDayNumber span {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .rdrDayPassive .rdrDayNumber span {
+  color: var(--text-disabled);
+}
+
+[data-theme="dark"] .rdrStaticRange {
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--divider);
+}
+
+[data-theme="dark"] .rdrStaticRange:hover .rdrStaticRangeLabel,
+[data-theme="dark"] .rdrStaticRange:focus .rdrStaticRangeLabel {
+  background-color: var(--surface-subtle);
+}
+
+[data-theme="dark"] .rdrDefinedRangesWrapper {
+  background-color: var(--surface);
+  border-right: 1px solid var(--divider);
+}
+
+[data-theme="dark"] .rdrInputRange span,
+[data-theme="dark"] .rdrInputRangeInput {
+  color: var(--text-primary);
+  background-color: var(--surface-subtle);
+  border-color: var(--divider);
 }

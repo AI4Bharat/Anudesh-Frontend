@@ -36,7 +36,10 @@ import { fetchUserById } from '@/Lib/Features/user/getUserById';
 import ReportBarGraph from '../../components/UserManagement/ProfileDetails';
 import dynamic from 'next/dynamic';
 import { ThemeProvider } from '@mui/material/styles';
-import tableTheme from "../../themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import { getUserProjects } from '@/Lib/Features/projects/bookmarkService';
 import BookmarkButton from '@/components/Project/BookmarkButton';
 
@@ -50,7 +53,8 @@ const MUIDataTable = dynamic(
 
 export default function ProfilePage() {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();

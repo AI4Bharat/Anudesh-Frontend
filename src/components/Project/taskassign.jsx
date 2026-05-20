@@ -131,9 +131,9 @@ const TasksassignDialog = ({default_reviewer=null, disabled=false}) => {
           variant="contained"
           onClick={handleOpen}
           disabled={disabled}
+          color="primary"
           sx={{
-            backgroundColor: '#ee6633',
-            color: '#fff',
+            
             inlineSize: 'max-content',
             width: '100%',
             borderRadius: 2,
@@ -201,7 +201,7 @@ const TasksassignDialog = ({default_reviewer=null, disabled=false}) => {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ backgroundColor: '#ee6633', color: '#fff' }}
+            color="primary"
           >
             Allocate
           </Button>

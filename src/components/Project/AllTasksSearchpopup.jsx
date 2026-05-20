@@ -30,7 +30,7 @@ const AllTaskSearchPopup = (props) => {
 
   const handleSearchSubmit = async(e) => {
     if (typeof window !== 'undefined') {
-    document.getElementById(searchedCol + "_btn").style.color = "#2C2799";
+    document.getElementById(searchedCol + "_btn").style.color = "var(--icon-btn-bg)";
     onchange()
     props.handleClose();
     }
@@ -48,7 +48,7 @@ const AllTaskSearchPopup = (props) => {
       ["search_"+searchedCol]: "",
     }); 
     onchange()
-     document.getElementById(searchedCol + "_btn").style.color = "rgba(0, 0, 0, 0.54)";
+     document.getElementById(searchedCol + "_btn").style.color = "var(--text-secondary)";
      props.handleClose();
   }
      

@@ -15,14 +15,14 @@ const modalStyle = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 600,
-    bgcolor: 'background.paper',
-    border: '1px solid #ddd',
+    bgcolor: 'var(--surface)',
+    border: '1px solid var(--divider)',
     boxShadow: 24,
     p: 4,
     borderRadius: 4,
     textAlign: 'center',
-    outlineColor: '#FF6B6B',
-    outline: '2px solid #FF6B6B',
+    outlineColor: 'var(--primary)',
+    outline: '2px solid var(--primary)',
 };
 
 const LoginModal = ({ open }) => {

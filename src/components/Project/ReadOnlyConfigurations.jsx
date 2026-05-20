@@ -1,6 +1,6 @@
 import { Box, Card, Grid, ThemeProvider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import themeDefault from "@/themes/theme";
+//import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,7 +24,7 @@ useEffect(() => {
 const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
   <Grid
     container
     spacing={2}
@@ -323,7 +323,7 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
       </Grid>
     )}
   </Grid>
-</ThemeProvider>
+</>
 
   );
 };

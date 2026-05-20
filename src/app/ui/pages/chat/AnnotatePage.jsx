@@ -1093,7 +1093,7 @@ const AnnotatePage = () => {
                 fontSize: '0.75rem',
                 px: 1.5,
                 py: 0.2,                
-                backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
+                backgroundColor: reviewtext.trim().length === 0 ? "var(--brand-primary-dark)" : "success.main" ,
               }}
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
@@ -1132,9 +1132,9 @@ const AnnotatePage = () => {
                   minWidth: '32px',
                   width: '32px',
                   height: '32px',
-                  border: "1px solid #e6e6e6",
-                  color: "grey",
-                  backgroundColor: "white",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--text-secondary)",
+                  backgroundColor: "var(--surface)",
                 }}
               >
                 <InfoOutlined sx={{ fontSize: '18px' }} />
@@ -1161,9 +1161,10 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2,  
+                      color: "var(--text-primary)",
                       border: "0px",
-                      backgroundColor: "#ffe0b2",
+                      backgroundColor: "var(--card-badge)"                     
                     }}
                   >
                     Draft
@@ -1180,9 +1181,10 @@ const AnnotatePage = () => {
                   minWidth: 'auto',
                   fontSize: '0.75rem',
                   px: 1.5,
-                  py: 0.2,                  color: "black",
+                  py: 0.2,  
+                  color: "var(--text-primary)",
                   border: "0px",
-                  backgroundColor: "#ffe0b2",
+                  backgroundColor: "var(--card-badge)"                
                 }}
               >
                 Next
@@ -1208,9 +1210,10 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
+                      py: 0.2,                      
+                      color: "var(--text-primary)", 
+                      border: "0px", 
+                      backgroundColor: "var(--card-badge)" 
                     }}
                   >
                     Skip
@@ -1245,9 +1248,8 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
+                      py: 0.2,                      
+                      color: "var(--text-primary)", border: "0px", backgroundColor: "var(--card-badge)" 
                     }}
                   >
                     {ProjectDetails?.project_type == "InstructionDrivenChat" ||
@@ -1294,9 +1296,10 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
-                      border: "0px",
-                      backgroundColor: "#ee6633",
+                      py: 0.2,                      
+                      color: "var(--text-primary)", 
+                      border: "0px", 
+                      backgroundColor: "var(--brand-primary)"
                     }}
                   >
                     Submit

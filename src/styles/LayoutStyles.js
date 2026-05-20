@@ -79,7 +79,7 @@ if (typeof window !== "undefined") {
     boxSizing: "border-box",
     marginTop: "15px",
     height: "64px",
-    backgroundColor: "white",
+    backgroundColor: "var(--surface)",
     maxWidth: "350px",
     minWidth:'350px',
     width: "auto",
@@ -97,7 +97,7 @@ if (typeof window !== "undefined") {
     outline: "none",
     fontSize: "18px",
     lineHeight: "32px",
-    color: "black",
+    color: "var(--text-primary)",
     fontFamily: "Roboto",
     height : "14rem",
     padding : "1rem"

@@ -279,14 +279,14 @@ const Chat = () => {
                         alignContent: "center",
                         paddingX: "1rem",
                         borderRadius: "5px 5px 0 0",
-                        backgroundColor: "#c5c5c5",
+                        backgroundColor: "var(--surface-subtle)",
                         paddingY: "0.8rem",
                       }}
                     >
                       <p
                         style={{
                           fontSize: "1rem",
-                          color: "#4e4e4e",
+                          color: "var(--text-secondary)",
                           fontWeight: "500",
                         }}
                       >
@@ -304,14 +304,14 @@ const Chat = () => {
                           <ContentPasteIcon
                             sx={{
                               fontSize: "1.4rem",
-                              color: "#4e4e4e",
+                              color: "var(--text-secondary)",
                             }}
                           />
                           <p
                             style={{
                               paddingLeft: "0.2rem",
                               fontSize: "1rem",
-                              color: "#4e4e4e",
+                              color: "var(--text-secondary)",
                               fontWeight: "500",
                             }}
                           >

@@ -1234,7 +1234,7 @@ return (
               fontSize: '0.75rem',
               px: 1.5,
               py: 0.5,
-              backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
+              backgroundColor: reviewtext.trim().length === 0 ? "var(--primary-dark)" : "green",
             }}
           >
             Notes {reviewtext.trim().length === 0 ? "" : "*"}
@@ -1303,9 +1303,9 @@ return (
                   fontSize: '0.75rem',
                   px: 1.5,
                   py: 0.5,
-                  color: "black",
+                  color: "var(--text-primary)",
                   border: "0px",
-                  backgroundColor: "#ffe0b2",
+                  backgroundColor: "var(--surface-subtle)",
                 }}
               >
                 Draft
@@ -1324,9 +1324,9 @@ return (
                 fontSize: '0.75rem',
                 px: 1.5,
                 py: 0.5,
-                color: "black",
+                color: "var(--text-primary)",
                 border: "0px",
-                backgroundColor: "#ffe0b2",
+                backgroundColor: "var(--surface-subtle)",
               }}
             >
               Next
@@ -1347,9 +1347,9 @@ return (
                   fontSize: '0.75rem',
                   px: 1.5,
                   py: 0.5,
-                  color: "black",
+                  color: "var(--text-primary)",
                   border: "0px",
-                  backgroundColor: "#ffe0b2",
+                  backgroundColor: "var(--surface-subtle)",
                 }}
               >
                 Skip
@@ -1374,9 +1374,9 @@ return (
                       fontSize: '0.75rem',
                       px: 1.5,
                       py: 0.5,
-                      color: "black",
+                      color: "var(--text-primary)",
                       border: "0px",
-                      backgroundColor: "#ffe0b2",
+                      backgroundColor: "var(--surface-subtle)",
                     }}
                   >
                     Clear Chats
@@ -1399,9 +1399,9 @@ return (
                       fontSize: '0.75rem',
                       px: 1.5,
                       py: 0.5,
-                      color: "black",
+                      color: "var(--text-primary)",
                       border: "0px",
-                      backgroundColor: "#ffe0b2",
+                      backgroundColor: "var(--surface-subtle)",
                     }}
                   >
                     Reset All
@@ -1433,9 +1433,9 @@ return (
                     fontSize: '0.75rem',
                     px: 1.5,
                     py: 0.5,
-                    color: "black",
+                    color: "var(--text-primary)",
                     border: "0px",
-                    backgroundColor: "#ee6633",
+                    backgroundColor: "var(--primary)",
                   }}
                 >
                   Revise
@@ -1458,9 +1458,9 @@ return (
                   fontSize: '0.75rem',
                   px: 1.5,
                   py: 0.5,
-                  color: "black",
+                  color: "var(--text-primary)",
                   border: "0px",
-                  backgroundColor: "#ee6633",
+                  backgroundColor: "var(--primary)",
                 }}
                 onClick={handleClick}
                 endIcon={<KeyboardArrowDownIcon />}

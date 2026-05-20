@@ -8,7 +8,6 @@ import Typography from "@mui/material/Typography";
 import Switch from "@mui/material/Switch";
 
 import React, { useEffect, useState } from "react";
-import themeDefault from "@/themes/theme";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/common/Button";
 import MenuItems from "../common/MenuItems";
@@ -217,7 +216,7 @@ const InterAutomateDataset = () => {
   };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {loading && <Spinner />}
       <Grid container direction="row" paddingTop={3}>
         <Card className={classes.workspaceCard}>
@@ -537,7 +536,7 @@ const InterAutomateDataset = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         hide={2000}
       />
-    </ThemeProvider>
+    </>
   );
 };
 

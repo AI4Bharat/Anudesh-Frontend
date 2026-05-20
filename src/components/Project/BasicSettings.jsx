@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import React, { useEffect, useState } from "react";
-import themeDefault from '@/themes/theme'
+//import themeDefault from '@/themes/theme'
 import { useNavigate, useParams } from 'react-router-dom';
 import OutlinedTextField from "../common/OutlinedTextField";
 import DatasetStyle from "@/styles/dataset";
@@ -186,7 +186,7 @@ const BasicSettings = (props) => {
         );
     };
     return (
-        <ThemeProvider theme={themeDefault}>
+       <>
 
             {/* <Header /> */}
             {loading && <Spinner />}
@@ -508,7 +508,7 @@ const BasicSettings = (props) => {
                         label="Save" />
                 </Grid>
             </Grid>
-        </ThemeProvider>
+        </>
     )
 }
 

@@ -13,7 +13,10 @@ import Select from "@mui/material/Select";
 import TablePagination from "@mui/material/TablePagination";
 import Skeleton from "@mui/material/Skeleton";
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import { fetchDatasetProjects } from "@/Lib/Features/datasets/GetDatasetProjects";
 import GetExportProjectButtonAPI from "@/app/actions/api/Projects/GetExportProjectButtonAPI";
 import GetPullNewDataAPI from "@/app/actions/api/Projects/GetPullNewDataAPI";
@@ -194,6 +197,8 @@ const options = {
 
 export default function DatasetProjectsTable({ datasetId }) {
 	/* eslint-disable react-hooks/exhaustive-deps */
+	const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
 	const [displayWidth, setDisplayWidth] = useState(0);
 	const dispatch = useDispatch();
 	const datasetProjects = useSelector((state) =>

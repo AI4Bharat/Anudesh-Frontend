@@ -10,15 +10,15 @@ const ModelResponseEvaluationStyle = makeStyles({
     marginRight: "1rem",
   },
   numBtn: {
-    backgroundColor: "white !important",
-    color: "#6C5F5B !important",
+    backgroundColor: "var(--surface) !important",      
+    color: "var(--model-muted) !important",             
     fontWeight: "bold !important",
   },
   accordion: {
     borderRadius: "12rem",
   },
   selected: {
-    backgroundColor: "#EE6633 !important",
+    backgroundColor: "var(--brand-primary) !important",
     color: "white !important",
   },
   container: {
@@ -45,31 +45,31 @@ const ModelResponseEvaluationStyle = makeStyles({
 
   orangeRadio: {
     "& .MuiSvgIcon-root": {
-      color: "#9a9a9a", // Color of the circle when unchecked
+      color: "var(--text-disabled)", // Color of the circle when unchecked
     },
     "&.Mui-checked .MuiSvgIcon-root": {
-      color: "#EE6633", // Color of the checked circle
+       color: "var(--brand-primary)", // Color of the checked circle
     },
     "&.Mui-checked .MuiSvgIcon-root::before": {
-      background: "#EE6633", // Color of the dot when checked
+      background: "var(--brand-primary)", // Color of the dot when checked
     },
   },
 
   promptContainer: {
     marginBottom: "1rem",
-    color: "#6C5F5B",
+    color: "var(--model-muted)",
   },
   outputContainer: {
     marginBottom: "1rem",
-    color: "#6C5F5B",
+    color: "var(--model-muted)",
   },
   inputQuestion: {
     fontWeight: "bold",
-    color: "#6C5F5B",
+    color: "var(--model-muted)",
   },
   heading: {
     fontWeight: "bold",
-    color: "#6C5F5B",
+    color: "var(--model-muted)",
   },
   ratingButton: {
     marginRight: "1rem",
@@ -78,7 +78,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
 
   hr: {
-    border: "1px solid #d8d8d8",
+    border: "1px solid var(--border-color)",
     margin: "1rem 0",
   },
   questionContainer: {
@@ -87,7 +87,7 @@ const ModelResponseEvaluationStyle = makeStyles({
   },
   questionText: {
     width: "80%",
-    color: "#393939",
+    color: "var(--text-primary)",
   },
   radioGroupContainer: {
     width: "20%",
@@ -98,28 +98,25 @@ const ModelResponseEvaluationStyle = makeStyles({
   notesContainer: {
     fontWeight: "bold",
     marginTop: "1rem",
-    color: "#6C5F5B",
+    color: "var(--model-muted)", 
     maxHeight: "5rem",
   },
   notesTextarea: {
     marginTop: "1.2rem",
-    border: "2px solid #6C5F5B",
+    border: "2px solid var(--model-muted)",
     borderRadius: "2px",
     padding: "5px",
   },
 
   interactionWindow: {
     padding: "0rem 1rem 1rem 1rem",
-    color: "#6C5F5B",
+    color: "var(--model-muted)",
     flexDirection: "row",
   },
 
   answerTile: {
     overflowWrap: "anywhere",
-  },
-  accordion: {
-    marginBottom: "1rem",
-  },
+  }
 });
 
 export default ModelResponseEvaluationStyle;

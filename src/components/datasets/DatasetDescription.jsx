@@ -10,7 +10,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import ImageArray from '@/utils/getModelIcons';
 import React from "react";
-import themeDefault from "@/themes/theme";
+//import themeDefault from "@/themes/theme";
 
 const DatasetDescription = (props) => {
       /* eslint-disable react-hooks/exhaustive-deps */
@@ -21,7 +21,6 @@ const DatasetDescription = (props) => {
 
     const classes = DatasetStyle();
     return (
-        <ThemeProvider theme={themeDefault}>
 
 <Card  style={{ minHeight: '100px', maxHeight: '100px',backgroundColor: ImageArray[index].color ,display: 'flex'}}>
             <Grid container >
@@ -35,7 +34,7 @@ const DatasetDescription = (props) => {
                         <Typography component="div" variant="subtitle2" style={{ marginBottom: '0px' ,paddingLeft:"0px", fontFamily: "Rowdies", fontWeight: "bold" }} >
                             {name}
                         </Typography  >
-                            <Typography variant="body2" color="black" className={classes.modelValue} >
+                            <Typography variant="body2" color="text.primary" className={classes.modelValue} >
                                  {value}
                             </Typography> 
                     </CardContent>
@@ -43,7 +42,6 @@ const DatasetDescription = (props) => {
                 </Grid>
             </Grid>
         </Card>
-        </ThemeProvider>
     )
 }
 export default DatasetDescription;

@@ -11,8 +11,7 @@ import {
 } from '@mui/material';
 import ImageArray from '../../utils/getModelIcons';
 import React, { useEffect, useState } from "react";
-import tableTheme from "../../themes/tableTheme";
-import themeDefault from "../../themes/theme";
+
 
 const ProjectDescription = (props) => {
     const { name, value, index } = props;
@@ -21,7 +20,6 @@ const ProjectDescription = (props) => {
 
 
     return (
-        <ThemeProvider theme={themeDefault}>
 
             <Card style={{ minHeight: '100px', maxHeight: '100px', backgroundColor: ImageArray[index].color, display: 'flex' }}>
                 <Grid container >
@@ -45,7 +43,6 @@ const ProjectDescription = (props) => {
                     </Grid>
                 </Grid>
             </Card>
-        </ThemeProvider>
     )
 }
 export default ProjectDescription;

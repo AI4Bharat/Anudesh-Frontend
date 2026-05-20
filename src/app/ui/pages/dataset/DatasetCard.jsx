@@ -85,13 +85,14 @@ const DatasetCards = (props) => {
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#e0e0e0',
-      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: 'var(--surface-subtle)',
+      color: 'var(--text-primary)',
       maxWidth: 300,
       fontSize: theme.typography.pxToRem(12),
+      border: "1px solid var(--divider)",
     },
     [`& .${tooltipClasses.arrow}`]: {
-      color: "#e0e0e0",
+      color: "var(--surface-subtle)",
     },
   }));
 

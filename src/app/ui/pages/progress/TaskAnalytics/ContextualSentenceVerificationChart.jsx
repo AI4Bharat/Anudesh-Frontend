@@ -54,9 +54,9 @@ function ContextualSentenceVerificationChart(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
-        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+        <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading} sx={{ color: "#111111" }}>
           Tasks Dashboard - Sentence Verification
-          <Typography variant="body1">
+          <Typography variant="body1" sx={{ color: "#111111" }}>
             Count of Annotated Sentence Verification
           </Typography>
         </Typography>
@@ -69,16 +69,17 @@ function ContextualSentenceVerificationChart(props) {
                   fontWeight: "600",
                   padding: "16px 0",
                 }}
+                sx={{ color: "#111111" }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
               Total Annotated Tasks
 
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }} sx={{ color: "#111111" }}>
                 {totalTaskCount &&
                   new Intl.NumberFormat("en").format(totalTaskCount)}
               </Typography>

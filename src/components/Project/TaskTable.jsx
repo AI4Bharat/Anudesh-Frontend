@@ -798,7 +798,7 @@ const TaskTable = (props) => {
               disabled={isArchived}
               sx={{ p: 1, borderRadius: 2 }}
               label={
-                <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                <Typography sx={{ color: "primary.contrastText" }} variant="body2">
                   {actionLabel}
                 </Typography>
               }
@@ -1150,13 +1150,13 @@ const TaskTable = (props) => {
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#e0e0e0",
-      color: "rgba(0, 0, 0, 0.87)",
+      backgroundColor: "var(--surface-subtle)",
+      color: "var(--text-primary)",
       maxWidth: 300,
       fontSize: theme.typography.pxToRem(12),
     },
     [`& .${tooltipClasses.arrow}`]: {
-      color: "#e0e0e0",
+      color: "var(--surface-subtle)",
     },
   }));
 
@@ -1256,7 +1256,7 @@ const TaskTable = (props) => {
             />
           )}
           <Button sx={{ position: "relative" }} onClick={handleShowFilter}>
-            <FilterListIcon sx={{ color: "#515A5A" }} />
+            <FilterListIcon sx={{ color: "var(--text-secondary)" }} />
             <CustomTooltip
               title={
                 filtersApplied ? (
@@ -1545,7 +1545,7 @@ const TaskTable = (props) => {
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   All{" "}
-                  <snap style={{ color: "#1DA3CE" }}>
+                  <snap style={{ color: "var(--link-btn-bg)" }}>
                     {props.type === "annotation"
                       ? selectedFilters.annotation_status
                       : selectedFilters.review_status}{" "}

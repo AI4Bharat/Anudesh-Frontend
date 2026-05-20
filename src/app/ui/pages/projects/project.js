@@ -10,9 +10,12 @@ import ProjectCard from "@/components/Project/ProjectCard";
 import Spinner from "@/components/common/Spinner";
 import Search from "@/components/common/Search";
 import "@/styles/Dataset.css";
-import themeDefault from "@/themes/theme";
+//import themeDefault from "@/themes/theme";
 import { useDispatch, useSelector } from "react-redux";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import { fetchProjects } from "@/Lib/Features/projects/getProjects";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import CreateProjectDropdown from "@/components/Project/createprojectbutton";
@@ -22,7 +25,8 @@ import { getUserProjects } from "@/Lib/Features/projects/bookmarkService";
 const ProjectList = React.memo(function ProjectList({ data }) {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
-
+const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const dispatch = useDispatch();
   const [radiobutton, setRadiobutton] = useState(true);
     const [bookmarkedLoading, setBookmarkedLoading] = useState(false);
@@ -146,7 +150,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
 
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {apiLoading || (projectData && projectData.length === 0) ? (
         <Spinner />
       ) : (
@@ -224,7 +228,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
           </Box>
         </>
       )}
-    </ThemeProvider>
+    </>
   );
 })
 

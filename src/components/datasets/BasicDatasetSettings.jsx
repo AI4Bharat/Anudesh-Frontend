@@ -1,7 +1,7 @@
 
 import { Grid, ThemeProvider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import themeDefault from '@/themes/theme'
+//import themeDefault from '@/themes/theme'
 import { useNavigate, useParams } from 'react-router-dom';
 import OutlinedTextField from "../common/OutlinedTextField";
 import { useDispatch, useSelector } from "react-redux";
@@ -108,7 +108,7 @@ const BasicDatasetSettings = () => {
     };
 
     return (
-        <ThemeProvider theme={themeDefault}>
+        <>
             {loading && <Spinner />}
             <Grid>
                 {renderSnackBar()}
@@ -219,7 +219,7 @@ const BasicDatasetSettings = () => {
                         label="Save" />
                 </Grid>
             </Grid>
-        </ThemeProvider>
+        </>
     )
 }
 

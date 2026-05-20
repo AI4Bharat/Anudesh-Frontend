@@ -112,6 +112,7 @@ function TaskCountAnalyticsChart(props) {
           variant="h2" 
           style={{ marginBottom: "35px", fontSize: getResponsiveFontSize(32), padding: "10px" }} 
           className={classes.heading}
+          
         >
           {`Tasks Dashboard - ${analyticsData[0]?.projectType}`}
           <Typography variant="body1" style={{ fontSize: getResponsiveFontSize(16), padding: "5px" }}>
@@ -127,33 +128,34 @@ function TaskCountAnalyticsChart(props) {
                   fontWeight: "600",
                   padding: "5px",
                 }}
+                sx={{ color: "#111111" }}
               >
                 Tasks Dashboard
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }} sx={{ color: "#111111" }}>
                 Total Annotated Tasks
               </Typography>
-              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }} sx={{ color: "#111111" }}>
                 {totalAnnotationTasksCount &&
                   new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }} sx={{ color: "#111111" }}>
                 Pending Review Tasks
               </Typography>
-              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }} sx={{ color: "#111111" }}>
                 {difftotal &&
                   new Intl.NumberFormat("en").format(difftotal)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }} sx={{ color: "#111111" }}>
                 Review Completed Tasks
               </Typography>
-              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "400", padding: "5px" }}>
+              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "400", padding: "5px" }} sx={{ color: "#111111" }}>
                 {totalReviewTasksCount &&
                   new Intl.NumberFormat("en").format(totalReviewTasksCount)}
               </Typography>

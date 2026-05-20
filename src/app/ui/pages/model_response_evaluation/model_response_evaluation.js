@@ -582,17 +582,17 @@ const ModelInteractionEvaluation = ({
       padding: "20px",
       borderRadius: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      backgroundColor: "#FFF1EF",
+      backgroundColor: "var(--surface-subtle)",
     },
     response1Box: {
       flex: "1 1 45%",
-      whiteSpace: "normal",
+      backgroundColor: "var(--surface)",Space: "normal",
       wordWrap: "break-word",
       padding: "20px",
       fontSize: "17px",
       borderRadius: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      backgroundColor: "#FFF1EF",
+      backgroundColor: "var(--surface-subtle)",
     },
   };
 
@@ -628,7 +628,7 @@ const ModelInteractionEvaluation = ({
                   style={{
                     whiteSpace: "normal",
                     wordWrap: "break-word",
-                    backgroundColor: "#FFF1EF",
+                    backgroundColor: "var(--surface-subtle)",
                     padding: "0 20px 20px",
                     borderRadius: "20px",
                     ...(expandedCurrentFormAccordion
@@ -717,7 +717,7 @@ const ModelInteractionEvaluation = ({
                                 maxWidth: "200px",
                                 margin: "4px 0",
                                 boxSizing: "border-box",
-                                backgroundColor: "white",
+                                backgroundColor: "var(--surface)",
                                 fontWeight: "normal",
                               }}
                               required={true}
@@ -726,7 +726,7 @@ const ModelInteractionEvaluation = ({
                         </span>
                       ))}
                       {
-                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                        <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
@@ -743,7 +743,7 @@ const ModelInteractionEvaluation = ({
                         {i + 1}. {question.input_question}
                       </span>
                       {
-                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                        <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
@@ -785,19 +785,19 @@ const ModelInteractionEvaluation = ({
                           }}
                           sx={{
                             marginLeft: "18px",
-                            color: "#ee6633",
+                            color: "var(--primary)",
                             "& .MuiRating-iconFilled": {
-                              color: "#ee6633",
+                              color: "var(--primary)",
                             },
                             "& .MuiRating-iconHover": {
-                              color: "#ee6633",
+                              color: "var(--primary)",
                             },
                           }}
                           emptyIcon={
                             <StarIcon
                               style={{
                                 opacity: 0.55,
-                                color: "#EE6633",
+                                color: "var(--primary)",
                               }}
                               fontSize="inherit"
                             />
@@ -806,7 +806,7 @@ const ModelInteractionEvaluation = ({
                         <Box
                           sx={{
                             ml: 2,
-                            color: "#EE6633",
+                            color: "var(--primary)",
                             fontWeight: "bold",
                           }}
                         >
@@ -846,7 +846,7 @@ const ModelInteractionEvaluation = ({
                     >
                       {i + 1}. {question.input_question}
                       {
-                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                        <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
@@ -901,7 +901,7 @@ const ModelInteractionEvaluation = ({
                     >
                       {i + 1}. {question.input_question}
                       {
-                        <span style={{ color: "#d93025", fontSize: "25px" }}>
+                        <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                           {" "}
                           *
                         </span>
@@ -1006,7 +1006,7 @@ const ModelInteractionEvaluation = ({
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              color: "#C8C7C6",
+              color: "var(--text-disabled)",
             }}
           >
             <Typography
@@ -1039,7 +1039,7 @@ const ModelInteractionEvaluation = ({
                 width: "inherit",
                 backgroundColor:
                   clickedPromptOutputPairId == pair.prompt_output_pair_id
-                    ? "#FEF0EE"
+                    ? "var(--surface-subtle)"
                     : "transparent",
               }}
             >
@@ -1163,7 +1163,7 @@ const ModelInteractionEvaluation = ({
           {open && (
             <Box
               sx={{
-                border: "1px solid #E1E1E0",
+                border: "1px solid var(--border-color)",
               }}
             >
               <Box

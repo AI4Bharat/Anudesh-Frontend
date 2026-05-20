@@ -36,8 +36,10 @@ import OutlinedTextField from "@/components/common/OutlinedTextField";
 import Button from "@/components/common/Button";
 import MenuItems from "@/components/common/MenuItems";
 import "../../styles/Dataset.css";
-import themeDefault from "@/themes/theme";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import { fetchDomains } from "@/Lib/Features/actions/domains";
 import { fetchDatasetByType } from "@/Lib/Features/datasets/getDatasetByType";
 import { fetchDatasetSearchPopup } from "@/Lib/Features/datasets/DatasetSearchPopup";
@@ -104,7 +106,9 @@ const MUIDataTable = dynamic(() => import("mui-datatables"), {
 
 const CreateProject = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
+const currentTheme = isDark ? darkTheme : lightTheme;
   const dispatch = useDispatch();
   const { id } = useParams();
     const formData1 = useSelector((state) => console.log(state)
@@ -926,7 +930,7 @@ const CreateProject = () => {
   };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <ThemeProvider theme={currentTheme}>
       <Grid container direction="row" sx={{ width: "100%" }}>
         <Card className="workspaceCard">
           <Grid
@@ -963,7 +967,7 @@ const CreateProject = () => {
                   <Grid container alignItems="center" spacing={1}>
                     <Grid item xs={4}>
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        Project Title<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                        Project Title<span style={{ color: "var(--color-error)" ,fontSize:"20px"}}>*</span>:<Tooltip 
                   title="Title of the project." 
                   arrow
                   placement="top"
@@ -991,7 +995,7 @@ const CreateProject = () => {
                   <Grid container alignItems="center" spacing={1}>
                     <Grid item xs={4}>
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        Project Description<span style={{ color: "#d93025",fontSize:"20px" }}>*</span>:<Tooltip 
+                        Project Description<span style={{ color: "var(--color-error)",fontSize:"20px" }}>*</span>:<Tooltip 
                   title="Provide a detailed description of the project's objectives and scope." 
                   arrow
                   placement="top"
@@ -1025,7 +1029,7 @@ const CreateProject = () => {
                   <Grid item xs={12} md={3}>
                     <Box sx={{ display: 'flex', flexDirection:"column" }}>
                       <Typography variant="body2" sx={{  mr: 1, fontWeight: 'bold' }}>
-                        Category<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                        Category<span style={{ color: "var(--color-error)" ,fontSize:"20px"}}>*</span>:<Tooltip 
                   title="Select the domain or category that best describes your project's focus area." 
                   arrow
                   placement="top"
@@ -1050,7 +1054,7 @@ const CreateProject = () => {
                   <Grid item xs={12} md={3} >
                     <Box sx={{ display: 'flex',flexDirection:"column" }}>
                       <Typography variant="body2" sx={{  mr: 1, fontWeight: 'bold' }}>
-                        Project Type<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                        Project Type<span style={{ color: "var(--color-error)" ,fontSize:"20px"}}>*</span>:<Tooltip 
                   title="Choose the type of project workflow that matches your annotation needs." 
                   arrow
                   placement="top"
@@ -1078,7 +1082,7 @@ const CreateProject = () => {
                   {/* Source Language Field */}
                   <Grid item xs={12} md={3}>
                     <Box sx={{ display: 'flex',flexDirection:"column" }}>
-                      <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal',color:"#454545)" }}>
+                      <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal',color:"var(--text-secondary)" }}>
                         Source
                         Language:<Tooltip 
                   title="Select the original language of the data you'll be working with." 
@@ -1153,9 +1157,9 @@ const CreateProject = () => {
                 <Grid container spacing={2} alignItems="center">
                   {/* Toggle on the left */}
                   <Grid item xs={12} md={2}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', p: 1, backgroundColor: 'grey.50', borderRadius: 1, height: '100%' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', p: 1, backgroundColor: 'var(--surface-subtle)', borderRadius: 1, height: '100%' }}>
                       <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 'bold', mr: 1 }}>
-                        Enable Feedback Form<span style={{ color: "#d93025",fontSize:"20px" }}>*</span><Tooltip 
+                        Enable Feedback Form<span style={{ color: "var(--color-error)",fontSize:"20px" }}>*</span><Tooltip 
                   title="Enable or disable the feedback collection form for chat interactions." 
                   arrow
                   placement="top"
@@ -1178,7 +1182,7 @@ const CreateProject = () => {
                   <Grid item xs={12} md={4}>
                     <Box sx={{ display: 'flex',flexDirection:"column" }}>
                       <Typography variant="body2" sx={{ minWidth: '50px', mr: 1, fontWeight: "bold" }}>
-                        Models<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                        Models<span style={{ color: "var(--color-error)" ,fontSize:"20px"}}>*</span>:<Tooltip 
                   title="Select the language models to be used in the chat interactions." 
                   arrow
                   placement="top"
@@ -1299,7 +1303,7 @@ const CreateProject = () => {
                       <Box sx={{ display: 'flex',flexDirection:"column" }}>
                       <Typography variant="body2" sx={{ mr: 1, fontWeight: "bold" }}>
                           No of models to Activate:
-                          <span style={{ color: "#d93025" }}>*</span> :
+                          <span style={{ color: "var(--color-error)" }}>*</span> :
                           <Tooltip 
                   title="Number of models to Activate for Multi-Model Chat Support." 
                   arrow
@@ -1347,7 +1351,7 @@ const CreateProject = () => {
               >
                 <Typography>
                   Number of models to Activate for Multi-Model Chat Support:
-                  <span style={{ color: "#d93025" }}>*</span> :
+                  <span style={{ color: "var(--color-error)" }}>*</span> :
                 </Typography>
                 <FormControl fullWidth sx={{ marginTop: "10px" }}>
                   <Select
@@ -1380,7 +1384,7 @@ const CreateProject = () => {
                       <Grid item xs={12} md={8}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <Typography variant="body2" sx={{ minWidth: '180px', mr: 2, fontWeight: "bold" }}>
-                            Select sources to fetch data from <span style={{ color: "#d93025",fontSize:"20px" }}>*</span>:<Tooltip 
+                            Select sources to fetch data from <span style={{ color: "var(--color-error)",fontSize:"20px" }}>*</span>:<Tooltip 
                   title="Choose the data sources you want to include in your project. You can select multiple sources from the available options." 
                   arrow
                   placement="top"
@@ -1516,7 +1520,7 @@ const CreateProject = () => {
                     <Grid item xs={12} md={6} lg={3}>
                       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold", mr: 1 }}>
-                          Sampling Type<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span>:<Tooltip 
+                          Sampling Type<span style={{ color: "var(--color-error)" ,fontSize:"20px"}}>*</span>:<Tooltip 
                   title="Sampling Mode of the dataset for the project - Random, Batch or Full." 
                   arrow
                   placement="top"
@@ -1746,9 +1750,9 @@ const CreateProject = () => {
                       selectedType === "MultipleInteractionEvaluation" ||
                       selectedType === "MultipleLLMInstructionDrivenChat") && (
                         <Grid item xs={12}>
-                          <Box sx={{ p: 1, backgroundColor: 'grey.50', borderRadius: 1 }}>
+                          <Box sx={{ p: 1, backgroundColor: 'var(--surface-subtle)', borderRadius: 1 }}>
                             <Typography variant="body2" gutterBottom fontWeight="bold">
-                              Upload or Paste Evaluation JSON<span style={{ color: "#d93025" ,fontSize:"20px"}}>*</span><Tooltip 
+                              Upload or Paste Evaluation JSON<span style={{ color: "var(--color-error)" ,fontSize:"20px"}}>*</span><Tooltip 
                   title="Paste JSON data to configure the evaluation form" 
                   arrow
                   placement="top"

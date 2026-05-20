@@ -16,7 +16,10 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
-import tableTheme from "../../themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import Skeleton from "@mui/material/Skeleton";
 import { useRouter } from 'next/navigation'
 import RemoveWorkspaceManagerAPI from "@/app/actions/api/workspace/RemoveWorkspaceManagerAPI";
@@ -46,7 +49,8 @@ const MUIDataTable = dynamic(
 );
 
 const ManagersTable = (props) => {
-
+const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [displayWidth, setDisplayWidth] = useState(0);
@@ -184,7 +188,8 @@ const ManagersTable = (props) => {
           />
         </Link>
         <CustomButton
-          sx={{ borderRadius: 2, backgroundColor: "#cf5959" }}
+          sx={{ borderRadius: 2 }}
+          color="error"  
           label="Remove"
           onClick={() => { setElId(el.id); setElEmail(el.email); setConfirmationDialog(true); }}
         />

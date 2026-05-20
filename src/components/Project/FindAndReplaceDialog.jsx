@@ -20,7 +20,7 @@ import DialogTitle from "@mui/material/DialogTitle";
                 </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                  This will change<snap style={{ color: "#1DA3CE" }}> {find}</snap> to <snap style={{ color: "#1DA3CE" }}>{replace}</snap> in all <snap style={{ color: "#1DA3CE" }}> {Type === "annotation"
+                  This will change<snap style={{ color: "var(--link-btn-bg)" }}> {find}</snap> to <snap style={{ color: "var(--link-btn-bg)" }}>{replace}</snap> in all <snap style={{ color: "var(--link-btn-bg)" }}> {Type === "annotation"
                         ? selectedFilters.annotation_status
                         : selectedFilters.review_status} tasks </snap> in this project. Are you sure you want to proceed ?
                   </DialogContentText>

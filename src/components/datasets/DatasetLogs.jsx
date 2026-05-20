@@ -7,7 +7,10 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import TablePagination from "@mui/material/TablePagination";
 import Skeleton from "@mui/material/Skeleton";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -60,7 +63,8 @@ const MUIDataTable = dynamic(
 
 const DatasetLogs = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const { datasetId } = props;
   const dispatch = useDispatch();
   const [displayWidth, setDisplayWidth] = useState(0);

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
 import { ThemeProvider} from '@mui/material';
 import Card from "@mui/material/Card";
@@ -34,7 +33,7 @@ export default function ControlledRadioButtonsGroup() {
 }
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       <Grid container direction="row"  paddingTop={3}>
       <Card className={classes.workspaceCard}>
       <Typography variant="h2" gutterBottom component="div">
@@ -74,6 +73,6 @@ export default function ControlledRadioButtonsGroup() {
       </Grid>
       </Card>
       </Grid>
-    </ThemeProvider>
+    </>
   );
 }

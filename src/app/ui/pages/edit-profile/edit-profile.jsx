@@ -260,7 +260,7 @@ const MyProfile = () => {
               ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Gender</InputLabel>
+              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "var(--surface)", paddingLeft: "4px", paddingRight: "4px" }}>Gender</InputLabel>
               <Select
                 fullWidth
                 labelId="gender-label"
@@ -356,7 +356,7 @@ const MyProfile = () => {
             </Grid>
 
             {/* <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-            <InputLabel id="availability-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px"}}>Availability Status</InputLabel>
+            <InputLabel id="availability-label" style={{fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "var(--surface)", paddingLeft: "4px", paddingRight: "4px"}}>Availability Status</InputLabel>
               <Select
                 fullWidth
                 labelId="availability-label"
@@ -370,7 +370,7 @@ const MyProfile = () => {
               </Select>
             </Grid> */}
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Languages</InputLabel>
+              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "var(--surface)", paddingLeft: "4px", paddingRight: "4px" }}>Languages</InputLabel>
               <Select
                 multiple
                 fullWidth
@@ -412,7 +412,7 @@ const MyProfile = () => {
               ></OutlinedTextField>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "white", paddingLeft: "4px", paddingRight: "4px" }}>Participation Type</InputLabel>
+              <InputLabel id="lang-label" style={{ fontSize: "1.25rem", zIndex: "1", position: "absolute", display: "block", transform: "translate(14px, -9px) scale(0.75)", backgroundColor: "var(--surface)", paddingLeft: "4px", paddingRight: "4px" }}>Participation Type</InputLabel>
               <Select
                 fullWidth
                 labelId="lang-label"

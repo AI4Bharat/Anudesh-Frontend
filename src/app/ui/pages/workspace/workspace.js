@@ -1,7 +1,6 @@
 'use client';
 import { Box,ThemeProvider, Typography} from "@mui/material";
 import React, { useState, useEffect } from "react";
-import themeDefault from  "@/themes/theme";
 import  "@/styles/Dataset.css";
 import componentType from "@/config/PageType";
 import DetailsViewPage from "./DetailsViewPage";
@@ -66,7 +65,6 @@ export default function Workspace(props){
     
     
     return (
-        <ThemeProvider theme={themeDefault}>
              <DetailsViewPage 
                title={workspaceDtails && workspaceDtails.workspace_name}
                createdBy={workspaceDtails && workspaceDtails.created_by ?.username}
@@ -74,7 +72,6 @@ export default function Workspace(props){
                onArchiveWorkspace={()=>getWorkspaceDetails()}
 
             />
-        </ThemeProvider>
 
     )
 }

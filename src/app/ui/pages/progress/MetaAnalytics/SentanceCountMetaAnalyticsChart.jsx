@@ -92,7 +92,7 @@ export default function SentanceCountMetaAnalyticsChart(props) {
     <Box className={classes.modelChartSection}>
          <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
          {`Sentence Count Dashboard - ${analyticsData[0].projectType}`}
-          <Typography variant="body1">
+          <Typography variant="body1" >
             Count of Annotated and Reviewed Data
           </Typography>
         </Typography>

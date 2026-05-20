@@ -264,7 +264,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
               label="Enter Password"
             />
             {passwordErrors.map((error, index) => (
-                  <span key={index} style={{ color: "#d93025" ,fontSize:"13px"}}>*{error}</span>
+                  <span key={index} style={{ color: "var(--color-error)" ,fontSize:"13px"}}>*{error}</span>
                 ))}
           </FormControl>
           <FormControl sx={{ width: "100%", marginTop: "3%", marginLeft: "0" }} variant="outlined">
@@ -287,7 +287,7 @@ const AddWorkspaceDialog = ({ isOpen, dialogCloseHandler,orgId}) => {
               }
               label="Re-enter Password"
             />
-            {passwordEqual==true ? "" : <span style={{ color: "#d93025" }}>The passwords don't match</span>}
+            {passwordEqual==true ? "" : <span style={{ color: "var(--color-error)" }}>The passwords don't match</span>}
           </FormControl>
         </>
       )}

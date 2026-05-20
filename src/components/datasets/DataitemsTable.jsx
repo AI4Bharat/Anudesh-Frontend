@@ -11,7 +11,10 @@ import MenuItem from "@mui/material/MenuItem";
 import Skeleton from "@mui/material/Skeleton";
 import TablePagination from "@mui/material/TablePagination";
 import Select from "@mui/material/Select";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import DatasetStyle from "@/styles/dataset";
 import { snakeToTitleCase } from "@/utils/utils";
 import ColumnList from "../common/ColumnList";
@@ -132,9 +135,9 @@ const JSONViewer = ({ data, initiallyExpanded = false }) => {
           top: "2px",
           right: "2px",
           zIndex: 2,
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: "var(--surface)",
           "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            backgroundColor: "var(--surface-subtle)",
           },
         }}
       >
@@ -169,8 +172,7 @@ const JSONViewer = ({ data, initiallyExpanded = false }) => {
                 left: 0,
                 right: 0,
                 height: "40px",
-                background:
-                  "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9))",
+                background: `linear-gradient(transparent, var(--surface))`,
               },
         }}
       >
@@ -193,7 +195,8 @@ const JSONViewer = ({ data, initiallyExpanded = false }) => {
 
 const DataitemsTable = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
-
+const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const classes = DatasetStyle();
   const { datasetId } = useParams();
   const dispatch = useDispatch();
@@ -294,9 +297,9 @@ const DataitemsTable = () => {
                         minWidth: "250px",
                         maxWidth: "500px",
                         m: 1,
-                        border: "1px solid rgba(224, 224, 224, 1)",
+                        border: "1px solid var(--border-color)",
                         borderRadius: "4px",
-                        backgroundColor: "rgba(250, 250, 250, 0.9)",
+                        backgroundColor: "var(--surface-subtle)",
                       }}
                     >
                       <JSONViewer data={value} />

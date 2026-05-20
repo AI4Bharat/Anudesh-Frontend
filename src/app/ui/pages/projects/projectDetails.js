@@ -12,7 +12,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
 import React, { useEffect, useState } from "react";
-import themeDefault from "../../../../themes/theme";
+//import themeDefault from "../../../../themes/theme";
 import { Link, useNavigate, useParams, useHistory } from "react-router-dom";
 import TaskTable from "../../../../components/Project/TaskTable";
 import MembersTable from "../../../../components/Project/MembersTable";
@@ -342,7 +342,7 @@ const Projects = () => {
   };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {apiLoading ? (
         <Spinner />
       ) : (
@@ -449,7 +449,7 @@ const Projects = () => {
           </Card>
         </Grid>
       )}
-    </ThemeProvider>
+    </>
   );
 };
 

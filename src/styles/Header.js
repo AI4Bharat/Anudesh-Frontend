@@ -1,15 +1,9 @@
 import { makeStyles } from "@mui/styles";
 
-const headerStyle = makeStyles({
-  parentContainer: {
-    // no styles for now
-  },
-  AudioparentContainers: {
-    // no styles for now
-  },
-  appBar: {
-    // no styles for now
-  },
+const headerStyle = makeStyles((theme) => ({
+  parentContainer: {},
+  AudioparentContainers: {},
+  appBar: {},
   toolbar: {
     width: "80%",
     height: "64px !important",
@@ -36,12 +30,12 @@ const headerStyle = makeStyles({
     borderRadius: "50%",
   },
   headerTitle: {
-    color: "#373939",
+    color: theme.palette.mode === "dark" ? "#ffffff" : "#373939",
     display: "inline-block",
     letterSpacing: "1px",
     fontSize: "28px",
     fontWeight: "bold",
-    fontDisplay: "swap", 
+    fontDisplay: "swap",
     fontFamily: 'Rowdies,"cursive", Roboto, sans-serif',
     "@media (min-width: 900px) and (max-width: 1400px)": {
       fontSize: "24px !important",
@@ -51,8 +45,8 @@ const headerStyle = makeStyles({
     textDecoration: "none",
     borderRadius: "inherit",
     backgroundColor: "transparent",
-    padding: "18px ",
-    color: "black",
+    padding: "18px",
+    color: theme.palette.mode === "dark" ? "#ffffff" : "black",
     boxShadow: "none",
     fontSize: "18px",
     fontFamily: "Roboto, sans-serif",
@@ -60,7 +54,7 @@ const headerStyle = makeStyles({
     letterSpacing: "0.5px",
     borderRadius: 12,
     "&:hover": {
-      backgroundColor: "#E0E0E0",
+      backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
       boxShadow: "none",
     },
     "@media (min-width: 900px) and (max-width: 1400px)": {
@@ -69,11 +63,11 @@ const headerStyle = makeStyles({
     },
   },
   highlightedMenu: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
     textDecoration: "none",
     borderRadius: "inherit",
-    padding: "18px ",
-    color: "black",
+    padding: "18px",
+    color: theme.palette.mode === "dark" ? "#ffffff" : "black",
     boxShadow: "none",
     fontSize: "18px",
     fontFamily: "Roboto, sans-serif",
@@ -81,7 +75,7 @@ const headerStyle = makeStyles({
     borderRadius: 12,
     letterSpacing: "0.5px",
     "&:hover": {
-      backgroundColor: "#E0E0E0",
+      backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
       boxShadow: "none",
     },
     "@media (min-width: 900px) and (max-width: 1400px)": {
@@ -100,6 +94,6 @@ const headerStyle = makeStyles({
       height: "26px",
     },
   },
-});
+}));
 
 export default headerStyle;

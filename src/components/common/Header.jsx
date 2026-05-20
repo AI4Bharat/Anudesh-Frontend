@@ -32,6 +32,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import NotificationPatchAPI from "@/app/actions/api/Notification/NotificationPatchApi";
 import APITransport from "@/app/actions/apitransport/apitransport";
 import NMTModalContent from "./NMTModalContent";
+import ThemeToggleButton from "./ThemeToggleButton";
 import anudesh_Logo from "../../assets/logo.jpeg"
 
 const Header = () => {
@@ -761,6 +762,10 @@ useEffect(() => {
         />
       ),
     },
+    {
+        name: "Dark Mode",
+        control: <ThemeToggleButton />,
+      },
   ];
   const helpMenu = [
     {
@@ -932,13 +937,17 @@ useEffect(() => {
                      <IconButton onClick={handleOpenNotification}>
                         <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="primary">
                           <NotificationsIcon
-                            color="primary.dark"
+                            sx={{ color: theme.palette.mode === "dark" ? "#ffffff" : "inherit" }}
                             fontSize="large"
                           />
                         </Badge>
                       </IconButton>
                     </Tooltip>
                   </Grid>
+                  <Grid item sx={{ display: "flex", alignItems: "center" }}>
+                  <ThemeToggleButton />
+                </Grid>
+
                   <Grid
                     item
                     sx={{
@@ -955,7 +964,7 @@ useEffect(() => {
                     >
                       <IconButton onClick={handleInfo}>
                         <InfoOutlinedIcon
-                          color="primary.dark"
+                          sx={{  color: theme.palette.mode === "dark" ? "#ffffff" : "inherit" }}
                           fontSize="36px"
                         />
                       </IconButton>
@@ -977,7 +986,7 @@ useEffect(() => {
                     >
                       <IconButton onClick={handleOpenSettingsMenu}>
                         <SettingsOutlinedIcon
-                          color="primary.dark"
+                          sx={{ color: theme.palette.mode === "dark" ? "#ffffff" : "inherit" }}
                           fontSize="36px"
                         />
                       </IconButton>
@@ -1008,7 +1017,7 @@ useEffect(() => {
                         </Avatar>
                         <Typography
                           variant="body1"
-                          color="black"
+                          color="text.primary"
                           sx={{
                             ml: 1,
                             fontSize: "1rem",
@@ -1295,7 +1304,7 @@ useEffect(() => {
                           </div>
                           <Link
                             style={{
-                              color: "rgba(0, 0, 0, 0.87)",
+                              color: "var(--text-primary)",
                               display: "flex",
                               flexDirection: "column",
                               width: "100%",

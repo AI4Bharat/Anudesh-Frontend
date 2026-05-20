@@ -245,9 +245,9 @@ function MobileNavbar(props) {
                   gap: 2,
                   p: 3,
                   pb: 3,
-                  backgroundColor: "#FEE0B3",
+                  backgroundColor: "var(--profile-header-bg)",
                   borderBottom: "1px solid",
-                  borderColor: "#FEE0B3",
+                  borderColor: "var(--profile-header-bg)",
                 }}
               >
                 <Avatar
@@ -549,7 +549,7 @@ function MobileNavbar(props) {
         position="fixed"
         elevation={1}
         sx={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--surface)",
           padding: "8px 0",
           transition: "all 0.3s ease",
           width: "100%", // Ensure it doesn't overflow
@@ -589,7 +589,7 @@ function MobileNavbar(props) {
                 fontSize: "28px",
                 fontWeight: "bold",
                 fontFamily: 'Rowdies,"Roboto,sans-serif',
-                color: "#000000",
+                color: "var(--text-primary)",
                 transition: "color 0.3s ease",
                 "&:hover": {
                   color: theme.palette.primary.main,
@@ -754,9 +754,9 @@ function MobileNavbar(props) {
                       p: 2,
                       mb: 1,
                       borderRadius: "8px",
-                      backgroundColor: "#FFFDE6",
+                     backgroundColor: "var(--notification-unread)",
                       border: "1px solid",
-                      borderColor: "#FEE0B3",
+                     borderColor: "var(--profile-header-bg)",
                       position: "relative",
                       cursor: "pointer"
                     }}

@@ -16,7 +16,7 @@ const CustomCard = ({ title, children, cardContent, cardContentTwo }) => {
     >
       <Card
         elevation={3}
-        style={{ border: "none", boxShadow: "none", width: "100%" }}
+        style={{ border: "none", boxShadow: "none", width: "100%",backgroundColor: "var(--surface)", }}
       >
         <CardContent>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -55,6 +55,7 @@ const CustomCard = ({ title, children, cardContent, cardContentTwo }) => {
           boxShadow: "none",
           border: "none",
           padding: "0rem 1rem 0rem 1rem",
+          backgroundColor: "var(--surface)",
         }}
       >
         <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>

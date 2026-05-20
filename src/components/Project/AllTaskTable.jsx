@@ -211,7 +211,7 @@ const AllTaskTable = (props) => {
                 }}
                 sx={{ p: 1, borderRadius: 2 }}
                 label={
-                  <Typography sx={{ color: "#FFFFFF" }} variant="body2">
+                  <Typography sx={{ color: "primary.contrastText" }} variant="body2">
                     View
                   </Typography>
                 }

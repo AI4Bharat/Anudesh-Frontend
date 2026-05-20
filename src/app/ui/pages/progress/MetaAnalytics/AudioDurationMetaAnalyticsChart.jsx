@@ -150,7 +150,7 @@ export default function AudioDurationChart(props) {
         className={classes.heading}
       >
        {`Audio Duration Dashboard - ${analyticsData[0].projectType}`}
-        <Typography variant="body1">
+        <Typography variant="body1" >
           Count of Annotated and Reviewed Audio Type
         </Typography>
       </Typography>

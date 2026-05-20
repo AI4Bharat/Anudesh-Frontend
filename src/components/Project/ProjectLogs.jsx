@@ -18,7 +18,10 @@ import { useParams } from "react-router-dom";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { snakeToTitleCase } from "@/utils/utils";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import Spinner from "@/components/common/Spinner";
 import GetProjectLogsAPI from "@/app/actions/api/Projects/getProjectLogsAPI";
 import { styled } from "@mui/material/styles";
@@ -62,6 +65,8 @@ const MUIDataTable = dynamic(
 
 const ProjectLogs = () => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const { id } = useParams();
   const [taskName, setTaskName] = useState(
     "projects.tasks.export_project_in_place",

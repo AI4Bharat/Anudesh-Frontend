@@ -5,7 +5,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useSelector, useDispatch } from "react-redux";
-import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
 import PeriodicalTasks from "@/app/actions/api/Progress/PeriodicalTasks";
 import CumulativeTasksAPI from "@/app/actions/api/Progress/CumulativeTasks";
@@ -814,7 +813,7 @@ function ProgressList() {
   }
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {/* {loading && <Spinner />} */}
       <Card
         sx={{
@@ -1185,7 +1184,7 @@ function ProgressList() {
 
         </Box>
       </Card>
-    </ThemeProvider>
+    </>
   )
 }
 export default ProgressList;

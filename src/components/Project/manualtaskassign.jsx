@@ -62,9 +62,7 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
                   inlineSize: "max-content",
                   borderRadius: 3,
                   width: "100%",              
-              '&:hover': {
-                backgroundColor: '#ee6633',
-              },
+              
             }}
             
           >
@@ -124,7 +122,7 @@ const AllocateTasksDialog = ({ userRole, loggedInUserData, ProjectDetails }) => 
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: '#ee6633', color: '#fff' }}>
+          <Button onClick={handleSubmit} variant="contained" color="primary">
             Allocate
           </Button>
         </DialogActions>

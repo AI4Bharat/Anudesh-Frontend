@@ -460,7 +460,7 @@ const AllTaskPage = () => {
                 fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
                 minWidth: { xs: "90px", sm: "90px", md: "100px" },
               }}
-                              style={{ backgroundColor: "#bf360c" }}
+                              style={{ backgroundColor: "var(--brand-primary-dark)" }}
 
             >
                               Notes {reviewtext.trim().length === 0 ? "" : "*"}
@@ -542,7 +542,7 @@ const AllTaskPage = () => {
                     pl: 1,
                     pr: 1,
                     borderBottom: "None",
-                    backgroundColor: "white",
+                    backgroundColor: "var(--surface)",
                   }}
                 >
                   <InfoOutlined sx={{ mb: "-3px", ml: "2px", color: "grey" }} />
@@ -550,7 +550,7 @@ const AllTaskPage = () => {
               </LightTooltip>
             </Grid>
             {/* <Grid item>
-              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"white",padding:"5px",borderRadius:"4px",mb:"10px"}}>
+              <Typography sx={{mt: 2, ml: 4, color: "grey",backgroundColor:"var(--surface)",padding:"5px",borderRadius:"4px",mb:"10px"}}>
                *{ProjectDetails.project_type} # {taskId} 
        
             </Typography>
@@ -581,7 +581,7 @@ const AllTaskPage = () => {
                         border:"0px",
                         pt: 2,
                         pb: 2,
-                        backgroundColor:"#ffe0b2"
+                        backgroundColor:"var(--card-badge)"
                       }}
                     // className="lsf-button"
                     >
@@ -600,11 +600,11 @@ const AllTaskPage = () => {
                   sx={{
                                           minWidth: { xs: "60px", sm: "80px", md: "100px" },
 
-                    color: "black",
+                    color: "var(--text-primary)",
                     borderRadius: "5px",
                     pt: 2,
                     pb: 2,
-                    backgroundColor: "#ffe0b2",
+                    backgroundColor: "var(--card-badge)",
                   }}
                 >
                   Next
@@ -630,7 +630,7 @@ const AllTaskPage = () => {
                         border:"0px",
                         pt: 2,
                         pb: 2,
-                        backgroundColor:"#ffe0b2"
+                        backgroundColor:"var(--card-badge)"
                       }}
                     // className="lsf-button"
                     >

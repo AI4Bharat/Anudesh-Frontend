@@ -94,6 +94,7 @@ export default function SingleSpeakerAudioTranscriptionEditing(props) {
         variant="h2"
         style={{ marginBottom: "35px" }}
         className={classes.heading}
+        
       >
        Audio Duration Dashboard - Audio Transcription Editing
         <Typography variant="body1">

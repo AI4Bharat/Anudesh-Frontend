@@ -225,7 +225,7 @@ export default function DatasetSettings() {
                       justifyContent="center"
                       alignItems="center"
                       sx={{
-                        backgroundColor: "#f5f5f5",
+                        backgroundColor: "var(--surface-subtle)",
                         padding: "1rem",
                         marginBottom: 2,
                       }}

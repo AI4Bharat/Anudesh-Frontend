@@ -274,6 +274,8 @@ const ProjectTable = (props) => {
             xs: "10px",
             md: "20px"
           },
+          backgroundColor: "var(--surface)",
+          borderTop: "1px solid var(--divider)",
         }}
       >
 

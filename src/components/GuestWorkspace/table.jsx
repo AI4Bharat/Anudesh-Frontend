@@ -24,7 +24,10 @@ import Box from '@mui/material/Box';
 import TablePagination from '@mui/material/TablePagination';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import tableTheme from "../../themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
 import { store } from "@/Lib/Store";
@@ -58,6 +61,8 @@ const MUIDataTable = dynamic(
 
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
