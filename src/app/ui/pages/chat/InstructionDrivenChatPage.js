@@ -1117,18 +1117,18 @@ return (
         }}
       >
         <Box
-          sx={{
-               flex: 1,
-            overflowY: "auto",
-            padding: "1rem",
-            paddingBottom:"0rem!important",
-            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundColor: "var(--surface)",
-            width: "100%",
-            minHeight: 0,
-          }}
+sx={{
+  flex: 1,
+  overflowY: "auto",
+  padding: "1rem",
+  paddingBottom: "0rem!important",
+  backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundColor: "var(--surface)",
+  width: "100%",
+  minHeight: 0,
+}}
         >
      <Box sx={{ 
             display: "flex", 

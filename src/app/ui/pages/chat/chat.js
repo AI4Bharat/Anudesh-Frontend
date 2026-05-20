@@ -465,11 +465,7 @@ const Chat = () => {
               alignItems: "center",
               width: "100% !important",
               padding: "1rem 0 4rem",
-              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              backgroundAttachment: "fixed",
+              background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
               minHeight: "58vh",
             }}
           >

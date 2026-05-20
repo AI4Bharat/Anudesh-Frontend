@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useDispatch, useSelector } from "react-redux";
 import {  useParams } from 'react-router-dom';
@@ -189,19 +190,23 @@ function DownloadProjectButton(props) {
   return (
     <div>
       {renderSnackBar()}
-      <Button
-        sx={{ inlineSize: "max-content", borderRadius: 3, width: "100%" }}
-        id="demo-customized-button"
-        // aria-controls={open ? 'demo-customized-menu' : undefined}
-        // aria-haspopup="true"
-        // aria-expanded={open ? 'true' : undefined}
-        variant="contained"
-        disabled= {taskStatus.length > 0 && userRole.WorkspaceManager !== loggedInUserData?.role? false: true } 
-        onClick={handleClick}
-        endIcon={<KeyboardArrowDownIcon />}
-      >
-        Download Project
-      </Button>
+      <Tooltip title={taskStatus.length > 0 && userRole.WorkspaceManager !== loggedInUserData?.role ? "Download project tasks in your preferred format" : "Select at least one task status to enable download"}>
+        <span>
+          <Button
+            sx={{ inlineSize: "max-content", borderRadius: 3, width: "100%" }}
+            id="demo-customized-button"
+            // aria-controls={open ? 'demo-customized-menu' : undefined}
+            // aria-haspopup="true"
+            // aria-expanded={open ? 'true' : undefined}
+            variant="contained"
+            disabled= {taskStatus.length > 0 && userRole.WorkspaceManager !== loggedInUserData?.role? false: true } 
+            onClick={handleClick}
+            endIcon={<KeyboardArrowDownIcon />}
+          >
+            Download Project
+          </Button>
+        </span>
+      </Tooltip>
       <StyledMenu
         sytle={{ width: "20px" }}
         id="demo-customized-menu"
@@ -213,15 +218,21 @@ function DownloadProjectButton(props) {
         onClose={handleClose}
 
       >
-        <MenuItem onClick={handleDownloadCSVProject}>
-          CSV
-        </MenuItem>
-        <MenuItem onClick={handleDownloadTSVProject}>
-          TSV
-        </MenuItem>
-        <MenuItem onClick={handleDownloadJSONProject} >
-          JSON
-        </MenuItem>
+        <Tooltip title="Download project data as a CSV file">
+          <MenuItem onClick={handleDownloadCSVProject}>
+            CSV
+          </MenuItem>
+        </Tooltip>
+        <Tooltip title="Download project data as a TSV file">
+          <MenuItem onClick={handleDownloadTSVProject}>
+            TSV
+          </MenuItem>
+        </Tooltip>
+        <Tooltip title="Download project data as a JSON file">
+          <MenuItem onClick={handleDownloadJSONProject} >
+            JSON
+          </MenuItem>
+        </Tooltip>
       </StyledMenu>
     </div>
   );
