@@ -325,294 +325,167 @@ export default function PerformanceAnalytics() {
 
 
 
+  /* ── Premium style tokens ── */
+  const sxCard = {
+    background: '#fff', borderRadius: '14px', border: '1px solid #e5e7eb',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.04)', p: { xs: 2, sm: 3 }, mb: 3,
+  };
+  const sxSel = {
+    borderRadius: '10px', fontSize: '0.875rem',
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#cbd5e1' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#f97316', borderWidth: '1.5px' },
+  };
+  const sxLbl = { fontSize: '0.8125rem', fontWeight: 500, color: '#4b5563', zIndex: 0 };
+
   return (
     <>
-      <Grid container direction="row" spacing={0} sx={{ mb: 1, ml: 1 }}>
-        <Grid item xs={12} sm={12} md={3} lg={2} xl={2}>
-          <Typography
-            gutterBottom
-            component="div"
-            sx={{ marginTop: "10px", fontSize: "16px" }}
-          >
-            Select Report Type :
-          </Typography>
-        </Grid>
-        <Grid item xs={12} sm={12} md={10} lg={10} xl={10}>
-          <FormControl>
-            <RadioGroup
-              row
-              aria-labelledby="demo-row-radio-buttons-group-label"
-              name="row-radio-buttons-group"
-              sx={{ marginTop: "5px" }}
-              value={radiobutton}
-              onChange={handleChangeReports}
-            >
-              <FormControlLabel
-                value="Annotation"
-                control={<Radio />}
-                label="Annotation"
-              />
-              <FormControlLabel
-                value="Review"
-                control={<Radio />}
-                label="Review"
-              />
-              <FormControlLabel
-                value="Supercheck"
-                control={<Radio />}
-                label="Supercheck"
-              />
-            </RadioGroup>
-          </FormControl>
+      <Box sx={sxCard}>
+        {/* Report Type */}
+        <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+          <Grid item xs={12} sm={12} md={2}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#1a1a2e' }}>
+              Report Type
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={12} md={10}>
+            <FormControl>
+              <RadioGroup row value={radiobutton} onChange={handleChangeReports}>
+                {['Annotation', 'Review', 'Supercheck'].map((val) => (
+                  <FormControlLabel key={val} value={val} label={val}
+                    control={<Radio sx={{ color: '#cbd5e1', '&.Mui-checked': { color: '#f97316' } }} />}
+                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.8125rem', color: '#4b5563' } }}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </Grid>
         </Grid>
 
-        <Grid container mb={4}>
-          <Grid
-            item
-            xs={12}
-            sm={12}
-            md={3}
-            lg={3}
-            xl={3}
-            sx={{ display: "flex", mt: 1 }}
-          >
-            <Typography
-              gutterBottom
-              component="div"
-              sx={{ fontSize: "16px", mt: 1 }}
-            >
+        {/* Meta-info */}
+        <Grid container sx={{ mb: 2.5 }}>
+          <Grid item xs={12} sm={6} sx={{ display: "flex", alignItems: 'center' }}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: '#4b5563' }}>
               Meta-info based stats:
             </Typography>
             <Checkbox
+              sx={{ ml: 1, color: '#cbd5e1', '&.Mui-checked': { color: '#f97316' } }}
               onChange={(e) => setMetaInfo(e.target.checked)}
               checked={metaInfo}
             />
           </Grid>
-          {/* <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", zIndex: 0 }}>
-                    Base period {""}
-                  </InputLabel>
-                  <Select
-                    labelId="project-type-label"
-                    id="project-type-select"
-                    label="Base period"
-                    value={baseperiod}
-                    onChange={handleProgressType}
-                  >
-                    {ProgressType.map((item, index) => (
-                        <MenuItem key={index} value={item.ProgressTypename} sx={{ textTransform: "capitalize"}}>{item.ProgressTypename}</MenuItem>  
-                    ))}
-                  </Select>
-                </FormControl>
-          </Grid> */}
         </Grid>
 
-        <Grid container columnSpacing={3} rowSpacing={2} mb={1}>
-          <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+        {/* Dropdowns Row */}
+        <Grid container columnSpacing={2.5} rowSpacing={2} sx={{ mb: 2 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel id="language-label" sx={{ fontSize: "19px", zIndex: 0 }}>
-                Target Language
-              </InputLabel>
-              <Select
-                labelId="language-label"
-                id="language-select"
-                value={language}
-                label="Target Language"
-                onChange={(e) => setLanguage(e.target.value)}
-                MenuProps={MenuProps}
-              >
-                {/* <MenuItem value={"all"}>All languages</MenuItem> */}
+              <InputLabel id="perf-language-label" sx={sxLbl}>Target Language</InputLabel>
+              <Select labelId="perf-language-label" value={language} label="Target Language"
+                onChange={(e) => setLanguage(e.target.value)} MenuProps={MenuProps} sx={sxSel}>
                 {LanguageChoices?.language?.map((lang) => (
-                  <MenuItem value={lang} key={lang}>
-                    {lang}
-                  </MenuItem>
+                  <MenuItem value={lang} key={lang} sx={{ fontSize: '0.8125rem' }}>{lang}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "19px", zIndex: 0 }}>
-                  Plot Range {""}
-                  </InputLabel>
-                  <Select
-                    labelId="project-type-label"
-                    id="project-type-select"
-                    label="Plot Range"
-                    value={baseperiod}
-                    onChange={handleProgressType}
-                    sx={{ textTransform: "capitalize"}}
-                  >
-                    {ProgressType.map((item, index) => (
-                        <MenuItem key={index} value={item.ProgressTypename} sx={{ textTransform: "capitalize"}}>{item.ProgressTypename}</MenuItem>  
-                    ))}
-                  </Select>
-                </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ fontSize: "19px", zIndex: 0 }}
-              >
-                Project Type {""}
-                {/* {
-                    <LightTooltip
-                        arrow
-                        placement="top"
-                        title={translate("tooltip.ProjectType")}>
-                        <InfoIcon
-                        fontSize="medium"
-                        />
-                    </LightTooltip>
-                    } */}
-              </InputLabel>
-
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={selectedType}
-                label="Project Type"
-                sx={{ padding: "1px" }}
-                onChange={(e) => setSelectedType(e.target.value)}
-                MenuProps={MenuProps}
-              >
-                {projectTypes.map((type, index) => (
-                  <MenuItem value={type} key={index}>
-                    {type}
-                  </MenuItem>
+              <InputLabel id="perf-plot-range" sx={sxLbl}>Plot Range</InputLabel>
+              <Select labelId="perf-plot-range" label="Plot Range" value={baseperiod}
+                onChange={handleProgressType} sx={{ ...sxSel, textTransform: 'capitalize' }}>
+                {ProgressType.map((item, index) => (
+                  <MenuItem key={index} value={item.ProgressTypename}
+                    sx={{ textTransform: "capitalize", fontSize: '0.8125rem' }}>{item.ProgressTypename}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
-        <div style={{display: "flex"}}>
-          <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
-            <div>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="perf-project-type" sx={sxLbl}>Project Type</InputLabel>
+              <Select labelId="perf-project-type" value={selectedType} label="Project Type"
+                sx={sxSel} onChange={(e) => setSelectedType(e.target.value)} MenuProps={MenuProps}>
+                {projectTypes.map((type, index) => (
+                  <MenuItem value={type} key={index} sx={{ fontSize: '0.8125rem' }}>{type}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs="auto" sx={{ display: 'flex', alignItems: 'center' }}>
             <Button
               endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
               variant="contained"
-              color="primary"
               onClick={handleCloseDatepicker}
               sx={{
-                backgroundColor: "rgba(243, 156, 18)",
-                "&:hover": { backgroundColor: "rgba(243, 156, 18 )" },
-                marginLeft: "20px",
-                marginTop: "18px",
-                width: "150px",
-                flexShrink: 0,
+                borderRadius: '10px', textTransform: 'none', fontWeight: 600,
+                fontSize: '0.8125rem', px: 2.5, height: '40px',
+                backgroundColor: '#f97316', boxShadow: 'none',
+                '&:hover': { backgroundColor: '#ea580c', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' },
               }}
             >
               Pick Dates
             </Button>
-            </div>
           </Grid>
-          </div>
-          {/* <Grid item xs={12} sm={12} md={1} lg={1} xl={1}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleSubmit}
-              sx={{ width: "130px" }}
-            >
-              Submit
-            </Button>
-          </Grid> */}
         </Grid>
-        <Grid container mt={4}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={handleSubmit}
-              sx={{ width: "130px" }}
-            >
-              Submit
-            </Button>
-          </Grid>
+
+        {/* Submit */}
+        <Box sx={{ mt: 1 }}>
+          <Button fullWidth={false} variant="contained" onClick={handleSubmit} sx={{
+            borderRadius: '10px', textTransform: 'none', fontWeight: 600,
+            fontSize: '0.8125rem', px: 3, height: '40px', boxShadow: 'none',
+            '&:hover': { boxShadow: '0 2px 8px rgba(249,115,22,0.25)' },
+          }}>
+            Submit
+          </Button>
+        </Box>
+
+        {/* Date Picker */}
         {showPicker && (
-          <Box
-            sx={{
-              mt: 2,
-              mb: 2,
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
-            }}
-            ref={ref}
-          >
-            <Card sx={{ overflowX: "scroll" }}>
+          <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
+            <Card sx={{ overflowX: "scroll", borderRadius: '12px !important', border: '1px solid #e2e8f0 !important' }}>
               <DateRangePicker
-                // ranges={[selectionRange]}
-                // onChange={handleSelect}
                 onChange={(item) => setBaseperiodDatepicker([item.selection])}
-                showSelectionPreview={true}
-                moveRangeOnFirstSelection={false}
-                showMonthAndYearPickers={true}
-                months={2}
-                ranges={baseperiodDatepicker}
-                direction="horizontal"
-                preventSnapRefocus={true}
-                weekStartsOn={1}
-                inputRanges={[]}
+                showSelectionPreview={true} moveRangeOnFirstSelection={false}
+                showMonthAndYearPickers={true} months={2} ranges={baseperiodDatepicker}
+                direction="horizontal" preventSnapRefocus={true}
+                weekStartsOn={1} inputRanges={[]}
                 staticRanges={[
                   ...modifiedStaticRanges,
-                  {
-                    label: "This Year",
-                    range: () => ({
-                      startDate: new Date(
-                        Date.parse(currentYear, "yyyy-MM-ddTHH:mm:ss.SSSZ")
-                      ),
-                      endDate: new Date(),
-                    }),
-                    isSelected(range) {
-                      const definedRange = this.range();
-                      return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                      );
-                    },
-                  },
-                  {
-                    label: "Last Year",
-                    range: () => ({
-                      startDate: new Date(
-                        Date.parse(currentYear - 1, "yyyy-MM-ddTHH:mm:ss.SSSZ")
-                      ),
-                      endDate: new Date(
-                        Date.parse(currentYear, "yyyy-MM-ddTHH:mm:ss.SSSZ")
-                      ),
-                    }),
-                    isSelected(range) {
-                      const definedRange = this.range();
-                      return (
-                        isSameDay(range.startDate, definedRange.startDate) &&
-                        isSameDay(range.endDate, definedRange.endDate)
-                      );
-                    },
-                  },
-                ].filter((staticRange)=>staticRange.label!=="Today" && staticRange.label!=="Yesterday")}
+                  { label: "This Year", range: () => ({ startDate: new Date(Date.parse(currentYear, "yyyy-MM-ddTHH:mm:ss.SSSZ")), endDate: new Date() }),
+                    isSelected(range) { const d = this.range(); return isSameDay(range.startDate, d.startDate) && isSameDay(range.endDate, d.endDate); } },
+                  { label: "Last Year", range: () => ({ startDate: new Date(Date.parse(currentYear - 1, "yyyy-MM-ddTHH:mm:ss.SSSZ")), endDate: new Date(Date.parse(currentYear, "yyyy-MM-ddTHH:mm:ss.SSSZ")) }),
+                    isSelected(range) { const d = this.range(); return isSameDay(range.startDate, d.startDate) && isSameDay(range.endDate, d.endDate); } },
+                ].filter((s) => s.label !== "Today" && s.label !== "Yesterday")}
               />
             </Card>
           </Box>
         )}
-        {/* </Grid> */}
-      </Grid>
-      {loading && <Box sx={{ display: 'flex',justifyContent: "center",width: "100%" }}><CircularProgress /></Box>}
-      {performanceAnalyticsTasksData?.length && !loading?<Line data={chartData} options={options} />:<div></div> }
+      </Box>
+
+      {/* Chart */}
+      {loading && <Box sx={{ display: 'flex', justifyContent: "center", width: "100%", py: 4 }}><CircularProgress sx={{ color: '#f97316' }} /></Box>}
+      {performanceAnalyticsTasksData?.length && !loading ? (
+        <Box sx={{
+          background: '#fff', borderRadius: '14px', border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)', p: { xs: 2, sm: 3 },
+        }}>
+          <Line data={chartData} options={options} />
+        </Box>
+      ) : <div></div>}
 
       <CustomizedSnackbars
         message={snackbarMessage}
         open={snackbarOpen}
         hide={2000}
         handleClose={closeSnackbar}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         variant="error"
       />
     </>
   );
 }
+

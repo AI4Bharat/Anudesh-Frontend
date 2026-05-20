@@ -108,64 +108,85 @@ function TaskCountAnalyticsChart(props) {
   return (
     <>
       <Box className={classes.modelChartSection}>
+        {/* Section Title */}
         <Typography 
-          variant="h2" 
-          style={{ marginBottom: "35px", fontSize: getResponsiveFontSize(32), padding: "10px" }} 
-          className={classes.heading}
+          variant="h6" 
+          sx={{
+            mb: 2,
+            fontSize: getResponsiveFontSize(18),
+            fontWeight: 600,
+            color: '#1a1a2e',
+            letterSpacing: '-0.01em',
+          }}
         >
-          {`Tasks Dashboard - ${analyticsData[0]?.projectType}`}
-          <Typography variant="body1" style={{ fontSize: getResponsiveFontSize(16), padding: "5px" }}>
-            Count of Annotated and Reviewed Data
+          {`Tasks — ${analyticsData[0]?.projectType}`}
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              fontSize: getResponsiveFontSize(13), 
+              color: '#6b7280',
+              fontWeight: 400,
+              mt: 0.25,
+            }}
+          >
+            Annotated vs Reviewed task counts by language
           </Typography>
         </Typography>
-        <Paper>
+
+        {/* Chart Card */}
+        <Paper sx={{
+          borderRadius: '14px',
+          border: '1px solid #e5e7eb',
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04) !important',
+        }}>
+          {/* Stat Bar */}
           <Box className={classes.topBar}>
             <Box className={classes.topBarInnerBox}>
-              <Typography
-                style={{
-                  fontSize: getResponsiveFontSize(16),
-                  fontWeight: "600",
-                  padding: "5px",
-                }}
-              >
-                Tasks Dashboard
+              <Typography sx={{ fontSize: getResponsiveFontSize(11), fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Dashboard
+              </Typography>
+              <Typography sx={{ fontSize: getResponsiveFontSize(13), fontWeight: 600, color: '#1a1a2e' }}>
+                Tasks
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
-                Total Annotated Tasks
+              <Typography sx={{ fontSize: getResponsiveFontSize(11), fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Annotated
               </Typography>
-              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }}>
+              <Typography sx={{ fontSize: getResponsiveFontSize(16), fontWeight: 700, color: '#1a1a2e' }}>
                 {totalAnnotationTasksCount &&
                   new Intl.NumberFormat("en").format(totalAnnotationTasksCount)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
-                Pending Review Tasks
+              <Typography sx={{ fontSize: getResponsiveFontSize(11), fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Pending Review
               </Typography>
-              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "500", padding: "5px" }}>
+              <Typography sx={{ fontSize: getResponsiveFontSize(16), fontWeight: 700, color: '#ea580c' }}>
                 {difftotal &&
                   new Intl.NumberFormat("en").format(difftotal)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: getResponsiveFontSize(14), fontWeight: "500", padding: "5px" }}>
-                Review Completed Tasks
+              <Typography sx={{ fontSize: getResponsiveFontSize(11), fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Review Done
               </Typography>
-              <Typography style={{ fontSize: getResponsiveFontSize(18), fontWeight: "400", padding: "5px" }}>
+              <Typography sx={{ fontSize: getResponsiveFontSize(16), fontWeight: 700, color: '#16a34a' }}>
                 {totalReviewTasksCount &&
                   new Intl.NumberFormat("en").format(totalReviewTasksCount)}
               </Typography>
             </Box>
           </Box>
-          <Grid>
+
+          {/* Chart */}
+          <Grid sx={{ p: { xs: 1, sm: 2 } }}>
           <ResponsiveChartContainer>
             <BarChart
               width={1100}
               height={600}
               data={data}
-              fontSize="14px"
+              fontSize="13px"
               fontFamily="Roboto"
               margin={{
                 top: 20,
@@ -183,13 +204,14 @@ function TaskCountAnalyticsChart(props) {
                 position="insideLeft"
                 type="category"
                 angle={-30}
+                tick={{ fontSize: getResponsiveFontSize(12), fill: '#6b7280' }}
               >
                 <Label
                   value="Language"
                   position="insideBottom"
-                  fontWeight="bold"
-                  fontSize={getResponsiveFontSize(16)}
-                  padding="5px"
+                  fontWeight="600"
+                  fontSize={getResponsiveFontSize(13)}
+                  fill="#4b5563"
                 ></Label>
               </XAxis>
               <YAxis
@@ -197,6 +219,7 @@ function TaskCountAnalyticsChart(props) {
                 allowDecimals={false}
                 type="number"
                 dx={0}
+                tick={{ fontSize: getResponsiveFontSize(12), fill: '#6b7280' }}
                 tickFormatter={(value) =>
                   new Intl.NumberFormat("en", { notation: "compact" }).format(
                     value
@@ -204,29 +227,32 @@ function TaskCountAnalyticsChart(props) {
                 }
               >
                 <Label
-                  value="# of Completed Tasks"
+                  value="# Completed Tasks"
                   angle={-90}
                   position="insideLeft"
-                  fontWeight="bold"
-                  fontSize={getResponsiveFontSize(16)}
+                  fontWeight="600"
+                  fontSize={getResponsiveFontSize(13)}
+                  fill="#4b5563"
                   offset={-15}
-                  padding="5px"
                 ></Label>
               </YAxis>
-              {/* <Label value="Count" position="insideLeft" offset={15} /> */}
               <Tooltip
-                contentStyle={{ fontFamily: "Roboto", fontSize: "14px" }}
+                contentStyle={{ fontFamily: "Roboto", fontSize: "13px" }}
                 formatter={(value) => new Intl.NumberFormat("en").format(value)}
-                cursor={{ fill: "none" }}
+                cursor={{ fill: "rgba(249, 115, 22, 0.04)" }}
                 content={<CustomTooltip />}
               />
-              <Legend verticalAlign="top" />
+              <Legend 
+                verticalAlign="top" 
+                wrapperStyle={{ fontSize: '12px', paddingBottom: '8px' }}
+              />
               <Bar
                 dataKey="review_cumulative_tasks_count"
                 barSize={30}
                 name="Review"
                 stackId="a"
-                fill="rgba(35, 155, 86 )"
+                fill="#16a34a"
+                radius={[0, 0, 0, 0]}
                 cursor="pointer"
               />
               <Bar
@@ -234,7 +260,8 @@ function TaskCountAnalyticsChart(props) {
                 barSize={30}
                 name="Annotation"
                 stackId="a"
-                fill="rgba(243, 156, 18 )"
+                fill="#f97316"
+                radius={[3, 3, 0, 0]}
               />
             </BarChart>
             </ResponsiveChartContainer>

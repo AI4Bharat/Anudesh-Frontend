@@ -144,65 +144,85 @@ export default function AudioDurationChart(props) {
 
   return (
     <Box className={classes.modelChartSection}>
-      <Typography
-        variant="h2"
-        style={{ marginBottom: "35px" }}
-        className={classes.heading}
+      {/* Section Title */}
+      <Typography 
+        variant="h6" 
+        sx={{
+          mb: 2,
+          fontSize: '1.125rem',
+          fontWeight: 600,
+          color: '#1a1a2e',
+          letterSpacing: '-0.01em',
+        }}
       >
-       {`Audio Duration Dashboard - ${analyticsData[0].projectType}`}
-        <Typography variant="body1">
-          Count of Annotated and Reviewed Audio Type
+        {`Audio Duration — ${analyticsData[0].projectType}`}
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            fontSize: '0.8125rem', 
+            color: '#6b7280',
+            fontWeight: 400,
+            mt: 0.25,
+          }}
+        >
+          Annotated vs Reviewed audio duration by language
         </Typography>
       </Typography>
       
-      <Paper>
+      {/* Chart Card */}
+      <Paper sx={{
+        borderRadius: '14px',
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04) !important',
+      }}>
+        {/* Stat Bar */}
         <Box className={classes.topBar}>
           <Box className={classes.topBarInnerBox}>
-          <Typography
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                  padding: "16px 0",
-                }}
-              >
-                {graphCategory=="rawAudioDuration"?"Raw Audio Duration Dashboard":"Audio Duration Dashboard"}
-              </Typography>
-            </Box>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+              Dashboard
+            </Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e' }}>
+              {graphCategory=="rawAudioDuration"?"Raw Audio":"Audio Duration"}
+            </Typography>
+          </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-                Total Audio Hours
+              <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Total Hours
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e' }}>
                 {totalAudioHours &&
                   new Intl.NumberFormat("en").format(totalAudioHours)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-                Total Annotation Audio Hours
+              <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Annotated Hours
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#ea580c' }}>
                 {totalAnnotationAudioHours &&
                   new Intl.NumberFormat("en").format(totalAnnotationAudioHours)}
               </Typography>
             </Box>
             <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-                Total Reviewed AudioHours
+              <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+                Reviewed Hours
               </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
+              <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#16a34a' }}>
                 {totalReviewAudioHours &&
                   new Intl.NumberFormat("en").format(totalReviewAudioHours)}
               </Typography>
             </Box>
             </Box>
-        <Grid>
+
+        {/* Chart */}
+        <Grid sx={{ p: { xs: 1, sm: 2 } }}>
             <ResponsiveChartContainer>
           <BarChart
             width={1100}
             height={600}
             data={data}
-            fontSize="14px"
+            fontSize="13px"
             fontFamily="Roboto"
             margin={{
               top: 20,
@@ -211,22 +231,22 @@ export default function AudioDurationChart(props) {
               bottom: 20,
             }}
           >
-            {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <XAxis
               dataKey="languages"
               textAnchor={"end"}
-              // tick={<CustomizedAxisTick />}
               height={90}
               interval={0}
               position="insideLeft"
               type="category"
               angle={-30}
+              tick={{ fontSize: 12, fill: '#6b7280' }}
             >
               <Label
-                value="languages"
+                value="Languages"
                 position="insideBottom"
-                fontWeight="bold"
-                fontSize={16}
+                fontWeight="600"
+                fontSize={13}
+                fill="#4b5563"
               ></Label>
             </XAxis>
             <YAxis
@@ -234,6 +254,7 @@ export default function AudioDurationChart(props) {
               allowDecimals={false}
               type="number"
               dx={0}
+              tick={{ fontSize: 12, fill: '#6b7280' }}
               tickFormatter={(value) =>
                 new Intl.NumberFormat("en", { notation: "compact" }).format(
                   value
@@ -241,28 +262,31 @@ export default function AudioDurationChart(props) {
               }
             >
               <Label
-                value="# of hours Completed "
+                value="# Hours Completed"
                 angle={-90}
                 position="insideLeft"
-                fontWeight="bold"
-                fontSize={16}
+                fontWeight="600"
+                fontSize={13}
+                fill="#4b5563"
                 offset={-10}
               ></Label>
             </YAxis>
-            {/* <Label value="Count" position="insideLeft" offset={15} /> */}
             <Tooltip
-              contentStyle={{ fontFamily: "Roboto", fontSize: "14px" }}
+              contentStyle={{ fontFamily: "Roboto", fontSize: "13px" }}
               formatter={(value) => new Intl.NumberFormat("en").format(value)}
-              cursor={{ fill: "none" }}
+              cursor={{ fill: "rgba(249, 115, 22, 0.04)" }}
               content={<CustomTooltip />}
             />
-            <Legend verticalAlign="top" />
+            <Legend 
+              verticalAlign="top" 
+              wrapperStyle={{ fontSize: '12px', paddingBottom: '8px' }}
+            />
             <Bar
               dataKey={graphCategory=="rawAudioDuration"?"review_raw_aud_duration_tohour":"review_aud_duration_tohour"}
               barSize={30}
               name="Review"
               stackId="a"
-              fill="rgba(35, 155, 86 )"
+              fill="#16a34a"
               cursor="pointer"
             />
             <Bar
@@ -270,7 +294,8 @@ export default function AudioDurationChart(props) {
               barSize={30}
               name="Annotation"
               stackId="a"
-              fill="rgba(243, 156, 18 )"
+              fill="#f97316"
+              radius={[3, 3, 0, 0]}
             />
           </BarChart>
           </ResponsiveChartContainer>
