@@ -105,8 +105,24 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelFailing,
   submittedEvalForms,
   setSubmittedEvalForms,
+  fontSize = "medium",
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const getFontSize = () => {
+    switch(fontSize) {
+      case 'small':
+        return '0.75rem';
+      case 'medium':
+        return '1rem';
+      case 'large':
+        return '1.25rem';
+      case 'xlarge':
+        return '1.5rem';
+      default:
+        return '1rem';
+    }
+  };
+
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -1721,7 +1737,7 @@ useEffect(() => {
                             }}
                           >
                             <ErrorIcon sx={{ marginRight: "8px", fontSize: "0.9rem" }} />
-                            <Typography style={{ fontSize: "0.8rem" }}>
+                            <Typography style={{ fontSize: getFontSize() }}>
                               {modelOutput?.model_name} failed to load the response!
                             </Typography>
                           </Box>
@@ -1734,14 +1750,13 @@ useEffect(() => {
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
                               flexGrow: 1, 
-                              fontSize: "0.85rem",
+                              fontSize: getFontSize(),
                               display: "flex",
                               flexDirection: "column",
                               borderRadius: "8px",
                               backgroundColor: "white",
                               height: "auto",
                               minHeight: "150px",
-                              // Ensure box doesn't overflow
                               boxSizing: "border-box",
                             }}
                           >
@@ -1784,7 +1799,7 @@ useEffect(() => {
                                         sx={{
                                           fontWeight: "bold",
                                           color: orange[400],
-                                          fontSize: "1.25rem",
+                                          fontSize: getFontSize(),
                                         }}
                                       >
                                         {"Model " + (modelIdx + 1)}
@@ -1798,12 +1813,11 @@ useEffect(() => {
                                     <Typography
                                       component="div"
                                       sx={{
-                                        fontSize: "1.2rem",
+                                        fontSize: getFontSize(),
                                         maxHeight: "60vh",
                                         overflowY: "scroll",
                                       }}
                                     >
-
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
                                           ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
@@ -1855,8 +1869,6 @@ useEffect(() => {
                                             <div
                                               key={segmentIdx}
                                               style={{
-                                                // textAlign: isRTLLanguage(segment.value) ? "right" : "left",
-                                                // direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                                                 width: "100%",
                                               }}
                                             >
@@ -1898,7 +1910,8 @@ useEffect(() => {
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
                                 boxSizing: "border-box",
-                                minHeight: "100px",                              }}
+                                minHeight: "100px",
+                              }}
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
@@ -1974,7 +1987,6 @@ useEffect(() => {
                               )}
                             </Box>
 
-
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
                                 sx={{
@@ -1993,11 +2005,8 @@ useEffect(() => {
                       </React.Fragment>
                     ))}
                   </Box>
-
-
                 </Grid>
 
-                {/* Show right scroll arrow only when > 3 responses */}
                 {shouldScroll && (
                   <IconButton
                     onClick={() => scrollOutputs(index, 'right')}
@@ -2017,12 +2026,10 @@ useEffect(() => {
                     <ChevronRightIcon style={{ color: "#EE6633" }} />
                   </IconButton>
                 )}
-
               </Grid>
             </Grid>
           )}
 
-          {/* Evaluation form section - also reduced */}
           {!shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
             <Grid
               item
@@ -2042,15 +2049,13 @@ useEffect(() => {
                   </IconButton>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
-                  {/* Reduced font sizes in evaluation form as well */}
                   {!ProjectDetails?.metadata_json?.single_model_response ? (
-
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
                         <div key={questionIdx}>
                           {question.question_type === "comparison" && (
                             <div style={{ marginBottom: "4px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{ color: "#d93025", fontSize: "18px" }}
@@ -2068,7 +2073,7 @@ useEffect(() => {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        fontSize: "0.85rem"
+                                        fontSize: getFontSize()
                                       }}
                                     >
                                       <span>{option}:</span>
@@ -2148,7 +2153,7 @@ useEffect(() => {
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
+                                                  label={<span style={{ fontSize: getFontSize() }}>{"Model " + (outputIdx + 1)}</span>}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -2163,19 +2168,13 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "fill_in_blanks" && (
-                            <div
-                              style={{
-                                marginBottom: "5px",
-                              }}
-                            >
+                            <div style={{ marginBottom: "5px" }}>
                               <p className={classes.inputQuestion}>
                                 {questionIdx + 1}.{" "}
                                 {question.input_question
                                   .split("<blank>")
                                   .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`} style={{
-                                      fontSize: "0.9rem",
-                                    }}>
+                                    <span key={`${questionIdx}-${index}`} style={{ fontSize: getFontSize() }}>
                                       {part}
                                       {index <
                                         question.input_question.split("<blank>")
@@ -2188,7 +2187,7 @@ useEffect(() => {
                                               width: "100px",
                                               margin: "0 4px",
                                               verticalAlign: "middle",
-                                              fontSize: "0.85rem"
+                                              fontSize: getFontSize()
                                             }}
                                           >
                                             &nbsp;
@@ -2206,7 +2205,6 @@ useEffect(() => {
                                   *
                                 </span>
                               </p>
-
                               <div
                                 style={{
                                   padding: "10px 0 0 20px",
@@ -2215,7 +2213,7 @@ useEffect(() => {
                                   justifyContent: "space-between",
                                   alignItems: "center",
                                   flexWrap: "wrap",
-                                  fontSize: "0.85rem"
+                                  fontSize: getFontSize()
                                 }}
                               >
                                 {message?.output?.map((response, outputIdx) => (
@@ -2233,7 +2231,7 @@ useEffect(() => {
                                         color: "#6C5F5B",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
-                                        fontSize: "0.85rem"
+                                        fontSize: getFontSize()
                                       }}
                                     >
                                       {"Model " + (outputIdx + 1)}
@@ -2277,7 +2275,7 @@ useEffect(() => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
-                                            fontSize: "0.85rem"
+                                            fontSize: getFontSize()
                                           }}
                                           required
                                         />
@@ -2288,15 +2286,9 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "rating" && (
-                            <div
-                              style={{
-                                marginBottom: "5px",
-                              }}
-                            >
+                            <div style={{ marginBottom: "5px" }}>
                               <div className={classes.inputQuestion}>
-                                <span style={{
-                                  fontSize: "0.9rem",
-                                }}>
+                                <span style={{ fontSize: getFontSize() }}>
                                   {questionIdx + 1}. {question.input_question}
                                 </span>
                                 <span
@@ -2334,7 +2326,7 @@ useEffect(() => {
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
                                             color: "#6C5F5B",
-                                            fontSize: "0.85rem"
+                                            fontSize: getFontSize()
                                           }}
                                         >
                                           {response?.model_name}
@@ -2370,9 +2362,9 @@ useEffect(() => {
                                                 newValue,
                                                 message,
                                                 message?.output?.[0]
-                                                  ?.prompt_output_pair_id, // index
+                                                  ?.prompt_output_pair_id,
                                                 questionIdx,
-                                                outputIdx, // model_idx
+                                                outputIdx,
                                               );
                                             }}
                                             sx={{
@@ -2403,14 +2395,8 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "mcq" && (
-                            <div
-                              style={{
-                                marginBottom: "5px",
-                              }}
-                            >
-                              <div className={classes.inputQuestion} style={{
-                                fontSize: "0.9rem",
-                              }}>
+                            <div style={{ marginBottom: "5px" }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
@@ -2439,9 +2425,7 @@ useEffect(() => {
                                         flexDirection: "row",
                                       }}
                                     >
-                                      <span style={{
-                                        fontSize: "0.85rem",
-                                      }}>{option} :</span>{" "}
+                                      <span style={{ fontSize: getFontSize() }}>{option} :</span>{" "}
                                       <div
                                         style={{
                                           display: "flex",
@@ -2488,11 +2472,11 @@ useEffect(() => {
                                                   onChange={(e) =>
                                                     handleMCQ(
                                                       message?.output?.[0]
-                                                        ?.prompt_output_pair_id, // index
+                                                        ?.prompt_output_pair_id,
                                                       message,
                                                       option,
                                                       questionIdx,
-                                                      outputIdx, // model_idx
+                                                      outputIdx,
                                                     )
                                                   }
                                                 >
@@ -2506,7 +2490,7 @@ useEffect(() => {
                                                         variant="subtitle2"
                                                         sx={{
                                                           color: "#6C5F5B",
-                                                          fontSize: "0.85rem"
+                                                          fontSize: getFontSize()
                                                         }}
                                                       >
                                                         {response?.model_name}
@@ -2525,17 +2509,10 @@ useEffect(() => {
                               </div>
                             </div>
                           )}
-                          {question.question_type ===
-                            "multi_select_options" && (
-                              <div
-                                style={{
-                                  marginBottom: "5px",
-                                }}
-                              >
-                                <div className={classes.inputQuestion} style={{
-                                  fontSize: "0.9rem",
-                                }}>
-                                  {questionIdx + 1}. {question.input_question}
+                          {question.question_type === "multi_select_options" && (
+                            <div style={{ marginBottom: "5px" }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                                {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
                                       color: "#d93025",
@@ -2562,9 +2539,7 @@ useEffect(() => {
                                           justifyContent: "space-between",
                                         }}
                                       >
-                                        <span style={{
-                                          fontSize: "0.85rem",
-                                        }}>{option} :</span>{" "}
+                                        <span style={{fontSize: getFontSize() }}>{option} :</span>{" "}
                                         <div
                                           style={{
                                             display: "flex",
@@ -2629,25 +2604,25 @@ useEffect(() => {
                                                           variant="subtitle2"
                                                           sx={{
                                                             color: "#6C5F5B",
-                                                            fontSize: "0.85rem"
-                                                          }}
-                                                        >
-                                                          {response?.model_name}
-                                                        </Typography>
-                                                      }
-                                                    />{" "}
-                                                  </FormGroup>
-                                                </FormControl>
-                                              </div>
-                                            ),
-                                          )}
-                                        </div>
+                                                          fontSize: getFontSize()
+                                                        }}
+                                                      >
+                                                        {response?.model_name}
+                                                      </Typography>
+                                                    }
+                                                  />{" "}
+                                                </FormGroup>
+                                              </FormControl>
+                                            </div>
+                                          ),
+                                        )}
                                       </div>
-                                    ),
-                                  )}
-                                </div>
+                                    </div>
+                                  ),
+                                )}
                               </div>
-                            )}
+                            </div>
+                          )}
                         </div>
                       ))) : (<>{!shrinkedMessages[index] && ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
                         const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
@@ -2661,7 +2636,7 @@ useEffect(() => {
                                   {splitQuestion?.map((part, index) => (
                                     <span
                                       key={`${questionIdx}-${index}`}
-                                      style={{ fontSize: "0.9rem" }}
+                                      style={{ fontSize: getFontSize() }}
                                     >
                                       {part}
                                       {index < splitQuestion.length - 1 && (
@@ -2677,8 +2652,7 @@ useEffect(() => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             padding: "4px",
-                                            fontSize: "0.85rem",
-                                            // lineHeight: "1.5",
+                                            fontSize: getFontSize(),
                                             verticalAlign: "middle",
                                             width: "100%",
                                             maxWidth: "200px",
@@ -2693,10 +2667,7 @@ useEffect(() => {
                                     </span>
                                   ))}
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
-                                      {" "}
-                                      *
-                                    </span>
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}> *</span>
                                   }
                                 </p>
                               </div>
@@ -2706,7 +2677,7 @@ useEffect(() => {
                             return (
                               <div key={questionIdx}>
                                 <div className={classes.inputQuestion}>
-                                  <span style={{ fontSize: "0.9rem" }}>
+                                  <span style={{ fontSize: getFontSize() }}>
                                     {questionIdx + 1}. {question.input_question}
                                   </span>
                                   {
@@ -2775,7 +2746,7 @@ useEffect(() => {
                                       sx={{
                                         ml: 2,
                                         color: "#EE6633",
-                                        fontSize: "0.85rem"
+                                        fontSize: getFontSize()
                                       }}
                                     >
                                       {(() => {
@@ -2810,7 +2781,7 @@ useEffect(() => {
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: "0.9rem" }}
+                                  style={{ fontSize: getFontSize() }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -2829,7 +2800,7 @@ useEffect(() => {
                                   <FormGroup>
                                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                                       {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%", fontSize: "0.85rem" }} key={idx}>
+                                        <div style={{ width: "50%", fontSize: getFontSize() }} key={idx}>
                                           <FormControlLabel
                                             key={idx}
                                             control={
@@ -2847,7 +2818,6 @@ useEffect(() => {
                                                     ?.model_responses_json?.[questionIdx]
                                                     ?.response?.includes(option) || false
                                                 }
-
                                               />
                                             }
                                             label={option}
@@ -2865,7 +2835,7 @@ useEffect(() => {
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: "0.9rem" }}
+                                  style={{ fontSize: getFontSize() }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -2888,7 +2858,6 @@ useEffect(() => {
                                         ?.model_responses_json?.[questionIdx]
                                         ?.response?.[0] || ""
                                     }
-
                                     onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
                                   >
                                     <div
@@ -2896,14 +2865,14 @@ useEffect(() => {
                                         display: "flex",
                                         flexWrap: "wrap",
                                         gap: "16px",
-                                        fontSize: "0.85rem"
+                                        fontSize: getFontSize()
                                       }}
                                     >
                                       {question?.input_selections_list?.map(
                                         (option, idx) => (
                                           <div
                                             key={idx}
-                                            style={{ width: "calc(50% - 8px)" }} // 2 per row with spacing
+                                            style={{ width: "calc(50% - 8px)" }}
                                           >
                                             <FormControlLabel
                                               value={option}
@@ -2923,7 +2892,6 @@ useEffect(() => {
                             return null;
                         }
                       })}</>)}
-
                   <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", width: "100%" }}>
                     <Button
                       variant="contained"
@@ -2972,6 +2940,7 @@ useEffect(() => {
 
     return chatElements;
   };
+
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
 
@@ -3125,7 +3094,7 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                fontSize: "1rem"
+                fontSize: getFontSize()
               }}
             >
               {translate("typography.instructions")}
@@ -3402,22 +3371,22 @@ return (
                 width: "100%",
               },
               "& textarea": {
-                fontSize: { xs: "0.85rem", md: "0.9rem" },
-                width: "100%",
-              }
-            }}
-          class_name={"w-full"}
-          loading={loading}
-          inputValue={inputValue}
-          overrideGT={true}
-          task_id={taskId}
-          script={info.meta_info_language}
-        />
+                  fontSize: getFontSize(),
+                  width: "100%",
+                }
+              }}
+              class_name={"w-full"}
+              loading={loading}
+              inputValue={inputValue}
+              overrideGT={true}
+              task_id={taskId}
+              script={info.meta_info_language}
+            />
+          </Box>
         </Box>
-      </Box>
-    ) : null}
-  </>
-);
+      ) : null}
+    </>
+  );
 };
 
 export default MultipleLLMInstructionDrivenChat;

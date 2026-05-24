@@ -88,7 +88,24 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+  fontSize = "medium", // ADD THIS LINE
 }) => {
+  // ADD THIS HELPER FUNCTION
+  const getFontSize = () => {
+    switch(fontSize) {
+      case 'small':
+        return '0.75rem';
+      case 'medium':
+        return '1rem';
+      case 'large':
+        return '1.25rem';
+      case 'xlarge':
+        return '1.5rem';
+      default:
+        return '1rem';
+    }
+  };
+
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
@@ -472,7 +489,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const textareaStyle = {
     resize: "none",
-    fontSize: "1rem",
+    fontSize: getFontSize(), // UPDATED
     width: "60%",
     fontWeight: "400",
     lineHeight: "1.5",
@@ -999,7 +1016,7 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                fontSize: { xs: "1rem", md: "1.1rem" },
+                  fontSize: getFontSize(), // UPDATED
               }}
             >
               {translate("typography.instructions")}
@@ -1318,7 +1335,7 @@ return (
                 width: "100%",
               },
               "& textarea": {
-                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                  fontSize: getFontSize(), // UPDATED
                 width: "100%",
               }
             }}

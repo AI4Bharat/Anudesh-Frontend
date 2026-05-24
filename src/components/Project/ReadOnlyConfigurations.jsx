@@ -1,4 +1,4 @@
-import { Box, Card, Grid, ThemeProvider, Typography } from "@mui/material";
+import { Box, Card, Grid, ThemeProvider, Tooltip, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
@@ -111,12 +111,16 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
                   to={`/datasets/${dataset?.instance_id}`}
                   style={{ textDecoration: "none" }}
                 >
-                  <CustomButton
-                    sx={{
-                      borderRadius: 2,
-                    }}
-                    label="View Dataset"
-                  />
+                  <Tooltip title={`Navigate to dataset: ${dataset?.instance_name}`}>
+                    <span>
+                      <CustomButton
+                        sx={{
+                          borderRadius: 2,
+                        }}
+                        label="View Dataset"
+                      />
+                    </span>
+                  </Tooltip>
                 </Link>
               </Box>
             </Box>
@@ -150,12 +154,16 @@ const workspaceDetails = useSelector(state => state.getWorkspaceDetails.data);
                 to={`/workspaces/${ProjectDetails.workspace_id}`}
                 style={{ textDecoration: "none" }}
               >
-                <CustomButton
-                  sx={{
-                    borderRadius: 2,
-                  }}
-                  label="View Workspace"
-                />
+                <Tooltip title={`Navigate to workspace: ${workspaceDetails.workspace_name}`}>
+                  <span>
+                    <CustomButton
+                      sx={{
+                        borderRadius: 2,
+                      }}
+                      label="View Workspace"
+                    />
+                  </span>
+                </Tooltip>
               </Link>
             </Box>
           </Box>

@@ -7,12 +7,13 @@ import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import dynamic from "next/dynamic";
-import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import "./editor.css";
 import "quill/dist/quill.snow.css";
@@ -125,6 +126,7 @@ const SuperCheckerPage = () => {
   const [currentInteraction, setCurrentInteraction] = useState({});
   const [interactions, setInteractions] = useState([]);
   const [forms, setForms] = useState([]);
+  const [fontSize, setFontSize] = useState("medium");
   const [answered, setAnswered] = useState(false);
   const [chatHistory, setChatHistory] = useState([{}]);
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
@@ -948,51 +950,49 @@ const SuperCheckerPage = () => {
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
       componentToRender = (
-        <InstructionDrivenChatPage
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
-          handleClick={handleSuperCheckerClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={SuperChecker}
-          stage={"SuperChecker"}
-          notes={superCheckerNotesRef}
-          info={info}
-          disableUpdateButton={disableUpdateButton}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-        />
+      <InstructionDrivenChatPage
+      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
+      handleClick={handleSuperCheckerClick}
+      chatHistory={chatHistory}
+      setChatHistory={setChatHistory}
+      formatResponse={formatResponse}
+      formatPrompt={formatPrompt}
+      id={SuperChecker}
+      stage={"SuperChecker"}
+      notes={superCheckerNotesRef}
+      info={info}
+      disableUpdateButton={disableUpdateButton}
+      annotation={annotations}
+      setLoading={setLoading}
+      loading={loading}
+      fontSize={fontSize}
+    />
       );
       break;
     case "MultipleLLMInstructionDrivenChat":
       componentToRender = (
-        <MultipleLLMInstructionDrivenChat
-          key={`annotations-${annotations?.length}-${
-            annotations?.[0]?.id || "default"
-          }`}
-          handleClick={handleSuperCheckerClick}
-          chatHistory={chatHistory}
-          setChatHistory={setChatHistory}
-          formatResponse={formatResponse}
-          formatPrompt={formatPrompt}
-          id={SuperChecker}
-          stage={"SuperChecker"}
-          notes={superCheckerNotesRef}
-          info={info}
-          disableUpdateButton={disableUpdateButton}
-          annotation={annotations}
-          setLoading={setLoading}
-          loading={loading}
-          evalFormResponse={evalFormResponse}
-          setEvalFormResponse={setEvalFormResponse}
-          setIsModelFailing={setIsModelFailing}
-          submittedEvalForms={submittedEvalForms}
-          setSubmittedEvalForms={setSubmittedEvalForms}
-        />
+          <MultipleLLMInstructionDrivenChat
+      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
+      handleClick={handleSuperCheckerClick}
+      chatHistory={chatHistory}
+      setChatHistory={setChatHistory}
+      formatResponse={formatResponse}
+      formatPrompt={formatPrompt}
+      id={SuperChecker}
+      stage={"SuperChecker"}
+      notes={superCheckerNotesRef}
+      info={info}
+      disableUpdateButton={disableUpdateButton}
+      annotation={annotations}
+      setLoading={setLoading}
+      loading={loading}
+      evalFormResponse={evalFormResponse}
+      setEvalFormResponse={setEvalFormResponse}
+      setIsModelFailing={setIsModelFailing}
+      submittedEvalForms={submittedEvalForms}
+      setSubmittedEvalForms={setSubmittedEvalForms}
+      fontSize={fontSize}
+    />
       );
       break;
     case "ModelInteractionEvaluation":
@@ -1112,6 +1112,23 @@ return (
           >
             Notes {reviewtext.trim().length === 0 ? "" : "*"}
           </Button>
+          <Select
+  value={fontSize}
+  onChange={(e) => setFontSize(e.target.value)}
+  size="small"
+  sx={{
+    fontSize: "0.75rem",
+    height: "28px",
+    minWidth: "90px",
+    backgroundColor: "white",
+    border: "1px solid #e6e6e6",
+    "& .MuiSelect-select": { py: 0.3, px: 1 },
+  }}
+>
+  <MenuItem value="small">Small</MenuItem>
+  <MenuItem value="medium">Medium</MenuItem>
+  <MenuItem value="large">Large</MenuItem>
+</Select>
 
           {/* Info Button */}
           <LightTooltip
