@@ -49,7 +49,6 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Slider from '@mui/material/Slider';
-import UpdateUIPrefsAPI from '@/Lib/Features/user/UpdateUIPrefs';
 
 const orange = {
   200: "pink",
@@ -141,16 +140,14 @@ const MultipleLLMInstructionDrivenChat = ({
   const [fontSize, setFontSize] = useState(0.9);
   const containerRef = useRef(null);
 
-  const saveAnnotationPref = useCallback(async (payload) => {
+  const saveAnnotationUIPref = useCallback((payload) => {
     try {
-      const obj = new UpdateUIPrefsAPI(payload);
-      await fetch(obj.apiEndPoint(), {
-        method: 'POST',
-        body: JSON.stringify(obj.getBody()),
-        headers: obj.getHeaders().headers,
-      });
+      const localPrefs = localStorage.getItem("annotation_ui_preferences");
+      const currentPrefs = localPrefs ? JSON.parse(localPrefs) : {};
+      const newPrefs = { ...currentPrefs, ...payload };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(newPrefs));
     } catch (err) {
-      console.error('Failed to save annotation UI preference', err);
+      console.error('Failed to save local annotation UI preference', err);
     }
   }, []);
 
@@ -165,10 +162,10 @@ const MultipleLLMInstructionDrivenChat = ({
     setIsDragging(false);
     // Persist width when drag ends
     setInstructionWidth((currentWidth) => {
-      saveAnnotationPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
+      saveAnnotationUIPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
       return currentWidth;
     });
-  }, [isDragging, saveAnnotationPref]);
+  }, [isDragging, saveAnnotationUIPref]);
 
   const onDrag = useCallback((e) => {
     if (!isDragging || !containerRef.current) return;
@@ -203,47 +200,51 @@ const MultipleLLMInstructionDrivenChat = ({
   const handlePinToggle = useCallback(() => {
     const newPinned = !isPinned;
     setIsPinned(newPinned);
-    saveAnnotationPref({
+    saveAnnotationUIPref({
       instruction_panel_pinned: newPinned,
       instruction_panel_width: Math.round(instructionWidth * 10) / 10,
     });
-  }, [isPinned, instructionWidth, saveAnnotationPref]);
+  }, [isPinned, instructionWidth, saveAnnotationUIPref]);
 
   const handleFontSizeChange = useCallback((_e, newVal) => {
     setFontSize(newVal);
   }, []);
 
   const handleFontSizeCommit = useCallback((_e, newVal) => {
-    saveAnnotationPref({ annotation_font_size: newVal });
-  }, [saveAnnotationPref]);
+    saveAnnotationUIPref({ annotation_font_size: newVal });
+  }, [saveAnnotationUIPref]);
 
   const handleResetUIPrefs = useCallback(() => {
     setFontSize(0.9);
     setInstructionWidth(30);
     setIsPinned(false);
-    saveAnnotationPref({
+    saveAnnotationUIPref({
       annotation_font_size: 0.9,
       instruction_panel_width: 30,
       instruction_panel_pinned: false
     });
-  }, [saveAnnotationPref]);
+  }, [saveAnnotationUIPref]);
 
-  // Sync annotation UI preferences from user profile on mount
+  // Sync annotation UI preferences from localStorage on mount
   useEffect(() => {
-    if (loggedInUserData?.annotation_ui_preferences) {
-      const prefs = loggedInUserData.annotation_ui_preferences;
-      if (typeof prefs.instruction_panel_width === 'number') {
-        setInstructionWidth(prefs.instruction_panel_width);
-      }
-      if (typeof prefs.annotation_font_size === 'number') {
-        setFontSize(prefs.annotation_font_size);
-      }
-      if (typeof prefs.instruction_panel_pinned === 'boolean') {
-        setIsPinned(prefs.instruction_panel_pinned);
+    const localPrefs = localStorage.getItem("annotation_ui_preferences");
+    if (localPrefs) {
+      try {
+        const prefs = JSON.parse(localPrefs);
+        if (typeof prefs.instruction_panel_width === 'number') {
+          setInstructionWidth(prefs.instruction_panel_width);
+        }
+        if (typeof prefs.annotation_font_size === 'number') {
+          setFontSize(prefs.annotation_font_size);
+        }
+        if (typeof prefs.instruction_panel_pinned === 'boolean') {
+          setIsPinned(prefs.instruction_panel_pinned);
+        }
+      } catch (err) {
+        console.error('Failed to parse local annotation UI preferences', err);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loggedInUserData?.id]);
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
