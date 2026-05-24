@@ -27,7 +27,7 @@ const initialFormState = {
   numSelectedModels: 0,
   defaultValue: 0,
   questionsJSON: null,
-  systemPrompt: ''
+  systemPrompt: {}
 };
 
 const initialState = {

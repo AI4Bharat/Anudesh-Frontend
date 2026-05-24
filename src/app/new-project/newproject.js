@@ -176,7 +176,15 @@ const CreateProject = () => {
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
   const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
   const [defaultValue, setDefaultValue] = useState(0);
-  const [systemPrompt, setSystemPrompt] = useState('');
+  const DEFAULT_SYSTEM_PROMPT = "We will be rendering your response on a frontend. so please add spaces or indentation or nextline chars or bullet or numberings etc. suitably for code or the text. wherever required.";
+  const [systemPrompt, setSystemPrompt] = useState({});
+
+  const handleSystemPromptChange = (model, value) => {
+    setSystemPrompt(prev => ({
+      ...prev,
+      [model]: value
+    }));
+  };
 
   const handleTextareaChange = (event) => {
     setDefaultValue(event.target.value);
@@ -242,7 +250,7 @@ const CreateProject = () => {
     setFixedModels(formData.fixedModels);
     setNumSelectedModels(formData.numSelectedModels);
     setDefaultValue(formData.defaultValue);
-    setSystemPrompt(formData.systemPrompt || '');
+    setSystemPrompt(formData.systemPrompt || {});
   }, []);
 
   // Clear form function
@@ -273,7 +281,7 @@ const CreateProject = () => {
     setFixedModels(fixed_Models);
     setNumSelectedModels();
     setDefaultValue(0);
-    setSystemPrompt('');
+    setSystemPrompt({});
   };
 
   useEffect(() => {
@@ -618,11 +626,17 @@ const CreateProject = () => {
   }
 
   // Add system_prompt to metadata if provided
-  if (systemPrompt && systemPrompt.trim() !== '') {
-    if (typeof baseMetadata === 'object' && baseMetadata !== null) {
-      baseMetadata = { ...baseMetadata, system_prompt: systemPrompt.trim() };
-    } else {
-      baseMetadata = { system_prompt: systemPrompt.trim() };
+  if (systemPrompt && Object.keys(systemPrompt).length > 0) {
+    // Only save entries that are non-empty strings
+    const cleanedSystemPrompt = Object.fromEntries(
+      Object.entries(systemPrompt).filter(([k, v]) => v && v.trim() !== '')
+    );
+    if (Object.keys(cleanedSystemPrompt).length > 0) {
+      if (typeof baseMetadata === 'object' && baseMetadata !== null) {
+        baseMetadata = { ...baseMetadata, system_prompt: cleanedSystemPrompt };
+      } else {
+        baseMetadata = { system_prompt: cleanedSystemPrompt };
+      }
     }
   }
 
@@ -1349,35 +1363,67 @@ const CreateProject = () => {
                 </Grid>
                 )}
 
-                  {/* System Prompt Field */}
+                  {/* System Prompt Fields */}
                   <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid item xs={12}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal' }}>
-                          System Prompt:
-                          <Tooltip
-                            title="Optional custom system prompt for the LLM. If left empty, a default system prompt will be used."
-                            arrow
-                            placement="top"
-                          >
-                            <IconButton size="small" sx={{ color: 'primary.main' }}>
-                              <InfoOutlined fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Typography>
-                        <TextField
-                          fullWidth
-                          multiline
-                          minRows={3}
-                          maxRows={6}
-                          size="small"
-                          value={systemPrompt}
-                          onChange={(e) => setSystemPrompt(e.target.value)}
-                          placeholder="Enter a custom system prompt for the LLM (optional)"
-                          variant="outlined"
-                        />
-                      </Box>
-                    </Grid>
+                    {selectedType === "MultipleLLMInstructionDrivenChat" ? (
+                      selectedLanguageModels.map((model) => (
+                        <Grid item xs={12} key={model}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal' }}>
+                              System Prompt for {model}:
+                              <Tooltip
+                                title={`Optional custom system prompt for ${model}.`}
+                                arrow
+                                placement="top"
+                              >
+                                <IconButton size="small" sx={{ color: 'primary.main' }}>
+                                  <InfoOutlined fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Typography>
+                            <TextField
+                              fullWidth
+                              multiline
+                              minRows={3}
+                              maxRows={6}
+                              size="small"
+                              value={systemPrompt[model] !== undefined ? systemPrompt[model] : DEFAULT_SYSTEM_PROMPT}
+                              onChange={(e) => handleSystemPromptChange(model, e.target.value)}
+                              placeholder={`Enter a custom system prompt for ${model}`}
+                              variant="outlined"
+                            />
+                          </Box>
+                        </Grid>
+                      ))
+                    ) : (
+                      <Grid item xs={12}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal' }}>
+                            System Prompt:
+                            <Tooltip
+                              title="Optional custom system prompt for the LLM."
+                              arrow
+                              placement="top"
+                            >
+                              <IconButton size="small" sx={{ color: 'primary.main' }}>
+                                <InfoOutlined fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Typography>
+                          <TextField
+                            fullWidth
+                            multiline
+                            minRows={3}
+                            maxRows={6}
+                            size="small"
+                            value={systemPrompt["default"] !== undefined ? systemPrompt["default"] : DEFAULT_SYSTEM_PROMPT}
+                            onChange={(e) => handleSystemPromptChange("default", e.target.value)}
+                            placeholder="Enter a custom system prompt for the LLM"
+                            variant="outlined"
+                          />
+                        </Box>
+                      </Grid>
+                    )}
                   </Grid>
 
               </Card>
