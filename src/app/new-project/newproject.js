@@ -2010,6 +2010,8 @@ const CreateProject = () => {
                     selectedInstances &&
                     domains &&
                     samplingMode &&
+                    (samplingMode === "r" ? random !== "" && random !== undefined && random !== null : true) &&
+                    (samplingMode === "b" ? batchSize !== "" && batchSize !== undefined && batchSize !== null && batchNumber?.length > 0 : true) &&
                     (selectedType === "ModelInteractionEvaluation" || "multipleInteractionEvaluation"
                       ? questionsJSON?.length > 0
                       : true)
