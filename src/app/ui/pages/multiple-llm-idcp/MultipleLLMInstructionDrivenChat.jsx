@@ -82,7 +82,7 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
-    backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+  background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
 };
 
 const MultipleLLMInstructionDrivenChat = ({
@@ -1636,7 +1636,7 @@ useEffect(() => {
                               borderRadius: "8px",
                               color: "red",
                               fontWeight: "bold",
-                              backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+                              backgroundColor: "#fff0f0",
                               padding: "0.8rem",
                             }}
                           >
@@ -3193,19 +3193,16 @@ return (
         }}
       >
         <Box
-          sx={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "1rem",
-            paddingBottom:"0rem!important",
-            backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundColor: "#fff",
-            width: "100%",
-            minHeight: 0,
-          }}
-        >
+  sx={{
+    flex: 1,
+    overflowY: "auto",
+    padding: "1rem",
+    paddingBottom:"0rem!important",
+    background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+    width: "100%",
+    minHeight: 0,
+  }}
+>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
             {showChatContainer ? renderChatHistory() : null}
           </Box>

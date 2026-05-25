@@ -16,6 +16,7 @@ import ListItemText from "@mui/material/ListItemText";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
+import Tooltip from "@mui/material/Tooltip";
 import DatasetStyle from "@/styles/dataset";
 import { translate } from "@/config/localisation";
 import { useDispatch, useSelector } from "react-redux";
@@ -226,16 +227,20 @@ const renderSnackBar = () => {
   return (
     <div>
         {renderSnackBar()}
-      <CustomButton
-        sx={{
-          inlineSize: "max-content",
-          borderRadius: 3,
-          width: "100%"
-        }}
-        onClick={handleClickOpen}
-        label="Deallocate User Tasks"
-        color="error"
-      />
+      <Tooltip title="Unassign tasks from an annotator, reviewer, or super-checker">
+        <span style={{ display: "block", width: "100%" }}>
+          <CustomButton
+            sx={{
+              inlineSize: "max-content",
+              borderRadius: 3,
+              width: "100%"
+            }}
+            onClick={handleClickOpen}
+            label="Deallocate User Tasks"
+            color="error"
+          />
+        </span>
+      </Tooltip>
 
       <Popover
         Id={Id}
