@@ -36,7 +36,7 @@ const DynamicCards = ({ card }) => {
         return (
           <ChatIcon
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
@@ -45,7 +45,7 @@ const DynamicCards = ({ card }) => {
         return (
           <IntegrationInstructionsIcon
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
@@ -54,7 +54,7 @@ const DynamicCards = ({ card }) => {
         return (
           <RateReviewIcon
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
@@ -63,7 +63,7 @@ const DynamicCards = ({ card }) => {
         return (
           <QuestionAnswerIcon
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
@@ -72,7 +72,7 @@ const DynamicCards = ({ card }) => {
         return (
           <CompareIcon
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
@@ -81,7 +81,7 @@ const DynamicCards = ({ card }) => {
         return (
           <PsychologyAltIcon
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontSize: { xs: "3rem", md: "4rem" },
             }}
           />
@@ -170,7 +170,7 @@ const Home = () => {
             position: "absolute",
             right: 8,
             top: 8,
-            color: "#EA5923",
+            color: "var(--primary)",
             zIndex: 50,
           }}
         >
@@ -181,7 +181,7 @@ const Home = () => {
           <Typography
             variant="h4"
             sx={{
-              color: "#C2410C",
+              color: "var(--primary-dark)",
               fontWeight: "bold",
               mb: 2,
               textAlign: "center",
@@ -193,7 +193,7 @@ const Home = () => {
           <Typography
             variant="h6"
             sx={{
-              color: "#EA5923",
+              color: "var(--primary)",
               fontWeight: 600,
               mb: 3,
               textAlign: "center",
@@ -205,7 +205,7 @@ const Home = () => {
           <Typography
             variant="body1"
             sx={{
-              color: "#4B5563",
+              color: "var(--text-secondary)",
               lineHeight: 1.8,
               textAlign: "justify",
               fontSize: "16px",
@@ -218,20 +218,20 @@ const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white/50 rounded-xl p-3 border border-orange-200 flex flex-col items-center text-center">
-              <AdminPanelSettingsIcon sx={{ color: "#EA5923", fontSize: "2.5rem", mb: 1 }} />
-              <Typography variant="h6" fontWeight={700} sx={{ color: "#374151", fontSize: "1rem", mb: 0.5 }}>
+              <AdminPanelSettingsIcon sx={{ color: "var(--primary)", fontSize: "2.5rem", mb: 1 }} />
+              <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)", fontSize: "1rem", mb: 0.5 }}>
                 {operationalModes.admin_mode}
               </Typography>
-              <Typography variant="body2" sx={{ color: "#4B5563", fontSize: "0.9rem" }}>
+              <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
                 {operationalModes.admin_content}
               </Typography>
             </div>
             <div className="bg-white/50 rounded-xl p-3 border border-orange-200 flex flex-col items-center text-center">
-              <SupervisorAccountIcon sx={{ color: "#EA5923", fontSize: "2.5rem", mb: 1 }} />
-              <Typography variant="h6" fontWeight={700} sx={{ color: "#374151", fontSize: "1rem", mb: 0.5 }}>
+              <SupervisorAccountIcon sx={{ color: "var(--primary)", fontSize: "2.5rem", mb: 1 }} />
+              <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)", fontSize: "1rem", mb: 0.5 }}>
                 {operationalModes.user_mode}
               </Typography>
-              <Typography variant="body2" sx={{ color: "#4B5563", fontSize: "0.9rem" }}>
+              <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
                 {operationalModes.user_content}
               </Typography>
             </div>
@@ -249,7 +249,7 @@ const Home = () => {
             width={400}
             height={400}
           />
-          <Typography variant="h4" fontWeight={800} sx={{ color: "#EA5923", letterSpacing: "-0.03em", fontSize: { xs: "1.25rem", md: "1.5rem", lg: "2rem" } }}>
+          <Typography variant="h4" fontWeight={800} sx={{ color: "var(--primary)", letterSpacing: "-0.03em", fontSize: { xs: "1.25rem", md: "1.5rem", lg: "2rem" } }}>
             Anudesh
           </Typography>
         </div>

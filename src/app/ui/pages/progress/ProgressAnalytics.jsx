@@ -5,7 +5,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useSelector, useDispatch } from "react-redux";
-import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
 import PeriodicalTasks from "@/app/actions/api/Progress/PeriodicalTasks";
 import CumulativeTasksAPI from "@/app/actions/api/Progress/CumulativeTasks";
@@ -84,6 +83,7 @@ const defaultOptions = {
         maxRotation: rotationAngle,
         minRotation: rotationAngle,
         autoSkip: false,
+        color: 'var(--text-primary)',
       },
       grid: {
         display: false,
@@ -106,6 +106,7 @@ const defaultOptions = {
       beginAtZero: true,
       stacked: true,
       display: true,
+      color: 'var(--text-primary)',
       title: {
         display: true,
         text: '# Annotations Completed ',
@@ -130,6 +131,7 @@ const defaultOptions = {
     legend: {
       position: 'bottom',
     },
+    color: 'var(--text-primary)',
     title: {
       display: true,
     },
@@ -811,7 +813,7 @@ function ProgressList() {
   }
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {/* {loading && <Spinner />} */}
       <Card
         sx={{
@@ -962,7 +964,7 @@ function ProgressList() {
                         placement="top"
                         title={translate("tooltip.Baseperiod")}>
                         <InfoIcon
-                          sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                          sx={{ color: "var(--text-secondary)" }}
                           fontSize="medium"
                         />
                       </LightTooltip>
@@ -1008,7 +1010,7 @@ function ProgressList() {
                         placement="top"
                         title={translate("tooltip.ComparisonPeriod")}>
                         <InfoIcon
-                          sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                          sx={{ color: "var(--text-secondary)" }}
                           fontSize="medium"
                         />
                       </LightTooltip>
@@ -1049,7 +1051,7 @@ function ProgressList() {
               </Grid>
 
               {showPicker && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
-                <Card sx={{ overflowX: "scroll" }}>
+                <Card sx={{ overflowX: "scroll" ,backgroundColor: "var(--surface)"}} >
                   <DateRangePicker
                     onChange={item => setBaseperiodDatepicker([item.selection])}
                     weekStartsOn={1}
@@ -1182,7 +1184,7 @@ function ProgressList() {
 
         </Box>
       </Card>
-    </ThemeProvider>
+    </>
   )
 }
 export default ProgressList;

@@ -49,7 +49,7 @@ const ImagePreview = ({ file, onRemove, status = 'idle' }) => {
           transition: 'background-color 0.3s ease-in-out',
         }}
       >
-        {status === 'loading' && <CircularProgress size={24} color="inherit" sx={{ color: 'white' }} />}
+        {status === 'loading' && <CircularProgress size={24} color="inherit" sx={{ color: 'var(--primary-contrast)' }} />}
       </Box>
 
       {status !== 'loading' && (
@@ -62,7 +62,7 @@ const ImagePreview = ({ file, onRemove, status = 'idle' }) => {
             top: 4,
             right: 4,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            color: 'white',
+            color: 'var(--primary-contrast)',
             '&:hover': {
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
             },

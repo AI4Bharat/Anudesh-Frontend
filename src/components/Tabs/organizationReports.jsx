@@ -3,7 +3,6 @@ import dynamic from "next/dynamic";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Card from "@mui/material/Card";
 import Radio from "@mui/material/Radio";
 import Typography from "@mui/material/Typography";
@@ -1068,7 +1067,7 @@ const OrganizationReports = () => {
         <CircularProgress style={{ marginLeft: "50%" }} />
       ) : (
         reportRequested && (
-          <ThemeProvider theme={tableTheme}>
+          <>
             <div ref={tableRef}>
               {loading ? (
                 <CircularProgress style={{ marginLeft: "50%" }} />
@@ -1108,7 +1107,7 @@ const OrganizationReports = () => {
                 />
               )}
             </div>
-          </ThemeProvider>
+          </>
         )
       )}
     </React.Fragment>

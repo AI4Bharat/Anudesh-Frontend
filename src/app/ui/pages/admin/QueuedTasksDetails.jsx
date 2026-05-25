@@ -9,7 +9,10 @@ import Select from "@mui/material/Select";
 import TablePagination from "@mui/material/TablePagination";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import Search from "@/components/common/Search";
 import Spinner from "@/components/common/Spinner";
@@ -37,6 +40,8 @@ const MUIDataTable = dynamic(
 
 /* eslint-disable react-hooks/exhaustive-deps */
 const QueuedTasksDetails = (props) => {
+  const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const dispatch = useDispatch();
   const [displayWidth, setDisplayWidth] = useState(0);
   // const [loading, setLoading] = useState(false);
@@ -240,6 +245,8 @@ const QueuedTasksDetails = (props) => {
             xs: "10px",
             md: "20px"
           },
+          backgroundColor: "var(--surface)",
+          borderTop: "1px solid var(--divider)",
         }}
       >
 
@@ -361,11 +368,19 @@ const QueuedTasksDetails = (props) => {
             tableBodyHeight: `${typeof window !== 'undefined' ? window.innerHeight - 200 : 400}px`
           }}
         /> :
-          <Box sx={{ display: 'flex', gap: '2em', alignItems: 'center', justifyContent: 'center' }}>
-            {!apiLoading && <Typography>
-              No Queued Tasks to Display
-            </Typography>}
-          </Box>
+          <Box sx={{ 
+  display: 'flex', 
+  gap: '2em', 
+  alignItems: 'center', 
+  justifyContent: 'center',
+  backgroundColor: "var(--surface)",
+  padding: "2rem",
+  borderRadius: "4px"
+}}>
+  {!apiLoading && <Typography color="var(--text-secondary)">
+    No Queued Tasks to Display
+  </Typography>}
+</Box>
         }
       </ThemeProvider>
     </div>

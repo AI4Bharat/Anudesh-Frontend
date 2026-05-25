@@ -606,7 +606,7 @@ const ReportsTable = (props) => {
           userRole.Reviewer === loggedInUserData?.role
         ) &&
           frozenUsers.length > 0 && (
-            <Typography variant="body2" color="#F8644F">
+            <Typography variant="body2" color="error.main">
               * User Inactive
             </Typography>
           )}

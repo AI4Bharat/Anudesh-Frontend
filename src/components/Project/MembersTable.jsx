@@ -463,10 +463,9 @@ const MembersTable = (props) => {
                 <CustomButton
                   sx={{
                     borderRadius: 2,
-                    backgroundColor: "#cf5959",
                     m: 1,
                     height: "40px",
-                  }}
+                  }}color="error"
                   label="Remove"
                   onClick={() => {
                     setElId(el.id);
@@ -484,10 +483,9 @@ const MembersTable = (props) => {
                     <CustomButton
                       sx={{
                         borderRadius: 2,
-                        backgroundColor: "#cf5959",
                         m: 1,
                         height: "40px",
-                      }}
+                      }}color="error"
                       label="Remove"
                       onClick={() => {
                         setElId(el.id);

@@ -166,7 +166,7 @@ export default function SignUp() {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <MailOutlineIcon style={{ color: "#75747A" }} />
+                                    <MailOutlineIcon style={{ color: "var(--text-secondary)" }} />
                                 </InputAdornment>
                             ),
                         }}
@@ -184,7 +184,7 @@ export default function SignUp() {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PersonOutlinedIcon style={{ color: "#75747A" }} />
+                                    <PersonOutlinedIcon style={{ color: "var(--text-secondary)" }} />
                                 </InputAdornment>
                             ),
                         }}
@@ -203,7 +203,7 @@ export default function SignUp() {
                                 <InputAdornment position="start">
                                     <VpnKeyOutlinedIcon
                                         sx={{
-                                            color: "#75747A",
+                                            color: "var(--text-secondary)",
                                             animation: "spin 0.1s linear infinite",
                                             "@keyframes spin": {
                                                 "0%": {
@@ -246,7 +246,7 @@ export default function SignUp() {
                                 <InputAdornment position="start">
                                     <VpnKeyOutlinedIcon
                                         sx={{
-                                            color: "#75747A",
+                                            color: "var(--text-secondary)",
                                             animation: "spin 0.1s linear infinite",
                                             "@keyframes spin": {
                                                 "0%": {

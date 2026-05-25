@@ -16,7 +16,6 @@ import LightTooltip from "../common/Tooltip";
 import InfoIcon from "@mui/icons-material/Info";  // import { useParams } from 'react-router-dom';
 import FetchRecentTasksAPI from "@/app/actions/api/user/FetchRecentTasksAPI";
 import tableTheme from "../../themes/tableTheme";
-import themeDefault from "../../themes/theme";
 import Skeleton from "@mui/material/Skeleton";
 import SearchIcon from "@mui/icons-material/Search";
 import { translate } from "../../config/localisation";
@@ -314,7 +313,7 @@ const RecentTasks = () => {
   };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       <Box>
         <Tabs value={taskType} onChange={(e, newVal) => setTaskType(newVal)} aria-label="basic tabs example" sx={{ mb: 2 }}>
           <Tab label={translate("label.recentTasks.annotation")} value="annotation" sx={{ fontSize: 16, fontWeight: '700' }} />
@@ -345,7 +344,7 @@ const RecentTasks = () => {
           searchedCol={searchedCol}
           onchange={GetAllTasksdata}
         />}
-    </ThemeProvider>
+    </>
   )
 }
 

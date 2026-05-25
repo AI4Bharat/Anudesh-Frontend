@@ -10,7 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Spinner from '../common/Spinner';
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import themeDefault from '@/themes/theme'
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -85,7 +84,7 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
       }, [apiLoading]);
 
     return (
-        <ThemeProvider theme={themeDefault}>
+        <>
                       {loading && <Spinner />}
             <Grid
                 container
@@ -183,7 +182,7 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
                         </Grid>
                     </Grid>
                     <Box >
-                        <Tabs value={selectedTab} onChange={(_event, value) => setSelectedTab(value)} aria-label="nav tabs example" variant="scrollable" TabIndicatorProps={{ style: { backgroundColor: "#FD7F23 " } }}>
+                        <Tabs value={selectedTab} onChange={(_event, value) => setSelectedTab(value)} aria-label="nav tabs example" variant="scrollable" >
                             <Tab label={translate("label.datasets")} sx={{ fontSize: 16, fontWeight: '700' }} />
                             <Tab label={translate("label.members")} sx={{ fontSize: 16, fontWeight: '700' }} />
                             <Tab label={translate("label.projects")} sx={{ fontSize: 16, fontWeight: '700' }} />
@@ -212,7 +211,7 @@ const apiLoading = useSelector((state) => state.apiStatus.loading);
                     </TabPanel> */}
                 </Card>
             </Grid>
-        </ThemeProvider>
+        </>
     );
 }
 

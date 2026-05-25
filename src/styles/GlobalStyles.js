@@ -12,8 +12,6 @@ const GlobalStyles = makeStyles(theme=>({
     alignItems: "center",
   },
 
-
-
   textBox: {
     width: "100%",
   },

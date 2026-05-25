@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import tableTheme from "../../themes/tableTheme";
-import themeDefault from "../../themes/theme";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Skeleton from "@mui/material/Skeleton";
@@ -350,7 +349,7 @@ const MyProgress = () => {
     customToolbar: renderToolBar,
   };
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {loading && <Spinner />}
       <Grid
         container
@@ -708,7 +707,7 @@ const MyProgress = () => {
         }}
         variant="error"
       />
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -381,7 +381,7 @@ function WorkspaceSetting(props) {
                   label="Enter Password"
                 />
                  {passwordErrors.map((error, index) => (
-                  <span key={index} style={{ color: "#d93025",fontSize:"13px" }}>*{error}</span>
+                  <span key={index} style={{ color: "var(--color-error)",fontSize:"13px" }}>*{error}</span>
                 ))}
               </FormControl>
             </Grid>
@@ -406,7 +406,7 @@ function WorkspaceSetting(props) {
                   }
                   label="Confirm Password"
                 />
-            {passwordEqual==true ? "" : <span style={{ color: "#d93025",fontSize:"13px" }}>*The passwords don't match</span>}
+            {passwordEqual==true ? "" : <span style={{ color: "var(--color-error)",fontSize:"13px" }}>*The passwords don't match</span>}
             </FormControl>
             </Grid>
           </Grid>
@@ -450,7 +450,7 @@ function WorkspaceSetting(props) {
                   label="Enter Password"
                 />
                  {passwordErrors.map((error, index) => (
-                  <span key={index} style={{ color: "#d93025",fontSize:"13px" }}>*{error}</span>
+                  <span key={index} style={{ color: "var(--color-error)",fontSize:"13px" }}>*{error}</span>
                 ))}
               </FormControl>
             </Grid>
@@ -475,7 +475,7 @@ function WorkspaceSetting(props) {
                   }
                   label="Confirm Password"
                 />
-            {passwordEqual==true ? "" : <span style={{ color: "#d93025",fontSize:"13px" }}>*The passwords don't match</span>}
+            {passwordEqual==true ? "" : <span style={{ color: "var(--color-error)",fontSize:"13px" }}>*The passwords don't match</span>}
            
               </FormControl>
             </Grid>
@@ -503,7 +503,7 @@ function WorkspaceSetting(props) {
         </Grid>
         <Grid item xs={6} display="flex" flexDirection="column" alignItems="flex-end">
           <CustomButton
-            sx={{ backgroundColor: "#ee6633", "&:hover": { backgroundColor: "#ee6633" }, marginBottom: 2 }}
+            sx={{ backgroundColor: "primary", "&:hover": { backgroundColor: "primary" }, marginBottom: 2 }}
             className={classes.settingsButton}
             onClick={handleClickOpen}
             label={"Archive Workspace"}
@@ -511,7 +511,7 @@ function WorkspaceSetting(props) {
             disabled={workspaceDtails?.is_archived}
           />
           <CustomButton
-            sx={{ backgroundColor: "#ffe0b2", color: "black", "&:hover": { backgroundColor: "#ffe0b2" } }}
+            sx={{ backgroundColor: "var(--card-badge)", color: "black", "&:hover": { backgroundColor: "var(--card-badge)" } }}
             label={"Download All Projects"}
             className={classes.settingsButton}
             variant="contained"

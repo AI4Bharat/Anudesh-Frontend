@@ -1,10 +1,10 @@
 import themeDefault from "./theme";
 import { createTheme } from "@mui/material/styles";
 
-const tableTheme = createTheme({
-  ...themeDefault,
+const createTableTheme = (baseTheme = themeDefault) => createTheme({
+...baseTheme,
   components: {
-    ...themeDefault.components,
+...baseTheme.components,
     MuiButton: {
       styleOverrides: {
         root: {
@@ -48,7 +48,7 @@ const tableTheme = createTheme({
           fontFamily: '"Roboto", sans-serif',
           fontWeight: 700,
           fontSize: "16px",
-          backgroundColor: "#FAFAFA",
+          backgroundColor: "var(--table-header-bg)",
         },
       },
     },
@@ -63,7 +63,7 @@ const tableTheme = createTheme({
     MUIDataTableFilter: {
       styleOverrides: {
         root: {
-          backgroundColor: "white",
+          backgroundColor: "var(--surface)",
           width: "80%",
           fontFamily: '"Roboto" ,sans-serif',
           fontSize: "16px",
@@ -83,4 +83,4 @@ const tableTheme = createTheme({
   },
 });
 
-export default tableTheme;
+export default createTableTheme;

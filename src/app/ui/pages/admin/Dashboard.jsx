@@ -61,24 +61,24 @@ const Admin = () => {
             </Box>
             <Box sx={{ p: 1}}>
                 <TabPanel value={tabValue} index={0}>
-                <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight', padding: '16px'}}>
+                <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: "var(--surface)", padding: '16px'}}>
                     <TaskDetails  />  
                 </Paper>
                 </TabPanel> 
                 <TabPanel value={tabValue} index={1}>
-                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight', padding: '16px'}}>
+                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: "var(--surface)", padding: '16px'}}>
                         <AnnotationDetails  />  
                     </Paper>
                 </TabPanel> 
                 <TabPanel value={tabValue} index={2}>
-                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight' }}>
-                        <UserDetail  />
+                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: "var(--surface)", padding: '16px' }}>
+                    <UserDetail />
                     </Paper>  
                 </TabPanel> 
                 <TabPanel value={tabValue} index={3}>
-                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: 'ButtonHighlight' }}>
-                        <QueuedTasksDetails  /> 
-                    </Paper> 
+                    <Paper variant="outlined" sx={{ borderRadius: "5px", backgroundColor: "var(--surface)", padding: '16px' }}>
+                    <QueuedTasksDetails />
+                    </Paper>
                 </TabPanel> 
             </Box>
         </>

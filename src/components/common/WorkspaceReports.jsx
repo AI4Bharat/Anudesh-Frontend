@@ -505,6 +505,8 @@ const WorkspaceReports = () => {
             xs: "10px",
             md: "20px",
           },
+          backgroundColor: "var(--surface)",
+  borderTop: "1px solid var(--divider)",
         }}
       >
         {/* Pagination Controls */}
@@ -727,7 +729,7 @@ const WorkspaceReports = () => {
             <Typography
               gutterBottom
               component="div"
-              sx={{ marginTop: "10px", fontSize: "16px", zIndex: 0 }}
+              sx={{ marginTop: "10px", fontSize: "16px", zIndex: 0 ,color: "var(--text-primary)"}}
             >
               Select Report Type :
             </Typography>
@@ -771,6 +773,7 @@ const WorkspaceReports = () => {
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                  color: "var(--text-secondary)",
                 }}
               >
                 Type
@@ -803,7 +806,7 @@ const WorkspaceReports = () => {
             <FormControl fullWidth size="small">
               <InputLabel
                 id="report-type-label"
-                sx={{ fontSize: "19px", zIndex: 0 }}
+                sx={{ fontSize: "19px", zIndex: 0,color: "var(--text-secondary)" }}
               >
                 Report Type
               </InputLabel>
@@ -1019,7 +1022,7 @@ const WorkspaceReports = () => {
             width: "100%",
           }}
         >
-          <Card>
+          <Card sx={{ backgroundColor: "var(--surface)" }}>
             <DateRangePicker
               onChange={handleRangeChange}
               staticRanges={[

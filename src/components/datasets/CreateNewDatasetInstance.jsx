@@ -14,7 +14,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 import React, { useEffect, useState } from "react";
-import themeDefault from "@/themes/theme";
+//import themeDefault from "@/themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/common/Button";
 import OutlinedTextField from "@/components/common/OutlinedTextField";
@@ -126,7 +126,7 @@ const CollectionProject = (props) => {
 };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {/* <Header /> */}
       {/* <Grid
                   container
@@ -164,7 +164,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                Instance_Name<span style={{ color: '#d93025' }}>*</span> :
+                Instance_Name<span style={{ color: 'var(--color-error)' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -228,7 +228,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                Dataset_Type<span style={{ color: '#d93025' }}>*</span> :
+                Dataset_Type<span style={{ color: 'var(--color-error)' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -260,7 +260,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                Organisation_Id<span style={{ color: '#d93025' }}>*</span> :
+                Organisation_Id<span style={{ color: 'var(--color-error)' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -282,7 +282,7 @@ const CollectionProject = (props) => {
               xl={12}
             >
               <Typography gutterBottom components="div">
-                User<span style={{ color: '#d93025' }}>*</span> :
+                User<span style={{ color: 'var(--color-error)' }}>*</span> :
               </Typography>
             </Grid>
             <Grid item xs={12} md={12} lg={12} xl={12} sm={12}>
@@ -326,7 +326,7 @@ const CollectionProject = (props) => {
 
       {/* </Grid>
               </Grid> */}
-    </ThemeProvider>
+    </>
   );
 };
 

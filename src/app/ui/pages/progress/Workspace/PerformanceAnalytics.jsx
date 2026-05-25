@@ -99,7 +99,7 @@ const options = {
       title: {
         display: true,
         text: "Compleated Count",
-        color: "#black",
+        color: "var(--text-primary)",
         font: {
           family: "Roboto",
           size: 16,
@@ -499,8 +499,8 @@ export default function PerformanceAnalytics() {
               color="primary"
               onClick={handleCloseDatepicker}
               sx={{
-                backgroundColor: "rgba(243, 156, 18)",
-                "&:hover": { backgroundColor: "rgba(243, 156, 18 )" },
+                backgroundColor: "var(--primary)",
+                "&:hover": { backgroundColor: "var(--primary)" },
                 marginLeft: "20px",
                 marginTop: "18px",
                 width: "150px",

@@ -48,8 +48,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 
 const orange = {
   200: "pink",
-  400: "#EE6633",
-  600: "#EE663366",
+  400: "var(--primary)",
+  600: "var(--primary)66",
 };
 
 const grey = {
@@ -1377,7 +1377,7 @@ useEffect(() => {
           <Grid
             item
             style={{
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              backgroundColor: "var(--surface-subtle)",
               padding: "0.4rem",
               borderRadius: "0.4rem",
               position: "relative",
@@ -1391,8 +1391,8 @@ useEffect(() => {
                     width: "18px",
                     height: "18px",
                     borderRadius: "50%",
-                    backgroundColor: "#EE6633",
-                    color: "white",
+                    backgroundColor: "var(--primary)",
+                    color: "var(--primary-contrast)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1432,10 +1432,10 @@ useEffect(() => {
                             fontSize: "0.85rem",
                             width: "100%",
                             borderRadius: "8px",
-                            color: grey[900],
-                            background: "#ffffff",
-                            border: `1px solid ${grey[200]}`,
-                            boxShadow: `0px 1px 1px ${grey[50]}`,
+                            color: "var(--text-primary)",
+                            background: "var(--surface)",
+                            border: "1px solid var(--border-color)",
+                            boxShadow: "0px 1px 1px var(--surface-subtle)",
                             minHeight: "3rem",
                             resize: "none",
                             padding: "0.5rem",
@@ -1461,10 +1461,10 @@ useEffect(() => {
                         fontSize: "0.85rem",
                         width: "100%",
                         borderRadius: "8px",
-                        color: grey[900],
-                        background: "#ffffff",
-                        border: `1px solid ${grey[200]}`,
-                        boxShadow: `0px 1px 1px ${grey[50]}`,
+                       color: "var(--text-primary)",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-color)",
+                      boxShadow: "0px 1px 1px var(--surface-subtle)",
                         minHeight: "3rem",
                         resize: "none",
                         padding: "0.5rem",
@@ -1516,9 +1516,9 @@ useEffect(() => {
                 }}
               >
                 {shrinkedMessages[index] ? (
-                  <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "var(--primary)" }} />
                 ) : (
-                  <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  <ExpandLessIcon style={{ fontSize: "0.9rem", color: "var(--primary)" }} />
                 )}
               </IconButton>
 
@@ -1550,7 +1550,7 @@ useEffect(() => {
                     handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
                   }}
                 >
-                  <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                  <DeleteOutlinedIcon style={{ color: "var(--primary)", fontSize: "0.9rem" }} />
                 </IconButton>
               )}
             </Grid>
@@ -1589,13 +1589,13 @@ useEffect(() => {
                       top: "50%",
                       transform: "translateY(-50%)",
                       zIndex: 1,
-                      backgroundColor: "white",
+                      backgroundColor: "var(--primary-contrast)",
                       boxShadow: 1,
                       width: "20px",
                       height: "20px",
                     }}
                   >
-                    <ChevronLeftIcon style={{ color: "#EE6633" }} />
+                    <ChevronLeftIcon style={{ color: "var(--primary)" }} />
                   </IconButton>
                 )}
 
@@ -1648,7 +1648,7 @@ useEffect(() => {
                         ) : (
                           <Box
                             sx={{
-                              border: "1px solid #ccc",
+                              border: "1px solid var(--border-color)",
                               // Dynamic width calculation
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
@@ -1658,7 +1658,7 @@ useEffect(() => {
                               display: "flex",
                               flexDirection: "column",
                               borderRadius: "8px",
-                              backgroundColor: "white",
+                              backgroundColor: "var(--primary-contrast)",
                               height: "auto",
                               minHeight: "150px",
                               // Ensure box doesn't overflow
@@ -1672,7 +1672,7 @@ useEffect(() => {
                                   size="small"
                                   sx={{ padding: "2px" }}
                                 >
-                                  <OpenInFullIcon style={{ color: orange[400], fontSize: "0.9rem" }} />
+                                  <OpenInFullIcon style={{ color: "var(--primary)", fontSize: "0.9rem" }} />
                                 </IconButton>
                               </Tooltip>
 
@@ -1703,7 +1703,7 @@ useEffect(() => {
                                         variant="subtitle2"
                                         sx={{
                                           fontWeight: "bold",
-                                          color: orange[400],
+                                          color: "var(--primary)",
                                           fontSize: "1.25rem",
                                         }}
                                       >
@@ -1712,7 +1712,7 @@ useEffect(() => {
                                       <IconButton
                                         onClick={handleCloseViewFullResponse}
                                       >
-                                        <CloseIcon sx={{ color: orange[400] }} />
+                                        <CloseIcon sx={{ color: "var(--primary)" }} />
                                       </IconButton>
                                     </Box>
                                     <Typography
@@ -1740,10 +1740,10 @@ useEffect(() => {
                                                       fontSize: "0.8rem",
                                                       padding: "6px",
                                                       borderRadius: "6px",
-                                                      color: grey[900],
-                                                      background: "#ffffff",
-                                                      border: `1px solid ${grey[200]}`,
-                                                      boxShadow: `0px 1px 1px ${grey[50]}`,
+                                                      color: "var(--text-primary)",
+                                                      background: "var(--surface)",
+                                                      border: "1px solid var(--border-color)",
+                                                      boxShadow: "0px 1px 1px var(--surface-subtle)",
                                                       minHeight: "3rem",
                                                       width: "100%",
                                                       resize: "none",
@@ -1761,10 +1761,10 @@ useEffect(() => {
                                                   width: "100%",
                                                   padding: "6px",
                                                   borderRadius: "6px",
-                                                  color: grey[900],
-                                                  background: "#ffffff",
-                                                  border: `1px solid ${grey[200]}`,
-                                                  boxShadow: `0px 1px 1px ${grey[50]}`,
+                                               color: "var(--text-primary)",
+                                                background: "var(--surface)",
+                                                border: "1px solid var(--border-color)",
+                                                boxShadow: "0px 1px 1px var(--surface-subtle)",
                                                   minHeight: "3rem",
                                                   resize: "none",
                                                 }}
@@ -1836,10 +1836,10 @@ useEffect(() => {
                                               fontSize: "0.8rem",
                                               padding: "6px",
                                               borderRadius: "6px",
-                                              color: grey[900],
-                                              background: "#ffffff",
-                                              border: `1px solid ${grey[200]}`,
-                                              boxShadow: `0px 1px 1px ${grey[50]}`,
+                                              color: "var(--text-primary)",
+                                              background: "var(--surface)",
+                                              border: "1px solid var(--border-color)",
+                                              boxShadow: "0px 1px 1px var(--surface-subtle)",
                                               minHeight: "3rem",
                                               width: "100%",
                                               resize: "none",
@@ -1857,10 +1857,10 @@ useEffect(() => {
                                           width: "100%",
                                           padding: "6px",
                                           borderRadius: "6px",
-                                          color: grey[900],
-                                          background: "#ffffff",
-                                          border: `1px solid ${grey[200]}`,
-                                          boxShadow: `0px 1px 1px ${grey[50]}`,
+                                          color: "var(--text-primary)",
+                                          background: "var(--surface)",
+                                          border: "1px solid var(--border-color)",
+                                          boxShadow: "0px 1px 1px var(--surface-subtle)",
                                           minHeight: "3rem",
                                           resize: "none",
                                         }}
@@ -1898,7 +1898,7 @@ useEffect(() => {
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
                                 sx={{
-                                  backgroundColor: "#E8E6E6",
+                                  backgroundColor: "var(--surface-subtle)",
                                   padding: "3px 6px",
                                   borderRadius: "4px",
                                   fontSize: "0.75rem",
@@ -1928,13 +1928,13 @@ useEffect(() => {
                       top: "50%",
                       transform: "translateY(-50%)",
                       zIndex: 1,
-                      backgroundColor: "white",
+                      backgroundColor: "var(--primary-contrast)",
                       boxShadow: 1,
                       width: "20px",
                       height: "20px",
                     }}
                   >
-                    <ChevronRightIcon style={{ color: "#EE6633" }} />
+                    <ChevronRightIcon style={{ color: "var(--primary)" }} />
                   </IconButton>
                 )}
 
@@ -1950,7 +1950,7 @@ useEffect(() => {
                 padding: "1rem",
                 position: "relative",
                 width: "100%",
-                backgroundColor: "rgba(247, 184, 171, 0.2)",
+                backgroundColor: "var(--surface-subtle)",
                 borderRadius: "8px",
                 marginBottom: "0.5rem",
               }}
@@ -1958,7 +1958,7 @@ useEffect(() => {
               <Box sx={{ maxHeight: "14rem" }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   <IconButton onClick={() => handleClosePreferredResponseModal(index)} size="small">
-                    <CloseIcon sx={{ color: orange[400], fontSize: "0.9rem" }} />
+                    <CloseIcon sx={{ color: "var(--primary)", fontSize: "0.9rem" }} />
                   </IconButton>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
@@ -1973,7 +1973,7 @@ useEffect(() => {
                               <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
-                                  style={{ color: "#d93025", fontSize: "18px" }}
+                                  style={{ color: "var(--color-error)", fontSize: "18px" }}
                                 >
                                   {" "}
                                   *
@@ -2118,7 +2118,7 @@ useEffect(() => {
                                   ))}
                                 <span
                                   style={{
-                                    color: "#d93025",
+                                    color: "var(--color-error)",
                                     fontSize: "25px",
                                   }}
                                 >
@@ -2150,7 +2150,7 @@ useEffect(() => {
                                     <Typography
                                       variant="subtitle2"
                                       sx={{
-                                        color: "#6C5F5B",
+                                        color: "var(--model-muted)",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
                                         fontSize: "0.85rem"
@@ -2194,7 +2194,7 @@ useEffect(() => {
                                             )
                                           }
                                           style={{
-                                            border: "1px solid #ccc",
+                                            border: "1px solid var(--border-color)",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
                                             fontSize: "0.85rem"
@@ -2221,7 +2221,7 @@ useEffect(() => {
                                 </span>
                                 <span
                                   style={{
-                                    color: "#d93025",
+                                    color: "var(--color-error)",
                                     fontSize: "25px",
                                   }}
                                 >
@@ -2253,7 +2253,7 @@ useEffect(() => {
                                           sx={{
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
-                                            color: "#6C5F5B",
+                                            color: "var(--model-muted)",
                                             fontSize: "0.85rem"
                                           }}
                                         >
@@ -2296,19 +2296,19 @@ useEffect(() => {
                                               );
                                             }}
                                             sx={{
-                                              color: "#ee6633",
+                                              color: "var(--primary)",
                                               "& .MuiRating-iconFilled": {
-                                                color: "#ee6633",
+                                                color: "var(--primary)",
                                               },
                                               "& .MuiRating-iconHover": {
-                                                color: "#ee6633",
+                                                color: "var(--primary)",
                                               },
                                             }}
                                             emptyIcon={
                                               <StarIcon
                                                 style={{
                                                   opacity: 0.55,
-                                                  color: orange[400],
+                                                  color: "var(--primary)",
                                                 }}
                                                 fontSize="inherit"
                                               />
@@ -2334,7 +2334,7 @@ useEffect(() => {
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
-                                    color: "#d93025",
+                                    color: "var(--color-error)",
                                     fontSize: "25px",
                                   }}
                                 >
@@ -2425,7 +2425,7 @@ useEffect(() => {
                                                       <Typography
                                                         variant="subtitle2"
                                                         sx={{
-                                                          color: "#6C5F5B",
+                                                          color: "var(--model-muted)",
                                                           fontSize: "0.85rem"
                                                         }}
                                                       >
@@ -2458,7 +2458,7 @@ useEffect(() => {
                                   {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
-                                      color: "#d93025",
+                                      color: "var(--color-error)",
                                       fontSize: "25px",
                                     }}
                                   >
@@ -2548,7 +2548,7 @@ useEffect(() => {
                                                         <Typography
                                                           variant="subtitle2"
                                                           sx={{
-                                                            color: "#6C5F5B",
+                                                            color: "var(--model-muted)",
                                                             fontSize: "0.85rem"
                                                           }}
                                                         >
@@ -2594,7 +2594,7 @@ useEffect(() => {
                                           }
                                           onChange={(e) => handleSingleInputChange(e.target.value, questionIdx, index, promptOutputPairId)}
                                           style={{
-                                            border: "1px solid #ccc",
+                                            border: "1px solid var(--border-color)",
                                             borderRadius: "4px",
                                             padding: "4px",
                                             fontSize: "0.85rem",
@@ -2604,7 +2604,7 @@ useEffect(() => {
                                             maxWidth: "200px",
                                             margin: "4px 0",
                                             boxSizing: "border-box",
-                                            backgroundColor: "white",
+                                            backgroundColor: "var(--primary-contrast)",
                                             fontWeight: "normal",
                                           }}
                                           required={true}
@@ -2613,7 +2613,7 @@ useEffect(() => {
                                     </span>
                                   ))}
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                    <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                                       {" "}
                                       *
                                     </span>
@@ -2630,7 +2630,7 @@ useEffect(() => {
                                     {questionIdx + 1}. {question.input_question}
                                   </span>
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                    <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                                       {" "}
                                       *
                                     </span>
@@ -2673,19 +2673,19 @@ useEffect(() => {
                                       }}
                                       sx={{
                                         marginLeft: "18px",
-                                        color: "#ee6633",
+                                        color: "var(--primary)",
                                         "& .MuiRating-iconFilled": {
-                                          color: "#ee6633",
+                                          color: "var(--primary)",
                                         },
                                         "& .MuiRating-iconHover": {
-                                          color: "#ee6633",
+                                          color: "var(--primary)",
                                         },
                                       }}
                                       emptyIcon={
                                         <StarIcon
                                           style={{
                                             opacity: 0.55,
-                                            color: "#EE6633",
+                                            color: "var(--primary)",
                                           }}
                                           fontSize="inherit"
                                         />
@@ -2694,7 +2694,7 @@ useEffect(() => {
                                     <Box
                                       sx={{
                                         ml: 2,
-                                        color: "#EE6633",
+                                        color: "var(--primary)",
                                         fontSize: "0.85rem"
                                       }}
                                     >
@@ -2734,7 +2734,7 @@ useEffect(() => {
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                    <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                                       {" "}
                                       *
                                     </span>
@@ -2789,7 +2789,7 @@ useEffect(() => {
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                    <span style={{ color: "var(--color-error)", fontSize: "25px" }}>
                                       {" "}
                                       *
                                     </span>
@@ -2848,12 +2848,12 @@ useEffect(() => {
                     <Button
                       variant="contained"
                       sx={{
-                        border: "1px solid #EE6633",
-                        color: orange[400],
-                        backgroundColor: "#FFF",
+                        border: "1px solid var(--primary)",
+                        color: "var(--primary)",
+                        backgroundColor: "var(--surface)",
                         borderRadius: "6px",
                         padding: "0.3rem 0.5rem",
-                        "&:hover": { backgroundColor: orange[400], color: "#FFF" },
+                        "&:hover": { backgroundColor: "var(--primary)", color: "var(--surface)" },
                         maxWidth: "fit-content",
                         marginBottom: "16px",
                         marginRight: "16px",
@@ -2920,21 +2920,21 @@ useEffect(() => {
           aria-describedby="child-modal-description"
         >
           <Box sx={{ ...style, width: "40%" }}>
-            <Typography id="child-modal-title" color={"#F18359"} fontWeight={"bold"} variant="h6">
+            <Typography id="child-modal-title" color={"var(--primary-light)"} fontWeight={"bold"} variant="h6">
               {translate("modal.domain")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
               {info.meta_info_domain}
             </Typography>
 
-            <Typography color={"#F18359"} fontWeight={"bold"} variant="h6" id="child-modal-title">
+            <Typography color={"var(--primary-light)"} fontWeight={"bold"} variant="h6" id="child-modal-title">
               {translate("modal.intent")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
               {info.meta_info_intent}
             </Typography>
 
-            <Typography id="child-modal-title" color={"#F18359"} fontWeight={"bold"} variant="h6">
+            <Typography id="child-modal-title" color={"var(--primary-light)"} fontWeight={"bold"} variant="h6">
               {translate("modal.language")}
             </Typography>
             <Typography variant="subtitle1" id="child-modal-description">
@@ -2971,7 +2971,7 @@ return (
         left: { xs: 0, md: "0" },
         right: { xs: 0, md: "0" },
         bottom: { xs: "0", md: "0" },
-        bgcolor: "#fff",
+        bgcolor: "var(--surface)",
         zIndex: { xs: 1000, md: "0" },
       }}
     >
@@ -2992,7 +2992,7 @@ return (
           paddingBottom: "0rem!important",
           paddingTop: "0.3rem!important",
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          backgroundColor: "#fafafa",
+          backgroundColor: "var(--surface-subtle)",
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
@@ -3031,7 +3031,7 @@ return (
             justifyContent: isInstructionExpanded ? "space-between" : "center",
             marginBottom: isInstructionExpanded ? "1rem" : 0,
             padding: "0.5rem",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
+            backgroundColor: "var(--surface-subtle)",
             borderRadius: "8px",
             cursor: "pointer",
             minHeight: "40px",
@@ -3043,7 +3043,7 @@ return (
             <Typography
               variant="h6"
               sx={{
-                color: "#636363",
+                color: "var(--text-secondary)",
                 fontWeight: "600",
                 fontSize: "1rem"
               }}
@@ -3063,9 +3063,9 @@ return (
               sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
             >
               {isInstructionExpanded ? (
-                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "var(--primary)" }} />
               ) : (
-                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "var(--primary)" }} />
               )}
             </IconButton>
           </Tooltip>
@@ -3074,19 +3074,19 @@ return (
         {isInstructionExpanded && (
           <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
             {/* Main Instructions */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
+            <Box sx={{ backgroundColor: "var(--primary-contrast)", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
+              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "var(--text-primary)" }}>
                 {info.instruction_data}
               </Typography>
             </Box>
 
             {/* Metadata Information - Now directly in the panel */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
+            <Box sx={{ backgroundColor: "var(--primary-contrast)", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
               {/* Hint Section */}
               <Box sx={{ mb: 2 }}>
                 <Typography
                   sx={{
-                    color: "#F18359",
+                    color: "var(--primary-light)",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     mb: 1,
@@ -3099,11 +3099,11 @@ return (
                   sx={{
                     fontSize: "0.85rem",
                     lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
+                    color: "var(--text-secondary)",
+                    backgroundColor: "var(--surface-subtle)",
                     padding: "0.75rem",
                     borderRadius: "4px",
-                    borderLeft: "3px solid #F18359",
+                    borderLeft: "3px solid var(--primary-light)",
                   }}
                 >
                   {info.hint || "No hints available"}
@@ -3114,7 +3114,7 @@ return (
               <Box sx={{ mb: 2 }}>
                 <Typography
                   sx={{
-                    color: "#F18359",
+                    color: "var(--primary-light)",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     mb: 1,
@@ -3127,8 +3127,8 @@ return (
                   sx={{
                     fontSize: "0.85rem",
                     lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
+                    color: "var(--text-secondary)",
+                    backgroundColor: "var(--surface-subtle)",
                     padding: "0.75rem",
                     borderRadius: "4px",
                     borderLeft: "3px solid #4CAF50",
@@ -3142,7 +3142,7 @@ return (
               <Box>
                 <Typography
                   sx={{
-                    color: "#F18359",
+                    color: "var(--primary-light)",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     mb: 1,
@@ -3160,7 +3160,7 @@ return (
                   {info.meta_info_language && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
                         Language: {info.meta_info_language}
                       </Typography>
                     </Box>
@@ -3168,7 +3168,7 @@ return (
                   {taskId && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
                         Task ID: {taskId}
                       </Typography>
                     </Box>
@@ -3193,16 +3193,20 @@ return (
         }}
       >
         <Box
-  sx={{
-    flex: 1,
-    overflowY: "auto",
-    padding: "1rem",
-    paddingBottom:"0rem!important",
-    background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
-    width: "100%",
-    minHeight: 0,
-  }}
+sx={{
+  flex: 1,
+  overflowY: "auto",
+  padding: "1rem",
+  paddingBottom:"0rem!important",
+  backgroundImage: `url("https://i.postimg.cc/76Mw8q8t/chat-bg.webp")`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundColor: "var(--surface)",
+  width: "100%",
+  minHeight: 0,
+}}
 >
+
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
             {showChatContainer ? renderChatHistory() : null}
           </Box>
@@ -3216,7 +3220,7 @@ return (
       <Box
         sx={{
 
-    bgcolor: "white",
+    bgcolor: "var(--primary-contrast)",
     borderTop: "1px solid #e0e0e0",
     position: "fixed",
     bottom: 0,

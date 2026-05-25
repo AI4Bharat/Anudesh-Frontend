@@ -15,7 +15,6 @@ import { useTheme } from "@mui/material/styles";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
-import themeDefault from "../../../../themes/theme";
 import DatasetStyle from "../../../../styles/dataset";
 import AddWorkspaceDialog from "./AddWorkspaceDialog";
 import componentType from "../../../../config/PageType";
@@ -263,7 +262,7 @@ const DetailsViewPage = (props) => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <ThemeProvider theme={theme}>
       {apiLoading ? (
         <Spinner />
       ) : (
@@ -354,12 +353,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 0 ? "black" : "text.primary",
+                      bgcolor: value === 0 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 0 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -370,12 +369,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 0 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 0 ? "black" : "text.primary",
+                      bgcolor: value === 0 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 0 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -387,12 +386,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 1 ? "black" : "text.primary",
+                      bgcolor: value === 1 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 1 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -403,12 +402,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 1 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 1 ? "black" : "text.primary",
+                      bgcolor: value === 1 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 1 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -420,12 +419,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 2 ? "black" : "text.primary",
+                      bgcolor: value === 2 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 2 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -436,12 +435,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 2 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 2 ? "black" : "text.primary",
+                      bgcolor: value === 2 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 2 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -453,12 +452,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 3 ? "black" : "text.primary",
+                      bgcolor: value === 3 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 3 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -469,12 +468,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 3 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 3 ? "black" : "text.primary",
+                      bgcolor: value === 3 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 3 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -497,12 +496,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 4 ? "black" : "text.primary",
+                      bgcolor: value === 4 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 4 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />
@@ -514,12 +513,12 @@ const DetailsViewPage = (props) => {
                     sx={{
                       fontSize: 16,
                       fontWeight: "700",
-                      bgcolor: value === 4 ? "#d3d3d3" : "#F5F5F5",
-                      color: value === 4 ? "black" : "text.primary",
+                      bgcolor: value === 4 ? "var(--surface-subtle)" : "var(--surface)",
+                      color: value === 4 ? "var(--text-primary)" : "text.primary",
                       margin: isSmallScreen ? "0 0 1rem 0" : "0 1rem 0 0",
                       borderRadius: 1,
                       "&:hover": {
-                        bgcolor: "#e0e0e0",
+                        bgcolor: "var(--surface-subtle)",
                       },
                     }}
                   />

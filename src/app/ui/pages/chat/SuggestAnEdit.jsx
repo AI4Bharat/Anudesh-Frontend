@@ -128,7 +128,7 @@ const SuggestAnEdit = ({
                   <OutlinedTextField
                     label="Source Text"
                     placeholder="Source Text"
-                    sx={{  m: 1, width: 200 ,input: { color: 'rgba(0, 0, 0, 0.6)' } }}
+                    sx={{  m: 1, width: 200 ,input: { color: 'var(--text-secondary)' } }}
                     value={sourceText}
                   />
   

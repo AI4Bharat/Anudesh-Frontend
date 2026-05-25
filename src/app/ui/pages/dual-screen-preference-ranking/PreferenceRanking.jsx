@@ -47,21 +47,21 @@ const OutputSelection = () => {
   };
 
   const handleMouseEnter = (event) => {
-    event.target.style.borderColor = orange[400];
+    event.target.style.borderColor = "var(--primary)";
   };
 
   const handleMouseLeave = (event) => {
-    event.target.style.borderColor = grey[200];
+    event.target.style.borderColor = "var(--border-color)";
   };
 
   const handleFocus = (event) => {
     event.target.style.outline = "0px";
-    event.target.style.borderColor = orange[400];
-    event.target.style.boxShadow = `0 0 0 3px ${orange[200]}`;
+    event.target.style.borderColor = "var(--primary)";
+    event.target.style.boxShadow = `0 0 0 3px var(--primary-light)`;
   };
 
   const handleBlur = (event) => {
-    event.target.style.boxShadow = `0px 2px 2px ${grey[50]}`;
+    event.target.style.boxShadow = `0px 2px 2px var(--surface-subtle)`;
   };
 
   return (
@@ -71,7 +71,7 @@ const OutputSelection = () => {
           marginTop: "1rem",
           padding: "1.5rem",
           borderRadius: "20px",
-          backgroundColor: "#FEF1EE",
+          backgroundColor: "var(--surface-subtle)",
         }}
       >
         <Typography
@@ -385,9 +385,9 @@ const OutputSelection = () => {
               lineHeight: "1.5",
               padding: "12px",
               borderRadius: "12px 12px 0 12px",
-              color: grey[900],
-              background: "#ffffff",
-              border: `1px solid ${grey[200]}`,
+              color: "var(--text-primary)",
+              background: "var(--surface)",
+              border: `1px solid var(--border-color)`,
               boxShadow: `0px 2px 2px ${grey[50]}`,
             }}
             horizontalView={true}
@@ -408,9 +408,9 @@ const OutputSelection = () => {
               lineHeight: "1.5",
               padding: "12px",
               borderRadius: "12px 12px 0 12px",
-              color: grey[900],
-              background: "#ffffff",
-              border: `1px solid ${grey[200]}`,
+              color: "var(--text-primary)",
+              background: "var(--surface)",
+              border: `1px solid var(--border-color)`,
               boxShadow: `0px 2px 2px ${grey[50]}`,
             }}
           />

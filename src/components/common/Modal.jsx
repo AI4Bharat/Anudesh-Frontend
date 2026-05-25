@@ -42,7 +42,7 @@ export default function SimpleModal(props) {
       <Grid sx={{
         borderRadius: "5px",
         // position: "absolute",
-        backgroundColor: "#FFFFFF",
+       backgroundColor: "var(--surface)", 
         //  boxShadow: theme.shadows[5],
         padding: 1,
         // width: "auto",

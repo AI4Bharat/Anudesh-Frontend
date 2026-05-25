@@ -196,11 +196,7 @@ export default function Login() {
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <CustomButton
-              style={{
-                backgroundColor: "#ee6633",
-                borderRadius: "20px",
-                color: "#FFFFFF",
-              }}
+              color="primary" 
               fullWidth
               onClick={handleSubmit}
               label={"Login"}

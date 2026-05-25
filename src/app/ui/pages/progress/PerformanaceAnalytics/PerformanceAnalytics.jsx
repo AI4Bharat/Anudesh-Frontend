@@ -497,8 +497,8 @@ export default function PerformanceAnalytics() {
               color="primary"
               onClick={handleCloseDatepicker}
               sx={{
-                backgroundColor: "rgba(243, 156, 18)",
-                "&:hover": { backgroundColor: "rgba(243, 156, 18 )" },
+                backgroundColor: "primary",
+                "&:hover": { backgroundColor: "primary" },
                 marginLeft: "20px",
                 marginTop: "18px",
                 width: "150px",

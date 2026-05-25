@@ -25,7 +25,10 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Skeleton from "@mui/material/Skeleton";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import tableTheme from "../../themes/tableTheme";
+import createTableTheme from "../../themes/tableTheme";
+import { lightTheme, darkTheme } from "../../themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import Search from "../common/Search";
 import {
   fetchGuestWorkspaceData,
@@ -69,6 +72,8 @@ const MUIDataTable = dynamic(
 
 const GuestWorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showManager, showCreatedBy } = props;

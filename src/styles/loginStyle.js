@@ -3,15 +3,14 @@ import { makeStyles } from '@mui/styles';
 
 const LoginStyle = makeStyles({
     appInfo: {
-        background: "rgba(238, 102, 51, 1)",
+        background: "var(--brand-primary)",
         minHeight: "100vh",
         color:"white",
         // color: theme.palette.primary.contrastText,
         "@media (max-width:650px)": {
-          background: "white",
-          minHeight: "15vh",
-         
-        },
+        background: "var(--surface)",             
+        minHeight: "15vh",
+    },
         
       
       },
@@ -24,11 +23,9 @@ const LoginStyle = makeStyles({
         letterSpacing: "3.9px",
         textAlign: "left",
         "@media (max-width:650px)": {
-          margin: "0% 0% 00% 90%",
-          color: "black",
-         
-         
-        },
+        margin: "0% 0% 00% 90%",
+        color: "var(--text-primary)",             
+      },
       
     
       },
@@ -41,10 +38,10 @@ const LoginStyle = makeStyles({
         letterSpacing: "1.6px",
         textAlign: "left",
         "@media (max-width:1040px)": {
-          letterSpacing: "1px",
-          maxWidth: "280px",
-          width: "80%",
-        },
+        letterSpacing: "1px",
+        maxWidth: "280px",
+        width: "80%",
+    },
         "@media (min-width:1790px)": {
           width: "68%",
         },
@@ -58,13 +55,12 @@ const LoginStyle = makeStyles({
         textAlign: "left",
         color: "#f2f2f4",
         "@media (max-width:1040px)": {
-          letterSpacing: "1px",
-          maxWidth: "280px",
-        },
-        "@media (min-width:1790px)": {
-          
-          width: "85%",
-        },
+      letterSpacing: "1px",
+      maxWidth: "280px",
+    },
+    "@media (min-width:1790px)": {
+      width: "85%",
+    },
       },
       parent: {
         display: "flex",
@@ -84,7 +80,7 @@ const LoginStyle = makeStyles({
       link: {
         cursor: "pointer",
         width: "100%",
-        color: "#ee6633",
+         color: "var(--brand-primary)", 
         float: "right",
         fontSize: "0.875rem",
         fontFamily: '"lato" ,sans-serif',

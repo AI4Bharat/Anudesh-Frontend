@@ -29,7 +29,7 @@
 
 .settingsButton {
   width: 100%;
-  color: #ee6633;
+  color: var(--primary);
 }
 
 .workspaceCard {
@@ -100,7 +100,7 @@
 }
 
 .menuStyle:hover {
-  background-color: white;
+  background-color: var(--surface);
 }
 
 .projectCardContainer {
@@ -110,7 +110,7 @@
 .modelname {
   box-sizing: border-box;
   height: 64px;
-  background-color: white;
+  background-color: var(--surface);
   max-width: 90%;
   min-width: "90%";
   width: auto;
@@ -128,7 +128,7 @@
 }
 
 .projectCardContainer1 {
-  background-color: #ee6633;
+  background-color: var(--primary);
   height: 100%;
   width: 100%;
 }
@@ -174,9 +174,10 @@
   opacity: 1;
 }
 
+
 .search {
   border-radius: 20px;
-  background-color: #f3f3f3;
+  background-color: var(--surface-subtle);
   width: 300px;
   height: 40px;
   display: flex;
@@ -265,14 +266,14 @@
 .heading {
   text-align: center;
   margin-bottom: 35px;
-  color: #3a3a3a;
+  color: var(--text-primary);
   font-size: 2.5rem;
   font-weight: 400;
 }
 .topBar {
   display: flex;
   align-items: center;
-  background-color: #deecff;
+  background-color: var(--topBarBg, var(--topBarBg, #deecff));
   font-size: 18px;
 }
 
@@ -287,7 +288,7 @@
   width: 200px;
   height: 180px;
   font-size: 16px;
-  background-color: white;
+  background-color: var(--surface);
   color: black;
   padding: 5px 10px 10px 10px;
   border: 1px solid gray;
@@ -297,7 +298,7 @@
   width: 280px;
   height: 220px;
   font-size: 16px;
-  background-color: white;
+  background-color: var(--surface);
   color: black;
   padding: 5px 10px 10px 10px;
   border: 1px solid gray;
@@ -317,12 +318,12 @@
 .appInfo {
   background: rgba(238, 102, 51, 1);
   min-height: 100vh;
-  color: white;
+  color: var(--surface);
 }
 
 @media screen and (max-width: 650px) {
   .appInfo {
-    background: white;
+    background: var(--surface);
     min-height: 15vh;
   }
 }
@@ -395,7 +396,7 @@
 .link {
   cursor: pointer;
   width: 100%;
-  color: #ee6633;
+  color: var(--primary);
   float: right;
   font-size: 0.875rem;
   font-family: "lato ;sans-serif";
@@ -417,5 +418,5 @@
 
 .loginButtonStyle {
   border-radius: 20px;
-  color: #ffffff;
+  color: var(--primary-contrast);
 }

@@ -197,7 +197,7 @@ export default function WordCountMetaAnalyticsChart(props) {
     
   return (
     <Box className={classes.modelChartSection}>
-         <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
+         <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading} >
          {`Word Count Dashboard - ${analyticsData[0].projectType}`}
           <Typography variant="body1">
             Count of Annotated and Reviewed Data

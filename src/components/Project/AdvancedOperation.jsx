@@ -10,7 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Tooltip from "@mui/material/Tooltip";
 import React, { useEffect, useState } from "react";
-import themeDefault from "@/themes/theme";
+//import themeDefault from "@/themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import DatasetStyle from "@/styles/dataset";
 import { useDispatch, useSelector } from "react-redux";
@@ -79,7 +79,7 @@ const MenuProps = {
 };
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+backgroundColor: theme.palette.background.paper,
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: "center",
@@ -518,7 +518,7 @@ const AdvancedOperation = (props) => {
     }
   };
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {loading && <Spinner />}
       <Grid>{renderSnackBar()}</Grid>
 
@@ -931,7 +931,7 @@ const AdvancedOperation = (props) => {
           />
         )}
       </div>
-    </ThemeProvider>
+    </>
   );
 };
 

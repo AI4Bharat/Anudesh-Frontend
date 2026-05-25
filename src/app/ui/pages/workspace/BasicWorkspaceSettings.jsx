@@ -1,11 +1,9 @@
-import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import React, { useState ,useEffect} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import themeDefault from "../../../../themes/theme";
 import OutlinedTextField from "../../../../components/common/OutlinedTextField";
 import "../../../../styles/Dataset.css";
 import CustomButton from "../../../../components/common/Button";
@@ -119,7 +117,7 @@ const BasicWorkspaceSettings = (props) => {
   };
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {/* <Header /> */}
       {loading && <Spinner />}
       <Grid>{renderSnackBar()}</Grid>
@@ -196,7 +194,7 @@ const BasicWorkspaceSettings = (props) => {
           />
         </Grid>
       </Grid>
-    </ThemeProvider>
+    </>
   );
 };
 

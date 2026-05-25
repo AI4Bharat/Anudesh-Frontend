@@ -3,7 +3,7 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import {  ThemeProvider } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import themeDefault from "@/themes/theme";
+//import themeDefault from "@/themes/theme";
 import DatasetStyle from "@/styles/dataset";
 
 import InterAutomateDataset from "./InterAutomateDataset";
@@ -23,7 +23,6 @@ const AutomateDatasets = () => {
 
 
   return (
-    <ThemeProvider theme={themeDefault}>
     <Box sx={{ width: '100%', typography: 'body1' }}>
       <Tabs value={selectedTab} onChange={handleTabChange} >
         <Tab label="Inter-Automate Datasets" sx={{ fontSize: 16, fontWeight: '700' }}/>
@@ -32,7 +31,6 @@ const AutomateDatasets = () => {
       {selectedTab === 0 && <InterAutomateDataset/>}
       {selectedTab === 1 && <IntraAutomateDataset />}
     </Box>
-    </ThemeProvider>
 
 
   );

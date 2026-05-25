@@ -109,7 +109,7 @@ export default function UnassignedReviewSummaryPopup() {
               <CircularProgress />
             </div>
           ) : error ? (
-            <div style={{ color: "red", textAlign: "center" }}>{error}</div>
+            <div style={{ color: "var(--color-error)", textAlign: "center" }}>{error}</div>
           ) : data.length === 0 ? (
             <div style={{ textAlign: "center" }}>
               No unassigned review tasks found.

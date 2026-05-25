@@ -115,7 +115,7 @@ function AnnotationDetails() {
         value: ({ style }, nodeType, keyPath) => ({
             style: {
                 ...style,
-                borderLeft: '2px solid #ccc',
+                borderLeft: '2px solid var(--border-color)',
                 marginLeft: '1.375em',
                 paddingLeft: '2em',
                 wordBreak:'normal'
@@ -124,7 +124,7 @@ function AnnotationDetails() {
         nestedNode: ({ style }, nodeType, keyPath) => ({
             style: {
                 ...style,
-                borderLeft: '2px solid #ccc',
+                borderLeft: '2px solid var(--border-color)',
                 marginLeft: keyPath.length > 1 ? '1.375em' : 0,
                 textIndent: '-0.375em',
                 wordBreak:'normal'
@@ -136,7 +136,7 @@ function AnnotationDetails() {
                 ...style,
                 paddingRight: '1.375rem',
                 textIndent: '0rem',
-                backgroundColor: 'white',
+                backgroundColor: 'var(--surface)',
                 wordBreak:'normal'
             },
         }),
@@ -173,8 +173,15 @@ function AnnotationDetails() {
                         value={annotationId}
                         onChange={(event) => setAnnotationId(event.target.value)}
                         sx={{
-                            width:{xs:"100%",sm:"400px"}
+                            width:{xs:"100%",sm:"400px"},
+                            '& .MuiOutlinedInput-root': {
+                                color: 'text.primary',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'divider',
+                            },
                         }}
+                       
                     />
                     <Button 
                     variant="contained" 

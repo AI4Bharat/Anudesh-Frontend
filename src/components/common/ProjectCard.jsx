@@ -1,7 +1,6 @@
 import * as React from "react";
 import Typography from "@mui/material/Typography";
 import  Grid from "@mui/material/Grid";
-import themeDefault from "../../themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import  "../../styles/Dataset.css";
 import UserMappedByProjectStage from "../../utils/UserMappedByProjectStage";
@@ -121,7 +120,7 @@ const ProjectCard = (props) => {
             <Typography variant="lightText">Workspace Id</Typography>
             <Typography
               variant="body2"
-              sx={{ color: "primary.contrastText", mt: 0.5, fontWeight: "500" }}
+              sx={{ background: "var(--card-badge)", mt: 0.5, fontWeight: "500" }}
             >
               {projectObj.workspace_id}
             </Typography>

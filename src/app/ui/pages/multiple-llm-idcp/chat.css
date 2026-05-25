@@ -16,7 +16,7 @@
 
 .myInput{
   width: 51.25rem;
-  outline: solid white;
+  outline: solid var(--surface);
   height: 3.1rem;
   border-radius: 2.5rem;
   padding-left: 1rem;
@@ -27,7 +27,7 @@
   margin-left:1.5rem;
   font-weight: 700;
   font-size: 1.25rem;
-  background: -webkit-linear-gradient(rgba(238, 102, 51, 1), rgba(238, 102, 51, 0));
+background: -webkit-linear-gradient(var(--primary), rgba(238, 102, 51, 0));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -36,7 +36,7 @@
 
 .div-grid{
     width: 16.5rem;
-    background-color: white;
+    background-color: var(--surface);
     height: 16.5rem;
     border-radius: 1.25rem;
 }
@@ -59,7 +59,7 @@
     margin-top: 2rem;
     width: 1.5rem;
     height: 1.5rem;
-    color: white;
+    color: var(--surface);
     margin-right: 2rem;
 }
 
@@ -76,8 +76,8 @@
   
   /* User message styles */
   .user-message {
-    background-color: #f58308;
-    color: #ffffff;
+    background-color: var(--primary);
+    color: var(--primary-contrast);
     max-width: 70%;
     align-self: flex-end;
     border-radius: 10px;
@@ -88,7 +88,7 @@
   /* Bot message styles */
   .bot-message {
     background-color: #EAEAEA;
-    color: #333;
+    color: var(--text-primary);
     max-width: 70%;
     align-self: flex-start;
     border-radius: 10px;

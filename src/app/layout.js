@@ -1,16 +1,33 @@
 // Import necessary modules from Next.js
 "use client"
 import Head from 'next/head';
-import { ThemeProvider } from '@emotion/react';
+import { ThemeProvider } from '@mui/material/styles';
+import { useState, useEffect, createContext, useContext } from 'react';
+import CssBaseline from '@mui/material/CssBaseline';
 
 // Import your custom theme
-import themeDefault from '../themes/theme';
-
+import { lightTheme, darkTheme } from '../themes/theme';
 // Import the StoreProvider and CSS
 import Providers from './StoreProvider';
 import './index.css';
 
+// THEME TOGGLE CONTEXT
+export const ThemeToggleContext = createContext({ isDark: false, toggleTheme: () => {} });
+export const useThemeToggle = () => useContext(ThemeToggleContext);
+
 export default function RootLayout({ children }) {
+  const [isDark, setIsDark] = useState(false);
+  // On mount — check localStorage or OS preference
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDark(saved === "dark" || (!saved && prefersDark));
+  }, []);
+  // Whenever isDark changes — update data-theme attribute + save to localStorage
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
   return (
     <>
       <html lang="en">
@@ -50,9 +67,12 @@ export default function RootLayout({ children }) {
 
         <body>
           <Providers>
-            <ThemeProvider theme={themeDefault}>
-              {children}
-            </ThemeProvider>
+            <ThemeToggleContext.Provider value={{ isDark, toggleTheme: () => setIsDark(p => !p) }}>
+              <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+                <CssBaseline />
+                {children}
+              </ThemeProvider>
+            </ThemeToggleContext.Provider>
           </Providers>
         </body>
       </html>

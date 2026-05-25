@@ -187,7 +187,7 @@ function TaskDetails() {
         value: ({ style }, nodeType, keyPath) => ({
             style: {
                 ...style,
-                borderLeft: '2px solid #ccc',
+                borderLeft: '2px solid var(--border-color)',
                 marginLeft: '1.375em',
                 paddingLeft: '2em',
                 wordBreak: 'normal'
@@ -196,7 +196,7 @@ function TaskDetails() {
         nestedNode: ({ style }, nodeType, keyPath) => ({
             style: {
                 ...style,
-                borderLeft: '2px solid #ccc',
+                borderLeft: '2px solid var(--border-color)',
                 marginLeft: keyPath.length > 1 ? '1.375em' : 0,
                 textIndent: '-0.375em',
                 wordBreak: 'normal'
@@ -208,7 +208,7 @@ function TaskDetails() {
                 ...style,
                 paddingRight: '1.375rem',
                 textIndent: '0rem',
-                backgroundColor: 'white',
+                backgroundColor: 'var(--surface)',
                 wordBreak: 'normal'
             },
         }),

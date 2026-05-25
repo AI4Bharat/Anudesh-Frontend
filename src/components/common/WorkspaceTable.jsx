@@ -4,7 +4,10 @@ import CustomButton from "../common/Button";
 import { Link } from "react-router-dom";
 import dynamic from 'next/dynamic';
 import { ThemeProvider, Grid, Box, TablePagination, Select, MenuItem, Skeleton } from "@mui/material";
-import tableTheme from "../../themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import DatasetStyle from "../../styles/dataset";
 import Search from "../common/Search";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
@@ -32,6 +35,8 @@ const MUIDataTable = dynamic(
 
 const WorkspaceTable = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { isDark } = useContext(ThemeToggleContext);
+const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
 
   const classes = DatasetStyle();
   const dispatch = useDispatch();

@@ -19,7 +19,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import MenuItems from "@/components/common/MenuItems";
 import { MenuProps } from "@/utils/utils";
-import themeDefault from "@/themes/theme";
 import { fetchDataitemsById } from '@/Lib/Features/datasets/GetDataitemsById';
 import intraAutomateDatasetsAPI from '@/app/actions/api/dataset/intraAutomateDatasetsAPI';
 import { fetchDatasetByType } from '@/Lib/Features/datasets/getDatasetByType';
@@ -143,7 +142,7 @@ const DraftDataPopulation = () => {
   }
 
   return (
-    <ThemeProvider theme={themeDefault}>
+    <>
       {loading && <Spinner />}
       <Grid container direction="row"  paddingTop={3}>
         {/* <Card className={classes.workspaceCard}>
@@ -273,7 +272,7 @@ const DraftDataPopulation = () => {
         hide={2000}
       />
 
-    </ThemeProvider>
+    </>
 
   );
 };

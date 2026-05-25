@@ -10,7 +10,10 @@ import TablePagination from "@mui/material/TablePagination";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Skeleton from "@mui/material/Skeleton";
-import tableTheme from "@/themes/tableTheme";
+import createTableTheme from "@/themes/tableTheme";
+import { lightTheme, darkTheme } from "@/themes/theme";
+import { useContext } from "react";
+import { ThemeToggleContext } from "@/app/layout";
 import { useSelector } from "react-redux";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DatasetFilterList from "./DatasetFilterList";
@@ -39,6 +42,8 @@ const MUIDataTable = dynamic(
 
 const DatasetCardList = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const { isDark } = useContext(ThemeToggleContext);
+  const tableTheme = createTableTheme(isDark ? darkTheme : lightTheme);
   const [displayWidth, setDisplayWidth] = useState(0);
   const { datasetList, selectedFilters, setsSelectedFilters } = props;
   const SearchDataset = useSelector((state) => state.searchProjectCard?.searchValue);
@@ -199,18 +204,19 @@ const DatasetCardList = (props) => {
   console.log("filtersApplied", filtersApplied);
 
   const CustomTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#e0e0e0',
-      color: 'rgba(0, 0, 0, 0.87)',
-      maxWidth: 300,
-      fontSize: theme.typography.pxToRem(12),
-    },
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#e0e0e0",
-    },
-  }));
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "var(--surface-subtle)",
+    color: "var(--text-primary)",
+    maxWidth: 300,
+    fontSize: theme.typography.pxToRem(12),
+    border: "1px solid var(--divider)",
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: "var(--surface-subtle)",
+  },
+}));
 
   const renderToolBar = () => {
     return (
@@ -232,7 +238,7 @@ const DatasetCardList = (props) => {
             }
             disableInteractive
           >
-            <FilterListIcon sx={{ color: '#515A5A' }} />
+            <FilterListIcon sx={{ color: 'var(--text-secondary)' }} />
           </CustomTooltip>
         </Button>
       </div>
@@ -254,6 +260,8 @@ const DatasetCardList = (props) => {
             xs: "10px",
             md: "20px"
           },
+          backgroundColor: "var(--surface)",
+          borderTop: "1px solid var(--divider)",
         }}
       >
 
