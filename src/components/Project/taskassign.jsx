@@ -128,20 +128,24 @@ const TasksassignDialog = ({default_reviewer=null, disabled=false}) => {
   return (
     <>
       <Grid>
-        <Button
-          variant="contained"
-          onClick={handleOpen}
-          disabled={disabled}
-          sx={{
-            backgroundColor: '#ee6633',
-            color: '#fff',
-            inlineSize: 'max-content',
-            width: '100%',
-            borderRadius: 1,
-          }}
-        >
-          Manual Assign Tasks
-        </Button>
+        <Tooltip title={disabled ? "Task assignment is currently disabled" : "Manually assign specific tasks to a user"}>
+          <span>
+            <Button
+              variant="contained"
+              onClick={handleOpen}
+              disabled={disabled}
+              sx={{
+                backgroundColor: '#ee6633',
+                color: '#fff',
+                inlineSize: 'max-content',
+                width: '100%',
+                borderRadius: 1,
+              }}
+            >
+              Manual Assign Tasks
+            </Button>
+          </span>
+        </Tooltip>
       </Grid>
 
       <Dialog open={open} onClose={handleClose}>
