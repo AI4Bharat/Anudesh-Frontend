@@ -139,7 +139,7 @@ const TasksassignDialog = ({default_reviewer=null, disabled=false}) => {
                 color: '#fff',
                 inlineSize: 'max-content',
                 width: '100%',
-                borderRadius: 1,
+                borderRadius: 2,
               }}
             >
               Manual Assign Tasks
