@@ -95,7 +95,7 @@ const BasicSettings = (props) => {
             setSystemPrompt({});
         }
     }, [ProjectDetails]);
-    const DEFAULT_SYSTEM_PROMPT = "We will be rendering your response on a frontend. so please add spaces or indentation or nextline chars or bullet or numberings etc. suitably for code or the text. wherever required.";
+    const DEFAULT_SYSTEM_PROMPT = "We will be rendering your response on a frontend. So, please add spaces or indentation or nextline chars or bullet or numberings etc. suitably for code or the text, wherever required.";
     const LanguageChoices = useSelector((state) => state.getLanguages.data.language);
    
     const getLanguageChoices = () => {
