@@ -23,6 +23,7 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import GetLLMTaskStatusAPI from "@/app/actions/api/Dashboard/GetLLMTaskStatus";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
@@ -102,6 +103,7 @@ const InstructionDrivenChatPage = ({
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const pollingIntervalRef = useRef(null);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
 const [isDragging, setIsDragging] = useState(false);
@@ -359,24 +361,28 @@ const [snackbar, setSnackbarInfo] = useState({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
-      
-      if (res.ok && data && data.result) {
-        let modifiedChatHistory = data.result.map((interaction, index) => {
-          const isLastInteraction = index === data?.result?.length - 1;
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output, isLastInteraction),
-          };
-        });
-        setChatHistory(modifiedChatHistory);
+
+      if (data && data.celery_task_id) {
+        pollLLMTask(data.celery_task_id);
       } else {
-        setSnackbarInfo({
-          open: true,
-          message: data?.message || "An error occurred while saving the annotation.",
-          variant: "error",
-        });
+        if (res.ok && data && data.result) {
+          let modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data?.result?.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory(modifiedChatHistory);
+        } else {
+          setSnackbarInfo({
+            open: true,
+            message: data?.message || "An error occurred while saving the annotation.",
+            variant: "error",
+          });
+        }
+        setLoading(false);
       }
-      setLoading(false);
     } else {
       setSnackbarInfo({
         open: true,
@@ -389,6 +395,49 @@ const [snackbar, setSnackbarInfo] = useState({
     }, 1000);
     setShowChatContainer(true);
   };
+
+  const pollLLMTask = (celeryTaskId) => {
+    if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+    pollingIntervalRef.current = setInterval(async () => {
+      try {
+        const statusObj = new GetLLMTaskStatusAPI(celeryTaskId);
+        const res = await fetch(statusObj.apiEndPoint(), {
+          method: "GET",
+          headers: statusObj.getHeaders().headers,
+        });
+        const data = await res.json();
+        if (data.status === "SUCCESS") {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setLoading(false);
+          if (data.result) {
+            setChatHistory(
+              data.result.map((interaction, index) => ({
+                ...interaction,
+                output: formatResponse(interaction.output, index === data.result.length - 1),
+              }))
+            );
+          }
+          setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 300);
+        } else if (data.status === "FAILURE") {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setLoading(false);
+          setSnackbarInfo({ open: true, message: "LLM request failed. Please try again.", variant: "error" });
+        }
+      } catch {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        setLoading(false);
+      }
+    }, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+    };
+  }, []);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
