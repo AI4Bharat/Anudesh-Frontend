@@ -24,6 +24,7 @@ import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import GetLLMTaskStatusAPI from "@/app/actions/api/Dashboard/GetLLMTaskStatus";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
@@ -126,6 +127,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const pollingIntervalRef = useRef(null);
   const [loadtime, setloadtime] = useState(new Date());
   const [activeModalIdentifier, setActiveModalIdentifier] = useState(null);
   const [visibleMessages, setVisibleMessages] = useState({});
@@ -399,6 +401,70 @@ useEffect(() => {
     return Number(`${time}${deviceHash}${rand}`);
   };
 
+  const pollLLMTask = (celeryTaskId) => {
+    if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+    pollingIntervalRef.current = setInterval(async () => {
+      try {
+        const statusObj = new GetLLMTaskStatusAPI(celeryTaskId);
+        const res = await fetch(statusObj.apiEndPoint(), {
+          method: "GET",
+          headers: statusObj.getHeaders().headers,
+        });
+        const data = await res.json();
+        if (data.status === "SUCCESS") {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setLoading(false);
+          if (data.result && data.result.length > 0 && data.result[0].model_interactions) {
+            setChatHistory(() => {
+              const allModelsInteractions = data.result[0].model_interactions;
+              const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+              const updatedHistory = [];
+              for (let i = 0; i < interactions_length; i++) {
+                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+                const modelOutputs = [];
+                let turnPromptOutputPairId = null;
+                allModelsInteractions.forEach((modelData, modelIdx) => {
+                  const interaction = modelData?.interaction_json?.[i];
+                  if (interaction) {
+                    if (modelIdx === 0) turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                    modelOutputs.push({
+                      model_id: modelData?.model_id || modelData?.model_name,
+                      model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                      output: formatResponse(interaction?.output),
+                      status: "success",
+                      prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    });
+                  }
+                });
+                if (prompt !== undefined && modelOutputs.length > 0) {
+                  updatedHistory.push({ prompt, output: modelOutputs, prompt_output_pair_id: turnPromptOutputPairId });
+                }
+              }
+              return updatedHistory;
+            });
+          }
+          setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 300);
+        } else if (data.status === "FAILURE") {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+          setLoading(false);
+          setSnackbarInfo({ open: true, message: "LLM request failed. Please try again.", variant: "error" });
+        }
+      } catch {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        setLoading(false);
+      }
+    }, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
+    };
+  }, []);
+
   const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
     console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
         const isMultipleResponse = ProjectDetails?.metadata_json;
@@ -451,6 +517,10 @@ useEffect(() => {
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
+
+      if (data && data.celery_task_id) {
+        pollLLMTask(data.celery_task_id);
+      } else {
       console.log("hello", data);
       let errorMessage = null;
 
@@ -586,6 +656,7 @@ useEffect(() => {
         ...prev,
         [chatHistory.length]: true,
       }));
+      } // end celery else
     } else {
       setSnackbarInfo({
         open: true,
