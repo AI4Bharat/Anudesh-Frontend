@@ -359,29 +359,24 @@ const [snackbar, setSnackbarInfo] = useState({
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
-      let modifiedChatHistory;
-      setChatHistory((prevChatHistory) => {
-        data && data.result && setLoading(false);
-        if (data && data.result) {
-          modifiedChatHistory = data.result.map((interaction, index) => {
-            const isLastInteraction = index === data?.result?.length - 1;
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output, isLastInteraction),
-            };
-          });
-        } else {
-          setLoading(false);
-          setSnackbarInfo({
-            open: true,
-            message: data?.message,
-            variant: "error",
-          });
-        }
-        return data && data.result
-          ? [...modifiedChatHistory]
-          : [...prevChatHistory];
-      });
+      
+      if (res.ok && data && data.result) {
+        let modifiedChatHistory = data.result.map((interaction, index) => {
+          const isLastInteraction = index === data?.result?.length - 1;
+          return {
+            ...interaction,
+            output: formatResponse(interaction.output, isLastInteraction),
+          };
+        });
+        setChatHistory(modifiedChatHistory);
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: data?.message || "An error occurred while saving the annotation.",
+          variant: "error",
+        });
+      }
+      setLoading(false);
     } else {
       setSnackbarInfo({
         open: true,

@@ -510,11 +510,23 @@ const MultipleLLMInstructionDrivenChat = ({
       console.log("hello", data);
       let errorMessage = null;
 
-      for (const [modelName, modelResponse] of Object.entries(data.output)) {
-        if (modelResponse?.error) {
-          errorMessage = `${modelName} error: ${modelResponse.error}`;
-          break;
+      if (data && data.output) {
+        for (const [modelName, modelResponse] of Object.entries(data.output)) {
+          if (modelResponse?.error) {
+            errorMessage = `${modelName} error: ${modelResponse.error}`;
+            break;
+          }
         }
+      }
+
+      if (!res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+          variant: "error",
+        });
+        setLoading(false);
+        return;
       }
 
       if (errorMessage) {
