@@ -462,7 +462,7 @@ useEffect(() => {
         pollingIntervalRef.current = null;
         setLoading(false);
       }
-    }, 2000);
+    }, 5000);
   };
 
   useEffect(() => {
