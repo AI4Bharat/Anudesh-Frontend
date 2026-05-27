@@ -401,12 +401,6 @@ useEffect(() => {
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const isRTLLanguage = (text) => {
-    if (!text) return false;
-    const rtlScriptRegex = /[؀-ۿ]/;
-    return rtlScriptRegex.test(text);
-  };
-
   const pollLLMTask = (celeryTaskId) => {
     if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
     pollingIntervalRef.current = setInterval(async () => {
