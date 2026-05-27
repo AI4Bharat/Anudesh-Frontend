@@ -23,8 +23,8 @@ function TabPanel(props) {
             {...other}
         >
             {value === index && (
-                <Box p={2}>
-                    <Typography>{children}</Typography>
+                <Box sx={{ pt: 3 }}>
+                    {children}
                 </Box>
             )}
         </div>
@@ -43,16 +43,92 @@ const ProgressList = () => {
     return (
       
         <>
-            <Box sx={{m:1}} >
-                <Tabs value={tabValue} onChange={handleTabChange} aria-label="user-tabs" variant='scrollable'                     
+            <Box sx={{
+                px: { xs: 1, sm: 2, md: 3 },
+                pt: { xs: 2, sm: 3 },
+                pb: 0,
+            }}>
+                {/* Page Header */}
+                <Typography 
+                    variant="h5" 
+                    sx={{ 
+                        fontWeight: 700, 
+                        color: '#1a1a2e',
+                        mb: 0.5,
+                        fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                        letterSpacing: '-0.02em',
+                    }}
                 >
-                    <Tab label="Task Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} />
-                    <Tab label="Meta Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} />
-                    <Tab label="Advance Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} />
-                    <Tab label="Performance Analytics " sx={{ fontSize: 16, fontWeight: '700', marginRight: '28px !important' }} /> 
-                </Tabs>
+                    Analytics Dashboard
+                </Typography>
+                <Typography 
+                    variant="body2" 
+                    sx={{ 
+                        color: '#6b7280', 
+                        mb: 3,
+                        fontSize: '0.875rem',
+                    }}
+                >
+                    Monitor performance metrics and track progress across projects
+                </Typography>
+
+                {/* Premium Tab Navigation */}
+                <Box sx={{
+                    borderBottom: '1px solid #e5e7eb',
+                    mb: 0,
+                }}>
+                    <Tabs 
+                        value={tabValue} 
+                        onChange={handleTabChange} 
+                        aria-label="analytics-tabs" 
+                        variant='scrollable'
+                        scrollButtons="auto"
+                        sx={{
+                            minHeight: '44px',
+                            '& .MuiTabs-indicator': {
+                                height: '2.5px',
+                                borderRadius: '2px 2px 0 0',
+                                background: 'linear-gradient(90deg, #f97316, #ea580c)',
+                            },
+                            '& .MuiTabs-flexContainer': {
+                                gap: '4px',
+                            },
+                        }}
+                    >
+                        {['Task Analytics', 'Meta Analytics', 'Advance Analytics', 'Performance Analytics'].map((label, i) => (
+                            <Tab 
+                                key={i}
+                                label={label} 
+                                sx={{ 
+                                    fontSize: '0.8125rem',
+                                    fontWeight: tabValue === i ? 600 : 500,
+                                    color: tabValue === i ? '#1a1a2e' : '#6b7280',
+                                    textTransform: 'none',
+                                    minHeight: '44px',
+                                    px: 2,
+                                    py: 0,
+                                    mr: '0px !important',
+                                    borderRadius: '8px 8px 0 0',
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                        color: '#1a1a2e',
+                                        backgroundColor: '#f9fafb',
+                                    },
+                                    '&.Mui-selected': {
+                                        color: '#1a1a2e',
+                                    },
+                                }} 
+                            />
+                        ))}
+                    </Tabs>
+                </Box>
             </Box>
-            <Box sx={{ p: 1}}>
+
+            {/* Tab Content */}
+            <Box sx={{ 
+                px: { xs: 1, sm: 2, md: 3 }, 
+                pb: 4,
+            }}>
                 <TabPanel value={tabValue} index={0}>
                 <TaskAnalytics loggedInUserData ={loggedInUserData} />  
                 </TabPanel> 

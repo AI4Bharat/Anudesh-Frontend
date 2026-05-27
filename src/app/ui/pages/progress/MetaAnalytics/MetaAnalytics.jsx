@@ -39,13 +39,56 @@ const StyledMenu = styled((props) => (
   />
 ))(({ theme }) => ({
   '& .MuiPaper-root': {
-    borderRadius: 6,
+    borderRadius: 10,
     marginTop: theme.spacing(1),
-    minWidth: 100,
-
-
+    minWidth: 120,
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+    border: '1px solid #e2e8f0',
   },
 }));
+
+/* ── Premium inline style tokens ── */
+const sxCard = {
+  background: '#fff',
+  borderRadius: '14px',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+  p: { xs: 2, sm: 3 },
+  mb: 3,
+};
+
+const sxSelect = {
+  borderRadius: '10px',
+  fontSize: '0.875rem',
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#e2e8f0',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#cbd5e1',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#f97316',
+    borderWidth: '1.5px',
+  },
+};
+
+const sxLabel = {
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  color: '#4b5563',
+  zIndex: 0,
+};
+
+const sxBtn = {
+  borderRadius: '10px',
+  textTransform: 'none',
+  fontWeight: 600,
+  fontSize: '0.8125rem',
+  px: 3,
+  height: '40px',
+  boxShadow: 'none',
+  '&:hover': { boxShadow: '0 2px 8px rgba(249,115,22,0.25)' },
+};
 
 
 export default function MetaAnalytics(props) {
@@ -210,89 +253,87 @@ export default function MetaAnalytics(props) {
 
   return (
     <div>
-      <Grid container columnSpacing={3} rowSpacing={2}  mb={1} gap={1}>
-      <Grid
-      container
-      item
-      xs={12}
-      sm={12}
-      md={12}
-      lg={4}
-      xl={4}
-      spacing={1}
-      alignItems="center"
-    >
-      {/* Project Type Dropdown */}
-      <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-        <FormControl size="small" fullWidth>
-          <InputLabel
-            id="demo-simple-select-label"
-            sx={{ fontSize: "16px", zIndex: 0 }}
-          >
-            Project Type{" "}
-            {
-              <LightTooltip
-                arrow
-                placement="top"
-                title={translate("tooltip.ProjectType")}
+      {/* ── Controls Card ── */}
+      <Box sx={sxCard}>
+        <Grid container spacing={2.5} alignItems="center">
+          {/* Project Type Dropdown */}
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl size="small" fullWidth>
+              <InputLabel id="meta-project-type-label" sx={sxLabel}>
+                Project Type{" "}
+                {
+                  <LightTooltip
+                    arrow
+                    placement="top"
+                    title={translate("tooltip.ProjectType")}
+                  >
+                    <InfoIcon fontSize="small" sx={{ color: '#9ca3af', fontSize: '16px' }} />
+                  </LightTooltip>
+                }
+              </InputLabel>
+              <Select
+                labelId="meta-project-type-label"
+                id="meta-project-type-select"
+                value={selectedType}
+                label="Project Type"
+                sx={sxSelect}
+                onChange={(e) => setSelectedType(e.target.value)}
+                MenuProps={MenuProps}
               >
-                <InfoIcon fontSize="medium" />
-              </LightTooltip>
-            }
-          </InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedType}
-            label="Project Type"
-            sx={{ padding: "1px" }}
-            onChange={(e) => setSelectedType(e.target.value)}
-            MenuProps={MenuProps}
-          >
-            {projectTypes.map((type, index) => (
-              <MenuItem value={type} key={index}>
-                {type}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-      </Grid>
-   <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-    <Box display="flex" justifyContent="space-between" alignItems="center">
-      <CustomButton
-        label="Submit"
-        sx={{ width: "35%", height: "40px" }}
-        onClick={handleSubmit}
-        size="small"
-      />
+                {projectTypes.map((type, index) => (
+                  <MenuItem value={type} key={index} sx={{ fontSize: '0.8125rem' }}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
 
-      {/* Download Button */}
-      <Box display="flex" alignItems="center" sx={{ width: "45%" }}>
-        <CustomButton
-          onClick={handleClick}
-          disabled={loading}
-          sx={{ width: "100%", height: "40px" }}
-          endIcon={<KeyboardArrowDown />}
-          label="Download"
-        >
-          Download
-        </CustomButton>
-        <StyledMenu
-          id="demo-customized-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-          <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-          <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-        </StyledMenu>
+          {/* Action Buttons */}
+          <Grid item xs={12} sm={6} md={8}>
+            <Box display="flex" gap={1.5} alignItems="center" flexWrap="wrap">
+              <CustomButton
+                label="Submit"
+                sx={sxBtn}
+                onClick={handleSubmit}
+                size="small"
+              />
+
+              <Box display="flex" alignItems="center">
+                <CustomButton
+                  onClick={handleClick}
+                  disabled={loading}
+                  sx={{
+                    ...sxBtn,
+                    backgroundColor: '#f8fafc',
+                    color: '#4b5563',
+                    border: '1px solid #e2e8f0',
+                    '&:hover': { 
+                      backgroundColor: '#f1f5f9',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    },
+                  }}
+                  buttonVariant="outlined"
+                  endIcon={<KeyboardArrowDown />}
+                  label="Download"
+                >
+                  Download
+                </CustomButton>
+                <StyledMenu
+                  id="meta-download-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={downloadCSV} sx={{ fontSize: '0.8125rem', py: 1 }}>CSV</MenuItem>
+                  <MenuItem onClick={downloadPDF} sx={{ fontSize: '0.8125rem', py: 1 }}>PDF</MenuItem>
+                  <MenuItem onClick={downloadJSON} sx={{ fontSize: '0.8125rem', py: 1 }}>JSON</MenuItem>
+                </StyledMenu>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
-    </Box>
-
-    </Grid>
-  </Grid>
 
 
       {loading && <Spinner />}

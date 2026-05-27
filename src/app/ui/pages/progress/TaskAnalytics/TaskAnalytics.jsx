@@ -42,13 +42,56 @@ const StyledMenu = styled((props) => (
   />
 ))(({ theme }) => ({
   '& .MuiPaper-root': {
-    borderRadius: 6,
+    borderRadius: 10,
     marginTop: theme.spacing(1),
-    minWidth: 100,
-
-
+    minWidth: 120,
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+    border: '1px solid #e2e8f0',
   },
 }));
+
+/* ── Premium inline style tokens ── */
+const sxCard = {
+  background: '#fff',
+  borderRadius: '14px',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+  p: { xs: 2, sm: 3 },
+  mb: 3,
+};
+
+const sxSelect = {
+  borderRadius: '10px',
+  fontSize: '0.875rem',
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#e2e8f0',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#cbd5e1',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#f97316',
+    borderWidth: '1.5px',
+  },
+};
+
+const sxLabel = {
+  fontSize: '0.8125rem',
+  fontWeight: 500,
+  color: '#4b5563',
+  zIndex: 0,
+};
+
+const sxBtn = {
+  borderRadius: '10px',
+  textTransform: 'none',
+  fontWeight: 600,
+  fontSize: '0.8125rem',
+  px: 3,
+  height: '40px',
+  boxShadow: 'none',
+  '&:hover': { boxShadow: '0 2px 8px rgba(249,115,22,0.25)' },
+};
 
 const TaskAnalytics = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -239,21 +282,13 @@ if(isWorkspaceLevel && submit==true){
 
   return (
     <>
-      <Grid container columnSpacing={3} rowSpacing={2} mb={1} gap={{ xs: 0, sm: 3 }}>
-        <Grid
-          container
-          item
-          xs={12}
-          spacing={2}
-          alignItems="center"
-        >
+      {/* ── Controls Card ── */}
+      <Box sx={sxCard}>
+        <Grid container spacing={2.5} alignItems="center">
           {/* Project Type Dropdown */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl size="small" fullWidth>
-              <InputLabel
-                id="demo-simple-select-label"
-                sx={{ fontSize: "16px", zIndex: 0 }}
-              >
+              <InputLabel id="task-project-type-label" sx={sxLabel}>
                 Project Type{" "}
                 {
                   <LightTooltip
@@ -261,21 +296,21 @@ if(isWorkspaceLevel && submit==true){
                     placement="top"
                     title={translate("tooltip.ProjectType")}
                   >
-                    <InfoIcon fontSize="medium" />
+                    <InfoIcon fontSize="small" sx={{ color: '#9ca3af', fontSize: '16px' }} />
                   </LightTooltip>
                 }
               </InputLabel>
               <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
+                labelId="task-project-type-label"
+                id="task-project-type-select"
                 value={selectedType}
                 label="Project Type"
-                sx={{ padding: "1px" }}
+                sx={sxSelect}
                 onChange={(e) => setSelectedType(e.target.value)}
                 MenuProps={MenuProps}
               >
                 {projectTypes.map((type, index) => (
-                  <MenuItem value={type} key={index}>
+                  <MenuItem value={type} key={index} sx={{ fontSize: '0.8125rem' }}>
                     {type}
                   </MenuItem>
                 ))}
@@ -284,34 +319,40 @@ if(isWorkspaceLevel && submit==true){
           </Grid>
 
           {/* Workspace Level Checkbox */}
-          <Grid item xs={12} sm={3}>
-            <Box display="flex" alignItems="center" justifyContent="center">
+          <Grid item xs={12} sm={6} md={3}>
+            <Box display="flex" alignItems="center">
               <FormControlLabel
                 control={
                   <Checkbox
                     checked={isWorkspaceLevel}
                     onChange={(e) => setIsWorkspaceLevel(e.target.checked)}
+                    sx={{
+                      color: '#cbd5e1',
+                      '&.Mui-checked': { color: '#f97316' },
+                    }}
                   />
                 }
                 labelPlacement="end"
                 label="Workspace Level"
+                sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.8125rem', color: '#4b5563' }}}
               />
             </Box>
           </Grid>
           
           {isWorkspaceLevel && (
-          <Grid item xs={12} sm={12} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
-              <InputLabel id="workspace-dropdown-label">Workspace</InputLabel>
+              <InputLabel id="workspace-dropdown-label" sx={sxLabel}>Workspace</InputLabel>
               <Select
                 labelId="workspace-dropdown-label"
                 id="workspace-dropdown"
                 value={selectedWorkspace}
                 label="Workspace"
+                sx={sxSelect}
                 onChange={(e) => setSelectedWorkspace(e.target.value)}
               >
                 {workspaces?.map((workspace, index) => (
-                  <MenuItem value={workspace?.id} key={index}>
+                  <MenuItem value={workspace?.id} key={index} sx={{ fontSize: '0.8125rem' }}>
                     {workspace?.workspace_name}
                   </MenuItem>
                 ))}
@@ -320,49 +361,55 @@ if(isWorkspaceLevel && submit==true){
           </Grid>
         )}
         </Grid>
-      </Grid>
 
-      <Grid
-        container
-        columnSpacing={3}
-        rowSpacing={2}
-        alignItems="center"
-        gap={2}
-      >
-        <Grid item xs={12} sm={12} md={6}>
-          <Box display="flex" gap={2} alignItems="center" flexDirection={{ xs: 'column', sm: 'row' }}>
+        {/* Action Buttons */}
+        <Box 
+          display="flex" 
+          gap={1.5} 
+          alignItems="center" 
+          flexWrap="wrap"
+          sx={{ mt: 2.5 }}
+        >
+          <CustomButton
+            label="Submit"
+            sx={sxBtn}
+            onClick={handleSubmit}
+            size="small"
+          />
+
+          <Box display="flex" alignItems="center">
             <CustomButton
-              label="Submit"
-              sx={{ width: { xs: "100%", sm: "45%" }, height: "40px", mb: { xs: 2, sm: 0 } }}
-              onClick={handleSubmit}
-              size="small"
-            />
-
-            {/* Download Button */}
-            <Box display="flex" alignItems="center" sx={{ width: { xs: "100%", sm: "45%" } }}>
-              <CustomButton
-                onClick={handleClick}
-                disabled={loading}
-                sx={{ width: "100%", height: "40px" }}
-                endIcon={<KeyboardArrowDown />}
-                label="Download"
-              >
-                Download
-              </CustomButton>
-              <StyledMenu
-                id="demo-customized-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={downloadCSV}>CSV</MenuItem>
-                <MenuItem onClick={downloadPDF}>PDF</MenuItem>
-                <MenuItem onClick={downloadJSON}>JSON</MenuItem>
-              </StyledMenu>
-            </Box>
+              onClick={handleClick}
+              disabled={loading}
+              sx={{
+                ...sxBtn,
+                backgroundColor: '#f8fafc',
+                color: '#4b5563',
+                border: '1px solid #e2e8f0',
+                '&:hover': { 
+                  backgroundColor: '#f1f5f9',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                },
+              }}
+              buttonVariant="outlined"
+              endIcon={<KeyboardArrowDown />}
+              label="Download"
+            >
+              Download
+            </CustomButton>
+            <StyledMenu
+              id="task-download-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={downloadCSV} sx={{ fontSize: '0.8125rem', py: 1 }}>CSV</MenuItem>
+              <MenuItem onClick={downloadPDF} sx={{ fontSize: '0.8125rem', py: 1 }}>PDF</MenuItem>
+              <MenuItem onClick={downloadJSON} sx={{ fontSize: '0.8125rem', py: 1 }}>JSON</MenuItem>
+            </StyledMenu>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {loading && <Spinner />}
       {taskAnalyticsData.length

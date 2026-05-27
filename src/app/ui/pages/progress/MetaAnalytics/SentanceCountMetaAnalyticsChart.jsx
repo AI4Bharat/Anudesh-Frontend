@@ -90,60 +90,85 @@ export default function SentanceCountMetaAnalyticsChart(props) {
     
   return (
     <Box className={classes.modelChartSection}>
-         <Typography variant="h2" style={{marginBottom:"35px"}} className={classes.heading}>
-         {`Sentence Count Dashboard - ${analyticsData[0].projectType}`}
-          <Typography variant="body1">
-            Count of Annotated and Reviewed Data
-          </Typography>
+      {/* Section Title */}
+      <Typography 
+        variant="h6" 
+        sx={{
+          mb: 2,
+          fontSize: '1.125rem',
+          fontWeight: 600,
+          color: '#1a1a2e',
+          letterSpacing: '-0.01em',
+        }}
+      >
+        {`Sentence Count — ${analyticsData[0].projectType}`}
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            fontSize: '0.8125rem', 
+            color: '#6b7280',
+            fontWeight: 400,
+            mt: 0.25,
+          }}
+        >
+          Annotated vs Reviewed sentence counts by language
         </Typography>
-        <Paper>
-          <Box className={classes.topBar}>
+      </Typography>
+
+      {/* Chart Card */}
+      <Paper sx={{
+        borderRadius: '14px',
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04) !important',
+      }}>
+        {/* Stat Bar */}
+        <Box className={classes.topBar}>
           <Box className={classes.topBarInnerBox}>
-          <Typography
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: "600",
-                  padding: "16px 0",
-                }}
-              >
-                Sentence Count Dashboard
-              </Typography>
-            </Box>
-        <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-                Total Sentance Count
-              </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
-                {totalSentanceCount &&
-                  new Intl.NumberFormat("en").format(totalSentanceCount)}
-              </Typography>
-            </Box>
-            <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-                Total Annotation Sentance Count
-              </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
-                {totalAnnotationSentanceCount &&
-                  new Intl.NumberFormat("en").format(totalAnnotationSentanceCount)}
-              </Typography>
-            </Box>
-            <Box className={classes.topBarInnerBox}>
-              <Typography style={{ fontSize: "0.875rem", fontWeight: "400" }}>
-                Total Quality/Reviewed Sentance Count
-              </Typography>
-              <Typography style={{ fontSize: "1.125rem", fontWeight: "400" }}>
-                {totalReviewSentanceCount &&
-                  new Intl.NumberFormat("en").format(totalReviewSentanceCount)}
-              </Typography>
-            </Box>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+              Dashboard
+            </Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e' }}>
+              Sentence Count
+            </Typography>
           </Box>
-      <Grid>
-        <ResponsiveChartContainer>
+          <Box className={classes.topBarInnerBox}>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+              Total Sentences
+            </Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e' }}>
+              {totalSentanceCount &&
+                new Intl.NumberFormat("en").format(totalSentanceCount)}
+            </Typography>
+          </Box>
+          <Box className={classes.topBarInnerBox}>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+              Annotated
+            </Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#ea580c' }}>
+              {totalAnnotationSentanceCount &&
+                new Intl.NumberFormat("en").format(totalAnnotationSentanceCount)}
+            </Typography>
+          </Box>
+          <Box className={classes.topBarInnerBox}>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
+              Reviewed
+            </Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#16a34a' }}>
+              {totalReviewSentanceCount &&
+                new Intl.NumberFormat("en").format(totalReviewSentanceCount)}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Chart */}
+        <Grid sx={{ p: { xs: 1, sm: 2 } }}>
+          <ResponsiveChartContainer>
             <BarChart
               width={1100}
               height={600}
                data={data}
-              fontSize="14px"
+              fontSize="13px"
               fontFamily="Roboto"
               margin={{
                 top: 20,
@@ -152,22 +177,22 @@ export default function SentanceCountMetaAnalyticsChart(props) {
                 bottom: 20,
               }}
             >
-              {/* <CartesianGrid strokeDasharray="3 3" /> */}
               <XAxis
                 dataKey="languages"
                 textAnchor={"end"}
-                // tick={<CustomizedAxisTick />}
                 height={90}
                 interval={0}
                 position="insideLeft"
                 type="category"
                 angle={-30}
+                tick={{ fontSize: 12, fill: '#6b7280' }}
               >
                 <Label
                   value="Language"
                   position="insideBottom"
-                  fontWeight="bold"
-                  fontSize={16}
+                  fontWeight="600"
+                  fontSize={13}
+                  fill="#4b5563"
                 ></Label>
               </XAxis>
               <YAxis
@@ -175,6 +200,7 @@ export default function SentanceCountMetaAnalyticsChart(props) {
                 allowDecimals={false}
                 type="number"
                 dx={0}
+                tick={{ fontSize: 12, fill: '#6b7280' }}
                 tickFormatter={(value) =>
                   new Intl.NumberFormat("en", { notation: "compact" }).format(
                     value
@@ -182,28 +208,31 @@ export default function SentanceCountMetaAnalyticsChart(props) {
                 }
               >
                 <Label
-                  value="# of count Completed"
+                  value="# Sentences Completed"
                   angle={-90}
-                  position= 'insideLeft'
-                  fontWeight="bold"
-                  fontSize={16}
+                  position='insideLeft'
+                  fontWeight="600"
+                  fontSize={13}
+                  fill="#4b5563"
                   offset={-10}
                 ></Label>
               </YAxis>
-              {/* <Label value="Count" position="insideLeft" offset={15} /> */}
               <Tooltip
-                contentStyle={{ fontFamily: "Roboto", fontSize: "14px" }}
+                contentStyle={{ fontFamily: "Roboto", fontSize: "13px" }}
                 formatter={(value) => new Intl.NumberFormat("en").format(value)}
-                cursor={{ fill: "none" }}
+                cursor={{ fill: "rgba(249, 115, 22, 0.04)" }}
                 content={<CustomTooltip />}
               />
-              <Legend verticalAlign="top" />
+              <Legend 
+                verticalAlign="top" 
+                wrapperStyle={{ fontSize: '12px', paddingBottom: '8px' }}
+              />
               <Bar
                 dataKey="review_cumulative_sentance_count"
                 barSize={30}
                 name="Review"
                 stackId="a"
-                fill="rgba(35, 155, 86 )"
+                fill="#16a34a"
                 cursor="pointer"
               />
               <Bar
@@ -211,8 +240,8 @@ export default function SentanceCountMetaAnalyticsChart(props) {
                 barSize={30}
                 name="Annotation"
                 stackId="a"
-                fill="rgba(243, 156, 18 )"
-                
+                fill="#f97316"
+                radius={[3, 3, 0, 0]}
               />
             </BarChart>
             </ResponsiveChartContainer>

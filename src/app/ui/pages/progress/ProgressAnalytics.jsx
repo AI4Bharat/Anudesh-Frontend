@@ -810,378 +810,239 @@ function ProgressList() {
     }
   }
 
+  /* ── Premium style tokens ── */
+  const sxCard = {
+    background: '#fff',
+    borderRadius: '14px',
+    border: '1px solid #e5e7eb',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    p: { xs: 2, sm: 3 },
+    mb: 3,
+    width: '100%',
+    minHeight: 400,
+  };
+  const sxSelect = {
+    borderRadius: '10px',
+    fontSize: '0.875rem',
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#cbd5e1' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#f97316', borderWidth: '1.5px' },
+  };
+  const sxLabel = { fontSize: '0.8125rem', fontWeight: 500, color: '#4b5563' };
+  const sxBtn = {
+    borderRadius: '10px', textTransform: 'none', fontWeight: 600,
+    fontSize: '0.8125rem', px: 3, height: '40px', boxShadow: 'none',
+    '&:hover': { boxShadow: '0 2px 8px rgba(249,115,22,0.25)' },
+  };
+  const sxDateBtn = (color) => ({
+    borderRadius: '10px', textTransform: 'none', fontWeight: 600,
+    fontSize: '0.8125rem', px: 2.5, height: '40px',
+    backgroundColor: color, boxShadow: 'none',
+    '&:hover': { backgroundColor: color, boxShadow: '0 2px 8px rgba(0,0,0,0.12)' },
+  });
+
   return (
     <ThemeProvider theme={themeDefault}>
-      {/* {loading && <Spinner />} */}
-      <Card
-        sx={{
-          width: "100%",
-          minHeight: 500,
-          padding: 3
-        }}
-      >
-
-        <Box >
-          <Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Grid
-              container
-              direction="row"
-              spacing={0}
-              sx={{ mb: 1, ml: 1 }}
-            >
-
-              <Grid item xs={12} sm={12} md={3} lg={2} xl={2}  >
-                <Typography gutterBottom component="div" sx={{ marginTop: "10px", fontSize: "16px", }}>
-                  Select Report Type :
-                </Typography>
-              </Grid >
-              <Grid item xs={12} sm={12} md={10} lg={10} xl={10}  >
-                <FormControl >
-
-                  <RadioGroup
-                    row
-                    aria-labelledby="demo-row-radio-buttons-group-label"
-                    name="row-radio-buttons-group"
-                    sx={{ marginTop: "5px" }}
-                    value={radiobutton}
-                    onChange={handleChangeReports}
-
-                  >
-                    <FormControlLabel value="Annotation" control={<Radio />} label="Annotation" />
-                    <FormControlLabel value="Review" control={<Radio />} label="Review" />
-                    <FormControlLabel value="Supercheck" control={<Radio />} label="Supercheck" />
-                  </RadioGroup>
-                </FormControl>
-              </Grid >
-            </Grid>
-            <Grid container mb={4} >
-              <Grid item xs={12} sm={12} md={6} lg={6} xl={6} sx={{ display: "flex", ml: 1 }} >
-                <Typography gutterBottom component="div" sx={{ fontSize: "16px", mt: 1, }}>
-                  Meta-info based stats:
-                </Typography>
-                <Checkbox
-                  sx={{ ml: 3 }}
-                  onChange={(e) => setMetaInfo(e.target.checked)}
-                  checked={metaInfo}
-                />
-              </Grid >
-            </Grid>
-            <Grid container columnSpacing={3} rowSpacing={2} mb={1}>
-
-              <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small" >
-                  <InputLabel id="Graph-Type-label" sx={{ fontSize: "16px" }}>
-                    Analytics Type {" "}
-                    {
-                      <LightTooltip
-                        arrow
-                        placement="top"
-                        title={translate("tooltip.AnalyticsType")}>
-                        <InfoIcon
-                          fontSize="medium"
-                        />
-                      </LightTooltip>
-                    }
-                  </InputLabel>
-
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Analytics Type"
-                    value={chartTypes}
-                    onChange={handleChartType}
-                  >
-
-                    {ChartType.map((item, index) => (
-                      <LightTooltip title={TooltipData[index].name} key={index} value={item.chartTypename} placement="left" arrow>
-                        <MenuItem value={item.chartTypename}>{item.chartTypename}</MenuItem>
-                      </LightTooltip>
-                    ))}
-
-                  </Select>
-                </FormControl>
-              </Grid>
-
-
-              <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px" }}>
-                    Project Type {" "}
-                    {
-                      <LightTooltip
-                        arrow
-                        placement="top"
-                        title={translate("tooltip.ProjectType")}>
-                        <InfoIcon
-                          fontSize="medium"
-                        />
-                      </LightTooltip>
-                    }
-                  </InputLabel>
-
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={selectedType}
-                    label="Project Type"
-                    sx={{ padding: "1px" }}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    MenuProps={MenuProps}
-                  >
-                    {projectTypes.map((type, index) => (
-                      <MenuItem value={type} key={index}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-            </Grid>
-
+      <Box sx={sxCard}>
+        {/* Report Type */}
+        <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+          <Grid item xs={12} sm={12} md={2}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#1a1a2e' }}>
+              Report Type
+            </Typography>
           </Grid>
-          <Grid
-            container
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Grid container columnSpacing={2} rowSpacing={2} mt={1} mb={1}>
-              {(chartTypes === availableChartType.Individual || chartTypes === availableChartType.Comparison) && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px", color: "rgba(243, 156, 18 )" }}>
-                    Base period {" "}
-                    {
-                      <LightTooltip
-                        arrow
-                        placement="top"
-                        title={translate("tooltip.Baseperiod")}>
-                        <InfoIcon
-                          sx={{ color: "rgba(0, 0, 0, 0.6)" }}
-                          fontSize="medium"
-                        />
-                      </LightTooltip>
-                    }
-                  </InputLabel>
-                  <Select
-                    labelId="project-type-label"
-                    id="project-type-select"
-                    label="Base period"
-                    value={baseperiod}
-                    onChange={handleProgressType}
-                  >
-
-
-                    {ProgressType.map((item, index) => (
-
-                      <LightTooltip title={ProgressTypedata[index].title} value={item.ProgressTypename} key={index} placement="left" arrow >
-                        <MenuItem value={item.ProgressTypename} key={index} sx={{ textTransform: "capitalize" }}>{item.ProgressTypename}</MenuItem>
-                      </LightTooltip>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>}
-              {!(baseperiod === "Cumulative" || chartTypes === "") && <Grid item xs={2} sm={2} md={2} lg={2} xl={2}  >
-                <Button
-                  endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleCloseDatepicker}
-                  sx={{ backgroundColor: "rgba(243, 156, 18)", "&:hover": { backgroundColor: "rgba(243, 156, 18 )", }, marginLeft: "20px" }}
-
-                >
-                  Pick Dates
-                </Button>
-              </Grid>}
-              {chartTypes === availableChartType.Comparison && <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-                <FormControl fullWidth size="small"  >
-                  <InputLabel id="project-type-label" sx={{ fontSize: "16px", color: "rgba(35, 155, 86 )" }}  >
-                    Comparison Period {" "}
-                    {
-                      <LightTooltip
-                        arrow
-                        placement="top"
-                        title={translate("tooltip.ComparisonPeriod")}>
-                        <InfoIcon
-                          sx={{ color: "rgba(0, 0, 0, 0.6)" }}
-                          fontSize="medium"
-                        />
-                      </LightTooltip>
-                    }
-
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    label="Comparison Period"
-                    value={comparisonperiod}
-                    onChange={handleComparisonProgressType}
-                  >
-                    {ProgressType.map((item, index) => (
-                      <LightTooltip title={ProgressTypedata[index].title} value={item.ProgressTypename} key={index} placement="right" arrow >
-                        <MenuItem value={item.ProgressTypename} key={index} sx={{ textTransform: "capitalize" }}>{item.ProgressTypename}</MenuItem>
-                      </LightTooltip>
-
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>}
-              {!(comparisonperiod === "Cumulative" || chartTypes === "" || chartTypes === availableChartType.Individual) && <Grid item xs={2} sm={2} md={2} lg={2} xl={2} >
-                <Button
-                  endIcon={showPickers ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
-                  variant="contained"
-                  color="primary"
-                  onClick={handledatecomparisionprogress}
-                  sx={{ backgroundColor: "rgba(35, 155, 86 )", "&:hover": { backgroundColor: "rgba(35, 155, 86 )", }, marginLeft: "20px" }}
-                >
-                  Pick Dates
-                </Button>
-              </Grid>}
-              <Grid container sx={{ marginLeft: "17px" }}>
-                <CustomButton label="Submit" sx={{ width: "120px", mt: 3 }} onClick={handleSubmit}
-                  disabled={(baseperiod || comparisonperiod) ? false : true} />
-
-              </Grid>
-
-              {showPicker && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
-                <Card sx={{ overflowX: "scroll" }}>
-                  <DateRangePicker
-                    onChange={item => setBaseperiodDatepicker([item.selection])}
-                    weekStartsOn={1}
-                    inputRanges={[]}
-                    staticRanges={[
-                      ...modifiedStaticRanges,
-                      // ...defaultStaticRanges,
-                      // ...locale,
-                      {
-                        label: "This Year",
-                        range: () => ({
-                          startDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-                          endDate: new Date(),
-                        }),
-                        isSelected(range) {
-                          const definedRange = this.range();
-                          return (
-                            isSameDay(range.startDate, definedRange.startDate) &&
-                            isSameDay(range.endDate, definedRange.endDate)
-                          );
-                        }
-                      },
-                      {
-                        label: "Last Year",
-                        range: () => ({
-                          startDate: new Date(Date.parse(currentYear - 1, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-                          endDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-                        }),
-                        isSelected(range) {
-                          const definedRange = this.range();
-                          return (
-                            isSameDay(range.startDate, definedRange.startDate) &&
-                            isSameDay(range.endDate, definedRange.endDate)
-                          );
-                        }
-                      },
-                    ]}
-                    showSelectionPreview={true}
-                    moveRangeOnFirstSelection={false}
-                    showMonthAndYearPickers={true}
-                    months={2}
-                    ranges={baseperiodDatepicker}
-                    direction="horizontal"
-                    preventSnapRefocus={true}
-                  // calendarFocus="backwards"
-                  // weekStartsOn={2}
-
+          <Grid item xs={12} sm={12} md={10}>
+            <FormControl>
+              <RadioGroup row value={radiobutton} onChange={handleChangeReports}>
+                {['Annotation', 'Review', 'Supercheck'].map((val) => (
+                  <FormControlLabel key={val} value={val} label={val}
+                    control={<Radio sx={{ color: '#cbd5e1', '&.Mui-checked': { color: '#f97316' } }} />}
+                    sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.8125rem', color: '#4b5563' } }}
                   />
-                </Card>
-              </Box>}
-              {showPickers && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
-                <Card sx={{ overflowX: "scroll" }}>
-                  <DateRangePicker
-                    onChange={handleDateRangePicker} item
-                    weekStartsOn={1}
-                    inputRanges={[]}
-                    staticRanges={[
-                      ...modifiedStaticRanges,
-                      // ...defaultStaticRanges,
-                      {
-                        label: "This Year",
-                        range: () => ({
-                          startDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-                          endDate: new Date(),
-                        }),
-                        isSelected(range) {
-                          const definedRange = this.range();
-
-                          return (
-                            isSameDay(range.startDate, definedRange.startDate) &&
-                            isSameDay(range.endDate, definedRange.endDate)
-                          );
-                        }
-                      },
-                      {
-                        label: "Last Year",
-                        range: () => ({
-                          startDate: new Date(Date.parse(currentYear - 1, 'yyyy-MM-ddTHH:mm:ss.SSSZ')),
-                          endDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ') - 86400000),
-                        }),
-                        isSelected(range) {
-                          const definedRange = this.range();
-                          return (
-                            isSameDay(range.startDate, definedRange.startDate) &&
-                            isSameDay(range.endDate, definedRange.endDate)
-                          );
-                        }
-                      },
-                    ]}
-                    showSelectionPreview={true}
-                    moveRangeOnFirstSelection={false}
-                    showMonthAndYearPickers={true}
-                    months={2}
-                    ranges={comparisonperiodDatepicker}
-                    direction="horizontal"
-                    preventSnapRefocus={true}
-                  // calendarFocus="backwards"
-                  />
-                </Card>
-              </Box>}
-            </Grid>
-
+                ))}
+              </RadioGroup>
+            </FormControl>
           </Grid>
-          {showBarChar &&
-            <>
-              <Grid container justifyContent="center" sx={{ mt: 2 }}>
-                <Button onClick={() => downloadReportClick("pdf")}>
-                  Download Report As PDF
-                </Button>
-                <Button onClick={() => downloadReportClick("img")}>
-                  Download Report As Image
-                </Button>
-              </Grid>
-              <div style={{
-                  overflow:"auto",
-                  width:"100%",
-                  padding:"0.2rem"
-                }}>
-              <div id="chart-container"
-                style={{
-                  width: chartWidth,
-                  height: chartHeight,
-                }}
-              >
+        </Grid>
+
+        {/* Meta-info checkbox */}
+        <Grid container sx={{ mb: 2.5 }}>
+          <Grid item xs={12} sm={6} sx={{ display: "flex", alignItems: 'center' }}>
+            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500, color: '#4b5563' }}>
+              Meta-info based stats:
+            </Typography>
+            <Checkbox
+              sx={{ ml: 1, color: '#cbd5e1', '&.Mui-checked': { color: '#f97316' } }}
+              onChange={(e) => setMetaInfo(e.target.checked)}
+              checked={metaInfo}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Dropdowns Row */}
+        <Grid container columnSpacing={2.5} rowSpacing={2} sx={{ mb: 2 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="adv-analytics-type" sx={sxLabel}>
+                Analytics Type{" "}
+                <LightTooltip arrow placement="top" title={translate("tooltip.AnalyticsType")}>
+                  <InfoIcon sx={{ color: '#9ca3af', fontSize: '16px' }} />
+                </LightTooltip>
+              </InputLabel>
+              <Select labelId="adv-analytics-type" label="Analytics Type" value={chartTypes} onChange={handleChartType} sx={sxSelect}>
+                {ChartType.map((item, index) => (
+                  <LightTooltip title={TooltipData[index].name} key={index} placement="left" arrow>
+                    <MenuItem value={item.chartTypename} sx={{ fontSize: '0.8125rem' }}>{item.chartTypename}</MenuItem>
+                  </LightTooltip>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="adv-project-type" sx={sxLabel}>
+                Project Type{" "}
+                <LightTooltip arrow placement="top" title={translate("tooltip.ProjectType")}>
+                  <InfoIcon sx={{ color: '#9ca3af', fontSize: '16px' }} />
+                </LightTooltip>
+              </InputLabel>
+              <Select labelId="adv-project-type" label="Project Type" value={selectedType} sx={sxSelect}
+                onChange={(e) => setSelectedType(e.target.value)} MenuProps={MenuProps}>
+                {projectTypes.map((type, index) => (
+                  <MenuItem value={type} key={index} sx={{ fontSize: '0.8125rem' }}>{type}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        {/* Period Controls */}
+        <Grid container columnSpacing={2} rowSpacing={2} sx={{ mb: 1 }}>
+          {(chartTypes === availableChartType.Individual || chartTypes === availableChartType.Comparison) &&
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="adv-base-period" sx={{ ...sxLabel, color: '#ea580c' }}>
+                  Base period{" "}
+                  <LightTooltip arrow placement="top" title={translate("tooltip.Baseperiod")}>
+                    <InfoIcon sx={{ color: '#9ca3af', fontSize: '16px' }} />
+                  </LightTooltip>
+                </InputLabel>
+                <Select labelId="adv-base-period" label="Base period" value={baseperiod} onChange={handleProgressType} sx={sxSelect}>
+                  {ProgressType.map((item, index) => (
+                    <LightTooltip title={ProgressTypedata[index].title} key={index} placement="left" arrow>
+                      <MenuItem value={item.ProgressTypename} sx={{ textTransform: "capitalize", fontSize: '0.8125rem' }}>{item.ProgressTypename}</MenuItem>
+                    </LightTooltip>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>}
+
+          {!(baseperiod === "Cumulative" || chartTypes === "") &&
+            <Grid item xs="auto">
+              <Button endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+                variant="contained" onClick={handleCloseDatepicker} sx={sxDateBtn('#f97316')}>
+                Pick Dates
+              </Button>
+            </Grid>}
+
+          {chartTypes === availableChartType.Comparison &&
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="adv-comparison-period" sx={{ ...sxLabel, color: '#16a34a' }}>
+                  Comparison Period{" "}
+                  <LightTooltip arrow placement="top" title={translate("tooltip.ComparisonPeriod")}>
+                    <InfoIcon sx={{ color: '#9ca3af', fontSize: '16px' }} />
+                  </LightTooltip>
+                </InputLabel>
+                <Select labelId="adv-comparison-period" label="Comparison Period" value={comparisonperiod}
+                  onChange={handleComparisonProgressType} sx={sxSelect}>
+                  {ProgressType.map((item, index) => (
+                    <LightTooltip title={ProgressTypedata[index].title} key={index} placement="right" arrow>
+                      <MenuItem value={item.ProgressTypename} sx={{ textTransform: "capitalize", fontSize: '0.8125rem' }}>{item.ProgressTypename}</MenuItem>
+                    </LightTooltip>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>}
+
+          {!(comparisonperiod === "Cumulative" || chartTypes === "" || chartTypes === availableChartType.Individual) &&
+            <Grid item xs="auto">
+              <Button endIcon={showPickers ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+                variant="contained" onClick={handledatecomparisionprogress} sx={sxDateBtn('#16a34a')}>
+                Pick Dates
+              </Button>
+            </Grid>}
+        </Grid>
+
+        {/* Submit */}
+        <Box sx={{ mt: 2.5 }}>
+          <CustomButton label="Submit" sx={sxBtn} onClick={handleSubmit}
+            disabled={(baseperiod || comparisonperiod) ? false : true} />
+        </Box>
+
+        {/* Date Pickers */}
+        {showPicker && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
+          <Card sx={{ overflowX: "scroll", borderRadius: '12px !important', border: '1px solid #e2e8f0 !important' }}>
+            <DateRangePicker
+              onChange={item => setBaseperiodDatepicker([item.selection])}
+              weekStartsOn={1} inputRanges={[]}
+              staticRanges={[
+                ...modifiedStaticRanges,
+                { label: "This Year", range: () => ({ startDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ')), endDate: new Date() }),
+                  isSelected(range) { const d = this.range(); return isSameDay(range.startDate, d.startDate) && isSameDay(range.endDate, d.endDate); } },
+                { label: "Last Year", range: () => ({ startDate: new Date(Date.parse(currentYear - 1, 'yyyy-MM-ddTHH:mm:ss.SSSZ')), endDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ')) }),
+                  isSelected(range) { const d = this.range(); return isSameDay(range.startDate, d.startDate) && isSameDay(range.endDate, d.endDate); } },
+              ]}
+              showSelectionPreview={true} moveRangeOnFirstSelection={false}
+              showMonthAndYearPickers={true} months={2} ranges={baseperiodDatepicker}
+              direction="horizontal" preventSnapRefocus={true}
+            />
+          </Card>
+        </Box>}
+
+        {showPickers && <Box sx={{ mt: 2, mb: 2, display: "flex", justifyContent: "center", width: "100%" }} ref={ref}>
+          <Card sx={{ overflowX: "scroll", borderRadius: '12px !important', border: '1px solid #e2e8f0 !important' }}>
+            <DateRangePicker
+              onChange={handleDateRangePicker} item
+              weekStartsOn={1} inputRanges={[]}
+              staticRanges={[
+                ...modifiedStaticRanges,
+                { label: "This Year", range: () => ({ startDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ')), endDate: new Date() }),
+                  isSelected(range) { const d = this.range(); return isSameDay(range.startDate, d.startDate) && isSameDay(range.endDate, d.endDate); } },
+                { label: "Last Year", range: () => ({ startDate: new Date(Date.parse(currentYear - 1, 'yyyy-MM-ddTHH:mm:ss.SSSZ')), endDate: new Date(Date.parse(currentYear, 'yyyy-MM-ddTHH:mm:ss.SSSZ') - 86400000) }),
+                  isSelected(range) { const d = this.range(); return isSameDay(range.startDate, d.startDate) && isSameDay(range.endDate, d.endDate); } },
+              ]}
+              showSelectionPreview={true} moveRangeOnFirstSelection={false}
+              showMonthAndYearPickers={true} months={2} ranges={comparisonperiodDatepicker}
+              direction="horizontal" preventSnapRefocus={true}
+            />
+          </Card>
+        </Box>}
+
+        {/* Chart Output */}
+        {showBarChar &&
+          <>
+            <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', mt: 3, mb: 2, flexWrap: 'wrap' }}>
+              <Button onClick={() => downloadReportClick("pdf")} sx={{
+                ...sxBtn, backgroundColor: '#f8fafc', color: '#4b5563', border: '1px solid #e2e8f0',
+                '&:hover': { backgroundColor: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+              }}>Download PDF</Button>
+              <Button onClick={() => downloadReportClick("img")} sx={{
+                ...sxBtn, backgroundColor: '#f8fafc', color: '#4b5563', border: '1px solid #e2e8f0',
+                '&:hover': { backgroundColor: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
+              }}>Download Image</Button>
+            </Box>
+            <Box sx={{
+              overflow: "auto", width: "100%", p: 1,
+              borderRadius: '12px', border: '1px solid #e5e7eb', background: '#fafafa',
+            }}>
+              <div id="chart-container" style={{ width: chartWidth, height: chartHeight }}>
                 <Bar options={options} data={chartData} />
               </div>
-              </div>
-            </>
-          }
-
-        </Box>
-      </Card>
+            </Box>
+          </>
+        }
+      </Box>
     </ThemeProvider>
   )
 }
