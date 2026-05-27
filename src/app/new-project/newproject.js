@@ -137,9 +137,9 @@ const CreateProject = () => {
   const [targetLanguage, setTargetLanguage] = useState("");
   const [fixedModels, setFixedModels] = useState(fixed_Models); 
   const [samplingMode, setSamplingMode] = useState(null);
-  const [random, setRandom] = useState("");
-  const [batchSize, setBatchSize] = useState();
-  const [batchNumber, setBatchNumber] = useState([]);
+  const [random, setRandom] = useState(10);
+  const [batchSize, setBatchSize] = useState(10);
+  const [batchNumber, setBatchNumber] = useState('1');
   const [samplingParameters, setSamplingParameters] = useState(null);
   const [selectedInstances, setSelectedInstances] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
@@ -266,9 +266,9 @@ const CreateProject = () => {
     setSelectedInstances([]);
     setConfirmed(false);
     setSamplingMode(null);
-    setRandom('');
-    setBatchSize('');
-    setBatchNumber([]);
+    setRandom(10);
+    setBatchSize(10);
+    setBatchNumber('1');
     setSelectedAnnotatorsNum(1);
     setTaskReviews(1);
     setsCreateannotationsAutomatically('none');
@@ -1558,7 +1558,14 @@ const CreateProject = () => {
                 )}
               </>
             )}
-            {selectedType && selectedInstances?.length > 0 && confirmed && (
+            {selectedType && selectedInstances?.length > 0 && confirmed && totalDataitems === 0 && (
+              <Grid item xs={12} sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+                <Typography variant="body1" sx={{ color: '#d93025', fontWeight: 'bold', fontSize: '1.2rem', padding: '20px' }}>
+                  This dataset does not have any data items. Please select a different dataset
+                </Typography>
+              </Grid>
+            )}
+            {selectedType && selectedInstances?.length > 0 && confirmed && totalDataitems > 0 && (
               <>
                 <Grid
                   item
@@ -1627,6 +1634,7 @@ const CreateProject = () => {
                             };
                           })}
                           handleChange={onSelectSamplingMode}
+                          value={samplingMode || ""}
                           defaultValue=""
                           size="small"
                         />
@@ -1665,7 +1673,7 @@ const CreateProject = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
                             Sampling Percentage:<Tooltip 
-                  title="Choose the data sources you want to include in your project. You can select multiple sources from the available options." 
+                  title="Enter the percentage of data items to randomly sample for the project (e.g., 10 for 10%)." 
                   arrow
                   placement="top"
                 >
@@ -1692,7 +1700,7 @@ const CreateProject = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
                             Batch Size:<Tooltip 
-                  title="" 
+                  title="Enter the number of items per batch." 
                   arrow
                   placement="top"
                 >
@@ -1722,7 +1730,7 @@ const CreateProject = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography variant="body2" gutterBottom sx={{ fontWeight: "bold" }}>
                             Batch Number:<Tooltip 
-                  title="Choose the data sources you want to include in your project. You can select multiple sources from the available options." 
+                  title="Enter the batch number(s) to sample from." 
                   arrow
                   placement="top"
                 >
@@ -1903,7 +1911,7 @@ const CreateProject = () => {
                 </Card>
               </>
             )}
-            {selectedType && selectedInstances?.length > 0 && confirmed && (
+            {selectedType && selectedInstances?.length > 0 && confirmed && totalDataitems > 0 && (
               <>
                 {/* Guest Workspace Settings Card */}
                 {workspaceDtails?.guest_workspace_display === "Yes" && (
@@ -2056,6 +2064,9 @@ const CreateProject = () => {
                     selectedInstances &&
                     domains &&
                     samplingMode &&
+                    totalDataitems > 0 &&
+                    (samplingMode === "r" ? random !== "" && random !== undefined && random !== null : true) &&
+                    (samplingMode === "b" ? batchSize !== "" && batchSize !== undefined && batchSize !== null && batchNumber?.length > 0 : true) &&
                     (selectedType === "ModelInteractionEvaluation" || "multipleInteractionEvaluation"
                       ? questionsJSON?.length > 0
                       : true)
