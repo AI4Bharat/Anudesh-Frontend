@@ -421,7 +421,7 @@ export default function Textarea({
             handleButtonClick();
             setText("");
           }}
-          disabled={!text?.trim()}
+          disabled={!text?.trim() || loading}
         >
           <SendRoundedIcon
                 style={{ color: "#EE6633", width: "32px", height: "32px" }}
