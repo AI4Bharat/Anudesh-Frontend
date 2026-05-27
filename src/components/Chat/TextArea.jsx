@@ -106,8 +106,10 @@ export default function Textarea({
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      handleButtonClick();
-      setText("");
+      if (!loading) {
+        handleButtonClick();
+        setText("");
+      }
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
     }
