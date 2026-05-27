@@ -108,6 +108,7 @@ const AnnotatePage = () => {
   // ── useState replacements for the .value workaround on the refs ──
   const [annotationNotesValue, setAnnotationNotesValue] = useState("");
   const [reviewNotesValue, setReviewNotesValue] = useState("");
+  const notesInitializedRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
@@ -202,11 +203,16 @@ const AnnotatePage = () => {
         reviewNotesRef.current.getEditor &&
         reviewNotesRef.current.getEditor()
       ) {
-        loadNotesIntoEditors(annotationNotesValue, reviewNotesValue);
+        const annoValue = AnnotationsTaskDetails[0].annotation_notes ?? "";
+        const reviewValue = AnnotationsTaskDetails[0].review_notes ?? "";
+        loadNotesIntoEditors(annoValue, reviewValue);
+        notesInitializedRef.current = taskId;
       }
     };
 
     const check = () => {
+      if (notesInitializedRef.current === taskId) return;
+
       if (annotationNotesRef.current && reviewNotesRef.current) {
         init();
         clearTimeout(timeoutId);
@@ -218,10 +224,11 @@ const AnnotatePage = () => {
     check();
 
     return () => clearTimeout(timeoutId);
-  }, [AnnotationsTaskDetails, annotationNotesValue, reviewNotesValue]);
+  }, [AnnotationsTaskDetails, taskId]);
 
   useEffect(() => {
     resetNotes();
+    notesInitializedRef.current = null;
   }, [taskId]);
 
   useEffect(() => {
