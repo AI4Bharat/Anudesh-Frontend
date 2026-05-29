@@ -4,9 +4,6 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import React, { useEffect, useState } from "react";
 import themeDefault from '@/themes/theme'
 import { useNavigate, useParams } from 'react-router-dom';
@@ -39,7 +36,6 @@ const BasicSettings = (props) => {
     const [languageOptions, setLanguageOptions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [newDetails, setNewDetails] = useState();
-    const [systemPrompt, setSystemPrompt] = useState('');
     const { id } = useParams();
     const navigate = useNavigate();
     const classes = DatasetStyle();
@@ -85,17 +81,13 @@ const BasicSettings = (props) => {
             max_pending_tasks_per_user: ProjectDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: ProjectDetails.tasks_pull_count_per_batch,
             max_tasks_per_user: ProjectDetails.max_tasks_per_user,
+                    max_Draft_tasks_per_user: ProjectDetails.max_Draft_tasks_per_user,       // add this
+        max_Skipped_tasks_per_user: ProjectDetails.max_Skipped_tasks_per_user,         // add this
+
         });
         setTargetLanguage(ProjectDetails?.tgt_language)
         setSourceLanguage(ProjectDetails?.src_language)
-        const metadata = ProjectDetails?.metadata_json;
-        if (metadata && typeof metadata === 'object' && metadata.system_prompt && typeof metadata.system_prompt === 'object') {
-            setSystemPrompt(metadata.system_prompt);
-        } else {
-            setSystemPrompt({});
-        }
     }, [ProjectDetails]);
-    const DEFAULT_SYSTEM_PROMPT = "We will be rendering your response on a frontend. So, please add spaces or indentation or nextline chars or bullet or numberings etc. suitably for code or the text, wherever required.";
     const LanguageChoices = useSelector((state) => state.getLanguages.data.language);
    
     const getLanguageChoices = () => {
@@ -120,23 +112,6 @@ const BasicSettings = (props) => {
 
 
     const handleSave = async () => {
-        // Build updated metadata_json with system_prompt
-        const existingMetadata = ProjectDetails?.metadata_json || {};
-        const updatedMetadata = {
-            ...(typeof existingMetadata === 'object' ? existingMetadata : {}),
-        };
-        if (systemPrompt && Object.keys(systemPrompt).length > 0) {
-            const cleanedSystemPrompt = Object.fromEntries(
-                Object.entries(systemPrompt).filter(([k, v]) => v && v.trim() !== '')
-            );
-            if (Object.keys(cleanedSystemPrompt).length > 0) {
-                updatedMetadata.system_prompt = cleanedSystemPrompt;
-            } else {
-                delete updatedMetadata.system_prompt;
-            }
-        } else {
-            delete updatedMetadata.system_prompt;
-        }
 
         const sendData = {
             title: newDetails.title,
@@ -150,7 +125,9 @@ const BasicSettings = (props) => {
             max_pending_tasks_per_user: newDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: newDetails.tasks_pull_count_per_batch,
             max_tasks_per_user: newDetails.max_tasks_per_user,
-            metadata_json: updatedMetadata,
+                max_Draft_tasks_per_user: newDetails.max_Draft_tasks_per_user,               // add this
+    max_Skipped_tasks_per_user: newDetails.max_Skipped_tasks_per_user,                 // add this
+
         }
         console.log(sendData);
         const projectObj = new GetSaveButtonAPI(id, sendData);
@@ -437,6 +414,49 @@ const BasicSettings = (props) => {
                                     onChange={handleProjectName} />
                             </Grid>
                         </Grid>
+                        {/* Max Draft Num */}
+<Grid
+    container
+    direction='row'
+    sx={{ alignItems: "center", mt: 2 }}
+>
+    <Grid items xs={12} sm={12} md={12} lg={2} xl={2}>
+        <Typography variant="body2" fontWeight='700' label="Required">
+            Max Draft Tasks Per User
+        </Typography>
+    </Grid>
+    <Grid item xs={12} md={12} lg={9} xl={9} sm={12}>
+        <OutlinedTextField
+            fullWidth
+            name="max_Draft_tasks_per_user"
+            InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
+            value={newDetails?.max_Draft_tasks_per_user}
+            onChange={handleProjectName}
+        />
+    </Grid>
+</Grid>
+
+{/* Max Skip Num */}
+<Grid
+    container
+    direction='row'
+    sx={{ alignItems: "center", mt: 2 }}
+>
+    <Grid items xs={12} sm={12} md={12} lg={2} xl={2}>
+        <Typography variant="body2" fontWeight='700' label="Required">
+            Max Skip Tasks Per User
+        </Typography>
+    </Grid>
+    <Grid item xs={12} md={12} lg={9} xl={9} sm={12}>
+        <OutlinedTextField
+            fullWidth
+            name="max_Skipped_tasks_per_user"
+            InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
+            value={newDetails?.max_Skipped_tasks_per_user}
+            onChange={handleProjectName}
+        />
+    </Grid>
+</Grid>
                         <Grid
                             container
                             direction='row'
@@ -511,76 +531,6 @@ const BasicSettings = (props) => {
                                     onChange={handleProjectName} />
                             </Grid>
                         </Grid>
-
-                        {/* System Prompt Fields - Only for Chat project types */}
-                        {(ProjectDetails?.project_type === "InstructionDrivenChat" || ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") && (
-                        <Grid
-                            container
-                            direction='column'
-                            sx={{
-                                alignItems: "flex-start",
-                                mt: 2
-                            }}
-                        >
-                            {ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && ProjectDetails?.metadata_json?.models_set ? (
-                                ProjectDetails.metadata_json.models_set.map((model) => (
-                                    <Grid container direction='row' key={model} sx={{ alignItems: "flex-start", mt: 2 }}>
-                                        <Grid item xs={12} sm={12} md={12} lg={2} xl={2}>
-                                            <Typography variant="body2" fontWeight='700' sx={{ mt: 1 }}>
-                                                System Prompt for {model}
-                                                <Tooltip title={`Optional custom system prompt for ${model}.`} arrow placement="top">
-                                                    <IconButton size="small" sx={{ color: 'primary.main' }}>
-                                                        <InfoOutlinedIcon fontSize="small" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} md={12} lg={9} xl={9} sm={12}>
-                                            <TextField
-                                                fullWidth
-                                                multiline
-                                                minRows={3}
-                                                maxRows={6}
-                                                size="small"
-                                                value={systemPrompt[model] !== undefined ? systemPrompt[model] : DEFAULT_SYSTEM_PROMPT}
-                                                onChange={(e) => setSystemPrompt(prev => ({ ...prev, [model]: e.target.value }))}
-                                                placeholder={`Enter a custom system prompt for ${model}`}
-                                                variant="outlined"
-                                                inputProps={{ style: { fontSize: "14px" } }}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                ))
-                            ) : (
-                                <Grid container direction='row' sx={{ alignItems: "flex-start", mt: 2 }}>
-                                    <Grid item xs={12} sm={12} md={12} lg={2} xl={2}>
-                                        <Typography variant="body2" fontWeight='700' sx={{ mt: 1 }}>
-                                            System Prompt
-                                            <Tooltip title="Optional custom system prompt for the LLM. If left empty, a default system prompt will be used." arrow placement="top">
-                                                <IconButton size="small" sx={{ color: 'primary.main' }}>
-                                                    <InfoOutlinedIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} lg={9} xl={9} sm={12}>
-                                        <TextField
-                                            fullWidth
-                                            multiline
-                                            minRows={3}
-                                            maxRows={6}
-                                            size="small"
-                                            value={systemPrompt["default"] !== undefined ? systemPrompt["default"] : DEFAULT_SYSTEM_PROMPT}
-                                            onChange={(e) => setSystemPrompt(prev => ({ ...prev, "default": e.target.value }))}
-                                            placeholder="Enter a custom system prompt for the LLM"
-                                            variant="outlined"
-                                            inputProps={{ style: { fontSize: "14px" } }}
-                                        />
-                                    </Grid>
-                                </Grid>
-                            )}
-                        </Grid>
-                        )}
                     </>
                 <Grid
                     container
