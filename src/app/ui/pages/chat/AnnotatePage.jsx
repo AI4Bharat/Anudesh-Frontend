@@ -102,15 +102,10 @@ const AnnotatePage = () => {
   const [annotations, setAnnotations] = useState([]);
 
   const annotationNotesRef = useRef(null);
-  const reviewNotesRef = useRef(null);
-
-  // ── useState replacements for the .value workaround on the refs ──
-  const [annotationNotesValue, setAnnotationNotesValue] = useState("");
-  const [reviewNotesValue, setReviewNotesValue] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
 
+  const reviewNotesRef = useRef(null);
   const [disableBtns, setDisableBtns] = useState(false);
   const [disableUpdateButton, setDisableUpdateButton] = useState(false);
   const [taskDataArr, setTaskDataArr] = useState();
@@ -149,74 +144,56 @@ const AnnotatePage = () => {
     }
   }, [taskData]);
 
-  // Helper: load notes values into Quill editors from state
-  const loadNotesIntoEditors = (annoValue, reviewValue) => {
-    // annotation notes
-    try {
-      const newDelta2 = annoValue !== "" ? JSON.parse(annoValue) : "";
-      annotationNotesRef.current.getEditor().setContents(newDelta2);
-    } catch (err) {
-      if (err) {
-        annotationNotesRef.current.getEditor().setText(annoValue);
-      }
-    }
-
-    // review notes
-    try {
-      const newDelta1 = reviewValue !== "" ? JSON.parse(reviewValue) : "";
-      reviewNotesRef.current.getEditor().setContents(newDelta1);
-    } catch (err) {
-      if (err) {
-        reviewNotesRef.current.getEditor().setText(reviewValue);
-      }
-    }
-
-    setannotationtext(annotationNotesRef.current.getEditor().getText());
-    setreviewtext(reviewNotesRef.current.getEditor().getText());
-  };
-
-  // First useEffect: sync state values when AnnotationsTaskDetails changes
   useEffect(() => {
-    if (AnnotationsTaskDetails && AnnotationsTaskDetails.length > 0) {
-      const annoValue = AnnotationsTaskDetails[0].annotation_notes ?? "";
-      const reviewValue = AnnotationsTaskDetails[0].review_notes ?? "";
-      setAnnotationNotesValue(annoValue);
-      setReviewNotesValue(reviewValue);
-    }
-  }, [AnnotationsTaskDetails]);
-
-  // Second useEffect: load into Quill editors once refs are ready (polling fallback)
-  useEffect(() => {
-    let timeoutId;
-
-    const init = () => {
+    if (
+      typeof window !== "undefined" &&
+      annotationNotesRef.current &&
+      reviewNotesRef.current
+    ) {
       if (
         AnnotationsTaskDetails &&
         AnnotationsTaskDetails.length > 0 &&
-        annotationNotesRef.current &&
-        annotationNotesRef.current.getEditor &&
-        annotationNotesRef.current.getEditor() &&
         reviewNotesRef.current &&
         reviewNotesRef.current.getEditor &&
-        reviewNotesRef.current.getEditor()
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
       ) {
-        loadNotesIntoEditors(annotationNotesValue, reviewNotesValue);
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
+          }
+        }
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
       }
-    };
-
-    const check = () => {
-      if (annotationNotesRef.current && reviewNotesRef.current) {
-        init();
-        clearTimeout(timeoutId);
-        return;
-      }
-      timeoutId = setTimeout(check, 100);
-    };
-
-    check();
-
-    return () => clearTimeout(timeoutId);
-  }, [AnnotationsTaskDetails, annotationNotesValue, reviewNotesValue]);
+    }
+  }, [AnnotationsTaskDetails]);
 
   useEffect(() => {
     resetNotes();
@@ -342,11 +319,91 @@ const AnnotatePage = () => {
     return markdownString;
   };
 
+  useEffect(() => {
+    if (taskData) {
+      setInfo((prev) => {
+        return {
+          hint: taskData?.data?.hint,
+          examples: taskData?.data?.examples,
+          meta_info_intent: taskData?.data?.meta_info_intent,
+          instruction_data: taskData?.data?.instruction_data,
+          meta_info_domain: taskData?.data?.meta_info_domain,
+          meta_info_language: taskData?.data?.meta_info_language,
+        };
+      });
+    }
+  }, [taskData]);
+ 
+
+  useEffect(() => {
+    let timeoutId;
+
+    const init = (annotationNotesRef,reviewNotesRef) => {
+      if (
+        AnnotationsTaskDetails &&
+        AnnotationsTaskDetails.length > 0 &&
+        reviewNotesRef.current &&
+        reviewNotesRef.current.getEditor &&
+        reviewNotesRef.current.getEditor() &&
+        annotationNotesRef.current &&
+        annotationNotesRef.current.getEditor &&
+        annotationNotesRef.current.getEditor()
+      ) {
+        
+        annotationNotesRef.current.value =
+          AnnotationsTaskDetails[0].annotation_notes ?? "";
+        reviewNotesRef.current.value =
+          AnnotationsTaskDetails[0].review_notes ?? "";
+        try {
+          const newDelta2 =
+            annotationNotesRef.current.value !== ""
+              ? JSON.parse(annotationNotesRef.current.value)
+              : "";
+          annotationNotesRef.current.getEditor().setContents(newDelta2);
+        } catch (err) {
+          if (err) {
+            const newDelta2 = annotationNotesRef.current.value;
+            annotationNotesRef.current.getEditor().setText(newDelta2);
+          }
+        }
+
+        try {
+          const newDelta1 =
+            reviewNotesRef.current.value != ""
+              ? JSON.parse(reviewNotesRef.current.value)
+              : "";
+          reviewNotesRef.current.getEditor().setContents(newDelta1);
+        } catch (err) {
+          if (err) {
+            const newDelta1 = reviewNotesRef.current.value;
+            reviewNotesRef.current.getEditor().setText(newDelta1);
+          }
+        }
+        setannotationtext(annotationNotesRef.current.getEditor().getText());
+        setreviewtext(reviewNotesRef.current.getEditor().getText());
+      }
+    }
+    const check = () => {
+      if (annotationNotesRef.current&&reviewNotesRef.current) {
+        init(annotationNotesRef,reviewNotesRef);
+        clearTimeout(timeoutId); 
+
+        return;
+      }
+      timeoutId = setTimeout(check, 100);
+    };
+    
+
+    check();
+
+  }, [AnnotationsTaskDetails,annotationNotesRef,reviewNotesRef]);
+
   const resetNotes = () => {
-    setAnnotationNotesValue("");
-    setReviewNotesValue("");
-    setShowNotes(false);
-    if (annotationNotesRef.current && reviewNotesRef.current) {
+    if (
+      annotationNotesRef.current &&
+      reviewNotesRef.current
+    ) {
+      setShowNotes(false);
       annotationNotesRef.current.getEditor().setContents([]);
       reviewNotesRef.current.getEditor().setContents([]);
     }
@@ -472,6 +529,62 @@ const AnnotatePage = () => {
       setEvalFormResponse();
       setSubmittedEvalForms();
     }
+      if (value === "draft") {
+        
+        
+    const maxDraft = ProjectDetails?.max_Draft_tasks_per_user;
+    if (maxDraft != null) {
+      const draftResult = await dispatch(fetchTasksByProjectId({
+        id: projectId,
+        currentPageNumber: 1,
+        currentRowPerPage: 1,
+        selectedFilters: { annotation_status: "draft" },
+        taskType: null,
+        pullvalue: null,
+        rejected: false,
+        pull: "All",
+      }));
+      const count = draftResult?.payload?.total_count ?? 0;
+            console.log("lll",count,ProjectDetails?.max_Draft_tasks_per_user);
+
+      if (count >= maxDraft) {
+        setSnackbarInfo({
+          open: true,
+          message: `You have reached the maximum draft limit (${maxDraft}). Cannot save as draft.`,
+          variant: "warning",
+          severity: "warning",
+        });
+        return;
+      }
+    }
+  }
+
+  if (value === "skipped") {
+    const maxSkip = ProjectDetails?.max_Skipped_tasks_per_user;
+    if (maxSkip != null) {
+      const skippedResult = await dispatch(fetchTasksByProjectId({
+        id: projectId,
+        currentPageNumber: 1,
+        currentRowPerPage: 1,
+        selectedFilters: { annotation_status: "skipped" },
+        taskType: null,
+        pullvalue: null,
+        rejected: false,
+        pull: "All",
+      }));
+      const count = skippedResult?.payload?.total_count ?? 0;
+      if (count >= maxSkip) {
+        setSnackbarInfo({
+          open: true,
+          message: `You have reached the maximum skip limit (${maxSkip}). Cannot skip this task.`,
+          variant: "warning",
+          severity: "warning",
+        });
+        return;
+      }
+    }
+  }
+
         console.log(submittedEvalForms,"hello");
 
     if (
@@ -480,7 +593,7 @@ const AnnotatePage = () => {
       !areAllFormsAnswered()
     ) {      
       console.log(areAllFormsAnswered);
-
+      
       setSnackbarInfo({
         open: true,
         message:
@@ -558,15 +671,6 @@ const AnnotatePage = () => {
     }
     setLoading(true);
     setAutoSave(false);
-
-    // Use the live editor contents for annotation_notes (most up-to-date)
-    const liveAnnotationNotes =
-      typeof window !== "undefined"
-        ? JSON.stringify(
-            annotationNotesRef?.current?.getEditor().getContents(),
-          )
-        : null;
-
     const PatchAPIdata = {
       annotation_status:
         value === "delete" || value === "delete-pair"
@@ -574,7 +678,12 @@ const AnnotatePage = () => {
             ? localStorage.getItem("labellingMode")
             : null
           : value,
-      annotation_notes: liveAnnotationNotes,
+      annotation_notes:
+        typeof window !== "undefined"
+          ? JSON.stringify(
+              annotationNotesRef?.current?.getEditor().getContents(),
+            )
+          : null,
       lead_time:
         (new Date() - loadtime) / 1000 + Number(lead_time?.lead_time ?? 0),
       result: buildResult(value, type, resultValue),
@@ -633,13 +742,8 @@ const AnnotatePage = () => {
       ) {
         if (type === "MultipleLLMInstructionDrivenChat") {
           const allModelsInteractions = resp?.result?.[0]?.model_interactions;
-          if (
-            allModelsInteractions &&
-            Array.isArray(allModelsInteractions) &&
-            allModelsInteractions.length > 0
-          ) {
-            const interactions_length =
-              allModelsInteractions[0]?.interaction_json?.length || 0;
+          if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
+            const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
             let modifiedChatHistory = [];
             let globalModelFailure = false;
 
@@ -822,6 +926,7 @@ const AnnotatePage = () => {
           filteredAnnotations = [superCheckedAnnotation];
 
           Message = "This is the Super Checker's Annotation in read only mode";
+
           disableDraft = true;
           disableSkip = true;
           disableUpdate = true;
@@ -858,6 +963,7 @@ const AnnotatePage = () => {
       ) {
         filteredAnnotations = [userAnnotation];
         disableSkip = true;
+
         Message = "Skip button is disabled, since the task is being reviewed";
       } else if (
         userAnnotation &&
@@ -1318,13 +1424,7 @@ const AnnotatePage = () => {
               formats={formats}
               bounds={"#note"}
               placeholder="Annotation Notes"
-              onChange={(_content, _delta, _source, editor) => {
-                setAnnotationNotesValue(
-                  JSON.stringify(editor.getContents()),
-                );
-                setannotationtext(editor.getText());
-              }}
-            />
+            ></ReactQuill>
             <ReactQuill
               forwardedRef={reviewNotesRef}
               modules={modules}
@@ -1333,7 +1433,7 @@ const AnnotatePage = () => {
               placeholder="Review Notes"
               style={{ marginBottom: "8px", minHeight: "2rem" }}
               readOnly={true}
-            />
+            ></ReactQuill>
           </div>
         </Grid>
 
