@@ -81,6 +81,9 @@ const BasicSettings = (props) => {
             max_pending_tasks_per_user: ProjectDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: ProjectDetails.tasks_pull_count_per_batch,
             max_tasks_per_user: ProjectDetails.max_tasks_per_user,
+                    max_Draft_tasks_per_user: ProjectDetails.max_Draft_tasks_per_user,       // add this
+        max_Skipped_tasks_per_user: ProjectDetails.max_Skipped_tasks_per_user,         // add this
+
         });
         setTargetLanguage(ProjectDetails?.tgt_language)
         setSourceLanguage(ProjectDetails?.src_language)
@@ -122,6 +125,9 @@ const BasicSettings = (props) => {
             max_pending_tasks_per_user: newDetails.max_pending_tasks_per_user,
             tasks_pull_count_per_batch: newDetails.tasks_pull_count_per_batch,
             max_tasks_per_user: newDetails.max_tasks_per_user,
+                max_Draft_tasks_per_user: newDetails.max_Draft_tasks_per_user,               // add this
+    max_Skipped_tasks_per_user: newDetails.max_Skipped_tasks_per_user,                 // add this
+
         }
         console.log(sendData);
         const projectObj = new GetSaveButtonAPI(id, sendData);
@@ -408,6 +414,49 @@ const BasicSettings = (props) => {
                                     onChange={handleProjectName} />
                             </Grid>
                         </Grid>
+                        {/* Max Draft Num */}
+<Grid
+    container
+    direction='row'
+    sx={{ alignItems: "center", mt: 2 }}
+>
+    <Grid items xs={12} sm={12} md={12} lg={2} xl={2}>
+        <Typography variant="body2" fontWeight='700' label="Required">
+            Max Draft Tasks Per User
+        </Typography>
+    </Grid>
+    <Grid item xs={12} md={12} lg={9} xl={9} sm={12}>
+        <OutlinedTextField
+            fullWidth
+            name="max_Draft_tasks_per_user"
+            InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
+            value={newDetails?.max_Draft_tasks_per_user}
+            onChange={handleProjectName}
+        />
+    </Grid>
+</Grid>
+
+{/* Max Skip Num */}
+<Grid
+    container
+    direction='row'
+    sx={{ alignItems: "center", mt: 2 }}
+>
+    <Grid items xs={12} sm={12} md={12} lg={2} xl={2}>
+        <Typography variant="body2" fontWeight='700' label="Required">
+            Max Skip Tasks Per User
+        </Typography>
+    </Grid>
+    <Grid item xs={12} md={12} lg={9} xl={9} sm={12}>
+        <OutlinedTextField
+            fullWidth
+            name="max_Skipped_tasks_per_user"
+            InputProps={{ step: 1, min: 0, max: 99999, type: 'number', style: { fontSize: "14px", width: { xs: "100%", sm: "500px" } } }}
+            value={newDetails?.max_Skipped_tasks_per_user}
+            onChange={handleProjectName}
+        />
+    </Grid>
+</Grid>
                         <Grid
                             container
                             direction='row'
