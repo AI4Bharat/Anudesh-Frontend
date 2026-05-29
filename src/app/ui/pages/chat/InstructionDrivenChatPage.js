@@ -143,7 +143,7 @@ const onDrag = useCallback((e) => {
   if (!isDragging || !containerRef.current) return;
   const containerRect = containerRef.current.getBoundingClientRect();
   const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-  const newWidth = Math.min(60, Math.max(25, percentage));
+  const newWidth = Math.min(60, Math.max(15, percentage));
   setInstructionWidth(newWidth);
 }, [isDragging]);
 
@@ -164,12 +164,17 @@ const handleFontSizeCommit = useCallback((_e, newVal) => {
   saveAnnotationUIPref({ annotation_font_size: newVal });
 }, [saveAnnotationUIPref]);
 
-const handleResetUIPrefs = useCallback(() => {
+const handleResetFontSize = useCallback(() => {
   setFontSize(0.9);
+  saveAnnotationUIPref({
+    annotation_font_size: 0.9,
+  });
+}, [saveAnnotationUIPref]);
+
+const handleResetPanelWidth = useCallback(() => {
   setInstructionWidth(30);
   setIsPinned(false);
   saveAnnotationUIPref({
-    annotation_font_size: 0.9,
     instruction_panel_width: 30,
     instruction_panel_pinned: false
   });
@@ -971,6 +976,10 @@ return (
             xs: "100%", 
             md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
           },
+          minWidth: {
+            xs: "100%",
+            md: isInstructionExpanded ? "260px" : "40px"
+          },
           height: { 
             xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
             md: "100%" 
@@ -1051,23 +1060,40 @@ return (
           )}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             {isInstructionExpanded && (
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      {isPinned ? "Unpin panel width" : "Pin panel width"}
+              <>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      Reset panel width
                     </span>
                   }
                 >
-                <IconButton
-                  size="small"
-                  onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
-                  sx={{ padding: "4px", minWidth: "auto" }}
-                >
-                  {isPinned
-                    ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                    : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
-                </IconButton>
-              </Tooltip>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); handleResetPanelWidth(); }}
+                    sx={{ padding: "4px", minWidth: "auto" }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        {isPinned ? "Unpin panel width" : "Pin panel width"}
+                      </span>
+                    }
+                  >
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                    sx={{ padding: "4px", minWidth: "auto" }}
+                  >
+                    {isPinned
+                      ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                      : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                  </IconButton>
+                </Tooltip>
+              </>
             )}
             <Tooltip
               title={
@@ -1110,7 +1136,7 @@ return (
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+            <Typography sx={{ fontSize: "0.70rem", color: "#888", whiteSpace: "nowrap" }}>
               Aa
             </Typography>
             <Slider
@@ -1127,16 +1153,16 @@ return (
                 "& .MuiSlider-thumb": { width: 12, height: 12 },
               }}
             />
-            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-              {Math.round(fontSize * 16)}px
+            <Typography sx={{ fontSize: "1.30rem", color: "#888", whiteSpace: "nowrap" }}>
+              Aa
             </Typography>
-            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
+            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset font size</span>}>
               <IconButton
                 size="small"
-                onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
+                onClick={(e) => { e.stopPropagation(); handleResetFontSize(); }}
                 sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
               >
-                <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                <RestartAltIcon style={{ fontSize: "1.1rem", color: "#EE6633" }} />
               </IconButton>
             </Tooltip>
           </Box>
