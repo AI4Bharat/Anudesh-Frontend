@@ -106,8 +106,10 @@ export default function Textarea({
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      handleButtonClick();
-      setText("");
+      if (!loading) {
+        handleButtonClick();
+        setText("");
+      }
     } else if (event.key === "Enter" && event.shiftKey) {
       setText((prevText) => prevText + "\n");
     }
@@ -418,13 +420,15 @@ export default function Textarea({
         <IconButton
           size="large"
           onClick={() => {
-            handleButtonClick();
-            setText("");
+            if (!loading) {
+              handleButtonClick();
+              setText("");
+            }
           }}
-          disabled={!text?.trim()}
+          disabled={!text?.trim() || loading}
         >
           <SendRoundedIcon
-                style={{ color: "#EE6633", width: "32px", height: "32px" }}
+                style={{ color: loading ? "#ccc" : "#EE6633", width: "32px", height: "32px" }}
               />
         </IconButton>
       </Grid>
