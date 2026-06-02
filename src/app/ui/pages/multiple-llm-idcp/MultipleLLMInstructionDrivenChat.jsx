@@ -45,6 +45,10 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Slider from '@mui/material/Slider';
 
 const orange = {
   200: "pink",
@@ -101,24 +105,9 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelFailing,
   submittedEvalForms,
   setSubmittedEvalForms,
-  fontSize = "medium",
+  fontSize: propFontSize = "medium",
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
-  const getFontSize = () => {
-    switch(fontSize) {
-      case 'small':
-        return '0.75rem';
-      case 'medium':
-        return '1rem';
-      case 'large':
-        return '1.25rem';
-      case 'xlarge':
-        return '1.5rem';
-      default:
-        return '1rem';
-    }
-  };
-
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -147,60 +136,155 @@ const MultipleLLMInstructionDrivenChat = ({
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
-const containerRef = useRef(null);
+  const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
+  const [isPinned, setIsPinned] = useState(false);
+  const [fontSize, setFontSize] = useState(0.9);
+  const containerRef = useRef(null);
 
-// Add these handler functions inside the component
-const startDragging = useCallback((e) => {
-  e.preventDefault();
-  setIsDragging(true);
-}, []);
+  const saveAnnotationUIPref = useCallback((payload) => {
+    try {
+      const localPrefs = localStorage.getItem("annotation_ui_preferences");
+      const currentPrefs = localPrefs ? JSON.parse(localPrefs) : {};
+      const newPrefs = { ...currentPrefs, ...payload };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(newPrefs));
+    } catch (err) {
+      console.error('Failed to save local annotation UI preference', err);
+    }
+  }, []);
 
-const stopDragging = useCallback(() => {
-  setIsDragging(false);
-}, []);
-  
+  const startDragging = useCallback((e) => {
+    if (isPinned) return;
+    e.preventDefault();
+    setIsDragging(true);
+  }, [isPinned]);
 
-const onDrag = useCallback((e) => {
-  if (!isDragging || !containerRef.current) return;
+  const stopDragging = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    // Persist width when drag ends
+    setInstructionWidth((currentWidth) => {
+      saveAnnotationUIPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
+      return currentWidth;
+    });
+  }, [isDragging, saveAnnotationUIPref]);
 
-  const containerRect = containerRef.current.getBoundingClientRect();
-  let newWidth;
+  const onDrag = useCallback((e) => {
+    if (!isDragging || !containerRef.current) return;
 
-  if (window.innerWidth < 768) {
-    // For mobile, use percentage of screen height
-    const dragY = e.clientY;
-    const containerTop = containerRect.top;
-    const containerBottom = containerRect.bottom;
-    const containerHeight = containerBottom - containerTop;
-    
-    // Calculate percentage based on Y position (inverted for top panel)
-    const percentage = ((dragY - containerTop) / containerHeight) * 100;
-    newWidth = Math.min(70, Math.max(20, percentage)); // Limit between 20% and 70%
-  } else {
-    // For desktop, use percentage of width
-    const dragX = e.clientX;
-    const containerLeft = containerRect.left;
-    const containerWidth = containerRect.width;
-    
-    // Calculate percentage based on X position
-    const percentage = ((dragX - containerLeft) / containerWidth) * 100;
-    newWidth = Math.min(60, Math.max(20, percentage)); // Limit between 20% and 60%
-  }
+    const containerRect = containerRef.current.getBoundingClientRect();
+    let newWidth;
 
-  setInstructionWidth(newWidth);
-}, [isDragging]);
+    if (window.innerWidth < 768) {
+      // For mobile, use percentage of screen height
+      const dragY = e.clientY;
+      const containerTop = containerRect.top;
+      const containerBottom = containerRect.bottom;
+      const containerHeight = containerBottom - containerTop;
+      
+      // Calculate percentage based on Y position (inverted for top panel)
+      const percentage = ((dragY - containerTop) / containerHeight) * 100;
+      newWidth = Math.min(70, Math.max(25, percentage)); // Limit between 25% and 70%
+    } else {
+      // For desktop, use percentage of width
+      const dragX = e.clientX;
+      const containerLeft = containerRect.left;
+      const containerWidth = containerRect.width;
+      
+      // Calculate percentage based on X position
+      const percentage = ((dragX - containerLeft) / containerWidth) * 100;
+      newWidth = Math.min(60, Math.max(15, percentage)); // Limit between 15% and 60%
+    }
 
-useEffect(() => {
-  if (isDragging) {
-    window.addEventListener('mousemove', onDrag);
-    window.addEventListener('mouseup', stopDragging);
-  }
-  return () => {
-    window.removeEventListener('mousemove', onDrag);
-    window.removeEventListener('mouseup', stopDragging);
-  };
-}, [isDragging, onDrag, stopDragging]);
+    setInstructionWidth(newWidth);
+  }, [isDragging]);
+
+  const handlePinToggle = useCallback(() => {
+    const newPinned = !isPinned;
+    setIsPinned(newPinned);
+    saveAnnotationUIPref({
+      instruction_panel_pinned: newPinned,
+      instruction_panel_width: Math.round(instructionWidth * 10) / 10,
+    });
+  }, [isPinned, instructionWidth, saveAnnotationUIPref]);
+
+  const handleFontSizeChange = useCallback((_e, newVal) => {
+    setFontSize(newVal);
+  }, []);
+
+  const handleFontSizeCommit = useCallback((_e, newVal) => {
+    saveAnnotationUIPref({ annotation_font_size: newVal });
+  }, [saveAnnotationUIPref]);
+
+  const handleResetFontSize = useCallback(() => {
+    setFontSize(0.9);
+    saveAnnotationUIPref({
+      annotation_font_size: 0.9,
+    });
+  }, [saveAnnotationUIPref]);
+
+  const handleResetPanelWidth = useCallback(() => {
+    setInstructionWidth(30);
+    setIsPinned(false);
+    saveAnnotationUIPref({
+      instruction_panel_width: 30,
+      instruction_panel_pinned: false
+    });
+  }, [saveAnnotationUIPref]);
+
+  // Sync annotation UI preferences from localStorage on mount
+  useEffect(() => {
+    const localPrefs = localStorage.getItem("annotation_ui_preferences");
+    if (localPrefs) {
+      try {
+        const prefs = JSON.parse(localPrefs);
+        if (typeof prefs.instruction_panel_width === 'number') {
+          setInstructionWidth(prefs.instruction_panel_width);
+        }
+        if (typeof prefs.annotation_font_size === 'number') {
+          setFontSize(prefs.annotation_font_size);
+        }
+        if (typeof prefs.instruction_panel_pinned === 'boolean') {
+          setIsPinned(prefs.instruction_panel_pinned);
+        }
+      } catch (err) {
+        console.error('Failed to parse local annotation UI preferences', err);
+      }
+    }
+  }, []);
+
+  // Sync parent-provided dropdown font size string with local numeric font size
+  useEffect(() => {
+    if (propFontSize) {
+      switch (propFontSize) {
+        case "small":
+          setFontSize(0.8);
+          break;
+        case "medium":
+          setFontSize(0.9);
+          break;
+        case "large":
+          setFontSize(1.2);
+          break;
+        case "xlarge":
+          setFontSize(1.4);
+          break;
+        default:
+          setFontSize(0.9);
+      }
+    }
+  }, [propFontSize]);
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', onDrag);
+      window.addEventListener('mouseup', stopDragging);
+    }
+    return () => {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDragging);
+    };
+  }, [isDragging, onDrag, stopDragging]);
+
   const labels = {
     1: "Poor",
     2: "Fair",
@@ -1465,7 +1549,7 @@ useEffect(() => {
                           {...props}
                           className=""
                           style={{
-                            fontSize: getFontSize(),
+                            fontSize: `${fontSize}rem`,
                             width: "100%",
                             borderRadius: "8px",
                             color: grey[900],
@@ -1494,7 +1578,7 @@ useEffect(() => {
                       value={message.prompt}
                       onChange={(e) => handleTextChange(e.target.value, message, null, null, "prompt")}
                       style={{
-                        fontSize: getFontSize(),
+                        fontSize: `${fontSize}rem`,
                         width: "100%",
                         borderRadius: "8px",
                         color: grey[900],
@@ -1534,7 +1618,7 @@ useEffect(() => {
                       className="flex-col"
                       children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
                       components={{
-                        p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
+                        p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
                       }}
                     />
                   </div>
@@ -1677,7 +1761,7 @@ useEffect(() => {
                             }}
                           >
                             <ErrorIcon sx={{ marginRight: "8px", fontSize: "0.9rem" }} />
-                            <Typography style={{ fontSize: getFontSize() }}>
+                            <Typography style={{ fontSize: "0.8rem" }}>
                               {modelOutput?.model_name} failed to load the response!
                             </Typography>
                           </Box>
@@ -1690,7 +1774,7 @@ useEffect(() => {
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
                               flexGrow: 1, 
-                              fontSize: getFontSize(),
+                              fontSize: "0.85rem",
                               display: "flex",
                               flexDirection: "column",
                               borderRadius: "8px",
@@ -1739,7 +1823,7 @@ useEffect(() => {
                                         sx={{
                                           fontWeight: "bold",
                                           color: orange[400],
-                                          fontSize: getFontSize(),
+                                          fontSize: "1.25rem",
                                         }}
                                       >
                                         {"Model " + (modelIdx + 1)}
@@ -1753,11 +1837,12 @@ useEffect(() => {
                                     <Typography
                                       component="div"
                                       sx={{
-                                        fontSize: getFontSize(),
+                                        fontSize: "1.2rem",
                                         maxHeight: "60vh",
                                         overflowY: "scroll",
                                       }}
                                     >
+
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
                                           ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
@@ -1771,7 +1856,7 @@ useEffect(() => {
                                                   <textarea
                                                     {...props}
                                                     style={{
-                                                      fontSize: getFontSize(),
+                                                      fontSize: `${fontSize}rem`,
                                                       padding: "6px",
                                                       borderRadius: "6px",
                                                       color: grey[900],
@@ -1791,7 +1876,7 @@ useEffect(() => {
                                                 value={segment.value}
                                                 onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
                                                 style={{
-                                                  fontSize: getFontSize(),
+                                                  fontSize: `${fontSize}rem`,
                                                   width: "100%",
                                                   padding: "6px",
                                                   borderRadius: "6px",
@@ -1816,7 +1901,7 @@ useEffect(() => {
                                                 key={segmentIdx}
                                                 children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
                                                 components={{
-                                                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                  p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
                                                 }}
                                               />
                                             </div>
@@ -1829,7 +1914,7 @@ useEffect(() => {
                                             customStyle={{
                                               padding: "0.5rem",
                                               borderRadius: "4px",
-                                              fontSize: getFontSize(),
+                                              fontSize: `${fontSize}rem`,
                                               margin: "0.2rem 0"
                                             }}
                                           >
@@ -1850,8 +1935,7 @@ useEffect(() => {
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
                                 boxSizing: "border-box",
-                                minHeight: "100px",
-                              }}
+                                minHeight: "100px",                              }}
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
@@ -1866,7 +1950,7 @@ useEffect(() => {
                                           <textarea
                                             {...props}
                                             style={{
-                                              fontSize: getFontSize(),
+                                              fontSize: `${fontSize}rem`,
                                               padding: "6px",
                                               borderRadius: "6px",
                                               color: grey[900],
@@ -1886,7 +1970,7 @@ useEffect(() => {
                                         value={segment.value}
                                         onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
                                         style={{
-                                          fontSize: getFontSize(),
+                                          fontSize: `${fontSize}rem`,
                                           width: "100%",
                                           padding: "6px",
                                           borderRadius: "6px",
@@ -1905,7 +1989,7 @@ useEffect(() => {
                                       key={segmentIdx}
                                       children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
                                       components={{
-                                        p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
+                                        p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
                                       }}
                                     />
                                   )
@@ -1917,7 +2001,7 @@ useEffect(() => {
                                     customStyle={{ 
                                       padding: "0.5rem", 
                                       borderRadius: "4px", 
-                                      fontSize: getFontSize(),
+                                      fontSize: `${fontSize}rem`,
                                       margin: "0.2rem 0" 
                                     }}
                                   >
@@ -1926,6 +2010,7 @@ useEffect(() => {
                                 )
                               )}
                             </Box>
+
 
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
@@ -1945,9 +2030,10 @@ useEffect(() => {
                       </React.Fragment>
                     ))}
                   </Box>
-                </Grid>
 
-                {shouldScroll && (
+
+                </Grid>
+{shouldScroll && (
                   <IconButton
                     onClick={() => scrollOutputs(index, 'right')}
                     size="large"
@@ -1995,7 +2081,7 @@ useEffect(() => {
                         <div key={questionIdx}>
                           {question.question_type === "comparison" && (
                             <div style={{ marginBottom: "4px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{ color: "#d93025", fontSize: "18px" }}
@@ -2013,7 +2099,7 @@ useEffect(() => {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       <span>{option}:</span>
@@ -2093,7 +2179,7 @@ useEffect(() => {
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={<span style={{ fontSize: getFontSize() }}>{"Model " + (outputIdx + 1)}</span>}
+                                                  label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -2108,13 +2194,19 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "fill_in_blanks" && (
-                            <div style={{ marginBottom: "5px" }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
                               <p className={classes.inputQuestion}>
                                 {questionIdx + 1}.{" "}
                                 {question.input_question
                                   .split("<blank>")
                                   .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`} style={{ fontSize: getFontSize() }}>
+                                    <span key={`${questionIdx}-${index}`} style={{
+                                      fontSize: "0.9rem",
+                                    }}>
                                       {part}
                                       {index <
                                         question.input_question.split("<blank>")
@@ -2127,7 +2219,7 @@ useEffect(() => {
                                               width: "100px",
                                               margin: "0 4px",
                                               verticalAlign: "middle",
-                                              fontSize: getFontSize()
+                                              fontSize: "0.85rem"
                                             }}
                                           >
                                             &nbsp;
@@ -2145,6 +2237,7 @@ useEffect(() => {
                                   *
                                 </span>
                               </p>
+
                               <div
                                 style={{
                                   padding: "10px 0 0 20px",
@@ -2153,7 +2246,7 @@ useEffect(() => {
                                   justifyContent: "space-between",
                                   alignItems: "center",
                                   flexWrap: "wrap",
-                                  fontSize: getFontSize()
+                                  fontSize: "0.85rem"
                                 }}
                               >
                                 {message?.output?.map((response, outputIdx) => (
@@ -2171,7 +2264,7 @@ useEffect(() => {
                                         color: "#6C5F5B",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {"Model " + (outputIdx + 1)}
@@ -2215,7 +2308,7 @@ useEffect(() => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
-                                            fontSize: getFontSize()
+                                            fontSize: "0.85rem"
                                           }}
                                           required
                                         />
@@ -2226,9 +2319,15 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "rating" && (
-                            <div style={{ marginBottom: "5px" }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
                               <div className={classes.inputQuestion}>
-                                <span style={{ fontSize: getFontSize() }}>
+                                <span style={{
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                 </span>
                                 <span
@@ -2266,7 +2365,7 @@ useEffect(() => {
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
                                             color: "#6C5F5B",
-                                            fontSize: getFontSize()
+                                            fontSize: "0.85rem"
                                           }}
                                         >
                                           {response?.model_name}
@@ -2335,8 +2434,14 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "mcq" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion} style={{
+                                fontSize: "0.9rem",
+                              }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
@@ -2365,7 +2470,9 @@ useEffect(() => {
                                         flexDirection: "row",
                                       }}
                                     >
-                                      <span style={{ fontSize: getFontSize() }}>{option} :</span>{" "}
+                                      <span style={{
+                                        fontSize: "0.85rem",
+                                      }}>{option} :</span>{" "}
                                       <div
                                         style={{
                                           display: "flex",
@@ -2412,11 +2519,11 @@ useEffect(() => {
                                                   onChange={(e) =>
                                                     handleMCQ(
                                                       message?.output?.[0]
-                                                        ?.prompt_output_pair_id,
+                                                        ?.prompt_output_pair_id, // index
                                                       message,
                                                       option,
                                                       questionIdx,
-                                                      outputIdx,
+                                                      outputIdx, // model_idx
                                                     )
                                                   }
                                                 >
@@ -2430,7 +2537,7 @@ useEffect(() => {
                                                         variant="subtitle2"
                                                         sx={{
                                                           color: "#6C5F5B",
-                                                          fontSize: getFontSize()
+                                                          fontSize: "0.85rem"
                                                         }}
                                                       >
                                                         {response?.model_name}
@@ -2449,10 +2556,17 @@ useEffect(() => {
                               </div>
                             </div>
                           )}
-                          {question.question_type === "multi_select_options" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
-                                {questionIdx + 1}. {question.input_question}
+                          {question.question_type ===
+                            "multi_select_options" && (
+                              <div
+                                style={{
+                                  marginBottom: "5px",
+                                }}
+                              >
+                                <div className={classes.inputQuestion} style={{
+                                  fontSize: "0.9rem",
+                                }}>
+                                  {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
                                       color: "#d93025",
@@ -2479,7 +2593,9 @@ useEffect(() => {
                                           justifyContent: "space-between",
                                         }}
                                       >
-                                        <span style={{fontSize: getFontSize() }}>{option} :</span>{" "}
+                                        <span style={{
+                                          fontSize: "0.85rem",
+                                        }}>{option} :</span>{" "}
                                         <div
                                           style={{
                                             display: "flex",
@@ -2544,25 +2660,25 @@ useEffect(() => {
                                                           variant="subtitle2"
                                                           sx={{
                                                             color: "#6C5F5B",
-                                                          fontSize: getFontSize()
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />{" "}
-                                                </FormGroup>
-                                              </FormControl>
-                                            </div>
-                                          ),
-                                        )}
+                                                            fontSize: "0.85rem"
+                                                          }}
+                                                        >
+                                                          {response?.model_name}
+                                                        </Typography>
+                                                      }
+                                                    />{" "}
+                                                  </FormGroup>
+                                                </FormControl>
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ),
-                                )}
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       ))) : (<>{!shrinkedMessages[index] && ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
                         const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
@@ -2576,7 +2692,7 @@ useEffect(() => {
                                   {splitQuestion?.map((part, index) => (
                                     <span
                                       key={`${questionIdx}-${index}`}
-                                      style={{ fontSize: getFontSize() }}
+                                      style={{ fontSize: "0.9rem" }}
                                     >
                                       {part}
                                       {index < splitQuestion.length - 1 && (
@@ -2592,7 +2708,7 @@ useEffect(() => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             padding: "4px",
-                                            fontSize: getFontSize(),
+                                            fontSize: "0.85rem",
                                             verticalAlign: "middle",
                                             width: "100%",
                                             maxWidth: "200px",
@@ -2617,7 +2733,7 @@ useEffect(() => {
                             return (
                               <div key={questionIdx}>
                                 <div className={classes.inputQuestion}>
-                                  <span style={{ fontSize: getFontSize() }}>
+                                  <span style={{ fontSize: "0.9rem" }}>
                                     {questionIdx + 1}. {question.input_question}
                                   </span>
                                   {
@@ -2686,7 +2802,7 @@ useEffect(() => {
                                       sx={{
                                         ml: 2,
                                         color: "#EE6633",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {(() => {
@@ -2721,7 +2837,7 @@ useEffect(() => {
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: getFontSize() }}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -2740,7 +2856,7 @@ useEffect(() => {
                                   <FormGroup>
                                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                                       {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%", fontSize: getFontSize() }} key={idx}>
+                                        <div style={{ width: "50%", fontSize: "0.85rem" }} key={idx}>
                                           <FormControlLabel
                                             key={idx}
                                             control={
@@ -2775,7 +2891,7 @@ useEffect(() => {
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: getFontSize() }}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -2805,7 +2921,7 @@ useEffect(() => {
                                         display: "flex",
                                         flexWrap: "wrap",
                                         gap: "16px",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {question?.input_selections_list?.map(
@@ -2845,7 +2961,7 @@ useEffect(() => {
                         maxWidth: "fit-content",
                         marginBottom: "16px",
                         marginRight: "16px",
-                        fontSize: getFontSize(),
+                        fontSize: `${fontSize}rem`,
                         minHeight: "auto",
                       }}
                       onClick={() => {
@@ -2971,6 +3087,10 @@ return (
             xs: "100%", 
             md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
           },
+          minWidth: {
+            xs: "100%",
+            md: isInstructionExpanded ? "260px" : "40px"
+          },
           height: { 
             xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
             md: "100%" 
@@ -3018,7 +3138,7 @@ return (
             display: "flex",
             alignItems: "center",
             justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
+            marginBottom: isInstructionExpanded ? "0.5rem" : 0,
             padding: "0.5rem",
             backgroundColor: "rgba(247, 184, 171, 0.2)",
             borderRadius: "8px",
@@ -3034,37 +3154,121 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                fontSize: getFontSize()
+                fontSize: "1rem"
               }}
             >
               {translate("typography.instructions")}
             </Typography>
           )}
-          <Tooltip
-            title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
-          >
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsInstructionExpanded(!isInstructionExpanded);
-              }}
-              sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            {isInstructionExpanded && (
+              <>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      Reset panel width
+                    </span>
+                  }
+                >
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); handleResetPanelWidth(); }}
+                    sx={{ padding: "4px", minWidth: "auto" }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        {isPinned ? "Unpin panel width" : "Pin panel width"}
+                      </span>
+                    }
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      {isPinned
+                        ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                        : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                    </IconButton>
+                  </Tooltip>
+              </>
+            )}
+            <Tooltip
+              title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
             >
-              {isInstructionExpanded ? (
-                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              ) : (
-                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInstructionExpanded(!isInstructionExpanded);
+                }}
+                sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+              >
+                {isInstructionExpanded ? (
+                  <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                ) : (
+                  <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
+
+        {/* Font size slider — shown when expanded */}
+        {isInstructionExpanded && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              px: "0.5rem",
+              pb: "0.5rem",
+              flexShrink: 0,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Typography sx={{ fontSize: "0.70rem", color: "#888", whiteSpace: "nowrap" }}>
+              Aa
+            </Typography>
+            <Slider
+              value={fontSize}
+              min={0.7}
+              max={1.4}
+              step={0.05}
+              onChange={handleFontSizeChange}
+              onChangeCommitted={handleFontSizeCommit}
+              size="small"
+              sx={{
+                color: "#EE6633",
+                width: "100%",
+                "& .MuiSlider-thumb": { width: 12, height: 12 },
+              }}
+            />
+            <Typography sx={{ fontSize: "1.30rem", color: "#888", whiteSpace: "nowrap" }}>
+              Aa
+            </Typography>
+            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset font size</span>}>
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); handleResetFontSize(); }}
+                sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+              >
+                <RestartAltIcon style={{ fontSize: "1.1rem", color: "#EE6633" }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+
 
         {isInstructionExpanded && (
           <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
             {/* Main Instructions */}
             <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
+              <Typography paragraph sx={{ fontSize: `${fontSize}rem`, lineHeight: "1.5", color: "#333" }}>
                 {info.instruction_data}
               </Typography>
             </Box>
@@ -3077,7 +3281,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                      fontSize: getFontSize(),
+                    fontSize: `${fontSize + 0.1}rem`,
                     mb: 1,
                   }}
                 >
@@ -3086,7 +3290,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                      fontSize: getFontSize(),
+                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -3105,8 +3309,8 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                      fontSize: getFontSize(),
-                      mb: 1,
+                    fontSize: `${fontSize + 0.1}rem`,
+                    mb: 1,
                   }}
                 >
                   {translate("modal.examples")}
@@ -3114,7 +3318,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                      fontSize: getFontSize(),
+                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -3133,7 +3337,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                      fontSize: getFontSize(),
+                    fontSize: `${fontSize + 0.1}rem`,
                     mb: 1,
                   }}
                 >
@@ -3149,7 +3353,7 @@ return (
                   {info.meta_info_language && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
                         Language: {info.meta_info_language}
                       </Typography>
                     </Box>
@@ -3157,7 +3361,7 @@ return (
                   {taskId && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
                         Task ID: {taskId}
                       </Typography>
                     </Box>
@@ -3244,22 +3448,22 @@ return (
                 width: "100%",
               },
               "& textarea": {
-                  fontSize: getFontSize(),
-                  width: "100%",
-                }
-              }}
-              class_name={"w-full"}
-              loading={loading}
-              inputValue={inputValue}
-              overrideGT={true}
-              task_id={taskId}
-              script={info.meta_info_language}
-            />
-          </Box>
+                fontSize: { xs: "0.85rem", md: "0.9rem" },
+                width: "100%",
+              }
+            }}
+          class_name={"w-full"}
+          loading={loading}
+          inputValue={inputValue}
+          overrideGT={true}
+          task_id={taskId}
+          script={info.meta_info_language}
+        />
         </Box>
-      ) : null}
-    </>
-  );
+      </Box>
+    ) : null}
+  </>
+);
 };
 
 export default MultipleLLMInstructionDrivenChat;
