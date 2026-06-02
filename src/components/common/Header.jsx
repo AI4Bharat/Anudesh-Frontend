@@ -18,7 +18,7 @@ import Image from "next/image";
 import Transliteration from "../Transliteration/Transliteration";
 import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "@/utils/UserMappedByRole/Roles";
-import UpdateUIPrefsAPI from "@/Lib/Features/user/UpdateUIPrefs";
+// import UpdateUIPrefsAPI from "@/Lib/Features/user/UpdateUIPrefs";
 import { FetchLoggedInUserData } from "@/Lib/Features/getLoggedInData";
 import { Link, NavLink } from "react-router-dom";
 import ForgotPasswordAPI from "@/app/actions/api/user/ForgotPasswordAPI";
@@ -191,11 +191,6 @@ const translationServices = {
     getLoggedInUserData();
   }, []);
 
-  /* useEffect(()=>{
-    if(loggedInUserData?.prefer_cl_ui !== undefined){
-      setCheckClUI(loggedInUserData?.prefer_cl_ui)
-    }
-  },[loggedInUserData]) */
 
   // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
   const onLogoutClick = () => {
@@ -302,24 +297,25 @@ useEffect(() => {
     }
   };
 
-  const handleTranscriptionFlowChange = async (event) => {
-    const obj = new UpdateUIPrefsAPI(event.target.checked);
-    // dispatch(APITransport(loggedInUserObj));
-    const res = await fetch(obj.apiEndPoint(), {
-      method: "POST",
-      body: JSON.stringify(obj.getBody()),
-      headers: obj.getHeaders().headers,
-    });
-    const resp = await res.json();
-    if (res.ok) {
-      getLoggedInUserData();
-      setSnackbarInfo({
-        open: true,
-        message: resp.message,
-        variant: "success",
-      });
-    }
-  };
+  // This code can be cleanedup later
+  // const handleTranscriptionFlowChange = async (event) => {
+  //   const obj = new UpdateUIPrefsAPI(event.target.checked);
+  //   // dispatch(APITransport(loggedInUserObj));
+  //   const res = await fetch(obj.apiEndPoint(), {
+  //     method: "POST",
+  //     body: JSON.stringify(obj.getBody()),
+  //     headers: obj.getHeaders().headers,
+  //   });
+  //   const resp = await res.json();
+  //   if (res.ok) {
+  //     getLoggedInUserData();
+  //     setSnackbarInfo({
+  //       open: true,
+  //       message: resp.message,
+  //       variant: "success",
+  //     });
+  //   }
+  // };
   const handleTabChange = async (index) => {
     if (index === 0) {
       await setunread(null);
