@@ -548,6 +548,7 @@ function MobileNavbar(props) {
       <AppBar
         position="fixed"
         elevation={1}
+        color="transparent"
         sx={{
           backgroundColor: "var(--surface)",
           padding: "8px 0",

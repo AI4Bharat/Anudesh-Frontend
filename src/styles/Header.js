@@ -4,19 +4,26 @@ const headerStyle = makeStyles((theme) => ({
   parentContainer: {},
   AudioparentContainers: {},
   appBar: {},
-  toolbar: {
-    width: "80%",
-    height: "64px !important",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between !important",
-    boxSizing: "border-box",
-    fontFamily: "sans-serif",
-    zIndex: 200,
-    "@media (min-width: 900px) and (max-width: 1400px)": {
-      width: "100%",
-    },
+toolbar: {
+  width: "80%",
+  height: "64px !important",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between !important",
+  boxSizing: "border-box",
+  fontFamily: "sans-serif",
+  zIndex: 200,
+  flexWrap: "nowrap",        
+  overflow: "hidden",       
+  "@media (min-width: 900px) and (max-width: 1400px)": {
+    width: "100%",
+    padding: "0 8px",
   },
+  "@media (max-width: 900px)": {
+    width: "100%",
+    padding: "0 8px",
+  },
+},
   menu: {
     width: "100%",
     margin: "0 auto",
@@ -41,32 +48,42 @@ const headerStyle = makeStyles((theme) => ({
       fontSize: "24px !important",
     },
   },
-  headerMenu: {
-    textDecoration: "none",
-    borderRadius: "inherit",
-    backgroundColor: "transparent",
-    padding: "18px",
-    color: theme.palette.mode === "dark" ? "#ffffff" : "black",
+ headerMenu: {
+  textDecoration: "none",
+  borderRadius: 12,
+  backgroundColor: "transparent",
+  padding: "18px",
+  color: theme.palette.mode === "dark" ? "#ffffff" : "black",
+  boxShadow: "none",
+  fontSize: "18px",
+  fontFamily: "Roboto, sans-serif",
+  fontWeight: 600,
+  letterSpacing: "0.5px",
+  whiteSpace: "nowrap",     // ← ADD: prevent text wrapping inside a link
+  "&:hover": {
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
     boxShadow: "none",
-    fontSize: "18px",
-    fontFamily: "Roboto, sans-serif",
-    fontWeight: 600,
-    letterSpacing: "0.5px",
-    borderRadius: 12,
-    "&:hover": {
-      backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
-      boxShadow: "none",
-    },
-    "@media (min-width: 900px) and (max-width: 1400px)": {
-      fontSize: "14px !important",
-      padding: "12px !important",
-    },
   },
+  "@media (min-width: 900px) and (max-width: 1400px)": {
+    fontSize: "14px !important",
+    padding: "12px !important",
+  },
+  // ADD this new breakpoint for the 90% zoom range (~1300-1450px effective)
+  "@media (min-width: 1400px) and (max-width: 1600px)": {
+    fontSize: "15px !important",
+    padding: "14px !important",
+  },
+  "@media (max-width: 900px)": {
+    fontSize: "13px !important",
+    padding: "8px !important",
+  },
+},
   highlightedMenu: {
     backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
     textDecoration: "none",
     borderRadius: "inherit",
     padding: "18px",
+    whiteSpace: "nowrap",
     color: theme.palette.mode === "dark" ? "#ffffff" : "black",
     boxShadow: "none",
     fontSize: "18px",
@@ -78,10 +95,18 @@ const headerStyle = makeStyles((theme) => ({
       backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
       boxShadow: "none",
     },
+    "@media (min-width: 1400px) and (max-width: 1600px)": {   // ← ADD
+    fontSize: "15px !important",
+    padding: "14px !important",
+  },
     "@media (min-width: 900px) and (max-width: 1400px)": {
       fontSize: "14px !important",
       padding: "12px !important",
     },
+    "@media (max-width: 900px)": {   
+    fontSize: "13px !important",
+    padding: "8px !important",
+  },
   },
   avatar: {
     width: "36px",
