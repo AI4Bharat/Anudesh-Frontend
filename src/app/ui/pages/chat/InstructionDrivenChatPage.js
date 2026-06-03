@@ -288,6 +288,7 @@ const grey = {
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
+<<<<<<< Updated upstream
       let modifiedChatHistory;
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
@@ -314,6 +315,28 @@ const grey = {
     } 
     
     else {
+=======
+      
+      if (res.ok && data && data.result) {
+        let modifiedChatHistory = data.result.map((interaction, index) => {
+          const isLastInteraction = index === data?.result?.length - 1;
+          return {
+            ...interaction,
+            output: formatResponse(interaction.output, isLastInteraction),
+          };
+        });
+        setChatHistory(modifiedChatHistory);
+      } else {
+        
+        setSnackbarInfo({
+          open: true,
+          message: data?.message || res.status === 500 ? "Server error. Please try again." : "An error occurred while saving the annotation.",          
+          variant: "error",
+        });
+      }
+      setLoading(false);
+    } else {
+>>>>>>> Stashed changes
       setSnackbarInfo({
         open: true,
         message: "Please provide a prompt",
