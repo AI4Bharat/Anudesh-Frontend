@@ -59,7 +59,7 @@ toolbar: {
   fontFamily: "Roboto, sans-serif",
   fontWeight: 600,
   letterSpacing: "0.5px",
-  whiteSpace: "nowrap",     // ← ADD: prevent text wrapping inside a link
+  whiteSpace: "nowrap",     
   "&:hover": {
     backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "#E0E0E0",
     boxShadow: "none",
@@ -68,7 +68,7 @@ toolbar: {
     fontSize: "14px !important",
     padding: "12px !important",
   },
-  // ADD this new breakpoint for the 90% zoom range (~1300-1450px effective)
+  
   "@media (min-width: 1400px) and (max-width: 1600px)": {
     fontSize: "15px !important",
     padding: "14px !important",
