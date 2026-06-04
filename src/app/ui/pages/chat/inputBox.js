@@ -182,13 +182,6 @@ const modelsData = [
         icon: <AutoAwesomeIcon sx={{ color: '#34A853' }} />,
         capabilities: { reasoning: true, image: true, voice: true },
       },
-      {
-        id: 'gemini-3-flash',
-        name: 'Gemini 3 Flash',
-        description: 'High-speed agentic model',
-        icon: <AutoAwesomeIcon sx={{ color: '#FBBC04' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
-      },
     ],
   },
   {

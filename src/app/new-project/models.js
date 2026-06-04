@@ -18,7 +18,6 @@ const languageModelOptions = [
   "gemini-3.5-flash",
   "gemini-3.1-pro",
   "gemini-3.1-flash-lite",
-  "gemini-3-flash",
   // "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
   // "meta-llama/Llama-3.2-3B-Instruct",
   // "meta-llama/Llama-3.3-70B-Instruct-Turbo",
