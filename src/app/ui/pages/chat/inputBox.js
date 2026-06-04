@@ -221,7 +221,7 @@ const formatPrompt = (prompt) => {
 function GuestChatPage() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [selectedModel, setSelectedModel] = useState('gemini-3.5-flash');
+  const [selectedModel, setSelectedModel] = useState('google/gemma-4-26B-A4B-it');
   const [selectedLang, setSelectedLang] = useState("en");
   const [showLanguageSelect, setShowLanguageSelect] = useState(false);
   const [enableImageUpload, setEnableImageUpload] = useState(false);
