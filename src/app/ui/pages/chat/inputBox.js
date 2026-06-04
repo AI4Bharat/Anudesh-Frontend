@@ -80,58 +80,58 @@ const lightTheme = createTheme({
 });
 
 const modelsData = [
-  {
-    provider: 'OpenAI',
-    models: [
-      {
-        id: 'GPT3.5',
-        name: 'GPT 3.5',
-        description: 'Advanced reasoning model',
-        icon: <AutoAwesomeIcon sx={{ color: '#8E44AD' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'GPT4',
-        name: 'GPT 4',
-        description: 'Efficient reasoning model',
-        icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'GPT4O',
-        name: 'GPT 4o',
-        description: 'Efficient reasoning model',
-        icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'GPT4OMini',
-        name: 'GPT 4o Mini',
-        description: 'Efficient reasoning model',
-        icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-    ],
-  },
-  {
-    provider: 'Sarvam',
-    models: [
-      {
-        id: 'SARVAM_M',
-        name: 'Sarvam M',
-        description: 'Advanced hybrid-reasoning model',
-        icon: <BoltIcon sx={{ color: '#F39C12' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-    ],
-  },
+  // {
+  //   provider: 'OpenAI',
+  //   models: [
+  //     {
+  //       id: 'GPT3.5',
+  //       name: 'GPT 3.5',
+  //       description: 'Advanced reasoning model',
+  //       icon: <AutoAwesomeIcon sx={{ color: '#8E44AD' }} />,
+  //       capabilities: { reasoning: true, image: false, voice: true },
+  //     },
+  //     {
+  //       id: 'GPT4',
+  //       name: 'GPT 4',
+  //       description: 'Efficient reasoning model',
+  //       icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
+  //       capabilities: { reasoning: true, image: false, voice: true },
+  //     },
+  //     {
+  //       id: 'GPT4O',
+  //       name: 'GPT 4o',
+  //       description: 'Efficient reasoning model',
+  //       icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
+  //       capabilities: { reasoning: true, image: false, voice: true },
+  //     },
+  //     {
+  //       id: 'GPT4OMini',
+  //       name: 'GPT 4o Mini',
+  //       description: 'Efficient reasoning model',
+  //       icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
+  //       capabilities: { reasoning: true, image: false, voice: true },
+  //     },
+  //   ],
+  // },
+  // {
+  //   provider: 'Sarvam',
+  //   models: [
+  //     {
+  //       id: 'SARVAM_M',
+  //       name: 'Sarvam M',
+  //       description: 'Advanced hybrid-reasoning model',
+  //       icon: <BoltIcon sx={{ color: '#F39C12' }} />,
+  //       capabilities: { reasoning: true, image: false, voice: true },
+  //     },
+  //   ],
+  // },
   {
     provider: 'Google',
     models: [
       {
         id: 'google/gemma-3-12b-it',
         name: 'Gemma 3 12B Instruct',
-        description: 'Advanced reasoning model',
+        description: 'Compact reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#8E44AD' }} />,
         capabilities: { reasoning: true, image: false, voice: true },
       },
@@ -142,18 +142,65 @@ const modelsData = [
         icon: <AutoAwesomeIcon sx={{ color: '#D252E4' }} />,
         capabilities: { reasoning: true, image: false, voice: true },
       },
+      {
+        id: 'google/gemma-4-26B-A4B-it',
+        name: 'Gemma 4 26B A4B Instruct',
+        description: 'Multimodal MoE reasoning model',
+        icon: <AutoAwesomeIcon sx={{ color: '#4285F4' }} />,
+        capabilities: { reasoning: true, image: true, voice: true },
+      },
+      {
+        id: 'google/gemma-4-31B-it',
+        name: 'Gemma 4 31B Instruct',
+        description: 'Multimodal dense reasoning model',
+        icon: <AutoAwesomeIcon sx={{ color: '#4285F4' }} />,
+        capabilities: { reasoning: true, image: true, voice: true },
+      },
+    ],
+  },
+  {
+    provider: 'Gemini',
+    models: [
+      {
+        id: 'gemini-3.5-flash',
+        name: 'Gemini 3.5 Flash',
+        description: 'Fast agentic reasoning model',
+        icon: <AutoAwesomeIcon sx={{ color: '#4285F4' }} />,
+        capabilities: { reasoning: true, image: true, voice: true },
+      },
+      {
+        id: 'gemini-3.1-pro',
+        name: 'Gemini 3.1 Pro',
+        description: 'Advanced complex reasoning model',
+        icon: <AutoAwesomeIcon sx={{ color: '#EA4335' }} />,
+        capabilities: { reasoning: true, image: true, voice: true },
+      },
+      {
+        id: 'gemini-3.1-flash-lite',
+        name: 'Gemini 3.1 Flash Lite',
+        description: 'Cost-efficient high-volume model',
+        icon: <AutoAwesomeIcon sx={{ color: '#34A853' }} />,
+        capabilities: { reasoning: true, image: true, voice: true },
+      },
+      {
+        id: 'gemini-3-flash',
+        name: 'Gemini 3 Flash',
+        description: 'High-speed agentic model',
+        icon: <AutoAwesomeIcon sx={{ color: '#FBBC04' }} />,
+        capabilities: { reasoning: true, image: true, voice: true },
+      },
     ],
   },
   {
     provider: 'Meta',
     models: [
-      {
-        id: 'LLAMA2',
-        name: 'LLAMA2',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
+      // {
+      //   id: 'LLAMA2',
+      //   name: 'LLAMA2',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
       {
         id: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
         name: 'Llama 4 Maverick 17B 128E Instruct FP8',
@@ -168,55 +215,55 @@ const modelsData = [
         icon: <HubIcon sx={{ color: '#3498DB' }} />,
         capabilities: { reasoning: true, image: true, voice: true },
       },
-      {
-        id: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-        name: 'Meta Llama 3.1 8B Instruct Turbo',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'eta-llama/Llama-3.2-3B-Instruct',
-        name: 'Llama 3.2 3B Instruct',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
-        name: 'Llama 3.3 70B Instruct Turbo',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
-        name: 'Meta Llama 3.1 70B Instruct Turbo',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'meta-llama/Llama-3.3-70B-Instruct',
-        name: 'Llama 3.3 70B Instruct',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'meta-llama/Meta-Llama-3.1-70B-Instruct',
-        name: 'Meta Llama 3.1 70B Instruct',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
-      {
-        id: 'meta-llama/Meta-Llama-3.1-8B-Instruct',
-        name: 'Meta Llama 3.1 8B Instruct',
-        description: 'Advanced reasoning model',
-        icon: <HubIcon sx={{ color: '#3498DB' }} />,
-        capabilities: { reasoning: true, image: false, voice: true },
-      },
+      // {
+      //   id: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+      //   name: 'Meta Llama 3.1 8B Instruct Turbo',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
+      // {
+      //   id: 'eta-llama/Llama-3.2-3B-Instruct',
+      //   name: 'Llama 3.2 3B Instruct',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
+      // {
+      //   id: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+      //   name: 'Llama 3.3 70B Instruct Turbo',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
+      // {
+      //   id: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+      //   name: 'Meta Llama 3.1 70B Instruct Turbo',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
+      // {
+      //   id: 'meta-llama/Llama-3.3-70B-Instruct',
+      //   name: 'Llama 3.3 70B Instruct',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
+      // {
+      //   id: 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+      //   name: 'Meta Llama 3.1 70B Instruct',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
+      // {
+      //   id: 'meta-llama/Meta-Llama-3.1-8B-Instruct',
+      //   name: 'Meta Llama 3.1 8B Instruct',
+      //   description: 'Advanced reasoning model',
+      //   icon: <HubIcon sx={{ color: '#3498DB' }} />,
+      //   capabilities: { reasoning: true, image: false, voice: true },
+      // },
     ],
   },
   {
@@ -275,7 +322,8 @@ const formatPrompt = (prompt) => {
 function GuestChatPage() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [selectedModel, setSelectedModel] = useState('GPT3.5');
+  // const [selectedModel, setSelectedModel] = useState('GPT3.5');
+  const [selectedModel, setSelectedModel] = useState('google/gemma-4-26B-A4B-it');
   const [selectedLang, setSelectedLang] = useState("en");
   const [showLanguageSelect, setShowLanguageSelect] = useState(false);
   const [enableImageUpload, setEnableImageUpload] = useState(false);
