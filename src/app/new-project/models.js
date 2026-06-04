@@ -1,3 +1,4 @@
+// const fixed_Models = [ "GPT3.5", "SARVAM_M" ]
 const fixed_Models = [ "google/gemma-4-26B-A4B-it", "google/gemma-4-31B-it" ]
 
 const languageModelOptions = [
