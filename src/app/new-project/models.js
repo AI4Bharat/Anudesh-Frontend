@@ -1,6 +1,12 @@
 const fixed_Models = [ "google/gemma-4-26B-A4B-it", "google/gemma-4-31B-it" ]
 
 const languageModelOptions = [
+  // "GPT3.5",
+  // "GPT4",
+  // "LLAMA2",
+  // "GPT4OMini",
+  // "GPT4O",
+  // "SARVAM_M",
   "google/gemma-3-12b-it",
   "google/gemma-3-27b-it",
   "google/gemma-4-26B-A4B-it",
@@ -12,6 +18,13 @@ const languageModelOptions = [
   "gemini-3.1-pro",
   "gemini-3.1-flash-lite",
   "gemini-3-flash",
+  // "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+  // "meta-llama/Llama-3.2-3B-Instruct",
+  // "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+  // "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+  // "meta-llama/Llama-3.3-70B-Instruct",
+  // "meta-llama/Meta-Llama-3.1-70B-Instruct",
+  // "meta-llama/Meta-Llama-3.1-8B-Instruct"
   ];
 
 export { fixed_Models, languageModelOptions }
