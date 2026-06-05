@@ -164,13 +164,13 @@ const modelsData = [
       {
         id: 'gemini-3.5-flash',
         name: 'Gemini 3.5 Flash',
-        description: 'Fast agentic reasoning model',
+        description: 'Fast multimodal reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#4285F4' }} />,
         capabilities: { reasoning: true, image: true, voice: true },
       },
       {
-        id: 'gemini-3.1-pro',
-        name: 'Gemini 3.1 Pro',
+        id: 'gemini-3.1-pro-preview',
+        name: 'Gemini 3.1 Pro Preview',
         description: 'Advanced complex reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#EA4335' }} />,
         capabilities: { reasoning: true, image: true, voice: true },
@@ -399,7 +399,7 @@ function GuestChatPage() {
           borderRadius: 4,
           borderColor: '#e0e0e0',
           height: '100%',
-          mb:1,
+          mb: 1,
           backgroundColor: 'background.paper',
           wordBreak: 'break-word',
         }}
@@ -411,7 +411,7 @@ function GuestChatPage() {
         {content.map((res, resIndex) => (
           <>
             {res.type === "text" ?
-              <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap',lineHeight: 1.2, }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap', lineHeight: 1.2, }}>
                 <ReactMarkdown>{formatPrompt(res.value)}</ReactMarkdown>
               </Typography>
               : res.type === "code" ?
@@ -781,7 +781,7 @@ function GuestChatPage() {
           display: 'flex',
           flexDirection: 'column',
           height: '100vh',
-         background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+          background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
         }}
       >
         <Box sx={{ py: 1, bgcolor: 'white', display: 'flex', justifyContent: 'space-between', px: '4%', alignItems: 'center' }}>
@@ -853,20 +853,20 @@ function GuestChatPage() {
             </Menu>
           </div>
         </Box>
-        
-         <Box sx={{ px: '4%', py: 1 }}>
-           <BackButton
-             startIcon={<ArrowBackIcon />}
-             sx={{ 
-               color: "white", 
-               m: {xs:1,md:1,lg:2,xl:2},
-               borderRadius: '18px',
-               textTransform: 'none'
-             }}
-             label={translate("label.backToPreviousPage")}
-           />
-         </Box>
-        
+
+        <Box sx={{ px: '4%', py: 1 }}>
+          <BackButton
+            startIcon={<ArrowBackIcon />}
+            sx={{
+              color: "white",
+              m: { xs: 1, md: 1, lg: 2, xl: 2 },
+              borderRadius: '18px',
+              textTransform: 'none'
+            }}
+            label={translate("label.backToPreviousPage")}
+          />
+        </Box>
+
         <Box
           sx={{
             flexGrow: 1,
