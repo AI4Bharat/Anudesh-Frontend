@@ -393,9 +393,9 @@ const AdvancedOperation = (props) => {
       
       if (res.ok) {
         // Ask user if they want to update existing tasks
-        // const updateTasks = window.confirm(
-        //   "Models configuration saved successfully!\n\nDo you want to update all existing tasks to use the new models?\n\nNote: This will affect all tasks in this project."
-        // );
+                const updateTasks = window.confirm(
+          "Models configuration saved successfully!\n\nDo you want to update all existing tasks to use the new models?\n\nNote: This will affect all tasks in this project."
+        );
         
         if (updateTasks) {
           // Call the backend endpoint to update all tasks
