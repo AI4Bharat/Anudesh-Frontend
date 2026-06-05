@@ -124,8 +124,8 @@ const modelsData = [
         capabilities: { reasoning: true, image: true, voice: true },
       },
       {
-        id: 'gemini-3.1-pro',
-        name: 'Gemini 3.1 Pro',
+        id: 'gemini-3.1-pro-preview',
+        name: 'Gemini 3.1 Pro Preview',
         description: 'Advanced complex reasoning model',
         icon: <AutoAwesomeIcon sx={{ color: '#EA4335' }} />,
         capabilities: { reasoning: true, image: true, voice: true },
@@ -135,13 +135,6 @@ const modelsData = [
         name: 'Gemini 3.1 Flash Lite',
         description: 'Cost-efficient high-volume model',
         icon: <AutoAwesomeIcon sx={{ color: '#34A853' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
-      },
-      {
-        id: 'gemini-3-flash',
-        name: 'Gemini 3 Flash',
-        description: 'High-speed agentic model',
-        icon: <AutoAwesomeIcon sx={{ color: '#FBBC04' }} />,
         capabilities: { reasoning: true, image: true, voice: true },
       },
     ],
@@ -202,7 +195,7 @@ const formatPrompt = (prompt) => {
 function GuestChatPage() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [selectedModel, setSelectedModel] = useState('gemini-3.5-flash');
+  const [selectedModel, setSelectedModel] = useState('google/gemma-4-26B-A4B-it');
   const [selectedLang, setSelectedLang] = useState("en");
   const [showLanguageSelect, setShowLanguageSelect] = useState(false);
   const [enableImageUpload, setEnableImageUpload] = useState(false);
