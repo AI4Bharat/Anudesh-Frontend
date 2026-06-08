@@ -45,6 +45,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import linkifyText from '@/utils/linkifyText';
 
 const orange = {
   200: "pink",
@@ -1556,9 +1557,10 @@ useEffect(() => {
                   >
                     <ReactMarkdown
                       className="flex-col"
-                      children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
+                      children={linkifyText(message?.prompt?.replace(/\\n/gi, "&nbsp; \\n"))}
                       components={{
                         p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
+                        a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                       }}
                     />
                   </div>
@@ -1838,9 +1840,10 @@ useEffect(() => {
                                             >
                                               <ReactMarkdown
                                                 key={segmentIdx}
-                                                children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
+                                                children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                                 components={{
                                                   p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                  a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                                 }}
                                               />
                                             </div>
@@ -1927,9 +1930,10 @@ useEffect(() => {
                                   ) : (
                                     <ReactMarkdown
                                       key={segmentIdx}
-                                      children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
+                                      children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                       components={{
                                         p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
+                                        a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                                       }}
                                     />
                                   )
