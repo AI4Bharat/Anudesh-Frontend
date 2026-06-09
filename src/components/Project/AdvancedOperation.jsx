@@ -8,6 +8,9 @@ import FormControl from "@mui/material/FormControl";
 import Checkbox from "@mui/material/Checkbox";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import Tooltip from "@mui/material/Tooltip";
+import { Typography } from "@mui/material";
+import Box from "@mui/material/Box";
 import React, { useEffect, useState } from "react";
 import themeDefault from "@/themes/theme";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -43,7 +46,8 @@ import { fetchArchiveProject } from "@/Lib/Features/projects/GetArchiveProject";
 import LoginAPI from "@/app/actions/api/user/Login";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import TasksassignDialog from './taskassign';
-/* eslint-disable react-hooks/exhaustive-deps */
+import { fixed_Models, languageModelOptions } from "../../app/new-project/models";
+
 const ProgressType = [
   "incomplete",
   "annotated",
@@ -51,11 +55,13 @@ const ProgressType = [
   "super_checked",
   "exported",
 ];
+
 const projectStage = [
   { name: "Annotation Stage", value: 1, disabled: false },
   { name: "Review Stage", value: 2, disabled: false },
   { name: "Super Check Stage", value: 3, disabled: false },
 ];
+
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -111,6 +117,12 @@ const AdvancedOperation = (props) => {
     (state) => state.GetProjectTypeDetails?.data,
   );
   const loggedInUserData = useSelector((state) => state.getLoggedInData.data);
+  
+  // States for models
+  const [modelsSet, setModelsSet] = useState([]);
+  const [fixedModels, setFixedModels] = useState([]);
+  const [availableModels, setAvailableModels] = useState(languageModelOptions);
+
   const filteredProjectStage =
     ProjectDetails.required_annotators_per_task > 1
       ? projectStage.filter((stage) => stage.value !== 3)
@@ -146,6 +158,33 @@ const AdvancedOperation = (props) => {
   useEffect(() => {
     getProjectDetails();
   }, []);
+
+  // Initialize models from ProjectDetails
+  useEffect(() => {
+    if (ProjectDetails?.metadata_json) {
+      console.log("Loading models:", ProjectDetails.metadata_json);
+      
+      let modelsSetFromProject = ProjectDetails.metadata_json.models_set || [];
+      let fixedModelsFromProject = ProjectDetails.metadata_json.fixed_models || [];
+      
+      // Ensure all models exist in availableModels
+      const allModels = [...languageModelOptions];
+      modelsSetFromProject.forEach(model => {
+        if (!allModels.includes(model)) {
+          allModels.push(model);
+        }
+      });
+      fixedModelsFromProject.forEach(model => {
+        if (!allModels.includes(model)) {
+          allModels.push(model);
+        }
+      });
+      
+      setAvailableModels(allModels);
+      setModelsSet(modelsSetFromProject);
+      setFixedModels(fixedModelsFromProject);
+    }
+  }, [ProjectDetails]);
 
   useEffect(() => {
     setNewDetails({
@@ -314,14 +353,114 @@ const AdvancedOperation = (props) => {
                     variant: "error",
                 })
             }
-    
-
   };
 
+  // Function to save models configuration and update tasks
+  const handleSaveModels = async () => {
+    if (modelsSet.length === 0) {
+      setSnackbarInfo({
+        open: true,
+        message: "Please select at least one model before saving.",
+        variant: "error",
+      });
+      return;
+    }
+    
+    setLoading(true);
+    const updatedMetadataJson = {
+      ...ProjectDetails.metadata_json,
+      models_set: modelsSet,
+      fixed_models: fixedModels,
+      num_models: modelsSet.length
+    };
+    
+    const sendData = {
+      title: ProjectDetails.title,
+      description: ProjectDetails.description,
+      project_type: ProjectDetails.project_type,
+      metadata_json: updatedMetadataJson
+    };
+    
+    const projectObj = new GetSaveButtonAPI(id, sendData);
+    try {
+      // First, save the project metadata
+      const res = await fetch(projectObj.apiEndPoint(), {
+        method: "PUT",
+        body: JSON.stringify(projectObj.getBody()),
+        headers: projectObj.getHeaders().headers,
+      });
+      const resp = await res.json();
+      
+      if (res.ok) {
+        // Ask user if they want to update existing tasks
+        const updateTasks = window.confirm(
+          "Models configuration saved successfully!\n\nDo you want to update all existing tasks to use the new models?\n\nNote: This will affect all tasks in this project."
+        );
+        
+        if (updateTasks) {
+          // Call the backend endpoint to update all tasks
+          const updateTasksRes = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${id}/update_tasks_models/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `JWT ${localStorage.getItem('anudesh_access_token')}`
+              }
+            }
+          );
+          
+          const updateTasksData = await updateTasksRes.json();
+          
+          if (updateTasksRes.ok) {
+            setSnackbarInfo({
+              open: true,
+              message: `✅ Models saved and ${updateTasksData.updated_count} out of ${updateTasksData.total_tasks} tasks updated successfully!`,
+              variant: "success",
+            });
+            
+            // Show errors if any
+            if (updateTasksData.errors && updateTasksData.errors.length > 0) {
+              console.warn("Task update errors:", updateTasksData.errors);
+            }
+          } else {
+            setSnackbarInfo({
+              open: true,
+              message: `⚠️ Models saved but tasks update failed: ${updateTasksData.message || "Unknown error"}`,
+              variant: "warning",
+            });
+          }
+        } else {
+          setSnackbarInfo({
+            open: true,
+            message: "Models configuration saved successfully!",
+            variant: "success",
+          });
+        }
+        
+        // Refresh project details to get updated data
+        dispatch(fetchProjectDetails(id));
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: resp?.message || "Failed to save models configuration",
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving models:", error);
+      setSnackbarInfo({
+        open: true,
+        message: "Network error. Failed to save configuration.",
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getPublishProjectButton = async () => {
     const projectObj = new GetPublishProjectButtonAPI(id);
-    //dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -344,18 +483,8 @@ const AdvancedOperation = (props) => {
     }
   };
 
-  // useEffect(() => {
-  //     setSnackbarInfo({
-  //         open: apiMessage ? true : false,
-  //         variant: apiError ? "error" : "success",
-  //         message: apiMessage,
-  //     });
-  //     setSpinner(false);
-  // }, [apiMessage, apiError])
-
   const getPullNewDataAPI = async () => {
     const projectObj = new GetPullNewDataAPI(id);
-    //dispatch(APITransport(projectObj));
     const res = await fetch(projectObj.apiEndPoint(), {
       method: "POST",
       body: JSON.stringify(projectObj.getBody()),
@@ -480,8 +609,8 @@ const AdvancedOperation = (props) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${id}/`, {
         method: "DELETE",
-        credentials: "include",  // sends cookies
-        mode: "cors",            // required for credentials on DELETE
+        credentials: "include",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
           "Authorization":`JWT ${localStorage.getItem('anudesh_access_token')}`
@@ -516,6 +645,7 @@ const AdvancedOperation = (props) => {
       });
     }
   };
+  
   return (
     <ThemeProvider theme={themeDefault}>
       {loading && <Spinner />}
@@ -534,7 +664,6 @@ const AdvancedOperation = (props) => {
         <Grid
           container
           item
-          // direction="row"
           xs={12}
           sm={4}
           sx={{
@@ -542,33 +671,42 @@ const AdvancedOperation = (props) => {
           }}
         >
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <CustomButton
-              sx={{
-                inlineSize: "max-content",
-                borderRadius: 3,
-                width: "100%"
-              }}
-              onClick={handlePublishProject}
-              label="Publish Project"
-            />
+            <Tooltip title="Make this project visible and available to assigned annotators">
+              <span style={{ display: "block", width: "100%" }}>
+                <CustomButton
+                  sx={{
+                    inlineSize: "max-content",
+                    borderRadius: 3,
+                    width: "100%"
+                  }}
+                  onClick={handlePublishProject}
+                  label="Publish Project"
+                />
+              </span>
+            </Tooltip>
           </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <CustomButton
-              sx={{
-                inlineSize: "max-content",
-                borderRadius: 3,
-                width: "100%"
-              }}
-              color="error"
-              onClick={handleClickOpen}
-              label={isArchived ? "Archived" : "Archive"}
-              disabled={
-                userRole.WorkspaceManager === loggedInUserData?.role
-                  ? true
-                  : false
-              }
-            />
+            <Tooltip title={isArchived ? "This project is already archived" : "Archive this project to hide it from active projects"}
+            >
+              <span>
+                <CustomButton
+                  sx={{
+                    inlineSize: "max-content",
+                    borderRadius: 3,
+                    width: "100%"
+                  }}
+                  color="error"
+                  onClick={handleClickOpen}
+                  label={isArchived ? "Archived" : "Archive"}
+                  disabled={
+                    userRole.WorkspaceManager === loggedInUserData?.role
+                      ? true
+                      : false
+                  }
+                />
+              </span>
+            </Tooltip>
           </Grid>
 
           <Grid
@@ -622,7 +760,6 @@ const AdvancedOperation = (props) => {
         <Grid
           container
           item
-          // direction="row"
           xs={12}
           sm={4}
           sx={{
@@ -631,75 +768,88 @@ const AdvancedOperation = (props) => {
         >
           {ProjectDetails.project_type == "ContextualTranslationEditing" ? (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%"
-                }}
-                onClick={handleDownloadProjectAnnotations}
-                label="Downoload Project Annotations"
-              />
+              <Tooltip title="Download annotation data for this project type">
+                <CustomButton
+                  sx={{
+                    inlineSize: "max-content",
+                    borderRadius: 3,
+                    width: "100%"
+                  }}
+                  onClick={handleDownloadProjectAnnotations}
+                  label="Downoload Project Annotations"
+                />
+              </Tooltip>
             </Grid>
           ) : (
             " "
           )}
-          {/* <div className={classes.divider} ></div> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             {ProjectTypes?.output_dataset?.save_type === "new_record" ? (
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%",
-                  height: "50px",
-                }}
-                onClick={handleOpenExportProjectDialog}
-                label="Export Project into Dataset"
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+              <Tooltip title="Export all project tasks into a new dataset record">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
+                    }}
+                    onClick={handleOpenExportProjectDialog}
+                    label="Export Project into Dataset"
+                    disabled={
+                      userRole.WorkspaceManager === loggedInUserData?.role
+                        ? true
+                        : false
+                    }
+                  />
+                </span>
+              </Tooltip>
             ) : (
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%",
-                  height: "50px",
+              <Tooltip title="Export all project tasks into the existing dataset">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
 
-                }}
-                onClick={handleExportProject}
-                label="Export Project into Dataset"
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+                    }}
+                    onClick={handleExportProject}
+                    label="Export Project into Dataset"
+                    disabled={
+                      userRole.WorkspaceManager === loggedInUserData?.role
+                        ? true
+                        : false
+                    }
+                  />
+                </span>
+              </Tooltip>
             )}
           </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             {ProjectDetails.sampling_mode == "f" ||
             ProjectDetails.sampling_mode == "b" ? (
-              <CustomButton
-                sx={{
-                  inlineSize: "max-content",
-                  borderRadius: 3,
-                  width: "100%",
-                  height: "50px",
-                }}
-                onClick={handlePullNewData}
-                label="Pull New Data Items from Source Dataset"
-                disabled={
-                  userRole.WorkspaceManager === loggedInUserData?.role
-                    ? true
-                    : false
-                }
-              />
+              <Tooltip title="Pull new data items from the source dataset into this project">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
+                    }}
+                    onClick={handlePullNewData}
+                    label="Pull New Data Items from Source Dataset"
+                    disabled={
+                      userRole.WorkspaceManager === loggedInUserData?.role
+                        ? true
+                        : false
+                    }
+                  />
+                </span>
+              </Tooltip>
             ) : (
               " "
             )}
@@ -723,24 +873,12 @@ const AdvancedOperation = (props) => {
         <Grid
           container
           item
-          // direction="row"
           xs={12}
           sm={4}
           sx={{ 
             gap:4,
            }}
         >
-          
-          {/* <div className={classes.divider} ></div> */}
-          {/* <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <FormControlLabel
-                control={<Switch color="primary" />}
-                label="Task Reviews"
-                labelPlacement="start"
-                checked={ProjectDetails.enable_task_reviews}
-                onChange={handleReviewToggle}
-              />
-            </Grid> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <FormControl 
             className={classes.formControl}
@@ -757,7 +895,6 @@ const AdvancedOperation = (props) => {
                 value={taskReviews}
                 label="Task Reviews"
                 onChange={handleReviewToggle}
-                // getOptionDisabled={(option) => option.disabled}
               >
                 {filteredProjectStage.map((type, index) => (
                   <MenuItem
@@ -788,7 +925,6 @@ const AdvancedOperation = (props) => {
             </Grid>
           )}
 
-          {/* <div className={classes.divider} ></div> */}
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <FormControlLabel
               control={<Switch color="primary" />}
@@ -820,8 +956,10 @@ const AdvancedOperation = (props) => {
             </Grid>
           )}
         
-              {userRole.Admin === loggedInUserData?.role && ProjectDetails?.labeled_task_count === 0 &&  (
-                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+          {userRole.Admin === loggedInUserData?.role && ProjectDetails?.labeled_task_count === 0 &&  (
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <Tooltip title="Permanently delete this project and all its tasks. This action cannot be undone.">
+                <span>
                   <CustomButton
                     sx={{
                       inlineSize: "max-content",
@@ -832,11 +970,335 @@ const AdvancedOperation = (props) => {
                     onClick={handleDeleteProject}
                     label="Delete Project"
                   />
-                </Grid>
-              )}
-
-          </Grid>
+                </span>
+              </Tooltip>
+            </Grid>
+          )}
         </Grid>
+
+        {/* Model Configuration Section — full-width row, centered, equal layout */}
+        {ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat" && (
+          <Grid item xs={16} sm={16} md={16} lg={16} xl={16} sx={{ pt: "8px !important" }}>
+            <Box
+              sx={{
+                borderTop: "1px solid #e0e0e0",
+                pt: 1,
+                mt: 0,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
+                  mb: 1.5,
+                  fontWeight: 600,
+                }}
+              >
+                Model Configuration
+              </Typography>
+
+              <Grid container spacing={{ xs: 2, lg: 4 }}>
+                {/* Models Set */}
+                <Grid item xs={12} sm={4}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      mb: 1,
+                      fontWeight: 600,
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                      color: "text.primary",
+                    }}
+                  >
+                    Models Set
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mb: 1.5,
+                      color: "text.secondary",
+                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    }}
+                  >
+                    Select the models that will be available for this project.{" "}
+                    <strong>Uncheck models to remove them.</strong>
+                  </Typography>
+                  <FormControl fullWidth>
+                    <InputLabel
+                      id="models-set-label"
+                      sx={{
+                        fontSize: { xs: "0.875rem", sm: "1rem" },
+                        backgroundColor: "background.paper",
+                        px: 0.5,
+                      }}
+                    >
+                      Select Models
+                    </InputLabel>
+                    <Select
+                      labelId="models-set-label"
+                      label="Select Models"
+                      multiple
+                      value={modelsSet}
+                      onChange={(e) => {
+                        const newModelsSet = e.target.value;
+                        setModelsSet(newModelsSet);
+                        setFixedModels((prev) =>
+                          prev.filter((model) => newModelsSet.includes(model))
+                        );
+                      }}
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                          }}
+                        >
+                          {selected.map((value) => (
+                            <Box
+                              key={value}
+                              sx={{
+                                backgroundColor: "action.selected",
+                                borderRadius: "4px",
+                                padding: "2px 8px",
+                                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {value}
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
+                      MenuProps={{
+                        PaperProps: {
+                          style: { maxHeight: 300, width: "auto", minWidth: 200 },
+                        },
+                      }}
+                      sx={{
+                        "& .MuiSelect-select": {
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          py: 1.5,
+                          minHeight: "auto",
+                        },
+                      }}
+                    >
+                      {availableModels.map((model) => (
+                        <MenuItem
+                          key={model}
+                          value={model}
+                          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" }, py: 1 }}
+                        >
+                          <Checkbox
+                            checked={modelsSet.indexOf(model) > -1}
+                            size="small"
+                            sx={{ p: 0.5, mr: 1 }}
+                          />
+                          <ListItemText
+                            primary={model}
+                            primaryTypographyProps={{
+                              fontSize: { xs: "0.875rem", sm: "1rem" },
+                            }}
+                          />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {modelsSet.length === 0 && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "warning.main",
+                          mt: 1,
+                          display: "block",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        ⚠️ Please select at least one model
+                      </Typography>
+                    )}
+                  </FormControl>
+                </Grid>
+
+                {/* Fixed Models */}
+                <Grid item xs={12} sm={4}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      mb: 1,
+                      fontWeight: 600,
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                      color: "text.primary",
+                    }}
+                  >
+                    Fixed Models
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mb: 1.5,
+                      color: "text.secondary",
+                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    }}
+                  >
+                    Select models that will always be included (subset of Models Set)
+                  </Typography>
+                  <FormControl fullWidth>
+                    <InputLabel
+                      id="fixed-models-label"
+                      sx={{
+                        fontSize: { xs: "0.875rem", sm: "1rem" },
+                        backgroundColor: "background.paper",
+                        px: 0.5,
+                      }}
+                    >
+                      Select Fixed Models
+                    </InputLabel>
+                    <Select
+                      labelId="fixed-models-label"
+                      label="Select Fixed Models"
+                      multiple
+                      value={fixedModels}
+                      onChange={(e) => setFixedModels(e.target.value)}
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                          }}
+                        >
+                          {selected.map((value) => (
+                            <Box
+                              key={value}
+                              sx={{
+                                backgroundColor: "primary.light",
+                                color: "primary.contrastText",
+                                borderRadius: "4px",
+                                padding: "2px 8px",
+                                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {value}
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
+                      MenuProps={{
+                        PaperProps: {
+                          style: { maxHeight: 300, width: "auto", minWidth: 200 },
+                        },
+                      }}
+                      disabled={modelsSet.length === 0}
+                      sx={{
+                        "& .MuiSelect-select": {
+                          fontSize: { xs: "0.875rem", sm: "1rem" },
+                          py: 1.5,
+                          minHeight: "auto",
+                        },
+                      }}
+                    >
+                      {modelsSet.map((model) => (
+                        <MenuItem
+                          key={model}
+                          value={model}
+                          sx={{ fontSize: { xs: "0.875rem", sm: "1rem" }, py: 1 }}
+                        >
+                          <Checkbox
+                            checked={fixedModels.indexOf(model) > -1}
+                            size="small"
+                            sx={{ p: 0.5, mr: 1 }}
+                          />
+                          <ListItemText
+                            primary={model}
+                            primaryTypographyProps={{
+                              fontSize: { xs: "0.875rem", sm: "1rem" },
+                            }}
+                          />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                {/* Summary + Save */}
+                <Grid item xs={12} sm={4}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      mb: 1,
+                      fontWeight: 600,
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
+                      color: "text.primary",
+                    }}
+                  >
+                    Current Configuration
+                  </Typography>
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "action.hover",
+                      borderRadius: 2,
+                      mb: 3,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                      }}
+                    >
+                      Total Models: <strong>{modelsSet.length}</strong>
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        mt: 0.5,
+                      }}
+                    >
+                      Fixed Models: <strong>{fixedModels.length}</strong>
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "text.disabled",
+                        fontSize: "0.7rem",
+                        fontStyle: "italic",
+                        display: "block",
+                        mt: 1,
+                      }}
+                    >
+                      {fixedModels.length === modelsSet.length && modelsSet.length > 0
+                        ? "📌 All models are fixed"
+                        : fixedModels.length > 0
+                        ? "📍 Some models are fixed"
+                        : modelsSet.length > 0
+                        ? "✨ No fixed models selected"
+                        : "⚙️ Configure models above"}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                    <CustomButton
+                      onClick={handleSaveModels}
+                      label="Save Model Configuration"
+                      sx={{
+                        borderRadius: 2,
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        padding: { xs: "6px 16px", sm: "8px 24px" },
+                        minWidth: { xs: "auto", sm: "200px" },
+                      }}
+                      disabled={loading || modelsSet.length === 0}
+                    />
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+        )}
+        </Grid>
+        
         <Dialog
           open={open}
           onClose={handleClose}
@@ -872,6 +1334,7 @@ const AdvancedOperation = (props) => {
             </Button>
           </DialogActions>
         </Dialog>
+        
         <Dialog
           open={openDeleteDialog}
           onClose={() => setOpenDeleteDialog(false)}
@@ -892,6 +1355,7 @@ const AdvancedOperation = (props) => {
             </Button>
           </DialogActions>
         </Dialog>
+        
         {OpenExportProjectDialog && (
           <ExportProjectDialog
             OpenExportProjectDialog={OpenExportProjectDialog}
