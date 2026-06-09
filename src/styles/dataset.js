@@ -38,9 +38,6 @@ const DatasetStyle = makeStyles({
     margin: "20px 0px 10px 0px",
   },
   filterToolbarContainer: {
-    // alignItems : 'center',
-    // display : 'inline',
-    // textAlign : "end"
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
