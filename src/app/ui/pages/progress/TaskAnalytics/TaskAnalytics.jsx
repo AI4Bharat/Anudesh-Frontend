@@ -284,7 +284,7 @@ if(isWorkspaceLevel && submit==true){
           </Grid>
 
           {/* Workspace Level Checkbox */}
-          <Grid item xs={12} sm={3}>
+          {/* <Grid item xs={12} sm={3}>
             <Box display="flex" alignItems="center" justifyContent="center">
               <FormControlLabel
                 control={
@@ -297,9 +297,9 @@ if(isWorkspaceLevel && submit==true){
                 label="Workspace Level"
               />
             </Box>
-          </Grid>
+          </Grid> */}
           
-          {isWorkspaceLevel && (
+          {/* {isWorkspaceLevel && (
           <Grid item xs={12} sm={12} md={4}>
             <FormControl fullWidth size="small">
               <InputLabel id="workspace-dropdown-label">Workspace</InputLabel>
@@ -318,7 +318,7 @@ if(isWorkspaceLevel && submit==true){
               </Select>
             </FormControl>
           </Grid>
-        )}
+        )} */}
         </Grid>
       </Grid>
 
