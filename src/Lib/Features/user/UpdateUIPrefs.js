@@ -1,12 +1,12 @@
-
+// This file is not used anywhere right now. If needed be can be removed in future as requirements change.
 import API from "@/Constants/api";
 import ENDPOINTS from "../../../config/apiendpoint"
 import constants from "@/Constants/constants";
 
 export default class UpdateUIPrefsAPI extends API {
-    constructor(preferUI, timeout = 2000) {
+    constructor( timeout = 2000) {
         super("POST", timeout, false);
-        this.preferUI = preferUI;
+        // this.preferUI = preferUI;
         this.type = constants.UPDATE_UI_PREFS;
         this.endpoint = `${super.apiEndPointAuto()}${ENDPOINTS.fetch}update_ui_prefs/`;
     }
@@ -21,7 +21,7 @@ export default class UpdateUIPrefsAPI extends API {
 
     getBody() {
         return {
-            prefer_cl_ui: this.preferUI,
+            // prefer_cl_ui: this.preferUI,
         }
     }
 
@@ -36,6 +36,6 @@ export default class UpdateUIPrefsAPI extends API {
     }
 
     getPayload() {
-        return this.updateUIPrefs;
+        return {};
     }
 }
