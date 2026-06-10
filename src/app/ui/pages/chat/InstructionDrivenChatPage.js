@@ -13,6 +13,7 @@ import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
+import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
@@ -662,9 +663,10 @@ const renderChatHistory = () => {
               ) : (
                 <ReactMarkdown
                   className="flex-col"
-                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+                  children={linkifyText(message?.prompt?.replace(/\n/gi, "&nbsp; \n"))}
                   components={{
                     p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                    a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
               )}
@@ -804,9 +806,10 @@ const renderChatHistory = () => {
                     ) : (
                       <ReactMarkdown
                         key={index}
-                        children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                        children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
                         components={{
                           p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                          a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                         }}
                       />
                     )
