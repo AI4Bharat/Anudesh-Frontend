@@ -37,7 +37,7 @@ import APITransport from "@/app/actions/apitransport/apitransport";
 import NMTModalContent from "./NMTModalContent";
 
 const Header = () => {
-  const [isNotifOpen, setIsNotifOpen] = useState(false); // ✅ control fetching
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
@@ -158,8 +158,7 @@ const translationServices = {
       setNotificationCount(0);
     }
   };
-  // Fetch unread notifications on mount
-  // ✅ only call when notif is opened + unread changes
+
   useEffect(() => {
     if (isNotifOpen) {
       fetchNotifications();
@@ -311,7 +310,7 @@ const translationServices = {
   const handleOpenNotification = (event) => {
     event.stopPropagation();
     setAnchorElNotification(event.currentTarget);
-    setIsNotifOpen(true); // ✅ enable fetching
+    setIsNotifOpen(true);
   };
 
   const handleCloseNotification = () => {
@@ -465,17 +464,6 @@ const translationServices = {
             </NavLink>
 
           </Typography> : null}
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
 
          
 
@@ -533,17 +521,6 @@ const translationServices = {
             </NavLink>
 
           </Typography> : null}
-          <Typography variant="body1">
-            <NavLink
-              to="/chat"
-              className={({ isActive }) =>
-                isActive ? classes.highlightedMenu : classes.headerMenu
-              }
-              activeClassName={classes.highlightedMenu}
-            >
-              Chat
-            </NavLink>
-          </Typography>
           
 
         </Grid>
