@@ -483,12 +483,13 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
-    console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
+const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
+  console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
         const isMultipleResponse = ProjectDetails?.metadata_json;
 
-    if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
-      setLoading(true);
+  if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+    setLoading(true);
+    try {
       const body = {
         result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
         lead_time:
@@ -534,7 +535,21 @@ const MultipleLLMInstructionDrivenChat = ({
         body: JSON.stringify(AnnotationObj.getBody()),
         headers: AnnotationObj.getHeaders().headers,
       });
-      const data = await res.json();
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        // Invalid JSON response (likely HTML error page)
+        setSnackbarInfo({
+          open: true,
+          message: "Server error. Please try again later.",
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+      
       console.log("hello", data);
       let errorMessage = null;
 
@@ -668,7 +683,7 @@ const MultipleLLMInstructionDrivenChat = ({
           setLoading(false);
           setSnackbarInfo({
             open: true,
-            message: data?.message,
+            message: data?.message || "Server error. Please try again.",
             variant: "error",
           });
         }
@@ -682,12 +697,14 @@ const MultipleLLMInstructionDrivenChat = ({
         ...prev,
         [chatHistory.length]: true,
       }));
-    } else {
+    } catch (error) {
       setSnackbarInfo({
         open: true,
-        message: "Please provide a prompt",
+        message: error?.message || "Network error. Please try again.",
         variant: "error",
       });
+    } finally {
+      setLoading(false);
     }
     !(modelResponses && prompt_output_pair_id >= 0) &&
       setTimeout(() => {
@@ -695,7 +712,14 @@ const MultipleLLMInstructionDrivenChat = ({
       }, 1000);
     setShowChatContainer(true);
     setInputValue("");
-  };
+  } else {
+    setSnackbarInfo({
+      open: true,
+      message: "Please provide a prompt",
+      variant: "error",
+    });
+  }
+};
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
