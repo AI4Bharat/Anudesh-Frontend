@@ -174,35 +174,53 @@ const Projects = () => {
   const apiLoading = useSelector(
     (state) => state.getProjectDetails.status !== "succeeded",
   );
-  const isAnnotators =
-    userRole.WorkspaceManager === loggedInUserData?.role ||
-    userRole.OrganizationOwner === loggedInUserData?.role ||
-    userRole.Admin === loggedInUserData?.role ||
-    ProjectDetails?.project_stage === 1 ||
-    ProjectDetails?.annotators?.some((user) => user.id === userDetails?.id);
-
-  const isReviewer =
-    userRole.WorkspaceManager === loggedInUserData?.role ||
-      userRole.OrganizationOwner === loggedInUserData?.role ||
-      userRole.Admin === loggedInUserData?.role
-      ? ProjectDetails?.project_stage == 2 || ProjectDetails?.project_stage == 3
-      : ProjectDetails?.annotation_reviewers?.some(
-        (reviewer) => reviewer.id === userDetails?.id,
-      );
-  const isSuperChecker =
-    userRole.WorkspaceManager === loggedInUserData?.role ||
-      userRole.OrganizationOwner === loggedInUserData?.role ||
-      userRole.Admin === loggedInUserData?.role
-      ? ProjectDetails?.project_stage == 3
-      : false ||
-      ProjectDetails?.review_supercheckers?.some(
-        (superchecker) => superchecker.id === userDetails?.id,
-      );
-
-  const allTask =
+  const isAdminManagerOrOwner =
     userRole.WorkspaceManager === loggedInUserData?.role ||
     userRole.OrganizationOwner === loggedInUserData?.role ||
     userRole.Admin === loggedInUserData?.role;
+
+  const isProjectAnnotator =
+    ProjectDetails?.annotators?.some((user) => user.id === userDetails?.id);
+  const isProjectReviewer =
+    ProjectDetails?.annotation_reviewers?.some(
+      (reviewer) => reviewer.id === userDetails?.id,
+    );
+  const isProjectSuperChecker =
+    ProjectDetails?.review_supercheckers?.some(
+      (superchecker) => superchecker.id === userDetails?.id,
+    );
+
+  const isAnnotators =
+    isAdminManagerOrOwner ||
+    ProjectDetails?.project_stage === 1 ||
+    isProjectAnnotator;
+
+  const isReviewer =
+    isAdminManagerOrOwner
+      ? ProjectDetails?.project_stage == 2 || ProjectDetails?.project_stage == 3
+      : isProjectReviewer;
+
+  const isSuperChecker =
+    isAdminManagerOrOwner
+      ? ProjectDetails?.project_stage == 3
+      : isProjectSuperChecker;
+
+  const showAnnotationCount =
+    isAdminManagerOrOwner ||
+    loggedInUserData?.role === userRole.Annotator ||
+    (loggedInUserData?.role === userRole.Reviewer && isProjectAnnotator) ||
+    (loggedInUserData?.role === userRole.SuperChecker && isProjectAnnotator);
+
+  const showReviewCount =
+    isAdminManagerOrOwner ||
+    (loggedInUserData?.role === userRole.Reviewer && isProjectReviewer) ||
+    (loggedInUserData?.role === userRole.SuperChecker && isProjectReviewer);
+
+  const showSupercheckCount =
+    isAdminManagerOrOwner ||
+    (loggedInUserData?.role === userRole.SuperChecker && isProjectSuperChecker);
+
+  const allTask = isAdminManagerOrOwner;
 
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -438,8 +456,26 @@ const Projects = () => {
               <Box sx={{ display: "flex", alignItems: "center", columnGap: { xs: 2, sm: 3 }, rowGap: { xs: 1, sm: 1.5 }, flexWrap: "wrap" }}>
               <MetaBadge label="PROJECT ID:" value={ProjectDetails.id} chipSx={{ bgcolor: "#E6F4EA", color: "#1E8E3E" }} />
               <MetaBadge label="TYPE:" value={ProjectDetails.project_type} chipSx={{ bgcolor: "#F3E8FD", color: "#7627BB" }} />
-              {ProjectDetails.unassigned_task_count !== undefined && (
-                <MetaBadge label="TASKS:" value={`${ProjectDetails.unassigned_task_count} Unassigned`} chipSx={{ bgcolor: "#FEF7E0", color: "#B06000" }} />
+              {showAnnotationCount && (
+                <MetaBadge
+                  label="UNASSIGNED ANNOTATION TASKS:"
+                  value={ProjectDetails.unassigned_task_count || "0"}
+                  chipSx={{ bgcolor: "#FEF7E0", color: "#B06000" }}
+                />
+              )}
+              {showReviewCount && (
+                <MetaBadge
+                  label="UNASSIGNED REVIEW TASKS:"
+                  value={ProjectDetails.labeled_task_count || "0"}
+                  chipSx={{ bgcolor: "#E6F4EA", color: "#1E8E3E" }}
+                />
+              )}
+              {showSupercheckCount && (
+                <MetaBadge
+                  label="UNASSIGNED SUPER CHECK TASKS:"
+                  value={ProjectDetails.reviewed_task_count || "0"}
+                  chipSx={{ bgcolor: "#FCE8E6", color: "#C5221F" }}
+                />
               )}
                 <Button
                   onClick={() => setShowDetails(!showDetails)}
@@ -467,10 +503,14 @@ const Projects = () => {
               <Box sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: "#f8fafc", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: { xs: 2, sm: 3 } }}>
                 <DetailItem label="Description" value={ProjectDetails.description || "N/A"} chipSx={{ bgcolor: "#CFFAFE", color: "#0E7490" }} />
                 <DetailItem label="Status" value={ProjectDetails.is_archived ? "Archived" : ProjectDetails.is_published ? "Published" : "Draft"} chipSx={{ bgcolor: "#E8F0FE", color: "#1967D2" }} />
-                <DetailItem label="Unassigned Tasks" value={ProjectDetails.unassigned_task_count || "0"} chipSx={{ bgcolor: "#FEF7E0", color: "#B06000" }} />
-                <DetailItem label="Unassigned Review Tasks" value={ProjectDetails.labeled_task_count} chipSx={{ bgcolor: "#E6F4EA", color: "#1E8E3E" }} />
-                {isSuperChecker && (
-                  <DetailItem label="Unassigned Super Check Tasks" value={ProjectDetails.reviewed_task_count} chipSx={{ bgcolor: "#FCE8E6", color: "#C5221F" }} />
+                {!isAdminManagerOrOwner && showAnnotationCount && (
+                  <DetailItem label="Unassigned Annotation Tasks" value={ProjectDetails.unassigned_task_count || "0"} chipSx={{ bgcolor: "#FEF7E0", color: "#B06000" }} />
+                )}
+                {!isAdminManagerOrOwner && showReviewCount && (
+                  <DetailItem label="Unassigned Review Tasks" value={ProjectDetails.labeled_task_count || "0"} chipSx={{ bgcolor: "#E6F4EA", color: "#1E8E3E" }} />
+                )}
+                {!isAdminManagerOrOwner && showSupercheckCount && (
+                  <DetailItem label="Unassigned Super Check Tasks" value={ProjectDetails.reviewed_task_count || "0"} chipSx={{ bgcolor: "#FCE8E6", color: "#C5221F" }} />
                 )}
               </Box>
             </Collapse>
