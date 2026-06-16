@@ -12,8 +12,9 @@ import { ACTIVE_LLM_MODELS } from "@/app/new-project/models";
 const UpdateInactiveModelsDialog = ({ open, handleClose, projectId, setSnackbarInfo }) => {
     const [selectedModel, setSelectedModel] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
-    const handleUpdate = async () => {
+    const handleUpdateClick = () => {
         if (!selectedModel) {
             setSnackbarInfo({
                 open: true,
@@ -22,7 +23,11 @@ const UpdateInactiveModelsDialog = ({ open, handleClose, projectId, setSnackbarI
             });
             return;
         }
+        setConfirmOpen(true);
+    };
 
+    const proceedWithUpdate = async () => {
+        setConfirmOpen(false);
         setLoading(true);
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${projectId}/update_idc_tasks_model/`, {
@@ -64,24 +69,39 @@ const UpdateInactiveModelsDialog = ({ open, handleClose, projectId, setSnackbarI
     };
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Update Inactive Models</DialogTitle>
-            <DialogContent>
-                <DialogContentText sx={{ mb: 2 }}>
-                    Select an active model to replace inactive models in all incomplete tasks for this project.
-                </DialogContentText>
-                <Autocomplete
-                    options={ACTIVE_LLM_MODELS}
-                    value={selectedModel}
-                    onChange={(event, newValue) => setSelectedModel(newValue)}
-                    renderInput={(params) => <TextField {...params} label="Select Active Model" variant="outlined" />}
-                />
-            </DialogContent>
-            <DialogActions sx={{ p: 2 }}>
-                <CustomButton onClick={handleClose} label="Cancel" sx={{ mr: 1 }} />
-                <CustomButton onClick={handleUpdate} label={loading ? "Updating..." : "Update"} disabled={loading} />
-            </DialogActions>
-        </Dialog>
+        <>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+                <DialogTitle>Update Inactive Models</DialogTitle>
+                <DialogContent>
+                    <DialogContentText sx={{ mb: 2 }}>
+                        Select an active model to replace inactive models in all incomplete tasks for this project.
+                    </DialogContentText>
+                    <Autocomplete
+                        options={ACTIVE_LLM_MODELS}
+                        value={selectedModel}
+                        onChange={(event, newValue) => setSelectedModel(newValue)}
+                        renderInput={(params) => <TextField {...params} label="Select Active Model" variant="outlined" />}
+                    />
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <CustomButton onClick={handleClose} label="Cancel" sx={{ mr: 1 }} />
+                    <CustomButton onClick={handleUpdateClick} label={loading ? "Updating..." : "Update"} disabled={loading} />
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Confirm Update</DialogTitle>
+                <DialogContent>
+                    <DialogContentText color="error">
+                        This action can't be undone. Are you sure you want to proceed?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <CustomButton onClick={() => setConfirmOpen(false)} label="Cancel" sx={{ mr: 1 }} />
+                    <CustomButton onClick={proceedWithUpdate} label="Confirm" />
+                </DialogActions>
+            </Dialog>
+        </>
     );
 };
 
