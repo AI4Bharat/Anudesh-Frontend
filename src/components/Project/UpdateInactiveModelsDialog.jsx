@@ -71,10 +71,10 @@ const UpdateInactiveModelsDialog = ({ open, handleClose, projectId, setSnackbarI
     return (
         <>
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-                <DialogTitle>Update Inactive Models</DialogTitle>
+                <DialogTitle>Bulk Update Models for Unlabeled Tasks</DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ mb: 2 }}>
-                        Select an active model to replace inactive models in all incomplete tasks for this project.
+                        Select an active model to replace inactive models in all unlabeled tasks for this project.
                     </DialogContentText>
                     <Autocomplete
                         options={ACTIVE_LLM_MODELS}

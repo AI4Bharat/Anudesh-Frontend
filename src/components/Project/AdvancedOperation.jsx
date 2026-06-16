@@ -872,19 +872,21 @@ const AdvancedOperation = (props) => {
           </Grid>
           {ProjectDetails?.project_type === "InstructionDrivenChat" && (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-              <Tooltip title="Update incomplete tasks with inactive models to a new active model">
-                <span>
+              <Tooltip title="Bulk update or change model for unlabeled tasks">
+                <Box>
                   <CustomButton
                     sx={{
-                      inlineSize: "max-content",
-                      borderRadius: 3,
+                      p: 1,
+                      m: 2,
+                      ml: 0,
+                      borderRadius: 2,
                       width: "100%",
-                      height: "50px",
+                      justifyContent: "center",
                     }}
                     onClick={() => setOpenUpdateModelDialog(true)}
-                    label="Update Inactive Models"
+                    label="Bulk Update Unlabeled Tasks Models"
                   />
-                </span>
+                </Box>
               </Tooltip>
             </Grid>
           )}
