@@ -168,7 +168,10 @@ const SuperCheckerPage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
+  const [isModelStreaming, setIsModelStreaming] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const isSubmitDisabled = disableUpdateButton || (isModelStreaming && !ProjectDetails?.metadata_json?.blank_response);
 
   // ── useState replacements for the .value workaround on the refs ──
   const [reviewNotesValue, setReviewNotesValue] = useState("");
@@ -950,23 +953,25 @@ const SuperCheckerPage = () => {
   switch (ProjectDetails.project_type) {
     case "InstructionDrivenChat":
       componentToRender = (
-      <InstructionDrivenChatPage
-      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
-      handleClick={handleSuperCheckerClick}
-      chatHistory={chatHistory}
-      setChatHistory={setChatHistory}
-      formatResponse={formatResponse}
-      formatPrompt={formatPrompt}
-      id={SuperChecker}
-      stage={"SuperChecker"}
-      notes={superCheckerNotesRef}
-      info={info}
-      disableUpdateButton={disableUpdateButton}
-      annotation={annotations}
-      setLoading={setLoading}
-      loading={loading}
-      fontSize={fontSize}
-    />
+        <InstructionDrivenChatPage
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          setIsModelStreaming={setIsModelStreaming}
+        />
       );
       break;
     case "MultipleLLMInstructionDrivenChat":
@@ -1324,6 +1329,7 @@ return (
               <Button
                 variant="outlined"
                 size="small"
+                disabled={isSubmitDisabled}
                 id="accept-button"
                 aria-controls={open ? "accept-menu" : undefined}
                 aria-haspopup="true"

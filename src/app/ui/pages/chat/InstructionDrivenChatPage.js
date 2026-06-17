@@ -86,7 +86,7 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
-  fontSize = "medium", // ADD THIS LINE
+  setIsModelStreaming,
 }) => {
   // ADD THIS HELPER FUNCTION
   const getFontSize = () => {
@@ -118,10 +118,17 @@ const InstructionDrivenChatPage = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  
+  useEffect(() => {
+    if (setIsModelStreaming) {
+      setIsModelStreaming(isStreaming);
+    }
+  }, [isStreaming, setIsModelStreaming]);
+
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
   const { streamResponse, abortStream } = useStreamingLLM();
-const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30);
 const containerRef = useRef(null);
 
@@ -410,7 +417,7 @@ const handleButtonClick = async () => {
 
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 500);
+    }, 1000);
   } else {
     setSnackbarInfo({
       open: true,

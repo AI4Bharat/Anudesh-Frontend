@@ -128,7 +128,9 @@ const AnnotatePage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
-  const [fontSize, setFontSize] = useState("medium");
+  const [isModelStreaming, setIsModelStreaming] = useState(false);
+
+  const isSubmitDisabled = disableUpdateButton || (isModelStreaming && !ProjectDetails?.metadata_json?.blank_response);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -929,122 +931,122 @@ const AnnotatePage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-let componentToRender;
-switch (ProjectDetails.project_type) {
-  case "InstructionDrivenChat":
-    componentToRender = (
-      <InstructionDrivenChatPage
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        handleClick={handleAnnotationClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={Annotation}
-        stage={"Annotation"}
-        notes={annotationNotesRef}
-        info={info}
-        disableUpdateButton={disableUpdateButton}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-        fontSize={fontSize}
-      />
-    );
-    break;
-  case "MultipleLLMInstructionDrivenChat":
-    componentToRender = (
-      <MultipleLLMInstructionDrivenChat
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        handleClick={handleAnnotationClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={Annotation}
-        stage={"Annotation"}
-        notes={annotationNotesRef}
-        info={info}
-        disableUpdateButton={disableUpdateButton}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-        evalFormResponse={evalFormResponse}
-        setEvalFormResponse={setEvalFormResponse}
-        setIsModelFailing={setIsModelFailing}
-        submittedEvalForms={submittedEvalForms}
-        setSubmittedEvalForms={setSubmittedEvalForms}
-        fontSize={fontSize}
-      />
-    );
-    break;
-  case "ModelInteractionEvaluation":
-    componentToRender = (
-      <ModelInteractionEvaluation
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        setCurrentInteraction={setCurrentInteraction}
-        currentInteraction={currentInteraction}
-        interactions={interactions}
-        setInteractions={setInteractions}
-        forms={forms}
-        setForms={setForms}
-        stage={"Annotation"}
-        answered={answered}
-        setAnswered={setAnswered}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-      />
-    );
-    break;
-  case "MultipleInteractionEvaluation":
-    componentToRender = (
-      <PreferenceRanking
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        setCurrentInteraction={setCurrentInteraction}
-        currentInteraction={currentInteraction}
-        interactions={interactions}
-        setInteractions={setInteractions}
-        forms={forms}
-        setForms={setForms}
-        stage={"Annotation"}
-        answered={answered}
-        setAnswered={setAnswered}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-        handleClick={handleAnnotationClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={Annotation}
-        notes={annotationNotesRef}
-        info={info}
-        disableUpdateButton={disableUpdateButton}
-      />
-    );
-    break;
-  default:
-    componentToRender = null;
-  break;
-}
+  let componentToRender;
+  switch (ProjectDetails.project_type) {
+    case "InstructionDrivenChat":
+      componentToRender = (
+        <InstructionDrivenChatPage
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          setIsModelStreaming={setIsModelStreaming}
+        />
+      );
+      break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
+        />
+      );
+      break;
+    case "ModelInteractionEvaluation":
+      componentToRender = (
+        <ModelInteractionEvaluation
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+        />
+      );
+      break;
+    default:
+      componentToRender = null;
+      break;
+  }
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -1295,6 +1297,7 @@ switch (ProjectDetails.project_type) {
                   <Button
                     variant="contained"
                     size="small"
+                    disabled={isSubmitDisabled}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
