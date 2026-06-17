@@ -106,88 +106,88 @@ const InstructionDrivenChatPage = ({
   const [open, setOpen] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
-const [isDragging, setIsDragging] = useState(false);
-const [instructionWidth, setInstructionWidth] = useState(30);
-const [isPinned, setIsPinned] = useState(false);
-const [fontSize, setFontSize] = useState(0.9);
-const containerRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [instructionWidth, setInstructionWidth] = useState(30);
+  const [isPinned, setIsPinned] = useState(false);
+  const [fontSize, setFontSize] = useState(0.9);
+  const containerRef = useRef(null);
 
-const saveAnnotationUIPref = useCallback((payload) => {
-  try {
-    const localPrefs = localStorage.getItem("annotation_ui_preferences");
-    const currentPrefs = localPrefs ? JSON.parse(localPrefs) : {};
-    const newPrefs = { ...currentPrefs, ...payload };
-    localStorage.setItem("annotation_ui_preferences", JSON.stringify(newPrefs));
-  } catch (err) {
-    console.error('Failed to save local annotation UI preference', err);
-  }
-}, []);
-// add useMemo to the existing import
+  const saveAnnotationUIPref = useCallback((payload) => {
+    try {
+      const localPrefs = localStorage.getItem("annotation_ui_preferences");
+      const currentPrefs = localPrefs ? JSON.parse(localPrefs) : {};
+      const newPrefs = { ...currentPrefs, ...payload };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(newPrefs));
+    } catch (err) {
+      console.error('Failed to save local annotation UI preference', err);
+    }
+  }, []);
+  // add useMemo to the existing import
 
-// inside the component body
-const startDragging = useCallback((e) => {
-  if (isPinned) return;
-  e.preventDefault();
-  setIsDragging(true);
-}, [isPinned]);
+  // inside the component body
+  const startDragging = useCallback((e) => {
+    if (isPinned) return;
+    e.preventDefault();
+    setIsDragging(true);
+  }, [isPinned]);
 
-const stopDragging = useCallback(() => {
-  if (!isDragging) return;
-  setIsDragging(false);
-  // Persist width when drag ends (only if not pinned — pin locks it after first save)
-  setInstructionWidth((currentWidth) => {
-    saveAnnotationUIPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
-    return currentWidth;
-  });
-}, [isDragging, saveAnnotationUIPref]);
+  const stopDragging = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    // Persist width when drag ends (only if not pinned — pin locks it after first save)
+    setInstructionWidth((currentWidth) => {
+      saveAnnotationUIPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
+      return currentWidth;
+    });
+  }, [isDragging, saveAnnotationUIPref]);
 
-const onDrag = useCallback((e) => {
-  if (!isDragging || !containerRef.current) return;
-  const containerRect = containerRef.current.getBoundingClientRect();
-  const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-  const newWidth = Math.min(60, Math.max(25, percentage));
-  setInstructionWidth(newWidth);
-}, [isDragging]);
+  const onDrag = useCallback((e) => {
+    if (!isDragging || !containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+    const newWidth = Math.min(60, Math.max(25, percentage));
+    setInstructionWidth(newWidth);
+  }, [isDragging]);
 
-const handlePinToggle = useCallback(() => {
-  const newPinned = !isPinned;
-  setIsPinned(newPinned);
-  saveAnnotationUIPref({
-    instruction_panel_pinned: newPinned,
-    instruction_panel_width: Math.round(instructionWidth * 10) / 10,
-  });
-}, [isPinned, instructionWidth, saveAnnotationUIPref]);
+  const handlePinToggle = useCallback(() => {
+    const newPinned = !isPinned;
+    setIsPinned(newPinned);
+    saveAnnotationUIPref({
+      instruction_panel_pinned: newPinned,
+      instruction_panel_width: Math.round(instructionWidth * 10) / 10,
+    });
+  }, [isPinned, instructionWidth, saveAnnotationUIPref]);
 
-const handleFontSizeChange = useCallback((_e, newVal) => {
-  setFontSize(newVal);
-}, []);
+  const handleFontSizeChange = useCallback((_e, newVal) => {
+    setFontSize(newVal);
+  }, []);
 
-const handleFontSizeCommit = useCallback((_e, newVal) => {
-  saveAnnotationUIPref({ annotation_font_size: newVal });
-}, [saveAnnotationUIPref]);
+  const handleFontSizeCommit = useCallback((_e, newVal) => {
+    saveAnnotationUIPref({ annotation_font_size: newVal });
+  }, [saveAnnotationUIPref]);
 
-const handleResetUIPrefs = useCallback(() => {
-  setFontSize(0.9);
-  setInstructionWidth(30);
-  setIsPinned(false);
-  saveAnnotationUIPref({
-    annotation_font_size: 0.9,
-    instruction_panel_width: 30,
-    instruction_panel_pinned: false
-  });
-}, [saveAnnotationUIPref]);
+  const handleResetUIPrefs = useCallback(() => {
+    setFontSize(0.9);
+    setInstructionWidth(30);
+    setIsPinned(false);
+    saveAnnotationUIPref({
+      annotation_font_size: 0.9,
+      instruction_panel_width: 30,
+      instruction_panel_pinned: false
+    });
+  }, [saveAnnotationUIPref]);
 
-useEffect(() => {
-  if (isDragging) {
-    window.addEventListener('mousemove', onDrag);
-    window.addEventListener('mouseup', stopDragging);
-  }
-  return () => {
-    window.removeEventListener('mousemove', onDrag);
-    window.removeEventListener('mouseup', stopDragging);
-  };
-}, [isDragging, onDrag, stopDragging]);  
-const [snackbar, setSnackbarInfo] = useState({
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', onDrag);
+      window.addEventListener('mouseup', stopDragging);
+    }
+    return () => {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDragging);
+    };
+  }, [isDragging, onDrag, stopDragging]);
+  const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
     variant: "success",
@@ -324,27 +324,27 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async (promptOverride) => {
-  const prompt = promptOverride ?? inputValue;
-  
-  if (prompt) {
-    setLoading(true);
-    
-    const optimisticEntry = {
-      prompt: prompt,
-      output: [],
-    };
-    
-    setChatHistory((prev) => [...prev, optimisticEntry]);
-    setShowChatContainer(true);
-    
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+  const handleButtonClick = async (promptOverride) => {
+    const prompt = promptOverride ?? inputValue;
 
-    const body = {
-      result: prompt,        
-      lead_time:
+    if (prompt) {
+      setLoading(true);
+
+      const optimisticEntry = {
+        prompt: prompt,
+        output: [],
+      };
+
+      setChatHistory((prev) => [...prev, optimisticEntry]);
+      setShowChatContainer(true);
+
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+
+      const body = {
+        result: prompt,
+        lead_time:
           (new Date() - loadtime) / 1000 +
           Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
@@ -371,61 +371,61 @@ const handleButtonClick = async (promptOverride) => {
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
       }
-    try {
-      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
-      });
-      let data;
       try {
-        data = await res.json();
-      } catch (error) {
-        throw new Error(res.statusText || "Failed to parse server response");
-      }
-
-      if (res.ok && data && data.result) {
-        const modifiedChatHistory = data.result.map((interaction, index) => {
-          const isLastInteraction = index === data.result.length - 1;
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output, isLastInteraction),
-          };
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
         });
-        setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
-      } else {
-        // Remove the optimistic entry on failure
-        setChatHistory((prev) => prev.slice(0, -1));
+        let data;
+        try {
+          data = await res.json();
+        } catch (error) {
+          throw new Error(res.statusText || "Failed to parse server response");
+        }
+
+        if (res.ok && data && data.result) {
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
+        } else {
+          // Remove the optimistic entry on failure
+          setChatHistory((prev) => prev.slice(0, -1));
+          setSnackbarInfo({
+            open: true,
+            message: data?.message,
+            variant: "error",
+          });
+        }
+      } catch (error) {
+        console.error(error);
         setSnackbarInfo({
           open: true,
-          message: data?.message,
+          message: error?.message || "Failed to submit prompt. Please try again.",
           variant: "error",
         });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
+
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 1000);
+    } else {
       setSnackbarInfo({
         open: true,
-        message: error?.message || "Failed to submit prompt. Please try again.",
+        message: "Please provide a prompt",
         variant: "error",
       });
-    } finally {
-      setLoading(false);
     }
-
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
-  } else {
-    setSnackbarInfo({
-      open: true,
-      message: "Please provide a prompt",
-      variant: "error",
-    });
-  }
-  setText("");
-};
+    setText("");
+  };
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -436,19 +436,19 @@ const handleButtonClick = async (promptOverride) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
-const hasFailedLastResponse = useMemo(() => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  const last = chatHistory[chatHistory.length - 1];
-  if (!last?.output || last.output.length === 0) return true;
-  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
-}, [chatHistory]);
-const handleRetry = useCallback(async () => {
-  if (!chatHistory || chatHistory.length === 0) return;
-  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
-  if (!lastPrompt) return;
-  await handleClick('delete-pair', id?.id, 0.0);
-  await handleButtonClick(lastPrompt);
-}, [chatHistory, handleClick, id, handleButtonClick]);
+  const hasFailedLastResponse = useMemo(() => {
+    if (!chatHistory || chatHistory.length === 0) return false;
+    const last = chatHistory[chatHistory.length - 1];
+    if (!last?.output || last.output.length === 0) return true;
+    return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
+  }, [chatHistory]);
+  const handleRetry = useCallback(async () => {
+    if (!chatHistory || chatHistory.length === 0) return;
+    const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
+    if (!lastPrompt) return;
+    await handleClick('delete-pair', id?.id, 0.0);
+    await handleButtonClick(lastPrompt);
+  }, [chatHistory, handleClick, id, handleButtonClick]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -462,7 +462,7 @@ const handleRetry = useCallback(async () => {
       if (storedGlobalTransliteration !== null) {
         setGlobalTransliteration(storedGlobalTransliteration);
       }
-      
+
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
@@ -487,7 +487,7 @@ const handleRetry = useCallback(async () => {
       handleOnchange(text);
     }
   }, [text]);
-  
+
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -566,13 +566,13 @@ const handleRetry = useCallback(async () => {
     return rtlScriptRegex.test(text);
   };
 
-const renderChatHistory = () => {
+  const renderChatHistory = () => {
 
     const toggleShrink = (index) => {
-        setShrinkedMessages(prev => ({
-            ...prev,
-            [index]: !prev[index]
-        }));
+      setShrinkedMessages(prev => ({
+        ...prev,
+        [index]: !prev[index]
+      }));
     };
 
     const chatElements = chatHistory?.map((message, index) => (
@@ -628,7 +628,7 @@ const renderChatHistory = () => {
               <Avatar
                 alt="user_profile_pic"
                 src={loggedInUserData?.profile_photo || ""}
-                style={{ 
+                style={{
                   marginRight: "1rem",
                   width: "32px",
                   height: "32px"
@@ -698,15 +698,15 @@ const renderChatHistory = () => {
                   className="flex-col"
                   children={linkifyText(message?.prompt?.replace(/\n/gi, "&nbsp; \n"))}
                   components={{
-                    p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
-                    a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                    p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.5rem 0' }} {...props} />,
+                    a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
               )}
             </Grid>
-            
-                  <Grid 
-              item 
+
+            <Grid
+              item
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -864,8 +864,8 @@ const renderChatHistory = () => {
                         key={index}
                         children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
                         components={{
-                          p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
-                          a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                          p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.5rem 0' }} {...props} />,
+                          a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                         }}
                       />
                     )
@@ -874,7 +874,7 @@ const renderChatHistory = () => {
                       key={index}
                       language={segment.language}
                       style={gruvboxDark}
-                      customStyle={{ 
+                      customStyle={{
                         padding: "0.8rem",
                         borderRadius: "5px",
                         fontSize: `${fontSize}rem`
@@ -886,15 +886,16 @@ const renderChatHistory = () => {
                 )}
               </Grid>
             </Grid>
-         
+
           </Grid>
         )}
       </Grid>
     ));
 
     return chatElements;
-};  
-const ChildModal = () => {    const [open, setOpen] = useState(false);
+  };
+  const ChildModal = () => {
+    const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
       setOpen(true);
@@ -971,439 +972,439 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
   if (!isMounted) {
     return null;
   }
-return (
-  <>
-    {renderSnackBar()}
-    <Box
-    ref={containerRef}
-      sx={{
-               display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        width: "100%",
-        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
-        overflow: "hidden",
-        position: { xs: "fixed", md: "relative" },
-        top: { xs: "150px", md: "0" },
-        left: { xs: 0, md: "0" },
-        right: { xs: 0, md: "0" },
-        bottom: { xs: "0", md: "0" },
-        zIndex: { xs: 1000, md: "0" },
-
-      }}
-    >
-      {/* Instruction Panel */}
+  return (
+    <>
+      {renderSnackBar()}
       <Box
+        ref={containerRef}
         sx={{
-           width: { 
-            xs: "100%", 
-            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
-          },
-          height: { 
-            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
-            md: "100%" 
-          },
-          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
-          transition: isDragging ? "none" : "all 0.3s ease",
-          padding: isInstructionExpanded ? "1rem" : "0.5rem",
-          paddingBottom: "0rem!important",
-          paddingTop: "0.3rem!important",
-          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          backgroundColor: "#fafafa",
-          overflow: "auto",
           display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-          position: "relative",
+          flexDirection: { xs: "column", md: "row" },
+          width: "100%",
+          height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
+          overflow: "hidden",
+          position: { xs: "fixed", md: "relative" },
+          top: { xs: "150px", md: "0" },
+          left: { xs: 0, md: "0" },
+          right: { xs: 0, md: "0" },
+          bottom: { xs: "0", md: "0" },
+          zIndex: { xs: 1000, md: "0" },
+
         }}
       >
-{isInstructionExpanded && window.innerWidth >= 768 && (
-  <Box
-    onMouseDown={startDragging}
-    sx={{
-      position: "absolute",
-      right: 0,
-      top: 0,
-      width: "6px",
-      height: "100%",
-      cursor: 'col-resize',
-      backgroundColor: "transparent",
-      zIndex: 10,
-      '&:hover': {
-        backgroundColor: "rgba(238, 102, 51, 0.2)",
-      },
-      '&:active': {
-        backgroundColor: "rgba(238, 102, 51, 0.3)",
-      },
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        right: '2px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        width: '4px',
-        height: '40px',
-        backgroundColor: '#EE6633',
-        borderRadius: '2px',
-        opacity: 0.6,
-      }
-    }}
-  />
-)}
+        {/* Instruction Panel */}
         <Box
           sx={{
+            width: {
+              xs: "100%",
+              md: isInstructionExpanded ? `${instructionWidth}%` : "40px"
+            },
+            height: {
+              xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px",
+              md: "100%"
+            },
+            maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+            transition: isDragging ? "none" : "all 0.3s ease",
+            padding: isInstructionExpanded ? "1rem" : "0.5rem",
+            paddingBottom: "0rem!important",
+            paddingTop: "0.3rem!important",
+            borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+            backgroundColor: "#fafafa",
+            overflow: "auto",
             display: "flex",
-            alignItems: "center",
-            justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "0.5rem" : 0,
-            padding: "0.5rem",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            minHeight: "40px",
+            flexDirection: "column",
             flexShrink: 0,
+            position: "relative",
           }}
-          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
-          {isInstructionExpanded && (
-            <Typography
-              variant="h6"
+          {isInstructionExpanded && window.innerWidth >= 768 && (
+            <Box
+              onMouseDown={startDragging}
               sx={{
-                color: "#636363",
-                fontWeight: "600",
-                fontSize: { xs: "1rem", md: "1.1rem" },
+                position: "absolute",
+                right: 0,
+                top: 0,
+                width: "6px",
+                height: "100%",
+                cursor: 'col-resize',
+                backgroundColor: "transparent",
+                zIndex: 10,
+                '&:hover': {
+                  backgroundColor: "rgba(238, 102, 51, 0.2)",
+                },
+                '&:active': {
+                  backgroundColor: "rgba(238, 102, 51, 0.3)",
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '4px',
+                  height: '40px',
+                  backgroundColor: '#EE6633',
+                  borderRadius: '2px',
+                  opacity: 0.6,
+                }
               }}
-            >
-              {translate("typography.instructions")}
-            </Typography>
+            />
           )}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {isInstructionExpanded && (
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      {isPinned ? "Unpin panel width" : "Pin panel width"}
-                    </span>
-                  }
-                >
-                <IconButton
-                  size="small"
-                  onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
-                  sx={{ padding: "4px", minWidth: "auto" }}
-                >
-                  {isPinned
-                    ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                    : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
-                </IconButton>
-              </Tooltip>
-            )}
-            <Tooltip
-              title={
-                <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                  {isInstructionExpanded ? "Collapse" : "Expand"}
-                </span>
-              }
-            >
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsInstructionExpanded(!isInstructionExpanded);
-                }}
-                sx={{ 
-                  padding: isInstructionExpanded ? '8px' : '4px',
-                  minWidth: 'auto'
-                }}
-              >
-                {isInstructionExpanded ? (
-                  <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                ) : (
-                  <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-
-        {/* Font size slider — shown when expanded */}
-        {isInstructionExpanded && (
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1,
-              px: "0.5rem",
-              pb: "0.5rem",
+              justifyContent: isInstructionExpanded ? "space-between" : "center",
+              marginBottom: isInstructionExpanded ? "0.5rem" : 0,
+              padding: "0.5rem",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              borderRadius: "8px",
+              cursor: "pointer",
+              minHeight: "40px",
               flexShrink: 0,
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
           >
-            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-              Aa
-            </Typography>
-            <Slider
-              value={fontSize}
-              min={0.7}
-              max={1.4}
-              step={0.05}
-              onChange={handleFontSizeChange}
-              onChangeCommitted={handleFontSizeCommit}
-              size="small"
-              sx={{
-                color: "#EE6633",
-                width: "100%",
-                "& .MuiSlider-thumb": { width: 12, height: 12 },
-              }}
-            />
-            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-              {Math.round(fontSize * 16)}px
-            </Typography>
-            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
-              <IconButton
-                size="small"
-                onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
-                sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
-              >
-                <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
-
-        {isInstructionExpanded && (
-          <Box
-            sx={{
-              flex: 1,
-              overflow: "auto",
-              padding: "0.5rem",
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "1rem",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                marginBottom: "1rem",
-              }}
-            >
+            {isInstructionExpanded && (
               <Typography
-                paragraph
+                variant="h6"
                 sx={{
-                  fontSize: `${fontSize}rem`,
-                  lineHeight: "1.5",
-                  color: "#333",
+                  color: "#636363",
+                  fontWeight: "600",
+                  fontSize: { xs: "1rem", md: "1.1rem" },
                 }}
               >
-                {info.instruction_data}
+                {translate("typography.instructions")}
               </Typography>
+            )}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              {isInstructionExpanded && (
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      {isPinned ? "Unpin panel width" : "Pin panel width"}
+                    </span>
+                  }
+                >
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                    sx={{ padding: "4px", minWidth: "auto" }}
+                  >
+                    {isPinned
+                      ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                      : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                  </IconButton>
+                </Tooltip>
+              )}
+              <Tooltip
+                title={
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    {isInstructionExpanded ? "Collapse" : "Expand"}
+                  </span>
+                }
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsInstructionExpanded(!isInstructionExpanded);
+                  }}
+                  sx={{
+                    padding: isInstructionExpanded ? '8px' : '4px',
+                    minWidth: 'auto'
+                  }}
+                >
+                  {isInstructionExpanded ? (
+                    <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  ) : (
+                    <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Box>
+          </Box>
 
-            {/* Metadata Information Section - Now directly in the panel */}
+          {/* Font size slider — shown when expanded */}
+          {isInstructionExpanded && (
             <Box
               sx={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "1rem",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                border: "1px solid #e0e0e0",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: "0.5rem",
+                pb: "0.5rem",
+                flexShrink: 0,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+                Aa
+              </Typography>
+              <Slider
+                value={fontSize}
+                min={0.7}
+                max={1.4}
+                step={0.05}
+                onChange={handleFontSizeChange}
+                onChangeCommitted={handleFontSizeCommit}
+                size="small"
+                sx={{
+                  color: "#EE6633",
+                  width: "100%",
+                  "& .MuiSlider-thumb": { width: 12, height: 12 },
+                }}
+              />
+              <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+                {Math.round(fontSize * 16)}px
+              </Typography>
+              <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
+                  sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+                >
+                  <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+
+          {isInstructionExpanded && (
+            <Box
+              sx={{
+                flex: 1,
+                overflow: "auto",
+                padding: "0.5rem",
               }}
             >
-              {/* Hint Section */}
-              <Box sx={{ mb: 2 }}>
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  marginBottom: "1rem",
+                }}
+              >
                 <Typography
+                  paragraph
                   sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `${fontSize + 0.1}rem`,
-                    mb: 1,
+                    fontSize: `${fontSize}rem`,
+                    lineHeight: "1.5",
+                    color: "#333",
                   }}
                 >
-                  {translate("modal.hint")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #F18359",
-                  }}
-                >
-                  {info.hint || "No hints available"}
+                  {info.instruction_data}
                 </Typography>
               </Box>
 
-              {/* Examples Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `${fontSize + 0.1}rem`,
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.examples")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #4CAF50",
-                  }}
-                >
-                  {info.examples || "No examples available"}
-                </Typography>
-              </Box>
+              {/* Metadata Information Section - Now directly in the panel */}
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                {/* Hint Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: `${fontSize + 0.1}rem`,
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.hint")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #F18359",
+                    }}
+                  >
+                    {info.hint || "No hints available"}
+                  </Typography>
+                </Box>
 
-              {/* Additional Metadata Information */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `${fontSize + 0.1}rem`,
-                    mb: 1,
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {info.meta_info_language && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
-                        Language: {info.meta_info_language}
-                      </Typography>
-                    </Box>
-                  )}
-                  {taskId && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
-                        Task ID: {taskId}
-                      </Typography>
-                    </Box>
-                  )}
+                {/* Examples Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: `${fontSize + 0.1}rem`,
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.examples")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #4CAF50",
+                    }}
+                  >
+                    {info.examples || "No examples available"}
+                  </Typography>
+                </Box>
+
+                {/* Additional Metadata Information */}
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: `${fontSize + 0.1}rem`,
+                      mb: 1,
+                    }}
+                  >
+                    Additional Information
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    {info.meta_info_language && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <CodeIcon fontSize="small" color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
+                          Language: {info.meta_info_language}
+                        </Typography>
+                      </Box>
+                    )}
+                    {taskId && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <AssignmentIcon fontSize="small" color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
+                          Task ID: {taskId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
-
-      {/* Chat Section */}
-      <Box
-        sx={{
-        flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          overflow: "hidden",
-          minWidth: 0,
-          paddingBottom:"0rem!important",
-        }}
-      >
-        <Box
-         sx={{
-        flex: 1,
-        overflowY: "auto",
-        padding: "1rem",
-        paddingBottom:"0rem!important",
-        background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
-        width: "100%",
-        minHeight: 0,
-      }}
-        >
-     <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center",
-            width: "100%",
-            maxWidth: "100%",
-            "& > *": {
-              maxWidth: "100%",
-              width: "100%"
-            }
-          }}>
-            {showChatContainer ? renderChatHistory() : null}
-          </Box>
-          <Box ref={bottomRef} sx={{ height: "1px" }} />
+          )}
         </Box>
-      </Box>
-    </Box>
 
-    {/* Full Width Textarea - Covers Entire Width */}
-    {stage !== "Alltask" && !disableUpdateButton ? (
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          width: "100vw", // Full viewport width
-          backgroundColor: "white",
-          borderTop: "1px solid #e0e0e0",
-          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
-          py: "0.5rem",
-          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1300,
-          height: "70px",
-        }}
-      >
+        {/* Chat Section */}
         <Box
           sx={{
-            width: "100%",
-            maxWidth: "100%", // Always full width
-            mx: 0, // No margin
-            paddingLeft:"1rem",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            overflow: "hidden",
+            minWidth: 0,
+            paddingBottom: "0rem!important",
           }}
         >
-          <Textarea
-            handleButtonClick={handleButtonClick}
-            handleOnchange={handleOnchange}
-            size={10}
-            sx={{ 
-              width: "100%", 
-              margin: 0, 
-              padding: 0,
-              "& .MuiInputBase-root": {
-                height: "50px",
-                width: "100%",
-              },
-              "& textarea": {
-                fontSize: { xs: "0.85rem", md: "0.9rem" },
-                width: "100%",
-              }
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "1rem",
+              paddingBottom: "0rem!important",
+              background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+              width: "100%",
+              minHeight: 0,
             }}
-            class_name={"w-full"}
-            loading={loading}
-            inputValue={inputValue}
-            overrideGT={true}
-            task_id={taskId}
-            script={info.meta_info_language}
-          />
+          >
+            <Box sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+              maxWidth: "100%",
+              "& > *": {
+                maxWidth: "100%",
+                width: "100%"
+              }
+            }}>
+              {showChatContainer ? renderChatHistory() : null}
+            </Box>
+            <Box ref={bottomRef} sx={{ height: "1px" }} />
+          </Box>
         </Box>
       </Box>
-    ) : null}
-  </>
-);
+
+      {/* Full Width Textarea - Covers Entire Width */}
+      {stage !== "Alltask" && !disableUpdateButton ? (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: "100vw", // Full viewport width
+            backgroundColor: "white",
+            borderTop: "1px solid #e0e0e0",
+            boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+            py: "0.5rem",
+            px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1300,
+            height: "70px",
+          }}
+        >
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "100%", // Always full width
+              mx: 0, // No margin
+              paddingLeft: "1rem",
+            }}
+          >
+            <Textarea
+              handleButtonClick={handleButtonClick}
+              handleOnchange={handleOnchange}
+              size={10}
+              sx={{
+                width: "100%",
+                margin: 0,
+                padding: 0,
+                "& .MuiInputBase-root": {
+                  height: "50px",
+                  width: "100%",
+                },
+                "& textarea": {
+                  fontSize: { xs: "0.85rem", md: "0.9rem" },
+                  width: "100%",
+                }
+              }}
+              class_name={"w-full"}
+              loading={loading}
+              inputValue={inputValue}
+              overrideGT={true}
+              task_id={taskId}
+              script={info.meta_info_language}
+            />
+          </Box>
+        </Box>
+      ) : null}
+    </>
+  );
 };
 export default InstructionDrivenChatPage;
