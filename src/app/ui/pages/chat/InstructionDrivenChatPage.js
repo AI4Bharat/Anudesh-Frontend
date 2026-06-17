@@ -385,7 +385,6 @@ const handleButtonClick = async (promptOverride) => {
       } catch (err) {
         data = {};
       }
-
       if (!res.ok) {
         throw new Error(data?.message || `API Error: ${res.status}`);
       }
