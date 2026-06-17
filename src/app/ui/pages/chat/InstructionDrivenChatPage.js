@@ -371,48 +371,33 @@ const handleButtonClick = async (promptOverride) => {
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
       }
-    try {
-      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
+    const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+    const res = await fetch(AnnotationObj.apiEndPoint(), {
+      method: "PATCH",
+      body: JSON.stringify(AnnotationObj.getBody()),
+      headers: AnnotationObj.getHeaders().headers,
+    });
+    const data = await res.json();
+
+    if (data && data.result) {
+      const modifiedChatHistory = data.result.map((interaction, index) => {
+        const isLastInteraction = index === data.result.length - 1;
+        return {
+          ...interaction,
+          output: formatResponse(interaction.output, isLastInteraction),
+        };
       });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (err) {
-        data = {};
-      }
-
-      if (!res.ok) {
-        throw new Error(data?.message || `API Error: ${res.status}`);
-      }
-
-      if (data && data.result) {
-        const modifiedChatHistory = data.result.map((interaction, index) => {
-          const isLastInteraction = index === data.result.length - 1;
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output, isLastInteraction),
-          };
-        });
-        setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
-      } else {
-        throw new Error(data?.message || "Invalid response structure from server");
-      }
-    } catch (error) {
-      console.error(error);
+      setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
+      setLoading(false);
+    } else {
       // Remove the optimistic entry on failure
       setChatHistory((prev) => prev.slice(0, -1));
+      setLoading(false);
       setSnackbarInfo({
         open: true,
-        message: error?.message || "Failed to update annotation",
+        message: data?.message,
         variant: "error",
       });
-    } finally {
-      setLoading(false);
     }
 
     setTimeout(() => {
