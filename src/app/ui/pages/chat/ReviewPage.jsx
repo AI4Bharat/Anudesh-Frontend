@@ -164,6 +164,9 @@ const ReviewPage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
+  const [isModelStreaming, setIsModelStreaming] = useState(false);
+
+  const isSubmitDisabled = disableUpdateButton || (isModelStreaming && !ProjectDetails?.metadata_json?.blank_response);
 
   // ── useState replacements for the .value workaround on the refs ──
   const [annotationNotesValue, setAnnotationNotesValue] = useState("");
@@ -1098,6 +1101,7 @@ const ReviewPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          setIsModelStreaming={setIsModelStreaming}
         />
       );
       break;
@@ -1449,6 +1453,7 @@ return (
               <Button
                 variant="outlined"
                 size="small"
+                disabled={isSubmitDisabled}
                 id="accept-button"
                 aria-controls={open ? "accept-menu" : undefined}
                 aria-haspopup="true"
