@@ -357,8 +357,8 @@ const AdvancedOperation = (props) => {
             }
   };
 
-  // Function to save models configuration and update tasks
-  const handleSaveModels = async () => {
+ 
+const handleSaveModels = () => {
     if (modelsSet.length === 0) {
       setSnackbarInfo({
         open: true,
@@ -367,80 +367,68 @@ const AdvancedOperation = (props) => {
       });
       return;
     }
-    
+   
+    setShowConfirmSnackbar(true);
+  };
+
+  const handleConfirmSaveModels = async () => {
+    setShowConfirmSnackbar(false);
     setLoading(true);
+
     const updatedMetadataJson = {
       ...ProjectDetails.metadata_json,
       models_set: modelsSet,
       fixed_models: fixedModels,
-      num_models: modelsSet.length
+      num_models: modelsSet.length,
     };
-    
+
     const sendData = {
       title: ProjectDetails.title,
       description: ProjectDetails.description,
       project_type: ProjectDetails.project_type,
-      metadata_json: updatedMetadataJson
+      metadata_json: updatedMetadataJson,
     };
-    
-    const projectObj = new GetSaveButtonAPI(id, sendData);
+
     try {
-      // First, save the project metadata
+     
+      const updateTasksRes = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${id}/update_tasks_models/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${localStorage.getItem("anudesh_access_token")}`,
+          },
+        }
+      );
+      const updateTasksData = await updateTasksRes.json();
+
+      
+      if (!updateTasksRes.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: `⚠️ Tasks update failed: ${updateTasksData.message || "Unknown error"}`,
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      
+      const projectObj = new GetSaveButtonAPI(id, sendData);
       const res = await fetch(projectObj.apiEndPoint(), {
         method: "PUT",
         body: JSON.stringify(projectObj.getBody()),
         headers: projectObj.getHeaders().headers,
       });
       const resp = await res.json();
-      
+
       if (res.ok) {
-        // Ask user if they want to update existing tasks
-        const updateTasks = window.confirm(
-          "Models configuration saved successfully!\n\nDo you want to update all existing tasks to use the new models?\n\nNote: This will affect all tasks in this project."
-        );
-        
-        if (updateTasks) {
-          // Call the backend endpoint to update all tasks
-          const updateTasksRes = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/projects/${id}/update_tasks_models/`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `JWT ${localStorage.getItem('anudesh_access_token')}`
-              }
-            }
-          );
-          
-          const updateTasksData = await updateTasksRes.json();
-          
-          if (updateTasksRes.ok) {
-            setSnackbarInfo({
-              open: true,
-              message: `✅ Models saved and ${updateTasksData.updated_count} out of ${updateTasksData.total_tasks} tasks updated successfully!`,
-              variant: "success",
-            });
-            
-            // Show errors if any
-            if (updateTasksData.errors && updateTasksData.errors.length > 0) {
-              console.warn("Task update errors:", updateTasksData.errors);
-            }
-          } else {
-            setSnackbarInfo({
-              open: true,
-              message: `⚠️ Models saved but tasks update failed: ${updateTasksData.message || "Unknown error"}`,
-              variant: "warning",
-            });
-          }
-        } else {
-          setSnackbarInfo({
-            open: true,
-            message: "Models configuration saved successfully!",
-            variant: "success",
-          });
-        }
-        
-        // Refresh project details to get updated data
+        setSnackbarInfo({
+          open: true,
+          message: `✅ Models saved and ${updateTasksData.updated_count} of ${updateTasksData.total_tasks} tasks updated successfully!`,
+          variant: "success",
+        });
         dispatch(fetchProjectDetails(id));
       } else {
         setSnackbarInfo({
@@ -513,6 +501,7 @@ const AdvancedOperation = (props) => {
   const [isArchived, setIsArchived] = useState(false);
   const [downloadMetadataToggle, setDownloadMetadataToggle] = useState(true);
   const [blankResponse, setBlankResponse] = useState(ProjectDetails?.metadata_json?.blank_response||false);
+  const [showConfirmSnackbar, setShowConfirmSnackbar] = useState(false);
 
   const getArchiveProjectAPI = () => {
     dispatch(fetchArchiveProject(id));
@@ -1391,6 +1380,34 @@ const AdvancedOperation = (props) => {
             handleClose={handleClose}
           />
         )}
+      <Dialog
+            open={showConfirmSnackbar}
+            onClose={() => setShowConfirmSnackbar(false)}
+            aria-labelledby="confirm-models-dialog"
+          >
+            <DialogContent>
+              <DialogContentText id="confirm-models-dialog">
+                Are you sure you want to update all tasks with the new model configuration?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setShowConfirmSnackbar(false)}
+                variant="outlined"
+                color="primary"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmSaveModels}
+                variant="contained"
+                color="primary"
+                autoFocus
+              >
+                Confirm
+              </Button>
+            </DialogActions>
+      </Dialog>
       </div>
     </ThemeProvider>
   );
