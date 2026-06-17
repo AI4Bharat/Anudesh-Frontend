@@ -90,6 +90,7 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+  setIsModelStreaming,
 }) => {
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
@@ -105,10 +106,17 @@ const InstructionDrivenChatPage = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  
+  useEffect(() => {
+    if (setIsModelStreaming) {
+      setIsModelStreaming(isStreaming);
+    }
+  }, [isStreaming, setIsModelStreaming]);
+
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
   const { streamResponse, abortStream } = useStreamingLLM();
-const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30);
 const [isPinned, setIsPinned] = useState(false);
 const [fontSize, setFontSize] = useState(0.9);
@@ -457,7 +465,7 @@ const [snackbar, setSnackbarInfo] = useState({
 
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 500);
+    }, 1000);
   } else {
     setSnackbarInfo({
       open: true,

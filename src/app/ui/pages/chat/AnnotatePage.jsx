@@ -126,6 +126,9 @@ const AnnotatePage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
+  const [isModelStreaming, setIsModelStreaming] = useState(false);
+
+  const isSubmitDisabled = disableUpdateButton || (isModelStreaming && !ProjectDetails?.metadata_json?.blank_response);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -943,6 +946,7 @@ const AnnotatePage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          setIsModelStreaming={setIsModelStreaming}
         />
       );
       break;
@@ -1267,6 +1271,7 @@ const AnnotatePage = () => {
                   <Button
                     variant="contained"
                     size="small"
+                    disabled={isSubmitDisabled}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
