@@ -13,6 +13,7 @@ import { makeStyles } from "@mui/styles";
 import { useSelector } from "react-redux";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
+import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
@@ -320,18 +321,30 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-  const handleButtonClick = async () => {
-    if (inputValue) {
-      setLoading(true);
-      const body = {
-        result: inputValue,
-        lead_time:
-          (new Date() - loadtime) / 1000 +
-          Number(id?.lead_time?.lead_time ?? 0),
-        auto_save: true,
-        task_id: taskId,
-      };
-      if (stage === "Alltask") {
+ const handleButtonClick = async () => {
+  if (inputValue) {
+    setLoading(true);
+
+    const optimisticEntry = {
+      prompt: inputValue,
+      output: [], 
+    };
+    setChatHistory((prev) => [...prev, optimisticEntry]);
+    setShowChatContainer(true);
+
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+
+    const body = {
+      result: inputValue,
+      lead_time:
+        (new Date() - loadtime) / 1000 +
+        Number(id?.lead_time?.lead_time ?? 0),
+      auto_save: true,
+      task_id: taskId,
+    };
+          if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
         body.annotation_status = localStorage.getItem("labellingMode");
@@ -352,43 +365,47 @@ const [snackbar, setSnackbarInfo] = useState({
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
       }
-      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
+    const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+    const res = await fetch(AnnotationObj.apiEndPoint(), {
+      method: "PATCH",
+      body: JSON.stringify(AnnotationObj.getBody()),
+      headers: AnnotationObj.getHeaders().headers,
+    });
+    const data = await res.json();
+
+    if (data && data.result) {
+      const modifiedChatHistory = data.result.map((interaction, index) => {
+        const isLastInteraction = index === data.result.length - 1;
+        return {
+          ...interaction,
+          output: formatResponse(interaction.output, isLastInteraction),
+        };
       });
-      const data = await res.json();
-      
-      if (res.ok && data && data.result) {
-        let modifiedChatHistory = data.result.map((interaction, index) => {
-          const isLastInteraction = index === data?.result?.length - 1;
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output, isLastInteraction),
-          };
-        });
-        setChatHistory(modifiedChatHistory);
-      } else {
-        setSnackbarInfo({
-          open: true,
-          message: data?.message || "An error occurred while saving the annotation.",
-          variant: "error",
-        });
-      }
+      setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
       setLoading(false);
     } else {
+      // Remove the optimistic entry on failure
+      setChatHistory((prev) => prev.slice(0, -1));
+      setLoading(false);
       setSnackbarInfo({
         open: true,
-        message: "Please provide a prompt",
+        message: data?.message,
         variant: "error",
       });
     }
+
     setTimeout(() => {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 1000);
-    setShowChatContainer(true);
-  };
+  } else {
+    setSnackbarInfo({
+      open: true,
+      message: "Please provide a prompt",
+      variant: "error",
+    });
+  }
+  setText("");
+};
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -646,9 +663,10 @@ const renderChatHistory = () => {
               ) : (
                 <ReactMarkdown
                   className="flex-col"
-                  children={message?.prompt?.replace(/\n/gi, "&nbsp; \n")}
+                  children={linkifyText(message?.prompt?.replace(/\n/gi, "&nbsp; \n"))}
                   components={{
                     p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                    a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
               )}
@@ -788,9 +806,10 @@ const renderChatHistory = () => {
                     ) : (
                       <ReactMarkdown
                         key={index}
-                        children={segment?.value?.replace(/\n/gi, "&nbsp; \n")}
+                        children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
                         components={{
                           p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                          a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                         }}
                       />
                     )
