@@ -1028,6 +1028,7 @@ const AnnotatePage = () => {
           setIsModelFailing={setIsModelFailing}
           submittedEvalForms={submittedEvalForms}
           setSubmittedEvalForms={setSubmittedEvalForms}
+
         />
       );
       break;
@@ -1346,6 +1347,8 @@ const AnnotatePage = () => {
                         );
                       }
                     }}
+                            disabled={loading} 
+
                     sx={{
                       minWidth: 'auto',
                       fontSize: '0.75rem',

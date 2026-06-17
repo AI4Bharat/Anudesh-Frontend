@@ -1,5 +1,6 @@
 "use client";
 import "./chat.css";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -17,7 +18,6 @@ import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef,useCallback } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -89,6 +89,8 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+  setLoading,
+  loading
 }) => {
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
@@ -102,7 +104,6 @@ const InstructionDrivenChatPage = ({
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
 const [isDragging, setIsDragging] = useState(false);
@@ -121,7 +122,9 @@ const saveAnnotationUIPref = useCallback((payload) => {
     console.error('Failed to save local annotation UI preference', err);
   }
 }, []);
+// add useMemo to the existing import
 
+// inside the component body
 const startDragging = useCallback((e) => {
   if (isPinned) return;
   e.preventDefault();
@@ -321,30 +324,33 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
- const handleButtonClick = async () => {
-  if (inputValue) {
+const handleButtonClick = async (promptOverride) => {
+  const prompt = promptOverride ?? inputValue;
+  
+  if (prompt) {
     setLoading(true);
-
+    
     const optimisticEntry = {
-      prompt: inputValue,
-      output: [], 
+      prompt: prompt,
+      output: [],
     };
+    
     setChatHistory((prev) => [...prev, optimisticEntry]);
     setShowChatContainer(true);
-
+    
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
 
     const body = {
-      result: inputValue,
+      result: prompt,        
       lead_time:
-        (new Date() - loadtime) / 1000 +
-        Number(id?.lead_time?.lead_time ?? 0),
-      auto_save: true,
-      task_id: taskId,
-    };
-          if (stage === "Alltask") {
+          (new Date() - loadtime) / 1000 +
+          Number(id?.lead_time?.lead_time ?? 0),
+        auto_save: true,
+        task_id: taskId,
+      };
+      if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
       } else {
         body.annotation_status = localStorage.getItem("labellingMode");
@@ -416,6 +422,19 @@ const [snackbar, setSnackbarInfo] = useState({
   const [isMounted, setIsMounted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
+const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
+}, [chatHistory]);
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
+  if (!lastPrompt) return;
+  await handleClick('delete-pair', id?.id, 0.0);
+  await handleButtonClick(lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -672,43 +691,66 @@ const renderChatHistory = () => {
               )}
             </Grid>
             
-            <IconButton
-              size="small"
-              onClick={() => toggleShrink(index)}
+                  <Grid 
+              item 
               style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
               }}
             >
-              {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
+              {/* Shrink button */}
+              <IconButton
+                size="small"
+                onClick={() => toggleShrink(index)}
+                style={{
+                  padding: "4px",
+                }}
+              >
+                {shrinkedMessages[index] ? (
+                  <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
+                ) : (
+                  <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
 
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: "2rem",
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1rem" }}
-                  />
-                </IconButton>
+              {/* Retry button */}
+              {(
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={handleRetry}
+                    disabled={loading}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
               )}
+
+              {/* Delete button */}
+              {index === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <DeleteOutlinedIcon
+                      style={{ color: "#EE6633", fontSize: "1rem" }}
+                    />
+                  </IconButton>
+                )}
+            </Grid>
           </Grid>
         </Grid>
+
 
         {/* Output Section - Only render when not shrinked */}
         {!shrinkedMessages[index] && (
@@ -830,6 +872,7 @@ const renderChatHistory = () => {
                 )}
               </Grid>
             </Grid>
+         
           </Grid>
         )}
       </Grid>

@@ -432,11 +432,7 @@ export default function Textarea({
               />
         </IconButton>
       </Grid>
-      {loading && (
-        <Grid item>
-          <CircularProgress style={{ color: "#EE6633" }} />
-        </Grid>
-        )}
+      
     </Grid>
     </Grid>
   );

@@ -9,12 +9,13 @@ import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useSelector } from "react-redux";
 import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React, { useState, useEffect, useRef,useCallback } from "react";
+import React,  { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -47,7 +48,6 @@ import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Slider from '@mui/material/Slider';
 import linkifyText from '@/utils/linkifyText';
 
@@ -101,6 +101,8 @@ const MultipleLLMInstructionDrivenChat = ({
   info,
   disableUpdateButton,
   annotation,
+    setLoading,
+  loading,
   evalFormResponse,
   setEvalFormResponse,
   setIsModelFailing,
@@ -114,7 +116,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const [activeModalIdentifier, setActiveModalIdentifier] = useState(null);
   const [visibleMessages, setVisibleMessages] = useState({});
@@ -210,6 +211,16 @@ const MultipleLLMInstructionDrivenChat = ({
   const handleFontSizeChange = useCallback((_e, newVal) => {
     setFontSize(newVal);
   }, []);
+const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(modelOutput => 
+    modelOutput.status === 'error' || 
+    (modelOutput.output && modelOutput.output.length === 0)
+  );
+}, [chatHistory]);
+
 
   const handleFontSizeCommit = useCallback((_e, newVal) => {
     saveAnnotationUIPref({ annotation_font_size: newVal });
@@ -456,19 +467,24 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
-  console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
+const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+  // Use override if provided, otherwise use inputValue
+  const effectiveInput = promptOverride ?? inputValue;
   const isMultipleResponse = ProjectDetails?.metadata_json;
-  const isNewPrompt = !!inputValue && !(modelResponses && prompt_output_pair_id >= 0);
+  const isNewPrompt = !!effectiveInput && !(modelResponses && prompt_output_pair_id >= 0);
 
-  if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+  if (effectiveInput || (modelResponses && prompt_output_pair_id >= 0)) {
     setLoading(true);
 
     // ✅ Optimistically show the prompt immediately before API call
     if (isNewPrompt) {
       setChatHistory((prev) => [
         ...prev,
-        { prompt: inputValue, output: [], prompt_output_pair_id: null },
+        { 
+          prompt: effectiveInput, 
+          output: [], 
+          prompt_output_pair_id: null 
+        },
       ]);
       setShowChatContainer(true);
       setTimeout(() => {
@@ -477,8 +493,8 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
     }
 
     const body = {
-      result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
-      lead_time:
+      result: modelResponses && prompt_output_pair_id >= 0 ? "" : effectiveInput,
+            lead_time:
         (new Date() - loadtime) / 1000 +
         Number(id?.lead_time?.lead_time ?? 0),
       auto_save: true,
@@ -673,25 +689,38 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
         : [...prevChatHistory];
     });
 
-    setVisibleMessages((prev) => ({
-      ...prev,
-      [chatHistory.length]: true,
-    }));
-  } else {
-    setSnackbarInfo({
-      open: true,
-      message: "Please provide a prompt",
-      variant: "error",
-    });
-  }
-  !(modelResponses && prompt_output_pair_id >= 0) &&
-    setTimeout(() => {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
-  setShowChatContainer(true);
-  setInputValue("");
-};
+      setVisibleMessages((prev) => ({
+        ...prev,
+        [chatHistory.length]: true,
+      }));
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: "Please provide a prompt",
+        variant: "error",
+      });
+    }
+    !(modelResponses && prompt_output_pair_id >= 0) &&
+      setTimeout(() => {
+        bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      }, 1000);
+    setShowChatContainer(true);
+    setInputValue("");
+              setLoading(false);
 
+  };
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastMessage = chatHistory[chatHistory.length - 1];
+  if (!lastMessage?.prompt) return;
+
+  const lastPrompt = lastMessage.prompt;
+
+  await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+
+  // Pass the prompt directly as an override — bypasses the inputValue check
+  await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -1620,15 +1649,24 @@ useEffect(() => {
                   </div>
                 )}
               </Grid>
+              
+            
+                  <Grid 
+              item 
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
+              }}
+            >
 
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
                 style={{
-                  position: "absolute",
-                  bottom: "0.3rem",
-                  right: "0.3rem",
-                  padding: "2px",
+                
+                  padding: "4px",
                 }}
               >
                 {shrinkedMessages[index] ? (
@@ -1637,15 +1675,28 @@ useEffect(() => {
                   <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
                 )}
               </IconButton>
+                {stage !== "Alltask" && !disableUpdateButton &&  (
+      <Tooltip title="Re-send the same prompt to get new responses">
+        <IconButton
+          size="small"
+          style={{
+          // Position to the left of delete button
+            padding: "4px",
+          }}
+          onClick={handleRetry}
+          disabled={loading}
+        >
+          <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+        </IconButton>
+      </Tooltip>
+    )}
 
               {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                 <IconButton
                   size="small"
                   style={{
-                    position: "absolute",
-                    bottom: "0.3rem",
-                    right: "2rem",
-                    padding: "2px",
+                 
+                    padding: "4px",
                   }}
                   onClick={() => {
                     setEvalFormResponse((prev) => {
@@ -1669,6 +1720,7 @@ useEffect(() => {
                   <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
                 </IconButton>
               )}
+              </Grid>
             </Grid>
           </Grid>
 
