@@ -47,7 +47,8 @@ import LoginAPI from "@/app/actions/api/user/Login";
 import GetSaveButtonAPI from "@/app/actions/api/Projects/getSaveButtonAPI";
 import TasksassignDialog from './taskassign';
 import { fixed_Models, languageModelOptions } from "../../app/new-project/models";
-
+import UpdateInactiveModelsDialog from "./UpdateInactiveModelsDialog";
+/* eslint-disable react-hooks/exhaustive-deps */
 const ProgressType = [
   "incomplete",
   "annotated",
@@ -100,6 +101,7 @@ const AdvancedOperation = (props) => {
   });
   const [open, setOpen] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openUpdateModelDialog, setOpenUpdateModelDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newDetails, setNewDetails] = useState();
   const [OpenExportProjectDialog, setOpenExportProjectDialog] = useState(false);
@@ -868,6 +870,24 @@ const AdvancedOperation = (props) => {
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <DeallocationAnnotatorsAndReviewers />
           </Grid>
+          {ProjectDetails?.project_type === "InstructionDrivenChat" && (
+            <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <Tooltip title="Update incomplete tasks with inactive models to a new active model">
+                <span>
+                  <CustomButton
+                    sx={{
+                      inlineSize: "max-content",
+                      borderRadius: 3,
+                      width: "100%",
+                      height: "50px",
+                    }}
+                    onClick={() => setOpenUpdateModelDialog(true)}
+                    label="Update Inactive Models"
+                  />
+                </span>
+              </Tooltip>
+            </Grid>
+          )}
         </Grid>
 
         <Grid
@@ -1355,7 +1375,12 @@ const AdvancedOperation = (props) => {
             </Button>
           </DialogActions>
         </Dialog>
-        
+        <UpdateInactiveModelsDialog
+          open={openUpdateModelDialog}
+          handleClose={() => setOpenUpdateModelDialog(false)}
+          projectId={id}
+          setSnackbarInfo={setSnackbarInfo}
+        />
         {OpenExportProjectDialog && (
           <ExportProjectDialog
             OpenExportProjectDialog={OpenExportProjectDialog}
