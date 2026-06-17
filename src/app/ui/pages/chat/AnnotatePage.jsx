@@ -472,6 +472,62 @@ const AnnotatePage = () => {
       setEvalFormResponse();
       setSubmittedEvalForms();
     }
+      if (value === "draft") {
+        
+        
+    const maxDraft = ProjectDetails?.max_Draft_tasks_per_user;
+    if (maxDraft != null) {
+      const draftResult = await dispatch(fetchTasksByProjectId({
+        id: projectId,
+        currentPageNumber: 1,
+        currentRowPerPage: 1,
+        selectedFilters: { annotation_status: "draft" },
+        taskType: null,
+        pullvalue: null,
+        rejected: false,
+        pull: "All",
+      }));
+      const count = draftResult?.payload?.total_count ?? 0;
+            console.log("lll",count,ProjectDetails?.max_Draft_tasks_per_user);
+
+      if (count >= maxDraft) {
+        setSnackbarInfo({
+          open: true,
+          message: `You have reached the maximum draft limit (${maxDraft}). Cannot save as draft.`,
+          variant: "warning",
+          severity: "warning",
+        });
+        return;
+      }
+    }
+  }
+
+  if (value === "skipped") {
+    const maxSkip = ProjectDetails?.max_Skipped_tasks_per_user;
+    if (maxSkip != null) {
+      const skippedResult = await dispatch(fetchTasksByProjectId({
+        id: projectId,
+        currentPageNumber: 1,
+        currentRowPerPage: 1,
+        selectedFilters: { annotation_status: "skipped" },
+        taskType: null,
+        pullvalue: null,
+        rejected: false,
+        pull: "All",
+      }));
+      const count = skippedResult?.payload?.total_count ?? 0;
+      if (count >= maxSkip) {
+        setSnackbarInfo({
+          open: true,
+          message: `You have reached the maximum skip limit (${maxSkip}). Cannot skip this task.`,
+          variant: "warning",
+          severity: "warning",
+        });
+        return;
+      }
+    }
+  }
+
         console.log(submittedEvalForms,"hello");
 
     if (
@@ -972,6 +1028,7 @@ const AnnotatePage = () => {
           setIsModelFailing={setIsModelFailing}
           submittedEvalForms={submittedEvalForms}
           setSubmittedEvalForms={setSubmittedEvalForms}
+
         />
       );
       break;
@@ -1290,6 +1347,8 @@ const AnnotatePage = () => {
                         );
                       }
                     }}
+                            disabled={loading} 
+
                     sx={{
                       minWidth: 'auto',
                       fontSize: '0.75rem',
