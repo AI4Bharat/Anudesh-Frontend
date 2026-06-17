@@ -31,6 +31,7 @@ import Image from "next/image";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import PostChatLogAPI from "@/app/actions/api/UnauthUserManagement/PostChatLogAPI";
 import PostChatInteractionAPI from "@/app/actions/api/UnauthUserManagement/PostChatInteractionAPI";
+import PostChatStreamAPI from "@/app/actions/api/UnauthUserManagement/PostChatStreamAPI";
 import CodeBlock from './codeBlock';
 import headerStyle from '@/styles/Header';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -600,73 +601,110 @@ function GuestChatPage() {
 
   const handleButtonClick = async () => {
     event.preventDefault();
-    if (inputValue) {
-      const message = createMessageObject(inputValue, uploadedImageUrl);
-      const userMessage = { role: 'user', content: message };
-      setProcessedChatHistory(prev => [...prev, userMessage]);
-      setInputValue("");
-      handleRemoveImage();
-      setLoading(true);
-      const body = {
-        message: message,
-        model: selectedModel,
-        history: chatHistory,
-      };
-      const ChatInteractionObj = new PostChatInteractionAPI(body);
-      const interactionRes = await fetch(ChatInteractionObj.apiEndPoint(), {
-        method: "POST",
-        body: JSON.stringify(ChatInteractionObj.getBody()),
-        headers: ChatInteractionObj.getHeaders().headers,
-      });
-      if (!interactionRes.ok) {
-        const responses = [
-          {
-            modelName: selectedModel, content: [{
-              type: "error",
-              value: "The model failed to generate a response. Please try again.",
-            }]
-          },
-        ];
-        const aiMessage = { role: 'assistant', content: responses };
-        setProcessedChatHistory(prev => [...prev, aiMessage]);
-        setLoading(false);
-      }
-      const interactionData = await interactionRes.json();
-      if (interactionData) {
-        const formattedResponse = formatResponse(interactionData.message);
-        const newEntry = {
-          prompt: message[0].text,
-          output: interactionData.message,
-        };
-        const updatedChatHistory = [...chatHistory, newEntry];
-        setChatHistory(updatedChatHistory);
-        const responses = [
-          { modelName: interactionData.model, content: formattedResponse },
-        ];
-        const aiMessage = { role: 'assistant', content: responses };
-        setProcessedChatHistory(prev => [...prev, aiMessage]);
-        setLoading(false);
-        let user_data = {};
-        if (localStorage.getItem('cookies_user_consent') === "true") {
-          user_data = getBrowserData();
-        }
-        newEntry.model = interactionData.model;
-        const chatLogBody = {
-          interaction_json: newEntry,
-          user_data: user_data,
-          session_id: window.currentSessionId,
-        };
-        const ChatLogObj = new PostChatLogAPI(chatLogBody);
-        const logRes = await fetch(ChatLogObj.apiEndPoint(), {
-          method: "POST",
-          body: JSON.stringify(ChatLogObj.getBody()),
-          headers: ChatLogObj.getHeaders().headers,
-        });
-        const logData = await logRes.json();
-      }
-    } else {
+    if (!inputValue) {
       alert("Please provide a prompt.");
+      return;
     }
+
+    const message = createMessageObject(inputValue, uploadedImageUrl);
+    setProcessedChatHistory(prev => [...prev, { role: 'user', content: message }]);
+    setInputValue("");
+    handleRemoveImage();
+    setLoading(true);
+
+    const body = { message, model: selectedModel, history: chatHistory };
+    const streamObj = new PostChatStreamAPI(body);
+
+    // Placeholder assistant message updated token-by-token during streaming
+    setProcessedChatHistory(prev => [
+      ...prev,
+      { role: 'assistant', content: [{ modelName: selectedModel, content: [{ type: 'text', value: '' }] }], streaming: true },
+    ]);
+
+    let fullText = '';
+
+    try {
+      const res = await fetch(streamObj.apiEndPoint(), {
+        method: 'POST',
+        body: JSON.stringify(streamObj.getBody()),
+        headers: streamObj.getHeaders().headers,
+      });
+
+      if (!res.ok) throw new Error('Stream request failed');
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep any incomplete line for the next iteration
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.token) {
+              fullText += parsed.token;
+              setProcessedChatHistory(prev => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  role: 'assistant',
+                  content: [{ modelName: selectedModel, content: [{ type: 'text', value: fullText }] }],
+                  streaming: true,
+                };
+                return updated;
+              });
+            }
+          } catch (_) { /* skip malformed chunks */ }
+        }
+      }
+    } catch (err) {
+      setProcessedChatHistory(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: 'assistant',
+          content: [{ modelName: selectedModel, content: [{ type: 'error', value: 'The model failed to generate a response. Please try again.' }] }],
+        };
+        return updated;
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Streaming complete — replace placeholder with fully formatted response
+    const formattedResponse = formatResponse(fullText);
+    setProcessedChatHistory(prev => {
+      const updated = [...prev];
+      updated[updated.length - 1] = {
+        role: 'assistant',
+        content: [{ modelName: selectedModel, content: formattedResponse }],
+      };
+      return updated;
+    });
+
+    const newEntry = { prompt: message[0].text, output: fullText, model: selectedModel };
+    setChatHistory(prev => [...prev, newEntry]);
+    setLoading(false);
+
+    // Fire-and-forget chat log
+    let user_data = {};
+    if (localStorage.getItem('cookies_user_consent') === 'true') {
+      user_data = getBrowserData();
+    }
+    const chatLogBody = { interaction_json: newEntry, user_data, session_id: window.currentSessionId };
+    const ChatLogObj = new PostChatLogAPI(chatLogBody);
+    fetch(ChatLogObj.apiEndPoint(), {
+      method: 'POST',
+      body: JSON.stringify(ChatLogObj.getBody()),
+      headers: ChatLogObj.getHeaders().headers,
+    });
   };
 
   const unifiedSelectorStyle = {
