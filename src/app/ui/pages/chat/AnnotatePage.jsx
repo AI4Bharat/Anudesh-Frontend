@@ -976,6 +976,7 @@ const AnnotatePage = () => {
           setIsModelFailing={setIsModelFailing}
           submittedEvalForms={submittedEvalForms}
           setSubmittedEvalForms={setSubmittedEvalForms}
+          setIsModelStreaming={setIsModelStreaming}
         />
       );
       break;
