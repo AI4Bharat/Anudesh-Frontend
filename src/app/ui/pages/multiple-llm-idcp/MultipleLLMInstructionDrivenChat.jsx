@@ -467,54 +467,31 @@ const MultipleLLMInstructionDrivenChat = ({
         .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
     return Number(`${time}${deviceHash}${rand}`);
   };
-
-const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
+const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
   console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
   const isMultipleResponse = ProjectDetails?.metadata_json;
-  const isNewPrompt = !!inputValue && !(modelResponses && prompt_output_pair_id >= 0);
+  const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
 
-  if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+  if (promptOverride || inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
     setLoading(true);
 
-    const currentPrompt = inputValue;
+    const currentPrompt = promptOverride ?? inputValue;
 
-    // ✅ Optimistically show the prompt immediately before API call
     if (isNewPrompt) {
-      // Get the models list from task data
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const modelsToRun = taskData?.data?.model || [];
-
-      // Create optimistic output entries for each model (empty, will be filled by stream)
-      const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
-        model_id: modelName,
-        model_name: modelName,
-        output: [{ type: "text", value: "" }],
-        status: "streaming",
-        prompt_output_pair_id: null,
-      }));
-
-      setChatHistory((prev) => [
-        ...prev,
-        { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null },
-      ]);
-      setShowChatContainer(true);
       setIsStreaming(true);
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
 
       // Build the model_interactions history for the streaming endpoint
       const annotationResult = annotation?.[0]?.result;
       const modelInteractions = annotationResult?.[0]?.model_interactions || [];
 
-      // Get system prompt data from project metadata
+      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+      const modelsToRun = taskData?.data?.model || [];
+
       const projectMetadata = ProjectDetails?.metadata_json || {};
       const sysPromptData = projectMetadata.system_prompt || {};
 
-      // Start streaming tokens from all models concurrently
       const streamPromise = streamMultiModelResponse({
-        prompt: currentPrompt,
-        modelInteractions: modelInteractions,
+        prompt: currentPrompt,        modelInteractions: modelInteractions,
         models: modelsToRun,
         systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
         onToken: (modelName, token, fullTextForModel) => {
@@ -563,6 +540,22 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
 
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
+      }
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else {
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      }
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
       }
