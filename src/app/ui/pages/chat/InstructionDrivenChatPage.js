@@ -90,9 +90,9 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+    setLoading,
+  loading,
   setIsModelStreaming,
-  setLoading,
-  loading
 }) => {
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
@@ -106,7 +106,6 @@ const InstructionDrivenChatPage = ({
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   
   useEffect(() => {
