@@ -1857,7 +1857,7 @@ useEffect(() => {
                   <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
                 )}
               </IconButton>
-                                    {stage !== "Alltask" && !disableUpdateButton &&  (
+                                    {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&  (
       <Tooltip title="Re-send the same prompt to get new responses">
         <IconButton
           size="small"
