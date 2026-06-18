@@ -430,8 +430,10 @@ const handleButtonClick = async (promptOverride) => {
       body.parentannotation = id?.parent_annotation;
     }
 
-    // Wait for both the stream and the PATCH to complete
-    const [streamedText] = await Promise.all([
+    try {
+
+      // Wait for both the stream and the PATCH to complete
+      const [streamedText] = await Promise.all([
       streamPromise,
       (async () => {
         const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
@@ -441,7 +443,7 @@ const handleButtonClick = async (promptOverride) => {
           headers: AnnotationObj.getHeaders().headers,
         });
         const data = await res.json();
-
+        
         if (data && data.result) {
           // Once PATCH completes, sync the full result from DB
           // (this ensures the saved data matches what's in the DB)
@@ -464,9 +466,22 @@ const handleButtonClick = async (promptOverride) => {
         }
       })(),
     ]);
+    } catch (error) {
 
-    setLoading(false);
-    setIsStreaming(false);
+      // remove optimistic entry
+      setChatHistory((prev) => prev.slice(0, -1));
+
+      setSnackbarInfo({
+        open: true,
+        message: error?.message || "Failed to update annotation",
+        variant: "error",
+      });
+      console.error("Failed to get LLM response:", error);
+
+    } finally {
+      setLoading(false);
+      setIsStreaming(false);
+    }
 
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
