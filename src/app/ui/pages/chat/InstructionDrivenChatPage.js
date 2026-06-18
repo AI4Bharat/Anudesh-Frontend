@@ -337,78 +337,126 @@ const handleButtonClick = async (promptOverride) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
     setLoading(true);
+    setIsStreaming(true);
+
+    const currentPrompt = prompt;
+
+    // Build the history for the streaming endpoint (previous turns only)
+    const streamHistory = chatHistory.map((chat) => ({
+      prompt: chat.prompt,
+      output: typeof chat.output === "string"
+        ? chat.output
+        : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+    }));
+
+    const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+    const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
+
+    const streamPromise = streamResponse({
+      prompt: currentPrompt,
+      history: streamHistory,
+      model: model,
+      onToken: (token, fullText) => {
+        setChatHistory((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0) {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              output: [{ type: "text", value: fullText }],
+            };
+          }
+          return updated;
+        });
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      },
+      onError: (errMsg) => {
+        console.error("Streaming error:", errMsg);
+        setSnackbarInfo({
+          open: true,
+          message: `Streaming error: ${errMsg}`,
+          variant: "error",
+        });
+      },
+    });
+
     const body = {
-      result: prompt,
-        lead_time:
-          (new Date() - loadtime) / 1000 +
-          Number(id?.lead_time?.lead_time ?? 0),
-        auto_save: true,
-        task_id: taskId,
-      };
-      if (stage === "Alltask") {
-        body.annotation_status = id?.annotation_status;
-      } else {
-        body.annotation_status = localStorage.getItem("labellingMode");
-      }
-      if (stage === "Review") {
-        body.review_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else if (stage === "SuperChecker") {
-        body.superchecker_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else {
-        body.annotation_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      }
-      if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id?.parent_annotation;
-      }
-      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
-      });
-      const data = await res.json();
-      let modifiedChatHistory;
-      setChatHistory((prevChatHistory) => {
-        data && data.result && setLoading(false);
+      result: currentPrompt,
+      lead_time:
+        (new Date() - loadtime) / 1000 +
+        Number(id?.lead_time?.lead_time ?? 0),
+      auto_save: true,
+      task_id: taskId,
+    };
+    if (stage === "Alltask") {
+      body.annotation_status = id?.annotation_status;
+    } else {
+      body.annotation_status = localStorage.getItem("labellingMode");
+    }
+    if (stage === "Review") {
+      body.review_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else if (stage === "SuperChecker") {
+      body.superchecker_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else {
+      body.annotation_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    }
+    if (stage === "Review" || stage === "SuperChecker") {
+      body.parentannotation = id?.parent_annotation;
+    }
+
+    const [streamedText] = await Promise.all([
+      streamPromise,
+      (async () => {
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
+
         if (data && data.result) {
-          modifiedChatHistory = data.result.map((interaction, index) => {
-            const isLastInteraction = index === data?.result?.length - 1;
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
             return {
               ...interaction,
               output: formatResponse(interaction.output, isLastInteraction),
             };
           });
-        } else {
-          setLoading(false);
+          setChatHistory([...modifiedChatHistory]);
+        } else if (!streamedText) {
           setSnackbarInfo({
             open: true,
-            message: data?.message,
+            message: data?.message || "Failed to get LLM response",
             variant: "error",
           });
         }
-        return data && data.result
-          ? [...modifiedChatHistory]
-          : [...prevChatHistory];
-      });
-    } else {
-      setSnackbarInfo({
-        open: true,
-        message: "Please provide a prompt",
-        variant: "error",
-      });
-    }
-    setTimeout(() => {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
-    setShowChatContainer(true);
-  };
+      })(),
+    ]);
 
+    setLoading(false);
+    setIsStreaming(false);
+
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 1000);
+  } else {
+    setSnackbarInfo({
+      open: true,
+      message: "Please provide a prompt",
+      variant: "error",
+    });
+  }
+  if (!promptOverride) {
+    setText("");
+  }
+};
 const hasFailedLastResponse = useMemo(() => {
   if (!chatHistory || chatHistory.length === 0) return false;
   const last = chatHistory[chatHistory.length - 1];
