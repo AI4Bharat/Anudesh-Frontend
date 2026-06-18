@@ -351,121 +351,137 @@ const [snackbar, setSnackbarInfo] = useState({
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
 
-    // Build the history for the streaming endpoint (previous turns only)
-    const streamHistory = chatHistory.map((chat) => ({
-      prompt: chat.prompt,
-      output: typeof chat.output === "string"
-        ? chat.output
-        : chat.output?.map?.((seg) => seg.value || "").join("") || "",
-    }));
+    try {
+      // Build the history for the streaming endpoint (previous turns only)
+      const streamHistory = chatHistory.map((chat) => ({
+        prompt: chat.prompt,
+        output: typeof chat.output === "string"
+          ? chat.output
+          : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+      }));
 
-    // Get the model from the task data
-    const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-    const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
+      // Get the model from the task data
+      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+      const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
 
-    // Start streaming tokens from the SSE endpoint
-    const streamPromise = streamResponse({
-      prompt: currentPrompt,
-      history: streamHistory,
-      model: model,
-      onToken: (token, fullText) => {
-        // Update the last chat entry's output with accumulated text
-        setChatHistory((prev) => {
-          const updated = [...prev];
-          const lastIdx = updated.length - 1;
-          if (lastIdx >= 0) {
-            updated[lastIdx] = {
-              ...updated[lastIdx],
-              output: [{ type: "text", value: fullText }],
-            };
-          }
-          return updated;
-        });
-        // Auto-scroll as tokens arrive
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      },
-      onError: (errMsg) => {
-        console.error("Streaming error:", errMsg);
-        setSnackbarInfo({
-          open: true,
-          message: `Streaming error: ${errMsg}`,
-          variant: "error",
-        });
-      },
-    });
-
-    // Simultaneously send the PATCH to save prompt + get LLM output on the backend
-    const body = {
-      result: currentPrompt,
-      lead_time:
-        (new Date() - loadtime) / 1000 +
-        Number(id?.lead_time?.lead_time ?? 0),
-      auto_save: true,
-      task_id: taskId,
-    };
-    if (stage === "Alltask") {
-      body.annotation_status = id?.annotation_status;
-    } else {
-      body.annotation_status = localStorage.getItem("labellingMode");
-    }
-    if (stage === "Review") {
-      body.review_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else if (stage === "SuperChecker") {
-      body.superchecker_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else {
-      body.annotation_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    }
-    if (stage === "Review" || stage === "SuperChecker") {
-      body.parentannotation = id?.parent_annotation;
-    }
-
-    // Wait for both the stream and the PATCH to complete
-    const [streamedText] = await Promise.all([
-      streamPromise,
-      (async () => {
-        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-        const res = await fetch(AnnotationObj.apiEndPoint(), {
-          method: "PATCH",
-          body: JSON.stringify(AnnotationObj.getBody()),
-          headers: AnnotationObj.getHeaders().headers,
-        });
-        const data = await res.json();
-
-        if (data && data.result) {
-          // Once PATCH completes, sync the full result from DB
-          // (this ensures the saved data matches what's in the DB)
-          const modifiedChatHistory = data.result.map((interaction, index) => {
-            const isLastInteraction = index === data.result.length - 1;
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output, isLastInteraction),
-            };
+      // Start streaming tokens from the SSE endpoint
+      const streamPromise = streamResponse({
+        prompt: currentPrompt,
+        history: streamHistory,
+        model: model,
+        onToken: (token, fullText) => {
+          // Update the last chat entry's output with accumulated text
+          setChatHistory((prev) => {
+            const updated = [...prev];
+            const lastIdx = updated.length - 1;
+            if (lastIdx >= 0) {
+              updated[lastIdx] = {
+                ...updated[lastIdx],
+                output: [{ type: "text", value: fullText }],
+              };
+            }
+            return updated;
           });
-          setChatHistory([...modifiedChatHistory]);
-        } else if (!streamedText) {
-          // Both streaming and PATCH failed
-          setChatHistory((prev) => prev.slice(0, -1));
+          // Auto-scroll as tokens arrive
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        },
+        onError: (errMsg) => {
+          console.error("Streaming error:", errMsg);
           setSnackbarInfo({
             open: true,
-            message: data?.message || "Failed to get LLM response",
+            message: `Streaming error: ${errMsg}`,
             variant: "error",
           });
+        },
+      });
+
+      // Simultaneously send the PATCH to save prompt + get LLM output on the backend
+      const body = {
+        result: currentPrompt,
+        lead_time:
+          (new Date() - loadtime) / 1000 +
+          Number(id?.lead_time?.lead_time ?? 0),
+        auto_save: true,
+        task_id: taskId,
+      };
+      if (stage === "Alltask") {
+        body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
+      }
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else {
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id?.parent_annotation;
+      }
+
+      // Wait for both the stream and the PATCH to complete
+      const [streamedText, patchResult] = await Promise.all([
+        streamPromise,
+        (async () => {
+          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+          const res = await fetch(AnnotationObj.apiEndPoint(), {
+            method: "PATCH",
+            body: JSON.stringify(AnnotationObj.getBody()),
+            headers: AnnotationObj.getHeaders().headers,
+          });
+          const data = await res.json();
+
+          return { ok: res.ok, data };
+        })(),
+      ]);
+      console.log("streamedText: " + streamedText);
+      console.log("patchResult: " + patchResult);
+
+      if (patchResult?.ok && patchResult?.data?.result) {
+        // Once PATCH completes, sync the full result from DB
+        // (this ensures the saved data matches what's in the DB)
+        const modifiedChatHistory = patchResult.data.result.map((interaction, index) => {
+          const isLastInteraction = index === patchResult.data.result.length - 1;
+          return {
+            ...interaction,
+            output: formatResponse(interaction.output, isLastInteraction),
+          };
+        });
+        setChatHistory([...modifiedChatHistory]);
+        setInputValue("");
+      } else {
+        if (!streamedText) {
+          setChatHistory((prev) => prev.slice(0, -1));
         }
-      })(),
-    ]);
+        setSnackbarInfo({
+          open: true,
+          message: patchResult?.data?.message || "Failed to get LLM response",
+          variant: "error",
+        });
+      }
 
-    setLoading(false);
-    setIsStreaming(false);
-
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 1000);
+    } catch (error) {
+      console.error("InstructionDrivenChat submit failed:", error);
+      abortStream();
+      setSnackbarInfo({
+        open: true,
+        message: error?.message || "Something went wrong while submitting the prompt.",
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+      setIsStreaming(false);
+    }
   } else {
     setSnackbarInfo({
       open: true,
