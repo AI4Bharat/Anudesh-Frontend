@@ -17,7 +17,7 @@ import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef,useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -90,6 +90,8 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+    setLoading,
+  loading,
   setIsModelStreaming,
 }) => {
   const tooltipStyle = useStyles();
@@ -104,7 +106,6 @@ const InstructionDrivenChatPage = ({
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   
   useEffect(() => {
@@ -332,24 +333,13 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
- const handleButtonClick = async () => {
-  if (inputValue) {
+const handleButtonClick = async (promptOverride) => {
+  const prompt = promptOverride ?? inputValue;
+  if (prompt) {
     setLoading(true);
     setIsStreaming(true);
 
-    const currentPrompt = inputValue;
-
-    // Add optimistic entry with a streaming placeholder
-    const optimisticEntry = {
-      prompt: currentPrompt,
-      output: [{ type: "text", value: "" }],
-    };
-    setChatHistory((prev) => [...prev, optimisticEntry]);
-    setShowChatContainer(true);
-
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    const currentPrompt = prompt;
 
     try {
       // Build the history for the streaming endpoint (previous turns only)
@@ -489,8 +479,23 @@ const [snackbar, setSnackbarInfo] = useState({
       variant: "error",
     });
   }
-  setText("");
+  if (!promptOverride) {
+    setText("");
+  }
 };
+const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
+}, [chatHistory]);
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
+  if (!lastPrompt) return;
+  await handleClick('delete-pair', id?.id, 0.0);
+  await handleButtonClick(lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -757,44 +762,65 @@ const renderChatHistory = () => {
               )}
             </Grid>
             
-            <IconButton
-              size="small"
-              onClick={() => toggleShrink(index)}
+           <Grid 
+              item 
               style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
               }}
             >
-              {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
+              {/* Shrink button */}
+              <IconButton
+                size="small"
+                onClick={() => toggleShrink(index)}
+                style={{
+                  padding: "4px",
+                }}
+              >
+                {shrinkedMessages[index] ? (
+                  <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
+                ) : (
+                  <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
 
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: "2rem",
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1rem" }}
-                  />
-                </IconButton>
+              {/* Retry button */}
+              {(
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={handleRetry}
+                    disabled={loading}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
               )}
+
+              {/* Delete button */}
+              {index === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <DeleteOutlinedIcon
+                      style={{ color: "#EE6633", fontSize: "1rem" }}
+                    />
+                  </IconButton>
+                )}
+            </Grid>
           </Grid>
         </Grid>
-
         {/* Output Section - Only render when not shrinked */}
         {!shrinkedMessages[index] && (
           <Grid
