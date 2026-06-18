@@ -17,7 +17,7 @@ import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef,useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -91,6 +91,8 @@ const InstructionDrivenChatPage = ({
   disableUpdateButton,
   annotation,
   setIsModelStreaming,
+  setLoading,
+  loading
 }) => {
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
@@ -332,149 +334,95 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
- const handleButtonClick = async () => {
-  if (inputValue) {
+const handleButtonClick = async (promptOverride) => {
+  const prompt = promptOverride ?? inputValue;
+  if (prompt) {
     setLoading(true);
-    setIsStreaming(true);
-
-    const currentPrompt = inputValue;
-
-    // Add optimistic entry with a streaming placeholder
-    const optimisticEntry = {
-      prompt: currentPrompt,
-      output: [{ type: "text", value: "" }],
-    };
-    setChatHistory((prev) => [...prev, optimisticEntry]);
-    setShowChatContainer(true);
-
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-
-    // Build the history for the streaming endpoint (previous turns only)
-    const streamHistory = chatHistory.map((chat) => ({
-      prompt: chat.prompt,
-      output: typeof chat.output === "string"
-        ? chat.output
-        : chat.output?.map?.((seg) => seg.value || "").join("") || "",
-    }));
-
-    // Get the model from the task data
-    const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-    const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
-
-    // Start streaming tokens from the SSE endpoint
-    const streamPromise = streamResponse({
-      prompt: currentPrompt,
-      history: streamHistory,
-      model: model,
-      onToken: (token, fullText) => {
-        // Update the last chat entry's output with accumulated text
-        setChatHistory((prev) => {
-          const updated = [...prev];
-          const lastIdx = updated.length - 1;
-          if (lastIdx >= 0) {
-            updated[lastIdx] = {
-              ...updated[lastIdx],
-              output: [{ type: "text", value: fullText }],
-            };
-          }
-          return updated;
-        });
-        // Auto-scroll as tokens arrive
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      },
-      onError: (errMsg) => {
-        console.error("Streaming error:", errMsg);
-        setSnackbarInfo({
-          open: true,
-          message: `Streaming error: ${errMsg}`,
-          variant: "error",
-        });
-      },
-    });
-
-    // Simultaneously send the PATCH to save prompt + get LLM output on the backend
     const body = {
-      result: currentPrompt,
-      lead_time:
-        (new Date() - loadtime) / 1000 +
-        Number(id?.lead_time?.lead_time ?? 0),
-      auto_save: true,
-      task_id: taskId,
-    };
-    if (stage === "Alltask") {
-      body.annotation_status = id?.annotation_status;
-    } else {
-      body.annotation_status = localStorage.getItem("labellingMode");
-    }
-    if (stage === "Review") {
-      body.review_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else if (stage === "SuperChecker") {
-      body.superchecker_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else {
-      body.annotation_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    }
-    if (stage === "Review" || stage === "SuperChecker") {
-      body.parentannotation = id?.parent_annotation;
-    }
-
-    // Wait for both the stream and the PATCH to complete
-    const [streamedText] = await Promise.all([
-      streamPromise,
-      (async () => {
-        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-        const res = await fetch(AnnotationObj.apiEndPoint(), {
-          method: "PATCH",
-          body: JSON.stringify(AnnotationObj.getBody()),
-          headers: AnnotationObj.getHeaders().headers,
-        });
-        const data = await res.json();
-
+      result: prompt,
+        lead_time:
+          (new Date() - loadtime) / 1000 +
+          Number(id?.lead_time?.lead_time ?? 0),
+        auto_save: true,
+        task_id: taskId,
+      };
+      if (stage === "Alltask") {
+        body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
+      }
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else {
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id?.parent_annotation;
+      }
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+      const res = await fetch(AnnotationObj.apiEndPoint(), {
+        method: "PATCH",
+        body: JSON.stringify(AnnotationObj.getBody()),
+        headers: AnnotationObj.getHeaders().headers,
+      });
+      const data = await res.json();
+      let modifiedChatHistory;
+      setChatHistory((prevChatHistory) => {
+        data && data.result && setLoading(false);
         if (data && data.result) {
-          // Once PATCH completes, sync the full result from DB
-          // (this ensures the saved data matches what's in the DB)
-          const modifiedChatHistory = data.result.map((interaction, index) => {
-            const isLastInteraction = index === data.result.length - 1;
+          modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data?.result?.length - 1;
             return {
               ...interaction,
               output: formatResponse(interaction.output, isLastInteraction),
             };
           });
-          setChatHistory([...modifiedChatHistory]);
-        } else if (!streamedText) {
-          // Both streaming and PATCH failed
-          setChatHistory((prev) => prev.slice(0, -1));
+        } else {
+          setLoading(false);
           setSnackbarInfo({
             open: true,
-            message: data?.message || "Failed to get LLM response",
+            message: data?.message,
             variant: "error",
           });
         }
-      })(),
-    ]);
-
-    setLoading(false);
-    setIsStreaming(false);
-
+        return data && data.result
+          ? [...modifiedChatHistory]
+          : [...prevChatHistory];
+      });
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: "Please provide a prompt",
+        variant: "error",
+      });
+    }
     setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }, 1000);
-  } else {
-    setSnackbarInfo({
-      open: true,
-      message: "Please provide a prompt",
-      variant: "error",
-    });
-  }
-  setText("");
-};
+    setShowChatContainer(true);
+  };
+
+const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
+}, [chatHistory]);
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
+  if (!lastPrompt) return;
+  await handleClick('delete-pair', id?.id, 0.0);
+  await handleButtonClick(lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -741,44 +689,65 @@ const renderChatHistory = () => {
               )}
             </Grid>
             
-            <IconButton
-              size="small"
-              onClick={() => toggleShrink(index)}
+           <Grid 
+              item 
               style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
               }}
             >
-              {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
+              {/* Shrink button */}
+              <IconButton
+                size="small"
+                onClick={() => toggleShrink(index)}
+                style={{
+                  padding: "4px",
+                }}
+              >
+                {shrinkedMessages[index] ? (
+                  <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
+                ) : (
+                  <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
 
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: "2rem",
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1rem" }}
-                  />
-                </IconButton>
+              {/* Retry button */}
+              {(
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={handleRetry}
+                    disabled={loading}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
               )}
+
+              {/* Delete button */}
+              {index === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <DeleteOutlinedIcon
+                      style={{ color: "#EE6633", fontSize: "1rem" }}
+                    />
+                  </IconButton>
+                )}
+            </Grid>
           </Grid>
         </Grid>
-
         {/* Output Section - Only render when not shrinked */}
         {!shrinkedMessages[index] && (
           <Grid
