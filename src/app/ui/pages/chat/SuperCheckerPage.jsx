@@ -976,28 +976,30 @@ const SuperCheckerPage = () => {
       break;
     case "MultipleLLMInstructionDrivenChat":
       componentToRender = (
-          <MultipleLLMInstructionDrivenChat
-      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
-      handleClick={handleSuperCheckerClick}
-      chatHistory={chatHistory}
-      setChatHistory={setChatHistory}
-      formatResponse={formatResponse}
-      formatPrompt={formatPrompt}
-      id={SuperChecker}
-      stage={"SuperChecker"}
-      notes={superCheckerNotesRef}
-      info={info}
-      disableUpdateButton={disableUpdateButton}
-      annotation={annotations}
-      setLoading={setLoading}
-      loading={loading}
-      evalFormResponse={evalFormResponse}
-      setEvalFormResponse={setEvalFormResponse}
-      setIsModelFailing={setIsModelFailing}
-      submittedEvalForms={submittedEvalForms}
-      setSubmittedEvalForms={setSubmittedEvalForms}
-      fontSize={fontSize}
-    />
+        <MultipleLLMInstructionDrivenChat
+          key={`annotations-${annotations?.length}-${
+            annotations?.[0]?.id || "default"
+          }`}
+          handleClick={handleSuperCheckerClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={SuperChecker}
+          stage={"SuperChecker"}
+          notes={superCheckerNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
+          setIsModelStreaming={setIsModelStreaming}
+        />
       );
       break;
     case "ModelInteractionEvaluation":

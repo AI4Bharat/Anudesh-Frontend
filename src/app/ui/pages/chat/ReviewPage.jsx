@@ -1109,26 +1109,27 @@ const [fontSize, setFontSize] = useState("medium");
     case "MultipleLLMInstructionDrivenChat":
       componentToRender = (
         <MultipleLLMInstructionDrivenChat
-      key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"}`}
-      handleClick={handleReviewClick}
-      chatHistory={chatHistory}
-      setChatHistory={setChatHistory}
-      formatResponse={formatResponse}
-      formatPrompt={formatPrompt}
-      id={review}
-      stage={"Review"}
-      notes={reviewNotesRef}
-      info={info}
-      annotation={annotations}
-      setLoading={setLoading}
-      loading={loading}
-      evalFormResponse={evalFormResponse}
-      setEvalFormResponse={setEvalFormResponse}
-      setIsModelFailing={setIsModelFailing}
-      submittedEvalForms={submittedEvalForms}
-      setSubmittedEvalForms={setSubmittedEvalForms}
-      fontSize={fontSize}
-    />
+          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+            }`}
+          handleClick={handleReviewClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={review}
+          stage={"Review"}
+          notes={reviewNotesRef}
+          info={info}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
+          setIsModelStreaming={setIsModelStreaming}
+        />
       );
       break;
     case "ModelInteractionEvaluation":

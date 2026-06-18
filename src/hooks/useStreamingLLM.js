@@ -123,5 +123,121 @@ export default function useStreamingLLM() {
     }
   }, []);
 
-  return { streamResponse, abortStream };
+  /**
+   * Stream responses from multiple LLM models concurrently.
+   *
+   * @param {Object} options
+   * @param {string} options.prompt - The user prompt
+   * @param {Array} options.modelInteractions - The model_interactions array from annotation result
+   * @param {Array} options.models - List of model names to stream from
+   * @param {Object} options.systemPromptData - Per-model system prompts (optional)
+   * @param {Function} options.onToken - Called with (modelName, token, fullTextForModel)
+   * @param {Function} options.onModelDone - Called with (modelName, fullTextForModel) when a model finishes
+   * @param {Function} options.onDone - Called with ({modelName: fullText, ...}) when all models finish
+   * @param {Function} options.onError - Called with (errorMsg) on error
+   */
+  const streamMultiModelResponse = useCallback(
+    async ({ prompt, modelInteractions = [], models = [], systemPromptData = {}, onToken, onModelDone, onDone, onError }) => {
+      // Abort any existing stream
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const streamUrl = `${configs.BASE_URL_AUTO}/functions/chat_output_stream_multi`;
+      const modelTexts = {}; // Track accumulated text per model
+      models.forEach((m) => { modelTexts[m] = ""; });
+
+      try {
+        const response = await fetch(streamUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: prompt,
+            model_interactions: modelInteractions,
+            models: models,
+            system_prompt_data: systemPromptData,
+          }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Multi-model stream request failed with status ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data: ")) continue;
+
+            const dataStr = trimmed.slice(6);
+
+            if (dataStr === "[DONE]") {
+              if (onDone) onDone(modelTexts);
+              return modelTexts;
+            }
+
+            try {
+              const parsed = JSON.parse(dataStr);
+
+              if (parsed.error && !parsed.model) {
+                // Global error
+                if (onError) onError(parsed.error);
+                return null;
+              }
+
+              if (parsed.error && parsed.model) {
+                // Per-model error
+                modelTexts[parsed.model] = `[ERROR] ${parsed.error}`;
+                if (onToken) onToken(parsed.model, `[ERROR] ${parsed.error}`, modelTexts[parsed.model]);
+                continue;
+              }
+
+              if (parsed.done && parsed.model) {
+                // A single model finished
+                if (onModelDone) onModelDone(parsed.model, modelTexts[parsed.model] || "");
+                continue;
+              }
+
+              if (parsed.token !== undefined && parsed.model) {
+                modelTexts[parsed.model] = (modelTexts[parsed.model] || "") + parsed.token;
+                if (onToken) onToken(parsed.model, parsed.token, modelTexts[parsed.model]);
+              }
+            } catch (parseErr) {
+              console.warn("Failed to parse multi-model SSE data:", dataStr);
+            }
+          }
+        }
+
+        // Stream ended without [DONE]
+        if (onDone) onDone(modelTexts);
+        return modelTexts;
+      } catch (err) {
+        if (err.name === "AbortError") return null;
+        if (onError) onError(err.message);
+        return null;
+      } finally {
+        if (abortControllerRef.current === controller) {
+          abortControllerRef.current = null;
+        }
+      }
+    },
+    [],
+  );
+
+  return { streamResponse, streamMultiModelResponse, abortStream };
 }
