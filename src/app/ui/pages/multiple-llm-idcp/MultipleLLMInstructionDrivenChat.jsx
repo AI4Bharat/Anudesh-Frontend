@@ -108,9 +108,9 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelFailing,
   submittedEvalForms,
   setSubmittedEvalForms,
-  setIsModelStreaming,
-      setLoading,
+        setLoading,
   loading,
+  setIsModelStreaming,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
@@ -119,7 +119,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const { streamMultiModelResponse, abortStream } = useStreamingLLM();
