@@ -417,7 +417,7 @@ const AdvancedOperation = (props) => {
           if (updateTasksRes.ok) {
             setSnackbarInfo({
               open: true,
-              message: `✅ Models saved and ${updateTasksData.updated_count} out of ${updateTasksData.total_tasks} tasks updated successfully!`,
+              message: `${updateTasksData.message}`,
               variant: "success",
             });
             
@@ -428,7 +428,7 @@ const AdvancedOperation = (props) => {
           } else {
             setSnackbarInfo({
               open: true,
-              message: `⚠️ Models saved but tasks update failed: ${updateTasksData.message || "Unknown error"}`,
+              message: `${updateTasksData.message}`,
               variant: "warning",
             });
           }

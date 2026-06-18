@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { useSelector } from "react-redux";
@@ -14,7 +15,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React, { useState, useEffect, useRef,useCallback } from "react";
+import React,  { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -107,6 +108,8 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelFailing,
   submittedEvalForms,
   setSubmittedEvalForms,
+        setLoading,
+  loading,
   setIsModelStreaming,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -116,7 +119,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [loadtime, setloadtime] = useState(new Date());
   const { streamMultiModelResponse, abortStream } = useStreamingLLM();
@@ -465,54 +467,31 @@ const MultipleLLMInstructionDrivenChat = ({
         .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
     return Number(`${time}${deviceHash}${rand}`);
   };
-
-const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
+const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
   console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
   const isMultipleResponse = ProjectDetails?.metadata_json;
-  const isNewPrompt = !!inputValue && !(modelResponses && prompt_output_pair_id >= 0);
+  const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
 
-  if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+  if (promptOverride || inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
     setLoading(true);
 
-    const currentPrompt = inputValue;
+    const currentPrompt = promptOverride ?? inputValue;
 
-    // ✅ Optimistically show the prompt immediately before API call
     if (isNewPrompt) {
-      // Get the models list from task data
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const modelsToRun = taskData?.data?.model || [];
-
-      // Create optimistic output entries for each model (empty, will be filled by stream)
-      const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
-        model_id: modelName,
-        model_name: modelName,
-        output: [{ type: "text", value: "" }],
-        status: "streaming",
-        prompt_output_pair_id: null,
-      }));
-
-      setChatHistory((prev) => [
-        ...prev,
-        { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null },
-      ]);
-      setShowChatContainer(true);
       setIsStreaming(true);
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
 
       // Build the model_interactions history for the streaming endpoint
       const annotationResult = annotation?.[0]?.result;
       const modelInteractions = annotationResult?.[0]?.model_interactions || [];
 
-      // Get system prompt data from project metadata
+      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+      const modelsToRun = taskData?.data?.model || [];
+
       const projectMetadata = ProjectDetails?.metadata_json || {};
       const sysPromptData = projectMetadata.system_prompt || {};
 
-      // Start streaming tokens from all models concurrently
       const streamPromise = streamMultiModelResponse({
-        prompt: currentPrompt,
-        modelInteractions: modelInteractions,
+        prompt: currentPrompt,        modelInteractions: modelInteractions,
         models: modelsToRun,
         systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
         onToken: (modelName, token, fullTextForModel) => {
@@ -905,7 +884,28 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
   setShowChatContainer(true);
   setInputValue("");
 };
+  const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(modelOutput => 
+    modelOutput.status === 'error' || 
+    (modelOutput.output && modelOutput.output.length === 0)
+  );
+}, [chatHistory]);
 
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastMessage = chatHistory[chatHistory.length - 1];
+  if (!lastMessage?.prompt) return;
+
+  const lastPrompt = lastMessage.prompt;
+
+  await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+
+  // Pass the prompt directly as an override — bypasses the inputValue check
+  await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -1834,15 +1834,22 @@ useEffect(() => {
                   </div>
                 )}
               </Grid>
+              
+                  <Grid 
+              item 
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
+              }}
+            >
 
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
                 style={{
-                  position: "absolute",
-                  bottom: "0.3rem",
-                  right: "0.3rem",
-                  padding: "2px",
+                   padding: "4px"
                 }}
               >
                 {shrinkedMessages[index] ? (
@@ -1851,15 +1858,27 @@ useEffect(() => {
                   <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
                 )}
               </IconButton>
+                                    {stage !== "Alltask" && !disableUpdateButton &&  (
+      <Tooltip title="Re-send the same prompt to get new responses">
+        <IconButton
+          size="small"
+          style={{
+          // Position to the left of delete button
+            padding: "4px",
+          }}
+          onClick={handleRetry}
+          disabled={loading}
+        >
+          <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+        </IconButton>
+      </Tooltip>
+    )}
 
               {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                 <IconButton
                   size="small"
                   style={{
-                    position: "absolute",
-                    bottom: "0.3rem",
-                    right: "2rem",
-                    padding: "2px",
+                     padding: "4px"
                   }}
                   onClick={() => {
                     setEvalFormResponse((prev) => {
@@ -1883,6 +1902,7 @@ useEffect(() => {
                   <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
                 </IconButton>
               )}
+                    </Grid>
             </Grid>
           </Grid>
 
