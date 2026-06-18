@@ -7,7 +7,6 @@ import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { useSelector } from "react-redux";
