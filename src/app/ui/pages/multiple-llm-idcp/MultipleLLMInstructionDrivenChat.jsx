@@ -2056,7 +2056,7 @@ useEffect(() => {
 
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
-                                          ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                          (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
                                             globalTransliteration ? (
                                               <IndicTransliterate
                                                 key={segmentIdx}
@@ -2153,7 +2153,7 @@ useEffect(() => {
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
-                                  ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                  (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
                                     globalTransliteration ? (
                                       <IndicTransliterate
                                         key={segmentIdx}
@@ -2199,14 +2199,22 @@ useEffect(() => {
                                       />
                                     )
                                   ) : (
-                                    <ReactMarkdown
-                                      key={segmentIdx}
-                                      children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
-                                      components={{
-                                        p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
-                                        a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
-                                      }}
-                                    />
+                                    isStreaming && index === chatHistory.length - 1 && segment.value === "" ? (
+                                      <div className="streaming-dots">
+                                        <span></span><span></span><span></span>
+                                      </div>
+                                    ) : (
+                                      <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
+                                        <ReactMarkdown
+                                          key={segmentIdx}
+                                          children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
+                                          components={{
+                                            p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
+                                            a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                                          }}
+                                        />
+                                      </div>
+                                    )
                                   )
                                 ) : (
                                   <SyntaxHighlighter
@@ -2275,7 +2283,7 @@ useEffect(() => {
           )}
 
           {/* Evaluation form section - also reduced */}
-          {!shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
+          {message?.prompt_output_pair_id !== null && !shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && !(isStreaming && index === chatHistory.length - 1) && (
             <Grid
               item
               sx={{
