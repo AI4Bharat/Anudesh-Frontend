@@ -1272,7 +1272,7 @@ const AnnotatePage = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    disabled={isSubmitDisabled}
+                    disabled={isSubmitDisabled || loading}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
@@ -1296,7 +1296,6 @@ const AnnotatePage = () => {
                         );
                       }
                     }}
-                    disabled={loading} 
                     sx={{
                       minWidth: 'auto',
                       fontSize: '0.75rem',
