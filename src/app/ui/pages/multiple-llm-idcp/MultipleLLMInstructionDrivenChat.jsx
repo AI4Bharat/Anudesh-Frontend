@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { useSelector } from "react-redux";
@@ -14,7 +15,7 @@ import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React, { useState, useEffect, useRef,useCallback } from "react";
+import React,  { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -108,6 +109,8 @@ const MultipleLLMInstructionDrivenChat = ({
   submittedEvalForms,
   setSubmittedEvalForms,
   setIsModelStreaming,
+      setLoading,
+  loading,
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
@@ -466,98 +469,28 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
 
-const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
-  console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
-  const isMultipleResponse = ProjectDetails?.metadata_json;
-  const isNewPrompt = !!inputValue && !(modelResponses && prompt_output_pair_id >= 0);
+const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+  const effectiveInput = promptOverride ?? inputValue; 
 
-  if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+  if (effectiveInput || (modelResponses && prompt_output_pair_id >= 0)) {
     setLoading(true);
-
-    const currentPrompt = inputValue;
-
-    // ✅ Optimistically show the prompt immediately before API call
-    if (isNewPrompt) {
-      // Get the models list from task data
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const modelsToRun = taskData?.data?.model || [];
-
-      // Create optimistic output entries for each model (empty, will be filled by stream)
-      const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
-        model_id: modelName,
-        model_name: modelName,
-        output: [{ type: "text", value: "" }],
-        status: "streaming",
-        prompt_output_pair_id: null,
-      }));
-
-      setChatHistory((prev) => [
-        ...prev,
-        { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null },
-      ]);
-      setShowChatContainer(true);
-      setIsStreaming(true);
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-
-      // Build the model_interactions history for the streaming endpoint
-      const annotationResult = annotation?.[0]?.result;
-      const modelInteractions = annotationResult?.[0]?.model_interactions || [];
-
-      // Get system prompt data from project metadata
-      const projectMetadata = ProjectDetails?.metadata_json || {};
-      const sysPromptData = projectMetadata.system_prompt || {};
-
-      // Start streaming tokens from all models concurrently
-      const streamPromise = streamMultiModelResponse({
-        prompt: currentPrompt,
-        modelInteractions: modelInteractions,
-        models: modelsToRun,
-        systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
-        onToken: (modelName, token, fullTextForModel) => {
-          // Update the specific model's output in the last chat entry
-          setChatHistory((prev) => {
-            const updated = [...prev];
-            const lastIdx = updated.length - 1;
-            if (lastIdx >= 0) {
-              const lastEntry = { ...updated[lastIdx] };
-              lastEntry.output = lastEntry.output.map((modelOutput) => {
-                if (modelOutput.model_id === modelName || modelOutput.model_name === modelName) {
-                  return {
-                    ...modelOutput,
-                    output: [{ type: "text", value: fullTextForModel }],
-                  };
-                }
-                return modelOutput;
-              });
-              updated[lastIdx] = lastEntry;
-            }
-            return updated;
-          });
-          // Auto-scroll as tokens arrive
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        },
-        onError: (errMsg) => {
-          console.error("Multi-model streaming error:", errMsg);
-          setSnackbarInfo({
-            open: true,
-            message: `Streaming error: ${errMsg}`,
-            variant: "error",
-          });
-        },
-      });
-
-      // Simultaneously send the PATCH to save prompt + get LLM output on the backend
-      const body = {
-        result: currentPrompt,
+    const body = {
+      result: modelResponses && prompt_output_pair_id >= 0 ? "" : effectiveInput,  
         lead_time:
           (new Date() - loadtime) / 1000 +
           Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
-        prompt_output_pair_id: generateUniquePromptOutputPairId(),
+        prompt_output_pair_id:
+          modelResponses && prompt_output_pair_id >= 0
+            ? prompt_output_pair_id
+            : generateUniquePromptOutputPairId(),
+        ...(modelResponses &&
+          prompt_output_pair_id >= 0 && {
+          model_responses_json: modelResponses?.model_responses_json,
+        }),
       };
+      console.log(body);
 
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -580,332 +513,196 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
       }
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+      const res = await fetch(AnnotationObj.apiEndPoint(), {
+        method: "PATCH",
+        body: JSON.stringify(AnnotationObj.getBody()),
+        headers: AnnotationObj.getHeaders().headers,
+      });
+      const data = await res.json();
+      console.log("hello", data);
+      let errorMessage = null;
 
-      // Wait for both the stream and the PATCH to complete
-      const [streamedTexts] = await Promise.all([
-        streamPromise,
-        (async () => {
-          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-          const res = await fetch(AnnotationObj.apiEndPoint(), {
-            method: "PATCH",
-            body: JSON.stringify(AnnotationObj.getBody()),
-            headers: AnnotationObj.getHeaders().headers,
+      if (data && data.output) {
+        for (const [modelName, modelResponse] of Object.entries(data.output)) {
+          if (modelResponse?.error) {
+            errorMessage = `${modelName} error: ${modelResponse.error}`;
+            break;
+          }
+        }
+      }
+
+      if (!res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (errorMessage) {
+        setSnackbarInfo({
+          open: true,
+          message: errorMessage,
+          variant: "error",
+        });
+      }
+      if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
+        if (data.message === "Success") {
+          setSubmittedEvalForms((prev) => ({
+            ...prev,
+            [prompt_output_pair_id]: modelResponses,
+          }));
+          setSnackbarInfo({
+            open: true,
+            message: "Preferred response saved successfully!",
+            variant: "success",
           });
-          const data = await res.json();
+        } else {
+          setSnackbarInfo({
+            open: true,
+            message: "Saving preferred response failed! Try again later.",
+            variant: "error",
+          });
+        }
+      }
+      if (!inputValue && prompt_output_pair_id && modelResponses) {
+        setSubmittedEvalForms((prev) => ({
+          ...prev,
+          [prompt_output_pair_id]: modelResponses,
+        }));
+      }
+      let modifiedChatHistory = [];
+      setChatHistory((prevChatHistory) => {
+        data && data.result && setLoading(false);
+        let modifiedChatHistory = [];
 
-          let errorMessage = null;
-          if (data && data.output) {
-            for (const [modelName, modelResponse] of Object.entries(data.output)) {
-              if (modelResponse?.error) {
-                errorMessage = `${modelName} error: ${modelResponse.error}`;
-                break;
-              }
-            }
-          }
+        if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
+          const allModelsInteractions = data.result[0].model_interactions;
+          const interactions_length =
+            allModelsInteractions[0]?.interaction_json?.length || 0;
 
-          if (!res.ok) {
-            if (!streamedTexts) {
-              setChatHistory((prev) => prev.slice(0, -1));
-            }
-            setSnackbarInfo({
-              open: true,
-              message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-              variant: "error",
-            });
-            return;
-          }
+          for (let i = 0; i < interactions_length; i++) {
+            const prompt =
+              allModelsInteractions[0]?.interaction_json[i]?.prompt;
 
-          if (errorMessage) {
-            setSnackbarInfo({
-              open: true,
-              message: errorMessage,
-              variant: "error",
-            });
-          }
+            const modelOutputs = [];
+            let turnPromptOutputPairId = null;
 
-          // Once PATCH completes, sync the full result from DB (source of truth)
-          if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
-            const allModelsInteractions = data.result[0].model_interactions;
-            const interactions_length =
-              allModelsInteractions[0]?.interaction_json?.length || 0;
-            let modifiedChatHistory = [];
+            allModelsInteractions.forEach((modelData, modelIdx) => {
+              const interaction = modelData?.interaction_json?.[i];
+              console.log("lead", interaction,)
 
-            for (let i = 0; i < interactions_length; i++) {
-              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
-              const modelOutputs = [];
-              let turnPromptOutputPairId = null;
-
-              allModelsInteractions.forEach((modelData, modelIdx) => {
-                const interaction = modelData?.interaction_json?.[i];
-                if (interaction) {
-                  const response_valid = isString(interaction?.output);
-                  if (!response_valid) {
-                    setIsModelFailing(true);
-                  }
-                  if (modelIdx === 0) {
-                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-                  }
-                  modelOutputs.push({
-                    model_id: modelData?.model_id || modelData?.model_name,
-                    model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                    output: response_valid
-                      ? formatResponse(interaction?.output)
-                      : formatResponse(
-                        `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                      ),
-                    status: response_valid ? "success" : "error",
-                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                    output_error: response_valid
-                      ? null
-                      : JSON.stringify(interaction?.output),
-                  });
+              if (interaction) {
+                const response_valid = isString(interaction?.output);
+                console.log("lead", response_valid, interaction)
+                if (!response_valid) {
+                  setIsModelFailing(true);
                 }
-              });
-
-              if (turnPromptOutputPairId) {
-                const eval_form = (
-                  Array.isArray(data?.result[0]?.eval_form)
-                    ? data.result[0].eval_form
-                    : []
-                ).find(
-                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
-                );
-                if (eval_form) {
-                  setEvalFormResponse((prev) => ({
-                    ...prev,
-                    [turnPromptOutputPairId]: eval_form,
-                  }));
+                if (modelIdx === 0) {
+                  turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                 }
-              }
 
-              if (prompt !== undefined && modelOutputs.length > 0) {
-                modifiedChatHistory.push({
-                  prompt: prompt,
-                  output: modelOutputs,
-                  prompt_output_pair_id: turnPromptOutputPairId,
+                modelOutputs.push({
+                  model_id: modelData?.model_id || modelData?.model_name,
+                  model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                  output: response_valid
+                    ? formatResponse(interaction?.output)
+                    : formatResponse(
+                      `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                    ),
+                  status: response_valid ? "success" : "error",
+                  prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                  output_error: response_valid
+                    ? null
+                    : JSON.stringify(interaction?.output),
                 });
               }
-            }
-            setChatHistory([...modifiedChatHistory]);
-          }
-        })(),
-      ]);
+            });
 
-      setLoading(false);
-      setIsStreaming(false);
+            if (turnPromptOutputPairId) {
+              const eval_form = (
+                Array.isArray(data?.result[0]?.eval_form)
+                  ? data.result[0].eval_form
+                  : []
+              ).find(
+                (item) =>
+                  item.prompt_output_pair_id ===
+                  turnPromptOutputPairId,
+              );
+
+              if (eval_form) {
+                setEvalFormResponse((prev) => ({
+                  ...prev,
+                  [turnPromptOutputPairId]: eval_form,
+                }));
+              }
+            }
+
+            if (prompt !== undefined && modelOutputs.length > 0) {
+              modifiedChatHistory.push({
+                prompt: prompt,
+                output: modelOutputs,
+                prompt_output_pair_id: turnPromptOutputPairId,
+              });
+            }
+          }
+        } else {
+          setLoading(false);
+          setSnackbarInfo({
+            open: true,
+            message: data?.message,
+            variant: "error",
+          });
+        }
+
+        return data && data.result && data.result.length > 0
+          ? [...modifiedChatHistory]
+          : [...prevChatHistory];
+      });
 
       setVisibleMessages((prev) => ({
         ...prev,
         [chatHistory.length]: true,
       }));
-
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: "Please provide a prompt",
+        variant: "error",
+      });
+    }
+    !(modelResponses && prompt_output_pair_id >= 0) &&
       setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }, 1000);
-      setShowChatContainer(true);
-      setInputValue("");
-      return;
-    }
+    setShowChatContainer(true);
+    setInputValue("");
+  };
+  const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(modelOutput => 
+    modelOutput.status === 'error' || 
+    (modelOutput.output && modelOutput.output.length === 0)
+  );
+}, [chatHistory]);
 
-    // ── Non-streaming path: eval form submissions (modelResponses && prompt_output_pair_id >= 0) ──
-    const body = {
-      result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
-      lead_time:
-        (new Date() - loadtime) / 1000 +
-        Number(id?.lead_time?.lead_time ?? 0),
-      auto_save: true,
-      task_id: taskId,
-      prompt_output_pair_id:
-        modelResponses && prompt_output_pair_id >= 0
-          ? prompt_output_pair_id
-          : generateUniquePromptOutputPairId(),
-      ...(modelResponses &&
-        prompt_output_pair_id >= 0 && {
-        model_responses_json: modelResponses?.model_responses_json,
-      }),
-    };
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastMessage = chatHistory[chatHistory.length - 1];
+  if (!lastMessage?.prompt) return;
 
-    if (stage === "Alltask") {
-      body.annotation_status = id?.annotation_status;
-    } else {
-      body.annotation_status = localStorage.getItem("labellingMode");
-    }
-    if (stage === "Review") {
-      body.review_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else if (stage === "SuperChecker") {
-      body.superchecker_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else {
-      body.annotation_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    }
-    if (stage === "Review" || stage === "SuperChecker") {
-      body.parentannotation = id?.parent_annotation;
-    }
+  const lastPrompt = lastMessage.prompt;
 
-    const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-    const res = await fetch(AnnotationObj.apiEndPoint(), {
-      method: "PATCH",
-      body: JSON.stringify(AnnotationObj.getBody()),
-      headers: AnnotationObj.getHeaders().headers,
-    });
-    const data = await res.json();
-    let errorMessage = null;
+  await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
 
-    if (data && data.output) {
-      for (const [modelName, modelResponse] of Object.entries(data.output)) {
-        if (modelResponse?.error) {
-          errorMessage = `${modelName} error: ${modelResponse.error}`;
-          break;
-        }
-      }
-    }
-
-    if (!res.ok) {
-      setSnackbarInfo({
-        open: true,
-        message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-        variant: "error",
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (errorMessage) {
-      setSnackbarInfo({
-        open: true,
-        message: errorMessage,
-        variant: "error",
-      });
-    }
-    if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
-      if (data.message === "Success") {
-        setSubmittedEvalForms((prev) => ({
-          ...prev,
-          [prompt_output_pair_id]: modelResponses,
-        }));
-        setSnackbarInfo({
-          open: true,
-          message: "Preferred response saved successfully!",
-          variant: "success",
-        });
-      } else {
-        setSnackbarInfo({
-          open: true,
-          message: "Saving preferred response failed! Try again later.",
-          variant: "error",
-        });
-      }
-    }
-    if (!inputValue && prompt_output_pair_id && modelResponses) {
-      setSubmittedEvalForms((prev) => ({
-        ...prev,
-        [prompt_output_pair_id]: modelResponses,
-      }));
-    }
-
-    setChatHistory((prevChatHistory) => {
-      data && data.result && setLoading(false);
-      let modifiedChatHistory = [];
-
-      if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
-        const allModelsInteractions = data.result[0].model_interactions;
-        const interactions_length =
-          allModelsInteractions[0]?.interaction_json?.length || 0;
-
-        for (let i = 0; i < interactions_length; i++) {
-          const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
-          const modelOutputs = [];
-          let turnPromptOutputPairId = null;
-
-          allModelsInteractions.forEach((modelData, modelIdx) => {
-            const interaction = modelData?.interaction_json?.[i];
-            if (interaction) {
-              const response_valid = isString(interaction?.output);
-              if (!response_valid) {
-                setIsModelFailing(true);
-              }
-              if (modelIdx === 0) {
-                turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-              }
-              modelOutputs.push({
-                model_id: modelData?.model_id || modelData?.model_name,
-                model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                output: response_valid
-                  ? formatResponse(interaction?.output)
-                  : formatResponse(
-                    `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                  ),
-                status: response_valid ? "success" : "error",
-                prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                output_error: response_valid
-                  ? null
-                  : JSON.stringify(interaction?.output),
-              });
-            }
-          });
-
-          if (turnPromptOutputPairId) {
-            const eval_form = (
-              Array.isArray(data?.result[0]?.eval_form)
-                ? data.result[0].eval_form
-                : []
-            ).find(
-              (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
-            );
-            if (eval_form) {
-              setEvalFormResponse((prev) => ({
-                ...prev,
-                [turnPromptOutputPairId]: eval_form,
-              }));
-            }
-          }
-
-          if (prompt !== undefined && modelOutputs.length > 0) {
-            modifiedChatHistory.push({
-              prompt: prompt,
-              output: modelOutputs,
-              prompt_output_pair_id: turnPromptOutputPairId,
-            });
-          }
-        }
-      } else {
-        setLoading(false);
-        setSnackbarInfo({
-          open: true,
-          message: data?.message,
-          variant: "error",
-        });
-      }
-
-      return data && data.result && data.result.length > 0
-        ? [...modifiedChatHistory]
-        : [...prevChatHistory];
-    });
-
-    setVisibleMessages((prev) => ({
-      ...prev,
-      [chatHistory.length]: true,
-    }));
-  } else {
-    setSnackbarInfo({
-      open: true,
-      message: "Please provide a prompt",
-      variant: "error",
-    });
-  }
-  !(modelResponses && prompt_output_pair_id >= 0) &&
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
-  setShowChatContainer(true);
-  setInputValue("");
-};
-
+  // Pass the prompt directly as an override — bypasses the inputValue check
+  await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -1834,15 +1631,22 @@ useEffect(() => {
                   </div>
                 )}
               </Grid>
+              
+                  <Grid 
+              item 
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
+              }}
+            >
 
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
                 style={{
-                  position: "absolute",
-                  bottom: "0.3rem",
-                  right: "0.3rem",
-                  padding: "2px",
+                   padding: "4px"
                 }}
               >
                 {shrinkedMessages[index] ? (
@@ -1851,15 +1655,27 @@ useEffect(() => {
                   <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
                 )}
               </IconButton>
+                                    {stage !== "Alltask" && !disableUpdateButton &&  (
+      <Tooltip title="Re-send the same prompt to get new responses">
+        <IconButton
+          size="small"
+          style={{
+          // Position to the left of delete button
+            padding: "4px",
+          }}
+          onClick={handleRetry}
+          disabled={loading}
+        >
+          <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+        </IconButton>
+      </Tooltip>
+    )}
 
               {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                 <IconButton
                   size="small"
                   style={{
-                    position: "absolute",
-                    bottom: "0.3rem",
-                    right: "2rem",
-                    padding: "2px",
+                     padding: "4px"
                   }}
                   onClick={() => {
                     setEvalFormResponse((prev) => {
@@ -1883,6 +1699,7 @@ useEffect(() => {
                   <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
                 </IconButton>
               )}
+                    </Grid>
             </Grid>
           </Grid>
 
