@@ -325,21 +325,7 @@ const handleButtonClick = async () => {
     setLoading(true);
     setIsStreaming(true);
 
-    const currentPrompt = inputValue;
-
-    // Add optimistic entry with a streaming placeholder
-    const optimisticEntry = {
-      prompt: currentPrompt,
-      output: [{ type: "text", value: "" }],
-    };
-    const optimisticHistory = [...chatHistory, optimisticEntry];
-    setChatHistory(optimisticHistory);
-    localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(optimisticHistory));
-    setShowChatContainer(true);
-
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    const currentPrompt = prompt;
 
     // Build the history for the streaming endpoint (previous turns only)
     const streamHistory = chatHistory.map((chat) => ({
@@ -349,17 +335,14 @@ const handleButtonClick = async () => {
         : chat.output?.map?.((seg) => seg.value || "").join("") || "",
     }));
 
-    // Get the model from the task data
     const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
     const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
 
-    // Start streaming tokens from the SSE endpoint
     const streamPromise = streamResponse({
       prompt: currentPrompt,
       history: streamHistory,
       model: model,
       onToken: (token, fullText) => {
-        // Update the last chat entry's output with accumulated text
         setChatHistory((prev) => {
           const updated = [...prev];
           const lastIdx = updated.length - 1;
@@ -371,8 +354,7 @@ const handleButtonClick = async () => {
           }
           return updated;
         });
-        // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
-        bottomRef.current?.scrollIntoView({ behavior: "auto" });
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       },
       onError: (errMsg) => {
         console.error("Streaming error:", errMsg);
@@ -384,7 +366,6 @@ const handleButtonClick = async () => {
       },
     });
 
-    // Simultaneously send the PATCH to save prompt + get LLM output on the backend
     const body = {
       result: currentPrompt,
       lead_time:
@@ -415,7 +396,6 @@ const handleButtonClick = async () => {
       body.parentannotation = id?.parent_annotation;
     }
 
-    // Wait for both the stream and the PATCH to complete
     const [streamedText] = await Promise.all([
       streamPromise,
       (async () => {
@@ -428,8 +408,6 @@ const handleButtonClick = async () => {
         const data = await res.json();
 
         if (data && data.result) {
-          // Once PATCH completes, sync the full result from DB
-          // (this ensures the saved data matches what's in the DB)
           const modifiedChatHistory = data.result.map((interaction, index) => {
             const isLastInteraction = index === data.result.length - 1;
             return {
@@ -439,8 +417,6 @@ const handleButtonClick = async () => {
           });
           setChatHistory([...modifiedChatHistory]);
         } else if (!streamedText) {
-          // Both streaming and PATCH failed
-          setChatHistory((prev) => prev.slice(0, -1));
           setSnackbarInfo({
             open: true,
             message: data?.message || "Failed to get LLM response",
@@ -463,8 +439,25 @@ const handleButtonClick = async () => {
       variant: "error",
     });
   }
+  if (!promptOverride) {
+    setText("");
+  }
 };
-const handleOnchange = (prompt) => {
+const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
+}, [chatHistory]);
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
+  if (!lastPrompt) return;
+  await handleClick('delete-pair', id?.id, 0.0);
+  await handleButtonClick(lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
+
+  const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
   const [text, setText] = useState("");
