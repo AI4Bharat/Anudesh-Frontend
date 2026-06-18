@@ -761,7 +761,7 @@ const renderChatHistory = () => {
               </IconButton>
 
               {/* Retry button */}
-              {stage !== "Alltask" && !disableUpdateButton &&(
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
                 <Tooltip title="Re-send the same prompt to get a new response">
                   <IconButton
                     size="small"
