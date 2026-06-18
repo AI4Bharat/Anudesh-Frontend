@@ -24,6 +24,7 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import useStreamingLLM from "@/hooks/useStreamingLLM";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
@@ -89,8 +90,7 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
-  setLoading,
-  loading
+  setIsModelStreaming,
 }) => {
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
@@ -104,9 +104,19 @@ const InstructionDrivenChatPage = ({
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  
+  useEffect(() => {
+    if (setIsModelStreaming) {
+      setIsModelStreaming(isStreaming);
+    }
+  }, [isStreaming, setIsModelStreaming]);
+
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
-const [isDragging, setIsDragging] = useState(false);
+  const { streamResponse, abortStream } = useStreamingLLM();
+  const [isDragging, setIsDragging] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30);
 const [isPinned, setIsPinned] = useState(false);
 const [fontSize, setFontSize] = useState(0.9);
@@ -329,10 +339,14 @@ const handleButtonClick = async (promptOverride) => {
   
   if (prompt) {
     setLoading(true);
-    
+    setIsStreaming(true);
+
+    const currentPrompt = inputValue;
+
+    // Add optimistic entry with a streaming placeholder
     const optimisticEntry = {
-      prompt: prompt,
-      output: [],
+      prompt: currentPrompt,
+      output: [{ type: "text", value: "" }],
     };
     
     setChatHistory((prev) => [...prev, optimisticEntry]);
@@ -342,78 +356,117 @@ const handleButtonClick = async (promptOverride) => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
 
-    const body = {
-      result: prompt,        
-      lead_time:
-          (new Date() - loadtime) / 1000 +
-          Number(id?.lead_time?.lead_time ?? 0),
-        auto_save: true,
-        task_id: taskId,
-      };
-      if (stage === "Alltask") {
-        body.annotation_status = id?.annotation_status;
-      } else {
-        body.annotation_status = localStorage.getItem("labellingMode");
-      }
-      if (stage === "Review") {
-        body.review_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else if (stage === "SuperChecker") {
-        body.superchecker_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else {
-        body.annotation_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      }
-      if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id?.parent_annotation;
-      }
-    try {
-      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
-      });
+    // Build the history for the streaming endpoint (previous turns only)
+    const streamHistory = chatHistory.map((chat) => ({
+      prompt: chat.prompt,
+      output: typeof chat.output === "string"
+        ? chat.output
+        : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+    }));
 
-      let data;
-      try {
-        data = await res.json();
-      } catch (err) {
-        data = {};
-      }
+    // Get the model from the task data
+    const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+    const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
 
-      if (!res.ok) {
-        throw new Error(data?.message || `API Error: ${res.status}`);
-      }
-
-      if (data && data.result) {
-        const modifiedChatHistory = data.result.map((interaction, index) => {
-          const isLastInteraction = index === data.result.length - 1;
-          return {
-            ...interaction,
-            output: formatResponse(interaction.output, isLastInteraction),
-          };
+    // Start streaming tokens from the SSE endpoint
+    const streamPromise = streamResponse({
+      prompt: currentPrompt,
+      history: streamHistory,
+      model: model,
+      onToken: (token, fullText) => {
+        // Update the last chat entry's output with accumulated text
+        setChatHistory((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0) {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              output: [{ type: "text", value: fullText }],
+            };
+          }
+          return updated;
         });
-        setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
-      } else {
-        throw new Error(data?.message || "Invalid response structure from server");
-      }
-    } catch (error) {
-      console.error(error);
-      // Remove the optimistic entry on failure
-      setChatHistory((prev) => prev.slice(0, -1));
-      setSnackbarInfo({
-        open: true,
-        message: error?.message || "Failed to update annotation",
-        variant: "error",
-      });
-    } finally {
-      setLoading(false);
+        // Auto-scroll as tokens arrive
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      },
+      onError: (errMsg) => {
+        console.error("Streaming error:", errMsg);
+        setSnackbarInfo({
+          open: true,
+          message: `Streaming error: ${errMsg}`,
+          variant: "error",
+        });
+      },
+    });
+
+    // Simultaneously send the PATCH to save prompt + get LLM output on the backend
+    const body = {
+      result: currentPrompt,
+      lead_time:
+        (new Date() - loadtime) / 1000 +
+        Number(id?.lead_time?.lead_time ?? 0),
+      auto_save: true,
+      task_id: taskId,
+    };
+    if (stage === "Alltask") {
+      body.annotation_status = id?.annotation_status;
+    } else {
+      body.annotation_status = localStorage.getItem("labellingMode");
     }
+    if (stage === "Review") {
+      body.review_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else if (stage === "SuperChecker") {
+      body.superchecker_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else {
+      body.annotation_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    }
+    if (stage === "Review" || stage === "SuperChecker") {
+      body.parentannotation = id?.parent_annotation;
+    }
+
+    // Wait for both the stream and the PATCH to complete
+    const [streamedText] = await Promise.all([
+      streamPromise,
+      (async () => {
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
+
+        if (data && data.result) {
+          // Once PATCH completes, sync the full result from DB
+          // (this ensures the saved data matches what's in the DB)
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        } else if (!streamedText) {
+          // Both streaming and PATCH failed
+          setChatHistory((prev) => prev.slice(0, -1));
+          setSnackbarInfo({
+            open: true,
+            message: data?.message || "Failed to get LLM response",
+            variant: "error",
+          });
+        }
+      })(),
+    ]);
+
+    setLoading(false);
+    setIsStreaming(false);
 
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -812,9 +865,9 @@ const renderChatHistory = () => {
               </Grid>
 
               <Grid item xs={11} style={{ paddingTop: "0rem" }}>
-                {message?.output.map((segment, index) =>
+                {message?.output.map((segment, segIdx) =>
                   segment.type === 'text' ? (
-                    (ProjectDetails?.metadata_json?.editable_response) || segment.value == "" ? (
+                    ((ProjectDetails?.metadata_json?.editable_response) || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
                       globalTransliteration === "true" ? (
                         <IndicTransliterate
                           key={index}
@@ -861,14 +914,24 @@ const renderChatHistory = () => {
                         />
                       )
                     ) : (
-                      <ReactMarkdown
-                        key={index}
-                        children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
-                        components={{
-                          p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
-                          a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
-                        }}
-                      />
+                      <>
+                        {isStreaming && index === chatHistory.length - 1 && segment.value === "" ? (
+                          <div className="streaming-dots">
+                            <span></span><span></span><span></span>
+                          </div>
+                        ) : (
+                          <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
+                            <ReactMarkdown
+                              key={segIdx}
+                              children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
+                              components={{
+                                p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                                a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
                     )
                   ) : (
                     <SyntaxHighlighter

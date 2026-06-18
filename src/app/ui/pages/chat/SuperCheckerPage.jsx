@@ -166,7 +166,10 @@ const SuperCheckerPage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
+  const [isModelStreaming, setIsModelStreaming] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const isSubmitDisabled = disableUpdateButton || (isModelStreaming && !ProjectDetails?.metadata_json?.blank_response);
 
   // ── useState replacements for the .value workaround on the refs ──
   const [reviewNotesValue, setReviewNotesValue] = useState("");
@@ -965,6 +968,7 @@ const SuperCheckerPage = () => {
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          setIsModelStreaming={setIsModelStreaming}
         />
       );
       break;
@@ -1307,6 +1311,7 @@ return (
               <Button
                 variant="outlined"
                 size="small"
+                disabled={isSubmitDisabled}
                 id="accept-button"
                 aria-controls={open ? "accept-menu" : undefined}
                 aria-haspopup="true"
