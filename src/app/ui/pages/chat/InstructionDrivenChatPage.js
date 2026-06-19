@@ -10,7 +10,8 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
 import linkifyText from "@/utils/linkifyText";
@@ -108,6 +109,10 @@ const InstructionDrivenChatPage = ({
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
   const { taskId } = useParams();
+  const dispatch = useDispatch();
+
+
+
   const [annotationId, setAnnotationId] = useState();
   const [shrinkedMessages, setShrinkedMessages] = useState({});
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
@@ -118,7 +123,20 @@ const InstructionDrivenChatPage = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   
+  useEffect(() => {
+    let intervalId;
+    if (isPolling) {
+      intervalId = setInterval(() => {
+        dispatch(fetchAnnotationsTask(taskId));
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isPolling, taskId, dispatch]);
+
   useEffect(() => {
     if (setIsModelStreaming) {
       setIsModelStreaming(isStreaming);
@@ -228,10 +246,28 @@ const [snackbar, setSnackbarInfo] = useState({
           output: formatResponse(interaction.output),
         };
       });
-      setChatHistory(modifiedChatHistory);
-    } else {
-      setChatHistory([]);
     }
+
+    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+    if (localInProgress) {
+      try {
+        const parsedLocal = JSON.parse(localInProgress);
+        if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
+          const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
+          modifiedChatHistory = [...modifiedChatHistory, ...missingTurns];
+          setIsStreaming(true);
+          setIsPolling(true);
+        } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+          setIsStreaming(false);
+          setIsPolling(false);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    setChatHistory(modifiedChatHistory);
     setAnnotationId(annotation[0]?.id);
     setShowChatContainer(!!annotation[0]?.result);
   }, [annotation]);
@@ -296,7 +332,9 @@ const handleButtonClick = async () => {
       prompt: currentPrompt,
       output: [{ type: "text", value: "" }],
     };
-    setChatHistory((prev) => [...prev, optimisticEntry]);
+    const optimisticHistory = [...chatHistory, optimisticEntry];
+    setChatHistory(optimisticHistory);
+    localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(optimisticHistory));
     setShowChatContainer(true);
 
     setTimeout(() => {
@@ -333,8 +371,8 @@ const handleButtonClick = async () => {
           }
           return updated;
         });
-        // Auto-scroll as tokens arrive
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
       },
       onError: (errMsg) => {
         console.error("Streaming error:", errMsg);
@@ -466,6 +504,11 @@ const handleOnchange = (prompt) => {
 
   useEffect(() => {
     // This effect runs when chatHistory changes
+    if (chatHistory && chatHistory.length > 0) {
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 500);
+    }
   }, [chatHistory]);
 
   useEffect(() => {

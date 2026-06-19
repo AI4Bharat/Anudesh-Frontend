@@ -12,7 +12,8 @@ export const fetchAnnotationsTask = createAsyncThunk(
   async (taskId) => {
     
     const params = fetchParams(`${ENDPOINTS.getTasks}${taskId}/annotations/`);
-    return fetch(params.url, params.options)
+    const options = { ...params.options, cache: 'no-store' };
+    return fetch(params.url, options)
         .then(response => response.json())
   }
 );
