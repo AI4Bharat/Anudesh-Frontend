@@ -476,6 +476,9 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
 
     const currentPrompt = promptOverride ?? inputValue;
 
+    try {
+
+    // ✅ Optimistically show the prompt immediately before API call
     if (isNewPrompt) {
       setIsStreaming(true);
 
@@ -560,7 +563,7 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
       }
 
       // Wait for both the stream and the PATCH to complete
-      const [streamedTexts] = await Promise.all([
+      const [streamedTexts, patchResult] = await Promise.all([
         streamPromise,
         (async () => {
           const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
@@ -581,28 +584,33 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
             }
           }
 
-          if (!res.ok) {
-            if (!streamedTexts) {
-              setChatHistory((prev) => prev.slice(0, -1));
-            }
-            setSnackbarInfo({
-              open: true,
-              message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-              variant: "error",
-            });
-            return;
-          }
+          return { ok: res.ok, data, errorMessage };
+        })(),
+      ]);
 
-          if (errorMessage) {
-            setSnackbarInfo({
-              open: true,
-              message: errorMessage,
-              variant: "error",
-            });
-          }
+      if (!patchResult?.ok) {
+        if (!streamedTexts) {
+          setChatHistory((prev) => prev.slice(0, -1));
+        }
+        setSnackbarInfo({
+          open: true,
+          message: patchResult?.data?.message || patchResult?.errorMessage || "An error occurred while saving the annotation.",
+          variant: "error",
+        });
+        return;
+      }
 
-          // Once PATCH completes, sync the full result from DB (source of truth)
-          if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
+      if (patchResult?.errorMessage) {
+        setSnackbarInfo({
+          open: true,
+          message: patchResult.errorMessage,
+          variant: "error",
+        });
+      }
+
+      // Once PATCH completes, sync the full result from DB (source of truth)
+      if (patchResult?.data?.result && patchResult.data.result.length > 0 && patchResult.data.result[0].model_interactions) {
+            const data = patchResult.data;
             const allModelsInteractions = data.result[0].model_interactions;
             const interactions_length =
               allModelsInteractions[0]?.interaction_json?.length || 0;
@@ -665,12 +673,17 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
               }
             }
             setChatHistory([...modifiedChatHistory]);
-          }
-        })(),
-      ]);
-
-      setLoading(false);
-      setIsStreaming(false);
+      } else {
+        if (!streamedTexts) {
+          setChatHistory((prev) => prev.slice(0, -1));
+        }
+        setSnackbarInfo({
+          open: true,
+          message: patchResult?.data?.message || "Failed to get model responses.",
+          variant: "error",
+        });
+        return;
+      }
 
       setVisibleMessages((prev) => ({
         ...prev,
@@ -749,7 +762,6 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
         message: data?.message || errorMessage || "An error occurred while saving the annotation.",
         variant: "error",
       });
-      setLoading(false);
       return;
     }
 
@@ -787,7 +799,6 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
     }
 
     setChatHistory((prevChatHistory) => {
-      data && data.result && setLoading(false);
       let modifiedChatHistory = [];
 
       if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
@@ -852,7 +863,6 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
           }
         }
       } else {
-        setLoading(false);
         setSnackbarInfo({
           open: true,
           message: data?.message,
@@ -869,6 +879,24 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
       ...prev,
       [chatHistory.length]: true,
     }));
+    !(modelResponses && prompt_output_pair_id >= 0) &&
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 1000);
+    setShowChatContainer(true);
+    setInputValue("");
+    } catch (error) {
+      console.error("MultipleLLMInstructionDrivenChat submit failed:", error);
+      abortStream();
+      setSnackbarInfo({
+        open: true,
+        message: error?.message || "Something went wrong while submitting the prompt.",
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+      setIsStreaming(false);
+    }
   } else {
     setSnackbarInfo({
       open: true,
@@ -876,12 +904,6 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
       variant: "error",
     });
   }
-  !(modelResponses && prompt_output_pair_id >= 0) &&
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
-  setShowChatContainer(true);
-  setInputValue("");
 };
   const hasFailedLastResponse = useMemo(() => {
   if (!chatHistory || chatHistory.length === 0) return false;
