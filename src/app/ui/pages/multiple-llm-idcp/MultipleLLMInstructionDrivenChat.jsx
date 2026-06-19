@@ -9,8 +9,9 @@ import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import ReactMarkdown from "react-markdown";
+import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
@@ -115,10 +116,29 @@ const MultipleLLMInstructionDrivenChat = ({
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
+  const dispatch = useDispatch();
+
+
+
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+
+  const [isPolling, setIsPolling] = useState(false);
+
+  useEffect(() => {
+    let intervalId;
+    if (isPolling) {
+      intervalId = setInterval(() => {
+        dispatch(fetchAnnotationsTask(taskId));
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isPolling, taskId, dispatch]);
+
   const [loadtime, setloadtime] = useState(new Date());
   const { streamMultiModelResponse, abortStream } = useStreamingLLM();
 
@@ -401,6 +421,25 @@ const MultipleLLMInstructionDrivenChat = ({
           });
         }
       }
+      const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
+      if (localInProgress) {
+        try {
+          const parsedLocal = JSON.parse(localInProgress);
+          if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
+            const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
+            modifiedChatHistory = [...modifiedChatHistory, ...missingTurns];
+            setIsStreaming(true);
+            setIsPolling(true);
+          } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
+            setIsStreaming(false);
+            setIsPolling(false);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       setChatHistory(modifiedChatHistory);
     } else {
       setChatHistory([]);
@@ -477,14 +516,31 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
     const currentPrompt = promptOverride ?? inputValue;
 
     if (isNewPrompt) {
+      // Get the models list from task data
+      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+      const modelsToRun = taskData?.data?.model || [];
+
+      // Create optimistic output entries for each model (empty, will be filled by stream)
+      const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
+        model_id: modelName,
+        model_name: modelName,
+        output: [{ type: "text", value: "" }],
+        status: "streaming",
+        prompt_output_pair_id: null,
+      }));
+
+      const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
+      const optimisticHistory = [...chatHistory, optimisticEntry];
+      setChatHistory(optimisticHistory);
+      localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
+      setShowChatContainer(true);
       setIsStreaming(true);
 
       // Build the model_interactions history for the streaming endpoint
       const annotationResult = annotation?.[0]?.result;
       const modelInteractions = annotationResult?.[0]?.model_interactions || [];
 
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const modelsToRun = taskData?.data?.model || [];
+
 
       const projectMetadata = ProjectDetails?.metadata_json || {};
       const sysPromptData = projectMetadata.system_prompt || {};
@@ -513,8 +569,8 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
             }
             return updated;
           });
-          // Auto-scroll as tokens arrive
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+          // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
+          bottomRef.current?.scrollIntoView({ behavior: "auto" });
         },
         onError: (errMsg) => {
           console.error("Multi-model streaming error:", errMsg);
@@ -1651,6 +1707,10 @@ useEffect(() => {
             
             return newState;
         });
+
+        setTimeout(() => {
+            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 500);
     }
 }, [chatHistory?.length]); 
 
