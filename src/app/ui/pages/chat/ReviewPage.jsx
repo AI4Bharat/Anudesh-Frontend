@@ -166,6 +166,7 @@ const [fontSize, setFontSize] = useState("medium");
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
   const [isModelStreaming, setIsModelStreaming] = useState(false);
+  const [disableUpdateButton, setDisableUpdateButton] = useState(false);
 
   const hasEmptyResponse = (() => {
     if (!chatHistory || chatHistory.length === 0) return false;
@@ -1137,6 +1138,7 @@ const [fontSize, setFontSize] = useState("medium");
           annotation={annotations}
           setLoading={setLoading}
           loading={loading}
+          disableUpdateButton={disableUpdateButton}
           setIsModelStreaming={setIsModelStreaming}
         />
       );
@@ -1163,6 +1165,7 @@ const [fontSize, setFontSize] = useState("medium");
           setIsModelFailing={setIsModelFailing}
           submittedEvalForms={submittedEvalForms}
           setSubmittedEvalForms={setSubmittedEvalForms}
+          disableUpdateButton={disableUpdateButton}
           setIsModelStreaming={setIsModelStreaming}
         />
       );

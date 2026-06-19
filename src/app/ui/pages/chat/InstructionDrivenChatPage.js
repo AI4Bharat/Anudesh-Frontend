@@ -123,19 +123,36 @@ const InstructionDrivenChatPage = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
+  const [pollingCount, setPollingCount] = useState(0);
   
   useEffect(() => {
     let intervalId;
     if (isPolling) {
       intervalId = setInterval(() => {
         dispatch(fetchAnnotationsTask(taskId));
+        setPollingCount((prev) => prev + 1);
       }, 5000);
     }
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
   }, [isPolling, taskId, dispatch]);
+
+  useEffect(() => {
+    if (pollingCount > 6) {
+      setIsPolling(false);
+      setIsStreaming(false);
+      setPollingCount(0);
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+      setSnackbarInfo({
+        open: true,
+        message: "Streaming timed out. Please refresh the page.",
+        variant: "error",
+      });
+    }
+  }, [pollingCount, taskId]);
 
   useEffect(() => {
     if (setIsModelStreaming) {
@@ -261,6 +278,7 @@ const [snackbar, setSnackbarInfo] = useState({
           localStorage.removeItem(`in_progress_chat_single_${taskId}`);
           setIsStreaming(false);
           setIsPolling(false);
+          setPollingCount(0);
         }
       } catch (e) {
         console.error(e);
@@ -320,9 +338,10 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async () => {
-  if (inputValue) {
-    setLoading(true);
+const handleButtonClick = async (promptOverride) => {
+  const prompt = promptOverride ?? inputValue;
+  if (prompt) {
+    setChatLoading(true);
     setIsStreaming(true);
 
     const currentPrompt = prompt;
@@ -363,6 +382,9 @@ const handleButtonClick = async () => {
           message: `Streaming error: ${errMsg}`,
           variant: "error",
         });
+        setChatLoading(false);
+        setIsStreaming(false);
+        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
       },
     });
 
@@ -396,38 +418,43 @@ const handleButtonClick = async () => {
       body.parentannotation = id?.parent_annotation;
     }
 
-    const [streamedText] = await Promise.all([
-      streamPromise,
-      (async () => {
-        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-        const res = await fetch(AnnotationObj.apiEndPoint(), {
-          method: "PATCH",
-          body: JSON.stringify(AnnotationObj.getBody()),
-          headers: AnnotationObj.getHeaders().headers,
-        });
-        const data = await res.json();
-
-        if (data && data.result) {
-          const modifiedChatHistory = data.result.map((interaction, index) => {
-            const isLastInteraction = index === data.result.length - 1;
-            return {
-              ...interaction,
-              output: formatResponse(interaction.output, isLastInteraction),
-            };
+    try {
+      const [streamedText] = await Promise.all([
+        streamPromise,
+        (async () => {
+          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+          const res = await fetch(AnnotationObj.apiEndPoint(), {
+            method: "PATCH",
+            body: JSON.stringify(AnnotationObj.getBody()),
+            headers: AnnotationObj.getHeaders().headers,
           });
-          setChatHistory([...modifiedChatHistory]);
-        } else if (!streamedText) {
-          setSnackbarInfo({
-            open: true,
-            message: data?.message || "Failed to get LLM response",
-            variant: "error",
-          });
-        }
-      })(),
-    ]);
+          const data = await res.json();
 
-    setLoading(false);
-    setIsStreaming(false);
+          if (data && data.result) {
+            const modifiedChatHistory = data.result.map((interaction, index) => {
+              const isLastInteraction = index === data.result.length - 1;
+              return {
+                ...interaction,
+                output: formatResponse(interaction.output, isLastInteraction),
+              };
+            });
+            setChatHistory([...modifiedChatHistory]);
+          } else if (!streamedText) {
+            setSnackbarInfo({
+              open: true,
+              message: data?.message || "Failed to get LLM response",
+              variant: "error",
+            });
+          }
+        })(),
+      ]);
+    } catch (error) {
+      console.error("Error in chat save/stream operation:", error);
+    } finally {
+      setChatLoading(false);
+      setIsStreaming(false);
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+    }
 
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -736,10 +763,35 @@ const renderChatHistory = () => {
                 right: "0.5rem",
               }}
             >
-              {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+              {/* Shrink button */}
+              <IconButton
+                size="small"
+                onClick={() => toggleShrink(index)}
+                style={{
+                  padding: "4px",
+                }}
+              >
+                {shrinkedMessages[index] ? (
+                  <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
+                ) : (
+                  <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
+
+              {/* Retry button */}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={handleRetry}
+                    disabled={loading || chatLoading}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
               )}
             </IconButton>
 
@@ -1333,7 +1385,7 @@ return (
               }
             }}
             class_name={"w-full"}
-            loading={loading}
+            loading={loading || chatLoading}
             inputValue={inputValue}
             overrideGT={true}
             task_id={taskId}
