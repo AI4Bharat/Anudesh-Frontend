@@ -540,8 +540,7 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
       const annotationResult = annotation?.[0]?.result;
       const modelInteractions = annotationResult?.[0]?.model_interactions || [];
 
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const modelsToRun = taskData?.data?.model || [];
+
 
       const projectMetadata = ProjectDetails?.metadata_json || {};
       const sysPromptData = projectMetadata.system_prompt || {};
