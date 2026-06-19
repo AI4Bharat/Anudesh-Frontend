@@ -128,7 +128,36 @@ const AnnotatePage = () => {
   const [isModelFailing, setIsModelFailing] = useState(false);
   const [isModelStreaming, setIsModelStreaming] = useState(false);
 
-  const isSubmitDisabled = disableUpdateButton || (isModelStreaming && !ProjectDetails?.metadata_json?.blank_response);
+  const hasEmptyResponse = (() => {
+    if (!chatHistory || chatHistory.length === 0) return false;
+    let empty = false;
+    chatHistory.forEach((turn) => {
+      if (ProjectDetails?.project_type === "InstructionDrivenChat") {
+        if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
+          empty = true;
+        }
+      } else if (ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") {
+        if (!turn.output || !Array.isArray(turn.output)) {
+          empty = true;
+        } else {
+          turn.output.forEach((modelResp) => {
+            if (
+              !modelResp.output ||
+              !Array.isArray(modelResp.output) ||
+              !modelResp.output[0] ||
+              typeof modelResp.output[0].value !== "string" ||
+              modelResp.output[0].value.trim() === ""
+            ) {
+              empty = true;
+            }
+          });
+        }
+      }
+    });
+    return empty;
+  })();
+
+  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyResponse) && !ProjectDetails?.metadata_json?.blank_response);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -1272,7 +1301,7 @@ const AnnotatePage = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    disabled={isSubmitDisabled}
+                    disabled={isSubmitDisabled || loading}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
@@ -1296,7 +1325,6 @@ const AnnotatePage = () => {
                         );
                       }
                     }}
-                    disabled={loading} 
                     sx={{
                       minWidth: 'auto',
                       fontSize: '0.75rem',
