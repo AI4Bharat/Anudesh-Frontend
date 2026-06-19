@@ -1307,7 +1307,7 @@ const AnnotatePage = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    disabled={isSubmitDisabled}
+                    disabled={isSubmitDisabled || loading}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
