@@ -161,7 +161,7 @@ const DatasetStyle = makeStyles({
   progressDiv: {
     position: "fixed",
     // backgroundColor: 'rgba(0.5, 0, 0, 0.5)',
-    zIndex: 1000,
+    zIndex: 99999,
     // width: '100%',
     // height: '100%',
     top: "50%",
