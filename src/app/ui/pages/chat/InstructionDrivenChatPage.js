@@ -112,36 +112,19 @@ const InstructionDrivenChatPage = ({
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [chatLoading, setChatLoading] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
-  const [pollingCount, setPollingCount] = useState(0);
   
   useEffect(() => {
     let intervalId;
     if (isPolling) {
       intervalId = setInterval(() => {
         dispatch(fetchAnnotationsTask(taskId));
-        setPollingCount((prev) => prev + 1);
       }, 5000);
     }
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
   }, [isPolling, taskId, dispatch]);
-
-  useEffect(() => {
-    if (pollingCount > 6) {
-      setIsPolling(false);
-      setIsStreaming(false);
-      setPollingCount(0);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-      setSnackbarInfo({
-        open: true,
-        message: "Streaming timed out. Please refresh the page.",
-        variant: "error",
-      });
-    }
-  }, [pollingCount, taskId]);
 
   useEffect(() => {
     if (setIsModelStreaming) {
@@ -327,7 +310,6 @@ const [snackbar, setSnackbarInfo] = useState({
           localStorage.removeItem(`in_progress_chat_single_${taskId}`);
           setIsStreaming(false);
           setIsPolling(false);
-          setPollingCount(0);
         }
       } catch (e) {
         console.error(e);
@@ -387,27 +369,37 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async (promptOverride) => {
+const handleButtonClick = async (promptOverride, retry = false) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
-    setChatLoading(true);
+    setLoading(true);
     setIsStreaming(true);
 
     const currentPrompt = prompt;
 
-    // Add optimistic entry with a streaming placeholder
-    const optimisticEntry = {
-      prompt: currentPrompt,
-      output: [{ type: "text", value: "" }],
-    };
-    const optimisticHistory = [...chatHistory, optimisticEntry];
-    setChatHistory(optimisticHistory);
-    localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(optimisticHistory));
-    setShowChatContainer(true);
+  let optimisticHistory = [];
 
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+  if (retry) {
+    // Replace only the last assistant response
+    optimisticHistory = [...chatHistory];
+
+    if (optimisticHistory.length > 0) {
+      optimisticHistory[optimisticHistory.length - 1] = {
+        ...optimisticHistory[optimisticHistory.length - 1],
+        output: [{ type: "text", value: "" }],
+      };
+    }
+  } else {
+    // Normal new prompt
+    optimisticHistory = [
+      ...chatHistory,
+      {
+        prompt: currentPrompt,
+        output: [{ type: "text", value: "" }],
+      },
+    ];
+  }
+
 
     // Build the history for the streaming endpoint (previous turns only)
     const streamHistory = chatHistory.map((chat) => ({
@@ -446,14 +438,12 @@ const handleButtonClick = async (promptOverride) => {
           message: `Streaming error: ${errMsg}`,
           variant: "error",
         });
-        setChatLoading(false);
-        setIsStreaming(false);
-        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
       },
     });
 
     const body = {
       result: currentPrompt,
+        retry,
       lead_time:
         (new Date() - loadtime) / 1000 +
         Number(id?.lead_time?.lead_time ?? 0),
@@ -482,43 +472,38 @@ const handleButtonClick = async (promptOverride) => {
       body.parentannotation = id?.parent_annotation;
     }
 
-    try {
-      const [streamedText] = await Promise.all([
-        streamPromise,
-        (async () => {
-          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-          const res = await fetch(AnnotationObj.apiEndPoint(), {
-            method: "PATCH",
-            body: JSON.stringify(AnnotationObj.getBody()),
-            headers: AnnotationObj.getHeaders().headers,
-          });
-          const data = await res.json();
+    const [streamedText] = await Promise.all([
+      streamPromise,
+      (async () => {
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
 
-          if (data && data.result) {
-            const modifiedChatHistory = data.result.map((interaction, index) => {
-              const isLastInteraction = index === data.result.length - 1;
-              return {
-                ...interaction,
-                output: formatResponse(interaction.output, isLastInteraction),
-              };
-            });
-            setChatHistory([...modifiedChatHistory]);
-          } else if (!streamedText) {
-            setSnackbarInfo({
-              open: true,
-              message: data?.message || "Failed to get LLM response",
-              variant: "error",
-            });
-          }
-        })(),
-      ]);
-    } catch (error) {
-      console.error("Error in chat save/stream operation:", error);
-    } finally {
-      setChatLoading(false);
-      setIsStreaming(false);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-    }
+        if (data && data.result) {
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        } else if (!streamedText) {
+          setSnackbarInfo({
+            open: true,
+            message: data?.message || "Failed to get LLM response",
+            variant: "error",
+          });
+        }
+      })(),
+    ]);
+
+    setLoading(false);
+    setIsStreaming(false);
 
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -534,19 +519,7 @@ const handleButtonClick = async (promptOverride) => {
     setText("");
   }
 };
-const hasFailedLastResponse = useMemo(() => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  const last = chatHistory[chatHistory.length - 1];
-  if (!last?.output || last.output.length === 0) return true;
-  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
-}, [chatHistory]);
-const handleRetry = useCallback(async () => {
-  if (!chatHistory || chatHistory.length === 0) return;
-  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
-  if (!lastPrompt) return;
-  await handleClick('delete-pair', id?.id, 0.0);
-  await handleButtonClick(lastPrompt);
-}, [chatHistory, handleClick, id, handleButtonClick]);
+
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -847,8 +820,11 @@ const renderChatHistory = () => {
                 <Tooltip title="Re-send the same prompt to get a new response">
                   <IconButton
                     size="small"
-                    onClick={handleRetry}
-                    disabled={loading || chatLoading}
+                        onClick={() =>
+        handleButtonClick(message.prompt, true)
+    }
+
+                    disabled={loading}
                     style={{
                       padding: "4px",
                     }}
@@ -1514,7 +1490,7 @@ return (
               }
             }}
             class_name={"w-full"}
-            loading={loading || chatLoading}
+            loading={loading}
             inputValue={inputValue}
             overrideGT={true}
             task_id={taskId}
@@ -1527,3 +1503,4 @@ return (
 );
 };
 export default InstructionDrivenChatPage;
+
