@@ -857,7 +857,7 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={() => handleButtonClick(message.prompt, true)}
-                    disabled={loading ||}
+                    disabled={loading}
                     style={{
                       padding: "4px",
                     }}
