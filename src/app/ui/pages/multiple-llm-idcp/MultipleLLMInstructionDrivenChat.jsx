@@ -15,7 +15,7 @@ import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React,  { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -108,7 +108,7 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelFailing,
   submittedEvalForms,
   setSubmittedEvalForms,
-        setLoading,
+  setLoading,
   loading,
   setIsModelStreaming,
 }) => {
@@ -228,7 +228,7 @@ const MultipleLLMInstructionDrivenChat = ({
       const containerTop = containerRect.top;
       const containerBottom = containerRect.bottom;
       const containerHeight = containerBottom - containerTop;
-      
+
       // Calculate percentage based on Y position (inverted for top panel)
       const percentage = ((dragY - containerTop) / containerHeight) * 100;
       newWidth = Math.min(70, Math.max(25, percentage)); // Limit between 25% and 70%
@@ -237,7 +237,7 @@ const MultipleLLMInstructionDrivenChat = ({
       const dragX = e.clientX;
       const containerLeft = containerRect.left;
       const containerWidth = containerRect.width;
-      
+
       // Calculate percentage based on X position
       const percentage = ((dragX - containerLeft) / containerWidth) * 100;
       newWidth = Math.min(60, Math.max(25, percentage)); // Limit between 25% and 60%
@@ -352,8 +352,8 @@ const MultipleLLMInstructionDrivenChat = ({
   }, [chatHistory]);
 
   useEffect(() => {
-      setEvalFormResponse({});
-  setSubmittedEvalForms({});
+    setEvalFormResponse({});
+    setSubmittedEvalForms({});
 
     let modifiedChatHistory = [];
     if (
@@ -523,95 +523,266 @@ const MultipleLLMInstructionDrivenChat = ({
         .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
     return Number(`${time}${deviceHash}${rand}`);
   };
-const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
-  console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
-  const isMultipleResponse = ProjectDetails?.metadata_json;
-  const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+    console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
+    const isMultipleResponse = ProjectDetails?.metadata_json;
+    const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
 
-  if (promptOverride || inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
-    setLoading(true);
+    if (promptOverride || inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+      setLoading(true);
 
-    const currentPrompt = promptOverride ?? inputValue;
+      const currentPrompt = promptOverride ?? inputValue;
 
-    if (isNewPrompt) {
-      // Get the models list from task data
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const modelsToRun = taskData?.data?.model || [];
+      if (isNewPrompt) {
+        // Get the models list from task data
+        const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+        const modelsToRun = taskData?.data?.model || [];
 
-      // Create optimistic output entries for each model (empty, will be filled by stream)
-      const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
-        model_id: modelName,
-        model_name: modelName,
-        output: [{ type: "text", value: "" }],
-        status: "streaming",
-        prompt_output_pair_id: null,
-      }));
+        // Create optimistic output entries for each model (empty, will be filled by stream)
+        const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
+          model_id: modelName,
+          model_name: modelName,
+          output: [{ type: "text", value: "" }],
+          status: "streaming",
+          prompt_output_pair_id: null,
+        }));
 
-      const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
-      const optimisticHistory = [...chatHistory, optimisticEntry];
-      setChatHistory(optimisticHistory);
-      localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
-      setShowChatContainer(true);
-      setIsStreaming(true);
+        const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
+        const optimisticHistory = [...chatHistory, optimisticEntry];
+        setChatHistory(optimisticHistory);
+        localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
+        setShowChatContainer(true);
+        setIsStreaming(true);
 
-      // Build the model_interactions history for the streaming endpoint
-      const annotationResult = annotation?.[0]?.result;
-      const modelInteractions = annotationResult?.[0]?.model_interactions || [];
+        // Build the model_interactions history for the streaming endpoint
+        const annotationResult = annotation?.[0]?.result;
+        const modelInteractions = annotationResult?.[0]?.model_interactions || [];
 
 
 
-      const projectMetadata = ProjectDetails?.metadata_json || {};
-      const sysPromptData = projectMetadata.system_prompt || {};
+        const projectMetadata = ProjectDetails?.metadata_json || {};
+        const sysPromptData = projectMetadata.system_prompt || {};
 
-      const streamPromise = streamMultiModelResponse({
-        prompt: currentPrompt,        modelInteractions: modelInteractions,
-        models: modelsToRun,
-        systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
-        onToken: (modelName, token, fullTextForModel) => {
-          // Update the specific model's output in the last chat entry
-          setChatHistory((prev) => {
-            const updated = [...prev];
-            const lastIdx = updated.length - 1;
-            if (lastIdx >= 0) {
-              const lastEntry = { ...updated[lastIdx] };
-              lastEntry.output = lastEntry.output.map((modelOutput) => {
-                if (modelOutput.model_id === modelName || modelOutput.model_name === modelName) {
-                  return {
-                    ...modelOutput,
-                    output: [{ type: "text", value: fullTextForModel }],
-                  };
-                }
-                return modelOutput;
+        const streamPromise = streamMultiModelResponse({
+          prompt: currentPrompt, modelInteractions: modelInteractions,
+          models: modelsToRun,
+          systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
+          onToken: (modelName, token, fullTextForModel) => {
+            // Update the specific model's output in the last chat entry
+            setChatHistory((prev) => {
+              const updated = [...prev];
+              const lastIdx = updated.length - 1;
+              if (lastIdx >= 0) {
+                const lastEntry = { ...updated[lastIdx] };
+                lastEntry.output = lastEntry.output.map((modelOutput) => {
+                  if (modelOutput.model_id === modelName || modelOutput.model_name === modelName) {
+                    return {
+                      ...modelOutput,
+                      output: [{ type: "text", value: fullTextForModel }],
+                    };
+                  }
+                  return modelOutput;
+                });
+                updated[lastIdx] = lastEntry;
+              }
+              return updated;
+            });
+            // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
+            bottomRef.current?.scrollIntoView({ behavior: "auto" });
+          },
+          onError: (errMsg) => {
+            console.error("Multi-model streaming error:", errMsg);
+            setSnackbarInfo({
+              open: true,
+              message: `Streaming error: ${errMsg}`,
+              variant: "error",
+            });
+            setChatLoading(false);
+            setIsStreaming(false);
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
+          },
+        });
+
+        // Simultaneously send the PATCH to save prompt + get LLM output on the backend
+        const body = {
+          result: currentPrompt,
+          lead_time:
+            (new Date() - loadtime) / 1000 +
+            Number(id?.lead_time?.lead_time ?? 0),
+          auto_save: true,
+          task_id: taskId,
+          prompt_output_pair_id: generateUniquePromptOutputPairId(),
+        };
+
+        if (stage === "Alltask") {
+          body.annotation_status = id?.annotation_status;
+        } else {
+          body.annotation_status = localStorage.getItem("labellingMode");
+        }
+        if (stage === "Review") {
+          body.review_notes = JSON.stringify(
+            notes?.current?.getEditor().getContents(),
+          );
+        } else if (stage === "SuperChecker") {
+          body.superchecker_notes = JSON.stringify(
+            notes?.current?.getEditor().getContents(),
+          );
+        } else {
+          body.annotation_notes = JSON.stringify(
+            notes?.current?.getEditor().getContents(),
+          );
+        }
+        if (stage === "Review" || stage === "SuperChecker") {
+          body.parentannotation = id?.parent_annotation;
+        }
+
+        try {
+          // Wait for both the stream and the PATCH to complete
+          const [streamedTexts] = await Promise.all([
+            streamPromise,
+            (async () => {
+              const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+              const res = await fetch(AnnotationObj.apiEndPoint(), {
+                method: "PATCH",
+                body: JSON.stringify(AnnotationObj.getBody()),
+                headers: AnnotationObj.getHeaders().headers,
               });
-              updated[lastIdx] = lastEntry;
-            }
-            return updated;
-          });
-          // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
-          bottomRef.current?.scrollIntoView({ behavior: "auto" });
-        },
-        onError: (errMsg) => {
-          console.error("Multi-model streaming error:", errMsg);
-          setSnackbarInfo({
-            open: true,
-            message: `Streaming error: ${errMsg}`,
-            variant: "error",
-          });
+              const data = await res.json();
+
+              let errorMessage = null;
+              if (data && data.output) {
+                for (const [modelName, modelResponse] of Object.entries(data.output)) {
+                  if (modelResponse?.error) {
+                    errorMessage = `${modelName} error: ${modelResponse.error}`;
+                    break;
+                  }
+                }
+              }
+
+              if (!res.ok) {
+                if (!streamedTexts) {
+                  setChatHistory((prev) => prev.slice(0, -1));
+                }
+                setSnackbarInfo({
+                  open: true,
+                  message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+                  variant: "error",
+                });
+                return;
+              }
+
+              if (errorMessage) {
+                setSnackbarInfo({
+                  open: true,
+                  message: errorMessage,
+                  variant: "error",
+                });
+              }
+
+              // Once PATCH completes, sync the full result from DB (source of truth)
+              if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
+                const allModelsInteractions = data.result[0].model_interactions;
+                const interactions_length =
+                  allModelsInteractions[0]?.interaction_json?.length || 0;
+                let modifiedChatHistory = [];
+
+                for (let i = 0; i < interactions_length; i++) {
+                  const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+                  const modelOutputs = [];
+                  let turnPromptOutputPairId = null;
+
+                  allModelsInteractions.forEach((modelData, modelIdx) => {
+                    const interaction = modelData?.interaction_json?.[i];
+                    if (interaction) {
+                      const response_valid = isString(interaction?.output);
+                      if (!response_valid) {
+                        setIsModelFailing(true);
+                      }
+                      if (modelIdx === 0) {
+                        turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                      }
+                      modelOutputs.push({
+                        model_id: modelData?.model_id || modelData?.model_name,
+                        model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                        output: response_valid
+                          ? formatResponse(interaction?.output)
+                          : formatResponse(
+                            `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                          ),
+                        status: response_valid ? "success" : "error",
+                        prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                        output_error: response_valid
+                          ? null
+                          : JSON.stringify(interaction?.output),
+                      });
+                    }
+                  });
+
+                  if (turnPromptOutputPairId) {
+                    const eval_form = (
+                      Array.isArray(data?.result[0]?.eval_form)
+                        ? data.result[0].eval_form
+                        : []
+                    ).find(
+                      (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                    );
+                    if (eval_form) {
+                      setEvalFormResponse((prev) => ({
+                        ...prev,
+                        [turnPromptOutputPairId]: eval_form,
+                      }));
+                    }
+                  }
+
+                  if (prompt !== undefined && modelOutputs.length > 0) {
+                    modifiedChatHistory.push({
+                      prompt: prompt,
+                      output: modelOutputs,
+                      prompt_output_pair_id: turnPromptOutputPairId,
+                    });
+                  }
+                }
+                setChatHistory([...modifiedChatHistory]);
+              }
+            })(),
+          ]);
+        } catch (error) {
+          console.error("Error in multi-model chat save/stream operation:", error);
+        } finally {
           setChatLoading(false);
           setIsStreaming(false);
           localStorage.removeItem(`in_progress_chat_${taskId}`);
-        },
-      });
+        }
 
-      // Simultaneously send the PATCH to save prompt + get LLM output on the backend
+        setVisibleMessages((prev) => ({
+          ...prev,
+          [chatHistory.length]: true,
+        }));
+
+        setTimeout(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 1000);
+        setShowChatContainer(true);
+        setInputValue("");
+        return;
+      }
+
+      // ── Non-streaming path: eval form submissions (modelResponses && prompt_output_pair_id >= 0) ──
       const body = {
-        result: currentPrompt,
+        result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
         lead_time:
           (new Date() - loadtime) / 1000 +
           Number(id?.lead_time?.lead_time ?? 0),
         auto_save: true,
         task_id: taskId,
-        prompt_output_pair_id: generateUniquePromptOutputPairId(),
+        prompt_output_pair_id:
+          modelResponses && prompt_output_pair_id >= 0
+            ? prompt_output_pair_id
+            : generateUniquePromptOutputPairId(),
+        ...(modelResponses &&
+          prompt_output_pair_id >= 0 && {
+          model_responses_json: modelResponses?.model_responses_json,
+        }),
       };
 
       if (stage === "Alltask") {
@@ -636,357 +807,186 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
         body.parentannotation = id?.parent_annotation;
       }
 
-      try {
-        // Wait for both the stream and the PATCH to complete
-        const [streamedTexts] = await Promise.all([
-          streamPromise,
-          (async () => {
-            const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-            const res = await fetch(AnnotationObj.apiEndPoint(), {
-              method: "PATCH",
-              body: JSON.stringify(AnnotationObj.getBody()),
-              headers: AnnotationObj.getHeaders().headers,
-            });
-            const data = await res.json();
+      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+      const res = await fetch(AnnotationObj.apiEndPoint(), {
+        method: "PATCH",
+        body: JSON.stringify(AnnotationObj.getBody()),
+        headers: AnnotationObj.getHeaders().headers,
+      });
+      const data = await res.json();
+      let errorMessage = null;
 
-            let errorMessage = null;
-            if (data && data.output) {
-              for (const [modelName, modelResponse] of Object.entries(data.output)) {
-                if (modelResponse?.error) {
-                  errorMessage = `${modelName} error: ${modelResponse.error}`;
-                  break;
-                }
-              }
-            }
-
-            if (!res.ok) {
-              if (!streamedTexts) {
-                setChatHistory((prev) => prev.slice(0, -1));
-              }
-              setSnackbarInfo({
-                open: true,
-                message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-                variant: "error",
-              });
-              return;
-            }
-
-            if (errorMessage) {
-              setSnackbarInfo({
-                open: true,
-                message: errorMessage,
-                variant: "error",
-              });
-            }
-
-            // Once PATCH completes, sync the full result from DB (source of truth)
-            if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
-              const allModelsInteractions = data.result[0].model_interactions;
-              const interactions_length =
-                allModelsInteractions[0]?.interaction_json?.length || 0;
-              let modifiedChatHistory = [];
-
-              for (let i = 0; i < interactions_length; i++) {
-                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
-                const modelOutputs = [];
-                let turnPromptOutputPairId = null;
-
-                allModelsInteractions.forEach((modelData, modelIdx) => {
-                  const interaction = modelData?.interaction_json?.[i];
-                  if (interaction) {
-                    const response_valid = isString(interaction?.output);
-                    if (!response_valid) {
-                      setIsModelFailing(true);
-                    }
-                    if (modelIdx === 0) {
-                      turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-                    }
-                    modelOutputs.push({
-                      model_id: modelData?.model_id || modelData?.model_name,
-                      model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                      output: response_valid
-                        ? formatResponse(interaction?.output)
-                        : formatResponse(
-                          `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                        ),
-                      status: response_valid ? "success" : "error",
-                      prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                      output_error: response_valid
-                        ? null
-                        : JSON.stringify(interaction?.output),
-                    });
-                  }
-                });
-
-                if (turnPromptOutputPairId) {
-                  const eval_form = (
-                    Array.isArray(data?.result[0]?.eval_form)
-                      ? data.result[0].eval_form
-                      : []
-                  ).find(
-                    (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
-                  );
-                  if (eval_form) {
-                    setEvalFormResponse((prev) => ({
-                      ...prev,
-                      [turnPromptOutputPairId]: eval_form,
-                    }));
-                  }
-                }
-
-                if (prompt !== undefined && modelOutputs.length > 0) {
-                  modifiedChatHistory.push({
-                    prompt: prompt,
-                    output: modelOutputs,
-                    prompt_output_pair_id: turnPromptOutputPairId,
-                  });
-                }
-              }
-              setChatHistory([...modifiedChatHistory]);
-            }
-          })(),
-        ]);
-      } catch (error) {
-        console.error("Error in multi-model chat save/stream operation:", error);
-      } finally {
-        setChatLoading(false);
-        setIsStreaming(false);
-        localStorage.removeItem(`in_progress_chat_${taskId}`);
+      if (data && data.output) {
+        for (const [modelName, modelResponse] of Object.entries(data.output)) {
+          if (modelResponse?.error) {
+            errorMessage = `${modelName} error: ${modelResponse.error}`;
+            break;
+          }
+        }
       }
+
+      if (!res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (errorMessage) {
+        setSnackbarInfo({
+          open: true,
+          message: errorMessage,
+          variant: "error",
+        });
+      }
+      if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
+        if (data.message === "Success") {
+          setSubmittedEvalForms((prev) => ({
+            ...prev,
+            [prompt_output_pair_id]: modelResponses,
+          }));
+          setSnackbarInfo({
+            open: true,
+            message: "Preferred response saved successfully!",
+            variant: "success",
+          });
+        } else {
+          setSnackbarInfo({
+            open: true,
+            message: "Saving preferred response failed! Try again later.",
+            variant: "error",
+          });
+        }
+      }
+      if (!inputValue && prompt_output_pair_id && modelResponses) {
+        setSubmittedEvalForms((prev) => ({
+          ...prev,
+          [prompt_output_pair_id]: modelResponses,
+        }));
+      }
+
+      setChatHistory((prevChatHistory) => {
+        data && data.result && setLoading(false);
+        let modifiedChatHistory = [];
+
+        if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
+          const allModelsInteractions = data.result[0].model_interactions;
+          const interactions_length =
+            allModelsInteractions[0]?.interaction_json?.length || 0;
+
+          for (let i = 0; i < interactions_length; i++) {
+            const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+            const modelOutputs = [];
+            let turnPromptOutputPairId = null;
+
+            allModelsInteractions.forEach((modelData, modelIdx) => {
+              const interaction = modelData?.interaction_json?.[i];
+              if (interaction) {
+                const response_valid = isString(interaction?.output);
+                if (!response_valid) {
+                  setIsModelFailing(true);
+                }
+                if (modelIdx === 0) {
+                  turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                }
+                modelOutputs.push({
+                  model_id: modelData?.model_id || modelData?.model_name,
+                  model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                  output: response_valid
+                    ? formatResponse(interaction?.output)
+                    : formatResponse(
+                      `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                    ),
+                  status: response_valid ? "success" : "error",
+                  prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                  output_error: response_valid
+                    ? null
+                    : JSON.stringify(interaction?.output),
+                });
+              }
+            });
+
+            if (turnPromptOutputPairId) {
+              const eval_form = (
+                Array.isArray(data?.result[0]?.eval_form)
+                  ? data.result[0].eval_form
+                  : []
+              ).find(
+                (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+              );
+              if (eval_form) {
+                setEvalFormResponse((prev) => ({
+                  ...prev,
+                  [turnPromptOutputPairId]: eval_form,
+                }));
+              }
+            }
+
+            if (prompt !== undefined && modelOutputs.length > 0) {
+              modifiedChatHistory.push({
+                prompt: prompt,
+                output: modelOutputs,
+                prompt_output_pair_id: turnPromptOutputPairId,
+              });
+            }
+          }
+        } else {
+          setLoading(false);
+          setSnackbarInfo({
+            open: true,
+            message: data?.message,
+            variant: "error",
+          });
+        }
+
+        return data && data.result && data.result.length > 0
+          ? [...modifiedChatHistory]
+          : [...prevChatHistory];
+      });
 
       setVisibleMessages((prev) => ({
         ...prev,
         [chatHistory.length]: true,
       }));
-
+    } else {
+      setSnackbarInfo({
+        open: true,
+        message: "Please provide a prompt",
+        variant: "error",
+      });
+    }
+    !(modelResponses && prompt_output_pair_id >= 0) &&
       setTimeout(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 1000);
-      setShowChatContainer(true);
-      setInputValue("");
-      return;
-    }
-
-    // ── Non-streaming path: eval form submissions (modelResponses && prompt_output_pair_id >= 0) ──
-    const body = {
-      result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
-      lead_time:
-        (new Date() - loadtime) / 1000 +
-        Number(id?.lead_time?.lead_time ?? 0),
-      auto_save: true,
-      task_id: taskId,
-      prompt_output_pair_id:
-        modelResponses && prompt_output_pair_id >= 0
-          ? prompt_output_pair_id
-          : generateUniquePromptOutputPairId(),
-      ...(modelResponses &&
-        prompt_output_pair_id >= 0 && {
-        model_responses_json: modelResponses?.model_responses_json,
-      }),
-    };
-
-    if (stage === "Alltask") {
-      body.annotation_status = id?.annotation_status;
-    } else {
-      body.annotation_status = localStorage.getItem("labellingMode");
-    }
-    if (stage === "Review") {
-      body.review_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else if (stage === "SuperChecker") {
-      body.superchecker_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else {
-      body.annotation_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    }
-    if (stage === "Review" || stage === "SuperChecker") {
-      body.parentannotation = id?.parent_annotation;
-    }
-
-    const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-    const res = await fetch(AnnotationObj.apiEndPoint(), {
-      method: "PATCH",
-      body: JSON.stringify(AnnotationObj.getBody()),
-      headers: AnnotationObj.getHeaders().headers,
-    });
-    const data = await res.json();
-    let errorMessage = null;
-
-    if (data && data.output) {
-      for (const [modelName, modelResponse] of Object.entries(data.output)) {
-        if (modelResponse?.error) {
-          errorMessage = `${modelName} error: ${modelResponse.error}`;
-          break;
-        }
-      }
-    }
-
-    if (!res.ok) {
-      setSnackbarInfo({
-        open: true,
-        message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-        variant: "error",
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (errorMessage) {
-      setSnackbarInfo({
-        open: true,
-        message: errorMessage,
-        variant: "error",
-      });
-    }
-    if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
-      if (data.message === "Success") {
-        setSubmittedEvalForms((prev) => ({
-          ...prev,
-          [prompt_output_pair_id]: modelResponses,
-        }));
-        setSnackbarInfo({
-          open: true,
-          message: "Preferred response saved successfully!",
-          variant: "success",
-        });
-      } else {
-        setSnackbarInfo({
-          open: true,
-          message: "Saving preferred response failed! Try again later.",
-          variant: "error",
-        });
-      }
-    }
-    if (!inputValue && prompt_output_pair_id && modelResponses) {
-      setSubmittedEvalForms((prev) => ({
-        ...prev,
-        [prompt_output_pair_id]: modelResponses,
-      }));
-    }
-
-    setChatHistory((prevChatHistory) => {
-      data && data.result && setLoading(false);
-      let modifiedChatHistory = [];
-
-      if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
-        const allModelsInteractions = data.result[0].model_interactions;
-        const interactions_length =
-          allModelsInteractions[0]?.interaction_json?.length || 0;
-
-        for (let i = 0; i < interactions_length; i++) {
-          const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
-          const modelOutputs = [];
-          let turnPromptOutputPairId = null;
-
-          allModelsInteractions.forEach((modelData, modelIdx) => {
-            const interaction = modelData?.interaction_json?.[i];
-            if (interaction) {
-              const response_valid = isString(interaction?.output);
-              if (!response_valid) {
-                setIsModelFailing(true);
-              }
-              if (modelIdx === 0) {
-                turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-              }
-              modelOutputs.push({
-                model_id: modelData?.model_id || modelData?.model_name,
-                model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                output: response_valid
-                  ? formatResponse(interaction?.output)
-                  : formatResponse(
-                    `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                  ),
-                status: response_valid ? "success" : "error",
-                prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                output_error: response_valid
-                  ? null
-                  : JSON.stringify(interaction?.output),
-              });
-            }
-          });
-
-          if (turnPromptOutputPairId) {
-            const eval_form = (
-              Array.isArray(data?.result[0]?.eval_form)
-                ? data.result[0].eval_form
-                : []
-            ).find(
-              (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
-            );
-            if (eval_form) {
-              setEvalFormResponse((prev) => ({
-                ...prev,
-                [turnPromptOutputPairId]: eval_form,
-              }));
-            }
-          }
-
-          if (prompt !== undefined && modelOutputs.length > 0) {
-            modifiedChatHistory.push({
-              prompt: prompt,
-              output: modelOutputs,
-              prompt_output_pair_id: turnPromptOutputPairId,
-            });
-          }
-        }
-      } else {
-        setLoading(false);
-        setSnackbarInfo({
-          open: true,
-          message: data?.message,
-          variant: "error",
-        });
-      }
-
-      return data && data.result && data.result.length > 0
-        ? [...modifiedChatHistory]
-        : [...prevChatHistory];
-    });
-
-    setVisibleMessages((prev) => ({
-      ...prev,
-      [chatHistory.length]: true,
-    }));
-  } else {
-    setSnackbarInfo({
-      open: true,
-      message: "Please provide a prompt",
-      variant: "error",
-    });
-  }
-  !(modelResponses && prompt_output_pair_id >= 0) &&
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
-  setShowChatContainer(true);
-  setInputValue("");
-};
+    setShowChatContainer(true);
+    setInputValue("");
+  };
   const hasFailedLastResponse = useMemo(() => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  const last = chatHistory[chatHistory.length - 1];
-  if (!last?.output || last.output.length === 0) return true;
-  return last.output.every(modelOutput => 
-    modelOutput.status === 'error' || 
-    (modelOutput.output && modelOutput.output.length === 0)
-  );
-}, [chatHistory]);
+    if (!chatHistory || chatHistory.length === 0) return false;
+    const last = chatHistory[chatHistory.length - 1];
+    if (!last?.output || last.output.length === 0) return true;
+    return last.output.every(modelOutput =>
+      modelOutput.status === 'error' ||
+      (modelOutput.output && modelOutput.output.length === 0)
+    );
+  }, [chatHistory]);
 
-const handleRetry = useCallback(async () => {
-  if (!chatHistory || chatHistory.length === 0) return;
-  const lastMessage = chatHistory[chatHistory.length - 1];
-  if (!lastMessage?.prompt) return;
+  const handleRetry = useCallback(async () => {
+    if (!chatHistory || chatHistory.length === 0) return;
+    const lastMessage = chatHistory[chatHistory.length - 1];
+    if (!lastMessage?.prompt) return;
 
-  const lastPrompt = lastMessage.prompt;
+    const lastPrompt = lastMessage.prompt;
 
-  await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
 
-  // Pass the prompt directly as an override — bypasses the inputValue check
-  await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
-}, [chatHistory, handleClick, id, handleButtonClick]);
+    // Pass the prompt directly as an override — bypasses the inputValue check
+    await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
+  }, [chatHistory, handleClick, id, handleButtonClick]);
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -1096,215 +1096,215 @@ const handleRetry = useCallback(async () => {
       };
     });
   };
-// Updated handlers for single response mode
-// 1. Fill in Blanks Handler
-// 1. Fill in Blanks Handler
-const handleSingleInputChange = (value, questionIdx, blankIndex, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+  // Updated handlers for single response mode
+  // 1. Fill in Blanks Handler
+  // 1. Fill in Blanks Handler
+  const handleSingleInputChange = (value, questionIdx, blankIndex, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [...(modelResponses[questionIdx].response || [])]
-    };
-    
-    // Ensure we have enough blank spaces
-    const updatedResponse = [...questionToUpdate.response];
-    while (updatedResponse.length <= blankIndex) {
-      updatedResponse.push("");
-    }
-    
-    // Update the specific blank
-    updatedResponse[blankIndex] = value;
-    questionToUpdate.response = updatedResponse;
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};// 2. Rating Handler
-const handleSingleRating = (newValue, questionIdx, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [...(modelResponses[questionIdx].response || [])]
+      };
+
+      // Ensure we have enough blank spaces
+      const updatedResponse = [...questionToUpdate.response];
+      while (updatedResponse.length <= blankIndex) {
+        updatedResponse.push("");
+      }
+
+      // Update the specific blank
+      updatedResponse[blankIndex] = value;
+      questionToUpdate.response = updatedResponse;
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };// 2. Rating Handler
+  const handleSingleRating = (newValue, questionIdx, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [newValue?.toString() || ""] // Direct array with the rating value
-    };
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};
-const handleSingleMCQ = (value, questionIdx, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [newValue?.toString() || ""] // Direct array with the rating value
+      };
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };
+  const handleSingleMCQ = (value, questionIdx, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [value] // Direct array with the MCQ value
-    };
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};
-const handleSingleMultiSelect = (checked, option, questionIdx, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [value] // Direct array with the MCQ value
+      };
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };
+  const handleSingleMultiSelect = (checked, option, questionIdx, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [...(modelResponses[questionIdx].response || [])] // Copy existing responses
-    };
-    
-    // Update the response array based on checked status
-    const updatedResponse = checked
-      ? [...questionToUpdate.response, option]
-      : questionToUpdate.response.filter(item => item !== option);
-    
-    questionToUpdate.response = updatedResponse;
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};
-const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex = 0) => {
-  console.log(evalFormResponse);
-  
-  const questionResponseJson = evalFormResponse?.model_responses_json;
-  if (!questionResponseJson) return responseIndex === 0 ? "" : 0;
-  
-  const formEntry = questionResponseJson.find(entry => entry.promptoutputid === promptOutputPairId.toString());
-  if (!formEntry?.questions_response) return responseIndex === 0 ? "" : 0;
-  
-  return formEntry.questions_response[questionIdx]?.response?.[responseIndex] || 
-         (responseIndex === 0 ? "" : 0);
-};
-const handleRating = (newValue, message, index, questionIdx, model_idx) => {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [...(modelResponses[questionIdx].response || [])] // Copy existing responses
+      };
+
+      // Update the response array based on checked status
+      const updatedResponse = checked
+        ? [...questionToUpdate.response, option]
+        : questionToUpdate.response.filter(item => item !== option);
+
+      questionToUpdate.response = updatedResponse;
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };
+  const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex = 0) => {
+    console.log(evalFormResponse);
+
+    const questionResponseJson = evalFormResponse?.model_responses_json;
+    if (!questionResponseJson) return responseIndex === 0 ? "" : 0;
+
+    const formEntry = questionResponseJson.find(entry => entry.promptoutputid === promptOutputPairId.toString());
+    if (!formEntry?.questions_response) return responseIndex === 0 ? "" : 0;
+
+    return formEntry.questions_response[questionIdx]?.response?.[responseIndex] ||
+      (responseIndex === 0 ? "" : 0);
+  };
+  const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
       const targetModelId = getModelId(message?.output?.[model_idx]);
       const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
@@ -1622,70 +1622,70 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
     console.log(form);
 
-      const formdata = form?.model_responses_json
+    const formdata = form?.model_responses_json
     console.log(formdata);
-    
+
     if (!formdata) {
       return false;
     }
 
     const allModelsValid = formdata.every((modelResponse) => {
       console.log("something");
-      
+
       const allMandatoryAnswered = questions.every((question) => {
         let expectedParts = 0;
-              console.log("something");
+        console.log("something");
 
         if (question.question_type === "fill_in_blanks") {
           expectedParts =
             question?.input_question?.split("<blank>")?.length - 1;
         }
-            if(ProjectDetails?.metadata_json?.single_model_response){
-      var responseForQuestion = formdata?.find(
-          (qr) =>
-            qr?.question?.input_question === question?.input_question &&
-            qr?.question?.question_type === question?.question_type,
-        );
-    }else{
-      var responseForQuestion = modelResponse?.questions_response?.find(
-          (qr) =>
-            qr?.question?.input_question === question?.input_question &&
-            qr?.question?.question_type === question?.question_type,
-        );
-    }
-        
+        if (ProjectDetails?.metadata_json?.single_model_response) {
+          var responseForQuestion = formdata?.find(
+            (qr) =>
+              qr?.question?.input_question === question?.input_question &&
+              qr?.question?.question_type === question?.question_type,
+          );
+        } else {
+          var responseForQuestion = modelResponse?.questions_response?.find(
+            (qr) =>
+              qr?.question?.input_question === question?.input_question &&
+              qr?.question?.question_type === question?.question_type,
+          );
+        }
 
-      if (!responseForQuestion?.response) {
-        console.log("No response for question", questionIdx);
-        return false;
-      }
 
-      if (question.question_type === "fill_in_blanks") {
-        const isCorrectLength = responseForQuestion.response.length === expectedParts;
-        const hasNoEmptyResponse = !responseForQuestion.response.some(
-          (response) => response === "" || response === undefined,
-        );
-        return isCorrectLength && hasNoEmptyResponse;
-      }
+        if (!responseForQuestion?.response) {
+          console.log("No response for question", questionIdx);
+          return false;
+        }
 
-      if (question.question_type === "comparison") {
-        const isValidComparison =
-          responseForQuestion.response.length === 1 &&
-          responseForQuestion.response[0] !== "";
-        return isValidComparison;
-      }
+        if (question.question_type === "fill_in_blanks") {
+          const isCorrectLength = responseForQuestion.response.length === expectedParts;
+          const hasNoEmptyResponse = !responseForQuestion.response.some(
+            (response) => response === "" || response === undefined,
+          );
+          return isCorrectLength && hasNoEmptyResponse;
+        }
 
-      const hasValidResponse =
-        responseForQuestion.response.length > 0 &&
-        !responseForQuestion.response.some(
-          (response) =>
-            response === "" || response === undefined || response === null,
-        );
-      return hasValidResponse;
+        if (question.question_type === "comparison") {
+          const isValidComparison =
+            responseForQuestion.response.length === 1 &&
+            responseForQuestion.response[0] !== "";
+          return isValidComparison;
+        }
+
+        const hasValidResponse =
+          responseForQuestion.response.length > 0 &&
+          !responseForQuestion.response.some(
+            (response) =>
+              response === "" || response === undefined || response === null,
+          );
+        return hasValidResponse;
+      });
+
+      return allMandatoryAnswered;
     });
-
-    return allMandatoryAnswered;
-  });
 
     return allModelsValid;
   };
@@ -1702,43 +1702,43 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
       return updated;
     });
   };
-console.log(evalFormResponse);
+  console.log(evalFormResponse);
 
-    const scrollOutputs = (index, direction) => {
-        const container = document.getElementById(`output-container-${index}`);
-        if (container) {
-            const scrollAmount = 300;
-            container.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    };
-useEffect(() => {
+  const scrollOutputs = (index, direction) => {
+    const container = document.getElementById(`output-container-${index}`);
+    if (container) {
+      const scrollAmount = 300;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+  useEffect(() => {
     if (chatHistory && chatHistory.length > 0) {
-        const lastIndex = chatHistory.length - 1;
-        
-        // Create new shrinked state based on current state
-        setShrinkedMessages(prev => {
-            const newState = { ...prev };
-            
-            // Ensure all previous messages are shrinked
-            chatHistory.forEach((_, idx) => {
-                if (idx < lastIndex) {
-                    newState[idx] = true; // Shrink all previous
-                } else if (idx === lastIndex) {
-                    newState[idx] = false; // Expand latest
-                }
-            });
-            
-            return newState;
+      const lastIndex = chatHistory.length - 1;
+
+      // Create new shrinked state based on current state
+      setShrinkedMessages(prev => {
+        const newState = { ...prev };
+
+        // Ensure all previous messages are shrinked
+        chatHistory.forEach((_, idx) => {
+          if (idx < lastIndex) {
+            newState[idx] = true; // Shrink all previous
+          } else if (idx === lastIndex) {
+            newState[idx] = false; // Expand latest
+          }
         });
 
-        setTimeout(() => {
-            bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 500);
+        return newState;
+      });
+
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 500);
     }
-}, [chatHistory?.length]); 
+  }, [chatHistory?.length]);
 
   const isRTLLanguage = (text) => {
     if (!text) return false;
@@ -1753,26 +1753,26 @@ useEffect(() => {
       setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
 
-        const getResponsesPerView = () => {
-        // Check if instruction pane is visible (you'll need to determine this)
-        const isInstructionPaneVisible = false; // Replace with your actual state
-        
-        if (isInstructionPaneVisible) {
-            return 2; // Show only 2 when instruction pane is visible
-        }
-        
-        // Otherwise use default behavior
-        return 3; // Show up to 3 in full width
+    const getResponsesPerView = () => {
+      // Check if instruction pane is visible (you'll need to determine this)
+      const isInstructionPaneVisible = false; // Replace with your actual state
+
+      if (isInstructionPaneVisible) {
+        return 2; // Show only 2 when instruction pane is visible
+      }
+
+      // Otherwise use default behavior
+      return 3; // Show up to 3 in full width
     };
 
     const responsesPerView = getResponsesPerView();
 
-    
+
 
     const chatElements = chatHistory?.map((message, index) => {
-            const responseCount = message?.output?.length || 0;
+      const responseCount = message?.output?.length || 0;
 
-            const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
+      const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
       return (
         <Grid
           container
@@ -1823,7 +1823,7 @@ useEffect(() => {
                 <Avatar
                   alt="user_profile_pic"
                   src={loggedInUserData?.profile_photo || ""}
-                  style={{ 
+                  style={{
                     marginRight: "0.8rem",
                     width: "28px",
                     height: "28px"
@@ -1919,75 +1919,75 @@ useEffect(() => {
                   </div>
                 )}
               </Grid>
-              
-                  <Grid 
-              item 
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                flexShrink: 0,
-              }}
-            >
 
-              <IconButton
-                size="small"
-                onClick={() => toggleShrink(index)}
+              <Grid
+                item
                 style={{
-                   padding: "4px"
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  flexShrink: 0,
                 }}
               >
-                {shrinkedMessages[index] ? (
-                  <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
-                ) : (
-                  <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
-                )}
-              </IconButton>
-                                    {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&  (
-      <Tooltip title="Re-send the same prompt to get new responses">
-        <IconButton
-          size="small"
-          style={{
-          // Position to the left of delete button
-            padding: "4px",
-          }}
-          onClick={handleRetry}
-          disabled={loading}
-        >
-          <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
-        </IconButton>
-      </Tooltip>
-    )}
 
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                 <IconButton
                   size="small"
+                  onClick={() => toggleShrink(index)}
                   style={{
-                     padding: "4px"
-                  }}
-                  onClick={() => {
-                    setEvalFormResponse((prev) => {
-                      const newResponse = { ...prev };
-                      delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
-                      return newResponse;
-                    });
-                    setVisibleMessages((prev) => {
-                      const keys = Object.keys(prev);
-                      delete prev[keys[keys.length - 1]];
-                      return { ...prev };
-                    });
-                    setSubmittedEvalForms((prev) => {
-                      const newResponse = { ...prev };
-                      delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
-                      return newResponse;
-                    });
-                    handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+                    padding: "4px"
                   }}
                 >
-                  <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                  {shrinkedMessages[index] ? (
+                    <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  ) : (
+                    <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  )}
                 </IconButton>
-              )}
-                    </Grid>
+                {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                  <Tooltip title="Re-send the same prompt to get new responses">
+                    <IconButton
+                      size="small"
+                      style={{
+                        // Position to the left of delete button
+                        padding: "4px",
+                      }}
+                      onClick={handleRetry}
+                      disabled={loading}
+                    >
+                      <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                  <IconButton
+                    size="small"
+                    style={{
+                      padding: "4px"
+                    }}
+                    onClick={() => {
+                      setEvalFormResponse((prev) => {
+                        const newResponse = { ...prev };
+                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
+                        return newResponse;
+                      });
+                      setVisibleMessages((prev) => {
+                        const keys = Object.keys(prev);
+                        delete prev[keys[keys.length - 1]];
+                        return { ...prev };
+                      });
+                      setSubmittedEvalForms((prev) => {
+                        const newResponse = { ...prev };
+                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
+                        return newResponse;
+                      });
+                      handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+                    }}
+                  >
+                    <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                  </IconButton>
+                )}
+              </Grid>
             </Grid>
           </Grid>
 
@@ -2063,7 +2063,7 @@ useEffect(() => {
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
-                              flexGrow: 1, 
+                              flexGrow: 1,
                               height: "auto",
                               display: "flex",
                               justifyContent: "center",
@@ -2088,7 +2088,7 @@ useEffect(() => {
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
-                              flexGrow: 1, 
+                              flexGrow: 1,
                               fontSize: "0.85rem",
                               display: "flex",
                               flexDirection: "column",
@@ -2249,12 +2249,13 @@ useEffect(() => {
                             <Box
                               sx={{
                                 flex: 1,
-                                height:"auto",
+                                height: "auto",
                                 overflowY: "auto",
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
                                 boxSizing: "border-box",
-                                minHeight: "100px",                              }}
+                                minHeight: "100px",
+                              }}
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
@@ -2314,8 +2315,8 @@ useEffect(() => {
                                           key={segmentIdx}
                                           children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                           components={{
-                                            p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
-                                            a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                                            p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                            a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                           }}
                                         />
                                       </div>
@@ -2326,11 +2327,11 @@ useEffect(() => {
                                     key={segmentIdx}
                                     language={segment.language}
                                     style={gruvboxDark}
-                                    customStyle={{ 
-                                      padding: "0.5rem", 
-                                      borderRadius: "4px", 
+                                    customStyle={{
+                                      padding: "0.5rem",
+                                      borderRadius: "4px",
                                       fontSize: `${fontSize}rem`,
-                                      margin: "0.2rem 0" 
+                                      margin: "0.2rem 0"
                                     }}
                                   >
                                     {segment.value}
@@ -3398,109 +3399,109 @@ useEffect(() => {
   if (!isMounted) {
     return null;
   }
-  
 
-return (
-  <>
-    {renderSnackBar()}
-    <Box
-      ref={containerRef}
-      sx={{
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        width: "100%",
-        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
-        overflow: "hidden",
-        position: { xs: "fixed", md: "relative" },
-        top: { xs: "150px", md: "0" },
-        left: { xs: 0, md: "0" },
-        right: { xs: 0, md: "0" },
-        bottom: { xs: "0", md: "0" },
-        bgcolor: "#fff",
-        zIndex: { xs: 1000, md: "0" },
-      }}
-    >
-      {/* Instruction Panel - Left Side */}
+
+  return (
+    <>
+      {renderSnackBar()}
       <Box
+        ref={containerRef}
         sx={{
-          width: { 
-            xs: "100%", 
-            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
-          },
-          height: { 
-            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
-            md: "100%" 
-          },
-          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
-          transition: isDragging ? "none" : "all 0.3s ease",
-          padding: isInstructionExpanded ? "1rem" : "0.5rem",
-          paddingBottom: "0rem!important",
-          paddingTop: "0.3rem!important",
-          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          backgroundColor: "#fafafa",
-          overflow: "auto",
           display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-          position: "relative",
+          flexDirection: { xs: "column", md: "row" },
+          width: "100%",
+          height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
+          overflow: "hidden",
+          position: { xs: "fixed", md: "relative" },
+          top: { xs: "150px", md: "0" },
+          left: { xs: 0, md: "0" },
+          right: { xs: 0, md: "0" },
+          bottom: { xs: "0", md: "0" },
+          bgcolor: "#fff",
+          zIndex: { xs: 1000, md: "0" },
         }}
       >
-        {/* Draggable handle */}
-        {isInstructionExpanded && (
-          <Box
-            onMouseDown={startDragging}
-            sx={{
-              position: "absolute",
-              [window.innerWidth < 768 ? 'bottom' : 'right']: 0,
-              [window.innerWidth < 768 ? 'left' : 'top']: 0,
-              [window.innerWidth < 768 ? 'height' : 'width']: "4px",
-              [window.innerWidth < 768 ? 'width' : 'height']: "100%",
-              cursor: window.innerWidth < 768 ? 'row-resize' : 'col-resize',
-              backgroundColor: "transparent",
-              zIndex: 10,
-              '&:hover': {
-                backgroundColor: "rgba(238, 102, 51, 0.3)",
-              },
-              '&:active': {
-                backgroundColor: "rgba(238, 102, 51, 0.5)",
-              },
-            }}
-          />
-        )}
-
-        {/* Rest of your instruction panel content remains exactly the same */}
+        {/* Instruction Panel - Left Side */}
         <Box
           sx={{
+            width: {
+              xs: "100%",
+              md: isInstructionExpanded ? `${instructionWidth}%` : "40px"
+            },
+            height: {
+              xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px",
+              md: "100%"
+            },
+            maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+            transition: isDragging ? "none" : "all 0.3s ease",
+            padding: isInstructionExpanded ? "1rem" : "0.5rem",
+            paddingBottom: "0rem!important",
+            paddingTop: "0.3rem!important",
+            borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+            backgroundColor: "#fafafa",
+            overflow: "auto",
             display: "flex",
-            alignItems: "center",
-            justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "0.5rem" : 0,
-            padding: "0.5rem",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            minHeight: "40px",
+            flexDirection: "column",
             flexShrink: 0,
+            position: "relative",
           }}
-          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
+          {/* Draggable handle */}
           {isInstructionExpanded && (
-            <Typography
-              variant="h6"
+            <Box
+              onMouseDown={startDragging}
               sx={{
-                color: "#636363",
-                fontWeight: "600",
-                fontSize: "1rem"
+                position: "absolute",
+                [window.innerWidth < 768 ? 'bottom' : 'right']: 0,
+                [window.innerWidth < 768 ? 'left' : 'top']: 0,
+                [window.innerWidth < 768 ? 'height' : 'width']: "4px",
+                [window.innerWidth < 768 ? 'width' : 'height']: "100%",
+                cursor: window.innerWidth < 768 ? 'row-resize' : 'col-resize',
+                backgroundColor: "transparent",
+                zIndex: 10,
+                '&:hover': {
+                  backgroundColor: "rgba(238, 102, 51, 0.3)",
+                },
+                '&:active': {
+                  backgroundColor: "rgba(238, 102, 51, 0.5)",
+                },
               }}
-            >
-              {translate("typography.instructions")}
-            </Typography>
+            />
           )}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+
+          {/* Rest of your instruction panel content remains exactly the same */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isInstructionExpanded ? "space-between" : "center",
+              marginBottom: isInstructionExpanded ? "0.5rem" : 0,
+              padding: "0.5rem",
+              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              borderRadius: "8px",
+              cursor: "pointer",
+              minHeight: "40px",
+              flexShrink: 0,
+            }}
+            onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
+          >
             {isInstructionExpanded && (
-              <Tooltip
-                title={
-                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "#636363",
+                  fontWeight: "600",
+                  fontSize: "1rem"
+                }}
+              >
+                {translate("typography.instructions")}
+              </Typography>
+            )}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              {isInstructionExpanded && (
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
                       {isPinned ? "Unpin panel width" : "Pin panel width"}
                     </span>
                   }
@@ -3515,274 +3516,274 @@ return (
                       : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
                   </IconButton>
                 </Tooltip>
-            )}
-            <Tooltip
-              title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
-            >
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsInstructionExpanded(!isInstructionExpanded);
-                }}
-                sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+              )}
+              <Tooltip
+                title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
               >
-                {isInstructionExpanded ? (
-                  <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                ) : (
-                  <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-
-        {/* Font size slider — shown when expanded */}
-        {isInstructionExpanded && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              px: "0.5rem",
-              pb: "0.5rem",
-              flexShrink: 0,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-              Aa
-            </Typography>
-            <Slider
-              value={fontSize}
-              min={0.7}
-              max={1.4}
-              step={0.05}
-              onChange={handleFontSizeChange}
-              onChangeCommitted={handleFontSizeCommit}
-              size="small"
-              sx={{
-                color: "#EE6633",
-                width: "100%",
-                "& .MuiSlider-thumb": { width: 12, height: 12 },
-              }}
-            />
-            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-              {Math.round(fontSize * 16)}px
-            </Typography>
-            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
-              <IconButton
-                size="small"
-                onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
-                sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
-              >
-                <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
-
-
-        {isInstructionExpanded && (
-          <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
-            {/* Main Instructions */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-              <Typography paragraph sx={{ fontSize: `${fontSize}rem`, lineHeight: "1.5", color: "#333" }}>
-                {info.instruction_data}
-              </Typography>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsInstructionExpanded(!isInstructionExpanded);
+                  }}
+                  sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+                >
+                  {isInstructionExpanded ? (
+                    <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  ) : (
+                    <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Box>
+          </Box>
 
-            {/* Metadata Information - Now directly in the panel */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
-              {/* Hint Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `${fontSize + 0.1}rem`,
-                    mb: 1,
-                  }}
+          {/* Font size slider — shown when expanded */}
+          {isInstructionExpanded && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                px: "0.5rem",
+                pb: "0.5rem",
+                flexShrink: 0,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+                Aa
+              </Typography>
+              <Slider
+                value={fontSize}
+                min={0.7}
+                max={1.4}
+                step={0.05}
+                onChange={handleFontSizeChange}
+                onChangeCommitted={handleFontSizeCommit}
+                size="small"
+                sx={{
+                  color: "#EE6633",
+                  width: "100%",
+                  "& .MuiSlider-thumb": { width: 12, height: 12 },
+                }}
+              />
+              <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+                {Math.round(fontSize * 16)}px
+              </Typography>
+              <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
+                  sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
                 >
-                  {translate("modal.hint")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #F18359",
-                  }}
-                >
-                  {info.hint || "No hints available"}
+                  <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+
+
+          {isInstructionExpanded && (
+            <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
+              {/* Main Instructions */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
+                <Typography paragraph sx={{ fontSize: `${fontSize}rem`, lineHeight: "1.5", color: "#333" }}>
+                  {info.instruction_data}
                 </Typography>
               </Box>
 
-              {/* Examples Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `${fontSize + 0.1}rem`,
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.examples")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #4CAF50",
-                  }}
-                >
-                  {info.examples || "No examples available"}
-                </Typography>
-              </Box>
+              {/* Metadata Information - Now directly in the panel */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
+                {/* Hint Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: `${fontSize + 0.1}rem`,
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.hint")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #F18359",
+                    }}
+                  >
+                    {info.hint || "No hints available"}
+                  </Typography>
+                </Box>
 
-              {/* Additional Metadata Information */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `${fontSize + 0.1}rem`,
-                    mb: 1,
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {info.meta_info_language && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
-                        Language: {info.meta_info_language}
-                      </Typography>
-                    </Box>
-                  )}
-                  {taskId && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
-                        Task ID: {taskId}
-                      </Typography>
-                    </Box>
-                  )}
+                {/* Examples Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: `${fontSize + 0.1}rem`,
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.examples")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #4CAF50",
+                    }}
+                  >
+                    {info.examples || "No examples available"}
+                  </Typography>
+                </Box>
+
+                {/* Additional Metadata Information */}
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: `${fontSize + 0.1}rem`,
+                      mb: 1,
+                    }}
+                  >
+                    Additional Information
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    {info.meta_info_language && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <CodeIcon fontSize="small" color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
+                          Language: {info.meta_info_language}
+                        </Typography>
+                      </Box>
+                    )}
+                    {taskId && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <AssignmentIcon fontSize="small" color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
+                          Task ID: {taskId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
-
-      {/* Chat Section - Right Side - remains exactly the same */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          overflow: "hidden",
-          minWidth: 0,
-          paddingBottom:"0rem!important",
-        }}
-      >
-        <Box
-  sx={{
-    flex: 1,
-    overflowY: "auto",
-    padding: "1rem",
-    paddingBottom:"0rem!important",
-    background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
-    width: "100%",
-    minHeight: 0,
-  }}
->
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
-            {showChatContainer ? renderChatHistory() : null}
-          </Box>
-          <Box ref={bottomRef} />
+          )}
         </Box>
-      </Box>
-    </Box>
 
-    {/* Textarea placed outside the main container - remains exactly the same */}
-    {stage !== "Alltask" && !disableUpdateButton ? (
-      <Box
-        sx={{
-
-    bgcolor: "white",
-    borderTop: "1px solid #e0e0e0",
-    position: "fixed",
-    bottom: 0,
-    left: 0,
-    right:0,
-    flex:1,
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-              py: "0.5rem",
-          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
-
-    alignItems: "center",
-    boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
-        }}
-      >
-        
-      <Box
+        {/* Chat Section - Right Side - remains exactly the same */}
+        <Box
           sx={{
-            width: "100%",
-            maxWidth: "100%", // Always full width
-            mx: 0, // No margin
-            paddingLeft:"1.5rem",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            overflow: "hidden",
+            minWidth: 0,
+            paddingBottom: "0rem!important",
           }}
         >
-        <Textarea
-          handleButtonClick={handleButtonClick}
-          handleOnchange={handleOnchange}
-          size={12}
-            sx={{ 
-              width: "100%", 
-              margin: 0, 
-              padding: 0,
-              "& .MuiInputBase-root": {
-                height: "50px",
-                width: "100%",
-              },
-              "& textarea": {
-                fontSize: { xs: "0.85rem", md: "0.9rem" },
-                width: "100%",
-              }
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "1rem",
+              paddingBottom: "0rem!important",
+              background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+              width: "100%",
+              minHeight: 0,
             }}
-          class_name={"w-full"}
-          loading={loading}
-          inputValue={inputValue}
-          overrideGT={true}
-          task_id={taskId}
-          script={info.meta_info_language}
-        />
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
+              {showChatContainer ? renderChatHistory() : null}
+            </Box>
+            <Box ref={bottomRef} />
+          </Box>
         </Box>
       </Box>
-    ) : null}
-  </>
-);
+
+      {/* Textarea placed outside the main container - remains exactly the same */}
+      {stage !== "Alltask" && !disableUpdateButton ? (
+        <Box
+          sx={{
+
+            bgcolor: "white",
+            borderTop: "1px solid #e0e0e0",
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            flex: 1,
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            py: "0.5rem",
+            px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+
+            alignItems: "center",
+            boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
+          }}
+        >
+
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "100%", // Always full width
+              mx: 0, // No margin
+              paddingLeft: "1.5rem",
+            }}
+          >
+            <Textarea
+              handleButtonClick={handleButtonClick}
+              handleOnchange={handleOnchange}
+              size={12}
+              sx={{
+                width: "100%",
+                margin: 0,
+                padding: 0,
+                "& .MuiInputBase-root": {
+                  height: "50px",
+                  width: "100%",
+                },
+                "& textarea": {
+                  fontSize: { xs: "0.85rem", md: "0.9rem" },
+                  width: "100%",
+                }
+              }}
+              class_name={"w-full"}
+              loading={loading}
+              inputValue={inputValue}
+              overrideGT={true}
+              task_id={taskId}
+              script={info.meta_info_language}
+            />
+          </Box>
+        </Box>
+      ) : null}
+    </>
+  );
 };
 
 export default MultipleLLMInstructionDrivenChat;
