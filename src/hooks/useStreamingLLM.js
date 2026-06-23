@@ -33,11 +33,17 @@ export default function useStreamingLLM() {
       let fullText = "";
 
       try {
+        const token = localStorage.getItem("anudesh_access_token");
+        const headers = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers["Authorization"] = `JWT ${token}`;
+        }
+
         const response = await fetch(streamUrl, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: headers,
           body: JSON.stringify({
             message: prompt,
             history: history,
@@ -151,9 +157,17 @@ export default function useStreamingLLM() {
       models.forEach((m) => { modelTexts[m] = ""; });
 
       try {
+        const token = localStorage.getItem("anudesh_access_token");
+        const headers = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers["Authorization"] = `JWT ${token}`;
+        }
+
         const response = await fetch(streamUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: headers,
           body: JSON.stringify({
             message: prompt,
             model_interactions: modelInteractions,
