@@ -387,7 +387,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async (promptOverride) => {
+const handleButtonClick = async (promptOverride, retry = false) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
     setChatLoading(true);
@@ -396,19 +396,40 @@ const handleButtonClick = async (promptOverride) => {
     const currentPrompt = prompt;
 
     // Add optimistic entry with a streaming placeholder
-    const optimisticEntry = {
-      prompt: currentPrompt,
-      output: [{ type: "text", value: "" }],
-    };
-    const optimisticHistory = [...chatHistory, optimisticEntry];
-    setChatHistory(optimisticHistory);
-    localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(optimisticHistory));
-    setShowChatContainer(true);
+ let optimisticHistory = [];
 
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+  if (retry) {
+    // Replace only the last assistant response
+    optimisticHistory = [...chatHistory];
 
+    if (optimisticHistory.length > 0) {
+      optimisticHistory[optimisticHistory.length - 1] = {
+        ...optimisticHistory[optimisticHistory.length - 1],
+        output: [{ type: "text", value: "" }],
+      };
+    }
+  } else {
+    // Normal new prompt
+    optimisticHistory = [
+      ...chatHistory,
+      {
+        prompt: currentPrompt,
+        output: [{ type: "text", value: "" }],
+      },
+    ];
+  }
+
+  setChatHistory(optimisticHistory);
+  localStorage.setItem(
+    `in_progress_chat_single_${taskId}`,
+    JSON.stringify(optimisticHistory)
+  );
+
+  setShowChatContainer(true);
+
+  setTimeout(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, 100);
     // Build the history for the streaming endpoint (previous turns only)
     const streamHistory = chatHistory.map((chat) => ({
       prompt: chat.prompt,
@@ -454,6 +475,7 @@ const handleButtonClick = async (promptOverride) => {
 
     const body = {
       result: currentPrompt,
+      retry,
       lead_time:
         (new Date() - loadtime) / 1000 +
         Number(id?.lead_time?.lead_time ?? 0),
@@ -534,19 +556,6 @@ const handleButtonClick = async (promptOverride) => {
     setText("");
   }
 };
-const hasFailedLastResponse = useMemo(() => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  const last = chatHistory[chatHistory.length - 1];
-  if (!last?.output || last.output.length === 0) return true;
-  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
-}, [chatHistory]);
-const handleRetry = useCallback(async () => {
-  if (!chatHistory || chatHistory.length === 0) return;
-  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
-  if (!lastPrompt) return;
-  await handleClick('delete-pair', id?.id, 0.0);
-  await handleButtonClick(lastPrompt);
-}, [chatHistory, handleClick, id, handleButtonClick]);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -847,8 +856,8 @@ const renderChatHistory = () => {
                 <Tooltip title="Re-send the same prompt to get a new response">
                   <IconButton
                     size="small"
-                    onClick={handleRetry}
-                    disabled={loading || chatLoading}
+                    onClick={() => handleButtonClick(message.prompt, true)}
+                    disabled={loading ||}
                     style={{
                       padding: "4px",
                     }}
