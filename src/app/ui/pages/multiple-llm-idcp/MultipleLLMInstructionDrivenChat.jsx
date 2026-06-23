@@ -636,123 +636,144 @@ const MultipleLLMInstructionDrivenChat = ({
           body.parentannotation = id?.parent_annotation;
         }
 
-        try {
-          // Wait for both the stream and the PATCH to complete
-          const [streamedTexts] = await Promise.all([
-            streamPromise,
-            (async () => {
-              const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-              const res = await fetch(AnnotationObj.apiEndPoint(), {
-                method: "PATCH",
-                body: JSON.stringify(AnnotationObj.getBody()),
-                headers: AnnotationObj.getHeaders().headers,
-              });
-              const data = await res.json();
+      try {
+        // Wait for the stream to complete
+        const streamedTexts = await streamPromise;
 
-              let errorMessage = null;
-              if (data && data.output) {
-                for (const [modelName, modelResponse] of Object.entries(data.output)) {
-                  if (modelResponse?.error) {
-                    errorMessage = `${modelName} error: ${modelResponse.error}`;
-                    break;
+        if (streamedTexts) {
+          const currentAnnotationResult = annotation?.[0]?.result?.[0] || { eval_form: [], model_interactions: [] };
+          // Deep clone model_interactions
+          const newModelInteractions = JSON.parse(JSON.stringify(currentAnnotationResult.model_interactions || []));
+          
+          Object.entries(streamedTexts).forEach(([modelName, text]) => {
+            let modelEntry = newModelInteractions.find(m => m.model_name === modelName || m.model_id === modelName);
+            if (!modelEntry) {
+              modelEntry = { model_name: modelName, model_id: modelName, interaction_json: [] };
+              newModelInteractions.push(modelEntry);
+            }
+            modelEntry.interaction_json.push({
+              prompt: currentPrompt,
+              output: text,
+              preferred_response: false,
+              prompt_output_pair_id: body.prompt_output_pair_id
+            });
+          });
+
+          body.result = [{
+            eval_form: currentAnnotationResult.eval_form,
+            model_interactions: newModelInteractions
+          }];
+
+          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+          const res = await fetch(AnnotationObj.apiEndPoint(), {
+            method: "PATCH",
+            body: JSON.stringify(AnnotationObj.getBody()),
+            headers: AnnotationObj.getHeaders().headers,
+          });
+          const data = await res.json();
+
+          let errorMessage = null;
+          if (data && data.output) {
+            for (const [modelName, modelResponse] of Object.entries(data.output)) {
+              if (modelResponse?.error) {
+                errorMessage = `${modelName} error: ${modelResponse.error}`;
+                break;
+              }
+            }
+          }
+
+          if (!res.ok) {
+            setChatHistory((prev) => prev.slice(0, -1));
+            setSnackbarInfo({
+              open: true,
+              message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+              variant: "error",
+            });
+            return;
+          }
+
+          if (errorMessage) {
+            setSnackbarInfo({
+              open: true,
+              message: errorMessage,
+              variant: "error",
+            });
+          }
+
+          // Once PATCH completes, sync the full result from DB (source of truth)
+          if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
+            const allModelsInteractions = data.result[0].model_interactions;
+            const interactions_length =
+              allModelsInteractions[0]?.interaction_json?.length || 0;
+            let modifiedChatHistory = [];
+
+            for (let i = 0; i < interactions_length; i++) {
+              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const modelOutputs = [];
+              let turnPromptOutputPairId = null;
+
+              allModelsInteractions.forEach((modelData, modelIdx) => {
+                const interaction = modelData?.interaction_json?.[i];
+                if (interaction) {
+                  const response_valid = isString(interaction?.output);
+                  if (!response_valid) {
+                    setIsModelFailing(true);
                   }
-                }
-              }
-
-              if (!res.ok) {
-                if (!streamedTexts) {
-                  setChatHistory((prev) => prev.slice(0, -1));
-                }
-                setSnackbarInfo({
-                  open: true,
-                  message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-                  variant: "error",
-                });
-                return;
-              }
-
-              if (errorMessage) {
-                setSnackbarInfo({
-                  open: true,
-                  message: errorMessage,
-                  variant: "error",
-                });
-              }
-
-              // Once PATCH completes, sync the full result from DB (source of truth)
-              if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
-                const allModelsInteractions = data.result[0].model_interactions;
-                const interactions_length =
-                  allModelsInteractions[0]?.interaction_json?.length || 0;
-                let modifiedChatHistory = [];
-
-                for (let i = 0; i < interactions_length; i++) {
-                  const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
-                  const modelOutputs = [];
-                  let turnPromptOutputPairId = null;
-
-                  allModelsInteractions.forEach((modelData, modelIdx) => {
-                    const interaction = modelData?.interaction_json?.[i];
-                    if (interaction) {
-                      const response_valid = isString(interaction?.output);
-                      if (!response_valid) {
-                        setIsModelFailing(true);
-                      }
-                      if (modelIdx === 0) {
-                        turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-                      }
-                      modelOutputs.push({
-                        model_id: modelData?.model_id || modelData?.model_name,
-                        model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                        output: response_valid
-                          ? formatResponse(interaction?.output)
-                          : formatResponse(
-                            `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                          ),
-                        status: response_valid ? "success" : "error",
-                        prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                        output_error: response_valid
-                          ? null
-                          : JSON.stringify(interaction?.output),
-                      });
-                    }
+                  if (modelIdx === 0) {
+                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  }
+                  modelOutputs.push({
+                    model_id: modelData?.model_id || modelData?.model_name,
+                    model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                    output: response_valid
+                      ? formatResponse(interaction?.output)
+                      : formatResponse(
+                        `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                      ),
+                    status: response_valid ? "success" : "error",
+                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                    output_error: response_valid
+                      ? null
+                      : JSON.stringify(interaction?.output),
                   });
-
-                  if (turnPromptOutputPairId) {
-                    const eval_form = (
-                      Array.isArray(data?.result[0]?.eval_form)
-                        ? data.result[0].eval_form
-                        : []
-                    ).find(
-                      (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
-                    );
-                    if (eval_form) {
-                      setEvalFormResponse((prev) => ({
-                        ...prev,
-                        [turnPromptOutputPairId]: eval_form,
-                      }));
-                    }
-                  }
-
-                  if (prompt !== undefined && modelOutputs.length > 0) {
-                    modifiedChatHistory.push({
-                      prompt: prompt,
-                      output: modelOutputs,
-                      prompt_output_pair_id: turnPromptOutputPairId,
-                    });
-                  }
                 }
-                setChatHistory([...modifiedChatHistory]);
+              });
+
+              if (turnPromptOutputPairId) {
+                const eval_form = (
+                  Array.isArray(data?.result[0]?.eval_form)
+                    ? data.result[0].eval_form
+                    : []
+                ).find(
+                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                );
+                if (eval_form) {
+                  setEvalFormResponse((prev) => ({
+                    ...prev,
+                    [turnPromptOutputPairId]: eval_form,
+                  }));
+                }
               }
-            })(),
-          ]);
-        } catch (error) {
-          console.error("Error in multi-model chat save/stream operation:", error);
-        } finally {
-          setChatLoading(false);
-          setIsStreaming(false);
-          localStorage.removeItem(`in_progress_chat_${taskId}`);
+
+              if (prompt !== undefined && modelOutputs.length > 0) {
+                modifiedChatHistory.push({
+                  prompt: prompt,
+                  output: modelOutputs,
+                  prompt_output_pair_id: turnPromptOutputPairId,
+                });
+              }
+            }
+            setChatHistory([...modifiedChatHistory]);
+          }
         }
+      } catch (error) {
+        console.error("Error in multi-model chat save/stream operation:", error);
+      } finally {
+        setChatLoading(false);
+        setIsStreaming(false);
+        setLoading(false);
+        localStorage.removeItem(`in_progress_chat_${taskId}`);
+      }
 
         setVisibleMessages((prev) => ({
           ...prev,
