@@ -74,7 +74,7 @@ export default function Root() {
             <Route
               path="projects/:id"
               element={ProtectedRouteWrapper(
-                <Layout component={<Projects />} Backbutton={true} />
+                <Layout component={<Projects />} Backbutton={false} />
               )}
             />
              <Route
@@ -190,7 +190,7 @@ export default function Root() {
             <Layout component={<CreateProject />} />
           )}
           />
-          /<Route
+          <Route
           path="projects/:projectId/SuperChecker/:taskId"
           element={ProtectedRouteWrapper(
             <Layout component={<SuperCheckerPage />} />
