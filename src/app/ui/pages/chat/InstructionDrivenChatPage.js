@@ -277,6 +277,18 @@ const [snackbar, setSnackbarInfo] = useState({
 const handleButtonClick = async () => {
   if (inputValue) {
     setLoading(true);
+
+    const optimisticEntry = {
+      prompt: inputValue,
+      output: [], 
+    };
+    setChatHistory((prev) => [...prev, optimisticEntry]);
+    setShowChatContainer(true);
+
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+
     const body = {
       result: inputValue,
       lead_time:
@@ -285,27 +297,27 @@ const handleButtonClick = async () => {
       auto_save: true,
       task_id: taskId,
     };
-    if (stage === "Alltask") {
-      body.annotation_status = id?.annotation_status;
-    } else {
-      body.annotation_status = localStorage.getItem("labellingMode");
-    }
-    if (stage === "Review") {
-      body.review_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else if (stage === "SuperChecker") {
-      body.superchecker_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    } else {
-      body.annotation_notes = JSON.stringify(
-        notes?.current?.getEditor().getContents(),
-      );
-    }
-    if (stage === "Review" || stage === "SuperChecker") {
-      body.parentannotation = id?.parent_annotation;
-    }
+          if (stage === "Alltask") {
+        body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
+      }
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else {
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id?.parent_annotation;
+      }
     const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
     const res = await fetch(AnnotationObj.apiEndPoint(), {
       method: "PATCH",
@@ -313,28 +325,31 @@ const handleButtonClick = async () => {
       headers: AnnotationObj.getHeaders().headers,
     });
     const data = await res.json();
-    
-    if (res.ok && data && data.result) {
-      let modifiedChatHistory = data.result.map((interaction, index) => {
-        const isLastInteraction = index === data?.result?.length - 1;
+
+    if (data && data.result) {
+      const modifiedChatHistory = data.result.map((interaction, index) => {
+        const isLastInteraction = index === data.result.length - 1;
         return {
           ...interaction,
           output: formatResponse(interaction.output, isLastInteraction),
         };
       });
-      setChatHistory(modifiedChatHistory);
+      setChatHistory([...modifiedChatHistory]); // replaces the optimistic entry
+      setLoading(false);
     } else {
+      // Remove the optimistic entry on failure
+      setChatHistory((prev) => prev.slice(0, -1));
+      setLoading(false);
       setSnackbarInfo({
         open: true,
-        message: data?.message || res.status === 500 ? "Server error. Please try again." : "An error occurred while saving the annotation.",
+        message: data?.message,
         variant: "error",
       });
     }
-    setLoading(false);
+
     setTimeout(() => {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 1000);
-    setShowChatContainer(true);
   } else {
     setSnackbarInfo({
       open: true,
@@ -342,6 +357,7 @@ const handleButtonClick = async () => {
       variant: "error",
     });
   }
+  setText("");
 };
 const handleOnchange = (prompt) => {
     setInputValue(prompt);

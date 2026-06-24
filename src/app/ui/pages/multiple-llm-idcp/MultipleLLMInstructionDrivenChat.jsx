@@ -401,234 +401,226 @@ useEffect(() => {
   };
 
 const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
-  console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
-        const isMultipleResponse = ProjectDetails?.metadata_json;
+  console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
+  const isMultipleResponse = ProjectDetails?.metadata_json;
+  const isNewPrompt = !!inputValue && !(modelResponses && prompt_output_pair_id >= 0);
 
   if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
     setLoading(true);
-    try {
-      const body = {
-        result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
-        lead_time:
-          (new Date() - loadtime) / 1000 +
-          Number(id?.lead_time?.lead_time ?? 0),
-        auto_save: true,
-        task_id: taskId,
-        prompt_output_pair_id:
-          modelResponses && prompt_output_pair_id >= 0
-            ? prompt_output_pair_id
-            : generateUniquePromptOutputPairId(),
-        ...(modelResponses &&
-          prompt_output_pair_id >= 0 && {
-          model_responses_json: modelResponses?.model_responses_json,
-        }),
-      };
-      console.log(body);
 
-      if (stage === "Alltask") {
-        body.annotation_status = id?.annotation_status;
-      } else {
-        body.annotation_status = localStorage.getItem("labellingMode");
+    // ✅ Optimistically show the prompt immediately before API call
+    if (isNewPrompt) {
+      setChatHistory((prev) => [
+        ...prev,
+        { prompt: inputValue, output: [], prompt_output_pair_id: null },
+      ]);
+      setShowChatContainer(true);
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+
+    const body = {
+      result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
+      lead_time:
+        (new Date() - loadtime) / 1000 +
+        Number(id?.lead_time?.lead_time ?? 0),
+      auto_save: true,
+      task_id: taskId,
+      prompt_output_pair_id:
+        modelResponses && prompt_output_pair_id >= 0
+          ? prompt_output_pair_id
+          : generateUniquePromptOutputPairId(),
+      ...(modelResponses &&
+        prompt_output_pair_id >= 0 && {
+        model_responses_json: modelResponses?.model_responses_json,
+      }),
+    };
+    console.log(body);
+
+    if (stage === "Alltask") {
+      body.annotation_status = id?.annotation_status;
+    } else {
+      body.annotation_status = localStorage.getItem("labellingMode");
+    }
+    if (stage === "Review") {
+      body.review_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else if (stage === "SuperChecker") {
+      body.superchecker_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else {
+      body.annotation_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    }
+    if (stage === "Review" || stage === "SuperChecker") {
+      body.parentannotation = id?.parent_annotation;
+    }
+
+    const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+    const res = await fetch(AnnotationObj.apiEndPoint(), {
+      method: "PATCH",
+      body: JSON.stringify(AnnotationObj.getBody()),
+      headers: AnnotationObj.getHeaders().headers,
+    });
+    const data = await res.json();
+    console.log("hello", data);
+    let errorMessage = null;
+
+    if (data && data.output) {
+      for (const [modelName, modelResponse] of Object.entries(data.output)) {
+        if (modelResponse?.error) {
+          errorMessage = `${modelName} error: ${modelResponse.error}`;
+          break;
+        }
       }
-      if (stage === "Review") {
-        body.review_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else if (stage === "SuperChecker") {
-        body.superchecker_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else {
-        body.annotation_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
+    }
+
+    if (!res.ok) {
+      // ✅ Rollback optimistic entry on HTTP error
+      if (isNewPrompt) {
+        setChatHistory((prev) => prev.slice(0, -1));
       }
-      if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id?.parent_annotation;
-      }
-      const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-      const res = await fetch(AnnotationObj.apiEndPoint(), {
-        method: "PATCH",
-        body: JSON.stringify(AnnotationObj.getBody()),
-        headers: AnnotationObj.getHeaders().headers,
+      setSnackbarInfo({
+        open: true,
+        message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+        variant: "error",
       });
-      
-      let data;
-      try {
-        data = await res.json();
-      } catch (jsonError) {
-        // Invalid JSON response (likely HTML error page)
-        setSnackbarInfo({
-          open: true,
-          message: "Server error. Please try again later.",
-          variant: "error",
-        });
-        setLoading(false);
-        return;
-      }
-      
-      console.log("hello", data);
-      let errorMessage = null;
+      setLoading(false);
+      return;
+    }
 
-      if (data && data.output) {
-        for (const [modelName, modelResponse] of Object.entries(data.output)) {
-          if (modelResponse?.error) {
-            errorMessage = `${modelName} error: ${modelResponse.error}`;
-            break;
-          }
-        }
-      }
-
-      if (!res.ok) {
-        setSnackbarInfo({
-          open: true,
-          message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-          variant: "error",
-        });
-        setLoading(false);
-        return;
-      }
-
-      if (errorMessage) {
-        setSnackbarInfo({
-          open: true,
-          message: errorMessage,
-          variant: "error",
-        });
-      }
-      if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
-        if (data.message === "Success") {
-          setSubmittedEvalForms((prev) => ({
-            ...prev,
-            [prompt_output_pair_id]: modelResponses,
-          }));
-          setSnackbarInfo({
-            open: true,
-            message: "Preferred response saved successfully!",
-            variant: "success",
-          });
-        } else {
-          setSnackbarInfo({
-            open: true,
-            message: "Saving preferred response failed! Try again later.",
-            variant: "error",
-          });
-        }
-      }
-      if (!inputValue && prompt_output_pair_id && modelResponses) {
+    if (errorMessage) {
+      setSnackbarInfo({
+        open: true,
+        message: errorMessage,
+        variant: "error",
+      });
+    }
+    if (!inputValue && modelResponses && prompt_output_pair_id >= 0) {
+      if (data.message === "Success") {
         setSubmittedEvalForms((prev) => ({
           ...prev,
           [prompt_output_pair_id]: modelResponses,
         }));
+        setSnackbarInfo({
+          open: true,
+          message: "Preferred response saved successfully!",
+          variant: "success",
+        });
+      } else {
+        setSnackbarInfo({
+          open: true,
+          message: "Saving preferred response failed! Try again later.",
+          variant: "error",
+        });
       }
+    }
+    if (!inputValue && prompt_output_pair_id && modelResponses) {
+      setSubmittedEvalForms((prev) => ({
+        ...prev,
+        [prompt_output_pair_id]: modelResponses,
+      }));
+    }
+
+    setChatHistory((prevChatHistory) => {
+      data && data.result && setLoading(false);
       let modifiedChatHistory = [];
-      setChatHistory((prevChatHistory) => {
-        data && data.result && setLoading(false);
-        let modifiedChatHistory = [];
 
-        if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
-          const allModelsInteractions = data.result[0].model_interactions;
-          const interactions_length =
-            allModelsInteractions[0]?.interaction_json?.length || 0;
+      if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
+        const allModelsInteractions = data.result[0].model_interactions;
+        const interactions_length =
+          allModelsInteractions[0]?.interaction_json?.length || 0;
 
-          for (let i = 0; i < interactions_length; i++) {
-            const prompt =
-              allModelsInteractions[0]?.interaction_json[i]?.prompt;
+        for (let i = 0; i < interactions_length; i++) {
+          const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+          const modelOutputs = [];
+          let turnPromptOutputPairId = null;
 
-            const modelOutputs = [];
-            let turnPromptOutputPairId = null;
-
-            allModelsInteractions.forEach((modelData, modelIdx) => {
-              const interaction = modelData?.interaction_json?.[i];
-              console.log("lead", interaction,)
-
-              if (interaction) {
-                const response_valid = isString(interaction?.output);
-                console.log("lead", response_valid, interaction)
-                if (!response_valid) {
-                  setIsModelFailing(true);
-                }
-                if (modelIdx === 0) {
-                  turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-                }
-
-                modelOutputs.push({
-                  model_id: modelData?.model_id || modelData?.model_name,
-                  model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                  output: response_valid
-                    ? formatResponse(interaction?.output)
-                    : formatResponse(
-                      `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                    ),
-                  status: response_valid ? "success" : "error",
-                  prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                  output_error: response_valid
-                    ? null
-                    : JSON.stringify(interaction?.output),
-                });
+          allModelsInteractions.forEach((modelData, modelIdx) => {
+            const interaction = modelData?.interaction_json?.[i];
+            console.log("lead", interaction);
+            if (interaction) {
+              const response_valid = isString(interaction?.output);
+              console.log("lead", response_valid, interaction);
+              if (!response_valid) {
+                setIsModelFailing(true);
               }
-            });
-
-            if (turnPromptOutputPairId) {
-              const eval_form = (
-                Array.isArray(data?.result[0]?.eval_form)
-                  ? data.result[0].eval_form
-                  : []
-              ).find(
-                (item) =>
-                  item.prompt_output_pair_id ===
-                  turnPromptOutputPairId,
-              );
-
-              if (eval_form) {
-                setEvalFormResponse((prev) => ({
-                  ...prev,
-                  [turnPromptOutputPairId]: eval_form,
-                }));
+              if (modelIdx === 0) {
+                turnPromptOutputPairId = interaction?.prompt_output_pair_id;
               }
-            }
-
-            if (prompt !== undefined && modelOutputs.length > 0) {
-              modifiedChatHistory.push({
-                prompt: prompt,
-                output: modelOutputs,
-                prompt_output_pair_id: turnPromptOutputPairId,
+              modelOutputs.push({
+                model_id: modelData?.model_id || modelData?.model_name,
+                model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                output: response_valid
+                  ? formatResponse(interaction?.output)
+                  : formatResponse(
+                    `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                  ),
+                status: response_valid ? "success" : "error",
+                prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                output_error: response_valid
+                  ? null
+                  : JSON.stringify(interaction?.output),
               });
             }
+          });
+
+          if (turnPromptOutputPairId) {
+            const eval_form = (
+              Array.isArray(data?.result[0]?.eval_form)
+                ? data.result[0].eval_form
+                : []
+            ).find(
+              (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+            );
+            if (eval_form) {
+              setEvalFormResponse((prev) => ({
+                ...prev,
+                [turnPromptOutputPairId]: eval_form,
+              }));
+            }
           }
-        } else {
+
+          if (prompt !== undefined && modelOutputs.length > 0) {
+            modifiedChatHistory.push({
+              prompt: prompt,
+              output: modelOutputs,
+              prompt_output_pair_id: turnPromptOutputPairId,
+            });
+          }
+        }
+      } else {
+        // ✅ Rollback optimistic entry on data error
+        if (isNewPrompt) {
           setLoading(false);
           setSnackbarInfo({
             open: true,
-            message: data?.message || "Server error. Please try again.",
+            message: data?.message,
             variant: "error",
           });
+          return prevChatHistory.slice(0, -1);
         }
+        setLoading(false);
+        setSnackbarInfo({
+          open: true,
+          message: data?.message,
+          variant: "error",
+        });
+      }
 
-        return data && data.result && data.result.length > 0
-          ? [...modifiedChatHistory]
-          : [...prevChatHistory];
-      });
+      return data && data.result && data.result.length > 0
+        ? [...modifiedChatHistory]
+        : [...prevChatHistory];
+    });
 
-      setVisibleMessages((prev) => ({
-        ...prev,
-        [chatHistory.length]: true,
-      }));
-    } catch (error) {
-      setSnackbarInfo({
-        open: true,
-        message: error?.message || "Network error. Please try again.",
-        variant: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-    !(modelResponses && prompt_output_pair_id >= 0) &&
-      setTimeout(() => {
-        bottomRef.current.scrollIntoView({ behavior: "smooth" });
-      }, 1000);
-    setShowChatContainer(true);
-    setInputValue("");
+    setVisibleMessages((prev) => ({
+      ...prev,
+      [chatHistory.length]: true,
+    }));
   } else {
     setSnackbarInfo({
       open: true,
@@ -636,6 +628,12 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
       variant: "error",
     });
   }
+  !(modelResponses && prompt_output_pair_id >= 0) &&
+    setTimeout(() => {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }, 1000);
+  setShowChatContainer(true);
+  setInputValue("");
 };
 
   const handleOnchange = (prompt) => {
