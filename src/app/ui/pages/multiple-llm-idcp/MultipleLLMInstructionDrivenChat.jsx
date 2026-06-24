@@ -267,7 +267,6 @@ useEffect(() => {
         annotation[0].result[0].model_interactions;
       const interactions_length =
         allModelsInteractions[0]?.interaction_json?.length || 0;
-      console.log("lead", allModelsInteractions);
       for (let i = 0; i < interactions_length; i++) {
         const prompt =
           allModelsInteractions[0]?.interaction_json[i]?.prompt;
@@ -401,7 +400,6 @@ useEffect(() => {
   };
 
 const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
-  console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
         const isMultipleResponse = ProjectDetails?.metadata_json;
 
   if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
@@ -423,7 +421,6 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
           model_responses_json: modelResponses?.model_responses_json,
         }),
       };
-      console.log(body);
 
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -466,8 +463,6 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
         setLoading(false);
         return;
       }
-      
-      console.log("hello", data);
       let errorMessage = null;
 
       if (data && data.output) {
@@ -540,11 +535,9 @@ const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = 
 
             allModelsInteractions.forEach((modelData, modelIdx) => {
               const interaction = modelData?.interaction_json?.[i];
-              console.log("lead", interaction,)
 
               if (interaction) {
                 const response_valid = isString(interaction?.output);
-                console.log("lead", response_valid, interaction)
                 if (!response_valid) {
                   setIsModelFailing(true);
                 }
@@ -944,8 +937,6 @@ const handleSingleMultiSelect = (checked, option, questionIdx, promptOutputPairI
   });
 };
 const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex = 0) => {
-  console.log(evalFormResponse);
-  
   const questionResponseJson = evalFormResponse?.model_responses_json;
   if (!questionResponseJson) return responseIndex === 0 ? "" : 0;
   
@@ -1271,21 +1262,15 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     });
   };
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
-    console.log(form);
-
       const formdata = form?.model_responses_json
-    console.log(formdata);
     
     if (!formdata) {
       return false;
     }
 
     const allModelsValid = formdata.every((modelResponse) => {
-      console.log("something");
-      
       const allMandatoryAnswered = questions.every((question) => {
         let expectedParts = 0;
-              console.log("something");
 
         if (question.question_type === "fill_in_blanks") {
           expectedParts =
@@ -1307,7 +1292,6 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
         
 
       if (!responseForQuestion?.response) {
-        console.log("No response for question", questionIdx);
         return false;
       }
 
@@ -1353,7 +1337,6 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
       return updated;
     });
   };
-console.log(evalFormResponse);
 
     const scrollOutputs = (index, direction) => {
         const container = document.getElementById(`output-container-${index}`);
@@ -1399,22 +1382,6 @@ useEffect(() => {
     const toggleShrink = (index) => {
       setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
-
-        const getResponsesPerView = () => {
-        // Check if instruction pane is visible (you'll need to determine this)
-        const isInstructionPaneVisible = false; // Replace with your actual state
-        
-        if (isInstructionPaneVisible) {
-            return 2; // Show only 2 when instruction pane is visible
-        }
-        
-        // Otherwise use default behavior
-        return 3; // Show up to 3 in full width
-    };
-
-    const responsesPerView = getResponsesPerView();
-
-    
 
     const chatElements = chatHistory?.map((message, index) => {
             const responseCount = message?.output?.length || 0;
