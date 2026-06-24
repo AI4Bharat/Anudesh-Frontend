@@ -483,35 +483,49 @@ const handleButtonClick = async (promptOverride) => {
     }
 
     try {
-      const [streamedText] = await Promise.all([
-        streamPromise,
-        (async () => {
-          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-          const res = await fetch(AnnotationObj.apiEndPoint(), {
-            method: "PATCH",
-            body: JSON.stringify(AnnotationObj.getBody()),
-            headers: AnnotationObj.getHeaders().headers,
-          });
-          const data = await res.json();
-
-          if (data && data.result) {
-            const modifiedChatHistory = data.result.map((interaction, index) => {
-              const isLastInteraction = index === data.result.length - 1;
-              return {
-                ...interaction,
-                output: formatResponse(interaction.output, isLastInteraction),
-              };
-            });
-            setChatHistory([...modifiedChatHistory]);
-          } else if (!streamedText) {
-            setSnackbarInfo({
-              open: true,
-              message: data?.message || "Failed to get LLM response",
-              variant: "error",
-            });
+      const streamedText = await streamPromise;
+      
+      if (streamedText) {
+        // Construct the full history array for the backend so it doesn't re-trigger LLM generation
+        const fullHistoryPayload = [
+          ...chatHistory.map((chat) => ({
+            prompt: chat.prompt,
+            output: typeof chat.output === "string"
+              ? chat.output
+              : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+          })),
+          {
+            prompt: currentPrompt,
+            output: streamedText,
           }
-        })(),
-      ]);
+        ];
+        body.result = fullHistoryPayload;
+
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
+
+        if (data && data.result) {
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+        } else if (!data) {
+          setSnackbarInfo({
+            open: true,
+            message: data?.message || "Failed to save LLM response",
+            variant: "error",
+          });
+        }
+      }
     } catch (error) {
       console.error("Error in chat save/stream operation:", error);
     } finally {
@@ -809,7 +823,7 @@ const renderChatHistory = () => {
               ) : (
                 <ReactMarkdown
                   className="flex-col"
-                  children={linkifyText(message?.prompt?.replace(/\n/gi, "&nbsp; \n"))}
+                  children={linkifyText(message?.prompt || "")}
                   components={{
                     p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
                     a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
@@ -980,7 +994,7 @@ const renderChatHistory = () => {
                           <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
                             <ReactMarkdown
                               key={segIdx}
-                              children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
+                              children={linkifyText(segment?.value || "")}
                               components={{
                                 p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
                                 a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
