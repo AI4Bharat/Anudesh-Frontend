@@ -643,17 +643,35 @@ const AnnotatePage = () => {
         } else if (
           (ProjectDetails.project_type == "InstructionDrivenChat" ||
             ProjectDetails.project_type ==
-              "MultipleLLMInstructionDrivenChat") &&
-          chatHistory.length == 0
+              "MultipleLLMInstructionDrivenChat") 
         ) {
-          setSnackbarInfo({
-            open: true,
-            message: "Please enter prompt",
-            variant: "error",
-          });
-          setLoading(false);
-          setShowNotes(false);
-          return;
+          if (chatHistory.length == 0) {
+            setSnackbarInfo({
+              open: true,
+              message: "Please enter prompt",
+              variant: "error",
+            });
+            setLoading(false);
+            setShowNotes(false);
+            return;
+          }
+          
+          if (ProjectDetails.project_type == "InstructionDrivenChat" && !ProjectDetails?.metadata_json?.blank_response) {
+            const hasEmptyOutput = chatHistory.some(chat => {
+              const outputText = reverseFormatResponse(chat.output).trim();
+              return outputText === "";
+            });
+            if (hasEmptyOutput) {
+              setSnackbarInfo({
+                open: true,
+                message: "Output cannot be empty. Please provide an output or enable 'Blank Response' for this project.",
+                variant: "error",
+              });
+              setLoading(false);
+              setShowNotes(false);
+              return;
+            }
+          }
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
