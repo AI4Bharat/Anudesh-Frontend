@@ -232,7 +232,9 @@ const AnnotatePage = () => {
         reviewNotesRef.current.getEditor &&
         reviewNotesRef.current.getEditor()
       ) {
-        loadNotesIntoEditors(annotationNotesValue, reviewNotesValue);
+        const annoValue = AnnotationsTaskDetails[0].annotation_notes ?? "";
+        const reviewValue = AnnotationsTaskDetails[0].review_notes ?? "";
+        loadNotesIntoEditors(annoValue, reviewValue);
       }
     };
 
@@ -248,7 +250,8 @@ const AnnotatePage = () => {
     check();
 
     return () => clearTimeout(timeoutId);
-  }, [AnnotationsTaskDetails, annotationNotesValue, reviewNotesValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [AnnotationsTaskDetails]);
 
   useEffect(() => {
     resetNotes();
