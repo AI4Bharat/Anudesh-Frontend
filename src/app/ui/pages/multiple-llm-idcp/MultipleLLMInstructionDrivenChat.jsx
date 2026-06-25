@@ -147,7 +147,7 @@ const MultipleLLMInstructionDrivenChat = ({
       setIsPolling(false);
       setIsStreaming(false);
       setPollingCount(0);
-      localStorage.removeItem(`in_progress_chat_${taskId}`);
+    
       setSnackbarInfo({
         open: true,
         message: "Streaming timed out. Please refresh the page.",
@@ -438,25 +438,46 @@ const MultipleLLMInstructionDrivenChat = ({
           });
         }
       }
-      const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
-      if (localInProgress) {
-        try {
-          const parsedLocal = JSON.parse(localInProgress);
-          if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
-            const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
-            modifiedChatHistory = [...modifiedChatHistory, ...missingTurns];
-            setIsStreaming(true);
-            setIsPolling(true);
-          } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
-            localStorage.removeItem(`in_progress_chat_${taskId}`);
-            setIsStreaming(false);
-            setIsPolling(false);
-            setPollingCount(0);
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
+     const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
+if (localInProgress) {
+  try {
+    const parsedLocal = JSON.parse(localInProgress);
+    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+    const serverHasLastPrompt = modifiedChatHistory.some(
+      (c) => c.prompt === lastLocalPrompt
+    );
+
+    if (!serverHasLastPrompt) {
+      // Prompt not on server yet — recover it from localStorage
+      const lastTurn = parsedLocal[parsedLocal.length - 1];
+      const recoveredTurn = {
+        ...lastTurn,
+        output: (lastTurn.output || []).map((modelOut) => ({
+          ...modelOut,
+          output: modelOut.output?.[0]?.value
+            ? modelOut.output
+            : [{ type: "text", value: "[Response interrupted — please resend your prompt.]" }],
+          status: "interrupted",
+        })),
+      };
+      modifiedChatHistory = [
+        ...modifiedChatHistory.filter(c => c.prompt !== lastLocalPrompt),
+        recoveredTurn
+      ];
+      setIsStreaming(false);  // no stream running after refresh
+      setIsPolling(false);    // don't poll
+      // keep localStorage until user resends
+    } else {
+      localStorage.removeItem(`in_progress_chat_${taskId}`);
+      setIsStreaming(false);
+      setIsPolling(false);
+      setPollingCount(0);
+    }
+  } catch (e) {
+    console.error(e);
+    localStorage.removeItem(`in_progress_chat_${taskId}`);
+  }
+}
 
       setChatHistory(modifiedChatHistory);
     } else {
