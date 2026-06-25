@@ -237,7 +237,6 @@ const AnnotatePage = () => {
         const annoValue = AnnotationsTaskDetails[0].annotation_notes ?? "";
         const reviewValue = AnnotationsTaskDetails[0].review_notes ?? "";
         loadNotesIntoEditors(annoValue, reviewValue);
-        notesInitializedRef.current = taskId;
       }
     };
 
@@ -255,7 +254,8 @@ const AnnotatePage = () => {
     check();
 
     return () => clearTimeout(timeoutId);
-  }, [AnnotationsTaskDetails, taskId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [AnnotationsTaskDetails]);
 
   useEffect(() => {
     resetNotes();

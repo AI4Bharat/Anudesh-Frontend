@@ -12,7 +12,7 @@ import configs from "@/config/config";
  *     history: [{prompt: "hi", output: "hello"}],
  *     model: "google/gemma-4-26B-A4B-it",
  *     onToken: (token) => { ... },        // called for each streamed token
- *     onDone: (fullText) => { ... },       // called when stream completes
+ *     onDone: (fullText, finishReason) => { ... }, // called when stream completes; finishReason is "stop", "length", or null
  *     onError: (errorMsg) => { ... },      // called on error
  *   });
  */
@@ -76,14 +76,20 @@ export default function useStreamingLLM() {
 
             const dataStr = trimmed.slice(6); // remove "data: " prefix
 
-            // Check for stream completion
+            // Legacy stream completion (plain text sentinel)
             if (dataStr === "[DONE]") {
-              if (onDone) onDone(fullText);
+              if (onDone) onDone(fullText, null);
               return fullText;
             }
 
             try {
               const parsed = JSON.parse(dataStr);
+
+              // JSON stream completion with finish_reason
+              if (parsed.done) {
+                if (onDone) onDone(fullText, parsed.finish_reason || null);
+                return fullText;
+              }
 
               if (parsed.error) {
                 if (onError) onError(parsed.error);
@@ -103,7 +109,7 @@ export default function useStreamingLLM() {
 
         // If stream ended without [DONE], still call onDone
         if (fullText && onDone) {
-          onDone(fullText);
+          onDone(fullText, null);
         }
         return fullText;
       } catch (err) {
@@ -138,7 +144,7 @@ export default function useStreamingLLM() {
    * @param {Array} options.models - List of model names to stream from
    * @param {Object} options.systemPromptData - Per-model system prompts (optional)
    * @param {Function} options.onToken - Called with (modelName, token, fullTextForModel)
-   * @param {Function} options.onModelDone - Called with (modelName, fullTextForModel) when a model finishes
+   * @param {Function} options.onModelDone - Called with (modelName, fullTextForModel, finishReason) when a model finishes
    * @param {Function} options.onDone - Called with ({modelName: fullText, ...}) when all models finish
    * @param {Function} options.onError - Called with (errorMsg) on error
    */
@@ -200,6 +206,7 @@ export default function useStreamingLLM() {
 
             const dataStr = trimmed.slice(6);
 
+            // Legacy plain text sentinel
             if (dataStr === "[DONE]") {
               if (onDone) onDone(modelTexts);
               return modelTexts;
@@ -207,6 +214,12 @@ export default function useStreamingLLM() {
 
             try {
               const parsed = JSON.parse(dataStr);
+
+              // Global done (all models finished)
+              if (parsed.done && !parsed.model) {
+                if (onDone) onDone(modelTexts);
+                return modelTexts;
+              }
 
               if (parsed.error && !parsed.model) {
                 // Global error
@@ -222,8 +235,8 @@ export default function useStreamingLLM() {
               }
 
               if (parsed.done && parsed.model) {
-                // A single model finished
-                if (onModelDone) onModelDone(parsed.model, modelTexts[parsed.model] || "");
+                // A single model finished — includes finish_reason
+                if (onModelDone) onModelDone(parsed.model, modelTexts[parsed.model] || "", parsed.finish_reason || null);
                 continue;
               }
 
