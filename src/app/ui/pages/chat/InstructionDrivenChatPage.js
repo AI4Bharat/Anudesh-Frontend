@@ -145,7 +145,7 @@ const InstructionDrivenChatPage = ({
       setIsPolling(false);
       setIsStreaming(false);
       setPollingCount(0);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+    
       setSnackbarInfo({
         open: true,
         message: "Streaming timed out. Please refresh the page.",
@@ -251,6 +251,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
 
   useEffect(() => {
+    if (!taskId) return;
     let modifiedChatHistory = [];
     if (
       annotation &&
@@ -265,30 +266,49 @@ const [snackbar, setSnackbarInfo] = useState({
       });
     }
 
-    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-    if (localInProgress) {
-      try {
-        const parsedLocal = JSON.parse(localInProgress);
-        if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
-          const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
-          modifiedChatHistory = [...modifiedChatHistory, ...missingTurns];
-          setIsStreaming(true);
-          setIsPolling(true);
-        } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
-          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-          setIsStreaming(false);
-          setIsPolling(false);
-          setPollingCount(0);
-        }
-      } catch (e) {
-        console.error(e);
-      }
+  const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+if (localInProgress) {
+  try {
+    const parsedLocal = JSON.parse(localInProgress);
+    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+    const serverHasLastPrompt = modifiedChatHistory.some(
+      (c) => c.prompt === lastLocalPrompt
+    );
+
+    if (!serverHasLastPrompt) {
+      // Prompt not on server yet — recover it from localStorage
+      const lastTurn = parsedLocal[parsedLocal.length - 1];
+      const recoveredTurn = {
+        ...lastTurn,
+        output: [{ 
+          type: "text", 
+          value: lastTurn.output?.[0]?.value || "[Response interrupted — please resend your prompt.]"
+        }],
+      };
+      modifiedChatHistory = [
+        ...modifiedChatHistory.filter(c => c.prompt !== lastLocalPrompt),
+        recoveredTurn
+      ];
+      setIsStreaming(false);  // no stream running after refresh
+      setIsPolling(false);    // don't poll — nothing to wait for
+      // keep localStorage so it survives further refreshes until user resends
+    } else {
+      // Server already has this prompt — safe to clear
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+      setIsStreaming(false);
+      setIsPolling(false);
+      setPollingCount(0);
     }
+  } catch (e) {
+    console.error(e);
+    localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+  }
+}
 
     setChatHistory(modifiedChatHistory);
     setAnnotationId(annotation[0]?.id);
     setShowChatContainer(!!annotation[0]?.result);
-  }, [annotation]);
+  }, [annotation,taskId]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -361,7 +381,7 @@ const handleButtonClick = async (promptOverride) => {
       prompt: currentPrompt,
       history: streamHistory,
       model: model,
-      onToken: (token, fullText) => {
+onToken: (token, fullText) => {
         setChatHistory((prev) => {
           const updated = [...prev];
           const lastIdx = updated.length - 1;
@@ -371,6 +391,8 @@ const handleButtonClick = async (promptOverride) => {
               output: [{ type: "text", value: fullText }],
             };
           }
+         
+          localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
           return updated;
         });
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
