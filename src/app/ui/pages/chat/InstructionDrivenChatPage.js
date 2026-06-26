@@ -134,7 +134,7 @@ const InstructionDrivenChatPage = ({
       setIsPolling(false);
       setIsStreaming(false);
       setPollingCount(0);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+    
       setSnackbarInfo({
         open: true,
         message: "Streaming timed out. Please refresh the page.",
@@ -300,6 +300,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
 
   useEffect(() => {
+    if (!taskId) return;
     let modifiedChatHistory = [];
     if (
       annotation &&
@@ -314,30 +315,49 @@ const [snackbar, setSnackbarInfo] = useState({
       });
     }
 
-    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-    if (localInProgress) {
-      try {
-        const parsedLocal = JSON.parse(localInProgress);
-        if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
-          const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
-          modifiedChatHistory = [...modifiedChatHistory, ...missingTurns];
-          setIsStreaming(true);
-          setIsPolling(true);
-        } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
-          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-          setIsStreaming(false);
-          setIsPolling(false);
-          setPollingCount(0);
-        }
-      } catch (e) {
-        console.error(e);
-      }
+  const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+if (localInProgress) {
+  try {
+    const parsedLocal = JSON.parse(localInProgress);
+    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+    const serverHasLastPrompt = modifiedChatHistory.some(
+      (c) => c.prompt === lastLocalPrompt
+    );
+
+    if (!serverHasLastPrompt) {
+      // Prompt not on server yet — recover it from localStorage
+      const lastTurn = parsedLocal[parsedLocal.length - 1];
+      const recoveredTurn = {
+        ...lastTurn,
+        output: [{ 
+          type: "text", 
+          value: lastTurn.output?.[0]?.value || "[Response interrupted — please resend your prompt.]"
+        }],
+      };
+      modifiedChatHistory = [
+        ...modifiedChatHistory.filter(c => c.prompt !== lastLocalPrompt),
+        recoveredTurn
+      ];
+      setIsStreaming(false);  // no stream running after refresh
+      setIsPolling(false);    // don't poll — nothing to wait for
+      // keep localStorage so it survives further refreshes until user resends
+    } else {
+      // Server already has this prompt — safe to clear
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+      setIsStreaming(false);
+      setIsPolling(false);
+      setPollingCount(0);
     }
+  } catch (e) {
+    console.error(e);
+    localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+  }
+}
 
     setChatHistory(modifiedChatHistory);
     setAnnotationId(annotation[0]?.id);
     setShowChatContainer(!!annotation[0]?.result);
-  }, [annotation]);
+  }, [annotation,taskId]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -387,7 +407,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async (promptOverride) => {
+const handleButtonClick = async (promptOverride, retry = false) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
     setChatLoading(true);
@@ -396,19 +416,40 @@ const handleButtonClick = async (promptOverride) => {
     const currentPrompt = prompt;
 
     // Add optimistic entry with a streaming placeholder
-    const optimisticEntry = {
-      prompt: currentPrompt,
-      output: [{ type: "text", value: "" }],
-    };
-    const optimisticHistory = [...chatHistory, optimisticEntry];
-    setChatHistory(optimisticHistory);
-    localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(optimisticHistory));
-    setShowChatContainer(true);
+ let optimisticHistory = [];
 
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+  if (retry) {
+    // Replace only the last assistant response
+    optimisticHistory = [...chatHistory];
 
+    if (optimisticHistory.length > 0) {
+      optimisticHistory[optimisticHistory.length - 1] = {
+        ...optimisticHistory[optimisticHistory.length - 1],
+        output: [{ type: "text", value: "" }],
+      };
+    }
+  } else {
+    // Normal new prompt
+    optimisticHistory = [
+      ...chatHistory,
+      {
+        prompt: currentPrompt,
+        output: [{ type: "text", value: "" }],
+      },
+    ];
+  }
+
+  setChatHistory(optimisticHistory);
+  localStorage.setItem(
+    `in_progress_chat_single_${taskId}`,
+    JSON.stringify(optimisticHistory)
+  );
+
+  setShowChatContainer(true);
+
+  setTimeout(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, 100);
     // Build the history for the streaming endpoint (previous turns only)
     const streamHistory = chatHistory.map((chat) => ({
       prompt: chat.prompt,
@@ -424,7 +465,7 @@ const handleButtonClick = async (promptOverride) => {
       prompt: currentPrompt,
       history: streamHistory,
       model: model,
-      onToken: (token, fullText) => {
+onToken: (token, fullText) => {
         setChatHistory((prev) => {
           const updated = [...prev];
           const lastIdx = updated.length - 1;
@@ -434,6 +475,8 @@ const handleButtonClick = async (promptOverride) => {
               output: [{ type: "text", value: fullText }],
             };
           }
+         
+          localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
           return updated;
         });
         // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
@@ -454,6 +497,7 @@ const handleButtonClick = async (promptOverride) => {
 
     const body = {
       result: currentPrompt,
+      retry,
       lead_time:
         (new Date() - loadtime) / 1000 +
         Number(id?.lead_time?.lead_time ?? 0),
@@ -548,19 +592,6 @@ const handleButtonClick = async (promptOverride) => {
     setText("");
   }
 };
-const hasFailedLastResponse = useMemo(() => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  const last = chatHistory[chatHistory.length - 1];
-  if (!last?.output || last.output.length === 0) return true;
-  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
-}, [chatHistory]);
-const handleRetry = useCallback(async () => {
-  if (!chatHistory || chatHistory.length === 0) return;
-  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
-  if (!lastPrompt) return;
-  await handleClick('delete-pair', id?.id, 0.0);
-  await handleButtonClick(lastPrompt);
-}, [chatHistory, handleClick, id, handleButtonClick]);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -861,8 +892,8 @@ const renderChatHistory = () => {
                 <Tooltip title="Re-send the same prompt to get a new response">
                   <IconButton
                     size="small"
-                    onClick={handleRetry}
-                    disabled={loading || chatLoading}
+                    onClick={() => handleButtonClick(message.prompt, true)}
+                    disabled={loading}
                     style={{
                       padding: "4px",
                     }}
@@ -1320,16 +1351,14 @@ return (
                 marginBottom: "1rem",
               }}
             >
-              <Typography
-                paragraph
-                sx={{
-                  fontSize: `${fontSize}rem`,
-                  lineHeight: "1.5",
-                  color: "#333",
+              <ReactMarkdown
+                className="flex-col"
+                children={info?.instruction_data ? linkifyText(info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ')) : ""}
+                components={{
+                  p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
+                  a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                 }}
-              >
-                {info.instruction_data}
-              </Typography>
+              />
             </Box>
 
             {/* Metadata Information Section - Now directly in the panel */}
