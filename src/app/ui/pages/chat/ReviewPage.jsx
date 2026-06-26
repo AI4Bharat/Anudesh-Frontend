@@ -501,7 +501,7 @@ const ReviewPage = () => {
       maxIdAnnotation?.id === task?.correct_annotation_id;
 
 
-      maxIdAnnotation?.id === task?.correct_annotation_id;
+    maxIdAnnotation?.id === task?.correct_annotation_id;
 
 
     const nextAPIData = {
@@ -540,7 +540,7 @@ const ReviewPage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${ projectId }`);
+          window.location.replace(`/#/projects/${projectId}`);
         }, 1000);
       });
     // }
@@ -551,7 +551,7 @@ const ReviewPage = () => {
       if (id) {
         resetNotes();
         // navigate(`/projects/${projectId}/task/${id}`, {replace: true});
-        navigate(`/projects/${ projectId }/review/${ id }`);
+        navigate(`/projects/${projectId}/review/${id}`);
       } else {
         // navigate(-1);
         resetNotes();
@@ -565,7 +565,7 @@ const ReviewPage = () => {
             localStorage.removeItem("labelAll");
           }
 
-          window.location.replace(`/#/projects/${ projectId }`);
+          window.location.replace(`/#/projects/${projectId}`);
           window.location.reload();
         }, 1000);
       }
@@ -598,13 +598,13 @@ const ReviewPage = () => {
       };
     }
     else if (
-      value === "delete-pair" 
+      value === "delete-pair"
     ) {
-      result  = resultValue.slice(0, resultValue.length - 1)
+      result = resultValue.slice(0, resultValue.length - 1)
     }
     else {
       resultValue
-    }   
+    }
     return !Array.isArray(result) ? [result] : result;
   };
 
@@ -791,12 +791,17 @@ const ReviewPage = () => {
           if (type === "MultipleLLMInstructionDrivenChat") {
             const allModelsInteractions = resp?.result?.[0]?.model_interactions;
             if (allModelsInteractions && Array.isArray(allModelsInteractions) && allModelsInteractions.length > 0) {
-              const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
+              const interactions_length = Math.max(
+                ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+                0
+              );
               let modifiedChatHistory = [];
               let globalModelFailure = false;
 
               for (let i = 0; i < interactions_length; i++) {
-                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+                const prompt = allModelsInteractions.find(
+                  (m) => m?.interaction_json?.[i]?.prompt
+                )?.interaction_json?.[i]?.prompt;
                 const modelOutputs = [];
                 let turnPromptOutputPairId = null;
                 let turnHasModelFailure = false;
@@ -808,15 +813,15 @@ const ReviewPage = () => {
                     if (!response_valid) {
                       turnHasModelFailure = true;
                     }
-                    if (modelIdx === 0) {
-                      turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                    if (interaction?.prompt_output_pair_id) {
+                      turnPromptOutputPairId = interaction.prompt_output_pair_id;
                     }
                     modelOutputs.push({
                       model_name: modelData?.model_name,
                       output: response_valid
                         ? formatResponse(interaction?.output)
                         : formatResponse(
-                          `${ modelData?.model_name } failed to generate a response`,
+                          `${modelData?.model_name} failed to generate a response`,
                         ),
                       status: response_valid ? "success" : "error",
                       prompt_output_pair_id: interaction?.prompt_output_pair_id,
@@ -1123,7 +1128,7 @@ const ReviewPage = () => {
     case "InstructionDrivenChat":
       componentToRender = (
         <InstructionDrivenChatPage
-          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
             }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
@@ -1145,7 +1150,7 @@ const ReviewPage = () => {
     case "MultipleLLMInstructionDrivenChat":
       componentToRender = (
         <MultipleLLMInstructionDrivenChat
-          key={`annotations-${ annotations?.length }-${ annotations?.[0]?.id || "default"
+          key={`annotations-${annotations?.length}-${annotations?.[0]?.id || "default"
             }`}
           handleClick={handleReviewClick}
           chatHistory={chatHistory}
@@ -1174,7 +1179,7 @@ const ReviewPage = () => {
         <ModelInteractionEvaluation
           key={
             annotations?.length > 0
-              ? `annotations-${ annotations[0]?.id }`
+              ? `annotations-${annotations[0]?.id}`
               : "annotations-default"
           }
           setCurrentInteraction={setCurrentInteraction}
@@ -1197,7 +1202,7 @@ const ReviewPage = () => {
         <PreferenceRanking
           key={
             annotations?.length > 0
-              ? `annotations-${ annotations[0]?.id }`
+              ? `annotations-${annotations[0]?.id}`
               : "annotations-default"
           }
           setCurrentInteraction={setCurrentInteraction}
@@ -1234,157 +1239,134 @@ const ReviewPage = () => {
       />
     );
   };
-return (
-  <>
-    {loading && <Spinner />}
-    <Grid container>
-      {renderSnackBar()}
-      
-      {/* Main Button Row - All buttons in one line */}
-      <Grid item xs={12}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
-          {/* Back to Project Button */}
-          <Button
-            startIcon={<ArrowBackIcon />}
-            variant="contained"
-            color="primary"
-            size="small"
-            sx={{ 
-              minWidth: 'auto',
-              fontSize: '0.75rem',
-              px: 1.5,
-              py: 0.5
-            }}
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                localStorage.removeItem("labelAll");
-              }
-              navigate(`/projects/${projectId}`);
-            }}
-          >
-            Back
-          </Button>
+  return (
+    <>
+      {loading && <Spinner />}
+      <Grid container>
+        {renderSnackBar()}
 
-          {/* Notes Button */}
-          <Button
-            endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
-            variant="contained"
-            color={reviewtext.trim().length === 0 ? "primary" : "success"}
-            size="small"
-            onClick={handleCollapseClick}
-            sx={{ 
-              minWidth: 'auto',
-              fontSize: '0.75rem',
-              px: 1.5,
-              py: 0.5,
-              backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
-            }}
-          >
-            Notes {reviewtext.trim().length === 0 ? "" : "*"}
-          </Button>
-
-          {/* Info Button */}
-          <LightTooltip
-            title={
-              <div>
-                <div>
-                  {ProjectDetails?.conceal == false &&
-                  Array.isArray(assignedUsers)
-                    ? assignedUsers.join(", ")
-                    : assignedUsers || "No assigned users"}
-                </div>
-                <div
-                  style={{
-                    marginTop: "4px",
-                    fontWeight: "bold",
-                    textAlign: "center",
-                  }}
-                >
-                  {annotations[0]?.annotation_type == 1 &&
-                    `ANNOTATION ID: ${annotations[0]?.id}`}
-                  {annotations[0]?.annotation_type == 2 &&
-                    `REVIEW ID: ${annotations[0]?.id}`}
-                  {annotations[0]?.annotation_type == 3 &&
-                    `SUPERCHECK ID: ${annotations[0]?.id}`}
-                </div>
-              </div>
-            }
-          >
+        {/* Main Button Row - All buttons in one line */}
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, flexWrap: 'wrap' }}>
+            {/* Back to Project Button */}
             <Button
+              startIcon={<ArrowBackIcon />}
+              variant="contained"
+              color="primary"
               size="small"
               sx={{
-                // px: { xs: 2, sm: 3, md: 4 },
-                // py: { xs: 1, sm: 1.5, md: 2 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
-                minWidth: { xs: "70px", sm: "70px", md: "100px" },
+                minWidth: 'auto',
+                fontSize: '0.75rem',
+                px: 1.5,
+                py: 0.5
               }}
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-
-                navigate(`/projects/${ projectId }`,  { replace : true, state: { fromBackToProject: true } });
-                //window.location.replace(`/#/projects/${projectId}`);
-                //window.location.reload();
+                navigate(`/projects/${projectId}`);
               }}
             >
-              <InfoOutlined sx={{ fontSize: '18px' }} />
+              Back
             </Button>
-          </LightTooltip>
 
-          {/* Draft Button */}
-          {!disableBtns && taskData?.review_user === userData?.id && (
-            <Tooltip title="Save task for later">
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() =>
-                  handleReviewClick("draft", review.id, review.lead_time)
-                }
-                sx={{
-                  minWidth: 'auto',
-                  fontSize: '0.75rem',
-                  px: 1.5,
-                  py: 0.5,
-                  color: "black",
-                  border: "0px",
-                  backgroundColor: "#ffe0b2",
-                }}
-              >
-                Draft
-              </Button>
-            </Tooltip>
-          )}
-
-          {/* Next Button */}
-          <Tooltip title="Go to next task">
+            {/* Notes Button */}
             <Button
-              variant="outlined"
+              endIcon={showNotes ? <ArrowRightIcon /> : <ArrowDropDown />}
+              variant="contained"
+              color={reviewtext.trim().length === 0 ? "primary" : "success"}
               size="small"
-              onClick={() => onNextAnnotation("next", getNextTask?.id)}
+              onClick={handleCollapseClick}
               sx={{
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
                 py: 0.5,
-                color: "black",
-                border: "0px",
-                backgroundColor: "#ffe0b2",
+                backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
               }}
             >
-              Next
+              Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
-          </Tooltip>
 
-          {/* Skip Button */}
-          {!disableSkip && taskData?.review_user === userData?.id && (
-            <Tooltip title="skip to next task">
+            {/* Info Button */}
+            <LightTooltip
+              title={
+                <div>
+                  <div>
+                    {ProjectDetails?.conceal == false &&
+                      Array.isArray(assignedUsers)
+                      ? assignedUsers.join(", ")
+                      : assignedUsers || "No assigned users"}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    {annotations[0]?.annotation_type == 1 &&
+                      `ANNOTATION ID: ${annotations[0]?.id}`}
+                    {annotations[0]?.annotation_type == 2 &&
+                      `REVIEW ID: ${annotations[0]?.id}`}
+                    {annotations[0]?.annotation_type == 3 &&
+                      `SUPERCHECK ID: ${annotations[0]?.id}`}
+                  </div>
+                </div>
+              }
+            >
+              <Button
+                size="small"
+                sx={{
+                  // px: { xs: 2, sm: 3, md: 4 },
+                  // py: { xs: 1, sm: 1.5, md: 2 },
+                  fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                  minWidth: { xs: "70px", sm: "70px", md: "100px" },
+                }}
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    localStorage.removeItem("labelAll");
+                  }
+
+                  navigate(`/projects/${projectId}`, { replace: true, state: { fromBackToProject: true } });
+                  //window.location.replace(`/#/projects/${projectId}`);
+                  //window.location.reload();
+                }}
+              >
+                <InfoOutlined sx={{ fontSize: '18px' }} />
+              </Button>
+            </LightTooltip>
+
+            {/* Draft Button */}
+            {!disableBtns && taskData?.review_user === userData?.id && (
+              <Tooltip title="Save task for later">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() =>
+                    handleReviewClick("draft", review.id, review.lead_time)
+                  }
+                  sx={{
+                    minWidth: 'auto',
+                    fontSize: '0.75rem',
+                    px: 1.5,
+                    py: 0.5,
+                    color: "black",
+                    border: "0px",
+                    backgroundColor: "#ffe0b2",
+                  }}
+                >
+                  Draft
+                </Button>
+              </Tooltip>
+            )}
+
+            {/* Next Button */}
+            <Tooltip title="Go to next task">
               <Button
                 variant="outlined"
                 size="small"
-                onClick={() =>
-                  handleReviewClick("skipped", review.id, review.lead_time)
-                }
+                onClick={() => onNextAnnotation("next", getNextTask?.id)}
                 sx={{
                   minWidth: 'auto',
                   fontSize: '0.75rem',
@@ -1395,82 +1377,131 @@ return (
                   backgroundColor: "#ffe0b2",
                 }}
               >
-                Skip
+                Next
               </Button>
             </Tooltip>
-          )}
 
-          {/* Clear Chats/Reset All Button */}
-          {ProjectDetails.project_type == "InstructionDrivenChat" ||
-          ProjectDetails?.project_type == "MultipleLLMInstructionDrivenChat" ? (
-            <Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="clear the entire chat history">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    sx={{
-                      minWidth: 'auto',
-                      fontSize: '0.75rem',
-                      px: 1.5,
-                      py: 0.5,
-                      color: "black",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
-                    }}
-                  >
-                    Clear Chats
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>
-          ) : (
-            <Grid item>
-              {!disableSkip && taskData?.review_user === userData?.id && (
-                <Tooltip title="Reset the entire chat history">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() =>
-                      handleReviewClick("delete", review.id, review.lead_time)
-                    }
-                    sx={{
-                      minWidth: 'auto',
-                      fontSize: '0.75rem',
-                      px: 1.5,
-                      py: 0.5,
-                      color: "black",
-                      border: "0px",
-                      backgroundColor: "#ffe0b2",
-                    }}
-                  >
-                    Reset All
-                  </Button>
-                </Tooltip>
-              )}
-            </Grid>
-          )}
-
-          {/* Revise Button */}
-          {!disableBtns &&
-            !disableButton &&
-            taskData?.review_user === userData?.id && (
-              <Tooltip title="Revise Annotation">
+            {/* Skip Button */}
+            {!disableSkip && taskData?.review_user === userData?.id && (
+              <Tooltip title="skip to next task">
                 <Button
                   variant="outlined"
                   size="small"
                   onClick={() =>
-                    handleReviewClick(
-                      "to_be_revised",
-                      review?.id,
-                      review?.lead_time,
-                      ProjectDetails?.project_type,
-                      review?.parent_annotation,
-                    )
+                    handleReviewClick("skipped", review.id, review.lead_time)
                   }
+                  sx={{
+                    minWidth: 'auto',
+                    fontSize: '0.75rem',
+                    px: 1.5,
+                    py: 0.5,
+                    color: "black",
+                    border: "0px",
+                    backgroundColor: "#ffe0b2",
+                  }}
+                >
+                  Skip
+                </Button>
+              </Tooltip>
+            )}
+
+            {/* Clear Chats/Reset All Button */}
+            {ProjectDetails.project_type == "InstructionDrivenChat" ||
+              ProjectDetails?.project_type == "MultipleLLMInstructionDrivenChat" ? (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="clear the entire chat history">
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        minWidth: 'auto',
+                        fontSize: '0.75rem',
+                        px: 1.5,
+                        py: 0.5,
+                        color: "black",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Clear Chats
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            ) : (
+              <Grid item>
+                {!disableSkip && taskData?.review_user === userData?.id && (
+                  <Tooltip title="Reset the entire chat history">
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() =>
+                        handleReviewClick("delete", review.id, review.lead_time)
+                      }
+                      sx={{
+                        minWidth: 'auto',
+                        fontSize: '0.75rem',
+                        px: 1.5,
+                        py: 0.5,
+                        color: "black",
+                        border: "0px",
+                        backgroundColor: "#ffe0b2",
+                      }}
+                    >
+                      Reset All
+                    </Button>
+                  </Tooltip>
+                )}
+              </Grid>
+            )}
+
+            {/* Revise Button */}
+            {!disableBtns &&
+              !disableButton &&
+              taskData?.review_user === userData?.id && (
+                <Tooltip title="Revise Annotation">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() =>
+                      handleReviewClick(
+                        "to_be_revised",
+                        review?.id,
+                        review?.lead_time,
+                        ProjectDetails?.project_type,
+                        review?.parent_annotation,
+                      )
+                    }
+                    sx={{
+                      minWidth: 'auto',
+                      fontSize: '0.75rem',
+                      px: 1.5,
+                      py: 0.5,
+                      color: "black",
+                      border: "0px",
+                      backgroundColor: "#ee6633",
+                    }}
+                  >
+                    Revise
+                  </Button>
+                </Tooltip>
+              )}
+
+            {/* Accept Button with Menu */}
+            {!disableBtns && taskData?.review_user === userData?.id && (
+              <Tooltip title="Accept Annotation">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={isSubmitDisabled}
+                  id="accept-button"
+                  aria-controls={open ? "accept-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? "true" : undefined}
                   sx={{
                     minWidth: 'auto',
                     fontSize: '0.75rem',
@@ -1480,145 +1511,119 @@ return (
                     border: "0px",
                     backgroundColor: "#ee6633",
                   }}
+                  onClick={handleClick}
+                  endIcon={<KeyboardArrowDownIcon />}
                 >
-                  Revise
+                  Accept
                 </Button>
               </Tooltip>
             )}
-
-          {/* Accept Button with Menu */}
-          {!disableBtns && taskData?.review_user === userData?.id && (
-            <Tooltip title="Accept Annotation">
-              <Button
-                variant="outlined"
-                size="small"
-                disabled={isSubmitDisabled}
-                id="accept-button"
-                aria-controls={open ? "accept-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
-                sx={{
-                  minWidth: 'auto',
-                  fontSize: '0.75rem',
-                  px: 1.5,
-                  py: 0.5,
-                  color: "black",
-                  border: "0px",
-                  backgroundColor: "#ee6633",
+            <StyledMenu
+              id="accept-menu"
+              MenuListProps={{
+                "aria-labelledby": "accept-button",
+              }}
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem
+                onClick={() => {
+                  handleReviewClick(
+                    "accepted",
+                    review.id,
+                    AnnotationsTaskDetails[1]?.lead_time,
+                    ProjectDetails?.project_type,
+                    review?.parent_annotation,
+                  )
                 }}
-                onClick={handleClick}
-                endIcon={<KeyboardArrowDownIcon />}
+                disableRipple
               >
-                Accept
-              </Button>
-            </Tooltip>
-          )}
-          <StyledMenu
-            id="accept-menu"
-            MenuListProps={{
-              "aria-labelledby": "accept-button",
-            }}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-          >
-            <MenuItem
-              onClick={() => {
-                handleReviewClick(
-                  "accepted",
-                  review.id,
-                  AnnotationsTaskDetails[1]?.lead_time,
-                  ProjectDetails?.project_type,
-                  review?.parent_annotation,
-                )
-              }}
-              disableRipple
-            >
-              with No Changes
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleReviewClick(
-                  "accepted_with_minor_changes",
-                  review.id,
-                  review.lead_time,
-                  ProjectDetails?.project_type,
-                  review?.parent_annotation,
-                )
-              }}
-              disableRipple
-            >
-              with Minor Changes
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleReviewClick(
-                  "accepted_with_major_changes",
-                  review.id,
-                  review.lead_time,
-                  ProjectDetails?.project_type,
-                  review?.parent_annotation,
-                )
-              }}
-              disableRipple
-            >
-              with Major Changes
-            </MenuItem>
-          </StyledMenu>
-        </Box>
-      </Grid>
-
-      {/* Notes Section */}
-      <div
-        style={{
-          display: showNotes ? "block" : "none",
-          padding: "0 8px 8px 8px",
-          width: "100%"
-        }}
-      >
-        <ReactQuill
-          forwardedRef={annotationNotesRef}
-          modules={modules}
-          bounds={"#note"}
-          formats={formats}
-          placeholder="Annotation Notes"
-          readOnly={true}
-        ></ReactQuill>
-        <ReactQuill
-          forwardedRef={reviewNotesRef}
-          modules={modules}
-          bounds={"#note"}
-          formats={formats}
-          placeholder="Review Notes"
-          onChange={(_content, _delta, _source, editor) => {
-            setReviewNotesValue(JSON.stringify(editor.getContents()));
-            setreviewtext(editor.getText());
-          }}
-        ></ReactQuill>
-        <ReactQuill
-          forwardedRef={superCheckerNotesRef}
-          modules={modules}
-          bounds={"#note"}
-          formats={formats}
-          placeholder="SuperChecker Notes"
-          readOnly={true}
-        ></ReactQuill>
-      </div>
-
-      {filterMessage && (
-        <Alert severity="info" sx={{ mx: 1, mb: 1, fontSize: "0.75rem" }}>
-          {filterMessage}
-        </Alert>
-      )}
-      
-      {filteredReady == false && annotations.length > 0 ? (
-        <Grid item container>
-          {componentToRender}
+                with No Changes
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleReviewClick(
+                    "accepted_with_minor_changes",
+                    review.id,
+                    review.lead_time,
+                    ProjectDetails?.project_type,
+                    review?.parent_annotation,
+                  )
+                }}
+                disableRipple
+              >
+                with Minor Changes
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleReviewClick(
+                    "accepted_with_major_changes",
+                    review.id,
+                    review.lead_time,
+                    ProjectDetails?.project_type,
+                    review?.parent_annotation,
+                  )
+                }}
+                disableRipple
+              >
+                with Major Changes
+              </MenuItem>
+            </StyledMenu>
+          </Box>
         </Grid>
-      ) : null}
-    </Grid>
-  </>
-);
+
+        {/* Notes Section */}
+        <div
+          style={{
+            display: showNotes ? "block" : "none",
+            padding: "0 8px 8px 8px",
+            width: "100%"
+          }}
+        >
+          <ReactQuill
+            forwardedRef={annotationNotesRef}
+            modules={modules}
+            bounds={"#note"}
+            formats={formats}
+            placeholder="Annotation Notes"
+            readOnly={true}
+          ></ReactQuill>
+          <ReactQuill
+            forwardedRef={reviewNotesRef}
+            modules={modules}
+            bounds={"#note"}
+            formats={formats}
+            placeholder="Review Notes"
+            onChange={(_content, _delta, _source, editor) => {
+              setReviewNotesValue(JSON.stringify(editor.getContents()));
+              setreviewtext(editor.getText());
+            }}
+          ></ReactQuill>
+          <ReactQuill
+            forwardedRef={superCheckerNotesRef}
+            modules={modules}
+            bounds={"#note"}
+            formats={formats}
+            placeholder="SuperChecker Notes"
+            readOnly={true}
+          ></ReactQuill>
+        </div>
+
+        {filterMessage && (
+          <Alert severity="info" sx={{ mx: 1, mb: 1, fontSize: "0.75rem" }}>
+            {filterMessage}
+          </Alert>
+        )}
+
+        {filteredReady == false && annotations.length > 0 ? (
+          <Grid item container>
+            {componentToRender}
+          </Grid>
+        ) : null}
+      </Grid>
+    </>
+  );
 
 };
 export default ReviewPage;

@@ -468,20 +468,20 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  
-  const lastTurn = chatHistory[chatHistory.length - 1];
-  const lastPromptOutputPairId = String(lastTurn.prompt_output_pair_id);
-  
-  const isLatestFormSubmitted = submittedEvalForms && 
-  submittedEvalForms.hasOwnProperty(lastPromptOutputPairId);
-  
-  return isLatestFormSubmitted;
-  };  
+    if (!chatHistory || chatHistory.length === 0) return false;
+
+    const lastTurn = chatHistory[chatHistory.length - 1];
+    const lastPromptOutputPairId = String(lastTurn.prompt_output_pair_id);
+
+    const isLatestFormSubmitted = submittedEvalForms &&
+      submittedEvalForms.hasOwnProperty(lastPromptOutputPairId);
+
+    return isLatestFormSubmitted;
+  };
 
   const buildResult = (value, type, resultValue) => {
     let result = resultValue;
-    
+
     if (value === "delete") {
       result = []
     }
@@ -498,28 +498,28 @@ const AnnotatePage = () => {
       };
     }
     else if (
-      value === "delete-pair" 
+      value === "delete-pair"
     ) {
-      result  = resultValue.slice(0, resultValue.length - 1)
+      result = resultValue.slice(0, resultValue.length - 1)
     }
     else {
       resultValue
-    }    
+    }
     return !Array.isArray(result) ? [result] : result;
   };
 
   const handleAnnotationClick = async (value, id, lead_time, type = "") => {
-    if (value === "delete" ) {
+    if (value === "delete") {
       setEvalFormResponse();
       setSubmittedEvalForms();
     }
-        console.log(submittedEvalForms,"hello");
+    console.log(submittedEvalForms, "hello");
 
     if (
       value === "labeled" &&
       type === "MultipleLLMInstructionDrivenChat" &&
       !areAllFormsAnswered()
-    ) {      
+    ) {
       console.log(areAllFormsAnswered);
 
       setSnackbarInfo({
@@ -592,7 +592,7 @@ const AnnotatePage = () => {
 
       resultValue = [
         {
-          eval_form: submittedEvalForms?Object.values(submittedEvalForms):[],
+          eval_form: submittedEvalForms ? Object.values(submittedEvalForms) : [],
           model_interactions: model_interactions,
         },
       ];
@@ -604,8 +604,8 @@ const AnnotatePage = () => {
     const liveAnnotationNotes =
       typeof window !== "undefined"
         ? JSON.stringify(
-            annotationNotesRef?.current?.getEditor().getContents(),
-          )
+          annotationNotesRef?.current?.getEditor().getContents(),
+        )
         : null;
 
     const PatchAPIdata = {
@@ -646,7 +646,7 @@ const AnnotatePage = () => {
         } else if (
           (ProjectDetails.project_type == "InstructionDrivenChat" ||
             ProjectDetails.project_type ==
-              "MultipleLLMInstructionDrivenChat") &&
+            "MultipleLLMInstructionDrivenChat") &&
           chatHistory.length == 0
         ) {
           setSnackbarInfo({
@@ -679,13 +679,17 @@ const AnnotatePage = () => {
             Array.isArray(allModelsInteractions) &&
             allModelsInteractions.length > 0
           ) {
-            const interactions_length =
-              allModelsInteractions[0]?.interaction_json?.length || 0;
+            const interactions_length = Math.max(
+              ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+              0
+            );
             let modifiedChatHistory = [];
             let globalModelFailure = false;
 
             for (let i = 0; i < interactions_length; i++) {
-              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const prompt = allModelsInteractions.find(
+                (m) => m?.interaction_json?.[i]?.prompt
+              )?.interaction_json?.[i]?.prompt;
               const modelOutputs = [];
               let turnPromptOutputPairId = null;
               let turnHasModelFailure = false;
@@ -697,16 +701,16 @@ const AnnotatePage = () => {
                   if (!response_valid) {
                     turnHasModelFailure = true;
                   }
-                  if (modelIdx === 0) {
-                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  if (interaction?.prompt_output_pair_id) {
+                    turnPromptOutputPairId = interaction.prompt_output_pair_id;
                   }
                   modelOutputs.push({
                     model_name: modelData?.model_name,
                     output: response_valid
                       ? formatResponse(interaction?.output)
                       : formatResponse(
-                          `${modelData?.model_name} failed to generate a response`,
-                        ),
+                        `${modelData?.model_name} failed to generate a response`,
+                      ),
                     status: response_valid ? "success" : "error",
                     prompt_output_pair_id: interaction?.prompt_output_pair_id,
                     output_error: response_valid
@@ -757,7 +761,7 @@ const AnnotatePage = () => {
             setChatHistory([...modifiedChatHistory]);
           } else {
             setChatHistory([]);
-            setIsModelFailing(false); 
+            setIsModelFailing(false);
           }
         } else {
           let modifiedChatHistory = resp?.result.map((interaction) => {
@@ -766,10 +770,10 @@ const AnnotatePage = () => {
               output: formatResponse(interaction.output),
             };
           });
-          
+
           setChatHistory([...modifiedChatHistory]);
         }
-      } 
+      }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
           if (typeof window !== "undefined") {
@@ -780,23 +784,23 @@ const AnnotatePage = () => {
         }
         value === "delete"
           ? (setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            }),
+            open: true,
+            message: "Chat history has been cleared successfully!",
+            variant: "success",
+          }),
             await getAnnotationsTaskData(taskId),
             await getTaskData(taskId))
           : value === "delete-pair"
             ? setSnackbarInfo({
-                open: true,
-                message: "Selected conversation is deleted",
-                variant: "success",
-              })
+              open: true,
+              message: "Selected conversation is deleted",
+              variant: "success",
+            })
             : setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "success",
-              });
+              open: true,
+              message: resp?.message,
+              variant: "success",
+            });
         setLoading(false);
       } else {
         setAutoSave(true);
@@ -1101,15 +1105,15 @@ const AnnotatePage = () => {
       <div id="top" ref={topref}></div>
       <Grid container sx={{ overflow: "hidden" }}>
         {renderSnackBar()}
-        
+
         <Grid item xs={12} >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,margin:'0.5rem',  flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, margin: '0.5rem', flexWrap: 'wrap' }}>
             <Button
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
               size="small"
-              sx={{ 
+              sx={{
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
@@ -1119,7 +1123,7 @@ const AnnotatePage = () => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-                navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } } );
+                navigate(`/projects/${projectId}`, { replace: true, state: { fromBackToProject: true } });
               }}
             >
               Back
@@ -1131,24 +1135,24 @@ const AnnotatePage = () => {
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               size="small"
               onClick={handleCollapseClick}
-              sx={{ 
+              sx={{
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
-                py: 0.2,                
+                py: 0.2,
                 backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
               }}
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
 
-            
+
             <LightTooltip
               title={
                 <div>
                   <div>
                     {ProjectDetails?.conceal == false &&
-                    Array.isArray(assignedUsers)
+                      Array.isArray(assignedUsers)
                       ? assignedUsers.join(", ")
                       : assignedUsers || "No assigned users"}
                   </div>
@@ -1204,7 +1208,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1223,7 +1227,7 @@ const AnnotatePage = () => {
                   minWidth: 'auto',
                   fontSize: '0.75rem',
                   px: 1.5,
-                  py: 0.2,                  color: "black",
+                  py: 0.2, color: "black",
                   border: "0px",
                   backgroundColor: "#ffe0b2",
                 }}
@@ -1251,7 +1255,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1268,7 +1272,7 @@ const AnnotatePage = () => {
                 <Tooltip
                   title={
                     ProjectDetails?.project_type == "InstructionDrivenChat" ||
-                    ProjectDetails?.project_type ==
+                      ProjectDetails?.project_type ==
                       "MultipleLLMInstructionDrivenChat"
                       ? "Clear the entire chat history"
                       : "Reset the entire chat history"
@@ -1288,13 +1292,13 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
                   >
                     {ProjectDetails?.project_type == "InstructionDrivenChat" ||
-                    ProjectDetails?.project_type ==
+                      ProjectDetails?.project_type ==
                       "MultipleLLMInstructionDrivenChat"
                       ? "Clear Chats"
                       : "Reset All"}
@@ -1314,7 +1318,7 @@ const AnnotatePage = () => {
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
-                          "MultipleLLMInstructionDrivenChat" &&
+                        "MultipleLLMInstructionDrivenChat" &&
                         isModelFailing
                       ) {
                         setSnackbarInfo({
@@ -1338,7 +1342,7 @@ const AnnotatePage = () => {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ee6633",
                     }}
