@@ -95,6 +95,7 @@ const InstructionDrivenChatPage = ({
   loading,
   setIsModelStreaming,
 }) => {
+  const [pendingResendPrompt, setPendingResendPrompt] = useState(null);
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
@@ -220,6 +221,15 @@ const handleResetUIPrefs = useCallback(() => {
     instruction_panel_pinned: false
   });
 }, [saveAnnotationUIPref]);
+useEffect(() => {
+  if (pendingResendPrompt && !isStreaming && chatHistory !== null) {
+    const prompt = pendingResendPrompt;
+    setPendingResendPrompt(null);
+    setTimeout(() => {
+      handleButtonClick(prompt);
+    }, 500);
+  }
+}, [pendingResendPrompt, chatHistory]);
 
 useEffect(() => {
   if (isDragging) {
@@ -323,38 +333,31 @@ if (localInProgress) {
 
     // Check if server has this prompt WITH a real non-empty response
   const serverTurnWithValidResponse = modifiedChatHistory.find(
-      (c) => c.prompt === lastLocalPrompt
+      (c) =>
+        c.prompt === lastLocalPrompt &&
+        c.output &&
+        c.output.length > 0 &&
+        c.output[0]?.value &&
+        c.output[0].value.trim() !== ""
     );
 
     if (!serverTurnWithValidResponse) {
-      // Recover from localStorage
-      const lastTurn = parsedLocal[parsedLocal.length - 1];
-      const recoveredTurn = {
-        ...lastTurn,
-        output:
-          lastTurn.output?.[0]?.value &&
-          lastTurn.output[0].value.trim() !== ""
-            ? lastTurn.output
-            : [
-                {
-                  type: "text",
-                  value:
-                    "[Response was interrupted. Please resend your prompt.]",
-                },
-              ],
-      };
-      modifiedChatHistory = [
-        ...modifiedChatHistory.filter((c) => c.prompt !== lastLocalPrompt),
-        recoveredTurn,
-      ];
-      setIsStreaming(false);
-      setIsPolling(false);
-    } else {
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-      setIsStreaming(false);
-      setIsPolling(false);
-      setPollingCount(0);
-    }
+  const lastPromptToResend = lastLocalPrompt;
+
+  modifiedChatHistory = modifiedChatHistory.filter(
+    (c) => c.prompt !== lastPromptToResend
+  );
+
+  setIsStreaming(false);
+  setIsPolling(false);
+  localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+  setPendingResendPrompt(lastPromptToResend);
+} else {
+  localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+  setIsStreaming(false);
+  setIsPolling(false);
+  setPollingCount(0);
+}
   } catch (e) {
     console.error(e);
     localStorage.removeItem(`in_progress_chat_single_${taskId}`);

@@ -112,6 +112,7 @@ const MultipleLLMInstructionDrivenChat = ({
   loading,
   setIsModelStreaming,
 }) => {
+  const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
@@ -141,6 +142,15 @@ const MultipleLLMInstructionDrivenChat = ({
       if (intervalId) clearInterval(intervalId);
     };
   }, [isPolling, taskId, dispatch]);
+  useEffect(() => {
+  if (pendingResendPromptMulti && !isStreaming && chatHistory !== null) {
+    const prompt = pendingResendPromptMulti;
+    setPendingResendPromptMulti(null);
+    setTimeout(() => {
+      handleButtonClick(null, null, null, prompt);
+    }, 500);
+  }
+}, [pendingResendPromptMulti, chatHistory]);
 
   useEffect(() => {
     if (pollingCount > 6) {
@@ -446,39 +456,31 @@ if (localInProgress) {
     const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
 
    const serverTurnWithValidResponse = modifiedChatHistory.find(
-      (c) => c.prompt === lastLocalPrompt
+      (c) =>
+        c.prompt === lastLocalPrompt &&
+        c.output &&
+        c.output.length > 0 &&
+        c.output.every(
+          (modelOut) =>
+            modelOut.output &&
+            modelOut.output.length > 0 &&
+            modelOut.output[0]?.value &&
+            modelOut.output[0].value.trim() !== ""
+        )
     );
 
     if (!serverTurnWithValidResponse) {
-      // Server doesn't have a valid response yet — recover from localStorage
-      const lastTurn = parsedLocal[parsedLocal.length - 1];
-      const recoveredTurn = {
-        ...lastTurn,
-        output: (lastTurn.output || []).map((modelOut) => ({
-          ...modelOut,
-          output:
-            modelOut.output?.[0]?.value &&
-            modelOut.output[0].value.trim() !== ""
-              ? modelOut.output
-              : [
-                  {
-                    type: "text",
-                    value:
-                      "[Response was interrupted. Please resend your prompt.]",
-                  },
-                ],
-          status: "interrupted",
-        })),
-      };
+      const lastPromptToResend = lastLocalPrompt;
 
-      modifiedChatHistory = [
-        ...modifiedChatHistory.filter((c) => c.prompt !== lastLocalPrompt),
-        recoveredTurn,
-      ];
+      modifiedChatHistory = modifiedChatHistory.filter(
+        (c) => c.prompt !== lastPromptToResend
+      );
+
       setIsStreaming(false);
       setIsPolling(false);
+      localStorage.removeItem(`in_progress_chat_${taskId}`);
+      setPendingResendPromptMulti(lastPromptToResend);
     } else {
-      // Server has a valid response — no recovery needed
       localStorage.removeItem(`in_progress_chat_${taskId}`);
       setIsStreaming(false);
       setIsPolling(false);
