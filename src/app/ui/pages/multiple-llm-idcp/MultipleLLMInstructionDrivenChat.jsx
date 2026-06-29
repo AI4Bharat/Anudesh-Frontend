@@ -158,6 +158,13 @@ const MultipleLLMInstructionDrivenChat = ({
 
   const [loadtime, setloadtime] = useState(new Date());
   const { streamMultiModelResponse, abortStream } = useStreamingLLM();
+  const latestAnnotationResultRef = useRef({ eval_form: [], model_interactions: [] });
+
+  useEffect(() => {
+    if (annotation?.[0]?.result?.[0]) {
+      latestAnnotationResultRef.current = annotation[0].result[0];
+    }
+  }, [annotation]);
 
   useEffect(() => {
     if (setIsModelStreaming) {
@@ -352,7 +359,6 @@ const MultipleLLMInstructionDrivenChat = ({
   }, [chatHistory]);
 
   useEffect(() => {
-    if (!taskId) return;
     setEvalFormResponse({});
     setSubmittedEvalForms({});
 
@@ -370,12 +376,15 @@ const MultipleLLMInstructionDrivenChat = ({
     ) {
       const allModelsInteractions =
         annotation[0].result[0].model_interactions;
-      const interactions_length =
-        allModelsInteractions[0]?.interaction_json?.length || 0;
+      const interactions_length = Math.max(
+        ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+        0
+      );
       console.log("lead", allModelsInteractions);
       for (let i = 0; i < interactions_length; i++) {
-        const prompt =
-          allModelsInteractions[0]?.interaction_json[i]?.prompt;
+        const prompt = allModelsInteractions.find(
+          (m) => m?.interaction_json?.[i]?.prompt
+        )?.interaction_json?.[i]?.prompt;
 
         const modelOutputs = [];
         let turnPromptOutputPairId = null;
@@ -387,8 +396,8 @@ const MultipleLLMInstructionDrivenChat = ({
             if (!response_valid) {
               setIsModelFailing(true);
             }
-            if (modelIdx === 0) {
-              turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+            if (interaction?.prompt_output_pair_id) {
+              turnPromptOutputPairId = interaction.prompt_output_pair_id;
             }
 
             modelOutputs.push({
@@ -439,63 +448,45 @@ const MultipleLLMInstructionDrivenChat = ({
           });
         }
       }
-    const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
-if (localInProgress) {
-  try {
-    const parsedLocal = JSON.parse(localInProgress);
-    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+      let skipChatHistoryUpdate = false;
+      const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
+      if (localInProgress) {
+        try {
+          const parsedLocal = JSON.parse(localInProgress);
+          if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
+            skipChatHistoryUpdate = true;
+            setIsStreaming(true);
+            setIsPolling(true);
+            setChatHistory((prev) => {
+              if (prev.length < parsedLocal.length) {
+                const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
+                return [...modifiedChatHistory, ...missingTurns];
+              }
+              return prev;
+            });
+          } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
+            setIsStreaming(false);
+            setIsPolling(false);
+            setPollingCount(0);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setIsPolling(false);
+        setPollingCount(0);
+      }
 
-   const serverTurnWithValidResponse = modifiedChatHistory.find(
-      (c) => c.prompt === lastLocalPrompt
-    );
-
-    if (!serverTurnWithValidResponse) {
-      // Server doesn't have a valid response yet — recover from localStorage
-      const lastTurn = parsedLocal[parsedLocal.length - 1];
-      const recoveredTurn = {
-        ...lastTurn,
-        output: (lastTurn.output || []).map((modelOut) => ({
-          ...modelOut,
-          output:
-            modelOut.output?.[0]?.value &&
-            modelOut.output[0].value.trim() !== ""
-              ? modelOut.output
-              : [
-                  {
-                    type: "text",
-                    value:
-                      "[Response was interrupted. Please resend your prompt.]",
-                  },
-                ],
-          status: "interrupted",
-        })),
-      };
-
-      modifiedChatHistory = [
-        ...modifiedChatHistory.filter((c) => c.prompt !== lastLocalPrompt),
-        recoveredTurn,
-      ];
-      setIsStreaming(false);
-      setIsPolling(false);
-    } else {
-      // Server has a valid response — no recovery needed
-      localStorage.removeItem(`in_progress_chat_${taskId}`);
-      setIsStreaming(false);
-      setIsPolling(false);
-      setPollingCount(0);
-    }
-  } catch (e) {
-    console.error(e);
-    localStorage.removeItem(`in_progress_chat_${taskId}`);
-  }
-}
-      setChatHistory(modifiedChatHistory);
+      if (!skipChatHistoryUpdate) {
+        setChatHistory(modifiedChatHistory);
+      }
     } else {
       setChatHistory([]);
     }
     setAnnotationId(annotation?.[0]?.id);
     setShowChatContainer(!!annotation?.[0]?.result);
-  }, [annotation,taskId]);
+  }, [annotation]);
 
   const handleClosePreferredResponseModal = (index) => {
     setVisibleMessages((prev) => ({
@@ -554,7 +545,7 @@ if (localInProgress) {
         .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
     return Number(`${time}${deviceHash}${rand}`);
   };
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null,retry = false) => {
     console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
     const isMultipleResponse = ProjectDetails?.metadata_json;
     const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
@@ -578,8 +569,18 @@ if (localInProgress) {
           prompt_output_pair_id: null,
         }));
 
+      let optimisticHistory;
+      if (retry) {
+        // Replace the last entry's outputs with empty streaming placeholders
+        optimisticHistory = [...chatHistory];
+        optimisticHistory[optimisticHistory.length - 1] = {
+          ...optimisticHistory[optimisticHistory.length - 1],
+          output: optimisticOutputs,
+        };
+      } else {
         const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
-        const optimisticHistory = [...chatHistory, optimisticEntry];
+        optimisticHistory = [...chatHistory, optimisticEntry];
+      }
         setChatHistory(optimisticHistory);
         localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
         setShowChatContainer(true);
@@ -598,7 +599,7 @@ if (localInProgress) {
           prompt: currentPrompt, modelInteractions: modelInteractions,
           models: modelsToRun,
           systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
-       onToken: (modelName, token, fullTextForModel) => {
+          onToken: (modelName, token, fullTextForModel) => {
             // Update the specific model's output in the last chat entry
             setChatHistory((prev) => {
               const updated = [...prev];
@@ -616,8 +617,6 @@ if (localInProgress) {
                 });
                 updated[lastIdx] = lastEntry;
               }
-              // ✅ keep localStorage in sync so refresh can recover progress
-              localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(updated));
               return updated;
             });
             // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
@@ -632,12 +631,14 @@ if (localInProgress) {
             });
             setChatLoading(false);
             setIsStreaming(false);
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
           },
         });
 
         // Simultaneously send the PATCH to save prompt + get LLM output on the backend
         const body = {
           result: currentPrompt,
+          retry,
           lead_time:
             (new Date() - loadtime) / 1000 +
             Number(id?.lead_time?.lead_time ?? 0),
@@ -668,146 +669,152 @@ if (localInProgress) {
           body.parentannotation = id?.parent_annotation;
         }
 
-      try {
-        // Wait for the stream to complete
-        const streamedTexts = await streamPromise;
+        try {
+          // Wait for the stream to complete
+          const streamedTexts = await streamPromise;
 
-        if (streamedTexts) {
-          const currentAnnotationResult = annotation?.[0]?.result?.[0] || { eval_form: [], model_interactions: [] };
-          // Deep clone model_interactions
-          const newModelInteractions = JSON.parse(JSON.stringify(currentAnnotationResult.model_interactions || []));
-          
-          Object.entries(streamedTexts).forEach(([modelName, text]) => {
-            let modelEntry = newModelInteractions.find(m => m.model_name === modelName || m.model_id === modelName);
-            if (!modelEntry) {
-              modelEntry = { model_name: modelName, model_id: modelName, interaction_json: [] };
-              newModelInteractions.push(modelEntry);
-            }
-            modelEntry.interaction_json.push({
-              prompt: currentPrompt,
-              output: text,
-              preferred_response: false,
-              prompt_output_pair_id: body.prompt_output_pair_id
+          if (streamedTexts) {
+            const currentAnnotationResult = latestAnnotationResultRef.current;
+            // Deep clone model_interactions
+            const newModelInteractions = JSON.parse(JSON.stringify(currentAnnotationResult.model_interactions || []));
+
+            Object.entries(streamedTexts).forEach(([modelName, text]) => {
+              let modelEntry = newModelInteractions.find(m => m.model_name === modelName || m.model_id === modelName);
+              if (!modelEntry) {
+                modelEntry = { model_name: modelName, model_id: modelName, interaction_json: [] };
+                newModelInteractions.push(modelEntry);
+              }
+              modelEntry.interaction_json.push({
+                prompt: currentPrompt,
+                output: text,
+                preferred_response: false,
+                prompt_output_pair_id: body.prompt_output_pair_id
+              });
             });
-          });
 
-          body.result = [{
-            eval_form: currentAnnotationResult.eval_form,
-            model_interactions: newModelInteractions
-          }];
+            body.result = [{
+              eval_form: currentAnnotationResult.eval_form,
+              model_interactions: newModelInteractions
+            }];
 
-          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-          const res = await fetch(AnnotationObj.apiEndPoint(), {
-            method: "PATCH",
-            body: JSON.stringify(AnnotationObj.getBody()),
-            headers: AnnotationObj.getHeaders().headers,
-          });
-          const data = await res.json();
+            const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+            const res = await fetch(AnnotationObj.apiEndPoint(), {
+              method: "PATCH",
+              body: JSON.stringify(AnnotationObj.getBody()),
+              headers: AnnotationObj.getHeaders().headers,
+            });
+            const data = await res.json();
 
-          let errorMessage = null;
-          if (data && data.output) {
-            for (const [modelName, modelResponse] of Object.entries(data.output)) {
-              if (modelResponse?.error) {
-                errorMessage = `${modelName} error: ${modelResponse.error}`;
-                break;
+            let errorMessage = null;
+            if (data && data.output) {
+              for (const [modelName, modelResponse] of Object.entries(data.output)) {
+                if (modelResponse?.error) {
+                  errorMessage = `${modelName} error: ${modelResponse.error}`;
+                  break;
+                }
               }
             }
-          }
 
-          if (!res.ok) {
-            setChatHistory((prev) => prev.slice(0, -1));
-            setSnackbarInfo({
-              open: true,
-              message: data?.message || errorMessage || "An error occurred while saving the annotation.",
-              variant: "error",
-            });
-            return;
-          }
+            if (!res.ok) {
+              setChatHistory((prev) => prev.slice(0, -1));
+              setSnackbarInfo({
+                open: true,
+                message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+                variant: "error",
+              });
+              return;
+            }
 
-          if (errorMessage) {
-            setSnackbarInfo({
-              open: true,
-              message: errorMessage,
-              variant: "error",
-            });
-          }
+            if (errorMessage) {
+              setSnackbarInfo({
+                open: true,
+                message: errorMessage,
+                variant: "error",
+              });
+            }
 
-          // Once PATCH completes, sync the full result from DB (source of truth)
-          if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
-            const allModelsInteractions = data.result[0].model_interactions;
-            const interactions_length =
-              allModelsInteractions[0]?.interaction_json?.length || 0;
-            let modifiedChatHistory = [];
+            // Once PATCH completes, sync the full result from DB (source of truth)
+            if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
+              const allModelsInteractions = data.result[0].model_interactions;
+              const interactions_length = Math.max(
+                ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+                0
+              );
+              let modifiedChatHistory = [];
 
-            for (let i = 0; i < interactions_length; i++) {
-              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
-              const modelOutputs = [];
-              let turnPromptOutputPairId = null;
+              for (let i = 0; i < interactions_length; i++) {
+                const prompt = allModelsInteractions.find(
+                  (m) => m?.interaction_json?.[i]?.prompt
+                )?.interaction_json?.[i]?.prompt;
+                const modelOutputs = [];
+                let turnPromptOutputPairId = null;
 
-              allModelsInteractions.forEach((modelData, modelIdx) => {
-                const interaction = modelData?.interaction_json?.[i];
-                if (interaction) {
-                  const response_valid = isString(interaction?.output);
-                  if (!response_valid) {
-                    setIsModelFailing(true);
+                allModelsInteractions.forEach((modelData, modelIdx) => {
+                  const interaction = modelData?.interaction_json?.[i];
+                  if (interaction) {
+                    const response_valid = isString(interaction?.output);
+                    if (!response_valid) {
+                      setIsModelFailing(true);
+                    }
+                    if (interaction?.prompt_output_pair_id) {
+                      turnPromptOutputPairId = interaction.prompt_output_pair_id;
+                    }
+                    modelOutputs.push({
+                      model_id: modelData?.model_id || modelData?.model_name,
+                      model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                      output: response_valid
+                        ? formatResponse(interaction?.output)
+                        : formatResponse(
+                          `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                        ),
+                      status: response_valid ? "success" : "error",
+                      prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                      output_error: response_valid
+                        ? null
+                        : JSON.stringify(interaction?.output),
+                    });
                   }
-                  if (modelIdx === 0) {
-                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                });
+
+                if (turnPromptOutputPairId) {
+                  const eval_form = (
+                    Array.isArray(data?.result[0]?.eval_form)
+                      ? data.result[0].eval_form
+                      : []
+                  ).find(
+                    (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                  );
+                  if (eval_form) {
+                    setEvalFormResponse((prev) => ({
+                      ...prev,
+                      [turnPromptOutputPairId]: eval_form,
+                    }));
                   }
-                  modelOutputs.push({
-                    model_id: modelData?.model_id || modelData?.model_name,
-                    model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-                    output: response_valid
-                      ? formatResponse(interaction?.output)
-                      : formatResponse(
-                        `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                      ),
-                    status: response_valid ? "success" : "error",
-                    prompt_output_pair_id: interaction?.prompt_output_pair_id,
-                    output_error: response_valid
-                      ? null
-                      : JSON.stringify(interaction?.output),
+                }
+
+                if (prompt !== undefined && modelOutputs.length > 0) {
+                  modifiedChatHistory.push({
+                    prompt: prompt,
+                    output: modelOutputs,
+                    prompt_output_pair_id: turnPromptOutputPairId,
                   });
                 }
-              });
-
-              if (turnPromptOutputPairId) {
-                const eval_form = (
-                  Array.isArray(data?.result[0]?.eval_form)
-                    ? data.result[0].eval_form
-                    : []
-                ).find(
-                  (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
-                );
-                if (eval_form) {
-                  setEvalFormResponse((prev) => ({
-                    ...prev,
-                    [turnPromptOutputPairId]: eval_form,
-                  }));
-                }
               }
-
-              if (prompt !== undefined && modelOutputs.length > 0) {
-                modifiedChatHistory.push({
-                  prompt: prompt,
-                  output: modelOutputs,
-                  prompt_output_pair_id: turnPromptOutputPairId,
-                });
-              }
+              latestAnnotationResultRef.current = data.result[0];
+              setChatHistory([...modifiedChatHistory]);
+              dispatch(fetchAnnotationsTask(taskId));
             }
-           setChatHistory([...modifiedChatHistory]);
-            // Only clear localStorage after server confirms successful save
-            localStorage.removeItem(`in_progress_chat_${taskId}`);
           }
+        } catch (error) {
+          console.error("Error in multi-model chat save/stream operation:", error);
+        } finally {
+          setChatLoading(false);
+          setIsStreaming(false);
+          setIsPolling(false);
+          setPollingCount(0);
+          setLoading(false);
+          localStorage.removeItem(`in_progress_chat_${taskId}`);
         }
-      } catch (error) {
-        console.error("Error in multi-model chat save/stream operation:", error);
-        localStorage.removeItem(`in_progress_chat_${taskId}`);
-      } finally {
-        setChatLoading(false);
-        setIsStreaming(false);
-        setLoading(false);
-      }
 
         setVisibleMessages((prev) => ({
           ...prev,
@@ -929,11 +936,15 @@ if (localInProgress) {
 
         if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
           const allModelsInteractions = data.result[0].model_interactions;
-          const interactions_length =
-            allModelsInteractions[0]?.interaction_json?.length || 0;
+          const interactions_length = Math.max(
+            ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+            0
+          );
 
           for (let i = 0; i < interactions_length; i++) {
-            const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+            const prompt = allModelsInteractions.find(
+              (m) => m?.interaction_json?.[i]?.prompt
+            )?.interaction_json?.[i]?.prompt;
             const modelOutputs = [];
             let turnPromptOutputPairId = null;
 
@@ -944,8 +955,8 @@ if (localInProgress) {
                 if (!response_valid) {
                   setIsModelFailing(true);
                 }
-                if (modelIdx === 0) {
-                  turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                if (interaction?.prompt_output_pair_id) {
+                  turnPromptOutputPairId = interaction.prompt_output_pair_id;
                 }
                 modelOutputs.push({
                   model_id: modelData?.model_id || modelData?.model_name,
@@ -1020,28 +1031,7 @@ if (localInProgress) {
     setShowChatContainer(true);
     setInputValue("");
   };
-  const hasFailedLastResponse = useMemo(() => {
-    if (!chatHistory || chatHistory.length === 0) return false;
-    const last = chatHistory[chatHistory.length - 1];
-    if (!last?.output || last.output.length === 0) return true;
-    return last.output.every(modelOutput =>
-      modelOutput.status === 'error' ||
-      (modelOutput.output && modelOutput.output.length === 0)
-    );
-  }, [chatHistory]);
 
-  const handleRetry = useCallback(async () => {
-    if (!chatHistory || chatHistory.length === 0) return;
-    const lastMessage = chatHistory[chatHistory.length - 1];
-    if (!lastMessage?.prompt) return;
-
-    const lastPrompt = lastMessage.prompt;
-
-    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
-
-    // Pass the prompt directly as an override — bypasses the inputValue check
-    await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
-  }, [chatHistory, handleClick, id, handleButtonClick]);
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -2006,7 +1996,7 @@ if (localInProgress) {
                         // Position to the left of delete button
                         padding: "4px",
                       }}
-                      onClick={handleRetry}
+onClick={() => handleButtonClick(null, null, chatHistory.length - 1, message.prompt, true)}
                       disabled={loading}
                     >
                       <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
