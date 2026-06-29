@@ -320,29 +320,36 @@ if (localInProgress) {
   try {
     const parsedLocal = JSON.parse(localInProgress);
     const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
-    const serverHasLastPrompt = modifiedChatHistory.some(
+
+    // Check if server has this prompt WITH a real non-empty response
+  const serverTurnWithValidResponse = modifiedChatHistory.find(
       (c) => c.prompt === lastLocalPrompt
     );
 
-    if (!serverHasLastPrompt) {
-      // Prompt not on server yet — recover it from localStorage
+    if (!serverTurnWithValidResponse) {
+      // Recover from localStorage
       const lastTurn = parsedLocal[parsedLocal.length - 1];
       const recoveredTurn = {
         ...lastTurn,
-        output: [{ 
-          type: "text", 
-          value: lastTurn.output?.[0]?.value || "[Response interrupted — please resend your prompt.]"
-        }],
+        output:
+          lastTurn.output?.[0]?.value &&
+          lastTurn.output[0].value.trim() !== ""
+            ? lastTurn.output
+            : [
+                {
+                  type: "text",
+                  value:
+                    "[Response was interrupted. Please resend your prompt.]",
+                },
+              ],
       };
       modifiedChatHistory = [
-        ...modifiedChatHistory.filter(c => c.prompt !== lastLocalPrompt),
-        recoveredTurn
+        ...modifiedChatHistory.filter((c) => c.prompt !== lastLocalPrompt),
+        recoveredTurn,
       ];
-      setIsStreaming(false);  // no stream running after refresh
-      setIsPolling(false);    // don't poll — nothing to wait for
-      // keep localStorage so it survives further refreshes until user resends
+      setIsStreaming(false);
+      setIsPolling(false);
     } else {
-      // Server already has this prompt — safe to clear
       localStorage.removeItem(`in_progress_chat_single_${taskId}`);
       setIsStreaming(false);
       setIsPolling(false);
@@ -491,7 +498,7 @@ onToken: (token, fullText) => {
         });
         setChatLoading(false);
         setIsStreaming(false);
-        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        
       },
     });
 
@@ -553,7 +560,7 @@ onToken: (token, fullText) => {
         });
         const data = await res.json();
 
-        if (data && data.result) {
+       if (data && data.result) {
           const modifiedChatHistory = data.result.map((interaction, index) => {
             const isLastInteraction = index === data.result.length - 1;
             return {
@@ -562,20 +569,23 @@ onToken: (token, fullText) => {
             };
           });
           setChatHistory([...modifiedChatHistory]);
+          // Only clear localStorage after server confirms successful save
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
         } else if (!data) {
           setSnackbarInfo({
             open: true,
             message: data?.message || "Failed to save LLM response",
             variant: "error",
           });
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
         }
       }
     } catch (error) {
       console.error("Error in chat save/stream operation:", error);
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
     } finally {
       setChatLoading(false);
       setIsStreaming(false);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
     }
 
     setTimeout(() => {
