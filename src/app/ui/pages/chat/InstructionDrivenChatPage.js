@@ -18,7 +18,7 @@ import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef,useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
