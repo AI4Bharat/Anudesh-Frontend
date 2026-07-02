@@ -107,6 +107,7 @@ const MultipleLLMInstructionDrivenChat = ({
   setLoading,
   loading,
   setIsModelStreaming,
+  fontSize = "medium",
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const getFontSize = () => {
@@ -134,7 +135,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
 
