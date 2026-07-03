@@ -472,9 +472,19 @@ if (localInProgress) {
     if (!serverTurnWithValidResponse) {
       const lastPromptToResend = lastLocalPrompt;
 
-      modifiedChatHistory = modifiedChatHistory.filter(
-        (c) => c.prompt !== lastPromptToResend
-      );
+     try {
+  const parsedLocal = JSON.parse(localInProgress);
+
+  if (parsedLocal?.length > 0) {
+    modifiedChatHistory = parsedLocal;
+    setChatHistory(parsedLocal);
+  }
+} catch (e) {
+  console.error(e);
+}
+
+setIsStreaming(true);
+setIsPolling(true);
 
       setIsStreaming(false);
       setIsPolling(false);

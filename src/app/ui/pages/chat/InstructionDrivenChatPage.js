@@ -109,6 +109,8 @@ const InstructionDrivenChatPage = ({
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
 
   const bottomRef = useRef(null);
+  const hasRecoveredInProgressChat = useRef(false);
+  const isSendInFlightRef = useRef(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
@@ -222,7 +224,10 @@ const handleResetUIPrefs = useCallback(() => {
   });
 }, [saveAnnotationUIPref]);
 useEffect(() => {
-  if (pendingResendPrompt && !isStreaming && chatHistory !== null) {
+  if (
+    pendingResendPrompt &&
+    !isSendInFlightRef.current
+  ) {
     const prompt = pendingResendPrompt;
     setPendingResendPrompt(null);
     setTimeout(() => {
@@ -325,46 +330,58 @@ const [snackbar, setSnackbarInfo] = useState({
       });
     }
 
-  const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-if (localInProgress) {
+ 
+  if (!hasRecoveredInProgressChat.current) {
+    hasRecoveredInProgressChat.current = true;
+
+    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+    if (localInProgress) {
+      try {
+        const parsedLocal = JSON.parse(localInProgress);
+        const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+
+        // Check if server has this prompt WITH a real non-empty response
+        const serverTurnWithValidResponse = modifiedChatHistory.find(
+          (c) =>
+            c.prompt === lastLocalPrompt &&
+            c.output &&
+            c.output.length > 0 &&
+            c.output[0]?.value &&
+            c.output[0].value.trim() !== ""
+        );
+
+       if (!serverTurnWithValidResponse) {
   try {
     const parsedLocal = JSON.parse(localInProgress);
-    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
 
-    // Check if server has this prompt WITH a real non-empty response
-  const serverTurnWithValidResponse = modifiedChatHistory.find(
-      (c) =>
-        c.prompt === lastLocalPrompt &&
-        c.output &&
-        c.output.length > 0 &&
-        c.output[0]?.value &&
-        c.output[0].value.trim() !== ""
-    );
-
-    if (!serverTurnWithValidResponse) {
-  const lastPromptToResend = lastLocalPrompt;
-
-  modifiedChatHistory = modifiedChatHistory.filter(
-    (c) => c.prompt !== lastPromptToResend
-  );
-
-  setIsStreaming(false);
-  setIsPolling(false);
-  localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-  setPendingResendPrompt(lastPromptToResend);
-} else {
-  localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-  setIsStreaming(false);
-  setIsPolling(false);
-  setPollingCount(0);
-}
+    if (parsedLocal?.length > 0) {
+      modifiedChatHistory = parsedLocal;
+      setChatHistory(parsedLocal);
+    }
   } catch (e) {
     console.error(e);
-    localStorage.removeItem(`in_progress_chat_single_${taskId}`);
   }
-}
 
-    setChatHistory(modifiedChatHistory);
+  setIsStreaming(true);
+  setIsPolling(true);
+
+  setPendingResendPrompt(lastLocalPrompt);
+}else {
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+          setIsStreaming(false);
+          setIsPolling(false);
+          setPollingCount(0);
+        }
+      } catch (e) {
+        console.error(e);
+        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+      }
+    }
+  }
+
+   if (!isSendInFlightRef.current) {
+      setChatHistory(modifiedChatHistory);
+    }
     setAnnotationId(annotation[0]?.id);
     setShowChatContainer(!!annotation[0]?.result);
   }, [annotation,taskId]);
@@ -420,6 +437,7 @@ if (localInProgress) {
 const handleButtonClick = async (promptOverride, retry = false) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
+    isSendInFlightRef.current = true;
     setChatLoading(true);
     setIsStreaming(true);
 
@@ -585,10 +603,10 @@ onToken: (token, fullText) => {
       }
     } catch (error) {
       console.error("Error in chat save/stream operation:", error);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
     } finally {
       setChatLoading(false);
       setIsStreaming(false);
+      isSendInFlightRef.current = false;
     }
 
     setTimeout(() => {
