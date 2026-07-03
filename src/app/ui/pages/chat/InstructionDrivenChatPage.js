@@ -39,7 +39,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Checkbox from '@mui/material/Checkbox';
 import { ThemeProvider } from '@mui/material/styles';
-import AllTaskSearchPopup from "@/components/common/AllTaskSearchPopup";
+import AllTaskSearchPopup from "@/components/Project/AllTasksSearchpopup";
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important",
@@ -131,6 +131,7 @@ const InstructionDrivenChatPage = ({
   const [chatLoading, setChatLoading] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingCount, setPollingCount] = useState(0);
+
   
   useEffect(() => {
     let intervalId;
@@ -381,6 +382,12 @@ const handleButtonClick = async (promptOverride) => {
 
     const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
     const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
+
+    // Add the new prompt to chat history immediately so it's visible in the UI
+    setChatHistory((prev) => [
+      ...prev,
+      { prompt: currentPrompt, output: [{ type: "text", value: "" }] },
+    ]);
 
     const streamPromise = streamResponse({
       prompt: currentPrompt,
