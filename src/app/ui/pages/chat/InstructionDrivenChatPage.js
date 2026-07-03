@@ -123,6 +123,7 @@ const InstructionDrivenChatPage = ({
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
 
   const bottomRef = useRef(null);
+  const isSendInFlightRef = useRef(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
@@ -131,6 +132,8 @@ const InstructionDrivenChatPage = ({
   const [chatLoading, setChatLoading] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingCount, setPollingCount] = useState(0);
+  const [pendingResendPrompt, setPendingResendPrompt] = useState(null);
+  const isStreamingRef = useRef(false);
 
   
   useEffect(() => {
@@ -213,6 +216,24 @@ console.log(e.clientX,"drag");
   setInstructionWidth(newWidth);
 }, [isDragging]);
 
+const handleResetUIPrefs = useCallback(() => {
+  setFontSize(0.9);
+  setInstructionWidth(30);
+  setIsPinned(false);
+}, []);
+useEffect(() => {
+  if (
+    pendingResendPrompt &&
+    !isSendInFlightRef.current
+  ) {
+    const prompt = pendingResendPrompt;
+    setPendingResendPrompt(null);
+    setTimeout(() => {
+      handleButtonClick(prompt);
+    }, 500);
+  }
+}, [pendingResendPrompt, chatHistory]);
+
 useEffect(() => {
   if (isDragging) {
     window.addEventListener('mousemove', onDrag);
@@ -229,7 +250,7 @@ const [snackbar, setSnackbarInfo] = useState({
     variant: "success",
   });
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-
+  const annotationStatus = useSelector((state) => state.getAnnotationsTask?.status);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const handleOpen = () => {
     setOpen(true);
@@ -285,48 +306,47 @@ const [snackbar, setSnackbarInfo] = useState({
       });
     }
 
+ 
   const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-if (localInProgress) {
-  try {
-    const parsedLocal = JSON.parse(localInProgress);
-    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
-    const serverHasLastPrompt = modifiedChatHistory.some(
-      (c) => c.prompt === lastLocalPrompt
-    );
+  if (localInProgress) {
+    try {
+      const parsedLocal = JSON.parse(localInProgress);
+      const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
 
-    if (!serverHasLastPrompt) {
-      // Prompt not on server yet — recover it from localStorage
-      const lastTurn = parsedLocal[parsedLocal.length - 1];
-      const recoveredTurn = {
-        ...lastTurn,
-        output: [{ 
-          type: "text", 
-          value: lastTurn.output?.[0]?.value || "[Response interrupted — please resend your prompt.]"
-        }],
-      };
-      modifiedChatHistory = [
-        ...modifiedChatHistory.filter(c => c.prompt !== lastLocalPrompt),
-        recoveredTurn
-      ];
-      setIsStreaming(false);  // no stream running after refresh
-      setIsPolling(false);    // don't poll — nothing to wait for
-      // keep localStorage so it survives further refreshes until user resends
-    } else {
-      // Server already has this prompt — safe to clear
+      // Check if server has this prompt WITH a real non-empty response
+      const serverTurnWithValidResponse = modifiedChatHistory.find(
+        (c) =>
+          c.prompt === lastLocalPrompt &&
+          c.output &&
+          c.output.length > 0 &&
+          c.output[0]?.value &&
+          c.output[0].value.trim() !== ""
+      );
+
+      if (!serverTurnWithValidResponse) {
+        if (parsedLocal.length > 0) {
+          modifiedChatHistory = parsedLocal;
+          
+          if (!pendingResendPrompt && !isSendInFlightRef.current) {
+            setPendingResendPrompt(lastLocalPrompt);
+            setIsStreaming(true);
+          }
+        }
+      } else {
+        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        setIsStreaming(false);
+      }
+    } catch (e) {
+      console.error(e);
       localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-      setIsStreaming(false);
-      setIsPolling(false);
-      setPollingCount(0);
     }
-  } catch (e) {
-    console.error(e);
-    localStorage.removeItem(`in_progress_chat_single_${taskId}`);
   }
-}
 
-    setChatHistory(modifiedChatHistory);
-    setAnnotationId(annotation[0]?.id);
-    setShowChatContainer(!!annotation[0]?.result);
+   if (!isSendInFlightRef.current) {
+      setChatHistory(modifiedChatHistory);
+    }
+    setAnnotationId(annotation?.[0]?.id);
+    setShowChatContainer(!!annotation?.[0]?.result);
   }, [annotation,taskId]);
 
   const cleanMetaInfo = (value) =>
@@ -380,27 +400,47 @@ if (localInProgress) {
 const handleButtonClick = async (promptOverride) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
+    isSendInFlightRef.current = true;
     setChatLoading(true);
     setIsStreaming(true);
+    isStreamingRef.current = true;
 
     const currentPrompt = prompt;
 
     // Build the history for the streaming endpoint (previous turns only)
-    const streamHistory = chatHistory.map((chat) => ({
-      prompt: chat.prompt,
-      output: typeof chat.output === "string"
-        ? chat.output
-        : chat.output?.map?.((seg) => seg.value || "").join("") || "",
-    }));
+    let streamHistory = [...chatHistory];
+    
+    // If it's a retry, remove the last entry so we can generate it again
+    if (streamHistory.length > 0 && streamHistory[streamHistory.length - 1].prompt === currentPrompt) {
+      streamHistory = streamHistory.slice(0, -1);
+    }
+    
+    streamHistory = streamHistory
+      .map((chat) => ({
+        prompt: chat.prompt,
+        output: typeof chat.output === "string"
+          ? chat.output
+          : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+      }))
+      // Filter out any previous turns that had an empty output (e.g. interrupted ones)
+      // because passing empty outputs to the LLM backend causes generation to crash
+      .filter((chat) => chat.output.trim() !== "");
 
     const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
     const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
 
     // Add the new prompt to chat history immediately so it's visible in the UI
-    setChatHistory((prev) => [
-      ...prev,
-      { prompt: currentPrompt, output: [{ type: "text", value: "" }] },
-    ]);
+    setChatHistory((prev) => {
+      let updated;
+      if (prev.length > 0 && prev[prev.length - 1]?.prompt === currentPrompt) {
+        updated = [...prev];
+        updated[updated.length - 1] = { prompt: currentPrompt, output: [{ type: "text", value: "" }] };
+      } else {
+        updated = [...prev, { prompt: currentPrompt, output: [{ type: "text", value: "" }] }];
+      }
+      localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
+      return updated;
+    });
 
     const streamPromise = streamResponse({
       prompt: currentPrompt,
@@ -420,7 +460,7 @@ onToken: (token, fullText) => {
           localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
           return updated;
         });
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
       },
       onError: (errMsg) => {
         console.error("Streaming error:", errMsg);
@@ -469,9 +509,13 @@ onToken: (token, fullText) => {
       const streamedText = await streamPromise;
       
       if (streamedText) {
-        // Construct the full history array for the backend so it doesn't re-trigger LLM generation
+        let historyForPayload = [...chatHistory];
+        if (historyForPayload.length > 0 && historyForPayload[historyForPayload.length - 1].prompt === currentPrompt) {
+          historyForPayload = historyForPayload.slice(0, -1);
+        }
+
         const fullHistoryPayload = [
-          ...chatHistory.map((chat) => ({
+          ...historyForPayload.map((chat) => ({
             prompt: chat.prompt,
             output: typeof chat.output === "string"
               ? chat.output
@@ -501,6 +545,7 @@ onToken: (token, fullText) => {
             };
           });
           setChatHistory([...modifiedChatHistory]);
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
         } else if (!data) {
           setSnackbarInfo({
             open: true,
@@ -514,7 +559,8 @@ onToken: (token, fullText) => {
     } finally {
       setChatLoading(false);
       setIsStreaming(false);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+      isSendInFlightRef.current = false;
+      isStreamingRef.current = false;
     }
 
     setTimeout(() => {
@@ -815,22 +861,48 @@ const renderChatHistory = () => {
               )}
             </Grid>
             
-            <IconButton
-              size="small"
-              onClick={() => toggleShrink(index)}
+            <div
               style={{
                 position: "absolute",
                 bottom: "0.5rem",
                 right: "0.5rem",
+                display: "flex",
+                gap: "0.25rem",
               }}
             >
+              {/* Delete button */}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                <Tooltip title="Delete this turn">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    disabled={loading || chatLoading || isStreaming}
+                    style={{ padding: "4px" }}
+                  >
+                    <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "1rem" }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* Retry button */}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={handleRetry}
+                    disabled={loading || chatLoading || isStreaming}
+                    style={{ padding: "4px" }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+
               {/* Shrink button */}
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
-                style={{
-                  padding: "4px",
-                }}
+                style={{ padding: "4px" }}
               >
                 {shrinkedMessages[index] ? (
                   <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
@@ -838,43 +910,7 @@ const renderChatHistory = () => {
                   <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
                 )}
               </IconButton>
-
-              {/* Retry button */}
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
-                <Tooltip title="Re-send the same prompt to get a new response">
-                  <IconButton
-                    size="small"
-                    onClick={handleRetry}
-                    disabled={loading || chatLoading}
-                    style={{
-                      padding: "4px",
-                    }}
-                  >
-                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </IconButton>
-
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: "2rem",
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1rem" }}
-                  />
-                </IconButton>
-              )}
+            </div>
           </Grid>
         </Grid>
 

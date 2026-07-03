@@ -221,7 +221,23 @@ const MultipleLLMInstructionDrivenChat = ({
   const [isMounted, setIsMounted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
+const [isPinned, setIsPinned] = useState(false);
+const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
 const containerRef = useRef(null);
+const isSendInFlightRef = useRef(false);
+
+useEffect(() => {
+  if (
+    pendingResendPromptMulti &&
+    !isSendInFlightRef.current
+  ) {
+    const prompt = pendingResendPromptMulti;
+    setPendingResendPromptMulti(null);
+    setTimeout(() => {
+      handleButtonClick(-1, null, null, prompt);
+    }, 500);
+  }
+}, [pendingResendPromptMulti, chatHistory]);
 
 // Add these handler functions inside the component
 const startDragging = useCallback((e) => {
@@ -284,6 +300,20 @@ const onDrag = useCallback((e) => {
 
     setInstructionWidth(newWidth);
   }, [isDragging]);
+
+  const saveAnnotationUIPref = useCallback((newPrefs) => {
+    try {
+      const localPrefs = localStorage.getItem("annotation_ui_preferences");
+      let prefs = {};
+      if (localPrefs) {
+        prefs = JSON.parse(localPrefs);
+      }
+      prefs = { ...prefs, ...newPrefs };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(prefs));
+    } catch (err) {
+      console.error('Failed to save local annotation UI preferences', err);
+    }
+  }, []);
 
   const handlePinToggle = useCallback(() => {
     const newPinned = !isPinned;
@@ -490,37 +520,50 @@ useEffect(() => {
           });
         }
       }
-      let skipChatHistoryUpdate = false;
       const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
       if (localInProgress) {
         try {
           const parsedLocal = JSON.parse(localInProgress);
-          if (parsedLocal && parsedLocal.length > modifiedChatHistory.length) {
-            skipChatHistoryUpdate = true;
-            setIsStreaming(true);
-            setIsPolling(true);
-            setChatHistory((prev) => {
-              if (prev.length < parsedLocal.length) {
-                const missingTurns = parsedLocal.slice(modifiedChatHistory.length);
-                return [...modifiedChatHistory, ...missingTurns];
+          const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+
+          // Check if server has this prompt WITH a real non-empty response
+          const serverTurnWithValidResponse = modifiedChatHistory?.find(
+            (c) =>
+              c.prompt === lastLocalPrompt &&
+              c.output &&
+              c.output.length > 0 &&
+              c.output.every(
+                (modelOut) =>
+                  modelOut.output &&
+                  modelOut.output.length > 0 &&
+                  modelOut.output[0]?.value &&
+                  modelOut.output[0].value.trim() !== ""
+              )
+          );
+
+          if (!serverTurnWithValidResponse) {
+            if (parsedLocal.length > 0) {
+              modifiedChatHistory = parsedLocal;
+              
+              if (!pendingResendPromptMulti && !isSendInFlightRef.current) {
+                setPendingResendPromptMulti(lastLocalPrompt);
+                setIsStreaming(true);
               }
-              return prev;
-            });
-          } else if (parsedLocal && parsedLocal.length <= modifiedChatHistory.length) {
+            }
+          } else {
             localStorage.removeItem(`in_progress_chat_${taskId}`);
             setIsStreaming(false);
-            setIsPolling(false);
-            setPollingCount(0);
           }
         } catch (e) {
           console.error(e);
+          localStorage.removeItem(`in_progress_chat_${taskId}`);
         }
       } else {
         setIsPolling(false);
         setPollingCount(0);
       }
 
-      if (!skipChatHistoryUpdate) {
+      if (!isSendInFlightRef.current) {
         setChatHistory(modifiedChatHistory);
       }
     } else {
@@ -588,6 +631,7 @@ useEffect(() => {
     return Number(`${time}${deviceHash}${rand}`);
   };
   const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+    isSendInFlightRef.current = true;
     console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
     const isMultipleResponse = ProjectDetails?.metadata_json;
     const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
@@ -612,9 +656,16 @@ useEffect(() => {
         }));
 
         const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
-        const optimisticHistory = [...chatHistory, optimisticEntry];
-        setChatHistory(optimisticHistory);
-        localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
+        setChatHistory((prev) => {
+          let updated = [...prev];
+          if (updated.length > 0 && updated[updated.length - 1]?.prompt === currentPrompt) {
+            updated[updated.length - 1] = optimisticEntry;
+          } else {
+            updated = [...updated, optimisticEntry];
+          }
+          localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(updated));
+          return updated;
+        });
         setShowChatContainer(true);
         setIsStreaming(true);
 
@@ -834,6 +885,7 @@ useEffect(() => {
               latestAnnotationResultRef.current = data.result[0];
               setChatHistory([...modifiedChatHistory]);
               dispatch(fetchAnnotationsTask(taskId));
+              localStorage.removeItem(`in_progress_chat_${taskId}`);
             }
           }
         } catch (error) {
@@ -844,7 +896,6 @@ useEffect(() => {
           setIsPolling(false);
           setPollingCount(0);
           setLoading(false);
-          localStorage.removeItem(`in_progress_chat_${taskId}`);
         }
 
         setVisibleMessages((prev) => ({
@@ -857,6 +908,7 @@ useEffect(() => {
         }, 1000);
         setShowChatContainer(true);
         setInputValue("");
+        isSendInFlightRef.current = false;
         return;
       }
 
@@ -1061,6 +1113,7 @@ useEffect(() => {
       }, 1000);
     setShowChatContainer(true);
     setInputValue("");
+    isSendInFlightRef.current = false;
   };
   const hasFailedLastResponse = useMemo(() => {
     if (!chatHistory || chatHistory.length === 0) return false;
@@ -2049,7 +2102,7 @@ useEffect(() => {
                         padding: "4px",
                       }}
                       onClick={handleRetry}
-                      disabled={loading}
+                      disabled={loading || isStreaming}
                     >
                       <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
                     </IconButton>
@@ -2062,6 +2115,7 @@ useEffect(() => {
                     style={{
                       padding: "4px"
                     }}
+                    disabled={loading || isStreaming}
                     onClick={() => {
                       setEvalFormResponse((prev) => {
                         const newResponse = { ...prev };
