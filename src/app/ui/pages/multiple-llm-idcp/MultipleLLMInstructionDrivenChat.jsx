@@ -1822,6 +1822,12 @@ if (localInProgress) {
   };
 
   const renderChatHistory = () => {
+    // Delete/retry are disabled while a response is streaming; grey the icons to
+    // match so they visibly read as unavailable (their hardcoded orange would
+    // otherwise override MUI's disabled dimming).
+    const actionsDisabled = isStreaming || chatLoading || loading;
+    const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
+
     const toggleShrink = (index) => {
       setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
@@ -2027,9 +2033,9 @@ if (localInProgress) {
                       onClick={handleRetry}
                       // Match delete: block retry while a response is streaming so
                       // an in-flight stream can't clash with a re-send.
-                      disabled={isStreaming || chatLoading || loading}
+                      disabled={actionsDisabled}
                     >
-                      <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                      <RestartAltIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
                     </IconButton>
                   </Tooltip>
                 )}
@@ -2040,7 +2046,7 @@ if (localInProgress) {
                     // Disable while a response is streaming: an in-flight stream
                     // would re-save the turn on completion and silently undo the
                     // delete. Re-enabled once streaming finishes.
-                    disabled={isStreaming || chatLoading || loading}
+                    disabled={actionsDisabled}
                     style={{
                       padding: "4px"
                     }}
@@ -2063,7 +2069,7 @@ if (localInProgress) {
                       handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
                     }}
                   >
-                    <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                    <DeleteOutlinedIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
                   </IconButton>
                 )}
               </Grid>
