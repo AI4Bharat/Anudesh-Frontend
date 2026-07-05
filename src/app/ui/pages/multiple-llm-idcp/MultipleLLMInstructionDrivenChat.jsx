@@ -183,6 +183,18 @@ const MultipleLLMInstructionDrivenChat = ({
     }
   }, [annotation]);
 
+  // Abort any in-flight stream when the page unmounts (e.g. browser back).
+  // Otherwise the detached stream keeps running, completes in the background,
+  // and its completion handler removes the `in_progress_chat_${taskId}` recovery
+  // key (and PATCHes the server). Returning before the server refetch would then
+  // find no recovery breadcrumb, so the prompt vanishes until a manual refresh.
+  // Aborting keeps the breadcrumb so recovery can restore it.
+  useEffect(() => {
+    return () => {
+      abortStream();
+    };
+  }, [abortStream]);
+
   useEffect(() => {
     if (setIsModelStreaming) {
       setIsModelStreaming(isStreaming);
