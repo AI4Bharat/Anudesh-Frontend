@@ -364,16 +364,16 @@ const [snackbar, setSnackbarInfo] = useState({
         );
 
        if (!serverTurnWithValidResponse) {
-  try {
-    const parsedLocal = JSON.parse(localInProgress);
-
-    if (parsedLocal?.length > 0) {
-      modifiedChatHistory = parsedLocal;
-      setChatHistory(parsedLocal);
-    }
-  } catch (e) {
-    console.error(e);
-  }
+  // The last recovered turn is the in-progress prompt whose response never
+  // finished streaming. Display only the already-completed prior turns and let
+  // the resend below re-append this prompt, so it renders once (streaming into a
+  // single turn) instead of twice — once as an empty-response placeholder and
+  // again as the streamed resend. Keeping it here would also duplicate it in the
+  // stream history and PATCH payload, which handleButtonClick builds from
+  // chatHistory assuming it holds previous turns only.
+  const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+  modifiedChatHistory = priorTurns;
+  setChatHistory(priorTurns);
 
   setIsStreaming(true);
   setIsPolling(true);

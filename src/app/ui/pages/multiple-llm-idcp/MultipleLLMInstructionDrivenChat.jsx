@@ -484,19 +484,13 @@ if (localInProgress) {
     if (!serverTurnWithValidResponse) {
       const lastPromptToResend = lastLocalPrompt;
 
-     try {
-  const parsedLocal = JSON.parse(localInProgress);
-
-  if (parsedLocal?.length > 0) {
-    modifiedChatHistory = parsedLocal;
-    setChatHistory(parsedLocal);
-  }
-} catch (e) {
-  console.error(e);
-}
-
-setIsStreaming(true);
-setIsPolling(true);
+      // Drop the in-progress last turn (its response never finished streaming)
+      // so the resend below re-appends it once, instead of rendering the prompt
+      // twice — once as an empty-response placeholder and again as the streamed
+      // resend.
+      const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+      modifiedChatHistory = priorTurns;
+      setChatHistory(priorTurns);
 
       setIsStreaming(false);
       setIsPolling(false);
