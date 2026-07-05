@@ -578,7 +578,7 @@ setIsPolling(true);
         .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
     return Number(`${time}${deviceHash}${rand}`);
   };
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null,retry = false) => {
     console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
     const isMultipleResponse = ProjectDetails?.metadata_json;
     const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
@@ -602,8 +602,17 @@ setIsPolling(true);
           prompt_output_pair_id: null,
         }));
 
+      let optimisticHistory;
+      if (retry) {
+        optimisticHistory = [...chatHistory];
+        optimisticHistory[optimisticHistory.length - 1] = {
+          ...optimisticHistory[optimisticHistory.length - 1],
+          output: optimisticOutputs,
+        };
+      } else {
         const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
-        const optimisticHistory = [...chatHistory, optimisticEntry];
+        optimisticHistory = [...chatHistory, optimisticEntry];
+      }
         setChatHistory(optimisticHistory);
         localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
         setShowChatContainer(true);
@@ -1044,28 +1053,8 @@ setIsPolling(true);
     setShowChatContainer(true);
     setInputValue("");
   };
-  const hasFailedLastResponse = useMemo(() => {
-    if (!chatHistory || chatHistory.length === 0) return false;
-    const last = chatHistory[chatHistory.length - 1];
-    if (!last?.output || last.output.length === 0) return true;
-    return last.output.every(modelOutput =>
-      modelOutput.status === 'error' ||
-      (modelOutput.output && modelOutput.output.length === 0)
-    );
-  }, [chatHistory]);
 
-  const handleRetry = useCallback(async () => {
-    if (!chatHistory || chatHistory.length === 0) return;
-    const lastMessage = chatHistory[chatHistory.length - 1];
-    if (!lastMessage?.prompt) return;
-
-    const lastPrompt = lastMessage.prompt;
-
-    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
-
-    // Pass the prompt directly as an override — bypasses the inputValue check
-    await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
-  }, [chatHistory, handleClick, id, handleButtonClick]);
+  
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -2030,7 +2019,7 @@ setIsPolling(true);
                         // Position to the left of delete button
                         padding: "4px",
                       }}
-                      onClick={handleRetry}
+                     onClick={() => handleButtonClick(null, null, chatHistory.length - 1, message.prompt, true)}
                       disabled={loading}
                     >
                       <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
