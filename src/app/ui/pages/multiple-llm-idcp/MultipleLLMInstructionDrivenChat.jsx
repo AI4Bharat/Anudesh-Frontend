@@ -2025,7 +2025,9 @@ if (localInProgress) {
                         padding: "4px",
                       }}
                       onClick={handleRetry}
-                      disabled={loading}
+                      // Match delete: block retry while a response is streaming so
+                      // an in-flight stream can't clash with a re-send.
+                      disabled={isStreaming || chatLoading || loading}
                     >
                       <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
                     </IconButton>

@@ -937,7 +937,9 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={() => handleButtonClick(message.prompt, true)}
-                    disabled={loading}
+                    // Match delete: block retry while a response is streaming so
+                    // an in-flight stream can't clash with a re-send.
+                    disabled={isStreaming || chatLoading || loading}
                     style={{
                       padding: "4px",
                     }}
