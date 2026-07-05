@@ -484,19 +484,13 @@ if (localInProgress) {
     if (!serverTurnWithValidResponse) {
       const lastPromptToResend = lastLocalPrompt;
 
-     try {
-  const parsedLocal = JSON.parse(localInProgress);
-
-  if (parsedLocal?.length > 0) {
-    modifiedChatHistory = parsedLocal;
-    setChatHistory(parsedLocal);
-  }
-} catch (e) {
-  console.error(e);
-}
-
-setIsStreaming(true);
-setIsPolling(true);
+      // Drop the in-progress last turn (its response never finished streaming)
+      // so the resend below re-appends it once, instead of rendering the prompt
+      // twice — once as an empty-response placeholder and again as the streamed
+      // resend.
+      const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+      modifiedChatHistory = priorTurns;
+      setChatHistory(priorTurns);
 
       setIsStreaming(false);
       setIsPolling(false);
@@ -2031,7 +2025,9 @@ setIsPolling(true);
                         padding: "4px",
                       }}
                       onClick={handleRetry}
-                      disabled={loading}
+                      // Match delete: block retry while a response is streaming so
+                      // an in-flight stream can't clash with a re-send.
+                      disabled={isStreaming || chatLoading || loading}
                     >
                       <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
                     </IconButton>
@@ -2041,6 +2037,10 @@ setIsPolling(true);
                 {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                   <IconButton
                     size="small"
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={isStreaming || chatLoading || loading}
                     style={{
                       padding: "4px"
                     }}

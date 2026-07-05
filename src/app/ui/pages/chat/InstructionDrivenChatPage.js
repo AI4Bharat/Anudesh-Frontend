@@ -364,16 +364,16 @@ const [snackbar, setSnackbarInfo] = useState({
         );
 
        if (!serverTurnWithValidResponse) {
-  try {
-    const parsedLocal = JSON.parse(localInProgress);
-
-    if (parsedLocal?.length > 0) {
-      modifiedChatHistory = parsedLocal;
-      setChatHistory(parsedLocal);
-    }
-  } catch (e) {
-    console.error(e);
-  }
+  // The last recovered turn is the in-progress prompt whose response never
+  // finished streaming. Display only the already-completed prior turns and let
+  // the resend below re-append this prompt, so it renders once (streaming into a
+  // single turn) instead of twice — once as an empty-response placeholder and
+  // again as the streamed resend. Keeping it here would also duplicate it in the
+  // stream history and PATCH payload, which handleButtonClick builds from
+  // chatHistory assuming it holds previous turns only.
+  const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+  modifiedChatHistory = priorTurns;
+  setChatHistory(priorTurns);
 
   setIsStreaming(true);
   setIsPolling(true);
@@ -937,7 +937,9 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={() => handleButtonClick(message.prompt, true)}
-                    disabled={loading}
+                    // Match delete: block retry while a response is streaming so
+                    // an in-flight stream can't clash with a re-send.
+                    disabled={isStreaming || chatLoading || loading}
                     style={{
                       padding: "4px",
                     }}
@@ -954,6 +956,10 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={isStreaming || chatLoading || loading}
                     style={{
                       padding: "4px",
                     }}
