@@ -954,6 +954,10 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={isStreaming || chatLoading || loading}
                     style={{
                       padding: "4px",
                     }}

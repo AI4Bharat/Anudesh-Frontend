@@ -2035,6 +2035,10 @@ if (localInProgress) {
                 {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                   <IconButton
                     size="small"
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={isStreaming || chatLoading || loading}
                     style={{
                       padding: "4px"
                     }}
