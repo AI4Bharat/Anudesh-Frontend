@@ -770,6 +770,12 @@ onToken: (token, fullText) => {
 
 const renderChatHistory = () => {
 
+    // Delete/retry are disabled while a response is streaming; grey the icons to
+    // match so they visibly read as unavailable (their hardcoded orange would
+    // otherwise override MUI's disabled dimming).
+    const actionsDisabled = isStreaming || chatLoading || loading;
+    const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
+
     const toggleShrink = (index) => {
         setShrinkedMessages(prev => ({
             ...prev,
@@ -939,12 +945,12 @@ const renderChatHistory = () => {
                     onClick={() => handleButtonClick(message.prompt, true)}
                     // Match delete: block retry while a response is streaming so
                     // an in-flight stream can't clash with a re-send.
-                    disabled={isStreaming || chatLoading || loading}
+                    disabled={actionsDisabled}
                     style={{
                       padding: "4px",
                     }}
                   >
-                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                    <RestartAltIcon style={{ fontSize: "1rem", color: actionIconColor }} />
                   </IconButton>
                 </Tooltip>
               )}
@@ -959,13 +965,13 @@ const renderChatHistory = () => {
                     // Disable while a response is streaming: an in-flight stream
                     // would re-save the turn on completion and silently undo the
                     // delete. Re-enabled once streaming finishes.
-                    disabled={isStreaming || chatLoading || loading}
+                    disabled={actionsDisabled}
                     style={{
                       padding: "4px",
                     }}
                   >
                     <DeleteOutlinedIcon
-                      style={{ color: "#EE6633", fontSize: "1rem" }}
+                      style={{ color: actionIconColor, fontSize: "1rem" }}
                     />
                   </IconButton>
                 )}
