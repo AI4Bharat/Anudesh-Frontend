@@ -47,6 +47,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -562,6 +563,23 @@ if (localInProgress) {
   function isString(value) {
     return typeof value === "string" || value instanceof String;
   }
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setSnackbarInfo({
+        open: true,
+        message: "Copied to clipboard!",
+        variant: "success",
+      });
+    } catch (error) {
+      setSnackbarInfo({
+        open: true,
+        message: "Failed to copy to clipboard!",
+        variant: "error",
+      });
+    }
+  };
 
   const generateUniquePromptOutputPairId = () => {
     const time = Date.now();
@@ -2008,6 +2026,19 @@ if (localInProgress) {
                   flexShrink: 0,
                 }}
               >
+
+                {/* Copy prompt button */}
+                <Tooltip title="Copy prompt">
+                  <IconButton
+                    size="small"
+                    onClick={() => copyToClipboard(message?.prompt || "")}
+                    style={{
+                      padding: "4px"
+                    }}
+                  >
+                    <ContentCopyIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
 
                 <IconButton
                   size="small"
