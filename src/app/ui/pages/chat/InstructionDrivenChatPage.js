@@ -36,6 +36,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -922,6 +923,19 @@ const renderChatHistory = () => {
                 flexShrink: 0,
               }}
             >
+              {/* Copy prompt button */}
+              <Tooltip title="Copy prompt">
+                <IconButton
+                  size="small"
+                  onClick={() => copyToClipboard(message?.prompt || "")}
+                  style={{
+                    padding: "4px",
+                  }}
+                >
+                  <ContentCopyIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                </IconButton>
+              </Tooltip>
+
               {/* Shrink button */}
               <IconButton
                 size="small"
