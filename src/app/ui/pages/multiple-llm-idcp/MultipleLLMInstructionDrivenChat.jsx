@@ -112,15 +112,11 @@ const MultipleLLMInstructionDrivenChat = ({
   loading,
   setIsModelStreaming,
 }) => {
-  const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
   const dispatch = useDispatch();
-
-
-
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
@@ -129,6 +125,88 @@ const MultipleLLMInstructionDrivenChat = ({
 
   const [isPolling, setIsPolling] = useState(false);
   const [pollingCount, setPollingCount] = useState(0);
+  const recoveryPollRef = useRef(null);
+const recoveryStaleCountRef = useRef(0);
+const recoveryLastSnapshotRef = useRef(null);
+const interruptedTurnRef = useRef(null);
+const isSendInFlightRef = useRef(false);
+
+const RECOVERY_POLL_INTERVAL_MS = 1000;
+const RECOVERY_STALE_LIMIT_S = 25;
+
+const stopRecoveryPolling = useCallback(() => {
+  if (recoveryPollRef.current) {
+    clearInterval(recoveryPollRef.current);
+    recoveryPollRef.current = null;
+  }
+}, []);
+
+const markRecoveryInterrupted = useCallback((tId, prompt) => {
+  stopRecoveryPolling();
+  localStorage.removeItem(`in_progress_chat_${tId}`);
+  interruptedTurnRef.current = null;
+  setIsStreaming(false);
+  setChatHistory((prev) => {
+    if (!prev?.length) return prev;
+    const last = prev[prev.length - 1];
+    if (last?.prompt !== prompt) return prev;
+    const interruptedOutputs = (last.output || []).map((modelOutput) => ({
+      ...modelOutput,
+      output: [{ type: "text", value: "Response was interrupted. Please resend your prompt." }],
+    }));
+    return [...prev.slice(0, -1), { ...last, interrupted: true, output: interruptedOutputs }];
+  });
+}, [stopRecoveryPolling]);
+
+const startRecoveryPolling = useCallback((tId, prompt, initialSnapshot) => {
+  stopRecoveryPolling();
+  recoveryLastSnapshotRef.current = initialSnapshot;
+  recoveryStaleCountRef.current = 0;
+
+  recoveryPollRef.current = setInterval(() => {
+    const key = `in_progress_chat_${tId}`;
+    const current = localStorage.getItem(key);
+
+    if (current === null) {
+      stopRecoveryPolling();
+      interruptedTurnRef.current = null;
+      setIsStreaming(false);
+      dispatch(fetchAnnotationsTask(tId));
+      return;
+    }
+
+    if (current !== recoveryLastSnapshotRef.current) {
+      recoveryLastSnapshotRef.current = current;
+      recoveryStaleCountRef.current = 0;
+      try {
+        setChatHistory(JSON.parse(current));
+      } catch (e) {
+        console.error("Failed to parse in-progress chat during recovery", e);
+      }
+      return;
+    }
+
+    recoveryStaleCountRef.current += 1;
+    if (recoveryStaleCountRef.current * (RECOVERY_POLL_INTERVAL_MS / 1000) >= RECOVERY_STALE_LIMIT_S) {
+      markRecoveryInterrupted(tId, prompt);
+    }
+  }, RECOVERY_POLL_INTERVAL_MS);
+}, [dispatch, markRecoveryInterrupted, stopRecoveryPolling]);
+
+
+useEffect(() => stopRecoveryPolling, [stopRecoveryPolling]);
+
+
+
+useEffect(() => {
+  if (Array.isArray(chatHistory) && chatHistory.length === 0) {
+    interruptedTurnRef.current = null;
+    stopRecoveryPolling();
+    if (taskId) {
+      localStorage.removeItem(`in_progress_chat_${taskId}`);
+    }
+  }
+}, [chatHistory, taskId, stopRecoveryPolling]);
 
   useEffect(() => {
     let intervalId;
@@ -142,15 +220,7 @@ const MultipleLLMInstructionDrivenChat = ({
       if (intervalId) clearInterval(intervalId);
     };
   }, [isPolling, taskId, dispatch]);
-  useEffect(() => {
-  if (pendingResendPromptMulti && !isStreaming && chatHistory !== null) {
-    const prompt = pendingResendPromptMulti;
-    setPendingResendPromptMulti(null);
-    setTimeout(() => {
-      handleButtonClick(null, null, null, prompt);
-    }, 500);
-  }
-}, [pendingResendPromptMulti, chatHistory]);
+  
 
   useEffect(() => {
     if (pollingCount > 6) {
@@ -198,6 +268,7 @@ const MultipleLLMInstructionDrivenChat = ({
   const [isPinned, setIsPinned] = useState(false);
   const [fontSize, setFontSize] = useState(0.9);
   const containerRef = useRef(null);
+  const hasRecoveredInProgressChat = useRef(false);
 
   const saveAnnotationUIPref = useCallback((payload) => {
     try {
@@ -283,6 +354,13 @@ const MultipleLLMInstructionDrivenChat = ({
       instruction_panel_pinned: false
     });
   }, [saveAnnotationUIPref]);
+  useEffect(() => {
+  return () => {
+    if (isSendInFlightRef.current) {
+      abortStream();
+    }
+  };
+}, [abortStream]);
 
   // Sync annotation UI preferences from localStorage on mount
   useEffect(() => {
@@ -361,103 +439,129 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   }, [chatHistory]);
 
-  useEffect(() => {
-    if (!taskId) return;
-    setEvalFormResponse({});
-    setSubmittedEvalForms({});
+ useEffect(() => {
+  if (!taskId) return;
+  setEvalFormResponse({});
+  setSubmittedEvalForms({});
 
-    let modifiedChatHistory = [];
-    if (
-      annotation &&
-      annotation?.[0] &&
-      annotation?.[0]?.result &&
-      Array.isArray(annotation?.[0]?.result) &&
-      annotation?.[0]?.id &&
-      annotation?.[0]?.result?.length > 0 &&
-      annotation?.[0]?.result?.[0]?.model_interactions &&
-      Array.isArray(annotation?.[0]?.result?.[0]?.model_interactions) &&
-      annotation?.[0]?.result?.[0]?.model_interactions.length > 0
-    ) {
-      const allModelsInteractions =
-        annotation[0].result[0].model_interactions;
-      const interactions_length =
-        allModelsInteractions[0]?.interaction_json?.length || 0;
-      console.log("lead", allModelsInteractions);
-      for (let i = 0; i < interactions_length; i++) {
-        const prompt =
-          allModelsInteractions[0]?.interaction_json[i]?.prompt;
+  let modifiedChatHistory = [];
+  if (
+    annotation &&
+    annotation?.[0] &&
+    annotation?.[0]?.result &&
+    Array.isArray(annotation?.[0]?.result) &&
+    annotation?.[0]?.id &&
+    annotation?.[0]?.result?.length > 0 &&
+    annotation?.[0]?.result?.[0]?.model_interactions &&
+    Array.isArray(annotation?.[0]?.result?.[0]?.model_interactions) &&
+    annotation?.[0]?.result?.[0]?.model_interactions.length > 0
+  ) {
+    const allModelsInteractions = annotation[0].result[0].model_interactions;
+    const interactions_length = allModelsInteractions[0]?.interaction_json?.length || 0;
 
-        const modelOutputs = [];
-        let turnPromptOutputPairId = null;
+    for (let i = 0; i < interactions_length; i++) {
+      const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+      const modelOutputs = [];
+      let turnPromptOutputPairId = null;
 
-        allModelsInteractions.forEach((modelData, modelIdx) => {
-          const interaction = modelData?.interaction_json?.[i];
-          if (interaction) {
-            const response_valid = isString(interaction?.output);
-            if (!response_valid) {
-              setIsModelFailing(true);
-            }
-            if (modelIdx === 0) {
-              turnPromptOutputPairId = interaction?.prompt_output_pair_id;
-            }
-
-            modelOutputs.push({
-              model_id: modelData?.model_id || modelData?.model_name,
-              model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
-              output: response_valid
-                ? formatResponse(interaction?.output)
-                : formatResponse(
-                  `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
-                ),
-              status: response_valid ? "success" : "error",
-              prompt_output_pair_id: interaction?.prompt_output_pair_id,
-              output_error: response_valid
-                ? null
-                : JSON.stringify(interaction?.output),
-            });
+      allModelsInteractions.forEach((modelData, modelIdx) => {
+        const interaction = modelData?.interaction_json?.[i];
+        if (interaction) {
+          const response_valid = isString(interaction?.output);
+          if (!response_valid) {
+            setIsModelFailing(true);
           }
-        });
-
-
-        if (turnPromptOutputPairId) {
-          const eval_form = (
-            Array.isArray(annotation?.[0]?.result?.[0]?.eval_form)
-              ? annotation[0].result[0].eval_form
-              : []
-          ).find(
-            (item) =>
-              item.prompt_output_pair_id === turnPromptOutputPairId,
-          );
-
-          if (eval_form) {
-            setEvalFormResponse((prev) => ({
-              ...prev,
-              [turnPromptOutputPairId]: eval_form,
-            }));
-            setSubmittedEvalForms((prev) => ({
-              ...prev,
-              [turnPromptOutputPairId]: eval_form,
-            }));
+          if (modelIdx === 0) {
+            turnPromptOutputPairId = interaction?.prompt_output_pair_id;
           }
-        }
 
-        if (prompt !== undefined && modelOutputs.length > 0) {
-          modifiedChatHistory?.push({
-            prompt: prompt,
-            output: modelOutputs,
-            prompt_output_pair_id: turnPromptOutputPairId,
+          modelOutputs.push({
+            model_id: modelData?.model_id || modelData?.model_name,
+            model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+            output: response_valid
+              ? formatResponse(interaction?.output)
+              : formatResponse(
+                `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+              ),
+            status: response_valid ? "success" : "error",
+            prompt_output_pair_id: interaction?.prompt_output_pair_id,
+            output_error: response_valid ? null : JSON.stringify(interaction?.output),
           });
         }
-      }
-    const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
-if (localInProgress) {
-  try {
-    const parsedLocal = JSON.parse(localInProgress);
-    const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+      });
 
-   const serverTurnWithValidResponse = modifiedChatHistory.find(
+      if (turnPromptOutputPairId) {
+        const eval_form = (
+          Array.isArray(annotation?.[0]?.result?.[0]?.eval_form)
+            ? annotation[0].result[0].eval_form
+            : []
+        ).find((item) => item.prompt_output_pair_id === turnPromptOutputPairId);
+
+        if (eval_form) {
+          setEvalFormResponse((prev) => ({ ...prev, [turnPromptOutputPairId]: eval_form }));
+          setSubmittedEvalForms((prev) => ({ ...prev, [turnPromptOutputPairId]: eval_form }));
+        }
+      }
+
+      if (prompt !== undefined && modelOutputs.length > 0) {
+        modifiedChatHistory.push({
+          prompt: prompt,
+          output: modelOutputs,
+          prompt_output_pair_id: turnPromptOutputPairId,
+        });
+      }
+    }
+  }
+
+  // ── Recovery block now runs UNCONDITIONALLY, once per mount ──
+  // (matches IDC exactly — independent of whether the server already
+  // has saved model_interactions for this task)
+  if (!hasRecoveredInProgressChat.current) {
+    hasRecoveredInProgressChat.current = true;
+
+    const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
+    if (localInProgress) {
+      try {
+        const parsedLocal = JSON.parse(localInProgress);
+        const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+
+        const serverTurnWithValidResponse = modifiedChatHistory.find(
+          (c) =>
+            c.prompt === lastLocalPrompt &&
+            c.output &&
+            c.output.length > 0 &&
+            c.output.every(
+              (modelOut) =>
+                modelOut.output &&
+                modelOut.output.length > 0 &&
+                modelOut.output[0]?.value &&
+                modelOut.output[0].value.trim() !== ""
+            )
+        );
+
+        if (!serverTurnWithValidResponse && parsedLocal?.length > 0 && lastLocalPrompt) {
+          interruptedTurnRef.current = lastLocalPrompt;
+          modifiedChatHistory = parsedLocal;
+          setIsStreaming(true);
+          startRecoveryPolling(taskId, lastLocalPrompt, localInProgress);
+        } else {
+          localStorage.removeItem(`in_progress_chat_${taskId}`);
+        }
+      } catch (e) {
+        console.error(e);
+        localStorage.removeItem(`in_progress_chat_${taskId}`);
+      }
+    }
+    setIsPolling(false);
+    setPollingCount(0);
+  }
+
+  // ── Fallback resolution (same shape as IDC) ──
+  if (interruptedTurnRef.current && !recoveryPollRef.current) {
+    const prompt = interruptedTurnRef.current;
+    const serverNowHasValidResponse = modifiedChatHistory.some(
       (c) =>
-        c.prompt === lastLocalPrompt &&
+        c.prompt === prompt &&
         c.output &&
         c.output.length > 0 &&
         c.output.every(
@@ -469,45 +573,33 @@ if (localInProgress) {
         )
     );
 
-    if (!serverTurnWithValidResponse) {
-      const lastPromptToResend = lastLocalPrompt;
-
-     try {
-  const parsedLocal = JSON.parse(localInProgress);
-
-  if (parsedLocal?.length > 0) {
-    modifiedChatHistory = parsedLocal;
-    setChatHistory(parsedLocal);
-  }
-} catch (e) {
-  console.error(e);
-}
-
-setIsStreaming(true);
-setIsPolling(true);
-
-      setIsStreaming(false);
-      setIsPolling(false);
-      localStorage.removeItem(`in_progress_chat_${taskId}`);
-      setPendingResendPromptMulti(lastPromptToResend);
+    if (serverNowHasValidResponse) {
+      interruptedTurnRef.current = null;
     } else {
-      localStorage.removeItem(`in_progress_chat_${taskId}`);
+      const lastEntry = modifiedChatHistory[modifiedChatHistory.length - 1];
+      const baseEntry = lastEntry?.prompt === prompt ? lastEntry : { prompt, output: [] };
+      const interruptedOutputs = (
+        baseEntry.output?.length
+          ? baseEntry.output
+          : [{ model_name: "Model", output: [{ type: "text", value: "" }] }]
+      ).map((modelOutput) => ({
+        ...modelOutput,
+        output: [{ type: "text", value: "Response was interrupted. Please resend your prompt." }],
+      }));
+      const interruptedEntry = { ...baseEntry, prompt, interrupted: true, output: interruptedOutputs };
+      modifiedChatHistory = lastEntry?.prompt === prompt
+        ? [...modifiedChatHistory.slice(0, -1), interruptedEntry]
+        : [...modifiedChatHistory, interruptedEntry];
       setIsStreaming(false);
-      setIsPolling(false);
-      setPollingCount(0);
     }
-  } catch (e) {
-    console.error(e);
-    localStorage.removeItem(`in_progress_chat_${taskId}`);
   }
-}
-      setChatHistory(modifiedChatHistory);
-    } else {
-      setChatHistory([]);
-    }
-    setAnnotationId(annotation?.[0]?.id);
-    setShowChatContainer(!!annotation?.[0]?.result);
-  }, [annotation,taskId]);
+
+  if (!isSendInFlightRef.current) {
+    setChatHistory(modifiedChatHistory);
+  }
+  setAnnotationId(annotation?.[0]?.id);
+  setShowChatContainer(!!annotation?.[0]?.result);
+}, [annotation, taskId]);
 
   const handleClosePreferredResponseModal = (index) => {
     setVisibleMessages((prev) => ({
@@ -567,6 +659,8 @@ setIsPolling(true);
     return Number(`${time}${deviceHash}${rand}`);
   };
   const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+    stopRecoveryPolling();
+  interruptedTurnRef.current = null;
     console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
     const isMultipleResponse = ProjectDetails?.metadata_json;
     const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
@@ -577,6 +671,7 @@ setIsPolling(true);
       const currentPrompt = promptOverride ?? inputValue;
 
       if (isNewPrompt) {
+        isSendInFlightRef.current = true; 
         // Get the models list from task data
         const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
         const modelsToRun = taskData?.data?.model || [];
@@ -819,6 +914,7 @@ setIsPolling(true);
         setChatLoading(false);
         setIsStreaming(false);
         setLoading(false);
+        isSendInFlightRef.current = false;
       }
 
         setVisibleMessages((prev) => ({
@@ -2228,7 +2324,7 @@ setIsPolling(true);
 
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
-                                          (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
+                                          (!message.interrupted && (ProjectDetails?.metadata_json?.editable_response || segment.value == "")) && !(isStreaming && index === chatHistory.length - 1) ? (
                                             globalTransliteration ? (
                                               <IndicTransliterate
                                                 key={segmentIdx}
@@ -2326,7 +2422,7 @@ setIsPolling(true);
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
-                                  (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
+                                  (!message.interrupted && (ProjectDetails?.metadata_json?.editable_response || segment.value == "")) && !(isStreaming && index === chatHistory.length - 1) ? (
                                     globalTransliteration ? (
                                       <IndicTransliterate
                                         key={segmentIdx}
@@ -2372,12 +2468,12 @@ setIsPolling(true);
                                       />
                                     )
                                   ) : (
-                                    isStreaming && index === chatHistory.length - 1 && segment.value === "" ? (
+                                    isStreaming && !message.interrupted && index === chatHistory.length - 1 && segment.value === "" ? (
                                       <div className="streaming-dots">
                                         <span></span><span></span><span></span>
                                       </div>
                                     ) : (
-                                      <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
+                                      <div className={(isStreaming && !message.interrupted && index === chatHistory.length - 1) ? "streaming-cursor" : ""}>
                                         <ReactMarkdown
                                           key={segmentIdx}
                                           children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
@@ -2456,7 +2552,7 @@ setIsPolling(true);
           )}
 
           {/* Evaluation form section - also reduced */}
-          {message?.prompt_output_pair_id !== null && !shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && !(isStreaming && index === chatHistory.length - 1) && (
+          {message?.prompt_output_pair_id !== null && !shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && !(isStreaming && index === chatHistory.length - 1) && !message.interrupted && (
             <Grid
               item
               sx={{

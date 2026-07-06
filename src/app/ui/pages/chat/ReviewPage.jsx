@@ -170,7 +170,13 @@ const ReviewPage = () => {
   const hasEmptyResponse = (() => {
     if (!chatHistory || chatHistory.length === 0) return false;
     let empty = false;
-    chatHistory.forEach((turn) => {
+  chatHistory.forEach((turn) => {
+      if (turn.interrupted) {
+        // A turn that never actually got a real response shouldn't count
+        // as valid, even though it shows placeholder text.
+        empty = true;
+        return;
+      }
       if (ProjectDetails?.project_type === "InstructionDrivenChat") {
         if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
           empty = true;

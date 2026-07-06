@@ -132,6 +132,11 @@ const AnnotatePage = () => {
     if (!chatHistory || chatHistory.length === 0) return false;
     let empty = false;
     chatHistory.forEach((turn) => {
+      if (turn.interrupted) {
+        
+        empty = true;
+        return;
+      }
       if (ProjectDetails?.project_type === "InstructionDrivenChat") {
         if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
           empty = true;

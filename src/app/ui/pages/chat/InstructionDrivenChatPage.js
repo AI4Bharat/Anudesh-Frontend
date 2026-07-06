@@ -95,7 +95,6 @@ const InstructionDrivenChatPage = ({
   loading,
   setIsModelStreaming,
 }) => {
-  const [pendingResendPrompt, setPendingResendPrompt] = useState(null);
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
@@ -107,9 +106,83 @@ const InstructionDrivenChatPage = ({
   const [annotationId, setAnnotationId] = useState();
   const [shrinkedMessages, setShrinkedMessages] = useState({});
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
+const recoveryPollRef = useRef(null);
+const recoveryStaleCountRef = useRef(0);
+const recoveryLastSnapshotRef = useRef(null);
 
+const RECOVERY_POLL_INTERVAL_MS = 1000;
+const RECOVERY_STALE_LIMIT_S = 25; // no new tokens for this long => truly gone
+const stopRecoveryPolling = useCallback(() => {
+  if (recoveryPollRef.current) {
+    clearInterval(recoveryPollRef.current);
+    recoveryPollRef.current = null;
+  }
+}, []);
+
+const markRecoveryInterrupted = useCallback((tId, prompt) => {
+  stopRecoveryPolling();
+  localStorage.removeItem(`in_progress_chat_single_${tId}`);
+  interruptedTurnRef.current = null;
+  setIsStreaming(false);
+  setChatHistory((prev) => {
+    if (!prev?.length) return prev;
+    const last = prev[prev.length - 1];
+    if (last?.prompt !== prompt) return prev;
+    const interruptedEntry = {
+      prompt,
+      interrupted: true,
+      output: [{
+        type: "text",
+        value: "Response was interrupted. Please resend your prompt.",
+      }],
+    };
+    return [...prev.slice(0, -1), interruptedEntry];
+  });
+}, [stopRecoveryPolling]);
+
+const startRecoveryPolling = useCallback((tId, prompt, initialSnapshot) => {
+  stopRecoveryPolling();
+  recoveryLastSnapshotRef.current = initialSnapshot;
+  recoveryStaleCountRef.current = 0;
+
+  recoveryPollRef.current = setInterval(() => {
+    const key = `in_progress_chat_single_${tId}`;
+    const current = localStorage.getItem(key);
+
+    if (current === null) {
+      
+      stopRecoveryPolling();
+      interruptedTurnRef.current = null;
+      setIsStreaming(false);
+      dispatch(fetchAnnotationsTask(tId));
+      return;
+    }
+
+    if (current !== recoveryLastSnapshotRef.current) {
+      // New tokens landed -> stream is alive, mirror it into the UI.
+      recoveryLastSnapshotRef.current = current;
+      recoveryStaleCountRef.current = 0;
+      try {
+        setChatHistory(JSON.parse(current));
+      } catch (e) {
+        console.error("Failed to parse in-progress chat during recovery", e);
+      }
+      return;
+    }
+
+    recoveryStaleCountRef.current += 1;
+    if (recoveryStaleCountRef.current * (RECOVERY_POLL_INTERVAL_MS / 1000) >= RECOVERY_STALE_LIMIT_S) {
+      // No movement for a while -> the tab/stream is genuinely gone.
+      markRecoveryInterrupted(tId, prompt);
+    }
+  }, RECOVERY_POLL_INTERVAL_MS);
+}, [dispatch, markRecoveryInterrupted, stopRecoveryPolling]);
+
+// safety net: stop polling if the component itself unmounts
+useEffect(() => stopRecoveryPolling, [stopRecoveryPolling]);
   const bottomRef = useRef(null);
   const hasRecoveredInProgressChat = useRef(false);
+  const interruptedTurnRef = useRef(null);
   const isSendInFlightRef = useRef(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
@@ -223,18 +296,7 @@ const handleResetUIPrefs = useCallback(() => {
     instruction_panel_pinned: false
   });
 }, [saveAnnotationUIPref]);
-useEffect(() => {
-  if (
-    pendingResendPrompt &&
-    !isSendInFlightRef.current
-  ) {
-    const prompt = pendingResendPrompt;
-    setPendingResendPrompt(null);
-    setTimeout(() => {
-      handleButtonClick(prompt);
-    }, 500);
-  }
-}, [pendingResendPrompt, chatHistory]);
+
 
 useEffect(() => {
   if (isDragging) {
@@ -254,6 +316,26 @@ const [snackbar, setSnackbarInfo] = useState({
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
 
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
+
+  
+useEffect(() => {
+  return () => {
+    // component is unmounting (route change / back navigation)
+    if (isSendInFlightRef.current) {
+      abortStream();
+      isSendInFlightRef.current
+    }
+  };
+}, [abortStream]);
+useEffect(() => {
+  if (Array.isArray(chatHistory) && chatHistory.length === 0) {
+    interruptedTurnRef.current = null;
+    stopRecoveryPolling();
+    if (taskId) {
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+    }
+  }
+}, [chatHistory, taskId, stopRecoveryPolling]);
 
   // Sync annotation UI preferences from localStorage on mount
   useEffect(() => {
@@ -315,76 +397,84 @@ const [snackbar, setSnackbarInfo] = useState({
   };
 
   useEffect(() => {
-    if (!taskId) return;
-    let modifiedChatHistory = [];
-    if (
-      annotation &&
-      Array.isArray(annotation[0]?.result) &&
-      annotation[0]?.result.length > 0
-    ) {
-      modifiedChatHistory = annotation[0]?.result.map((interaction, index) => {
-        return {
-          ...interaction,
-          output: formatResponse(interaction.output),
-        };
-      });
-    }
+  if (!taskId) return;
+  let modifiedChatHistory = [];
+  if (
+    annotation &&
+    Array.isArray(annotation[0]?.result) &&
+    annotation[0]?.result.length > 0
+  ) {
+    modifiedChatHistory = annotation[0]?.result.map((interaction) => ({
+      ...interaction,
+      output: formatResponse(interaction.output),
+    }));
+  }
 
- 
+
   if (!hasRecoveredInProgressChat.current) {
     hasRecoveredInProgressChat.current = true;
 
-    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-    if (localInProgress) {
-      try {
-        const parsedLocal = JSON.parse(localInProgress);
-        const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
-
-        // Check if server has this prompt WITH a real non-empty response
-        const serverTurnWithValidResponse = modifiedChatHistory.find(
-          (c) =>
-            c.prompt === lastLocalPrompt &&
-            c.output &&
-            c.output.length > 0 &&
-            c.output[0]?.value &&
-            c.output[0].value.trim() !== ""
-        );
-
-       if (!serverTurnWithValidResponse) {
+  
+const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+if (localInProgress) {
   try {
     const parsedLocal = JSON.parse(localInProgress);
+    const lastLocalPrompt = parsedLocal?.[parsedLocal.length - 1]?.prompt;
+    const serverTurnWithValidResponse = modifiedChatHistory.find(
+      (c) => c.prompt === lastLocalPrompt && c.output?.[0]?.value && c.output[0].value.trim() !== ""
+    );
 
-    if (parsedLocal?.length > 0) {
+    if (!serverTurnWithValidResponse && parsedLocal?.length > 0 && lastLocalPrompt) {
+      // Might still be streaming in the background — show what we have
+      // and poll for live updates instead of declaring it dead.
+      interruptedTurnRef.current = lastLocalPrompt;
       modifiedChatHistory = parsedLocal;
-      setChatHistory(parsedLocal);
+      setIsStreaming(true);
+      startRecoveryPolling(taskId, lastLocalPrompt, localInProgress);
+    } else {
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
     }
   } catch (e) {
     console.error(e);
+    localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+  }
+}
+setIsPolling(false);
+setPollingCount(0);
   }
 
-  setIsStreaming(true);
-  setIsPolling(true);
+  
+  if (interruptedTurnRef.current && !recoveryPollRef.current) {
+    const prompt = interruptedTurnRef.current;
+    const serverNowHasValidResponse = modifiedChatHistory.some(
+      (c) => c.prompt === prompt && c.output?.[0]?.value?.trim() !== ""
+    );
 
-  setPendingResendPrompt(lastLocalPrompt);
-}else {
-          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-          setIsStreaming(false);
-          setIsPolling(false);
-          setPollingCount(0);
-        }
-      } catch (e) {
-        console.error(e);
-        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-      }
+    if (serverNowHasValidResponse) {
+      interruptedTurnRef.current = null;
+    } else {
+      const interruptedEntry = {
+        prompt,
+        interrupted: true,
+        output: [{
+          type: "text",
+          value: "Response was interrupted. Please resend your prompt.",
+        }],
+      };
+      const lastEntry = modifiedChatHistory[modifiedChatHistory.length - 1];
+      modifiedChatHistory = lastEntry?.prompt === prompt
+        ? [...modifiedChatHistory.slice(0, -1), interruptedEntry]
+        : [...modifiedChatHistory, interruptedEntry];
+        setIsStreaming(false);
     }
   }
 
-   if (!isSendInFlightRef.current) {
-      setChatHistory(modifiedChatHistory);
-    }
-    setAnnotationId(annotation[0]?.id);
-    setShowChatContainer(!!annotation[0]?.result);
-  }, [annotation,taskId]);
+  if (!isSendInFlightRef.current) {
+    setChatHistory(modifiedChatHistory);
+  }
+  setAnnotationId(annotation[0]?.id);
+  setShowChatContainer(!!annotation[0]?.result);
+}, [annotation, taskId]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -437,6 +527,8 @@ const [snackbar, setSnackbarInfo] = useState({
 const handleButtonClick = async (promptOverride, retry = false) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
+    stopRecoveryPolling(); 
+    interruptedTurnRef.current = null;
     isSendInFlightRef.current = true;
     setChatLoading(true);
     setIsStreaming(true);
@@ -940,7 +1032,7 @@ const renderChatHistory = () => {
                 !disableUpdateButton && (
                   <IconButton
                     size="small"
-                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    onClick={() => { interruptedTurnRef.current = null; handleClick("delete-pair", id?.id, 0.0); }}
                     style={{
                       padding: "4px",
                     }}
@@ -1000,7 +1092,7 @@ const renderChatHistory = () => {
               <Grid item xs={11} style={{ paddingTop: "0rem" }}>
                 {message?.output.map((segment, segIdx) =>
                   segment.type === 'text' ? (
-                    ((ProjectDetails?.metadata_json?.editable_response) || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
+                    (!message.interrupted && (ProjectDetails?.metadata_json?.editable_response || segment.value == "")) && !(isStreaming && index === chatHistory.length - 1) ? (
                       globalTransliteration === "true" ? (
                         <IndicTransliterate
                           key={index}
@@ -1048,12 +1140,12 @@ const renderChatHistory = () => {
                       )
                     ) : (
                       <>
-                        {isStreaming && index === chatHistory.length - 1 && segment.value === "" ? (
+                      {isStreaming && !message.interrupted && index === chatHistory.length - 1 && segment.value === "" ? (
                           <div className="streaming-dots">
                             <span></span><span></span><span></span>
                           </div>
                         ) : (
-                          <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
+                        <div className={(isStreaming && !message.interrupted && index === chatHistory.length - 1) ? "streaming-cursor" : ""}>
                             <ReactMarkdown
                               key={segIdx}
                               children={linkifyText(segment?.value || "")}
