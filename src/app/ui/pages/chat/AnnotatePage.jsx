@@ -128,7 +128,38 @@ const AnnotatePage = () => {
   const [evalFormResponse, setEvalFormResponse] = useState();
   const [submittedEvalForms, setSubmittedEvalForms] = useState();
   const [isModelFailing, setIsModelFailing] = useState(false);
-  const [fontSize, setFontSize] = useState("medium");
+  const [isModelStreaming, setIsModelStreaming] = useState(false);
+
+  const hasEmptyResponse = (() => {
+    if (!chatHistory || chatHistory.length === 0) return false;
+    let empty = false;
+    chatHistory.forEach((turn) => {
+      if (ProjectDetails?.project_type === "InstructionDrivenChat") {
+        if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
+          empty = true;
+        }
+      } else if (ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") {
+        if (!turn.output || !Array.isArray(turn.output)) {
+          empty = true;
+        } else {
+          turn.output.forEach((modelResp) => {
+            if (
+              !modelResp.output ||
+              !Array.isArray(modelResp.output) ||
+              !modelResp.output[0] ||
+              typeof modelResp.output[0].value !== "string" ||
+              modelResp.output[0].value.trim() === ""
+            ) {
+              empty = true;
+            }
+          });
+        }
+      }
+    });
+    return empty;
+  })();
+
+  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyResponse) && !ProjectDetails?.metadata_json?.blank_response);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -206,7 +237,6 @@ const AnnotatePage = () => {
         const annoValue = AnnotationsTaskDetails[0].annotation_notes ?? "";
         const reviewValue = AnnotationsTaskDetails[0].review_notes ?? "";
         loadNotesIntoEditors(annoValue, reviewValue);
-        notesInitializedRef.current = taskId;
       }
     };
 
@@ -224,7 +254,8 @@ const AnnotatePage = () => {
     check();
 
     return () => clearTimeout(timeoutId);
-  }, [AnnotationsTaskDetails, taskId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [AnnotationsTaskDetails]);
 
   useEffect(() => {
     resetNotes();
@@ -318,13 +349,19 @@ const AnnotatePage = () => {
           let language = response.substring(0, next_space);
           response = response.slice(next_space + 1);
           let new_index = response.indexOf("```");
-          let value = response.substring(0, new_index);
+          let value = "";
+          if (new_index === -1) {
+            value = response;
+            response = "";
+          } else {
+            value = response.substring(0, new_index);
+            response = response.slice(new_index + 3);
+          }
           output?.push({
             type: "code",
             value: value,
             language: language,
           });
-          response = response.slice(new_index + 3);
         }
       }
     }
@@ -436,20 +473,20 @@ const AnnotatePage = () => {
   }
 
   const areAllFormsAnswered = () => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  
-  const lastTurn = chatHistory[chatHistory.length - 1];
-  const lastPromptOutputPairId = String(lastTurn.prompt_output_pair_id);
-  
-  const isLatestFormSubmitted = submittedEvalForms && 
-  submittedEvalForms.hasOwnProperty(lastPromptOutputPairId);
-  
-  return isLatestFormSubmitted;
-  };  
+    if (!chatHistory || chatHistory.length === 0) return false;
+
+    const lastTurn = chatHistory[chatHistory.length - 1];
+    const lastPromptOutputPairId = String(lastTurn.prompt_output_pair_id);
+
+    const isLatestFormSubmitted = submittedEvalForms &&
+      submittedEvalForms.hasOwnProperty(lastPromptOutputPairId);
+
+    return isLatestFormSubmitted;
+  };
 
   const buildResult = (value, type, resultValue) => {
     let result = resultValue;
-    
+
     if (value === "delete") {
       result = []
     }
@@ -466,28 +503,28 @@ const AnnotatePage = () => {
       };
     }
     else if (
-      value === "delete-pair" 
+      value === "delete-pair"
     ) {
-      result  = resultValue.slice(0, resultValue.length - 1)
+      result = resultValue.slice(0, resultValue.length - 1)
     }
     else {
       resultValue
-    }    
+    }
     return !Array.isArray(result) ? [result] : result;
   };
 
-  const handleAnnotationClick = async (value, id, lead_time, type = "") => {
-    if (value === "delete" ) {
+  const handleAnnotationClick = async (value, id, lead_time, type = "", isRetry = false) => {
+    if (value === "delete") {
       setEvalFormResponse();
       setSubmittedEvalForms();
     }
-        console.log(submittedEvalForms,"hello");
+    console.log(submittedEvalForms, "hello");
 
     if (
       value === "labeled" &&
       type === "MultipleLLMInstructionDrivenChat" &&
       !areAllFormsAnswered()
-    ) {      
+    ) {
       console.log(areAllFormsAnswered);
 
       setSnackbarInfo({
@@ -560,7 +597,7 @@ const AnnotatePage = () => {
 
       resultValue = [
         {
-          eval_form: submittedEvalForms?Object.values(submittedEvalForms):[],
+          eval_form: submittedEvalForms ? Object.values(submittedEvalForms) : [],
           model_interactions: model_interactions,
         },
       ];
@@ -572,8 +609,8 @@ const AnnotatePage = () => {
     const liveAnnotationNotes =
       typeof window !== "undefined"
         ? JSON.stringify(
-            annotationNotesRef?.current?.getEditor().getContents(),
-          )
+          annotationNotesRef?.current?.getEditor().getContents(),
+        )
         : null;
 
     const PatchAPIdata = {
@@ -614,7 +651,7 @@ const AnnotatePage = () => {
         } else if (
           (ProjectDetails.project_type == "InstructionDrivenChat" ||
             ProjectDetails.project_type ==
-              "MultipleLLMInstructionDrivenChat") &&
+            "MultipleLLMInstructionDrivenChat") &&
           chatHistory.length == 0
         ) {
           setSnackbarInfo({
@@ -647,13 +684,17 @@ const AnnotatePage = () => {
             Array.isArray(allModelsInteractions) &&
             allModelsInteractions.length > 0
           ) {
-            const interactions_length =
-              allModelsInteractions[0]?.interaction_json?.length || 0;
+            const interactions_length = Math.max(
+              ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+              0
+            );
             let modifiedChatHistory = [];
             let globalModelFailure = false;
 
             for (let i = 0; i < interactions_length; i++) {
-              const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+              const prompt = allModelsInteractions.find(
+                (m) => m?.interaction_json?.[i]?.prompt
+              )?.interaction_json?.[i]?.prompt;
               const modelOutputs = [];
               let turnPromptOutputPairId = null;
               let turnHasModelFailure = false;
@@ -665,16 +706,16 @@ const AnnotatePage = () => {
                   if (!response_valid) {
                     turnHasModelFailure = true;
                   }
-                  if (modelIdx === 0) {
-                    turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                  if (interaction?.prompt_output_pair_id) {
+                    turnPromptOutputPairId = interaction.prompt_output_pair_id;
                   }
                   modelOutputs.push({
                     model_name: modelData?.model_name,
                     output: response_valid
                       ? formatResponse(interaction?.output)
                       : formatResponse(
-                          `${modelData?.model_name} failed to generate a response`,
-                        ),
+                        `${modelData?.model_name} failed to generate a response`,
+                      ),
                     status: response_valid ? "success" : "error",
                     prompt_output_pair_id: interaction?.prompt_output_pair_id,
                     output_error: response_valid
@@ -725,7 +766,7 @@ const AnnotatePage = () => {
             setChatHistory([...modifiedChatHistory]);
           } else {
             setChatHistory([]);
-            setIsModelFailing(false); 
+            setIsModelFailing(false);
           }
         } else {
           let modifiedChatHistory = resp?.result.map((interaction) => {
@@ -734,10 +775,10 @@ const AnnotatePage = () => {
               output: formatResponse(interaction.output),
             };
           });
-          
+
           setChatHistory([...modifiedChatHistory]);
         }
-      } 
+      }
       if (res.ok) {
         if ((value === "delete" || value === "delete-pair") === false) {
           if (typeof window !== "undefined") {
@@ -748,23 +789,23 @@ const AnnotatePage = () => {
         }
         value === "delete"
           ? (setSnackbarInfo({
-              open: true,
-              message: "Chat history has been cleared successfully!",
-              variant: "success",
-            }),
+            open: true,
+            message: "Chat history has been cleared successfully!",
+            variant: "success",
+          }),
             await getAnnotationsTaskData(taskId),
             await getTaskData(taskId))
           : value === "delete-pair"
-            ? setSnackbarInfo({
-                open: true,
-                message: "Selected conversation is deleted",
-                variant: "success",
-              })
+            ? (!isRetry && setSnackbarInfo({
+              open: true,
+              message: "Selected conversation is deleted",
+              variant: "success",
+            }))
             : setSnackbarInfo({
-                open: true,
-                message: resp?.message,
-                variant: "success",
-              });
+              open: true,
+              message: resp?.message,
+              variant: "success",
+            });
         setLoading(false);
       } else {
         setAutoSave(true);
@@ -929,122 +970,123 @@ const AnnotatePage = () => {
     dispatch(fetchProjectDetails(projectId));
   };
 
-let componentToRender;
-switch (ProjectDetails.project_type) {
-  case "InstructionDrivenChat":
-    componentToRender = (
-      <InstructionDrivenChatPage
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        handleClick={handleAnnotationClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={Annotation}
-        stage={"Annotation"}
-        notes={annotationNotesRef}
-        info={info}
-        disableUpdateButton={disableUpdateButton}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-        fontSize={fontSize}
-      />
-    );
-    break;
-  case "MultipleLLMInstructionDrivenChat":
-    componentToRender = (
-      <MultipleLLMInstructionDrivenChat
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        handleClick={handleAnnotationClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={Annotation}
-        stage={"Annotation"}
-        notes={annotationNotesRef}
-        info={info}
-        disableUpdateButton={disableUpdateButton}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-        evalFormResponse={evalFormResponse}
-        setEvalFormResponse={setEvalFormResponse}
-        setIsModelFailing={setIsModelFailing}
-        submittedEvalForms={submittedEvalForms}
-        setSubmittedEvalForms={setSubmittedEvalForms}
-        fontSize={fontSize}
-      />
-    );
-    break;
-  case "ModelInteractionEvaluation":
-    componentToRender = (
-      <ModelInteractionEvaluation
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        setCurrentInteraction={setCurrentInteraction}
-        currentInteraction={currentInteraction}
-        interactions={interactions}
-        setInteractions={setInteractions}
-        forms={forms}
-        setForms={setForms}
-        stage={"Annotation"}
-        answered={answered}
-        setAnswered={setAnswered}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-      />
-    );
-    break;
-  case "MultipleInteractionEvaluation":
-    componentToRender = (
-      <PreferenceRanking
-        key={
-          annotations?.length > 0
-            ? `annotations-${annotations[0]?.id}`
-            : "annotations-default"
-        }
-        setCurrentInteraction={setCurrentInteraction}
-        currentInteraction={currentInteraction}
-        interactions={interactions}
-        setInteractions={setInteractions}
-        forms={forms}
-        setForms={setForms}
-        stage={"Annotation"}
-        answered={answered}
-        setAnswered={setAnswered}
-        annotation={annotations}
-        setLoading={setLoading}
-        loading={loading}
-        handleClick={handleAnnotationClick}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        formatResponse={formatResponse}
-        formatPrompt={formatPrompt}
-        id={Annotation}
-        notes={annotationNotesRef}
-        info={info}
-        disableUpdateButton={disableUpdateButton}
-      />
-    );
-    break;
-  default:
-    componentToRender = null;
-  break;
-}
+  let componentToRender;
+  switch (ProjectDetails.project_type) {
+    case "InstructionDrivenChat":
+      componentToRender = (
+        <InstructionDrivenChatPage
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          setIsModelStreaming={setIsModelStreaming}
+        />
+      );
+      break;
+    case "MultipleLLMInstructionDrivenChat":
+      componentToRender = (
+        <MultipleLLMInstructionDrivenChat
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          stage={"Annotation"}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          evalFormResponse={evalFormResponse}
+          setEvalFormResponse={setEvalFormResponse}
+          setIsModelFailing={setIsModelFailing}
+          submittedEvalForms={submittedEvalForms}
+          setSubmittedEvalForms={setSubmittedEvalForms}
+          setIsModelStreaming={setIsModelStreaming}
+        />
+      );
+      break;
+    case "ModelInteractionEvaluation":
+      componentToRender = (
+        <ModelInteractionEvaluation
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+        />
+      );
+      break;
+    case "MultipleInteractionEvaluation":
+      componentToRender = (
+        <PreferenceRanking
+          key={
+            annotations?.length > 0
+              ? `annotations-${annotations[0]?.id}`
+              : "annotations-default"
+          }
+          setCurrentInteraction={setCurrentInteraction}
+          currentInteraction={currentInteraction}
+          interactions={interactions}
+          setInteractions={setInteractions}
+          forms={forms}
+          setForms={setForms}
+          stage={"Annotation"}
+          answered={answered}
+          setAnswered={setAnswered}
+          annotation={annotations}
+          setLoading={setLoading}
+          loading={loading}
+          handleClick={handleAnnotationClick}
+          chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
+          formatResponse={formatResponse}
+          formatPrompt={formatPrompt}
+          id={Annotation}
+          notes={annotationNotesRef}
+          info={info}
+          disableUpdateButton={disableUpdateButton}
+        />
+      );
+      break;
+    default:
+      componentToRender = null;
+      break;
+  }
+
   const renderSnackBar = () => {
     return (
       <CustomizedSnackbars
@@ -1068,15 +1110,15 @@ switch (ProjectDetails.project_type) {
       <div id="top" ref={topref}></div>
       <Grid container sx={{ overflow: "hidden" }}>
         {renderSnackBar()}
-        
+
         <Grid item xs={12} >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,margin:'0.5rem',  flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, margin: '0.5rem', flexWrap: 'wrap' }}>
             <Button
               startIcon={<ArrowBackIcon />}
               variant="contained"
               color="primary"
               size="small"
-              sx={{ 
+              sx={{
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
@@ -1086,7 +1128,7 @@ switch (ProjectDetails.project_type) {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("labelAll");
                 }
-                navigate(`/projects/${projectId}`,  { replace : true, state: { fromBackToProject: true } } );
+                navigate(`/projects/${projectId}`, { replace: true, state: { fromBackToProject: true } });
               }}
             >
               Back
@@ -1098,42 +1140,22 @@ switch (ProjectDetails.project_type) {
               color={reviewtext.trim().length === 0 ? "primary" : "success"}
               size="small"
               onClick={handleCollapseClick}
-              sx={{ 
+              sx={{
                 minWidth: 'auto',
                 fontSize: '0.75rem',
                 px: 1.5,
-                py: 0.2,                
+                py: 0.2,
                 backgroundColor: reviewtext.trim().length === 0 ? "#bf360c" : "green",
               }}
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
-{/* Font Size Dropdown */}
-<Select
-
-  value={fontSize}
-  onChange={(e) => setFontSize(e.target.value)}
-  size="small"
-  sx={{
-    fontSize: "0.75rem",
-    height: "28px",
-    minWidth: "90px",
-    backgroundColor: "white",
-    border: "1px solid #e6e6e6",
-    "& .MuiSelect-select": { py: 0.3, px: 1 },
-  }}
->
-  <MenuItem value="small">Small</MenuItem>
-  <MenuItem value="medium">Medium</MenuItem>
-  <MenuItem value="large">Large</MenuItem>
-</Select>
-            
             <LightTooltip
               title={
                 <div>
                   <div>
                     {ProjectDetails?.conceal == false &&
-                    Array.isArray(assignedUsers)
+                      Array.isArray(assignedUsers)
                       ? assignedUsers.join(", ")
                       : assignedUsers || "No assigned users"}
                   </div>
@@ -1189,7 +1211,7 @@ switch (ProjectDetails.project_type) {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1208,7 +1230,7 @@ switch (ProjectDetails.project_type) {
                   minWidth: 'auto',
                   fontSize: '0.75rem',
                   px: 1.5,
-                  py: 0.2,                  color: "black",
+                  py: 0.2, color: "black",
                   border: "0px",
                   backgroundColor: "#ffe0b2",
                 }}
@@ -1236,7 +1258,7 @@ switch (ProjectDetails.project_type) {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
@@ -1253,7 +1275,7 @@ switch (ProjectDetails.project_type) {
                 <Tooltip
                   title={
                     ProjectDetails?.project_type == "InstructionDrivenChat" ||
-                    ProjectDetails?.project_type ==
+                      ProjectDetails?.project_type ==
                       "MultipleLLMInstructionDrivenChat"
                       ? "Clear the entire chat history"
                       : "Reset the entire chat history"
@@ -1273,13 +1295,13 @@ switch (ProjectDetails.project_type) {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ffe0b2",
                     }}
                   >
                     {ProjectDetails?.project_type == "InstructionDrivenChat" ||
-                    ProjectDetails?.project_type ==
+                      ProjectDetails?.project_type ==
                       "MultipleLLMInstructionDrivenChat"
                       ? "Clear Chats"
                       : "Reset All"}
@@ -1295,10 +1317,11 @@ switch (ProjectDetails.project_type) {
                   <Button
                     variant="contained"
                     size="small"
+                    disabled={isSubmitDisabled}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
-                          "MultipleLLMInstructionDrivenChat" &&
+                        "MultipleLLMInstructionDrivenChat" &&
                         isModelFailing
                       ) {
                         setSnackbarInfo({
@@ -1322,7 +1345,7 @@ switch (ProjectDetails.project_type) {
                       minWidth: 'auto',
                       fontSize: '0.75rem',
                       px: 1.5,
-                      py: 0.2,                      color: "black",
+                      py: 0.2, color: "black",
                       border: "0px",
                       backgroundColor: "#ee6633",
                     }}

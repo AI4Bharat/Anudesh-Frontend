@@ -10,20 +10,22 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import { makeStyles } from "@mui/styles";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
 import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef,useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { gruvboxDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import useStreamingLLM from "@/hooks/useStreamingLLM";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
@@ -34,6 +36,11 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Checkbox from '@mui/material/Checkbox';
+import { ThemeProvider } from '@mui/material/styles';
+import AllTaskSearchPopup from "@/components/Project/AllTasksSearchpopup";
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important",
@@ -85,7 +92,8 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
-  fontSize = "medium", // ADD THIS LINE
+  setIsModelStreaming,
+  fontSize = "medium",
 }) => {
   // ADD THIS HELPER FUNCTION
   const getFontSize = () => {
@@ -107,18 +115,78 @@ const InstructionDrivenChatPage = ({
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
   const { taskId } = useParams();
+  const dispatch = useDispatch();
+
+
+
   const [annotationId, setAnnotationId] = useState();
   const [shrinkedMessages, setShrinkedMessages] = useState({});
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
 
   const bottomRef = useRef(null);
+  const isSendInFlightRef = useRef(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollingCount, setPollingCount] = useState(0);
+  const [pendingResendPrompt, setPendingResendPrompt] = useState(null);
+  const isStreamingRef = useRef(false);
+
+  
+  useEffect(() => {
+    let intervalId;
+    if (isPolling) {
+      intervalId = setInterval(() => {
+        dispatch(fetchAnnotationsTask(taskId));
+        setPollingCount((prev) => prev + 1);
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isPolling, taskId, dispatch]);
+
+  useEffect(() => {
+    if (pollingCount > 6) {
+      setIsPolling(false);
+      setIsStreaming(false);
+      setPollingCount(0);
+    
+      setSnackbarInfo({
+        open: true,
+        message: "Streaming timed out. Please refresh the page.",
+        variant: "error",
+      });
+    }
+  }, [pollingCount, taskId]);
+
+  useEffect(() => {
+    if (setIsModelStreaming) {
+      setIsModelStreaming(isStreaming);
+    }
+  }, [isStreaming, setIsModelStreaming]);
+
   const [loadtime, setloadtime] = useState(new Date());
   const load_time = useRef();
-const [isDragging, setIsDragging] = useState(false);
+  const { streamResponse, abortStream } = useStreamingLLM();
+
+  // Abort any in-flight stream when the page unmounts (e.g. browser back).
+  // Otherwise the detached stream keeps running, completes in the background,
+  // and its completion handler removes the `in_progress_chat_single_${taskId}`
+  // recovery key (and PATCHes the server). Returning before the server refetch
+  // would then find no recovery breadcrumb, so the prompt vanishes until a
+  // manual refresh. Aborting keeps the breadcrumb so recovery can restore it.
+  useEffect(() => {
+    return () => {
+      abortStream();
+    };
+  }, [abortStream]);
+
+  const [isDragging, setIsDragging] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30);
 const containerRef = useRef(null);
 
@@ -149,6 +217,24 @@ console.log(e.clientX,"drag");
   setInstructionWidth(newWidth);
 }, [isDragging]);
 
+const handleResetUIPrefs = useCallback(() => {
+  setFontSize(0.9);
+  setInstructionWidth(30);
+  setIsPinned(false);
+}, []);
+useEffect(() => {
+  if (
+    pendingResendPrompt &&
+    !isSendInFlightRef.current
+  ) {
+    const prompt = pendingResendPrompt;
+    setPendingResendPrompt(null);
+    setTimeout(() => {
+      handleButtonClick(prompt);
+    }, 500);
+  }
+}, [pendingResendPrompt, chatHistory]);
+
 useEffect(() => {
   if (isDragging) {
     window.addEventListener('mousemove', onDrag);
@@ -165,7 +251,7 @@ const [snackbar, setSnackbarInfo] = useState({
     variant: "success",
   });
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-
+  const annotationStatus = useSelector((state) => state.getAnnotationsTask?.status);
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
   const handleOpen = () => {
     setOpen(true);
@@ -206,6 +292,7 @@ const [snackbar, setSnackbarInfo] = useState({
   };
 
   useEffect(() => {
+    if (!taskId) return;
     let modifiedChatHistory = [];
     if (
       annotation &&
@@ -218,13 +305,50 @@ const [snackbar, setSnackbarInfo] = useState({
           output: formatResponse(interaction.output),
         };
       });
-      setChatHistory(modifiedChatHistory);
-    } else {
-      setChatHistory([]);
     }
-    setAnnotationId(annotation[0]?.id);
-    setShowChatContainer(!!annotation[0]?.result);
-  }, [annotation]);
+
+ 
+  const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+  if (localInProgress) {
+    try {
+      const parsedLocal = JSON.parse(localInProgress);
+      const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+
+      // Check if server has this prompt WITH a real non-empty response
+      const serverTurnWithValidResponse = modifiedChatHistory.find(
+        (c) =>
+          c.prompt === lastLocalPrompt &&
+          c.output &&
+          c.output.length > 0 &&
+          c.output[0]?.value &&
+          c.output[0].value.trim() !== ""
+      );
+
+      if (!serverTurnWithValidResponse) {
+        if (parsedLocal.length > 0) {
+          modifiedChatHistory = parsedLocal;
+          
+          if (!pendingResendPrompt && !isSendInFlightRef.current) {
+            setPendingResendPrompt(lastLocalPrompt);
+            setIsStreaming(true);
+          }
+        }
+      } else {
+        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        setIsStreaming(false);
+      }
+    } catch (e) {
+      console.error(e);
+      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+    }
+  }
+
+   if (!isSendInFlightRef.current) {
+      setChatHistory(modifiedChatHistory);
+    }
+    setAnnotationId(annotation?.[0]?.id);
+    setShowChatContainer(!!annotation?.[0]?.result);
+  }, [annotation,taskId]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -274,11 +398,86 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async () => {
-  if (inputValue) {
-    setLoading(true);
+const handleButtonClick = async (promptOverride) => {
+  const prompt = promptOverride ?? inputValue;
+  if (prompt) {
+    isSendInFlightRef.current = true;
+    setChatLoading(true);
+    setIsStreaming(true);
+    isStreamingRef.current = true;
+
+    const currentPrompt = prompt;
+
+    // Build the history for the streaming endpoint (previous turns only)
+    let streamHistory = [...chatHistory];
+    
+    // If it's a retry, remove the last entry so we can generate it again
+    if (streamHistory.length > 0 && streamHistory[streamHistory.length - 1].prompt === currentPrompt) {
+      streamHistory = streamHistory.slice(0, -1);
+    }
+    
+    streamHistory = streamHistory
+      .map((chat) => ({
+        prompt: chat.prompt,
+        output: typeof chat.output === "string"
+          ? chat.output
+          : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+      }))
+      // Filter out any previous turns that had an empty output (e.g. interrupted ones)
+      // because passing empty outputs to the LLM backend causes generation to crash
+      .filter((chat) => chat.output.trim() !== "");
+
+    const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+    const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
+
+    // Add the new prompt to chat history immediately so it's visible in the UI
+    setChatHistory((prev) => {
+      let updated;
+      if (prev.length > 0 && prev[prev.length - 1]?.prompt === currentPrompt) {
+        updated = [...prev];
+        updated[updated.length - 1] = { prompt: currentPrompt, output: [{ type: "text", value: "" }] };
+      } else {
+        updated = [...prev, { prompt: currentPrompt, output: [{ type: "text", value: "" }] }];
+      }
+      localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
+      return updated;
+    });
+
+    const streamPromise = streamResponse({
+      prompt: currentPrompt,
+      history: streamHistory,
+      model: model,
+onToken: (token, fullText) => {
+        setChatHistory((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0) {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              output: [{ type: "text", value: fullText }],
+            };
+          }
+         
+          localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
+          return updated;
+        });
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
+      },
+      onError: (errMsg) => {
+        console.error("Streaming error:", errMsg);
+        setSnackbarInfo({
+          open: true,
+          message: `Streaming error: ${errMsg}`,
+          variant: "error",
+        });
+        setChatLoading(false);
+        setIsStreaming(false);
+        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+      },
+    });
+
     const body = {
-      result: inputValue,
+      result: currentPrompt,
       lead_time:
         (new Date() - loadtime) / 1000 +
         Number(id?.lead_time?.lead_time ?? 0),
@@ -306,35 +505,68 @@ const handleButtonClick = async () => {
     if (stage === "Review" || stage === "SuperChecker") {
       body.parentannotation = id?.parent_annotation;
     }
-    const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-    const res = await fetch(AnnotationObj.apiEndPoint(), {
-      method: "PATCH",
-      body: JSON.stringify(AnnotationObj.getBody()),
-      headers: AnnotationObj.getHeaders().headers,
-    });
-    const data = await res.json();
-    
-    if (res.ok && data && data.result) {
-      let modifiedChatHistory = data.result.map((interaction, index) => {
-        const isLastInteraction = index === data?.result?.length - 1;
-        return {
-          ...interaction,
-          output: formatResponse(interaction.output, isLastInteraction),
-        };
-      });
-      setChatHistory(modifiedChatHistory);
-    } else {
-      setSnackbarInfo({
-        open: true,
-        message: data?.message || res.status === 500 ? "Server error. Please try again." : "An error occurred while saving the annotation.",
-        variant: "error",
-      });
+
+    try {
+      const streamedText = await streamPromise;
+      
+      if (streamedText) {
+        let historyForPayload = [...chatHistory];
+        if (historyForPayload.length > 0 && historyForPayload[historyForPayload.length - 1].prompt === currentPrompt) {
+          historyForPayload = historyForPayload.slice(0, -1);
+        }
+
+        const fullHistoryPayload = [
+          ...historyForPayload.map((chat) => ({
+            prompt: chat.prompt,
+            output: typeof chat.output === "string"
+              ? chat.output
+              : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+          })),
+          {
+            prompt: currentPrompt,
+            output: streamedText,
+          }
+        ];
+        body.result = fullHistoryPayload;
+
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
+
+        if (data && data.result) {
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        } else if (!data) {
+          setSnackbarInfo({
+            open: true,
+            message: data?.message || "Failed to save LLM response",
+            variant: "error",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error in chat save/stream operation:", error);
+    } finally {
+      setChatLoading(false);
+      setIsStreaming(false);
+      isSendInFlightRef.current = false;
+      isStreamingRef.current = false;
     }
-    setLoading(false);
+
     setTimeout(() => {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 1000);
-    setShowChatContainer(true);
   } else {
     setSnackbarInfo({
       open: true,
@@ -342,8 +574,25 @@ const handleButtonClick = async () => {
       variant: "error",
     });
   }
+  if (!promptOverride) {
+    setText("");
+  }
 };
-const handleOnchange = (prompt) => {
+const hasFailedLastResponse = useMemo(() => {
+  if (!chatHistory || chatHistory.length === 0) return false;
+  const last = chatHistory[chatHistory.length - 1];
+  if (!last?.output || last.output.length === 0) return true;
+  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
+}, [chatHistory]);
+const handleRetry = useCallback(async () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
+  if (!lastPrompt) return;
+  await handleClick('delete-pair', id?.id, 0.0, "", true);
+  await handleButtonClick(lastPrompt);
+}, [chatHistory, handleClick, id, handleButtonClick]);
+
+  const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
   const [text, setText] = useState("");
@@ -383,6 +632,11 @@ const handleOnchange = (prompt) => {
 
   useEffect(() => {
     // This effect runs when chatHistory changes
+    if (chatHistory && chatHistory.length > 0) {
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 500);
+    }
   }, [chatHistory]);
 
   useEffect(() => {
@@ -471,6 +725,9 @@ const handleOnchange = (prompt) => {
 
 const renderChatHistory = () => {
 
+    const actionsDisabled = isStreaming || chatLoading || loading;
+    const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
+
     const toggleShrink = (index) => {
         setShrinkedMessages(prev => ({
             ...prev,
@@ -538,7 +795,7 @@ const renderChatHistory = () => {
                 }}
               />
             </Grid>
-            <Grid item xs className="w-full">
+            <Grid item xs style={{ minWidth: 0, wordBreak: "break-word" }}>
               {ProjectDetails?.metadata_json?.editable_prompt ? (
                 globalTransliteration === "true" ? (
                   <IndicTransliterate
@@ -599,7 +856,7 @@ const renderChatHistory = () => {
               ) : (
                 <ReactMarkdown
                   className="flex-col"
-                  children={linkifyText(message?.prompt?.replace(/\n/gi, "&nbsp; \n"))}
+                  children={linkifyText(message?.prompt || "")}
                   components={{
                     p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.5rem 0'}} {...props} />, // UPDATED
                     a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
@@ -607,42 +864,69 @@ const renderChatHistory = () => {
                 />
               )}
             </Grid>
-            
-            <IconButton
-              size="small"
-              onClick={() => toggleShrink(index)}
+            <Grid
+              item
               style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
               }}
             >
-              {shrinkedMessages[index] ? (
-                <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633" ,fontWeight:"bold"}} />
-              ) : (
-                <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+              {/* Delete button */}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                <Tooltip title="Delete this turn">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    disabled={actionsDisabled}
+                    style={{ padding: "4px" }}
+                  >
+                    <DeleteOutlinedIcon style={{ color: actionIconColor, fontSize: "1rem" }} />
+                  </IconButton>
+                </Tooltip>
               )}
-            </IconButton>
 
-            {index === chatHistory.length - 1 &&
-              stage !== "Alltask" &&
-              !disableUpdateButton && (
-                <IconButton
-                  size="large"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: "2rem",
-                    marginTop: "1rem",
-                    borderRadius: "50%",
-                  }}
-                  onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                >
-                  <DeleteOutlinedIcon
-                    style={{ color: "#EE6633", fontSize: "1rem" }}
-                  />
-                </IconButton>
+              {/* Retry button */}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={handleRetry}
+                    disabled={actionsDisabled}
+                    style={{ padding: "4px" }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: actionIconColor }} />
+                  </IconButton>
+                </Tooltip>
               )}
+
+              {/* Copy prompt button */}
+              <Tooltip title="Copy prompt">
+                <IconButton
+                  size="small"
+                  onClick={() => copyToClipboard(message?.prompt || "")}
+                  style={{
+                    padding: "4px",
+                  }}
+                >
+                  <ContentCopyIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                </IconButton>
+              </Tooltip>
+
+              {/* Shrink button */}
+              <IconButton
+                size="small"
+                onClick={() => toggleShrink(index)}
+                style={{ padding: "4px" }}
+              >
+                {shrinkedMessages[index] ? (
+                  <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
+                ) : (
+                  <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
+            </Grid>
           </Grid>
         </Grid>
 
@@ -691,9 +975,9 @@ const renderChatHistory = () => {
               </Grid>
 
               <Grid item xs={11} style={{ paddingTop: "0rem" }}>
-                {message?.output.map((segment, index) =>
+                {message?.output.map((segment, segIdx) =>
                   segment.type === 'text' ? (
-                    (ProjectDetails?.metadata_json?.editable_response) || segment.value == "" ? (
+                    ((ProjectDetails?.metadata_json?.editable_response) || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
                       globalTransliteration === "true" ? (
                         <IndicTransliterate
                           key={index}
@@ -740,14 +1024,24 @@ const renderChatHistory = () => {
                         />
                       )
                     ) : (
-                      <ReactMarkdown
-                        key={index}
-                        children={linkifyText(segment?.value?.replace(/\n/gi, "&nbsp; \n"))}
-                        components={{
-                          p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.5rem 0'}} {...props} />, // UPDATED
-                          a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
-                        }}
-                      />
+                      <>
+                        {isStreaming && index === chatHistory.length - 1 && segment.value === "" ? (
+                          <div className="streaming-dots">
+                            <span></span><span></span><span></span>
+                          </div>
+                        ) : (
+                          <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
+                            <ReactMarkdown
+                              key={segIdx}
+                              children={linkifyText(segment?.value || "")}
+                              components={{
+                                p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                                a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
                     )
                   ) : (
                     <SyntaxHighlighter
@@ -1204,7 +1498,7 @@ return (
               }
             }}
             class_name={"w-full"}
-            loading={loading}
+            loading={loading || chatLoading}
             inputValue={inputValue}
             overrideGT={true}
             task_id={taskId}
