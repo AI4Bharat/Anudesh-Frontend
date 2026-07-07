@@ -1150,10 +1150,6 @@ const AnnotatePage = () => {
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
-{/* Font Size Dropdown */}
-<Select
-
-
             <LightTooltip
               title={
                 <div>
