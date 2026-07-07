@@ -513,7 +513,7 @@ const AnnotatePage = () => {
     return !Array.isArray(result) ? [result] : result;
   };
 
-  const handleAnnotationClick = async (value, id, lead_time, type = "") => {
+  const handleAnnotationClick = async (value, id, lead_time, type = "", isRetry = false) => {
     if (value === "delete") {
       setEvalFormResponse();
       setSubmittedEvalForms();
@@ -796,11 +796,11 @@ const AnnotatePage = () => {
             await getAnnotationsTaskData(taskId),
             await getTaskData(taskId))
           : value === "delete-pair"
-            ? setSnackbarInfo({
+            ? (!isRetry && setSnackbarInfo({
               open: true,
               message: "Selected conversation is deleted",
               variant: "success",
-            })
+            }))
             : setSnackbarInfo({
               open: true,
               message: resp?.message,

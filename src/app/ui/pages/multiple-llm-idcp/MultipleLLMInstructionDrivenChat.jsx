@@ -51,6 +51,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import linkifyText from '@/utils/linkifyText';
 
 const orange = {
@@ -621,6 +622,23 @@ useEffect(() => {
     return typeof value === "string" || value instanceof String;
   }
 
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setSnackbarInfo({
+        open: true,
+        message: "Copied to clipboard!",
+        variant: "success",
+      });
+    } catch (error) {
+      setSnackbarInfo({
+        open: true,
+        message: "Failed to copy to clipboard!",
+        variant: "error",
+      });
+    }
+  };
+
   const generateUniquePromptOutputPairId = () => {
     const time = Date.now();
     const rand = Math.floor(Math.random() * 1000);
@@ -1132,7 +1150,7 @@ useEffect(() => {
 
     const lastPrompt = lastMessage.prompt;
 
-    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat", true);
 
     // Pass the prompt directly as an override — bypasses the inputValue check
     await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
@@ -1899,6 +1917,9 @@ useEffect(() => {
   };
 
   const renderChatHistory = () => {
+    const actionsDisabled = isStreaming || chatLoading || loading;
+    const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
+
     const toggleShrink = (index) => {
       setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
@@ -1980,7 +2001,7 @@ useEffect(() => {
                   }}
                 />
               </Grid>
-              <Grid item xs className="w-full">
+              <Grid item xs style={{ minWidth: 0, wordBreak: "break-word" }}>
                 {ProjectDetails?.metadata_json?.editable_prompt ? (
                   globalTransliteration ? (
                     <IndicTransliterate
@@ -2080,6 +2101,19 @@ useEffect(() => {
                 }}
               >
 
+                {/* Copy prompt button */}
+                <Tooltip title="Copy prompt">
+                  <IconButton
+                    size="small"
+                    onClick={() => copyToClipboard(message?.prompt || "")}
+                    style={{
+                      padding: "4px"
+                    }}
+                  >
+                    <ContentCopyIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
+
                 <IconButton
                   size="small"
                   onClick={() => toggleShrink(index)}
@@ -2094,7 +2128,7 @@ useEffect(() => {
                   )}
                 </IconButton>
                 {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
-                  <Tooltip title="Re-send the same prompt to get new responses">
+                  <Tooltip title="Re-send the same prompt to get a new response">
                     <IconButton
                       size="small"
                       style={{
@@ -2102,9 +2136,9 @@ useEffect(() => {
                         padding: "4px",
                       }}
                       onClick={handleRetry}
-                      disabled={loading || isStreaming}
+                      disabled={actionsDisabled}
                     >
-                      <RestartAltIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                      <RestartAltIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
                     </IconButton>
                   </Tooltip>
                 )}
@@ -2115,7 +2149,7 @@ useEffect(() => {
                     style={{
                       padding: "4px"
                     }}
-                    disabled={loading || isStreaming}
+                    disabled={actionsDisabled}
                     onClick={() => {
                       setEvalFormResponse((prev) => {
                         const newResponse = { ...prev };
@@ -2135,7 +2169,7 @@ useEffect(() => {
                       handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
                     }}
                   >
-                    <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                    <DeleteOutlinedIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
                   </IconButton>
                 )}
               </Grid>

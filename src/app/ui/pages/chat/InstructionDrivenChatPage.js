@@ -36,6 +36,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Checkbox from '@mui/material/Checkbox';
 import { ThemeProvider } from '@mui/material/styles';
@@ -587,7 +588,7 @@ const handleRetry = useCallback(async () => {
   if (!chatHistory || chatHistory.length === 0) return;
   const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
   if (!lastPrompt) return;
-  await handleClick('delete-pair', id?.id, 0.0);
+  await handleClick('delete-pair', id?.id, 0.0, "", true);
   await handleButtonClick(lastPrompt);
 }, [chatHistory, handleClick, id, handleButtonClick]);
 
@@ -724,6 +725,9 @@ const handleRetry = useCallback(async () => {
 
 const renderChatHistory = () => {
 
+    const actionsDisabled = isStreaming || chatLoading || loading;
+    const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
+
     const toggleShrink = (index) => {
         setShrinkedMessages(prev => ({
             ...prev,
@@ -791,7 +795,7 @@ const renderChatHistory = () => {
                 }}
               />
             </Grid>
-            <Grid item xs className="w-full">
+            <Grid item xs style={{ minWidth: 0, wordBreak: "break-word" }}>
               {ProjectDetails?.metadata_json?.editable_prompt ? (
                 globalTransliteration === "true" ? (
                   <IndicTransliterate
@@ -860,14 +864,13 @@ const renderChatHistory = () => {
                 />
               )}
             </Grid>
-            
-            <div
+            <Grid
+              item
               style={{
-                position: "absolute",
-                bottom: "0.5rem",
-                right: "0.5rem",
                 display: "flex",
-                gap: "0.25rem",
+                alignItems: "center",
+                gap: "4px",
+                flexShrink: 0,
               }}
             >
               {/* Delete button */}
@@ -876,10 +879,10 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                    disabled={loading || chatLoading || isStreaming}
+                    disabled={actionsDisabled}
                     style={{ padding: "4px" }}
                   >
-                    <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "1rem" }} />
+                    <DeleteOutlinedIcon style={{ color: actionIconColor, fontSize: "1rem" }} />
                   </IconButton>
                 </Tooltip>
               )}
@@ -890,13 +893,26 @@ const renderChatHistory = () => {
                   <IconButton
                     size="small"
                     onClick={handleRetry}
-                    disabled={loading || chatLoading || isStreaming}
+                    disabled={actionsDisabled}
                     style={{ padding: "4px" }}
                   >
-                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                    <RestartAltIcon style={{ fontSize: "1rem", color: actionIconColor }} />
                   </IconButton>
                 </Tooltip>
               )}
+
+              {/* Copy prompt button */}
+              <Tooltip title="Copy prompt">
+                <IconButton
+                  size="small"
+                  onClick={() => copyToClipboard(message?.prompt || "")}
+                  style={{
+                    padding: "4px",
+                  }}
+                >
+                  <ContentCopyIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                </IconButton>
+              </Tooltip>
 
               {/* Shrink button */}
               <IconButton
@@ -910,7 +926,7 @@ const renderChatHistory = () => {
                   <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
                 )}
               </IconButton>
-            </div>
+            </Grid>
           </Grid>
         </Grid>
 
