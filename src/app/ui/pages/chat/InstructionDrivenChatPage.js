@@ -448,6 +448,8 @@ const handleButtonClick = async (promptOverride) => {
       history: streamHistory,
       model: model,
 onToken: (token, fullText) => {
+        setIsPolling(false);
+        setPollingCount(0);
         setChatHistory((prev) => {
           const updated = [...prev];
           const lastIdx = updated.length - 1;
@@ -562,6 +564,8 @@ onToken: (token, fullText) => {
       setIsStreaming(false);
       isSendInFlightRef.current = false;
       isStreamingRef.current = false;
+       setIsPolling(false);
+      setPollingCount(0);
     }
 
     setTimeout(() => {
