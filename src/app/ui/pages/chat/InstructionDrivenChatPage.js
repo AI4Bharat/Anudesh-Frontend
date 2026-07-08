@@ -41,6 +41,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Checkbox from '@mui/material/Checkbox';
 import { ThemeProvider } from '@mui/material/styles';
 import AllTaskSearchPopup from "@/components/Project/AllTasksSearchpopup";
+import Slider from '@mui/material/Slider';
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important",
@@ -221,11 +222,59 @@ console.log(e.clientX,"drag");
   setInstructionWidth(newWidth);
 }, [isDragging]);
 
+const saveAnnotationUIPref = useCallback((newPrefs) => {
+  try {
+    const localPrefs = localStorage.getItem("annotation_ui_preferences");
+    let prefs = {};
+    if (localPrefs) {
+      prefs = JSON.parse(localPrefs);
+    }
+    prefs = { ...prefs, ...newPrefs };
+    localStorage.setItem("annotation_ui_preferences", JSON.stringify(prefs));
+  } catch (err) {
+    console.error('Failed to save local annotation UI preferences', err);
+  }
+}, []);
+
+const handleFontSizeChange = useCallback((_e, newVal) => {
+  setFontSize(newVal);
+}, []);
+
+const handleFontSizeCommit = useCallback((_e, newVal) => {
+  saveAnnotationUIPref({ annotation_font_size: newVal });
+}, [saveAnnotationUIPref]);
+
 const handleResetUIPrefs = useCallback(() => {
   setFontSize(0.9);
   setInstructionWidth(30);
   setIsPinned(false);
+  saveAnnotationUIPref({
+    annotation_font_size: 0.9,
+    instruction_panel_width: 30,
+    instruction_panel_pinned: false
+  });
+}, [saveAnnotationUIPref]);
+
+useEffect(() => {
+  const localPrefs = localStorage.getItem("annotation_ui_preferences");
+  if (localPrefs) {
+    try {
+      const prefs = JSON.parse(localPrefs);
+      if (typeof prefs.instruction_panel_width === 'number') {
+        setInstructionWidth(prefs.instruction_panel_width);
+      }
+      if (typeof prefs.annotation_font_size === 'number') {
+        setFontSize(prefs.annotation_font_size);
+      }
+      if (typeof prefs.instruction_panel_pinned === 'boolean') {
+        setIsPinned(prefs.instruction_panel_pinned);
+      }
+    } catch (err) {
+      console.error('Failed to parse local annotation UI preferences', err);
+    }
+  }
 }, []);
+
 useEffect(() => {
   if (
     pendingResendPrompt &&
@@ -1278,6 +1327,51 @@ return (
             </IconButton>
           </Tooltip>
         </Box>
+
+        {/* Font size slider — shown when expanded */}
+        {isInstructionExpanded && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              px: "0.5rem",
+              pb: "0.5rem",
+              flexShrink: 0,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+              Aa
+            </Typography>
+            <Slider
+              value={fontSize}
+              min={0.7}
+              max={1.4}
+              step={0.05}
+              onChange={handleFontSizeChange}
+              onChangeCommitted={handleFontSizeCommit}
+              size="small"
+              sx={{
+                color: "#EE6633",
+                width: "100%",
+                "& .MuiSlider-thumb": { width: 12, height: 12 },
+              }}
+            />
+            <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+              {Math.round(fontSize * 16)}px
+            </Typography>
+            <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
+                sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+              >
+                <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
 
         {isInstructionExpanded && (
           <Box
