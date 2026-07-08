@@ -413,7 +413,7 @@ useEffect(() => {
       (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
     );
     if (Number(info.meta_info_language) < 3) {
-      setTargetLang(lc.code);
+      setTargetLang(lc?.code || "en");
     } else {
       setTargetLang("en");
     }
