@@ -409,11 +409,13 @@ useEffect(() => {
   useEffect(() => {
     setIsMounted(true);
 
+    const projectLanguage = ProjectDetails?.tgt_language || ProjectDetails?.datasets?.[0]?.language || ProjectDetails?.datasets?.[0]?.tgt_language;
+
     const lc = LanguageCode.languages.find(
-      (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
+      (lang) => lang.label.toLowerCase() === projectLanguage?.toLowerCase()
     );
     if (Number(info.meta_info_language) < 3) {
-      setTargetLang(lc.code);
+      setTargetLang(lc?.code || "en");
     } else {
       setTargetLang("en");
     }
