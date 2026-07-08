@@ -192,6 +192,7 @@ const InstructionDrivenChatPage = ({
   }, [abortStream]);
 
   const [isDragging, setIsDragging] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
 const [instructionWidth, setInstructionWidth] = useState(30);
 const containerRef = useRef(null);
 
