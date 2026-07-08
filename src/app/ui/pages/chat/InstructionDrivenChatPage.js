@@ -93,10 +93,14 @@ const InstructionDrivenChatPage = ({
   disableUpdateButton,
   annotation,
   setIsModelStreaming,
-  fontSize = "medium",
 }) => {
   // ADD THIS HELPER FUNCTION
+  const [fontSize, setFontSize] = useState(0.9);
+  
   const getFontSize = () => {
+    if (typeof fontSize === 'number') {
+      return `${fontSize}rem`;
+    }
     switch(fontSize) {
       case 'small':
         return '0.75rem';

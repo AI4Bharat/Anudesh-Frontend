@@ -112,10 +112,14 @@ const MultipleLLMInstructionDrivenChat = ({
   setLoading,
   loading,
   setIsModelStreaming,
-  fontSize = "medium",
 }) => {
   /* eslint-disable react-hooks/exhaustive-deps */
+  const [fontSize, setFontSize] = useState(0.9);
+  
   const getFontSize = () => {
+    if (typeof fontSize === 'number') {
+      return `${fontSize}rem`;
+    }
     switch(fontSize) {
       case 'small':
         return '0.75rem';
