@@ -15,7 +15,7 @@ import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -93,6 +93,85 @@ const viewFullResponseModalStyle = {
   background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
 };
 
+// Font size slider component
+const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
+  const [localValue, setLocalValue] = useState(value);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const handleChange = useCallback((_e, newVal) => {
+    setLocalValue(newVal);
+
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--chat-font-size', `${newVal}rem`);
+      }
+    });
+  }, [containerRef]);
+
+  const handleCommit = useCallback((_e, newVal) => {
+    onCommit(newVal);
+  }, [onCommit]);
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        px: "0.5rem",
+        pb: "0.5rem",
+        flexShrink: 0,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+        Aa
+      </Typography>
+      <Slider
+        value={localValue}
+        min={0.7}
+        max={1.4}
+        step={0.05}
+        onChange={handleChange}
+        onChangeCommitted={handleCommit}
+        size="small"
+        sx={{
+          color: "#EE6633",
+          width: "100%",
+          minWidth: 0,
+          "& .MuiSlider-thumb": { width: 12, height: 12 },
+        }}
+      />
+      <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+        {Math.round(localValue * 16)}px
+      </Typography>
+      <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset font size</span>}>
+        <IconButton
+          size="small"
+          onClick={onReset}
+          sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+        >
+          <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+});
+
 const MultipleLLMInstructionDrivenChat = ({
   chatHistory,
   setChatHistory,
@@ -112,7 +191,13 @@ const MultipleLLMInstructionDrivenChat = ({
   setLoading,
   loading,
   setIsModelStreaming,
+  fontSize: initialFontSize = 1.0,
 }) => {
+  const [fontSize, setFontSize] = useState(
+    typeof initialFontSize === 'number' ? initialFontSize : 1.0
+  );
+
+  const getFontSize = () => 'var(--chat-font-size)';
   const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
   /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
@@ -206,41 +291,30 @@ const MultipleLLMInstructionDrivenChat = ({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
   const [isPinned, setIsPinned] = useState(false);
-  const [fontSize, setFontSize] = useState(0.9);
   const containerRef = useRef(null);
+  const instructionPanelRef = useRef(null);
+  const widthRef = useRef(30);
+  const isDraggingRef = useRef(false);
 
-  const saveAnnotationUIPref = useCallback((payload) => {
+  const saveAnnotationUIPref = useCallback((newPrefs) => {
     try {
       const localPrefs = localStorage.getItem("annotation_ui_preferences");
-      const currentPrefs = localPrefs ? JSON.parse(localPrefs) : {};
-      const newPrefs = { ...currentPrefs, ...payload };
-      localStorage.setItem("annotation_ui_preferences", JSON.stringify(newPrefs));
+      let prefs = {};
+      if (localPrefs) {
+        prefs = JSON.parse(localPrefs);
+      }
+      prefs = { ...prefs, ...newPrefs };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(prefs));
     } catch (err) {
-      console.error('Failed to save local annotation UI preference', err);
+      console.error('Failed to save local annotation UI preferences', err);
     }
   }, []);
 
-  const startDragging = useCallback((e) => {
-    if (isPinned) return;
-    e.preventDefault();
-    setIsDragging(true);
-  }, [isPinned]);
-
-  const stopDragging = useCallback(() => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    // Persist width when drag ends
-    setInstructionWidth((currentWidth) => {
-      saveAnnotationUIPref({ instruction_panel_width: Math.round(currentWidth * 10) / 10 });
-      return currentWidth;
-    });
-  }, [isDragging, saveAnnotationUIPref]);
-
+  // Drag handler functions
   const onDrag = useCallback((e) => {
-    if (!isDragging || !containerRef.current) return;
+    if (!isDraggingRef.current || !containerRef.current) return;
 
     const containerRect = containerRef.current.getBoundingClientRect();
     let newWidth;
@@ -252,22 +326,61 @@ const MultipleLLMInstructionDrivenChat = ({
       const containerBottom = containerRect.bottom;
       const containerHeight = containerBottom - containerTop;
 
-      // Calculate percentage based on Y position (inverted for top panel)
       const percentage = ((dragY - containerTop) / containerHeight) * 100;
-      newWidth = Math.min(70, Math.max(25, percentage)); // Limit between 25% and 70%
+      newWidth = Math.min(70, Math.max(20, percentage));
     } else {
       // For desktop, use percentage of width
       const dragX = e.clientX;
       const containerLeft = containerRect.left;
       const containerWidth = containerRect.width;
 
-      // Calculate percentage based on X position
       const percentage = ((dragX - containerLeft) / containerWidth) * 100;
-      newWidth = Math.min(60, Math.max(25, percentage)); // Limit between 25% and 60%
+      newWidth = Math.min(60, Math.max(20, percentage));
     }
 
-    setInstructionWidth(newWidth);
-  }, [isDragging]);
+    widthRef.current = newWidth;
+    if (instructionPanelRef.current) {
+      if (window.innerWidth < 768) {
+        instructionPanelRef.current.style.height = `${newWidth}dvh`;
+      } else {
+        instructionPanelRef.current.style.width = `${newWidth}%`;
+      }
+    }
+  }, []);
+
+  const stopDragging = useCallback(() => {
+    isDraggingRef.current = false;
+
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.transition = 'all 0.3s ease';
+      if (window.innerWidth < 768) {
+        instructionPanelRef.current.style.removeProperty('height');
+      } else {
+        instructionPanelRef.current.style.removeProperty('width');
+      }
+    }
+
+    window.removeEventListener('mousemove', onDrag);
+    window.removeEventListener('mouseup', stopDragging);
+
+    const roundedWidth = Math.round(widthRef.current * 10) / 10;
+    setInstructionWidth(roundedWidth);
+    saveAnnotationUIPref({
+      instruction_panel_width: roundedWidth
+    });
+  }, [onDrag, saveAnnotationUIPref]);
+
+  const startDragging = useCallback((e) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.transition = 'none';
+    }
+
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }, [onDrag, stopDragging]);
 
   const handlePinToggle = useCallback(() => {
     const newPinned = !isPinned;
@@ -278,20 +391,17 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   }, [isPinned, instructionWidth, saveAnnotationUIPref]);
 
-  const handleFontSizeChange = useCallback((_e, newVal) => {
-    setFontSize(newVal);
-  }, []);
-
-  const handleFontSizeCommit = useCallback((_e, newVal) => {
-    saveAnnotationUIPref({ annotation_font_size: newVal });
+  const handleResetFontSize = useCallback((e) => {
+    if (e) e.stopPropagation();
+    setFontSize(1.0);
+    saveAnnotationUIPref({ annotation_font_size: 1.0 });
   }, [saveAnnotationUIPref]);
 
-  const handleResetUIPrefs = useCallback(() => {
-    setFontSize(0.9);
+  const handleResetPanelWidth = useCallback((e) => {
+    if (e) e.stopPropagation();
     setInstructionWidth(30);
     setIsPinned(false);
     saveAnnotationUIPref({
-      annotation_font_size: 0.9,
       instruction_panel_width: 30,
       instruction_panel_pinned: false
     });
@@ -318,16 +428,16 @@ const MultipleLLMInstructionDrivenChat = ({
     }
   }, []);
 
+
   useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', onDrag);
-      window.addEventListener('mouseup', stopDragging);
+    widthRef.current = instructionWidth;
+  }, [instructionWidth]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--chat-font-size', `${fontSize}rem`);
     }
-    return () => {
-      window.removeEventListener('mousemove', onDrag);
-      window.removeEventListener('mouseup', stopDragging);
-    };
-  }, [isDragging, onDrag, stopDragging]);
+  }, [fontSize]);
 
   const labels = {
     1: "Poor",
@@ -1940,7 +2050,7 @@ if (localInProgress) {
                           {...props}
                           className=""
                           style={{
-                            fontSize: `${fontSize}rem`,
+                            fontSize: getFontSize(),
                             width: "100%",
                             borderRadius: "8px",
                             color: grey[900],
@@ -1969,7 +2079,7 @@ if (localInProgress) {
                       value={message.prompt}
                       onChange={(e) => handleTextChange(e.target.value, message, null, null, "prompt")}
                       style={{
-                        fontSize: `${fontSize}rem`,
+                        fontSize: getFontSize(),
                         width: "100%",
                         borderRadius: "8px",
                         color: grey[900],
@@ -2009,7 +2119,7 @@ if (localInProgress) {
                       className="flex-col"
                       children={linkifyText(message?.prompt?.replace(/\\n/gi, "&nbsp; \\n"))}
                       components={{
-                        p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
+                        p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
                         a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                       }}
                     />
@@ -2335,7 +2445,7 @@ if (localInProgress) {
                                                 key={segmentIdx}
                                                 children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                                 components={{
-                                                  p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />, // UPDATED
                                                   a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                                 }}
                                               />
@@ -2349,7 +2459,7 @@ if (localInProgress) {
                                             customStyle={{
                                               padding: "0.5rem",
                                               borderRadius: "4px",
-                                              fontSize: `${fontSize}rem`,
+                                              fontSize: getFontSize(), // UPDATED
                                               margin: "0.2rem 0"
                                             }}
                                           >
@@ -2431,7 +2541,7 @@ if (localInProgress) {
                                           key={segmentIdx}
                                           children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                           components={{
-                                            p: ({ node, ...props }) => <p style={{ fontSize: `${fontSize}rem`, margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                            p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />, // UPDATED
                                             a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                           }}
                                         />
@@ -2446,7 +2556,7 @@ if (localInProgress) {
                                     customStyle={{
                                       padding: "0.5rem",
                                       borderRadius: "4px",
-                                      fontSize: `${fontSize}rem`,
+                                      fontSize: getFontSize(),
                                       margin: "0.2rem 0"
                                     }}
                                   >
@@ -3539,6 +3649,7 @@ if (localInProgress) {
       >
         {/* Instruction Panel - Left Side */}
         <Box
+          ref={instructionPanelRef}
           sx={{
             width: {
               xs: "100%",
@@ -3549,13 +3660,14 @@ if (localInProgress) {
               md: "100%"
             },
             maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
-            transition: isDragging ? "none" : "all 0.3s ease",
-            padding: isInstructionExpanded ? "1rem" : "0.5rem",
+            transition: "all 0.3s ease",
+            padding: isInstructionExpanded ? "1rem" : "0px",
             paddingBottom: "0rem!important",
-            paddingTop: "0.3rem!important",
+            paddingTop: isInstructionExpanded ? "0.3rem!important" : "0.5rem!important",
             borderRight: { xs: "none", md: "1px solid #e0e0e0" },
             backgroundColor: "#fafafa",
-            overflow: "auto",
+            overflowY: "auto",
+            overflowX: "hidden",
             display: "flex",
             flexDirection: "column",
             flexShrink: 0,
@@ -3565,22 +3677,36 @@ if (localInProgress) {
           {/* Draggable handle */}
           {isInstructionExpanded && (
             <Box
-              onMouseDown={startDragging}
+              onMouseDown={!isPinned ? startDragging : undefined}
               sx={{
-                position: "absolute",
-                [window.innerWidth < 768 ? 'bottom' : 'right']: 0,
-                [window.innerWidth < 768 ? 'left' : 'top']: 0,
-                [window.innerWidth < 768 ? 'height' : 'width']: "4px",
-                [window.innerWidth < 768 ? 'width' : 'height']: "100%",
-                cursor: window.innerWidth < 768 ? 'row-resize' : 'col-resize',
-                backgroundColor: "transparent",
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                width: '6px',
+                height: '100%',
+                cursor: !isPinned ? 'col-resize' : 'default',
+                backgroundColor: 'transparent',
                 zIndex: 10,
-                '&:hover': {
-                  backgroundColor: "rgba(238, 102, 51, 0.3)",
-                },
-                '&:active': {
-                  backgroundColor: "rgba(238, 102, 51, 0.5)",
-                },
+                ...(!isPinned && {
+                  '&:hover': {
+                    backgroundColor: 'rgba(238, 102, 51, 0.2)',
+                  },
+                  '&:active': {
+                    backgroundColor: 'rgba(238, 102, 51, 0.3)',
+                  },
+                }),
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '4px',
+                  height: '40px',
+                  backgroundColor: !isPinned ? '#EE6633' : '#B0B0B0',
+                  borderRadius: '2px',
+                  opacity: !isPinned ? 0.6 : 0.4,
+                }
               }}
             />
           )}
@@ -3591,9 +3717,9 @@ if (localInProgress) {
               display: "flex",
               alignItems: "center",
               justifyContent: isInstructionExpanded ? "space-between" : "center",
-              marginBottom: isInstructionExpanded ? "0.5rem" : 0,
-              padding: "0.5rem",
-              backgroundColor: "rgba(247, 184, 171, 0.2)",
+              marginBottom: isInstructionExpanded ? "1rem" : 0,
+              padding: isInstructionExpanded ? "0.5rem" : 0,
+              backgroundColor: isInstructionExpanded ? "rgba(247, 184, 171, 0.2)" : "transparent",
               borderRadius: "8px",
               cursor: "pointer",
               minHeight: "40px",
@@ -3615,23 +3741,40 @@ if (localInProgress) {
             )}
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               {isInstructionExpanded && (
-                <Tooltip
-                  title={
-                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      {isPinned ? "Unpin panel width" : "Pin panel width"}
-                    </span>
-                  }
-                >
-                  <IconButton
-                    size="small"
-                    onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
-                    sx={{ padding: "4px", minWidth: "auto" }}
+                <>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        {isPinned ? "Unpin panel width" : "Pin panel width"}
+                      </span>
+                    }
                   >
-                    {isPinned
-                      ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                      : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
-                  </IconButton>
-                </Tooltip>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      {isPinned
+                        ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                        : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        Reset panel width
+                      </span>
+                    }
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={handleResetPanelWidth}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                    </IconButton>
+                  </Tooltip>
+                </>
               )}
               <Tooltip
                 title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
@@ -3656,60 +3799,28 @@ if (localInProgress) {
 
           {/* Font size slider — shown when expanded */}
           {isInstructionExpanded && (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                px: "0.5rem",
-                pb: "0.5rem",
-                flexShrink: 0,
+            <FontSizeSlider
+              value={fontSize}
+              containerRef={containerRef}
+              onCommit={(newVal) => {
+                setFontSize(newVal);
+                saveAnnotationUIPref({ annotation_font_size: newVal });
               }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-                Aa
-              </Typography>
-              <Slider
-                value={fontSize}
-                min={0.7}
-                max={1.4}
-                step={0.05}
-                onChange={handleFontSizeChange}
-                onChangeCommitted={handleFontSizeCommit}
-                size="small"
-                sx={{
-                  color: "#EE6633",
-                  width: "100%",
-                  "& .MuiSlider-thumb": { width: 12, height: 12 },
-                }}
-              />
-              <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
-                {Math.round(fontSize * 16)}px
-              </Typography>
-              <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset UI layout</span>}>
-                <IconButton
-                  size="small"
-                  onClick={(e) => { e.stopPropagation(); handleResetUIPrefs(); }}
-                  sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
-                >
-                  <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                </IconButton>
-              </Tooltip>
-            </Box>
+              onReset={() => handleResetFontSize()}
+            />
           )}
 
 
         {isInstructionExpanded && (
-          <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
+          <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.5rem" }}>
             {/* Main Instructions */}
             <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
               <ReactMarkdown
                 className="flex-col"
                 children={info?.instruction_data ? linkifyText(info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ')) : ""}
                 components={{
-                  p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
-                  a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0' }} {...props} />,
+                  a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                 }}
               />
             </Box>
@@ -3722,7 +3833,7 @@ if (localInProgress) {
                     sx={{
                       color: "#F18359",
                       fontWeight: "bold",
-                      fontSize: `${fontSize + 0.1}rem`,
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
                     }}
                   >
@@ -3731,7 +3842,7 @@ if (localInProgress) {
                   <Typography
                     variant="body2"
                     sx={{
-                      fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
                       lineHeight: "1.4",
                       color: "#555",
                       backgroundColor: "#f8f9fa",
@@ -3750,7 +3861,7 @@ if (localInProgress) {
                     sx={{
                       color: "#F18359",
                       fontWeight: "bold",
-                      fontSize: `${fontSize + 0.1}rem`,
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
                     }}
                   >
@@ -3759,7 +3870,7 @@ if (localInProgress) {
                   <Typography
                     variant="body2"
                     sx={{
-                      fontSize: `${Math.max(0.6, fontSize - 0.05)}rem`,
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
                       lineHeight: "1.4",
                       color: "#555",
                       backgroundColor: "#f8f9fa",
@@ -3778,7 +3889,7 @@ if (localInProgress) {
                     sx={{
                       color: "#F18359",
                       fontWeight: "bold",
-                      fontSize: `${fontSize + 0.1}rem`,
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
                     }}
                   >
@@ -3794,7 +3905,7 @@ if (localInProgress) {
                     {info.meta_info_language && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <CodeIcon fontSize="small" color="primary" />
-                        <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
+                        <Typography variant="body2" sx={{ fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.1rem))', color: "#666" }}>
                           Language: {info.meta_info_language}
                         </Typography>
                       </Box>
@@ -3802,7 +3913,7 @@ if (localInProgress) {
                     {taskId && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <AssignmentIcon fontSize="small" color="secondary" />
-                        <Typography variant="body2" sx={{ fontSize: `${Math.max(0.6, fontSize - 0.1)}rem`, color: "#666" }}>
+                        <Typography variant="body2" sx={{ fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.1rem))', color: "#666" }}>
                           Task ID: {taskId}
                         </Typography>
                       </Box>
@@ -3889,7 +4000,7 @@ if (localInProgress) {
                   width: "100%",
                 },
                 "& textarea": {
-                  fontSize: { xs: "0.85rem", md: "0.9rem" },
+                  fontSize: getFontSize(),
                   width: "100%",
                 }
               }}
