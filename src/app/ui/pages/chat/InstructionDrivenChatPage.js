@@ -18,7 +18,7 @@ import linkifyText from "@/utils/linkifyText";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -40,6 +40,9 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Checkbox from '@mui/material/Checkbox';
 import { ThemeProvider } from '@mui/material/styles';
+import Slider from '@mui/material/Slider';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import AllTaskSearchPopup from "@/components/Project/AllTasksSearchpopup";
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -80,6 +83,85 @@ const style = {
   pb: 3,
 };
 
+// Font Size slider component 
+const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
+  const [localValue, setLocalValue] = useState(value);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const handleChange = useCallback((_e, newVal) => {
+    setLocalValue(newVal);
+
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--chat-font-size', `${newVal}rem`);
+      }
+    });
+  }, [containerRef]);
+
+  const handleCommit = useCallback((_e, newVal) => {
+    onCommit(newVal);
+  }, [onCommit]);
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        px: "0.5rem",
+        pb: "0.5rem",
+        flexShrink: 0,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+        Aa
+      </Typography>
+      <Slider
+        value={localValue}
+        min={0.7}
+        max={1.4}
+        step={0.05}
+        onChange={handleChange}
+        onChangeCommitted={handleCommit}
+        size="small"
+        sx={{
+          color: "#EE6633",
+          width: "100%",
+          minWidth: 0,
+          "& .MuiSlider-thumb": { width: 12, height: 12 },
+        }}
+      />
+      <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+        {Math.round(localValue * 16)}px
+      </Typography>
+      <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset font size</span>}>
+        <IconButton
+          size="small"
+          onClick={onReset}
+          sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+        >
+          <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+});
+
 const InstructionDrivenChatPage = ({
   chatHistory,
   setChatHistory,
@@ -93,23 +175,15 @@ const InstructionDrivenChatPage = ({
   disableUpdateButton,
   annotation,
   setIsModelStreaming,
-  fontSize = "medium",
+  fontSize: initialFontSize = 1.0,
 }) => {
+  const [fontSize, setFontSize] = useState(
+    typeof initialFontSize === 'number' ? initialFontSize : 1.0
+  );
+  const [isPinned, setIsPinned] = useState(false);
+
   // ADD THIS HELPER FUNCTION
-  const getFontSize = () => {
-    switch(fontSize) {
-      case 'small':
-        return '0.75rem';
-      case 'medium':
-        return '1rem';
-      case 'large':
-        return '1.25rem';
-      case 'xlarge':
-        return '1.5rem';
-      default:
-        return '1rem';
-    }
-  };
+  const getFontSize = () => 'var(--chat-font-size)';
 
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
@@ -186,42 +260,99 @@ const InstructionDrivenChatPage = ({
     };
   }, [abortStream]);
 
-  const [isDragging, setIsDragging] = useState(false);
-const [instructionWidth, setInstructionWidth] = useState(30);
-const containerRef = useRef(null);
+  const [instructionWidth, setInstructionWidth] = useState(30);
+  const containerRef = useRef(null);
+  const instructionPanelRef = useRef(null);
+  const widthRef = useRef(30);
+  const isDraggingRef = useRef(false);
 
-const startDragging = useCallback((e) => {
-  e.preventDefault();
-  setIsDragging(true);
-  console.log("Drag");
-  
-}, []);
+  const saveAnnotationUIPref = useCallback((newPrefs) => {
+    try {
+      const localPrefs = localStorage.getItem("annotation_ui_preferences");
+      let prefs = {};
+      if (localPrefs) {
+        prefs = JSON.parse(localPrefs);
+      }
+      prefs = { ...prefs, ...newPrefs };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(prefs));
+    } catch (err) {
+      console.error('Failed to save local annotation UI preferences', err);
+    }
+  }, []);
 
-const stopDragging = useCallback(() => {
-  setIsDragging(false);
-}, []);
+  // Drag handler functions
+  const onDrag = useCallback((e) => {
+    if (!isDraggingRef.current || !containerRef.current) return;
 
-const onDrag = useCallback((e) => {
-  console.log("dragg",isDragging);
-  
-  if (!isDragging || !containerRef.current) return;
-console.log(e.clientX,"drag");
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const dragX = e.clientX;
+    const containerLeft = containerRect.left;
+    const containerWidth = containerRect.width;
 
-  const containerRect = containerRef.current.getBoundingClientRect();
-  const dragX = e.clientX;
-  const containerLeft = containerRect.left;
-  const containerWidth = containerRect.width;
-  
-  const percentage = ((dragX - containerLeft) / containerWidth) * 100;
-  const newWidth = Math.min(60, Math.max(20, percentage));
-  setInstructionWidth(newWidth);
-}, [isDragging]);
+    const percentage = ((dragX - containerLeft) / containerWidth) * 100;
+    const newWidth = Math.min(60, Math.max(20, percentage));
 
-const handleResetUIPrefs = useCallback(() => {
-  setFontSize(0.9);
-  setInstructionWidth(30);
-  setIsPinned(false);
-}, []);
+    widthRef.current = newWidth;
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.width = `${newWidth}%`;
+    }
+  }, []);
+
+  const stopDragging = useCallback(() => {
+    isDraggingRef.current = false;
+
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.transition = 'all 0.3s ease';
+      instructionPanelRef.current.style.removeProperty('width');
+    }
+
+    window.removeEventListener('mousemove', onDrag);
+    window.removeEventListener('mouseup', stopDragging);
+
+    const roundedWidth = Math.round(widthRef.current * 10) / 10;
+    setInstructionWidth(roundedWidth);
+    saveAnnotationUIPref({
+      instruction_panel_width: roundedWidth
+    });
+  }, [onDrag, saveAnnotationUIPref]);
+
+  const startDragging = useCallback((e) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.transition = 'none';
+    }
+
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }, [onDrag, stopDragging]);
+
+  const handlePinToggle = useCallback(() => {
+    const newPinned = !isPinned;
+    setIsPinned(newPinned);
+    saveAnnotationUIPref({
+      instruction_panel_pinned: newPinned,
+      instruction_panel_width: Math.round(instructionWidth * 10) / 10,
+    });
+  }, [isPinned, instructionWidth, saveAnnotationUIPref]);
+
+
+  const handleResetFontSize = useCallback((e) => {
+    if (e) e.stopPropagation();
+    setFontSize(1.0);
+    saveAnnotationUIPref({ annotation_font_size: 1.0 });
+  }, [saveAnnotationUIPref]);
+
+  const handleResetPanelWidth = useCallback((e) => {
+    if (e) e.stopPropagation();
+    setInstructionWidth(30);
+    setIsPinned(false);
+    saveAnnotationUIPref({
+      instruction_panel_width: 30,
+      instruction_panel_pinned: false
+    });
+  }, [saveAnnotationUIPref]);
 useEffect(() => {
   if (
     pendingResendPrompt &&
@@ -235,16 +366,36 @@ useEffect(() => {
   }
 }, [pendingResendPrompt, chatHistory]);
 
-useEffect(() => {
-  if (isDragging) {
-    window.addEventListener('mousemove', onDrag);
-    window.addEventListener('mouseup', stopDragging);
-  }
-  return () => {
-    window.removeEventListener('mousemove', onDrag);
-    window.removeEventListener('mouseup', stopDragging);
-  };
-}, [isDragging, onDrag, stopDragging]);  
+  // Sync annotation UI preferences from localStorage on mount
+  useEffect(() => {
+    const localPrefs = localStorage.getItem("annotation_ui_preferences");
+    if (localPrefs) {
+      try {
+        const prefs = JSON.parse(localPrefs);
+        if (typeof prefs.instruction_panel_width === 'number') {
+          setInstructionWidth(prefs.instruction_panel_width);
+        }
+        if (typeof prefs.annotation_font_size === 'number') {
+          setFontSize(prefs.annotation_font_size);
+        }
+        if (typeof prefs.instruction_panel_pinned === 'boolean') {
+          setIsPinned(prefs.instruction_panel_pinned);
+        }
+      } catch (err) {
+        console.error('Failed to parse local annotation UI preferences', err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    widthRef.current = instructionWidth;
+  }, [instructionWidth]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--chat-font-size', `${fontSize}rem`);
+    }
+  }, [fontSize]);
 const [snackbar, setSnackbarInfo] = useState({
     open: false,
     message: "",
@@ -862,7 +1013,7 @@ const renderChatHistory = () => {
                   className="flex-col"
                   children={linkifyText(message?.prompt || "")}
                   components={{
-                    p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.5rem 0'}} {...props} />, // UPDATED
+                    p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.3rem 0'}} {...props} />, // UPDATED
                     a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
@@ -1039,7 +1190,7 @@ const renderChatHistory = () => {
                               key={segIdx}
                               children={linkifyText(segment?.value || "")}
                               components={{
-                                p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, margin: '0.5rem 0'}} {...props} />,
+                                p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.3rem 0'}} {...props} />, // UPDATED
                                 a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                               }}
                             />
@@ -1170,69 +1321,73 @@ return (
     >
       {/* Instruction Panel */}
       <Box
+        ref={instructionPanelRef}
         sx={{
-           width: { 
-            xs: "100%", 
-            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
+          width: {
+            xs: "100%",
+            md: isInstructionExpanded ? `${instructionWidth}%` : "40px"
           },
-          height: { 
-            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
-            md: "100%" 
+          height: {
+            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px",
+            md: "100%"
           },
           maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
-          transition: isDragging ? "none" : "all 0.3s ease",
-          padding: isInstructionExpanded ? "1rem" : "0.5rem",
+          transition: "all 0.3s ease",
+          padding: isInstructionExpanded ? "1rem" : "0px",
           paddingBottom: "0rem!important",
-          paddingTop: "0.3rem!important",
+          paddingTop: isInstructionExpanded ? "0.3rem!important" : "0.5rem!important",
           borderRight: { xs: "none", md: "1px solid #e0e0e0" },
           backgroundColor: "#fafafa",
-          overflow: "auto",
+          overflowY: "auto",
+          overflowX: "hidden",
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
           position: "relative",
         }}
       >
-{isInstructionExpanded && window.innerWidth >= 768 && (
-  <Box
-    onMouseDown={startDragging}
-    sx={{
-      position: "absolute",
-      right: 0,
-      top: 0,
-      width: "6px",
-      height: "100%",
-      cursor: 'col-resize',
-      backgroundColor: "transparent",
-      zIndex: 10,
-      '&:hover': {
-        backgroundColor: "rgba(238, 102, 51, 0.2)",
-      },
-      '&:active': {
-        backgroundColor: "rgba(238, 102, 51, 0.3)",
-      },
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        right: '2px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        width: '4px',
-        height: '40px',
-        backgroundColor: '#EE6633',
-        borderRadius: '2px',
-        opacity: 0.6,
-      }
-    }}
-  />
-)}        <Box
+        {isInstructionExpanded && window.innerWidth >= 768 && (
+          <Box
+            onMouseDown={!isPinned ? startDragging : undefined}
+            sx={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              width: '6px',
+              height: '100%',
+              cursor: !isPinned ? 'col-resize' : 'default',
+              backgroundColor: 'transparent',
+              zIndex: 10,
+              ...(!isPinned && {
+                '&:hover': {
+                  backgroundColor: 'rgba(238, 102, 51, 0.2)',
+                },
+                '&:active': {
+                  backgroundColor: 'rgba(238, 102, 51, 0.3)',
+                },
+              }),
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                right: '2px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '4px',
+                height: '40px',
+                backgroundColor: !isPinned ? '#EE6633' : '#B0B0B0',
+                borderRadius: '2px',
+                opacity: !isPinned ? 0.6 : 0.4,
+              }
+            }}
+          />
+        )}        <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: isInstructionExpanded ? "space-between" : "center",
             marginBottom: isInstructionExpanded ? "1rem" : 0,
-            padding: "0.5rem",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
+            padding: isInstructionExpanded ? "0.5rem" : 0,
+            backgroundColor: isInstructionExpanded ? "rgba(247, 184, 171, 0.2)" : "transparent",
             borderRadius: "8px",
             cursor: "pointer",
             minHeight: "40px",
@@ -1246,38 +1401,95 @@ return (
               sx={{
                 color: "#636363",
                 fontWeight: "600",
-                  fontSize: getFontSize(), // UPDATED
+                fontSize: "1rem",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                flexShrink: 1,
+                minWidth: 0,
+                marginRight: "0.5rem"
               }}
             >
               {translate("typography.instructions")}
             </Typography>
           )}
-          <Tooltip
-            title={
-              <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                {isInstructionExpanded ? "Collapse" : "Expand"}
-              </span>
-            }
-          >
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsInstructionExpanded(!isInstructionExpanded);
-              }}
-              sx={{ 
-                padding: isInstructionExpanded ? '8px' : '4px',
-                minWidth: 'auto'
-              }}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+            {isInstructionExpanded && (
+              <>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      {isPinned ? "Unpin panel width" : "Pin panel width"}
+                    </span>
+                  }
+                >
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                    sx={{ padding: "4px", minWidth: "auto" }}
+                  >
+                    {isPinned
+                      ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                      : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                  </IconButton>
+                </Tooltip>
+                <Tooltip
+                  title={
+                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                      Reset panel width
+                    </span>
+                  }
+                >
+                  <IconButton
+                    size="small"
+                    onClick={handleResetPanelWidth}
+                    sx={{ padding: "4px", minWidth: "auto" }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
+            <Tooltip
+              title={
+                <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                  {isInstructionExpanded ? "Collapse" : "Expand"}
+                </span>
+              }
             >
-              {isInstructionExpanded ? (
-                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              ) : (
-                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInstructionExpanded(!isInstructionExpanded);
+                }}
+                sx={{
+                  padding: isInstructionExpanded ? '8px' : '4px',
+                  minWidth: 'auto'
+                }}
+              >
+                {isInstructionExpanded ? (
+                  <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                ) : (
+                  <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
+
+        {/* Font size slider — shown when expanded */}
+        {isInstructionExpanded && (
+          <FontSizeSlider
+            value={fontSize}
+            containerRef={containerRef}
+            onCommit={(newVal) => {
+              setFontSize(newVal);
+              saveAnnotationUIPref({ annotation_font_size: newVal });
+            }}
+            onReset={() => handleResetFontSize()}
+          />
+        )}
 
         {isInstructionExpanded && (
           <Box
@@ -1300,7 +1512,7 @@ return (
                 className="flex-col"
                 children={info?.instruction_data ? linkifyText(info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ')) : ""}
                 components={{
-                  p: ({node, ...props}) => <p style={{fontSize: `${fontSize}rem`, lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
+                  p: ({node, ...props}) => <p style={{fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
                   a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                 }}
               />
@@ -1322,7 +1534,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                      fontSize: getFontSize(), // UPDATED
+                    fontSize: `calc(${getFontSize()} + 0.1rem)`,
                     mb: 1,
                   }}
                 >
@@ -1331,7 +1543,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                      fontSize: getFontSize(), // UPDATED
+                    fontSize: `max(0.6rem, calc(${getFontSize()} - 0.05rem))`,
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -1350,7 +1562,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                      fontSize: getFontSize(), // UPDATED
+                    fontSize: `calc(${getFontSize()} + 0.1rem)`,
                     mb: 1,
                   }}
                 >
@@ -1359,7 +1571,7 @@ return (
                 <Typography
                   variant="body2"
                   sx={{
-                      fontSize: getFontSize(), // UPDATED
+                    fontSize: `max(0.6rem, calc(${getFontSize()} - 0.05rem))`,
                     lineHeight: "1.4",
                     color: "#555",
                     backgroundColor: "#f8f9fa",
@@ -1378,7 +1590,7 @@ return (
                   sx={{
                     color: "#F18359",
                     fontWeight: "bold",
-                      fontSize: getFontSize(), // UPDATED
+                    fontSize: `calc(${getFontSize()} + 0.1rem)`,
                     mb: 1,
                   }}
                 >
@@ -1394,7 +1606,7 @@ return (
                   {info.meta_info_language && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: `max(0.6rem, calc(${getFontSize()} - 0.1rem))`, color: "#666" }}>
                         Language: {info.meta_info_language}
                       </Typography>
                     </Box>
@@ -1402,7 +1614,7 @@ return (
                   {taskId && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                      <Typography variant="body2" sx={{ fontSize: `max(0.6rem, calc(${getFontSize()} - 0.1rem))`, color: "#666" }}>
                         Task ID: {taskId}
                       </Typography>
                     </Box>
