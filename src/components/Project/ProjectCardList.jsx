@@ -36,8 +36,7 @@ import PullNewBatchAPI from "@/app/actions/api/Projects/PullNewBatchAPI";
 import { fetchProjectDetails } from "@/Lib/Features/projects/getProjectDetails";
 import CustomizedSnackbars from "../common/Snackbar";
 import Spinner from "../common/Spinner";
-import StarIcon from '@mui/icons-material/Star';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
+import BookmarkButton from "./BookmarkButton";
 
 const MUIDataTable = dynamic(
   () => import('mui-datatables'),
@@ -63,7 +62,7 @@ const ProjectCardList = (props) => {
   /* eslint-disable-next-line react/jsx-key */
   const [loading,setLoading] = useState(false);
 
-const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds = new Set() } = props;
+const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds = new Set(), onBookmarkChange } = props;
   const [displayWidth, setDisplayWidth] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
@@ -390,13 +389,12 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
           el.tgt_language == null ? "-" : el.tgt_language,
           // el.project_mode,
           el.workspace_id,
-          bookmarkedProjectIds.has(el.id) ? (
-    <Tooltip title="Bookmarked" key={`bm-${el.id}`}>
-      <StarIcon sx={{ color: 'warning.main', verticalAlign: 'middle' }} />
-    </Tooltip>
-  ) : (
-    <StarBorderIcon key={`bm-${el.id}`} sx={{ color: 'action.disabled', verticalAlign: 'middle' }} />
-  ),
+          <BookmarkButton
+            key={`bm-${el.id}`}
+            projectId={el.id}
+            initialBookmarked={bookmarkedProjectIds.has(el.id)}
+            onBookmarkChange={onBookmarkChange}
+          />,
           loggedInUserData.guest_user && isExcluded ? (
             <CustomButton
               key={i}
