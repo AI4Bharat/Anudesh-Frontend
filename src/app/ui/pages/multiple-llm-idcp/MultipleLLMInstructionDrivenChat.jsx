@@ -43,15 +43,15 @@ import FormGroup from "@mui/material/FormGroup";
 import LanguageCode from "@/utils/LanguageCode";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import PushPinIcon from '@mui/icons-material/PushPin';
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import Slider from '@mui/material/Slider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Slider from '@mui/material/Slider';
 import linkifyText from '@/utils/linkifyText';
 
 const orange = {
@@ -90,10 +90,10 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
-      background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+  background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
 };
 
-// Font Size slider component
+// Font size slider component
 const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
   const [localValue, setLocalValue] = useState(value);
   const rafRef = useRef(null);
@@ -193,13 +193,13 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelStreaming,
   fontSize: initialFontSize = 1.0,
 }) => {
-  /* eslint-disable react-hooks/exhaustive-deps */
   const [fontSize, setFontSize] = useState(
     typeof initialFontSize === 'number' ? initialFontSize : 1.0
   );
 
   const getFontSize = () => 'var(--chat-font-size)';
-
+  const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
+  /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
@@ -210,7 +210,6 @@ const MultipleLLMInstructionDrivenChat = ({
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
-
   const [isStreaming, setIsStreaming] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
 
@@ -229,13 +228,22 @@ const MultipleLLMInstructionDrivenChat = ({
       if (intervalId) clearInterval(intervalId);
     };
   }, [isPolling, taskId, dispatch]);
+  useEffect(() => {
+    if (pendingResendPromptMulti && !isStreaming && chatHistory !== null) {
+      const prompt = pendingResendPromptMulti;
+      setPendingResendPromptMulti(null);
+      setTimeout(() => {
+        handleButtonClick(null, null, null, prompt);
+      }, 500);
+    }
+  }, [pendingResendPromptMulti, chatHistory]);
 
   useEffect(() => {
     if (pollingCount > 6) {
       setIsPolling(false);
       setIsStreaming(false);
       setPollingCount(0);
-    
+
       setSnackbarInfo({
         open: true,
         message: "Streaming timed out. Please refresh the page.",
@@ -246,13 +254,6 @@ const MultipleLLMInstructionDrivenChat = ({
 
   const [loadtime, setloadtime] = useState(new Date());
   const { streamMultiModelResponse, abortStream } = useStreamingLLM();
-  const latestAnnotationResultRef = useRef({ eval_form: [], model_interactions: [] });
-
-  useEffect(() => {
-    if (annotation?.[0]?.result?.[0]) {
-      latestAnnotationResultRef.current = annotation[0].result[0];
-    }
-  }, [annotation]);
 
   // Abort any in-flight stream when the page unmounts (e.g. browser back).
   // Otherwise the detached stream keeps running, completes in the background,
@@ -292,25 +293,15 @@ const MultipleLLMInstructionDrivenChat = ({
   const [isMounted, setIsMounted] = useState(false);
   const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
   const [isPinned, setIsPinned] = useState(false);
-  const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
   const containerRef = useRef(null);
   const instructionPanelRef = useRef(null);
   const widthRef = useRef(30);
-  const isDraggingRef = useRef(false);
   const isSendInFlightRef = useRef(false);
-
+  const hasRecoveredRef = useRef(false);
+  const chatHistoryRef = useRef(chatHistory);
   useEffect(() => {
-    if (
-      pendingResendPromptMulti &&
-      !isSendInFlightRef.current
-    ) {
-      const prompt = pendingResendPromptMulti;
-      setPendingResendPromptMulti(null);
-      setTimeout(() => {
-        handleButtonClick(-1, null, null, prompt);
-      }, 500);
-    }
-  }, [pendingResendPromptMulti, chatHistory]);
+    chatHistoryRef.current = chatHistory;
+  }, [chatHistory]);
 
   const saveAnnotationUIPref = useCallback((newPrefs) => {
     try {
@@ -334,17 +325,22 @@ const MultipleLLMInstructionDrivenChat = ({
     let newWidth;
 
     if (window.innerWidth < 768) {
+      // For mobile, use percentage of screen height
       const dragY = e.clientY;
       const containerTop = containerRect.top;
-      const containerHeight = containerRect.bottom - containerTop;
+      const containerBottom = containerRect.bottom;
+      const containerHeight = containerBottom - containerTop;
+
       const percentage = ((dragY - containerTop) / containerHeight) * 100;
-      newWidth = Math.min(70, Math.max(25, percentage));
+      newWidth = Math.min(70, Math.max(20, percentage));
     } else {
+      // For desktop, use percentage of width
       const dragX = e.clientX;
       const containerLeft = containerRect.left;
       const containerWidth = containerRect.width;
+
       const percentage = ((dragX - containerLeft) / containerWidth) * 100;
-      newWidth = Math.min(60, Math.max(25, percentage));
+      newWidth = Math.min(60, Math.max(20, percentage));
     }
 
     widthRef.current = newWidth;
@@ -362,8 +358,11 @@ const MultipleLLMInstructionDrivenChat = ({
 
     if (instructionPanelRef.current) {
       instructionPanelRef.current.style.transition = 'all 0.3s ease';
-      instructionPanelRef.current.style.removeProperty('width');
-      instructionPanelRef.current.style.removeProperty('height');
+      if (window.innerWidth < 768) {
+        instructionPanelRef.current.style.removeProperty('height');
+      } else {
+        instructionPanelRef.current.style.removeProperty('width');
+      }
     }
 
     window.removeEventListener('mousemove', onDrag);
@@ -397,7 +396,6 @@ const MultipleLLMInstructionDrivenChat = ({
     });
   }, [isPinned, instructionWidth, saveAnnotationUIPref]);
 
-
   const handleResetFontSize = useCallback((e) => {
     if (e) e.stopPropagation();
     setFontSize(1.0);
@@ -413,7 +411,6 @@ const MultipleLLMInstructionDrivenChat = ({
       instruction_panel_pinned: false
     });
   }, [saveAnnotationUIPref]);
-
 
   // Sync annotation UI preferences from localStorage on mount
   useEffect(() => {
@@ -436,16 +433,17 @@ const MultipleLLMInstructionDrivenChat = ({
     }
   }, []);
 
+
   useEffect(() => {
     widthRef.current = instructionWidth;
   }, [instructionWidth]);
-
 
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.style.setProperty('--chat-font-size', `${fontSize}rem`);
     }
   }, [fontSize]);
+
   const labels = {
     1: "Poor",
     2: "Fair",
@@ -469,13 +467,11 @@ const MultipleLLMInstructionDrivenChat = ({
   useEffect(() => {
     setIsMounted(true);
 
-    const projectLanguage = ProjectDetails?.tgt_language || ProjectDetails?.datasets?.[0]?.language || ProjectDetails?.datasets?.[0]?.tgt_language;
-
     const lc = LanguageCode.languages.find(
-      (lang) => lang.label.toLowerCase() === projectLanguage?.toLowerCase()
+      (lang) => lang.label.toLowerCase() === ProjectDetails?.tgt_language?.toLowerCase()
     );
     if (Number(info.meta_info_language) < 3) {
-      setTargetLang(lc?.code || "en");
+      setTargetLang(lc.code);
     } else {
       setTargetLang("en");
     }
@@ -494,6 +490,7 @@ const MultipleLLMInstructionDrivenChat = ({
   }, [chatHistory]);
 
   useEffect(() => {
+    if (!taskId) return;
     setEvalFormResponse({});
     setSubmittedEvalForms({});
 
@@ -511,15 +508,12 @@ const MultipleLLMInstructionDrivenChat = ({
     ) {
       const allModelsInteractions =
         annotation[0].result[0].model_interactions;
-      const interactions_length = Math.max(
-        ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
-        0
-      );
+      const interactions_length =
+        allModelsInteractions[0]?.interaction_json?.length || 0;
       console.log("lead", allModelsInteractions);
       for (let i = 0; i < interactions_length; i++) {
-        const prompt = allModelsInteractions.find(
-          (m) => m?.interaction_json?.[i]?.prompt
-        )?.interaction_json?.[i]?.prompt;
+        const prompt =
+          allModelsInteractions[0]?.interaction_json[i]?.prompt;
 
         const modelOutputs = [];
         let turnPromptOutputPairId = null;
@@ -531,8 +525,8 @@ const MultipleLLMInstructionDrivenChat = ({
             if (!response_valid) {
               setIsModelFailing(true);
             }
-            if (interaction?.prompt_output_pair_id) {
-              turnPromptOutputPairId = interaction.prompt_output_pair_id;
+            if (modelIdx === 0) {
+              turnPromptOutputPairId = interaction?.prompt_output_pair_id;
             }
 
             modelOutputs.push({
@@ -583,14 +577,19 @@ const MultipleLLMInstructionDrivenChat = ({
           });
         }
       }
+    } else {
+      modifiedChatHistory = [];
+    }
+
+    if (!hasRecoveredRef.current && annotation && annotation.length > 0) {
+      hasRecoveredRef.current = true;
       const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
       if (localInProgress) {
         try {
           const parsedLocal = JSON.parse(localInProgress);
           const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
 
-          // Check if server has this prompt WITH a real non-empty response
-          const serverTurnWithValidResponse = modifiedChatHistory?.find(
+          const serverTurnWithValidResponse = modifiedChatHistory.find(
             (c) =>
               c.prompt === lastLocalPrompt &&
               c.output &&
@@ -605,36 +604,39 @@ const MultipleLLMInstructionDrivenChat = ({
           );
 
           if (!serverTurnWithValidResponse) {
-            if (parsedLocal.length > 0) {
-              modifiedChatHistory = parsedLocal;
-              
-              if (!pendingResendPromptMulti && !isSendInFlightRef.current) {
-                setPendingResendPromptMulti(lastLocalPrompt);
-                setIsStreaming(true);
-              }
-            }
+            const lastPromptToResend = lastLocalPrompt;
+
+            // Drop the in-progress last turn (its response never finished streaming)
+            // so the resend below re-appends it once, instead of rendering the prompt
+            // twice — once as an empty-response placeholder and again as the streamed
+            // resend.
+            const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+            modifiedChatHistory = priorTurns;
+            setChatHistory(priorTurns);
+
+            setIsStreaming(false);
+            setIsPolling(false);
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
+            setPendingResendPromptMulti(lastPromptToResend);
           } else {
             localStorage.removeItem(`in_progress_chat_${taskId}`);
             setIsStreaming(false);
+            setIsPolling(false);
+            setPollingCount(0);
           }
         } catch (e) {
           console.error(e);
           localStorage.removeItem(`in_progress_chat_${taskId}`);
         }
-      } else {
-        setIsPolling(false);
-        setPollingCount(0);
       }
+    }
 
-      if (!isSendInFlightRef.current) {
-        setChatHistory(modifiedChatHistory);
-      }
-    } else {
-      setChatHistory([]);
+    if (!isSendInFlightRef.current && !pendingResendPromptMulti) {
+      setChatHistory(modifiedChatHistory);
+      setShowChatContainer(!!annotation?.[0]?.result);
     }
     setAnnotationId(annotation?.[0]?.id);
-    setShowChatContainer(!!annotation?.[0]?.result);
-  }, [annotation]);
+  }, [annotation, taskId, pendingResendPromptMulti]);
 
   const handleClosePreferredResponseModal = (index) => {
     setVisibleMessages((prev) => ({
@@ -711,7 +713,6 @@ const MultipleLLMInstructionDrivenChat = ({
     return Number(`${time}${deviceHash}${rand}`);
   };
   const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
-    isSendInFlightRef.current = true;
     console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
     const isMultipleResponse = ProjectDetails?.metadata_json;
     const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
@@ -724,7 +725,8 @@ const MultipleLLMInstructionDrivenChat = ({
       if (isNewPrompt) {
         // Get the models list from task data
         const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-        const modelsToRun = taskData?.data?.model || [];
+        const rawModel = taskData?.data?.model;
+        const modelsToRun = Array.isArray(rawModel) ? rawModel : (typeof rawModel === "string" ? [rawModel] : []);
 
         // Create optimistic output entries for each model (empty, will be filled by stream)
         const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
@@ -736,16 +738,9 @@ const MultipleLLMInstructionDrivenChat = ({
         }));
 
         const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
-        setChatHistory((prev) => {
-          let updated = [...prev];
-          if (updated.length > 0 && updated[updated.length - 1]?.prompt === currentPrompt) {
-            updated[updated.length - 1] = optimisticEntry;
-          } else {
-            updated = [...updated, optimisticEntry];
-          }
-          localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(updated));
-          return updated;
-        });
+        const optimisticHistory = [...chatHistoryRef.current, optimisticEntry];
+        setChatHistory(optimisticHistory);
+        localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
         setShowChatContainer(true);
         setIsStreaming(true);
 
@@ -780,6 +775,8 @@ const MultipleLLMInstructionDrivenChat = ({
                 });
                 updated[lastIdx] = lastEntry;
               }
+              // ✅ keep localStorage in sync so refresh can recover progress
+              localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(updated));
               return updated;
             });
             // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
@@ -794,7 +791,6 @@ const MultipleLLMInstructionDrivenChat = ({
             });
             setChatLoading(false);
             setIsStreaming(false);
-            localStorage.removeItem(`in_progress_chat_${taskId}`);
           },
         });
 
@@ -836,7 +832,7 @@ const MultipleLLMInstructionDrivenChat = ({
           const streamedTexts = await streamPromise;
 
           if (streamedTexts) {
-            const currentAnnotationResult = latestAnnotationResultRef.current;
+            const currentAnnotationResult = annotation?.[0]?.result?.[0] || { eval_form: [], model_interactions: [] };
             // Deep clone model_interactions
             const newModelInteractions = JSON.parse(JSON.stringify(currentAnnotationResult.model_interactions || []));
 
@@ -898,16 +894,12 @@ const MultipleLLMInstructionDrivenChat = ({
             // Once PATCH completes, sync the full result from DB (source of truth)
             if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
               const allModelsInteractions = data.result[0].model_interactions;
-              const interactions_length = Math.max(
-                ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
-                0
-              );
+              const interactions_length =
+                allModelsInteractions[0]?.interaction_json?.length || 0;
               let modifiedChatHistory = [];
 
               for (let i = 0; i < interactions_length; i++) {
-                const prompt = allModelsInteractions.find(
-                  (m) => m?.interaction_json?.[i]?.prompt
-                )?.interaction_json?.[i]?.prompt;
+                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
                 const modelOutputs = [];
                 let turnPromptOutputPairId = null;
 
@@ -918,8 +910,8 @@ const MultipleLLMInstructionDrivenChat = ({
                     if (!response_valid) {
                       setIsModelFailing(true);
                     }
-                    if (interaction?.prompt_output_pair_id) {
-                      turnPromptOutputPairId = interaction.prompt_output_pair_id;
+                    if (modelIdx === 0) {
+                      turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                     }
                     modelOutputs.push({
                       model_id: modelData?.model_id || modelData?.model_name,
@@ -962,25 +954,23 @@ const MultipleLLMInstructionDrivenChat = ({
                   });
                 }
               }
-              latestAnnotationResultRef.current = data.result[0];
               setChatHistory([...modifiedChatHistory]);
-              dispatch(fetchAnnotationsTask(taskId));
+              // Only clear localStorage after server confirms successful save
               localStorage.removeItem(`in_progress_chat_${taskId}`);
             }
           }
         } catch (error) {
           console.error("Error in multi-model chat save/stream operation:", error);
+          localStorage.removeItem(`in_progress_chat_${taskId}`);
         } finally {
           setChatLoading(false);
           setIsStreaming(false);
-          setIsPolling(false);
-          setPollingCount(0);
           setLoading(false);
         }
 
         setVisibleMessages((prev) => ({
           ...prev,
-          [chatHistory.length]: true,
+          [chatHistoryRef.current.length]: true,
         }));
 
         setTimeout(() => {
@@ -988,7 +978,6 @@ const MultipleLLMInstructionDrivenChat = ({
         }, 1000);
         setShowChatContainer(true);
         setInputValue("");
-        isSendInFlightRef.current = false;
         return;
       }
 
@@ -1099,15 +1088,11 @@ const MultipleLLMInstructionDrivenChat = ({
 
         if (data && data.result && data.result.length > 0 && data.result[0].model_interactions && Array.isArray(data.result[0].model_interactions) && data.result[0].model_interactions.length > 0) {
           const allModelsInteractions = data.result[0].model_interactions;
-          const interactions_length = Math.max(
-            ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
-            0
-          );
+          const interactions_length =
+            allModelsInteractions[0]?.interaction_json?.length || 0;
 
           for (let i = 0; i < interactions_length; i++) {
-            const prompt = allModelsInteractions.find(
-              (m) => m?.interaction_json?.[i]?.prompt
-            )?.interaction_json?.[i]?.prompt;
+            const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
             const modelOutputs = [];
             let turnPromptOutputPairId = null;
 
@@ -1118,8 +1103,8 @@ const MultipleLLMInstructionDrivenChat = ({
                 if (!response_valid) {
                   setIsModelFailing(true);
                 }
-                if (interaction?.prompt_output_pair_id) {
-                  turnPromptOutputPairId = interaction.prompt_output_pair_id;
+                if (modelIdx === 0) {
+                  turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                 }
                 modelOutputs.push({
                   model_id: modelData?.model_id || modelData?.model_name,
@@ -1178,7 +1163,7 @@ const MultipleLLMInstructionDrivenChat = ({
 
       setVisibleMessages((prev) => ({
         ...prev,
-        [chatHistory.length]: true,
+        [chatHistoryRef.current.length]: true,
       }));
     } else {
       setSnackbarInfo({
@@ -1193,7 +1178,6 @@ const MultipleLLMInstructionDrivenChat = ({
       }, 1000);
     setShowChatContainer(true);
     setInputValue("");
-    isSendInFlightRef.current = false;
   };
   const hasFailedLastResponse = useMemo(() => {
     if (!chatHistory || chatHistory.length === 0) return false;
@@ -1212,7 +1196,7 @@ const MultipleLLMInstructionDrivenChat = ({
 
     const lastPrompt = lastMessage.prompt;
 
-    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat", true);
+    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
 
     // Pass the prompt directly as an override — bypasses the inputValue check
     await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
@@ -1979,6 +1963,9 @@ const MultipleLLMInstructionDrivenChat = ({
   };
 
   const renderChatHistory = () => {
+    // Delete/retry are disabled while a response is streaming; grey the icons to
+    // match so they visibly read as unavailable (their hardcoded orange would
+    // otherwise override MUI's disabled dimming).
     const actionsDisabled = isStreaming || chatLoading || loading;
     const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
 
@@ -2063,7 +2050,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   }}
                 />
               </Grid>
-              <Grid item xs style={{ minWidth: 0, wordBreak: "break-word" }}>
+              <Grid item xs className="w-full">
                 {ProjectDetails?.metadata_json?.editable_prompt ? (
                   globalTransliteration ? (
                     <IndicTransliterate
@@ -2190,7 +2177,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   )}
                 </IconButton>
                 {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
-                  <Tooltip title="Re-send the same prompt to get a new response">
+                  <Tooltip title="Re-send the same prompt to get new responses">
                     <IconButton
                       size="small"
                       style={{
@@ -2198,6 +2185,8 @@ const MultipleLLMInstructionDrivenChat = ({
                         padding: "4px",
                       }}
                       onClick={handleRetry}
+                      // Match delete: block retry while a response is streaming so
+                      // an in-flight stream can't clash with a re-send.
                       disabled={actionsDisabled}
                     >
                       <RestartAltIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
@@ -2208,10 +2197,13 @@ const MultipleLLMInstructionDrivenChat = ({
                 {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
                   <IconButton
                     size="small"
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={actionsDisabled}
                     style={{
                       padding: "4px"
                     }}
-                    disabled={actionsDisabled}
                     onClick={() => {
                       setEvalFormResponse((prev) => {
                         const newResponse = { ...prev };
@@ -2318,12 +2310,12 @@ const MultipleLLMInstructionDrivenChat = ({
                               borderRadius: "8px",
                               color: "red",
                               fontWeight: "bold",
-                               backgroundColor: "#fff0f0",
+                              backgroundColor: "#fff0f0",
                               padding: "0.8rem",
                             }}
                           >
                             <ErrorIcon sx={{ marginRight: "8px", fontSize: "0.9rem" }} />
-                            <Typography style={{ fontSize: getFontSize() }}>
+                            <Typography style={{ fontSize: "0.8rem" }}>
                               {modelOutput?.model_name} failed to load the response!
                             </Typography>
                           </Box>
@@ -2343,6 +2335,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               backgroundColor: "white",
                               height: "auto",
                               minHeight: "150px",
+                              // Ensure box doesn't overflow
                               boxSizing: "border-box",
                             }}
                           >
@@ -2385,7 +2378,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         sx={{
                                           fontWeight: "bold",
                                           color: orange[400],
-                                          fontSize: getFontSize(),
+                                          fontSize: "1.25rem",
                                         }}
                                       >
                                         {"Model " + (modelIdx + 1)}
@@ -2399,11 +2392,12 @@ const MultipleLLMInstructionDrivenChat = ({
                                     <Typography
                                       component="div"
                                       sx={{
-                                        fontSize: getFontSize(),
+                                        fontSize: "1.2rem",
                                         maxHeight: "60vh",
                                         overflowY: "scroll",
                                       }}
                                     >
+
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
                                           (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
@@ -2417,7 +2411,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   <textarea
                                                     {...props}
                                                     style={{
-                                                      fontSize: getFontSize(),
+                                                      fontSize: `${fontSize}rem`,
                                                       padding: "6px",
                                                       borderRadius: "6px",
                                                       color: grey[900],
@@ -2437,7 +2431,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                 value={segment.value}
                                                 onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
                                                 style={{
-                                                  fontSize: getFontSize(),
+                                                  fontSize: `${fontSize}rem`,
                                                   width: "100%",
                                                   padding: "6px",
                                                   borderRadius: "6px",
@@ -2455,6 +2449,8 @@ const MultipleLLMInstructionDrivenChat = ({
                                             <div
                                               key={segmentIdx}
                                               style={{
+                                                // textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                                // direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                                                 width: "100%",
                                               }}
                                             >
@@ -2462,7 +2458,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                 key={segmentIdx}
                                                 children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                                 components={{
-                                                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />, // UPDATED
                                                   a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                                 }}
                                               />
@@ -2476,7 +2472,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                             customStyle={{
                                               padding: "0.5rem",
                                               borderRadius: "4px",
-                                              fontSize: getFontSize(),
+                                              fontSize: getFontSize(), // UPDATED
                                               margin: "0.2rem 0"
                                             }}
                                           >
@@ -2513,7 +2509,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                           <textarea
                                             {...props}
                                             style={{
-                                              fontSize: getFontSize(),
+                                              fontSize: `${fontSize}rem`,
                                               padding: "6px",
                                               borderRadius: "6px",
                                               color: grey[900],
@@ -2533,7 +2529,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         value={segment.value}
                                         onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
                                         style={{
-                                          fontSize: getFontSize(),
+                                          fontSize: `${fontSize}rem`,
                                           width: "100%",
                                           padding: "6px",
                                           borderRadius: "6px",
@@ -2558,7 +2554,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                           key={segmentIdx}
                                           children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                           components={{
-                                            p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                            p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />, // UPDATED
                                             a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                           }}
                                         />
@@ -2573,7 +2569,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                     customStyle={{
                                       padding: "0.5rem",
                                       borderRadius: "4px",
-                                      fontSize: `${fontSize}rem`,
+                                      fontSize: getFontSize(),
                                       margin: "0.2rem 0"
                                     }}
                                   >
@@ -2582,6 +2578,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                 )
                               )}
                             </Box>
+
 
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
@@ -2601,8 +2598,11 @@ const MultipleLLMInstructionDrivenChat = ({
                       </React.Fragment>
                     ))}
                   </Box>
+
+
                 </Grid>
 
+                {/* Show right scroll arrow only when > 3 responses */}
                 {shouldScroll && (
                   <IconButton
                     onClick={() => scrollOutputs(index, 'right')}
@@ -2622,6 +2622,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     <ChevronRightIcon style={{ color: "#EE6633" }} />
                   </IconButton>
                 )}
+
               </Grid>
             </Grid>
           )}
@@ -2646,13 +2647,15 @@ const MultipleLLMInstructionDrivenChat = ({
                   </IconButton>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
+                  {/* Reduced font sizes in evaluation form as well */}
                   {!ProjectDetails?.metadata_json?.single_model_response ? (
+
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
                         <div key={questionIdx}>
                           {question.question_type === "comparison" && (
                             <div style={{ marginBottom: "4px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{ color: "#d93025", fontSize: "18px" }}
@@ -2670,7 +2673,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       <span>{option}:</span>
@@ -2750,7 +2753,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={<span style={{ fontSize: getFontSize() }}>{"Model " + (outputIdx + 1)}</span>}
+                                                  label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -2765,13 +2768,19 @@ const MultipleLLMInstructionDrivenChat = ({
                             </div>
                           )}
                           {question.question_type === "fill_in_blanks" && (
-                            <div style={{ marginBottom: "5px" }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
                               <p className={classes.inputQuestion}>
                                 {questionIdx + 1}.{" "}
                                 {question.input_question
                                   .split("<blank>")
                                   .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`} style={{ fontSize: getFontSize() }}>
+                                    <span key={`${questionIdx}-${index}`} style={{
+                                      fontSize: "0.9rem",
+                                    }}>
                                       {part}
                                       {index <
                                         question.input_question.split("<blank>")
@@ -2784,7 +2793,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                               width: "100px",
                                               margin: "0 4px",
                                               verticalAlign: "middle",
-                                              fontSize: getFontSize()
+                                              fontSize: "0.85rem"
                                             }}
                                           >
                                             &nbsp;
@@ -2802,6 +2811,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                   *
                                 </span>
                               </p>
+
                               <div
                                 style={{
                                   padding: "10px 0 0 20px",
@@ -2810,7 +2820,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                   justifyContent: "space-between",
                                   alignItems: "center",
                                   flexWrap: "wrap",
-                                  fontSize: getFontSize()
+                                  fontSize: "0.85rem"
                                 }}
                               >
                                 {message?.output?.map((response, outputIdx) => (
@@ -2828,7 +2838,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         color: "#6C5F5B",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {"Model " + (outputIdx + 1)}
@@ -2872,7 +2882,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
-                                            fontSize: getFontSize()
+                                            fontSize: "0.85rem"
                                           }}
                                           required
                                         />
@@ -2883,9 +2893,15 @@ const MultipleLLMInstructionDrivenChat = ({
                             </div>
                           )}
                           {question.question_type === "rating" && (
-                            <div style={{ marginBottom: "5px" }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
                               <div className={classes.inputQuestion}>
-                                <span style={{ fontSize: getFontSize() }}>
+                                <span style={{
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                 </span>
                                 <span
@@ -2923,7 +2939,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
                                             color: "#6C5F5B",
-                                            fontSize: getFontSize()
+                                            fontSize: "0.85rem"
                                           }}
                                         >
                                           {response?.model_name}
@@ -2959,9 +2975,9 @@ const MultipleLLMInstructionDrivenChat = ({
                                                 newValue,
                                                 message,
                                                 message?.output?.[0]
-                                                  ?.prompt_output_pair_id,
+                                                  ?.prompt_output_pair_id, // index
                                                 questionIdx,
-                                                outputIdx,
+                                                outputIdx, // model_idx
                                               );
                                             }}
                                             sx={{
@@ -2992,8 +3008,14 @@ const MultipleLLMInstructionDrivenChat = ({
                             </div>
                           )}
                           {question.question_type === "mcq" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion} style={{
+                                fontSize: "0.9rem",
+                              }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
@@ -3022,7 +3044,9 @@ const MultipleLLMInstructionDrivenChat = ({
                                         flexDirection: "row",
                                       }}
                                     >
-                                      <span style={{ fontSize: getFontSize() }}>{option} :</span>{" "}
+                                      <span style={{
+                                        fontSize: "0.85rem",
+                                      }}>{option} :</span>{" "}
                                       <div
                                         style={{
                                           display: "flex",
@@ -3069,11 +3093,11 @@ const MultipleLLMInstructionDrivenChat = ({
                                                   onChange={(e) =>
                                                     handleMCQ(
                                                       message?.output?.[0]
-                                                        ?.prompt_output_pair_id,
+                                                        ?.prompt_output_pair_id, // index
                                                       message,
                                                       option,
                                                       questionIdx,
-                                                      outputIdx,
+                                                      outputIdx, // model_idx
                                                     )
                                                   }
                                                 >
@@ -3087,7 +3111,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                         variant="subtitle2"
                                                         sx={{
                                                           color: "#6C5F5B",
-                                                          fontSize: getFontSize()
+                                                          fontSize: "0.85rem"
                                                         }}
                                                       >
                                                         {response?.model_name}
@@ -3106,10 +3130,17 @@ const MultipleLLMInstructionDrivenChat = ({
                               </div>
                             </div>
                           )}
-                          {question.question_type === "multi_select_options" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
-                                {questionIdx + 1}. {question.input_question}
+                          {question.question_type ===
+                            "multi_select_options" && (
+                              <div
+                                style={{
+                                  marginBottom: "5px",
+                                }}
+                              >
+                                <div className={classes.inputQuestion} style={{
+                                  fontSize: "0.9rem",
+                                }}>
+                                  {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
                                       color: "#d93025",
@@ -3136,7 +3167,9 @@ const MultipleLLMInstructionDrivenChat = ({
                                           justifyContent: "space-between",
                                         }}
                                       >
-                                        <span style={{fontSize: getFontSize() }}>{option} :</span>{" "}
+                                        <span style={{
+                                          fontSize: "0.85rem",
+                                        }}>{option} :</span>{" "}
                                         <div
                                           style={{
                                             display: "flex",
@@ -3201,25 +3234,25 @@ const MultipleLLMInstructionDrivenChat = ({
                                                           variant="subtitle2"
                                                           sx={{
                                                             color: "#6C5F5B",
-                                                          fontSize: getFontSize()
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />{" "}
-                                                </FormGroup>
-                                              </FormControl>
-                                            </div>
-                                          ),
-                                        )}
+                                                            fontSize: "0.85rem"
+                                                          }}
+                                                        >
+                                                          {response?.model_name}
+                                                        </Typography>
+                                                      }
+                                                    />{" "}
+                                                  </FormGroup>
+                                                </FormControl>
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ),
-                                )}
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       ))) : (<>{!shrinkedMessages[index] && ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
                         const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
@@ -3233,7 +3266,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                   {splitQuestion?.map((part, index) => (
                                     <span
                                       key={`${questionIdx}-${index}`}
-                                      style={{ fontSize: getFontSize() }}
+                                      style={{ fontSize: "0.9rem" }}
                                     >
                                       {part}
                                       {index < splitQuestion.length - 1 && (
@@ -3249,7 +3282,8 @@ const MultipleLLMInstructionDrivenChat = ({
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             padding: "4px",
-                                            fontSize: getFontSize(),
+                                            fontSize: "0.85rem",
+                                            // lineHeight: "1.5",
                                             verticalAlign: "middle",
                                             width: "100%",
                                             maxWidth: "200px",
@@ -3264,7 +3298,10 @@ const MultipleLLMInstructionDrivenChat = ({
                                     </span>
                                   ))}
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}> *</span>
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
                                   }
                                 </p>
                               </div>
@@ -3274,7 +3311,7 @@ const MultipleLLMInstructionDrivenChat = ({
                             return (
                               <div key={questionIdx}>
                                 <div className={classes.inputQuestion}>
-                                  <span style={{ fontSize: getFontSize() }}>
+                                  <span style={{ fontSize: "0.9rem" }}>
                                     {questionIdx + 1}. {question.input_question}
                                   </span>
                                   {
@@ -3343,7 +3380,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                       sx={{
                                         ml: 2,
                                         color: "#EE6633",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {(() => {
@@ -3378,7 +3415,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: getFontSize() }}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -3397,7 +3434,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                   <FormGroup>
                                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                                       {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%", fontSize: getFontSize() }} key={idx}>
+                                        <div style={{ width: "50%", fontSize: "0.85rem" }} key={idx}>
                                           <FormControlLabel
                                             key={idx}
                                             control={
@@ -3415,6 +3452,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                                     ?.model_responses_json?.[questionIdx]
                                                     ?.response?.includes(option) || false
                                                 }
+
                                               />
                                             }
                                             label={option}
@@ -3432,7 +3470,7 @@ const MultipleLLMInstructionDrivenChat = ({
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: getFontSize() }}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -3455,6 +3493,7 @@ const MultipleLLMInstructionDrivenChat = ({
                                         ?.model_responses_json?.[questionIdx]
                                         ?.response?.[0] || ""
                                     }
+
                                     onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
                                   >
                                     <div
@@ -3462,14 +3501,14 @@ const MultipleLLMInstructionDrivenChat = ({
                                         display: "flex",
                                         flexWrap: "wrap",
                                         gap: "16px",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {question?.input_selections_list?.map(
                                         (option, idx) => (
                                           <div
                                             key={idx}
-                                            style={{ width: "calc(50% - 8px)" }}
+                                            style={{ width: "calc(50% - 8px)" }} // 2 per row with spacing
                                           >
                                             <FormControlLabel
                                               value={option}
@@ -3489,6 +3528,7 @@ const MultipleLLMInstructionDrivenChat = ({
                             return null;
                         }
                       })}</>)}
+
                   <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", width: "100%" }}>
                     <Button
                       variant="contained"
@@ -3502,7 +3542,7 @@ const MultipleLLMInstructionDrivenChat = ({
                         maxWidth: "fit-content",
                         marginBottom: "16px",
                         marginRight: "16px",
-                        fontSize: getFontSize(),
+                        fontSize: `${fontSize}rem`,
                         minHeight: "auto",
                       }}
                       onClick={() => {
@@ -3537,7 +3577,6 @@ const MultipleLLMInstructionDrivenChat = ({
 
     return chatElements;
   };
-
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
 
@@ -3653,30 +3692,30 @@ const MultipleLLMInstructionDrivenChat = ({
             <Box
               onMouseDown={!isPinned ? startDragging : undefined}
               sx={{
-                position: "absolute",
-                [window.innerWidth < 768 ? 'bottom' : 'right']: 0,
-                [window.innerWidth < 768 ? 'left' : 'top']: 0,
-                [window.innerWidth < 768 ? 'height' : 'width']: "6px",
-                [window.innerWidth < 768 ? 'width' : 'height']: "100%",
-                cursor: !isPinned ? (window.innerWidth < 768 ? 'row-resize' : 'col-resize') : 'default',
-                backgroundColor: "transparent",
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                width: '6px',
+                height: '100%',
+                cursor: !isPinned ? 'col-resize' : 'default',
+                backgroundColor: 'transparent',
                 zIndex: 10,
                 ...(!isPinned && {
                   '&:hover': {
-                    backgroundColor: "rgba(238, 102, 51, 0.2)",
+                    backgroundColor: 'rgba(238, 102, 51, 0.2)',
                   },
                   '&:active': {
-                    backgroundColor: "rgba(238, 102, 51, 0.3)",
+                    backgroundColor: 'rgba(238, 102, 51, 0.3)',
                   },
                 }),
                 '&::after': {
                   content: '""',
                   position: 'absolute',
-                  [window.innerWidth < 768 ? 'left' : 'right']: '2px',
-                  [window.innerWidth < 768 ? 'left' : 'top']: '50%',
-                  transform: window.innerWidth < 768 ? 'none' : 'translateY(-50%)',
-                  [window.innerWidth < 768 ? 'width' : 'height']: '40px',
-                  [window.innerWidth < 768 ? 'height' : 'width']: '4px',
+                  right: '2px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '4px',
+                  height: '40px',
                   backgroundColor: !isPinned ? '#EE6633' : '#B0B0B0',
                   borderRadius: '2px',
                   opacity: !isPinned ? 0.6 : 0.4,
@@ -3685,6 +3724,7 @@ const MultipleLLMInstructionDrivenChat = ({
             />
           )}
 
+          {/* Rest of your instruction panel content remains exactly the same */}
           <Box
             sx={{
               display: "flex",
@@ -3706,19 +3746,13 @@ const MultipleLLMInstructionDrivenChat = ({
                 sx={{
                   color: "#636363",
                   fontWeight: "600",
-                  fontSize: "1rem",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  flexShrink: 1,
-                  minWidth: 0,
-                  marginRight: "0.5rem"
+                  fontSize: "1rem"
                 }}
               >
                 {translate("typography.instructions")}
               </Typography>
             )}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               {isInstructionExpanded && (
                 <>
                   <Tooltip
@@ -3791,12 +3825,17 @@ const MultipleLLMInstructionDrivenChat = ({
 
 
           {isInstructionExpanded && (
-            <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
+            <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.5rem" }}>
               {/* Main Instructions */}
               <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-                <Typography paragraph sx={{ fontSize: getFontSize(), lineHeight: "1.5", color: "#333" }}>
-                  {info.instruction_data}
-                </Typography>
+                <ReactMarkdown
+                  className="flex-col"
+                  children={info?.instruction_data ? linkifyText(info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ')) : ""}
+                  components={{
+                    p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0' }} {...props} />,
+                    a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
+                  }}
+                />
               </Box>
 
               {/* Metadata Information - Now directly in the panel */}
@@ -3807,7 +3846,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     sx={{
                       color: "#F18359",
                       fontWeight: "bold",
-                      fontSize: `calc(${getFontSize()} + 0.1rem)`,
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
                     }}
                   >
@@ -3816,7 +3855,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   <Typography
                     variant="body2"
                     sx={{
-                      fontSize: `max(0.6rem, calc(${getFontSize()} - 0.05rem))`,
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
                       lineHeight: "1.4",
                       color: "#555",
                       backgroundColor: "#f8f9fa",
@@ -3835,7 +3874,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     sx={{
                       color: "#F18359",
                       fontWeight: "bold",
-                      fontSize: `calc(${getFontSize()} + 0.1rem)`,
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
                     }}
                   >
@@ -3844,7 +3883,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   <Typography
                     variant="body2"
                     sx={{
-                      fontSize: `max(0.6rem, calc(${getFontSize()} - 0.05rem))`,
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
                       lineHeight: "1.4",
                       color: "#555",
                       backgroundColor: "#f8f9fa",
@@ -3863,7 +3902,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     sx={{
                       color: "#F18359",
                       fontWeight: "bold",
-                      fontSize: `calc(${getFontSize()} + 0.1rem)`,
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
                     }}
                   >
@@ -3879,7 +3918,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     {info.meta_info_language && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <CodeIcon fontSize="small" color="primary" />
-                        <Typography variant="body2" sx={{ fontSize: `max(0.6rem, calc(${getFontSize()} - 0.1rem))`, color: "#666" }}>
+                        <Typography variant="body2" sx={{ fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.1rem))', color: "#666" }}>
                           Language: {info.meta_info_language}
                         </Typography>
                       </Box>
@@ -3887,7 +3926,7 @@ const MultipleLLMInstructionDrivenChat = ({
                     {taskId && (
                       <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                         <AssignmentIcon fontSize="small" color="secondary" />
-                        <Typography variant="body2" sx={{ fontSize: `max(0.6rem, calc(${getFontSize()} - 0.1rem))`, color: "#666" }}>
+                        <Typography variant="body2" sx={{ fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.1rem))', color: "#666" }}>
                           Task ID: {taskId}
                         </Typography>
                       </Box>
@@ -3974,7 +4013,7 @@ const MultipleLLMInstructionDrivenChat = ({
                   width: "100%",
                 },
                 "& textarea": {
-                  fontSize: { xs: "0.85rem", md: "0.9rem" },
+                  fontSize: getFontSize(),
                   width: "100%",
                 }
               }}

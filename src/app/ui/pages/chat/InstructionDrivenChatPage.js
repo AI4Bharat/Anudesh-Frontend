@@ -37,13 +37,10 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import Checkbox from '@mui/material/Checkbox';
-import { ThemeProvider } from '@mui/material/styles';
-import Slider from '@mui/material/Slider';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import AllTaskSearchPopup from "@/components/Project/AllTasksSearchpopup";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Slider from '@mui/material/Slider';
 const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem !important",
@@ -83,7 +80,7 @@ const style = {
   pb: 3,
 };
 
-// Font Size slider component 
+// Font size slider component 
 const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
   const [localValue, setLocalValue] = useState(value);
   const rafRef = useRef(null);
@@ -174,6 +171,8 @@ const InstructionDrivenChatPage = ({
   info,
   disableUpdateButton,
   annotation,
+  setLoading,
+  loading,
   setIsModelStreaming,
   fontSize: initialFontSize = 1.0,
 }) => {
@@ -182,9 +181,8 @@ const InstructionDrivenChatPage = ({
   );
   const [isPinned, setIsPinned] = useState(false);
 
-  // ADD THIS HELPER FUNCTION
   const getFontSize = () => 'var(--chat-font-size)';
-
+  const [pendingResendPrompt, setPendingResendPrompt] = useState(null);
   const tooltipStyle = useStyles();
   const [inputValue, setInputValue] = useState("");
   const classes = headerStyle();
@@ -198,18 +196,29 @@ const InstructionDrivenChatPage = ({
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
 
   const bottomRef = useRef(null);
+  const hasRecoveredInProgressChat = useRef(false);
   const isSendInFlightRef = useRef(false);
+  const chatHistoryRef = useRef(chatHistory);
+  useEffect(() => {
+    chatHistoryRef.current = chatHistory;
+  }, [chatHistory]);
   const [hasMounted, setHasMounted] = useState(false);
   const [showChatContainer, setShowChatContainer] = useState(false);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [chatLoading, setChatLoading] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingCount, setPollingCount] = useState(0);
-  const [pendingResendPrompt, setPendingResendPrompt] = useState(null);
-  const isStreamingRef = useRef(false);
 
+  useEffect(() => {
+    if (pendingResendPrompt && !isStreaming && chatHistory !== null) {
+      const prompt = pendingResendPrompt;
+      setPendingResendPrompt(null);
+      setTimeout(() => {
+        handleButtonClick(prompt);
+      }, 500);
+    }
+  }, [pendingResendPrompt, chatHistory]);
   
   useEffect(() => {
     let intervalId;
@@ -280,7 +289,7 @@ const InstructionDrivenChatPage = ({
     }
   }, []);
 
-  // Drag handler functions
+  // Drag handler functions 
   const onDrag = useCallback((e) => {
     if (!isDraggingRef.current || !containerRef.current) return;
 
@@ -353,18 +362,15 @@ const InstructionDrivenChatPage = ({
       instruction_panel_pinned: false
     });
   }, [saveAnnotationUIPref]);
-useEffect(() => {
-  if (
-    pendingResendPrompt &&
-    !isSendInFlightRef.current
-  ) {
-    const prompt = pendingResendPrompt;
-    setPendingResendPrompt(null);
-    setTimeout(() => {
-      handleButtonClick(prompt);
-    }, 500);
-  }
-}, [pendingResendPrompt, chatHistory]);
+
+  const [snackbar, setSnackbarInfo] = useState({
+    open: false,
+    message: "",
+    variant: "success",
+  });
+  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
+
+  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
   // Sync annotation UI preferences from localStorage on mount
   useEffect(() => {
@@ -396,14 +402,7 @@ useEffect(() => {
       containerRef.current.style.setProperty('--chat-font-size', `${fontSize}rem`);
     }
   }, [fontSize]);
-const [snackbar, setSnackbarInfo] = useState({
-    open: false,
-    message: "",
-    variant: "success",
-  });
-  const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
-  const annotationStatus = useSelector((state) => state.getAnnotationsTask?.status);
-  const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -459,47 +458,59 @@ const [snackbar, setSnackbarInfo] = useState({
     }
 
  
-  const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-  if (localInProgress) {
-    try {
-      const parsedLocal = JSON.parse(localInProgress);
-      const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+  if (!hasRecoveredInProgressChat.current && annotation && annotation.length > 0) {
+    hasRecoveredInProgressChat.current = true;
 
-      // Check if server has this prompt WITH a real non-empty response
-      const serverTurnWithValidResponse = modifiedChatHistory.find(
-        (c) =>
-          c.prompt === lastLocalPrompt &&
-          c.output &&
-          c.output.length > 0 &&
-          c.output[0]?.value &&
-          c.output[0].value.trim() !== ""
-      );
+    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+    if (localInProgress) {
+      try {
+        const parsedLocal = JSON.parse(localInProgress);
+        const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
 
-      if (!serverTurnWithValidResponse) {
-        if (parsedLocal.length > 0) {
-          modifiedChatHistory = parsedLocal;
-          
-          if (!pendingResendPrompt && !isSendInFlightRef.current) {
-            setPendingResendPrompt(lastLocalPrompt);
-            setIsStreaming(true);
-          }
+        // Check if server has this prompt WITH a real non-empty response
+        const serverTurnWithValidResponse = modifiedChatHistory.find(
+          (c) =>
+            c.prompt === lastLocalPrompt &&
+            c.output &&
+            c.output.length > 0 &&
+            c.output[0]?.value &&
+            c.output[0].value.trim() !== ""
+        );
+
+        if (!serverTurnWithValidResponse) {
+          const lastPromptToResend = lastLocalPrompt;
+
+          // Drop the in-progress last turn (its response never finished streaming)
+          // so the resend below re-appends it once, instead of rendering the prompt
+          // twice — once as an empty-response placeholder and again as the streamed
+          // resend.
+          const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+          modifiedChatHistory = priorTurns;
+          setChatHistory(priorTurns);
+
+          setIsStreaming(false);
+          setIsPolling(false);
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+          setPendingResendPrompt(lastPromptToResend);
+        } else {
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+          setIsStreaming(false);
+          setIsPolling(false);
+          setPollingCount(0);
         }
-      } else {
+      } catch (e) {
+        console.error(e);
         localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-        setIsStreaming(false);
       }
-    } catch (e) {
-      console.error(e);
-      localStorage.removeItem(`in_progress_chat_single_${taskId}`);
     }
   }
 
-   if (!isSendInFlightRef.current) {
+    if (!isSendInFlightRef.current && !pendingResendPrompt) {
       setChatHistory(modifiedChatHistory);
+      setShowChatContainer(!!annotation[0]?.result);
     }
-    setAnnotationId(annotation?.[0]?.id);
-    setShowChatContainer(!!annotation?.[0]?.result);
-  }, [annotation,taskId]);
+    setAnnotationId(annotation[0]?.id);
+  }, [annotation, taskId, pendingResendPrompt]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -549,25 +560,45 @@ const [snackbar, setSnackbarInfo] = useState({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-const handleButtonClick = async (promptOverride) => {
+const handleButtonClick = async (promptOverride, retry = false) => {
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
     isSendInFlightRef.current = true;
     setChatLoading(true);
     setIsStreaming(true);
-    isStreamingRef.current = true;
 
     const currentPrompt = prompt;
+    // Add optimistic entry with a streaming placeholder
+    setChatHistory((prev) => {
+      let updated;
+      if (retry) {
+        updated = [...prev];
+        if (updated.length > 0) {
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            output: [{ type: "text", value: "" }],
+          };
+        }
+      } else {
+        if (prev.length > 0 && prev[prev.length - 1]?.prompt === currentPrompt) {
+          updated = [...prev];
+          updated[updated.length - 1] = { prompt: currentPrompt, output: [{ type: "text", value: "" }] };
+        } else {
+          updated = [...prev, { prompt: currentPrompt, output: [{ type: "text", value: "" }] }];
+        }
+      }
+      localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
+      return updated;
+    });
+
+    setShowChatContainer(true);
+
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
 
     // Build the history for the streaming endpoint (previous turns only)
-    let streamHistory = [...chatHistory];
-    
-    // If it's a retry, remove the last entry so we can generate it again
-    if (streamHistory.length > 0 && streamHistory[streamHistory.length - 1].prompt === currentPrompt) {
-      streamHistory = streamHistory.slice(0, -1);
-    }
-    
-    streamHistory = streamHistory
+    const streamHistory = chatHistoryRef.current
       .map((chat) => ({
         prompt: chat.prompt,
         output: typeof chat.output === "string"
@@ -580,19 +611,6 @@ const handleButtonClick = async (promptOverride) => {
 
     const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
     const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
-
-    // Add the new prompt to chat history immediately so it's visible in the UI
-    setChatHistory((prev) => {
-      let updated;
-      if (prev.length > 0 && prev[prev.length - 1]?.prompt === currentPrompt) {
-        updated = [...prev];
-        updated[updated.length - 1] = { prompt: currentPrompt, output: [{ type: "text", value: "" }] };
-      } else {
-        updated = [...prev, { prompt: currentPrompt, output: [{ type: "text", value: "" }] }];
-      }
-      localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
-      return updated;
-    });
 
     const streamPromise = streamResponse({
       prompt: currentPrompt,
@@ -614,6 +632,7 @@ onToken: (token, fullText) => {
           localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
           return updated;
         });
+        // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
         bottomRef.current?.scrollIntoView({ behavior: "auto" });
       },
       onError: (errMsg) => {
@@ -625,12 +644,13 @@ onToken: (token, fullText) => {
         });
         setChatLoading(false);
         setIsStreaming(false);
-        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        
       },
     });
 
     const body = {
       result: currentPrompt,
+      retry,
       lead_time:
         (new Date() - loadtime) / 1000 +
         Number(id?.lead_time?.lead_time ?? 0),
@@ -663,13 +683,9 @@ onToken: (token, fullText) => {
       const streamedText = await streamPromise;
       
       if (streamedText) {
-        let historyForPayload = [...chatHistory];
-        if (historyForPayload.length > 0 && historyForPayload[historyForPayload.length - 1].prompt === currentPrompt) {
-          historyForPayload = historyForPayload.slice(0, -1);
-        }
-
+        // Construct the full history array for the backend so it doesn't re-trigger LLM generation
         const fullHistoryPayload = [
-          ...historyForPayload.map((chat) => ({
+          ...chatHistoryRef.current.map((chat) => ({
             prompt: chat.prompt,
             output: typeof chat.output === "string"
               ? chat.output
@@ -690,7 +706,7 @@ onToken: (token, fullText) => {
         });
         const data = await res.json();
 
-        if (data && data.result) {
+       if (data && data.result) {
           const modifiedChatHistory = data.result.map((interaction, index) => {
             const isLastInteraction = index === data.result.length - 1;
             return {
@@ -699,6 +715,7 @@ onToken: (token, fullText) => {
             };
           });
           setChatHistory([...modifiedChatHistory]);
+          // Only clear localStorage after server confirms successful save
           localStorage.removeItem(`in_progress_chat_single_${taskId}`);
         } else if (!data) {
           setSnackbarInfo({
@@ -706,6 +723,7 @@ onToken: (token, fullText) => {
             message: data?.message || "Failed to save LLM response",
             variant: "error",
           });
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
         }
       }
     } catch (error) {
@@ -714,8 +732,7 @@ onToken: (token, fullText) => {
       setChatLoading(false);
       setIsStreaming(false);
       isSendInFlightRef.current = false;
-      isStreamingRef.current = false;
-       setIsPolling(false);
+      setIsPolling(false);
       setPollingCount(0);
     }
 
@@ -733,19 +750,6 @@ onToken: (token, fullText) => {
     setText("");
   }
 };
-const hasFailedLastResponse = useMemo(() => {
-  if (!chatHistory || chatHistory.length === 0) return false;
-  const last = chatHistory[chatHistory.length - 1];
-  if (!last?.output || last.output.length === 0) return true;
-  return last.output.every(seg => seg.type === 'text' && !seg.value?.trim());
-}, [chatHistory]);
-const handleRetry = useCallback(async () => {
-  if (!chatHistory || chatHistory.length === 0) return;
-  const lastPrompt = chatHistory[chatHistory.length - 1]?.prompt;
-  if (!lastPrompt) return;
-  await handleClick('delete-pair', id?.id, 0.0, "", true);
-  await handleButtonClick(lastPrompt);
-}, [chatHistory, handleClick, id, handleButtonClick]);
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -829,7 +833,7 @@ const handleRetry = useCallback(async () => {
   };
   const textareaStyle = {
     resize: "none",
-    fontSize: getFontSize(), // UPDATED
+    fontSize: getFontSize(),
     width: "60%",
     fontWeight: "400",
     lineHeight: "1.5",
@@ -880,6 +884,9 @@ const handleRetry = useCallback(async () => {
 
 const renderChatHistory = () => {
 
+    // Delete/retry are disabled while a response is streaming; grey the icons to
+    // match so they visibly read as unavailable (their hardcoded orange would
+    // otherwise override MUI's disabled dimming).
     const actionsDisabled = isStreaming || chatLoading || loading;
     const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
 
@@ -950,7 +957,7 @@ const renderChatHistory = () => {
                 }}
               />
             </Grid>
-            <Grid item xs style={{ minWidth: 0, wordBreak: "break-word" }}>
+            <Grid item xs className="w-full">
               {ProjectDetails?.metadata_json?.editable_prompt ? (
                 globalTransliteration === "true" ? (
                   <IndicTransliterate
@@ -965,7 +972,7 @@ const renderChatHistory = () => {
                         {...props}
                         className=""
                         style={{
-                          fontSize: getFontSize(), // UPDATED
+                          fontSize: getFontSize(),
                           width: "100%",
                           borderRadius: "12px 12px 0 12px",
                           color: grey[900],
@@ -993,7 +1000,7 @@ const renderChatHistory = () => {
                       handleTextChange(e, null, message, "prompt")
                     }
                     style={{
-                      fontSize: getFontSize(), // UPDATED
+                      fontSize: getFontSize(),
                       width: "100%",
                       borderRadius: "12px 12px 0 12px",
                       color: grey[900],
@@ -1013,14 +1020,15 @@ const renderChatHistory = () => {
                   className="flex-col"
                   children={linkifyText(message?.prompt || "")}
                   components={{
-                    p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.3rem 0'}} {...props} />, // UPDATED
+                    p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.5rem 0' }} {...props} />, // UPDATED
                     a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
               )}
             </Grid>
-            <Grid
-              item
+            
+           <Grid 
+              item 
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1028,34 +1036,6 @@ const renderChatHistory = () => {
                 flexShrink: 0,
               }}
             >
-              {/* Delete button */}
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
-                <Tooltip title="Delete this turn">
-                  <IconButton
-                    size="small"
-                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
-                    disabled={actionsDisabled}
-                    style={{ padding: "4px" }}
-                  >
-                    <DeleteOutlinedIcon style={{ color: actionIconColor, fontSize: "1rem" }} />
-                  </IconButton>
-                </Tooltip>
-              )}
-
-              {/* Retry button */}
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
-                <Tooltip title="Re-send the same prompt to get a new response">
-                  <IconButton
-                    size="small"
-                    onClick={handleRetry}
-                    disabled={actionsDisabled}
-                    style={{ padding: "4px" }}
-                  >
-                    <RestartAltIcon style={{ fontSize: "1rem", color: actionIconColor }} />
-                  </IconButton>
-                </Tooltip>
-              )}
-
               {/* Copy prompt button */}
               <Tooltip title="Copy prompt">
                 <IconButton
@@ -1073,7 +1053,9 @@ const renderChatHistory = () => {
               <IconButton
                 size="small"
                 onClick={() => toggleShrink(index)}
-                style={{ padding: "4px" }}
+                style={{
+                  padding: "4px",
+                }}
               >
                 {shrinkedMessages[index] ? (
                   <ExpandMoreIcon style={{ fontSize: "1rem", color: "#EE6633", fontWeight: "bold" }} />
@@ -1081,10 +1063,48 @@ const renderChatHistory = () => {
                   <ExpandLessIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
                 )}
               </IconButton>
+
+              {/* Retry button */}
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
+                <Tooltip title="Re-send the same prompt to get a new response">
+                  <IconButton
+                    size="small"
+                    onClick={() => handleButtonClick(message.prompt, true)}
+                    // Match delete: block retry while a response is streaming so
+                    // an in-flight stream can't clash with a re-send.
+                    disabled={actionsDisabled}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <RestartAltIcon style={{ fontSize: "1rem", color: actionIconColor }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {/* Delete button */}
+              {index === chatHistory.length - 1 &&
+                stage !== "Alltask" &&
+                !disableUpdateButton && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleClick("delete-pair", id?.id, 0.0)}
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={actionsDisabled}
+                    style={{
+                      padding: "4px",
+                    }}
+                  >
+                    <DeleteOutlinedIcon
+                      style={{ color: actionIconColor, fontSize: "1rem" }}
+                    />
+                  </IconButton>
+                )}
             </Grid>
           </Grid>
         </Grid>
-
         {/* Output Section - Only render when not shrinked */}
         {!shrinkedMessages[index] && (
           <Grid
@@ -1142,7 +1162,7 @@ const renderChatHistory = () => {
                           }
                           lang={targetLang}
                           style={{
-                            fontSize: getFontSize(), // UPDATED
+                            fontSize: getFontSize(),
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
                             background: "#ffffff",
@@ -1165,7 +1185,7 @@ const renderChatHistory = () => {
                             handleTextChange(e, index, message, "output")
                           }
                           style={{
-                            fontSize: getFontSize(), // UPDATED
+                            fontSize: getFontSize(),
                             width: "100%",
                             borderRadius: "12px 12px 0 12px",
                             color: grey[900],
@@ -1190,8 +1210,8 @@ const renderChatHistory = () => {
                               key={segIdx}
                               children={linkifyText(segment?.value || "")}
                               components={{
-                                p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.3rem 0'}} {...props} />, // UPDATED
-                                a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
+                                p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.5rem 0' }} {...props} />, // UPDATED
+                                a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                               }}
                             />
                           </div>
@@ -1206,7 +1226,7 @@ const renderChatHistory = () => {
                       customStyle={{ 
                         padding: "0.8rem",
                         borderRadius: "5px",
-                        fontSize: getFontSize() // UPDATED
+                        fontSize: getFontSize()
                       }}
                     >
                       {segment.value}
@@ -1294,436 +1314,435 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
         </Modal>
       </>
     );
-  };
-
-  if (!isMounted) {
+  };  if (!isMounted) {
     return null;
   }
-return (
-  <>
-    {renderSnackBar()}
-    <Box
-    ref={containerRef}
-      sx={{
-               display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        width: "100%",
-        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
-        overflow: "hidden",
-        position: { xs: "fixed", md: "relative" },
-        top: { xs: "150px", md: "0" },
-        left: { xs: 0, md: "0" },
-        right: { xs: 0, md: "0" },
-        bottom: { xs: "0", md: "0" },
-        zIndex: { xs: 1000, md: "0" },
-
-      }}
-    >
-      {/* Instruction Panel */}
+  return (
+    <>
+      {renderSnackBar()}
       <Box
-        ref={instructionPanelRef}
+        ref={containerRef}
         sx={{
-          width: {
-            xs: "100%",
-            md: isInstructionExpanded ? `${instructionWidth}%` : "40px"
-          },
-          height: {
-            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px",
-            md: "100%"
-          },
-          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
-          transition: "all 0.3s ease",
-          padding: isInstructionExpanded ? "1rem" : "0px",
-          paddingBottom: "0rem!important",
-          paddingTop: isInstructionExpanded ? "0.3rem!important" : "0.5rem!important",
-          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          backgroundColor: "#fafafa",
-          overflowY: "auto",
-          overflowX: "hidden",
           display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-          position: "relative",
+          flexDirection: { xs: "column", md: "row" },
+          width: "100%",
+          height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
+          overflow: "hidden",
+          position: { xs: "fixed", md: "relative" },
+          top: { xs: "150px", md: "0" },
+          left: { xs: 0, md: "0" },
+          right: { xs: 0, md: "0" },
+          bottom: { xs: "0", md: "0" },
+          zIndex: { xs: 1000, md: "0" },
+
         }}
       >
-        {isInstructionExpanded && window.innerWidth >= 768 && (
-          <Box
-            onMouseDown={!isPinned ? startDragging : undefined}
-            sx={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              width: '6px',
-              height: '100%',
-              cursor: !isPinned ? 'col-resize' : 'default',
-              backgroundColor: 'transparent',
-              zIndex: 10,
-              ...(!isPinned && {
-                '&:hover': {
-                  backgroundColor: 'rgba(238, 102, 51, 0.2)',
-                },
-                '&:active': {
-                  backgroundColor: 'rgba(238, 102, 51, 0.3)',
-                },
-              }),
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                right: '2px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '4px',
-                height: '40px',
-                backgroundColor: !isPinned ? '#EE6633' : '#B0B0B0',
-                borderRadius: '2px',
-                opacity: !isPinned ? 0.6 : 0.4,
-              }
-            }}
-          />
-        )}        <Box
+        {/* Instruction Panel */}
+        <Box
+          ref={instructionPanelRef}
           sx={{
+            width: {
+              xs: "100%",
+              md: isInstructionExpanded ? `${instructionWidth}%` : "40px"
+            },
+            height: {
+              xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px",
+              md: "100%"
+            },
+            maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+            transition: "all 0.3s ease",
+            padding: isInstructionExpanded ? "1rem" : "0px",
+            paddingBottom: "0rem!important",
+            paddingTop: isInstructionExpanded ? "0.3rem!important" : "0.5rem!important",
+            borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+            backgroundColor: "#fafafa",
+            overflowY: "auto",
+            overflowX: "hidden",
             display: "flex",
-            alignItems: "center",
-            justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
-            padding: isInstructionExpanded ? "0.5rem" : 0,
-            backgroundColor: isInstructionExpanded ? "rgba(247, 184, 171, 0.2)" : "transparent",
-            borderRadius: "8px",
-            cursor: "pointer",
-            minHeight: "40px",
+            flexDirection: "column",
             flexShrink: 0,
+            position: "relative",
           }}
-          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
-          {isInstructionExpanded && (
-            <Typography
-              variant="h6"
+          {isInstructionExpanded && window.innerWidth >= 768 && (
+            <Box
+              onMouseDown={!isPinned ? startDragging : undefined}
               sx={{
-                color: "#636363",
-                fontWeight: "600",
-                fontSize: "1rem",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                flexShrink: 1,
-                minWidth: 0,
-                marginRight: "0.5rem"
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                width: '6px',
+                height: '100%',
+                cursor: !isPinned ? 'col-resize' : 'default',
+                backgroundColor: 'transparent',
+                zIndex: 10,
+                ...(!isPinned && {
+                  '&:hover': {
+                    backgroundColor: 'rgba(238, 102, 51, 0.2)',
+                  },
+                  '&:active': {
+                    backgroundColor: 'rgba(238, 102, 51, 0.3)',
+                  },
+                }),
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '4px',
+                  height: '40px',
+                  backgroundColor: !isPinned ? '#EE6633' : '#B0B0B0',
+                  borderRadius: '2px',
+                  opacity: !isPinned ? 0.6 : 0.4,
+                }
               }}
-            >
-              {translate("typography.instructions")}
-            </Typography>
-          )}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+            />
+          )}        <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isInstructionExpanded ? "space-between" : "center",
+              marginBottom: isInstructionExpanded ? "1rem" : 0,
+              padding: isInstructionExpanded ? "0.5rem" : 0,
+              backgroundColor: isInstructionExpanded ? "rgba(247, 184, 171, 0.2)" : "transparent",
+              borderRadius: "8px",
+              cursor: "pointer",
+              minHeight: "40px",
+              flexShrink: 0,
+            }}
+            onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
+          >
             {isInstructionExpanded && (
-              <>
-                <Tooltip
-                  title={
-                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      {isPinned ? "Unpin panel width" : "Pin panel width"}
-                    </span>
-                  }
-                >
-                  <IconButton
-                    size="small"
-                    onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
-                    sx={{ padding: "4px", minWidth: "auto" }}
-                  >
-                    {isPinned
-                      ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                      : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
-                  </IconButton>
-                </Tooltip>
-                <Tooltip
-                  title={
-                    <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                      Reset panel width
-                    </span>
-                  }
-                >
-                  <IconButton
-                    size="small"
-                    onClick={handleResetPanelWidth}
-                    sx={{ padding: "4px", minWidth: "auto" }}
-                  >
-                    <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-            <Tooltip
-              title={
-                <span style={{ fontFamily: "Roboto, sans-serif" }}>
-                  {isInstructionExpanded ? "Collapse" : "Expand"}
-                </span>
-              }
-            >
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsInstructionExpanded(!isInstructionExpanded);
-                }}
+              <Typography
+                variant="h6"
                 sx={{
-                  padding: isInstructionExpanded ? '8px' : '4px',
-                  minWidth: 'auto'
+                  color: "#636363",
+                  fontWeight: "600",
+                  fontSize: "1rem",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  flexShrink: 1,
+                  minWidth: 0,
+                  marginRight: "0.5rem"
                 }}
               >
-                {isInstructionExpanded ? (
-                  <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                ) : (
-                  <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-
-        {/* Font size slider — shown when expanded */}
-        {isInstructionExpanded && (
-          <FontSizeSlider
-            value={fontSize}
-            containerRef={containerRef}
-            onCommit={(newVal) => {
-              setFontSize(newVal);
-              saveAnnotationUIPref({ annotation_font_size: newVal });
-            }}
-            onReset={() => handleResetFontSize()}
-          />
-        )}
-
-        {isInstructionExpanded && (
-          <Box
-            sx={{
-              flex: 1,
-              overflow: "auto",
-              padding: "0.5rem",
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "1rem",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                marginBottom: "1rem",
-              }}
-            >
-              <ReactMarkdown
-                className="flex-col"
-                children={info?.instruction_data ? linkifyText(info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ')) : ""}
-                components={{
-                  p: ({node, ...props}) => <p style={{fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
-                  a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
-                }}
-              />
+                {translate("typography.instructions")}
+              </Typography>
+            )}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+              {isInstructionExpanded && (
+                <>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        {isPinned ? "Unpin panel width" : "Pin panel width"}
+                      </span>
+                    }
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      {isPinned
+                        ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                        : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        Reset panel width
+                      </span>
+                    }
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={handleResetPanelWidth}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+              <Tooltip
+                title={
+                  <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                    {isInstructionExpanded ? "Collapse" : "Expand"}
+                  </span>
+                }
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsInstructionExpanded(!isInstructionExpanded);
+                  }}
+                  sx={{
+                    padding: isInstructionExpanded ? '8px' : '4px',
+                    minWidth: 'auto'
+                  }}
+                >
+                  {isInstructionExpanded ? (
+                    <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  ) : (
+                    <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Box>
+          </Box>
 
-            {/* Metadata Information Section - Now directly in the panel */}
+          {/* Font size slider — shown when expanded */}
+          {isInstructionExpanded && (
+            <FontSizeSlider
+              value={fontSize}
+              containerRef={containerRef}
+              onCommit={(newVal) => {
+                setFontSize(newVal);
+                saveAnnotationUIPref({ annotation_font_size: newVal });
+              }}
+              onReset={() => handleResetFontSize()}
+            />
+          )}
+
+          {isInstructionExpanded && (
             <Box
               sx={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "1rem",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                border: "1px solid #e0e0e0",
+                flex: 1,
+                overflowY: "auto",
+                overflowX: "hidden",
+                padding: "0.5rem",
               }}
             >
-              {/* Hint Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `calc(${getFontSize()} + 0.1rem)`,
-                    mb: 1,
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  marginBottom: "1rem",
+                }}
+              >
+                <ReactMarkdown
+                  className="flex-col"
+                  children={info?.instruction_data ? linkifyText(info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ')) : ""}
+                  components={{
+                    p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0' }} {...props} />,
+                    a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
-                >
-                  {translate("modal.hint")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: `max(0.6rem, calc(${getFontSize()} - 0.05rem))`,
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #F18359",
-                  }}
-                >
-                  {info.hint || "No hints available"}
-                </Typography>
+                />
               </Box>
 
-              {/* Examples Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `calc(${getFontSize()} + 0.1rem)`,
-                    mb: 1,
-                  }}
-                >
-                  {translate("modal.examples")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontSize: `max(0.6rem, calc(${getFontSize()} - 0.05rem))`,
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #4CAF50",
-                  }}
-                >
-                  {info.examples || "No examples available"}
-                </Typography>
-              </Box>
+              {/* Metadata Information Section - Now directly in the panel */}
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  padding: "1rem",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                {/* Hint Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.hint")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #F18359",
+                    }}
+                  >
+                    {info.hint || "No hints available"}
+                  </Typography>
+                </Box>
 
-              {/* Additional Metadata Information */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                    fontSize: `calc(${getFontSize()} + 0.1rem)`,
-                    mb: 1,
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {info.meta_info_language && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: `max(0.6rem, calc(${getFontSize()} - 0.1rem))`, color: "#666" }}>
-                        Language: {info.meta_info_language}
-                      </Typography>
-                    </Box>
-                  )}
-                  {taskId && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: `max(0.6rem, calc(${getFontSize()} - 0.1rem))`, color: "#666" }}>
-                        Task ID: {taskId}
-                      </Typography>
-                    </Box>
-                  )}
+                {/* Examples Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.examples")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #4CAF50",
+                    }}
+                  >
+                    {info.examples || "No examples available"}
+                  </Typography>
+                </Box>
+
+                {/* Additional Metadata Information */}
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
+                      mb: 1,
+                    }}
+                  >
+                    Additional Information
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    {info.meta_info_language && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <CodeIcon fontSize="small" color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                          Language: {info.meta_info_language}
+                        </Typography>
+                      </Box>
+                    )}
+                    {taskId && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <AssignmentIcon fontSize="small" color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
+                          Task ID: {taskId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
-
-      {/* Chat Section */}
-      <Box
-        sx={{
-        flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          overflow: "hidden",
-          minWidth: 0,
-          paddingBottom:"0rem!important",
-        }}
-      >
-        <Box
-          sx={{
-               flex: 1,
-            overflowY: "auto",
-            padding: "1rem",
-            paddingBottom:"0rem!important",
-            background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
-            width: "100%",
-            minHeight: 0,
-          }}
-        >
-     <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center",
-            width: "100%",
-            maxWidth: "100%",
-            "& > *": {
-              maxWidth: "100%",
-              width: "100%"
-            }
-          }}>
-            {showChatContainer ? renderChatHistory() : null}
-          </Box>
-          <Box ref={bottomRef} sx={{ height: "1px" }} />
+          )}
         </Box>
-      </Box>
-    </Box>
 
-    {/* Full Width Textarea - Covers Entire Width */}
-    {stage !== "Alltask" && !disableUpdateButton ? (
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          width: "100vw", // Full viewport width
-          backgroundColor: "white",
-          borderTop: "1px solid #e0e0e0",
-          boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
-          py: "0.5rem",
-          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1300,
-          height: "70px",
-        }}
-      >
+        {/* Chat Section */}
         <Box
           sx={{
-            width: "100%",
-            maxWidth: "100%", // Always full width
-            mx: 0, // No margin
-            paddingLeft:"1rem",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            overflow: "hidden",
+            minWidth: 0,
+            paddingBottom: "0rem!important",
           }}
         >
-          <Textarea
-            handleButtonClick={handleButtonClick}
-            handleOnchange={handleOnchange}
-            size={10}
-            sx={{ 
-              width: "100%", 
-              margin: 0, 
-              padding: 0,
-              "& .MuiInputBase-root": {
-                height: "50px",
-                width: "100%",
-              },
-              "& textarea": {
-                  fontSize: getFontSize(), // UPDATED
-                width: "100%",
-              }
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "1rem",
+              paddingBottom: "0rem!important",
+              background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+              width: "100%",
+              minHeight: 0,
             }}
-            class_name={"w-full"}
-            loading={loading || chatLoading}
-            inputValue={inputValue}
-            overrideGT={true}
-            task_id={taskId}
-            script={info.meta_info_language}
-          />
+          >
+            <Box sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+              maxWidth: "100%",
+              "& > *": {
+                maxWidth: "100%",
+                width: "100%"
+              }
+            }}>
+              {showChatContainer ? renderChatHistory() : null}
+            </Box>
+            <Box ref={bottomRef} sx={{ height: "1px" }} />
+          </Box>
         </Box>
       </Box>
-    ) : null}
-  </>
-);
+
+      {/* Full Width Textarea - Covers Entire Width */}
+      {stage !== "Alltask" && !disableUpdateButton ? (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: "100vw", // Full viewport width
+            backgroundColor: "white",
+            borderTop: "1px solid #e0e0e0",
+            boxShadow: "0 -2px 8px rgba(0,0,0,0.05)",
+            py: "0.5rem",
+            px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1300,
+            height: "70px",
+          }}
+        >
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "100%", // Always full width
+              mx: 0, // No margin
+              paddingLeft: "1rem",
+            }}
+          >
+            <Textarea
+              handleButtonClick={handleButtonClick}
+              handleOnchange={handleOnchange}
+              size={10}
+              sx={{
+                width: "100%",
+                margin: 0,
+                padding: 0,
+                "& .MuiInputBase-root": {
+                  height: "50px",
+                  width: "100%",
+                },
+                "& textarea": {
+                  fontSize: getFontSize(),
+                  width: "100%",
+                }
+              }}
+              class_name={"w-full"}
+              loading={loading || chatLoading}
+              inputValue={inputValue}
+              overrideGT={true}
+              task_id={taskId}
+              script={info.meta_info_language}
+            />
+          </Box>
+        </Box>
+      ) : null}
+    </>
+  );
 };
 export default InstructionDrivenChatPage;
