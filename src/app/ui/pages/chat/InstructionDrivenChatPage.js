@@ -159,6 +159,18 @@ const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
   );
 });
 
+const isErrorOutput = (value) => {
+  if (typeof value !== "string") return false;
+  const lower = value.toLowerCase();
+  return (
+    lower.startsWith("[error]") ||
+    lower.includes("temporarily unavailable") ||
+    lower.includes("encountered an error") ||
+    lower.includes("streaming timed out") ||
+    lower.includes("failed to generate a response")
+  );
+};
+
 const InstructionDrivenChatPage = ({
   chatHistory,
   setChatHistory,
@@ -505,7 +517,14 @@ const InstructionDrivenChatPage = ({
     }
   }
 
-    if (!isSendInFlightRef.current && !pendingResendPrompt) {
+    const hasLocalError = chatHistoryRef.current && chatHistoryRef.current.length > 0 && (
+      typeof chatHistoryRef.current[chatHistoryRef.current.length - 1]?.output === "string" 
+        ? isErrorOutput(chatHistoryRef.current[chatHistoryRef.current.length - 1].output)
+        : (Array.isArray(chatHistoryRef.current[chatHistoryRef.current.length - 1]?.output) && 
+           isErrorOutput(chatHistoryRef.current[chatHistoryRef.current.length - 1].output.map(seg => seg.value || "").join("")))
+    );
+
+    if (!isSendInFlightRef.current && !pendingResendPrompt && !hasLocalError) {
       setChatHistory(modifiedChatHistory);
       setShowChatContainer(!!annotation[0]?.result);
     }
@@ -642,9 +661,19 @@ onToken: (token, fullText) => {
           message: `Streaming error: ${errMsg}`,
           variant: "error",
         });
+        setChatHistory((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0) {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              output: [{ type: "text", value: `[ERROR] ${errMsg}` }],
+            };
+          }
+          return updated;
+        });
         setChatLoading(false);
         setIsStreaming(false);
-        
       },
     });
 

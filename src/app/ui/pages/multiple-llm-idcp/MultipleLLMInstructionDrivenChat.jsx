@@ -172,6 +172,18 @@ const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
   );
 });
 
+const isErrorOutput = (value) => {
+  if (typeof value !== "string") return false;
+  const lower = value.toLowerCase();
+  return (
+    lower.startsWith("[error]") ||
+    lower.includes("temporarily unavailable") ||
+    lower.includes("encountered an error") ||
+    lower.includes("streaming timed out") ||
+    lower.includes("failed to generate a response")
+  );
+};
+
 const MultipleLLMInstructionDrivenChat = ({
   chatHistory,
   setChatHistory,
@@ -302,6 +314,7 @@ const MultipleLLMInstructionDrivenChat = ({
   useEffect(() => {
     chatHistoryRef.current = chatHistory;
   }, [chatHistory]);
+  const isDraggingRef = useRef(false);
 
   const saveAnnotationUIPref = useCallback((newPrefs) => {
     try {
@@ -631,7 +644,18 @@ const MultipleLLMInstructionDrivenChat = ({
       }
     }
 
-    if (!isSendInFlightRef.current && !pendingResendPromptMulti) {
+    const hasLocalError = chatHistoryRef.current && chatHistoryRef.current.length > 0 && (
+      Array.isArray(chatHistoryRef.current[chatHistoryRef.current.length - 1]?.output) &&
+      chatHistoryRef.current[chatHistoryRef.current.length - 1].output.some(
+        (modelOut) =>
+          modelOut.status === "error" ||
+          (Array.isArray(modelOut.output) &&
+           modelOut.output[0]?.value &&
+           isErrorOutput(modelOut.output[0].value))
+      )
+    );
+
+    if (!isSendInFlightRef.current && !pendingResendPromptMulti && !hasLocalError) {
       setChatHistory(modifiedChatHistory);
       setShowChatContainer(!!annotation?.[0]?.result);
     }
@@ -788,6 +812,22 @@ const MultipleLLMInstructionDrivenChat = ({
               open: true,
               message: `Streaming error: ${errMsg}`,
               variant: "error",
+            });
+            setChatHistory((prev) => {
+              const updated = [...prev];
+              const lastIdx = updated.length - 1;
+              if (lastIdx >= 0) {
+                const lastEntry = { ...updated[lastIdx] };
+                lastEntry.output = lastEntry.output.map((modelOutput) => {
+                  return {
+                    ...modelOutput,
+                    output: [{ type: "text", value: `[ERROR] ${errMsg}` }],
+                    status: "error",
+                  };
+                });
+                updated[lastIdx] = lastEntry;
+              }
+              return updated;
             });
             setChatLoading(false);
             setIsStreaming(false);

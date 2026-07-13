@@ -16,6 +16,19 @@ import configs from "@/config/config";
  *     onError: (errorMsg) => { ... },      // called on error
  *   });
  */
+const cleanErrorMessage = (msg) => {
+  if (!msg) return "";
+  const str = String(msg);
+  if (str.includes("402") || str.includes("Payment Required") || str.includes("status 402")) {
+    console.error("Actual 402 error logged:", msg);
+    return "The model is temporarily unavailable";
+  }
+  if (str.includes("EngineCore encountered") || str.includes("EngineCore encountered an issue")) {
+    return "The model is temporarily unavailable — please resend.";
+  }
+  return str;
+};
+
 export default function useStreamingLLM() {
   const abortControllerRef = useRef(null);
 
@@ -53,6 +66,9 @@ export default function useStreamingLLM() {
         });
 
         if (!response.ok) {
+          if (response.status === 402) {
+            throw new Error("402: The model is temporarily unavailable");
+          }
           throw new Error(`Stream request failed with status ${response.status}`);
         }
 
@@ -92,7 +108,7 @@ export default function useStreamingLLM() {
               }
 
               if (parsed.error) {
-                if (onError) onError(parsed.error);
+                if (onError) onError(cleanErrorMessage(parsed.error));
                 return null;
               }
 
@@ -117,7 +133,7 @@ export default function useStreamingLLM() {
           // Stream was intentionally aborted
           return null;
         }
-        if (onError) onError(err.message);
+        if (onError) onError(cleanErrorMessage(err.message));
         return null;
       } finally {
         if (abortControllerRef.current === controller) {
@@ -184,6 +200,9 @@ export default function useStreamingLLM() {
         });
 
         if (!response.ok) {
+          if (response.status === 402) {
+            throw new Error("402: The model is temporarily unavailable");
+          }
           throw new Error(`Multi-model stream request failed with status ${response.status}`);
         }
 
@@ -223,14 +242,15 @@ export default function useStreamingLLM() {
 
               if (parsed.error && !parsed.model) {
                 // Global error
-                if (onError) onError(parsed.error);
+                if (onError) onError(cleanErrorMessage(parsed.error));
                 return null;
               }
 
               if (parsed.error && parsed.model) {
                 // Per-model error
-                modelTexts[parsed.model] = `[ERROR] ${parsed.error}`;
-                if (onToken) onToken(parsed.model, `[ERROR] ${parsed.error}`, modelTexts[parsed.model]);
+                const cleanedErr = cleanErrorMessage(parsed.error);
+                modelTexts[parsed.model] = `[ERROR] ${cleanedErr}`;
+                if (onToken) onToken(parsed.model, `[ERROR] ${cleanedErr}`, modelTexts[parsed.model]);
                 continue;
               }
 
@@ -255,7 +275,7 @@ export default function useStreamingLLM() {
         return modelTexts;
       } catch (err) {
         if (err.name === "AbortError") return null;
-        if (onError) onError(err.message);
+        if (onError) onError(cleanErrorMessage(err.message));
         return null;
       } finally {
         if (abortControllerRef.current === controller) {
