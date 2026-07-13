@@ -3799,7 +3799,6 @@ const MultipleLLMInstructionDrivenChat = ({
                   children={info?.instruction_data ? info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ') : ""}
                   components={{
                     p: ({node, ...props}) => <p style={{fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
-                    a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
               </Box>
