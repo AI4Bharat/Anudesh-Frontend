@@ -3794,9 +3794,13 @@ const MultipleLLMInstructionDrivenChat = ({
             <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
               {/* Main Instructions */}
               <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-                <Typography paragraph sx={{ fontSize: getFontSize(), lineHeight: "1.5", color: "#333" }}>
-                  {info.instruction_data}
-                </Typography>
+                <ReactMarkdown
+                  className="flex-col"
+                  children={info?.instruction_data ? info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ') : ""}
+                  components={{
+                    p: ({node, ...props}) => <p style={{fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0'}} {...props} />,
+                  }}
+                />
               </Box>
 
               {/* Metadata Information - Now directly in the panel */}
