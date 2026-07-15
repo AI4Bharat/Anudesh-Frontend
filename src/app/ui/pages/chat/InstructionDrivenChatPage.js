@@ -713,13 +713,15 @@ onToken: (token, fullText) => {
       
       if (streamedText) {
         // Construct the full history array for the backend so it doesn't re-trigger LLM generation
+        const previousHistory = chatHistoryRef.current.slice(0, -1).map((chat) => ({
+          prompt: chat.prompt,
+          output: typeof chat.output === "string"
+            ? chat.output
+            : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+        }));
+
         const fullHistoryPayload = [
-          ...chatHistoryRef.current.map((chat) => ({
-            prompt: chat.prompt,
-            output: typeof chat.output === "string"
-              ? chat.output
-              : chat.output?.map?.((seg) => seg.value || "").join("") || "",
-          })),
+          ...previousHistory,
           {
             prompt: currentPrompt,
             output: streamedText,
