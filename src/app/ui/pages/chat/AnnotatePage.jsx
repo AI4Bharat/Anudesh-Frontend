@@ -130,17 +130,38 @@ const AnnotatePage = () => {
   const [isModelFailing, setIsModelFailing] = useState(false);
   const [isModelStreaming, setIsModelStreaming] = useState(false);
 
-  const hasEmptyResponse = (() => {
+  const isErrorOutput = (value) => {
+    if (typeof value !== "string") return false;
+    const lower = value.toLowerCase();
+    return (
+      lower.startsWith("[error]") ||
+      lower.includes("temporarily unavailable") ||
+      lower.includes("encountered an error") ||
+      lower.includes("streaming timed out") ||
+      lower.includes("failed to generate a response")
+    );
+  };
+
+  const hasEmptyOrErrorResponse = (() => {
     if (!chatHistory || chatHistory.length === 0) return false;
-    let empty = false;
+    let invalid = false;
     chatHistory.forEach((turn) => {
       if (ProjectDetails?.project_type === "InstructionDrivenChat") {
-        if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
-          empty = true;
+        if (!turn.output) {
+          invalid = true;
+        } else if (typeof turn.output === "string") {
+          if (turn.output.trim() === "" || isErrorOutput(turn.output)) {
+            invalid = true;
+          }
+        } else if (Array.isArray(turn.output)) {
+          const text = turn.output.map((seg) => seg.value || "").join("");
+          if (text.trim() === "" || isErrorOutput(text)) {
+            invalid = true;
+          }
         }
       } else if (ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") {
         if (!turn.output || !Array.isArray(turn.output)) {
-          empty = true;
+          invalid = true;
         } else {
           turn.output.forEach((modelResp) => {
             if (
@@ -148,18 +169,20 @@ const AnnotatePage = () => {
               !Array.isArray(modelResp.output) ||
               !modelResp.output[0] ||
               typeof modelResp.output[0].value !== "string" ||
-              modelResp.output[0].value.trim() === ""
+              modelResp.output[0].value.trim() === "" ||
+              isErrorOutput(modelResp.output[0].value) ||
+              modelResp.status === "error"
             ) {
-              empty = true;
+              invalid = true;
             }
           });
         }
       }
     });
-    return empty;
+    return invalid;
   })();
 
-  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyResponse) && !ProjectDetails?.metadata_json?.blank_response);
+  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyOrErrorResponse) && !ProjectDetails?.metadata_json?.blank_response);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
