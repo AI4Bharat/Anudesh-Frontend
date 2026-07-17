@@ -616,6 +616,87 @@ const handleButtonClick = async (promptOverride, retry = false) => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
 
+    const isBlankResponse = !!ProjectDetails?.metadata_json?.blank_response;
+
+    if (isBlankResponse) {
+      const previousHistory = chatHistoryRef.current.map((chat) => ({
+        prompt: chat.prompt,
+        output: typeof chat.output === "string"
+          ? chat.output
+          : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+      }));
+
+      const fullHistoryPayload = [
+        ...previousHistory,
+        {
+          prompt: currentPrompt,
+          output: "",
+        }
+      ];
+
+      const body = {
+        result: fullHistoryPayload,
+        retry,
+        lead_time:
+          (new Date() - loadtime) / 1000 +
+          Number(id?.lead_time?.lead_time ?? 0),
+        auto_save: true,
+        task_id: taskId,
+      };
+      if (stage === "Alltask") {
+        body.annotation_status = id?.annotation_status;
+      } else {
+        body.annotation_status = localStorage.getItem("labellingMode");
+      }
+      if (stage === "Review") {
+        body.review_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else if (stage === "SuperChecker") {
+        body.superchecker_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      } else {
+        body.annotation_notes = JSON.stringify(
+          notes?.current?.getEditor().getContents(),
+        );
+      }
+      if (stage === "Review" || stage === "SuperChecker") {
+        body.parentannotation = id?.parent_annotation;
+      }
+
+      try {
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
+
+        if (data && data.result) {
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        }
+      } catch (error) {
+        console.error("Error saving blank response:", error);
+      } finally {
+        setChatLoading(false);
+        setIsStreaming(false);
+        isSendInFlightRef.current = false;
+        setIsPolling(false);
+        setPollingCount(0);
+      }
+      return;
+    }
+
     // Build the history for the streaming endpoint (previous turns only)
     const streamHistory = chatHistoryRef.current
       .map((chat) => ({
@@ -1183,7 +1264,7 @@ const renderChatHistory = () => {
               <Grid item xs={11} style={{ paddingTop: "0rem" }}>
                 {message?.output.map((segment, segIdx) =>
                   segment.type === 'text' ? (
-                    ((ProjectDetails?.metadata_json?.editable_response) || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
+                    ((ProjectDetails?.metadata_json?.editable_response) || (segment.value == "" && !ProjectDetails?.metadata_json?.blank_response)) && !(isStreaming && index === chatHistory.length - 1) ? (
                       globalTransliteration === "true" ? (
                         <IndicTransliterate
                           key={index}
