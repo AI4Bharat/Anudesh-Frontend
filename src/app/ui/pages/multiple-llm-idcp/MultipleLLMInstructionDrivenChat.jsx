@@ -184,6 +184,22 @@ const isErrorOutput = (value) => {
   );
 };
 
+const reverseFormatResponse = (formattedOutput) => {
+  let response = "";
+  if (typeof formattedOutput === "string") return formattedOutput;
+  if (Array.isArray(formattedOutput)) {
+    formattedOutput.forEach((item) => {
+      if (item.type === "text") {
+        response += item.value;
+      } else if (item.type === "code") {
+        response += "```" + item.language + "\n" + item.value + "\n```";
+      }
+    });
+  }
+  return response;
+};
+
+
 const MultipleLLMInstructionDrivenChat = ({
   chatHistory,
   setChatHistory,
@@ -747,10 +763,177 @@ const MultipleLLMInstructionDrivenChat = ({
       const currentPrompt = promptOverride ?? inputValue;
 
       if (isNewPrompt) {
+        isSendInFlightRef.current = true;
         // Get the models list from task data
         const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
         const rawModel = taskData?.data?.model;
         const modelsToRun = Array.isArray(rawModel) ? rawModel : (typeof rawModel === "string" ? [rawModel] : []);
+
+        const isBlankResponse = !!ProjectDetails?.metadata_json?.blank_response;
+
+        if (isBlankResponse) {
+          const generatedPairId = generateUniquePromptOutputPairId();
+          const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
+            model_id: modelName,
+            model_name: modelName,
+            output: [{ type: "text", value: "" }],
+            status: "success",
+            prompt_output_pair_id: generatedPairId,
+          }));
+
+          const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: generatedPairId };
+          const optimisticHistory = [...chatHistoryRef.current, optimisticEntry];
+          setChatHistory(optimisticHistory);
+          localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
+          setShowChatContainer(true);
+
+          const body = {
+            result: currentPrompt,
+            lead_time:
+              (new Date() - loadtime) / 1000 +
+              Number(id?.lead_time?.lead_time ?? 0),
+            auto_save: true,
+            task_id: taskId,
+            prompt_output_pair_id: generatedPairId,
+          };
+
+          if (stage === "Alltask") {
+            body.annotation_status = id?.annotation_status;
+          } else {
+            body.annotation_status = localStorage.getItem("labellingMode");
+          }
+          if (stage === "Review") {
+            body.review_notes = JSON.stringify(
+              notes?.current?.getEditor().getContents(),
+            );
+          } else if (stage === "SuperChecker") {
+            body.superchecker_notes = JSON.stringify(
+              notes?.current?.getEditor().getContents(),
+            );
+          } else {
+            body.annotation_notes = JSON.stringify(
+              notes?.current?.getEditor().getContents(),
+            );
+          }
+          if (stage === "Review" || stage === "SuperChecker") {
+            body.parentannotation = id?.parent_annotation;
+          }
+
+          try {
+            const modelMap = {};
+            chatHistoryRef.current.forEach((entry) => {
+              if (Array.isArray(entry.output)) {
+                entry.output.forEach((modelResp) => {
+                  const modelName = modelResp.model_name || modelResp.model_id;
+                  if (modelName) {
+                    if (!modelMap[modelName]) {
+                      modelMap[modelName] = [];
+                    }
+                    modelMap[modelName].push({
+                      prompt: entry.prompt,
+                      output: reverseFormatResponse(modelResp.output),
+                      preferred_response: false,
+                      prompt_output_pair_id: modelResp.prompt_output_pair_id
+                    });
+                  }
+                });
+              }
+            });
+
+            // Append the new blank response for each model to run
+            modelsToRun.forEach((modelName) => {
+              if (!modelMap[modelName]) {
+                modelMap[modelName] = [];
+              }
+              modelMap[modelName].push({
+                prompt: currentPrompt,
+                output: "",
+                preferred_response: false,
+                prompt_output_pair_id: generatedPairId
+              });
+            });
+
+            const newModelInteractions = Object.entries(modelMap).map(([model_name, interaction_json]) => ({
+              model_name,
+              model_id: model_name,
+              interaction_json
+            }));
+
+            const evalForm = submittedEvalForms ? Object.values(submittedEvalForms) : [];
+
+            body.result = [{
+              eval_form: evalForm,
+              model_interactions: newModelInteractions
+            }];
+
+
+            const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+            const res = await fetch(AnnotationObj.apiEndPoint(), {
+              method: "PATCH",
+              body: JSON.stringify(AnnotationObj.getBody()),
+              headers: AnnotationObj.getHeaders().headers,
+            });
+            const data = await res.json();
+
+            if (data && data.result) {
+              const allModelsInteractions = data?.result?.[0]?.model_interactions;
+              if (
+                allModelsInteractions &&
+                Array.isArray(allModelsInteractions) &&
+                allModelsInteractions.length > 0
+              ) {
+                const interactions_length = Math.max(
+                  ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+                  0
+                );
+                let modifiedChatHistory = [];
+                for (let i = 0; i < interactions_length; i++) {
+                  const prompt = allModelsInteractions.find(
+                    (m) => m?.interaction_json?.[i]?.prompt
+                  )?.interaction_json?.[i]?.prompt;
+                  const modelOutputs = [];
+                  let turnPromptOutputPairId = null;
+
+                  allModelsInteractions.forEach((modelData, modelIdx) => {
+                    const interaction = modelData?.interaction_json?.[i];
+                    if (interaction) {
+                      if (modelIdx === 0) {
+                        turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                      }
+
+                      modelOutputs.push({
+                        model_id: modelData?.model_id || modelData?.model_name,
+                        model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                        output: formatResponse(interaction?.output),
+                        status: "success",
+                        prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                        output_error: null,
+                      });
+                    }
+                  });
+
+                  if (prompt !== undefined && modelOutputs.length > 0) {
+                    modifiedChatHistory.push({
+                      prompt: prompt,
+                      output: modelOutputs,
+                      prompt_output_pair_id: turnPromptOutputPairId,
+                    });
+                  }
+                }
+                setChatHistory([...modifiedChatHistory]);
+              }
+              localStorage.removeItem(`in_progress_chat_${taskId}`);
+            }
+          } catch (error) {
+            console.error("Error saving blank responses multi:", error);
+          } finally {
+            isSendInFlightRef.current = false;
+            setChatLoading(false);
+            setIsStreaming(false);
+            setLoading(false);
+          }
+          return;
+        }
 
         // Create optimistic output entries for each model (empty, will be filled by stream)
         const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
@@ -768,9 +951,33 @@ const MultipleLLMInstructionDrivenChat = ({
         setShowChatContainer(true);
         setIsStreaming(true);
 
-        // Build the model_interactions history for the streaming endpoint
-        const annotationResult = annotation?.[0]?.result;
-        const modelInteractions = annotationResult?.[0]?.model_interactions || [];
+        // Build the model_interactions history dynamically from chatHistoryRef.current
+        const modelMap = {};
+        chatHistoryRef.current.forEach((entry) => {
+          if (Array.isArray(entry.output)) {
+            entry.output.forEach((modelResp) => {
+              const modelName = modelResp.model_name || modelResp.model_id;
+              if (modelName) {
+                if (!modelMap[modelName]) {
+                  modelMap[modelName] = [];
+                }
+                modelMap[modelName].push({
+                  prompt: entry.prompt,
+                  output: reverseFormatResponse(modelResp.output),
+                  preferred_response: false,
+                  prompt_output_pair_id: modelResp.prompt_output_pair_id
+                });
+              }
+            });
+          }
+        });
+
+        const modelInteractions = Object.entries(modelMap).map(([model_name, interaction_json]) => ({
+          model_name,
+          model_id: model_name,
+          interaction_json
+        }));
+
 
 
 
@@ -872,17 +1079,33 @@ const MultipleLLMInstructionDrivenChat = ({
           const streamedTexts = await streamPromise;
 
           if (streamedTexts) {
-            const currentAnnotationResult = annotation?.[0]?.result?.[0] || { eval_form: [], model_interactions: [] };
-            // Deep clone model_interactions
-            const newModelInteractions = JSON.parse(JSON.stringify(currentAnnotationResult.model_interactions || []));
-
-            Object.entries(streamedTexts).forEach(([modelName, text]) => {
-              let modelEntry = newModelInteractions.find(m => m.model_name === modelName || m.model_id === modelName);
-              if (!modelEntry) {
-                modelEntry = { model_name: modelName, model_id: modelName, interaction_json: [] };
-                newModelInteractions.push(modelEntry);
+            const modelMap = {};
+            // 1. Process all previous turns from chatHistoryRef.current (excluding the current turn which is the last entry)
+            chatHistoryRef.current.slice(0, -1).forEach((entry) => {
+              if (Array.isArray(entry.output)) {
+                entry.output.forEach((modelResp) => {
+                  const modelName = modelResp.model_name || modelResp.model_id;
+                  if (modelName) {
+                    if (!modelMap[modelName]) {
+                      modelMap[modelName] = [];
+                    }
+                    modelMap[modelName].push({
+                      prompt: entry.prompt,
+                      output: reverseFormatResponse(modelResp.output),
+                      preferred_response: false,
+                      prompt_output_pair_id: modelResp.prompt_output_pair_id
+                    });
+                  }
+                });
               }
-              modelEntry.interaction_json.push({
+            });
+
+            // 2. Append the current turn from streamedTexts
+            Object.entries(streamedTexts).forEach(([modelName, text]) => {
+              if (!modelMap[modelName]) {
+                modelMap[modelName] = [];
+              }
+              modelMap[modelName].push({
                 prompt: currentPrompt,
                 output: text,
                 preferred_response: false,
@@ -890,10 +1113,19 @@ const MultipleLLMInstructionDrivenChat = ({
               });
             });
 
+            const newModelInteractions = Object.entries(modelMap).map(([model_name, interaction_json]) => ({
+              model_name,
+              model_id: model_name,
+              interaction_json
+            }));
+
+            const evalForm = submittedEvalForms ? Object.values(submittedEvalForms) : [];
+
             body.result = [{
-              eval_form: currentAnnotationResult.eval_form,
+              eval_form: evalForm,
               model_interactions: newModelInteractions
             }];
+
 
             const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
             const res = await fetch(AnnotationObj.apiEndPoint(), {
@@ -1003,6 +1235,7 @@ const MultipleLLMInstructionDrivenChat = ({
           console.error("Error in multi-model chat save/stream operation:", error);
           localStorage.removeItem(`in_progress_chat_${taskId}`);
         } finally {
+          isSendInFlightRef.current = false;
           setChatLoading(false);
           setIsStreaming(false);
           setLoading(false);
@@ -2440,7 +2673,7 @@ const MultipleLLMInstructionDrivenChat = ({
 
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
-                                          (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
+                                          (ProjectDetails?.metadata_json?.editable_response || (segment.value == "" && !ProjectDetails?.metadata_json?.blank_response)) && !(isStreaming && index === chatHistory.length - 1) ? (
                                             globalTransliteration ? (
                                               <IndicTransliterate
                                                 key={segmentIdx}
@@ -2538,7 +2771,7 @@ const MultipleLLMInstructionDrivenChat = ({
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
-                                  (ProjectDetails?.metadata_json?.editable_response || segment.value == "") && !(isStreaming && index === chatHistory.length - 1) ? (
+                                  (ProjectDetails?.metadata_json?.editable_response || (segment.value == "" && !ProjectDetails?.metadata_json?.blank_response)) && !(isStreaming && index === chatHistory.length - 1) ? (
                                     globalTransliteration ? (
                                       <IndicTransliterate
                                         key={segmentIdx}
