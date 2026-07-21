@@ -174,15 +174,16 @@ const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
 
 const isErrorOutput = (value) => {
   if (typeof value !== "string") return false;
-  const lower = value.toLowerCase();
+  const lower = value.toLowerCase().trim();
   return (
     lower.startsWith("[error]") ||
-    lower.includes("temporarily unavailable") ||
-    lower.includes("encountered an error") ||
-    lower.includes("streaming timed out") ||
-    lower.includes("failed to generate a response")
+    lower.startsWith("the model is temporarily unavailable") ||
+    lower.startsWith("encountered an error") ||
+    lower.startsWith("streaming timed out") ||
+    lower.startsWith("failed to generate a response")
   );
 };
+
 
 const reverseFormatResponse = (formattedOutput) => {
   let response = "";
