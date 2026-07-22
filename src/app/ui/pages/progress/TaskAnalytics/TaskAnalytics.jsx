@@ -129,7 +129,7 @@ if(isWorkspaceLevel && submit==true){
   ]
 
   useEffect(() => {
-    let types=["ModelOutputEvaluation","ModelInteractionEvaluation","MultipleInteractionEvaluation","InstructionDrivenChat",'AllTypes']
+    let types=["ModelOutputEvaluation","ModelInteractionEvaluation","MultipleInteractionEvaluation","InstructionDrivenChat","MultipleLLMInstructionDrivenChat",'AllTypes']
     setProjectTypes(types);
   }, []);
 
