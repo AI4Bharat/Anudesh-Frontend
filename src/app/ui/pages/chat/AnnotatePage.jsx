@@ -91,6 +91,7 @@ const AnnotatePage = () => {
     variant: "success",
     severity: "",
   });
+  const [blankResponseSnackbar, setBlankResponseSnackbar] = useState(false);
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
@@ -205,6 +206,11 @@ const AnnotatePage = () => {
       });
     }
   }, [taskData]);
+  useEffect(() => {
+    if (ProjectDetails?.metadata_json?.blank_response) {
+      setBlankResponseSnackbar(true);
+    }
+  }, [ProjectDetails]);
 
   // Helper: load notes values into Quill editors from state
   const loadNotesIntoEditors = (annoValue, reviewValue) => {
@@ -1124,8 +1130,22 @@ const AnnotatePage = () => {
       />
     );
   };
+  const renderBlankResponseSnackbar = () => {
+    return (
+      <CustomizedSnackbars
+        open={blankResponseSnackbar}
+        handleClose={() => setBlankResponseSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        variant="info"
+        message="This project doesn't require model response. Please submit if the prompt is correct"
+        severity="info"
+      />
+    );
+  };
 
   const topref = useRef(null);
+
+ 
 
   return (
     <>
@@ -1133,6 +1153,7 @@ const AnnotatePage = () => {
       <div id="top" ref={topref}></div>
       <Grid container sx={{ overflow: "hidden" }}>
         {renderSnackBar()}
+        {renderBlankResponseSnackbar()}
 
         <Grid item xs={12} >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, margin: '0.5rem', flexWrap: 'wrap' }}>
