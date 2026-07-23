@@ -30,7 +30,6 @@ import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import MultipleLLMInstructionDrivenChat from "../multiple-llm-idcp/MultipleLLMInstructionDrivenChat";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
-import { MenuItem, Select } from "@mui/material";
 
 // eslint-disable-next-line react/display-name
 const ReactQuill = dynamic(
@@ -91,7 +90,6 @@ const AnnotatePage = () => {
     variant: "success",
     severity: "",
   });
-  const [blankResponseSnackbar, setBlankResponseSnackbar] = useState(false);
   const [disableSkipButton, setdisableSkipButton] = useState(false);
   const [filterMessage, setFilterMessage] = useState(null);
   const [autoSave, setAutoSave] = useState(true);
@@ -109,7 +107,6 @@ const AnnotatePage = () => {
   // ── useState replacements for the .value workaround on the refs ──
   const [annotationNotesValue, setAnnotationNotesValue] = useState("");
   const [reviewNotesValue, setReviewNotesValue] = useState("");
-  const notesInitializedRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
   const [disableButton, setDisableButton] = useState(false);
@@ -131,38 +128,17 @@ const AnnotatePage = () => {
   const [isModelFailing, setIsModelFailing] = useState(false);
   const [isModelStreaming, setIsModelStreaming] = useState(false);
 
-  const isErrorOutput = (value) => {
-    if (typeof value !== "string") return false;
-    const lower = value.toLowerCase().trim();
-    return (
-      lower.startsWith("[error]") ||
-      lower.startsWith("the model is temporarily unavailable") ||
-      lower.startsWith("encountered an error") ||
-      lower.startsWith("streaming timed out") ||
-      lower.startsWith("failed to generate a response")
-    );
-  };
-
-  const hasEmptyOrErrorResponse = (() => {
+  const hasEmptyResponse = (() => {
     if (!chatHistory || chatHistory.length === 0) return false;
-    let invalid = false;
+    let empty = false;
     chatHistory.forEach((turn) => {
       if (ProjectDetails?.project_type === "InstructionDrivenChat") {
-        if (!turn.output) {
-          invalid = true;
-        } else if (typeof turn.output === "string") {
-          if (turn.output.trim() === "" || isErrorOutput(turn.output)) {
-            invalid = true;
-          }
-        } else if (Array.isArray(turn.output)) {
-          const text = turn.output.map((seg) => seg.value || "").join("");
-          if (text.trim() === "" || isErrorOutput(text)) {
-            invalid = true;
-          }
+        if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
+          empty = true;
         }
       } else if (ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") {
         if (!turn.output || !Array.isArray(turn.output)) {
-          invalid = true;
+          empty = true;
         } else {
           turn.output.forEach((modelResp) => {
             if (
@@ -170,20 +146,18 @@ const AnnotatePage = () => {
               !Array.isArray(modelResp.output) ||
               !modelResp.output[0] ||
               typeof modelResp.output[0].value !== "string" ||
-              modelResp.output[0].value.trim() === "" ||
-              isErrorOutput(modelResp.output[0].value) ||
-              modelResp.status === "error"
+              modelResp.output[0].value.trim() === ""
             ) {
-              invalid = true;
+              empty = true;
             }
           });
         }
       }
     });
-    return invalid;
+    return empty;
   })();
 
-  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyOrErrorResponse) && !ProjectDetails?.metadata_json?.blank_response);
+  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyResponse) && !ProjectDetails?.metadata_json?.blank_response);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -206,11 +180,6 @@ const AnnotatePage = () => {
       });
     }
   }, [taskData]);
-  useEffect(() => {
-    if (ProjectDetails?.metadata_json?.blank_response) {
-      setBlankResponseSnackbar(true);
-    }
-  }, [ProjectDetails]);
 
   // Helper: load notes values into Quill editors from state
   const loadNotesIntoEditors = (annoValue, reviewValue) => {
@@ -270,8 +239,6 @@ const AnnotatePage = () => {
     };
 
     const check = () => {
-      if (notesInitializedRef.current === taskId) return;
-
       if (annotationNotesRef.current && reviewNotesRef.current) {
         init();
         clearTimeout(timeoutId);
@@ -288,7 +255,6 @@ const AnnotatePage = () => {
 
   useEffect(() => {
     resetNotes();
-    notesInitializedRef.current = null;
   }, [taskId]);
 
   useEffect(() => {
@@ -542,7 +508,7 @@ const AnnotatePage = () => {
     return !Array.isArray(result) ? [result] : result;
   };
 
-  const handleAnnotationClick = async (value, id, lead_time, type = "", isRetry = false) => {
+  const handleAnnotationClick = async (value, id, lead_time, type = "") => {
     if (value === "delete") {
       setEvalFormResponse();
       setSubmittedEvalForms();
@@ -678,19 +644,36 @@ const AnnotatePage = () => {
           setShowNotes(false);
           return;
         } else if (
-          (ProjectDetails.project_type == "InstructionDrivenChat" ||
-            ProjectDetails.project_type ==
-            "MultipleLLMInstructionDrivenChat") &&
-          chatHistory.length == 0
+          ProjectDetails.project_type == "InstructionDrivenChat" ||
+          ProjectDetails.project_type == "MultipleLLMInstructionDrivenChat"
         ) {
-          setSnackbarInfo({
-            open: true,
-            message: "Please enter prompt",
-            variant: "error",
-          });
-          setLoading(false);
-          setShowNotes(false);
-          return;
+          if (chatHistory.length == 0) {
+            setSnackbarInfo({
+              open: true,
+              message: "Please enter prompt",
+              variant: "error",
+            });
+            setLoading(false);
+            setShowNotes(false);
+            return;
+          }
+          
+          if (ProjectDetails.project_type == "InstructionDrivenChat" && !ProjectDetails?.metadata_json?.blank_response) {
+            const hasEmptyOutput = chatHistory.some(chat => {
+              const outputText = reverseFormatResponse(chat.output).trim();
+              return outputText === "";
+            });
+            if (hasEmptyOutput) {
+              setSnackbarInfo({
+                open: true,
+                message: "Output cannot be empty. Please provide an output or enable 'Blank Response' for this project.",
+                variant: "error",
+              });
+              setLoading(false);
+              setShowNotes(false);
+              return;
+            }
+          }
         }
       }
       const TaskObj = new PatchAnnotationAPI(id, PatchAPIdata);
@@ -825,11 +808,11 @@ const AnnotatePage = () => {
             await getAnnotationsTaskData(taskId),
             await getTaskData(taskId))
           : value === "delete-pair"
-            ? (!isRetry && setSnackbarInfo({
+            ? setSnackbarInfo({
               open: true,
               message: "Selected conversation is deleted",
               variant: "success",
-            }))
+            })
             : setSnackbarInfo({
               open: true,
               message: resp?.message,
@@ -1130,22 +1113,8 @@ const AnnotatePage = () => {
       />
     );
   };
-  const renderBlankResponseSnackbar = () => {
-    return (
-      <CustomizedSnackbars
-        open={blankResponseSnackbar}
-        handleClose={() => setBlankResponseSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        variant="info"
-        message="This project doesn't require model response. Please submit if the prompt is correct"
-        severity="info"
-      />
-    );
-  };
 
   const topref = useRef(null);
-
- 
 
   return (
     <>
@@ -1153,7 +1122,6 @@ const AnnotatePage = () => {
       <div id="top" ref={topref}></div>
       <Grid container sx={{ overflow: "hidden" }}>
         {renderSnackBar()}
-        {renderBlankResponseSnackbar()}
 
         <Grid item xs={12} >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, margin: '0.5rem', flexWrap: 'wrap' }}>
@@ -1194,6 +1162,8 @@ const AnnotatePage = () => {
             >
               Notes {reviewtext.trim().length === 0 ? "" : "*"}
             </Button>
+
+
             <LightTooltip
               title={
                 <div>
@@ -1361,7 +1331,7 @@ const AnnotatePage = () => {
                   <Button
                     variant="contained"
                     size="small"
-                    disabled={isSubmitDisabled}
+                    disabled={isSubmitDisabled || loading}
                     onClick={() => {
                       if (
                         ProjectDetails?.project_type ===
@@ -1420,17 +1390,15 @@ const AnnotatePage = () => {
                 setannotationtext(editor.getText());
               }}
             />
-            <div style={{ display: ProjectDetails?.project_stage >= 2 ? "block" : "none" }}>
-              <ReactQuill
-                forwardedRef={reviewNotesRef}
-                modules={modules}
-                formats={formats}
-                bounds={"#note"}
-                placeholder="Review Notes"
-                style={{ marginBottom: "8px", minHeight: "2rem" }}
-                readOnly={true}
-              ></ReactQuill>
-            </div>
+            <ReactQuill
+              forwardedRef={reviewNotesRef}
+              modules={modules}
+              formats={formats}
+              bounds={"#note"}
+              placeholder="Review Notes"
+              style={{ marginBottom: "8px", minHeight: "2rem" }}
+              readOnly={true}
+            />
           </div>
         </Grid>
 
@@ -1439,6 +1407,14 @@ const AnnotatePage = () => {
           <Grid item xs={12}>
             <Alert severity="info" sx={{ mx: 1, mb: 1 }}>
               {filterMessage}
+            </Alert>
+          </Grid>
+        )}
+         {/* Blank Response Notice */}
+        {ProjectDetails?.metadata_json?.blank_response && (
+          <Grid item xs={12}>
+            <Alert severity="info" sx={{ mx: 1, mb: 1 }}>
+              This project doesn't require model response. Please submit if the prompt is correct
             </Alert>
           </Grid>
         )}
