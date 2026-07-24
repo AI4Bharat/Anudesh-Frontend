@@ -1422,6 +1422,7 @@ const AnnotatePage = () => {
           </Grid>
         )}
 
+
         {/* Main Content */}
         <Grid item xs={12} sx={{ flex: 1, overflow: "hidden" }}>
           {componentToRender}
