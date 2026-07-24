@@ -206,7 +206,7 @@ const InstructionDrivenChatPage = ({
   const [chatLoading, setChatLoading] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingCount, setPollingCount] = useState(0);
-
+  
   useEffect(() => {
     let intervalId;
     if (isPolling) {
@@ -225,7 +225,7 @@ const InstructionDrivenChatPage = ({
       setIsPolling(false);
       setIsStreaming(false);
       setPollingCount(0);
-
+    
       setSnackbarInfo({
         open: true,
         message: "Streaming timed out. Please refresh the page.",
@@ -444,61 +444,61 @@ const InstructionDrivenChatPage = ({
       });
     }
 
+ 
+  if (!hasRecoveredInProgressChat.current) {
+    hasRecoveredInProgressChat.current = true;
 
-    if (!hasRecoveredInProgressChat.current) {
-      hasRecoveredInProgressChat.current = true;
+    const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
+    if (localInProgress) {
+      try {
+        const parsedLocal = JSON.parse(localInProgress);
+        const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
 
-      const localInProgress = localStorage.getItem(`in_progress_chat_single_${taskId}`);
-      if (localInProgress) {
-        try {
-          const parsedLocal = JSON.parse(localInProgress);
-          const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+        // Check if server has this prompt WITH a real non-empty response
+        const serverTurnWithValidResponse = modifiedChatHistory.find(
+          (c) =>
+            c.prompt === lastLocalPrompt &&
+            c.output &&
+            c.output.length > 0 &&
+            c.output[0]?.value &&
+            c.output[0].value.trim() !== ""
+        );
 
-          // Check if server has this prompt WITH a real non-empty response
-          const serverTurnWithValidResponse = modifiedChatHistory.find(
-            (c) =>
-              c.prompt === lastLocalPrompt &&
-              c.output &&
-              c.output.length > 0 &&
-              c.output[0]?.value &&
-              c.output[0].value.trim() !== ""
-          );
+       if (!serverTurnWithValidResponse) {
+  // The last recovered turn is the in-progress prompt whose response never
+  // finished streaming. Display only the already-completed prior turns and let
+  // the resend below re-append this prompt, so it renders once (streaming into a
+  // single turn) instead of twice — once as an empty-response placeholder and
+  // again as the streamed resend. Keeping it here would also duplicate it in the
+  // stream history and PATCH payload, which handleButtonClick builds from
+  // chatHistory assuming it holds previous turns only.
+  const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+  modifiedChatHistory = priorTurns;
+  setChatHistory(priorTurns);
 
-          if (!serverTurnWithValidResponse) {
-            // The last recovered turn is the in-progress prompt whose response never
-            // finished streaming. Display only the already-completed prior turns and let
-            // the resend below re-append this prompt, so it renders once (streaming into a
-            // single turn) instead of twice — once as an empty-response placeholder and
-            // again as the streamed resend. Keeping it here would also duplicate it in the
-            // stream history and PATCH payload, which handleButtonClick builds from
-            // chatHistory assuming it holds previous turns only.
-            const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
-            modifiedChatHistory = priorTurns;
-            setChatHistory(priorTurns);
+  setIsStreaming(true);
+  setIsPolling(true);
 
-            setIsStreaming(true);
-            setIsPolling(true);
-
-            setPendingResendPrompt(lastLocalPrompt);
-          } else {
-            localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-            setIsStreaming(false);
-            setIsPolling(false);
-            setPollingCount(0);
-          }
-        } catch (e) {
-          console.error(e);
+  setPendingResendPrompt(lastLocalPrompt);
+}else {
           localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+          setIsStreaming(false);
+          setIsPolling(false);
+          setPollingCount(0);
         }
+      } catch (e) {
+        console.error(e);
+        localStorage.removeItem(`in_progress_chat_single_${taskId}`);
       }
     }
+  }
 
-    if (!isSendInFlightRef.current) {
+   if (!isSendInFlightRef.current) {
       setChatHistory(modifiedChatHistory);
     }
     setAnnotationId(annotation[0]?.id);
     setShowChatContainer(!!annotation[0]?.result);
-  }, [annotation, taskId]);
+  }, [annotation,taskId]);
 
   const cleanMetaInfo = (value) =>
     value.replace(/\(for example:.*?\)/gi, "").trim();
@@ -548,199 +548,199 @@ const InstructionDrivenChatPage = ({
   };
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
-  const handleButtonClick = async (promptOverride, retry = false) => {
-    const prompt = promptOverride ?? inputValue;
-    if (prompt) {
-      isSendInFlightRef.current = true;
-      setChatLoading(true);
-      setIsStreaming(true);
+const handleButtonClick = async (promptOverride, retry = false) => {
+  const prompt = promptOverride ?? inputValue;
+  if (prompt) {
+    isSendInFlightRef.current = true;
+    setChatLoading(true);
+    setIsStreaming(true);
 
-      const currentPrompt = prompt;
+    const currentPrompt = prompt;
 
-      // Add optimistic entry with a streaming placeholder
-      let optimisticHistory = [];
+    // Add optimistic entry with a streaming placeholder
+ let optimisticHistory = [];
 
-      if (retry) {
-        // Replace only the last assistant response
-        optimisticHistory = [...chatHistory];
+  if (retry) {
+    // Replace only the last assistant response
+    optimisticHistory = [...chatHistory];
 
-        if (optimisticHistory.length > 0) {
-          optimisticHistory[optimisticHistory.length - 1] = {
-            ...optimisticHistory[optimisticHistory.length - 1],
-            output: [{ type: "text", value: "" }],
-          };
-        }
-      } else {
-        // Normal new prompt
-        optimisticHistory = [
-          ...chatHistory,
-          {
-            prompt: currentPrompt,
-            output: [{ type: "text", value: "" }],
-          },
-        ];
-      }
-
-      setChatHistory(optimisticHistory);
-      localStorage.setItem(
-        `in_progress_chat_single_${taskId}`,
-        JSON.stringify(optimisticHistory)
-      );
-
-      setShowChatContainer(true);
-
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-      // Build the history for the streaming endpoint (previous turns only)
-      const streamHistory = chatHistory.map((chat) => ({
-        prompt: chat.prompt,
-        output: typeof chat.output === "string"
-          ? chat.output
-          : chat.output?.map?.((seg) => seg.value || "").join("") || "",
-      }));
-
-      const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
-      const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
-
-      const streamPromise = streamResponse({
-        prompt: currentPrompt,
-        history: streamHistory,
-        model: model,
-        onToken: (token, fullText) => {
-          setIsPolling(false);
-          setPollingCount(0);
-          setChatHistory((prev) => {
-            const updated = [...prev];
-            const lastIdx = updated.length - 1;
-            if (lastIdx >= 0) {
-              updated[lastIdx] = {
-                ...updated[lastIdx],
-                output: [{ type: "text", value: fullText }],
-              };
-            }
-
-            localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
-            return updated;
-          });
-          // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
-          bottomRef.current?.scrollIntoView({ behavior: "auto" });
-        },
-        onError: (errMsg) => {
-          console.error("Streaming error:", errMsg);
-          setSnackbarInfo({
-            open: true,
-            message: `Streaming error: ${errMsg}`,
-            variant: "error",
-          });
-          setChatLoading(false);
-          setIsStreaming(false);
-
-        },
-      });
-
-      const body = {
-        result: currentPrompt,
-        retry,
-        lead_time:
-          (new Date() - loadtime) / 1000 +
-          Number(id?.lead_time?.lead_time ?? 0),
-        auto_save: true,
-        task_id: taskId,
+    if (optimisticHistory.length > 0) {
+      optimisticHistory[optimisticHistory.length - 1] = {
+        ...optimisticHistory[optimisticHistory.length - 1],
+        output: [{ type: "text", value: "" }],
       };
-      if (stage === "Alltask") {
-        body.annotation_status = id?.annotation_status;
-      } else {
-        body.annotation_status = localStorage.getItem("labellingMode");
-      }
-      if (stage === "Review") {
-        body.review_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else if (stage === "SuperChecker") {
-        body.superchecker_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      } else {
-        body.annotation_notes = JSON.stringify(
-          notes?.current?.getEditor().getContents(),
-        );
-      }
-      if (stage === "Review" || stage === "SuperChecker") {
-        body.parentannotation = id?.parent_annotation;
-      }
+    }
+  } else {
+    // Normal new prompt
+    optimisticHistory = [
+      ...chatHistory,
+      {
+        prompt: currentPrompt,
+        output: [{ type: "text", value: "" }],
+      },
+    ];
+  }
 
-      try {
-        const streamedText = await streamPromise;
+  setChatHistory(optimisticHistory);
+  localStorage.setItem(
+    `in_progress_chat_single_${taskId}`,
+    JSON.stringify(optimisticHistory)
+  );
 
-        if (streamedText) {
-          // Construct the full history array for the backend so it doesn't re-trigger LLM generation
-          const fullHistoryPayload = [
-            ...chatHistory.map((chat) => ({
-              prompt: chat.prompt,
-              output: typeof chat.output === "string"
-                ? chat.output
-                : chat.output?.map?.((seg) => seg.value || "").join("") || "",
-            })),
-            {
-              prompt: currentPrompt,
-              output: streamedText,
-            }
-          ];
-          body.result = fullHistoryPayload;
+  setShowChatContainer(true);
 
-          const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
-          const res = await fetch(AnnotationObj.apiEndPoint(), {
-            method: "PATCH",
-            body: JSON.stringify(AnnotationObj.getBody()),
-            headers: AnnotationObj.getHeaders().headers,
-          });
-          const data = await res.json();
+  setTimeout(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, 100);
+    // Build the history for the streaming endpoint (previous turns only)
+    const streamHistory = chatHistory.map((chat) => ({
+      prompt: chat.prompt,
+      output: typeof chat.output === "string"
+        ? chat.output
+        : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+    }));
 
-          if (data && data.result) {
-            const modifiedChatHistory = data.result.map((interaction, index) => {
-              const isLastInteraction = index === data.result.length - 1;
-              return {
-                ...interaction,
-                output: formatResponse(interaction.output, isLastInteraction),
-              };
-            });
-            setChatHistory([...modifiedChatHistory]);
-            // Only clear localStorage after server confirms successful save
-            localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-          } else if (!data) {
-            setSnackbarInfo({
-              open: true,
-              message: data?.message || "Failed to save LLM response",
-              variant: "error",
-            });
-            localStorage.removeItem(`in_progress_chat_single_${taskId}`);
-          }
-        }
-      } catch (error) {
-        console.error("Error in chat save/stream operation:", error);
-      } finally {
-        setChatLoading(false);
-        setIsStreaming(false);
-        isSendInFlightRef.current = false;
+    const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+    const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
+
+    const streamPromise = streamResponse({
+      prompt: currentPrompt,
+      history: streamHistory,
+      model: model,
+onToken: (token, fullText) => {
         setIsPolling(false);
         setPollingCount(0);
-      }
+        setChatHistory((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          if (lastIdx >= 0) {
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              output: [{ type: "text", value: fullText }],
+            };
+          }
+         
+          localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
+          return updated;
+        });
+        // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
+      },
+      onError: (errMsg) => {
+        console.error("Streaming error:", errMsg);
+        setSnackbarInfo({
+          open: true,
+          message: `Streaming error: ${errMsg}`,
+          variant: "error",
+        });
+        setChatLoading(false);
+        setIsStreaming(false);
+        
+      },
+    });
 
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 1000);
+    const body = {
+      result: currentPrompt,
+      retry,
+      lead_time:
+        (new Date() - loadtime) / 1000 +
+        Number(id?.lead_time?.lead_time ?? 0),
+      auto_save: true,
+      task_id: taskId,
+    };
+    if (stage === "Alltask") {
+      body.annotation_status = id?.annotation_status;
     } else {
-      setSnackbarInfo({
-        open: true,
-        message: "Please provide a prompt",
-        variant: "error",
-      });
+      body.annotation_status = localStorage.getItem("labellingMode");
     }
-    if (!promptOverride) {
-      setText("");
+    if (stage === "Review") {
+      body.review_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else if (stage === "SuperChecker") {
+      body.superchecker_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
+    } else {
+      body.annotation_notes = JSON.stringify(
+        notes?.current?.getEditor().getContents(),
+      );
     }
-  };
+    if (stage === "Review" || stage === "SuperChecker") {
+      body.parentannotation = id?.parent_annotation;
+    }
+
+    try {
+      const streamedText = await streamPromise;
+      
+      if (streamedText) {
+        // Construct the full history array for the backend so it doesn't re-trigger LLM generation
+        const fullHistoryPayload = [
+          ...chatHistory.map((chat) => ({
+            prompt: chat.prompt,
+            output: typeof chat.output === "string"
+              ? chat.output
+              : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+          })),
+          {
+            prompt: currentPrompt,
+            output: streamedText,
+          }
+        ];
+        body.result = fullHistoryPayload;
+
+        const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+        const res = await fetch(AnnotationObj.apiEndPoint(), {
+          method: "PATCH",
+          body: JSON.stringify(AnnotationObj.getBody()),
+          headers: AnnotationObj.getHeaders().headers,
+        });
+        const data = await res.json();
+
+       if (data && data.result) {
+          const modifiedChatHistory = data.result.map((interaction, index) => {
+            const isLastInteraction = index === data.result.length - 1;
+            return {
+              ...interaction,
+              output: formatResponse(interaction.output, isLastInteraction),
+            };
+          });
+          setChatHistory([...modifiedChatHistory]);
+          // Only clear localStorage after server confirms successful save
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        } else if (!data) {
+          setSnackbarInfo({
+            open: true,
+            message: data?.message || "Failed to save LLM response",
+            variant: "error",
+          });
+          localStorage.removeItem(`in_progress_chat_single_${taskId}`);
+        }
+      }
+    } catch (error) {
+      console.error("Error in chat save/stream operation:", error);
+    } finally {
+      setChatLoading(false);
+      setIsStreaming(false);
+      isSendInFlightRef.current = false;
+      setIsPolling(false);
+      setPollingCount(0);
+    }
+
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 1000);
+  } else {
+    setSnackbarInfo({
+      open: true,
+      message: "Please provide a prompt",
+      variant: "error",
+    });
+  }
+  if (!promptOverride) {
+    setText("");
+  }
+};
 
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
@@ -764,7 +764,7 @@ const InstructionDrivenChatPage = ({
       if (storedGlobalTransliteration !== null) {
         setGlobalTransliteration(storedGlobalTransliteration);
       }
-
+      
       if (storedLanguage !== null) {
         setTargetLang(storedLanguage);
       }
@@ -794,7 +794,7 @@ const InstructionDrivenChatPage = ({
       handleOnchange(text);
     }
   }, [text]);
-
+  
   const handleMouseEnter = (event) => {
     event.target.style.borderColor = orange[400];
   };
@@ -873,7 +873,7 @@ const InstructionDrivenChatPage = ({
     return rtlScriptRegex.test(text);
   };
 
-  const renderChatHistory = () => {
+const renderChatHistory = () => {
 
     // Delete/retry are disabled while a response is streaming; grey the icons to
     // match so they visibly read as unavailable (their hardcoded orange would
@@ -882,10 +882,10 @@ const InstructionDrivenChatPage = ({
     const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
 
     const toggleShrink = (index) => {
-      setShrinkedMessages(prev => ({
-        ...prev,
-        [index]: !prev[index]
-      }));
+        setShrinkedMessages(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
     };
 
     const chatElements = chatHistory?.map((message, index) => (
@@ -941,7 +941,7 @@ const InstructionDrivenChatPage = ({
               <Avatar
                 alt="user_profile_pic"
                 src={loggedInUserData?.profile_photo || ""}
-                style={{
+                style={{ 
                   marginRight: "1rem",
                   width: "32px",
                   height: "32px"
@@ -1012,14 +1012,14 @@ const InstructionDrivenChatPage = ({
                   children={linkifyText(message?.prompt || "")}
                   components={{
                     p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.5rem 0' }} {...props} />, // UPDATED
-                    a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
+                    a: ({node, ...props}) => <a style={{color: '#EE6633', textDecoration: 'underline', fontWeight: 500}} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
                 />
               )}
             </Grid>
-
-            <Grid
-              item
+            
+           <Grid 
+              item 
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1056,7 +1056,7 @@ const InstructionDrivenChatPage = ({
               </IconButton>
 
               {/* Retry button */}
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton &&(
                 <Tooltip title="Re-send the same prompt to get a new response">
                   <IconButton
                     size="small"
@@ -1214,7 +1214,7 @@ const InstructionDrivenChatPage = ({
                       key={index}
                       language={segment.language}
                       style={gruvboxDark}
-                      customStyle={{
+                      customStyle={{ 
                         padding: "0.8rem",
                         borderRadius: "5px",
                         fontSize: getFontSize()
@@ -1232,9 +1232,8 @@ const InstructionDrivenChatPage = ({
     ));
 
     return chatElements;
-  };
-  const ChildModal = () => {
-    const [open, setOpen] = useState(false);
+};  
+const ChildModal = () => {    const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
       setOpen(true);
@@ -1306,7 +1305,7 @@ const InstructionDrivenChatPage = ({
         </Modal>
       </>
     );
-  }; if (!isMounted) {
+  };  if (!isMounted) {
     return null;
   }
   return (

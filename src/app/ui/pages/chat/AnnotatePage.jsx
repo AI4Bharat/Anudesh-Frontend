@@ -657,7 +657,7 @@ const AnnotatePage = () => {
             setShowNotes(false);
             return;
           }
-
+          
           if (ProjectDetails.project_type == "InstructionDrivenChat" && !ProjectDetails?.metadata_json?.blank_response) {
             const hasEmptyOutput = chatHistory.some(chat => {
               const outputText = reverseFormatResponse(chat.output).trim();
