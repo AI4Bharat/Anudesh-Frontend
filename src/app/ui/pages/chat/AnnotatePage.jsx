@@ -1421,13 +1421,6 @@ const AnnotatePage = () => {
             </Alert>
           </Grid>
         )}
-        {ProjectDetails?.metadata_json?.blank_response && (
-          <Grid item xs={12}>
-            <Alert severity="info" sx={{ mx: 1, mb: 1 }}>
-              This project doesn't require model response. Please submit if the prompt is correct
-            </Alert>
-          </Grid>
-        )}
 
         {/* Main Content */}
         <Grid item xs={12} sx={{ flex: 1, overflow: "hidden" }}>
