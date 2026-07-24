@@ -1,6 +1,7 @@
 "use client";
 import "./chat.css";
 import Avatar from "@mui/material/Avatar";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
@@ -1647,6 +1648,11 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
             paddingBottom: "0rem!important",
           }}
         >
+          {ProjectDetails?.metadata_json?.blank_response && (
+            <Alert severity="info" sx={{ mx: 1, mt: 1 }}>
+              This project doesn't require model response. Please submit if the prompt is correct
+            </Alert>
+          )}
           <Box
             sx={{
               flex: 1,
