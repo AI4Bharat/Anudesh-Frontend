@@ -1,4 +1,4 @@
-import { Grid, Select, MenuItem, InputLabel, FormControl,Box,styled,Menu } from "@mui/material";
+import { Grid, Select, MenuItem, InputLabel, FormControl, Box, styled, Menu, Button, Card } from "@mui/material";
 import React from "react";
 // import TaskAnalyticsDataAPI from "@/app/actions/api/Progress/TaskAnalytics";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +19,13 @@ import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { KeyboardArrowDown } from "@material-ui/icons";
+import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import { isSameDay, format } from "date-fns";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -64,11 +71,39 @@ console.log(selectedType);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+  const [selectRange, setSelectRange] = useState([{
+    startDate: (() => {
+      let d = new Date(workspaceDetails?.created_at);
+      if (isNaN(d.getTime())) d = new Date("2021-01-01");
+      return d;
+    })(),
+    endDate: new Date(),
+    key: "selection",
+  }]);
+
+  const [isTillDate, setIsTillDate] = useState(true);
+  const [showPicker, setShowPicker] = useState(false);
 
   const getTaskAnalyticsdata = () => {
     setLoading(true)
-    const userObj = new wsTaskAnalyticsAPI(workspaceDetails?.id,selectedType);
-    dispatch(fetchwsTaskAnalyticsData({id:workspaceDetails?.id,project_type_filter:selectedType}))
+    dispatch(fetchwsTaskAnalyticsData({
+      id:workspaceDetails?.id,
+      project_type_filter:selectedType,
+      fromDate: isTillDate ? "" : format(selectRange[0].startDate, "yyyy-MM-dd"),
+      toDate: isTillDate ? "" : format(selectRange[0].endDate, "yyyy-MM-dd")
+    }))
+  };
+
+  const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    setSelectRange([selection]);
+    
+    let createdDate = new Date(workspaceDetails?.created_at);
+    if (isNaN(createdDate.getTime())) createdDate = new Date("2021-01-01");
+    const isStart = isSameDay(selection.startDate, createdDate);
+    const isToday = isSameDay(selection.endDate, new Date());
+    setIsTillDate(isStart && isToday);
   };
 
   const showSnackbar = (message) => {
@@ -210,9 +245,9 @@ console.log(selectedType);
       md={12}
       lg={4}
       xl={4}
-      spacing={1}
+      spacing={2}
       alignItems="center"
-    ><Grid item xs={12} sm={6} md={6} lg={6} xl={6}>      <FormControl  size="small">
+    ><Grid item xs={12} sm={"auto"} md={"auto"} lg={"auto"} xl={"auto"}>      <FormControl  size="small">
             <InputLabel id="demo-simple-select-label" sx={{ fontSize: "16px",zIndex: 0 }}>
               Project Type {" "}
               {
@@ -243,6 +278,19 @@ console.log(selectedType);
               ))}
             </Select>
           </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={"auto"} md={"auto"} lg={"auto"} xl={"auto"}>
+            <Box display="flex" alignItems="center" height="100%">
+              <Button
+                endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+                variant="contained"
+                color="primary"
+                onClick={() => setShowPicker(!showPicker)}
+                sx={{ width: "130px" }}
+              >
+                Pick Dates
+              </Button>
+            </Box>
           </Grid>
           </Grid>
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
@@ -277,9 +325,65 @@ console.log(selectedType);
             </StyledMenu>
           </Box>
           </Box>
-      </Grid>
-        </Grid>
-      
+          </Grid>
+    </Grid>
+
+      {showPicker && (
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "center", width: "100%" }}>
+          <Card sx={{ overflowX: "auto", maxWidth: "100%" }}>
+            <DateRangePicker
+              onChange={handleRangeChange}
+              staticRanges={[
+                ...defaultStaticRanges.filter(r => r.label !== 'Today' && r.label !== 'Yesterday' && r.label !== 'Tomorrow'),
+                {
+                  label: "This Year",
+                  range: () => ({
+                    startDate: new Date(new Date().getFullYear(), 0, 1),
+                    endDate: new Date(),
+                  }),
+                  isSelected(range) {
+                    const definedRange = this.range();
+                    return isSameDay(range.startDate, definedRange.startDate) && isSameDay(range.endDate, definedRange.endDate);
+                  },
+                },
+                {
+                  label: "Last Year",
+                  range: () => ({
+                    startDate: new Date(new Date().getFullYear() - 1, 0, 1),
+                    endDate: new Date(new Date().getFullYear() - 1, 11, 31),
+                  }),
+                  isSelected(range) {
+                    const definedRange = this.range();
+                    return isSameDay(range.startDate, definedRange.startDate) && isSameDay(range.endDate, definedRange.endDate);
+                  },
+                },
+                {
+                  label: "Till Date",
+                  range: () => {
+                    let start = new Date(workspaceDetails?.created_at);
+                    if (isNaN(start.getTime())) start = new Date("2021-01-01");
+                    return {
+                      startDate: start,
+                      endDate: new Date(),
+                    };
+                  },
+                  isSelected(range) {
+                    const definedRange = this.range();
+                    return isSameDay(range.startDate, definedRange.startDate) && isSameDay(range.endDate, definedRange.endDate);
+                  },
+                },
+              ]}
+              showSelectionPreview={true}
+              moveRangeOnFirstSelection={false}
+              months={2}
+              ranges={selectRange}
+              maxDate={new Date()}
+              direction="horizontal"
+            />
+          </Card>
+        </Box>
+      )}
+
       {loading && <Spinner />}
       {taskAnalyticsData.length ?
         taskAnalyticsData.map((analyticsData,_index)=>{

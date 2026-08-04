@@ -6,6 +6,13 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
+import { Card, Button } from "@mui/material";
+import { DateRangePicker, defaultStaticRanges } from "react-date-range";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import { isSameDay, format } from "date-fns";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import React from "react";
@@ -63,6 +70,20 @@ const TaskAnalytics = (props) => {
   const workspaces = useSelector((state) => state.GetWorkspace.data || []);
   const [selectedType, setSelectedType] = useState("AllTypes");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
+  const OrganizationDetails = useSelector((state) => state.getLoggedInData?.data?.organization);
+  
+  const [selectRange, setSelectRange] = useState([{
+    startDate: (() => {
+      let d = new Date(OrganizationDetails?.created_at);
+      if (isNaN(d.getTime())) d = new Date("2021-01-01");
+      return d;
+    })(),
+    endDate: new Date(),
+    key: "selection",
+  }]);
+  
+  const [isTillDate, setIsTillDate] = useState(true);
+  const [showPicker, setShowPicker] = useState(false);
   if(isWorkspaceLevel && submit == true){
     var taskAnalyticsData = useSelector(
       (state) => state.wsgetTaskAnalytics.data
@@ -90,10 +111,28 @@ if(isWorkspaceLevel && submit==true){
 
   const getTaskAnalyticsdata = () => {
     setLoading(true)
- 
-      const userObj = new TaskAnalyticsDataAPI(selectedType);
-      dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType}))
-  
+    const fromDate = isTillDate ? "" : format(selectRange[0].startDate, "yyyy-MM-dd");
+    const toDate = isTillDate ? "" : format(selectRange[0].endDate, "yyyy-MM-dd");
+    dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType, fromDate, toDate}))
+  };
+
+  const handleRangeChange = (ranges) => {
+    const { selection } = ranges;
+    if (selection.endDate > new Date()) selection.endDate = new Date();
+    setSelectRange([selection]);
+    
+    let createdDateStr = OrganizationDetails?.created_at;
+    if (isWorkspaceLevel && selectedWorkspace) {
+       const ws = workspaces.find(w => w.id == selectedWorkspace);
+       if (ws && ws.created_at) {
+           createdDateStr = ws.created_at;
+       }
+    }
+    let createdDate = new Date(createdDateStr);
+    if (isNaN(createdDate.getTime())) createdDate = new Date("2021-01-01");
+    const isStart = isSameDay(selection.startDate, createdDate);
+    const isToday = isSameDay(selection.endDate, new Date());
+    setIsTillDate(isStart && isToday);
   };
 
   const showSnackbar = (message) => {
@@ -147,15 +186,14 @@ if(isWorkspaceLevel && submit==true){
 
   const handleSubmit = async () => {
     setLoading(true)
+    const fromDate = isTillDate ? "" : format(selectRange[0].startDate, "yyyy-MM-dd");
+    const toDate = isTillDate ? "" : format(selectRange[0].endDate, "yyyy-MM-dd");
     if(isWorkspaceLevel){
-      const userObj = new wsTaskAnalyticsAPI(selectedWorkspace,selectedType);
-      dispatch(fetchwsTaskAnalyticsData({id:selectedWorkspace,project_type_filter:selectedType}))
+      dispatch(fetchwsTaskAnalyticsData({id:selectedWorkspace,project_type_filter:selectedType, fromDate, toDate}))
       setsubmit(true)
     }
     else{
-      const userObj = new TaskAnalyticsDataAPI(selectedType);
-      dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType}))
-  
+      dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType, fromDate, toDate}))
     }
   };
 
@@ -248,7 +286,7 @@ if(isWorkspaceLevel && submit==true){
           alignItems="center"
         >
           {/* Project Type Dropdown */}
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={"auto"}>
             <FormControl size="small" fullWidth>
               <InputLabel
                 id="demo-simple-select-label"
@@ -270,7 +308,7 @@ if(isWorkspaceLevel && submit==true){
                 id="demo-simple-select"
                 value={selectedType}
                 label="Project Type"
-                sx={{ padding: "1px" }}
+                sx={{ padding: "1px", minWidth: 200 }}
                 onChange={(e) => setSelectedType(e.target.value)}
                 MenuProps={MenuProps}
               >
@@ -283,8 +321,23 @@ if(isWorkspaceLevel && submit==true){
             </FormControl>
           </Grid>
 
-          {/* Workspace Level Checkbox */}
-          <Grid item xs={12} sm={3}>
+          {/* Pick Dates Button */}
+          <Grid item xs={12} sm={"auto"}>
+            <Box display="flex" alignItems="center" height="100%">
+              <Button
+                endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+                variant="contained"
+                color="primary"
+                onClick={() => setShowPicker(!showPicker)}
+                sx={{ width: { xs: "100%", sm: "130px" }, height: "40px" }}
+              >
+                Pick Dates
+              </Button>
+            </Box>
+          </Grid>
+
+        {/* Workspace Level Checkbox */}
+          <Grid item xs={12} sm={"auto"}>
             <Box display="flex" alignItems="center" justifyContent="center">
               <FormControlLabel
                 control={
@@ -300,7 +353,7 @@ if(isWorkspaceLevel && submit==true){
           </Grid>
           
           {isWorkspaceLevel && (
-          <Grid item xs={12} sm={12} md={4}>
+          <Grid item xs={12} sm={"auto"}>
             <FormControl fullWidth size="small">
               <InputLabel id="workspace-dropdown-label">Workspace</InputLabel>
               <Select
@@ -308,6 +361,7 @@ if(isWorkspaceLevel && submit==true){
                 id="workspace-dropdown"
                 value={selectedWorkspace}
                 label="Workspace"
+                sx={{ minWidth: 200 }}
                 onChange={(e) => setSelectedWorkspace(e.target.value)}
               >
                 {workspaces?.map((workspace, index) => (
@@ -320,16 +374,9 @@ if(isWorkspaceLevel && submit==true){
           </Grid>
         )}
         </Grid>
-      </Grid>
 
-      <Grid
-        container
-        columnSpacing={3}
-        rowSpacing={2}
-        alignItems="center"
-        gap={2}
-      >
-        <Grid item xs={12} sm={12} md={6}>
+        {/* Action Buttons */}
+        <Grid item xs={12} sm={isWorkspaceLevel ? 6 : 4} md={4} lg={4}>
           <Box display="flex" gap={2} alignItems="center" flexDirection={{ xs: 'column', sm: 'row' }}>
             <CustomButton
               label="Submit"
@@ -363,6 +410,69 @@ if(isWorkspaceLevel && submit==true){
           </Box>
         </Grid>
       </Grid>
+      
+      {showPicker && (
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "center", width: "100%" }}>
+          <Card sx={{ overflowX: "auto", maxWidth: "100%" }}>
+            <DateRangePicker
+              onChange={handleRangeChange}
+              staticRanges={[
+                ...defaultStaticRanges.filter(r => r.label !== 'Today' && r.label !== 'Yesterday' && r.label !== 'Tomorrow'),
+                {
+                  label: "This Year",
+                  range: () => ({
+                    startDate: new Date(new Date().getFullYear(), 0, 1),
+                    endDate: new Date(),
+                  }),
+                  isSelected(range) {
+                    const definedRange = this.range();
+                    return isSameDay(range.startDate, definedRange.startDate) && isSameDay(range.endDate, definedRange.endDate);
+                  },
+                },
+                {
+                  label: "Last Year",
+                  range: () => ({
+                    startDate: new Date(new Date().getFullYear() - 1, 0, 1),
+                    endDate: new Date(new Date().getFullYear() - 1, 11, 31),
+                  }),
+                  isSelected(range) {
+                    const definedRange = this.range();
+                    return isSameDay(range.startDate, definedRange.startDate) && isSameDay(range.endDate, definedRange.endDate);
+                  },
+                },
+                {
+                  label: "Till Date",
+                  range: () => {
+                    let createdDateStr = OrganizationDetails?.created_at;
+                    if (isWorkspaceLevel && selectedWorkspace) {
+                       const ws = workspaces.find(w => w.id == selectedWorkspace);
+                       if (ws && ws.created_at) {
+                           createdDateStr = ws.created_at;
+                       }
+                    }
+                    let start = new Date(createdDateStr);
+                    if (isNaN(start.getTime())) start = new Date("2021-01-01");
+                    return {
+                      startDate: start,
+                      endDate: new Date(),
+                    };
+                  },
+                  isSelected(range) {
+                    const definedRange = this.range();
+                    return isSameDay(range.startDate, definedRange.startDate) && isSameDay(range.endDate, definedRange.endDate);
+                  },
+                },
+              ]}
+              showSelectionPreview={true}
+              moveRangeOnFirstSelection={false}
+              months={2}
+              ranges={selectRange}
+              maxDate={new Date()}
+              direction="horizontal"
+            />
+          </Card>
+        </Box>
+      )}
 
       {loading && <Spinner />}
       {taskAnalyticsData.length
