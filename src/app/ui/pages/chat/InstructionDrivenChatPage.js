@@ -749,7 +749,7 @@ onToken: (token, fullText) => {
           if (lastIdx >= 0) {
             updated[lastIdx] = {
               ...updated[lastIdx],
-              output: [{ type: "text", value: `[ERROR] ${errMsg}` }],
+              output: [{ type: "text", value: errMsg }],
             };
           }
           return updated;
