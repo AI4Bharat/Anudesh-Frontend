@@ -58,20 +58,10 @@ function getLabelText(value) {
 
 const drawerWidth = 10;
 
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(({
-  theme,
-  open,
-}) => {
-  return {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: open ? `${drawerWidth}px` : 0,
-  };
-});
+const Main = styled("main")(({ theme }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+}));
 
 const ModelInteractionEvaluation = ({
   key,
@@ -103,7 +93,7 @@ const ModelInteractionEvaluation = ({
   const [isFormsInitialized, setIsFormsInitialized] = useState(false);
   const [isInteractionsFetched, setIsInteractionsFetched] = useState(false);
   const [isInitialFormsReady, setIsInitialFormsReady] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [hover, setHover] = useState({});
   const [selectedRatings, setSelectedRatings] = useState({});
   const [expanded, setExpanded] = useState(
@@ -990,15 +980,7 @@ const ModelInteractionEvaluation = ({
 
   const PairAccordion = ({ pairs, classes }) => {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: "1rem",
-          width: "calc(100% - 0.1rem)",
-        }}
-      >
+      <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
         {pairs?.length == 0 && (
           <Box
             sx={{
@@ -1029,20 +1011,15 @@ const ModelInteractionEvaluation = ({
               onChange={handleAccordionChange(index)}
               className={classes.accordion}
               style={{
-                height: expanded[index] ? "auto" : "4rem",
-                borderRadius: expanded[index] ? "1rem" : null,
-                boxShadow: expanded[index]
-                  ? "0px 4px 6px rgba(0, 0, 0, 0.1)"
-                  : null,
-                border: "none",
-                margin: 2,
-                width: "inherit",
+                boxShadow: "none",
+                borderBottom: "1px solid #E1E1E0",
+                borderRadius: 0,
+                margin: 0,
+                width: "100%",
                 backgroundColor:
-                  clickedPromptOutputPairId == pair.prompt_output_pair_id
-                    ? "#FEF0EE"
-                    : "transparent",
+                  clickedPromptOutputPairId == pair.prompt_output_pair_id ? "#FEF0EE" : "transparent",
               }}
-            >
+              >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls={`panel${index}a-content`}
@@ -1053,39 +1030,32 @@ const ModelInteractionEvaluation = ({
                 }}
               >
                 <Box
-                  sx={{
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {pair?.prompt}
-                </Box>
+            sx={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 3,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              color: pair?.prompt ? "inherit" : "text.disabled",
+              fontStyle: pair?.prompt ? "normal" : "italic",
+            }}
+          >
+            {pair?.prompt || "No prompt text available"}
+          </Box>
+                
               </AccordionSummary>
-              <AccordionDetails sx={{ cursor: "pointer" }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    justifyContent: "flex-start",
-                  }}
-                >
+              <AccordionDetails sx={{ cursor: "pointer", pt: 0 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
                   <Button
                     label={translate("model_evaluation_btn")}
                     buttonVariant={"outlined"}
-                    style={{
-                      marginTop: "1rem",
-                      marginLeft: "1rem",
-                    }}
                     onClick={(event) => {
                       event.stopPropagation();
                       event.preventDefault();
                       handleFormBtnClick(event);
                     }}
                     id={pair?.prompt_output_pair_id}
+                    style={{ padding: "4px 12px", fontSize: "13px", minWidth: "auto" }}
                   />
                   {clickedPromptOutputPairId == pair.prompt_output_pair_id && (
                     <Button
@@ -1096,10 +1066,7 @@ const ModelInteractionEvaluation = ({
                         event.preventDefault();
                         handleReset(event, index);
                       }}
-                      sx={{
-                        marginTop: "1rem",
-                        marginLeft: "1rem",
-                      }}
+                      style={{ padding: "4px 12px", fontSize: "13px", minWidth: "auto" }}
                     />
                   )}
                 </Box>
@@ -1113,14 +1080,11 @@ const ModelInteractionEvaluation = ({
 
   const InteractionDisplay = () => {
     return (
-      <Paper
-        className={classes.interactionWindow}
-        style={{
-          border: "none",
-          display: "flex",
-          flexDirection: "row",
-        }}
-      >
+     <Paper
+      className={classes.interactionWindow}
+      elevation={0}
+      style={{ border: "none", display: "flex", flexDirection: "column", width: "100%" }}
+    >
         {interactions && (
           <PairAccordion pairs={interactions} classes={classes} />
         )}
@@ -1130,67 +1094,62 @@ const ModelInteractionEvaluation = ({
 
   return (
     <>
-      <Box
-        className={classes.container}
-        sx={{
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "start",
-          width: "100%",
-        }}
-      >
         <Box
+          className={classes.container}
           sx={{
-            width: open ? "30%" : "10%",
-            minWidth: open ? "30%" : "10%",
-            paddingTop: "24px",
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "start",
+            width: "100%",
+            gap: "24px",
           }}
         >
+        <Box
+        sx={{
+          width: open ? "320px" : "60px",
+          minWidth: open ? "320px" : "60px",
+          paddingTop: "24px",
+          flexShrink: 0,
+        }}
+      >
           <IconButton
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
             sx={[
-              {
-                ml: 8,
-              },
+              { mx: "auto", display: "flex" },
               open && { display: "none" },
             ]}
           >
             <MenuIcon />
           </IconButton>
           {open && (
-            <Box
-              sx={{
-                border: "1px solid #E1E1E0",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "20px 1rem",
-                }}
-              >
-                <Typography className={classes.heading}>
-                  {translate("modal.interact")}
-                </Typography>
-                <ChevronLeftIcon onClick={handleDrawerClose} />
-              </Box>
-              <List>
-                <InteractionDisplay />
-              </List>
-            </Box>
-          )}
+        <Box sx={{ border: "1px solid #E1E1E0", borderRadius: "8px", overflow: "hidden" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "16px",
+              borderBottom: "1px solid #E1E1E0",
+            }}
+          >
+            <Typography className={classes.heading} sx={{ fontWeight: "bold" }}>
+              {translate("modal.interact")}
+            </Typography>
+            <ChevronLeftIcon
+              onClick={handleDrawerClose}
+              sx={{ cursor: "pointer", color: "text.secondary" }}
+            />
+          </Box>
+          <List sx={{ maxHeight: "calc(100vh - 220px)", overflowY: "auto", p: 0 }}>
+            <InteractionDisplay />
+          </List>
         </Box>
-        <Box
-          sx={{
-            width: open ? "70%" : "90%",
-            minWidth: open ? "70%" : "90%",
-          }}
-        >
+      )}
+        </Box>
+       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           <Main open={open}>{EvaluationForm()}</Main>
         </Box>
       </Box>
