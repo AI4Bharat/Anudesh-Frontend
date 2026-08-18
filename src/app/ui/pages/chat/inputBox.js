@@ -114,32 +114,6 @@ const modelsData = [
     ],
   },
   {
-    provider: 'Gemini',
-    models: [
-      {
-        id: 'gemini-3.5-flash',
-        name: 'Gemini 3.5 Flash',
-        description: 'Fast agentic reasoning model',
-        icon: <AutoAwesomeIcon sx={{ color: '#4285F4' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
-      },
-      {
-        id: 'gemini-3.1-pro-preview',
-        name: 'Gemini 3.1 Pro Preview',
-        description: 'Advanced complex reasoning model',
-        icon: <AutoAwesomeIcon sx={{ color: '#EA4335' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
-      },
-      {
-        id: 'gemini-3.1-flash-lite',
-        name: 'Gemini 3.1 Flash Lite',
-        description: 'Cost-efficient high-volume model',
-        icon: <AutoAwesomeIcon sx={{ color: '#34A853' }} />,
-        capabilities: { reasoning: true, image: true, voice: true },
-      },
-    ],
-  },
-  {
     provider: 'Meta',
     models: [
       {

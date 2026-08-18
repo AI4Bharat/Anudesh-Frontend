@@ -8,9 +8,6 @@ const languageModelOptions = [
   "Qwen/Qwen3-30B-A3B",
   "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
   "meta-llama/Llama-4-Scout-17B-16E-Instruct",
-  "gemini-3.5-flash",
-  "gemini-3.1-pro-preview",
-  "gemini-3.1-flash-lite",
   ];
 
 export { fixed_Models, languageModelOptions }
