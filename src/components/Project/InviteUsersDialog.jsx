@@ -45,6 +45,7 @@ const InviteUsersDialog = ({
   
 /* eslint-disable react-hooks/exhaustive-deps */
 const [inputValue, setInputValue] = useState("");
+const [inputError, setInputError] = useState("");
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -53,15 +54,55 @@ const [inputValue, setInputValue] = useState("");
       parseCSV(file);
     }
   };
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter" || event.key === " " || event.key === ",") {
-      event.preventDefault();
-      if (inputValue.trim()) {
-        setSelectedUsers((prev) => [...prev, inputValue.trim()]);
-        setInputValue("");
-      }
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+   const commitInput = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+
+    if (!isValidEmail(trimmed)) {
+      setInputError("Enter a valid email address");
+      return;
     }
+    if (selectedUsers.includes(trimmed)) {
+      setInputError("Email already added");
+      return;
+    }
+
+    setSelectedUsers((prev) => [...prev, trimmed]);
+    setInputValue("");
+    setInputError("");
   };
+
+ const handleKeyDown = (event) => {
+  if (event.key === " " || event.key === ",") {
+    event.preventDefault();
+    commitInput();
+  }
+
+};
+
+const handleAutocompleteChange = (event, newVal) => {
+  // A chip was removed (array got shorter) — just accept it.
+  if (newVal.length <= selectedUsers.length) {
+    setSelectedUsers(newVal);
+    return;
+  }
+  const added = newVal[newVal.length - 1];
+  const rest = newVal.slice(0, -1);
+  const trimmed = typeof added === "string" ? added.trim() : "";
+
+  if (!isValidEmail(trimmed)) {
+    setInputError("Enter a valid email address");
+    return; // reject — do NOT call setSelectedUsers, so no chip appears
+  }
+  if (rest.includes(trimmed)) {
+    setInputError("Email already added");
+    return;
+  }
+  setInputError("");
+  setSelectedUsers([...rest, trimmed]);
+  setInputValue("");
+};
 
   const parseCSV = (file) => {
     const reader = new FileReader();
@@ -84,12 +125,14 @@ const [inputValue, setInputValue] = useState("");
     }
   };
 
-  const dialogCloseHandler = () => {
+    const dialogCloseHandler = () => {
     handleDialogClose();
     setSelectedUsers([]);
     setSelectedEmails([]);
     setCsvFile(null);
-    setbtn(null)
+    setbtn(null);
+    setInputValue("");
+    setInputError("");
   };
   
   return (
@@ -104,9 +147,11 @@ const [inputValue, setInputValue] = useState("");
                 options={[]}
                 freeSolo
                 value={selectedUsers}
-                onChange={(e, newVal) => setSelectedUsers(newVal)}
+                onChange={handleAutocompleteChange}
                 inputValue={inputValue}
                 onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+                onKeyDown={handleKeyDown}
+                onBlur={commitInput}
                 renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
@@ -119,7 +164,7 @@ const [inputValue, setInputValue] = useState("");
                 }
                 sx={{mt: 3, mb: 3}}
             renderInput={(values) => (
-              <TextField
+                           <TextField
                 {...values}
                 fullwidth
                 variant="outlined"
@@ -128,6 +173,8 @@ const [inputValue, setInputValue] = useState("");
                 placeholder="Email ids"
                 defaultValue=" "
                 value={selectedEmails.join(",")}
+                error={!!inputError}
+                helperText={inputError || "Press Enter, comma, or click away to add"}
                 sx={{
                   '& .MuiInputLabel-root': {
                     fontSize: '0.93rem', 
@@ -148,10 +195,12 @@ const [inputValue, setInputValue] = useState("");
                 options={[]}
                 freeSolo
                 value={selectedUsers}
-                onChange={(e, newVal) => setSelectedUsers(newVal)}
+                onChange={handleAutocompleteChange}
                 inputValue={inputValue}
                 onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
-                onKeyDown={handleKeyDown}                renderTags={(value, getTagProps) =>
+                onKeyDown={handleKeyDown}
+                onBlur={commitInput}
+                renderTags={(value, getTagProps) =>
                 value?.map((option, index) => (
                     <Chip
                     key={index}
@@ -164,11 +213,13 @@ const [inputValue, setInputValue] = useState("");
                 sx={{mt: 3, mb: 3}}
                 
                 renderInput={(params) => (
-                  <TextField
+                <TextField
                       {...params}
                       variant="outlined"
                       label="Enter email ids of users to invite"
                       placeholder="Email ids"
+                      error={!!inputError}
+                      helperText={inputError || "Press Enter, comma, or click away to add"}
                       sx={{
                         '& .MuiInputLabel-root': {
                           fontSize: '0.93rem', 
@@ -238,7 +289,10 @@ const [inputValue, setInputValue] = useState("");
               <CircularProgress size="0.8rem" color="secondary" />
             )
           }
-          onClick={addBtnClickHandler}
+           onClick={() => {
+            commitInput();
+            addBtnClickHandler();
+          }}
           size="small"
           label="Add"
           disabled={loading || selectedUsers === null || selectedUsers?.length === 0?true:false}
