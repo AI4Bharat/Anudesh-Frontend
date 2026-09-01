@@ -28,11 +28,11 @@ import "react-date-range/dist/theme/default.css";
 import { DateRangePicker, defaultStaticRanges } from "react-date-range";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "../../themes/projectDetailTableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import userRole from "../../utils/Role";
 import { fetchProjectReport } from "@/Lib/Features/getProjectReport";
-import { styled } from "@mui/material/styles";
+import { styled, createTheme } from "@mui/material/styles";
 
 const TruncatedContent = styled(Box)(({ expanded }) => ({
   overflow: "hidden",
@@ -189,7 +189,7 @@ const ReportsTable = (props) => {
               style: {
                 fontSize: "16px",
                 whiteSpace: "normal",
-                minWidth: "150px",
+                minWidth: displayWidth < 600 ? "120px" : "150px",
                 overflowWrap: "break-word",
                 wordBreak: "break-word",
               },
@@ -229,7 +229,7 @@ const ReportsTable = (props) => {
       setSelectedColumns([]);
     }
     setShowSpinner(false);
-  }, [reportDataByType, radiobutton, expandedRow, reportRequested]);
+  }, [reportDataByType, radiobutton, expandedRow, reportRequested, displayWidth]);
 
   useEffect(() => {
     if (columns.length > 0 && selectedColumns.length > 0) {
@@ -263,7 +263,15 @@ const ReportsTable = (props) => {
 
   const renderToolBar = () => {
     return (
-      <Box className={classes.ToolbarContainer}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 1,
+          width: "100%",
+        }}
+      >
         <ColumnList
           columns={columns}
           setColumns={setSelectedColumns}
@@ -310,9 +318,9 @@ const ReportsTable = (props) => {
               marginLeft: "0px",
             },
             "& .MuiInputBase-root.MuiInputBase-colorPrimary.MuiTablePagination-input":
-              {
-                marginRight: "10px",
-              },
+            {
+              marginRight: "10px",
+            },
           }}
         />
 
@@ -384,6 +392,7 @@ const ReportsTable = (props) => {
   }, [reportDataByType]);
 
   const handleSubmit = async () => {
+    setShowSpinner(true);
     setLoading(true);
     let projectObj;
     let reports_type =
@@ -454,30 +463,122 @@ const ReportsTable = (props) => {
   };
 
   const currentData = reportDataByType[radiobutton];
-  const hasSubmittedCurrent = submitted[radiobutton];
-  const isLoadingCurrent =
-    showSpinner && reportRequested[radiobutton] && !currentData?.length;
+
+  const reportsTableTheme = createTheme(tableTheme, {
+    components: {
+      MuiTableCell: {
+        styleOverrides: {
+          head: {
+            padding: "10px 12px !important",
+            fontSize: "14px !important",
+          },
+        },
+      },
+      MUIDataTableToolbar: {
+        styleOverrides: {
+          root: {
+            display: "flex !important",
+            justifyContent: "space-between !important",
+            alignItems: "center !important",
+            padding: "10px 16px !important",
+            minHeight: "64px !important",
+            gap: "10px",
+            backgroundColor: "#f2f4f6",
+            border: "1px solid #E0E0E0",
+            borderRadius: "0px",
+            "& .MuiIconButton-root": {
+              border: "1px solid #ebebeb !important",
+              borderRadius: "4px !important",
+              backgroundColor: "transparent !important",
+              padding: "8px !important",
+              width: "40px !important",
+              height: "40px !important",
+              color: "#ee6633 !important",
+            },
+            "& .MuiIconButton-root:hover": {
+              backgroundColor: "rgba(238, 102, 51, 0.04) !important",
+              borderColor: "#ee6633 !important",
+            },
+            "& .MUIDataTableToolbar-titleText, & h6": {
+              fontSize: "18px !important",
+              fontFamily: '"Roboto", sans-serif !important',
+              fontWeight: "500 !important",
+              color: "#5C5C5C !important",
+            },
+          },
+          titleRoot: {
+            display: "block !important",
+          },
+          titleText: {
+            fontSize: "18px !important",
+            fontFamily: '"Roboto", sans-serif !important',
+            fontWeight: "500 !important",
+            color: "#5C5C5C !important",
+          },
+          left: {
+            display: "flex !important",
+            flex: "0 0 auto",
+            alignItems: "center",
+            gap: "10px",
+          },
+          actions: {
+            display: "flex !important",
+            flex: "0 0 auto",
+            alignItems: "center",
+            gap: "10px",
+            justifyContent: "flex-end",
+          },
+        },
+      },
+    },
+  });
 
   return (
     <React.Fragment>
       {renderSnackBar()}
-      <Grid container direction="row" rowSpacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={12} md={3} lg={2} xl={2}>
+
+      {/* Section 1: Labels + radio buttons + date picker toggle + submit */}
+      <Box
+        sx={{
+          mb: "0px !important",
+          p: 2,
+          border: "1px solid #E0E0E0",
+          bgcolor: "#FAFAFA",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "4px 0px",
+            mb: 0,
+            pl: 2,
+          }}
+        >
           <Typography
-            gutterBottom
             component="div"
-            sx={{ marginTop: "10px", fontSize: "16px" }}
+            sx={{
+              fontSize: "14px",
+              whiteSpace: "nowrap",
+              pr: 1,
+              py: "10px",
+            }}
           >
-            Select Report Type :
+            Select Report Type:
           </Typography>
-        </Grid>
-        <Grid item xs={12} sm={12} md={5} lg={5} xl={5}>
-          <FormControl>
+
+          <FormControl sx={{ flex: "1 1 auto", minWidth: 0 }}>
             <RadioGroup
               row
               aria-labelledby="demo-row-radio-buttons-group-label"
               name="row-radio-buttons-group"
-              sx={{ marginTop: "5px" }}
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "0px 16px",
+                mt: "5px",
+              }}
               value={radiobutton}
               onChange={handleChangeReports}
             >
@@ -488,156 +589,214 @@ const ReportsTable = (props) => {
                 ProjectDetails?.annotators?.some(
                   (user) => user.id === loggedInUserData.id,
                 )) && (
-                <FormControlLabel
-                  value="AnnotatationReports"
-                  control={<Radio />}
-                  label="Annotator"
-                />
-              )}
+                  <FormControlLabel
+                    value="AnnotatationReports"
+                    control={<Radio />}
+                    label="Annotator"
+                    sx={{
+                      flexShrink: 0,
+                      whiteSpace: "nowrap",
+                      mr: 0,
+                      minWidth: "fit-content",
+                    }}
+                  />
+                )}
               {(userRole.WorkspaceManager === loggedInUserData?.role ||
-              userRole.OrganizationOwner === loggedInUserData?.role ||
-              userRole.Admin === loggedInUserData?.role
+                userRole.OrganizationOwner === loggedInUserData?.role ||
+                userRole.Admin === loggedInUserData?.role
                 ? ProjectDetails?.project_stage == 2 ||
-                  ProjectDetails?.project_stage == 3
+                ProjectDetails?.project_stage == 3
                 : ProjectDetails?.annotation_reviewers?.some(
-                    (reviewer) => reviewer.id === loggedInUserData?.id,
-                  )) && (
-                <FormControlLabel
-                  value="ReviewerReports"
-                  control={<Radio />}
-                  label="Reviewer"
-                />
-              )}
+                  (reviewer) => reviewer.id === loggedInUserData?.id,
+                )) && (
+                  <FormControlLabel
+                    value="ReviewerReports"
+                    control={<Radio />}
+                    label="Reviewer"
+                    sx={{
+                      flexShrink: 0,
+                      whiteSpace: "nowrap",
+                      mr: 0,
+                      minWidth: "fit-content",
+                    }}
+                  />
+                )}
               {(userRole.WorkspaceManager === loggedInUserData?.role ||
-              userRole.OrganizationOwner === loggedInUserData?.role ||
-              userRole.Admin === loggedInUserData?.role
+                userRole.OrganizationOwner === loggedInUserData?.role ||
+                userRole.Admin === loggedInUserData?.role
                 ? ProjectDetails?.project_stage == 3
                 : false ||
-                  ProjectDetails?.review_supercheckers?.some(
-                    (superchecker) => superchecker.id === loggedInUserData?.id,
-                  )) && (
-                <FormControlLabel
-                  value="SuperCheckerReports"
-                  control={<Radio />}
-                  label="Super Checker"
-                />
-              )}
+                ProjectDetails?.review_supercheckers?.some(
+                  (superchecker) => superchecker.id === loggedInUserData?.id,
+                )) && (
+                  <FormControlLabel
+                    value="SuperCheckerReports"
+                    control={<Radio />}
+                    label="Super Checker"
+                    sx={{
+                      flexShrink: 0,
+                      whiteSpace: "nowrap",
+                      mr: 0,
+                      minWidth: "fit-content",
+                    }}
+                  />
+                )}
             </RadioGroup>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={12} md={3} lg={2} xl={2}>
-          <Button
-            endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
-            variant="contained"
-            color="primary"
-            sx={{ width: "130px", marginTop: "8.5px" }}
-            onClick={() => setShowPicker(!showPicker)}
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1,
+              flexShrink: 0,
+              width: { xs: "100%", sm: "auto" },
+              pt: "8.5px",
+              pl: { sm: 1 },
+            }}
           >
-            Pick Dates
-          </Button>
-        </Grid>
-        <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{ width: "130px", marginTop: "8.5px" }}
-          >
-            Submit
-          </Button>
-        </Grid>
-      </Grid>
+            <Button
+              endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
+              variant="contained"
+              color="primary"
+              sx={{ whiteSpace: "nowrap" }}
+              onClick={() => setShowPicker(!showPicker)}
+            >
+              Pick Dates
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{ whiteSpace: "nowrap" }}
+            >
+              Submit
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+
       {showPicker && (
         <Box
+          component="section"
           sx={{
-            mt: 2,
             mb: 2,
-            display: "flex",
-            justifyContent: "center",
-            width: "100%",
+            p: 2,
+            bgcolor: "#FFFFFF",
           }}
         >
-          <Card>
-            <DateRangePicker
-              onChange={handleRangeChange}
-              staticRanges={[
-                ...defaultStaticRanges,
-                {
-                  label: "Till Date",
-                  range: () => ({
-                    startDate: new Date(
-                      Date.parse(
-                        ProjectDetails?.created_at,
-                        "yyyy-MM-ddTHH:mm:ss.SSSZ",
-                      ),
-                    ),
-                    endDate: new Date(),
-                  }),
-                  isSelected(range) {
-                    const definedRange = this.range();
-                    return (
-                      isSameDay(range.startDate, definedRange.startDate) &&
-                      isSameDay(range.endDate, definedRange.endDate)
-                    );
-                  },
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              flexDirection: displayWidth < 700 ? "column" : "row",
+              alignItems: "center",
+              px: 1,
+            }}
+          >
+            <Card
+              sx={{
+                width: "auto",
+                maxWidth: "100%",
+                overflowX: "auto",
+                p: 1,
+                mx: "auto",
+                '& .rdrCalendarWrapper': {
+                  minWidth: displayWidth < 700 ? "320px" : "720px",
                 },
-              ]}
-              showSelectionPreview={true}
-              moveRangeOnFirstSelection={false}
-              months={2}
-              ranges={selectRange}
-              minDate={
-                new Date(
-                  Date.parse(
-                    ProjectDetails?.created_at,
-                    "yyyy-MM-ddTHH:mm:ss.SSSZ",
-                  ),
-                )
-              }
-              maxDate={new Date()}
-              direction="horizontal"
-            />
-          </Card>
+                '& .rdrMonths': {
+                  display: displayWidth < 700 ? "block" : "flex",
+                },
+                '& .rdrMonth': {
+                  minWidth: displayWidth < 700 ? "100%" : "360px",
+                },
+              }}
+            >
+              <DateRangePicker
+                onChange={handleRangeChange}
+                staticRanges={[
+                  ...defaultStaticRanges,
+                  {
+                    label: "Till Date",
+                    range: () => ({
+                      startDate: new Date(
+                        Date.parse(
+                          ProjectDetails?.created_at,
+                          "yyyy-MM-ddTHH:mm:ss.SSSZ",
+                        ),
+                      ),
+                      endDate: new Date(),
+                    }),
+                    isSelected(range) {
+                      const definedRange = this.range();
+                      return (
+                        isSameDay(range.startDate, definedRange.startDate) &&
+                        isSameDay(range.endDate, definedRange.endDate)
+                      );
+                    },
+                  },
+                ]}
+                showSelectionPreview={true}
+                moveRangeOnFirstSelection={false}
+                months={displayWidth < 700 ? 1 : 2}
+                ranges={selectRange}
+                minDate={
+                  new Date(
+                    Date.parse(
+                      ProjectDetails?.created_at,
+                      "yyyy-MM-ddTHH:mm:ss.SSSZ",
+                    ),
+                  )
+                }
+                maxDate={new Date()}
+                direction={displayWidth < 700 ? "vertical" : "horizontal"}
+              />
+            </Card>
+          </Box>
         </Box>
       )}
-      <>
+
+      <div style={{ padding: 0, margin: 0 }}>
         {!(
           userRole.Annotator === loggedInUserData?.role ||
           userRole.Reviewer === loggedInUserData?.role
         ) &&
           frozenUsers.length > 0 && (
-            <Typography variant="body2" color="#F8644F">
+            <Typography variant="body2" color="#F8644F" sx={{ mb: 1 }}>
               * User Inactive
             </Typography>
           )}
-        <ThemeProvider theme={tableTheme}>
-          {reportRequested[radiobutton] && (
-            (loading ? (
-              <CircularProgress style={{ marginLeft: "50%" }} />
+        <ThemeProvider theme={reportsTableTheme}>
+          {reportRequested[radiobutton] ? (
+            loading ? (
+              <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1 }}>
+                Report is loading, please wait...
+              </Typography>
             ) : isBrowser ? (
               currentData ? (
-                <MUIDataTable
-                  key={`table-${displayWidth}`}
-                  title={
-                    radiobutton === "AnnotatationReports"
-                      ? "Annotation Report"
-                      : radiobutton === "ReviewerReports"
-                        ? "Reviewer Report"
-                        : "Super Checker Report"
-                  }
-                  data={currentData}
-                  columns={columns.filter((col) =>
-                    selectedColumns.includes(col.name),
-                  )}
-                  options={{
-                    ...options,
-                    tableBodyHeight: `${
-                      typeof window !== "undefined"
+                <Box sx={{ p: "0px !important" }}>
+                  <MUIDataTable
+                    key={`table-${displayWidth}`}
+                    title={
+                      radiobutton === "AnnotatationReports"
+                        ? "Annotation Report"
+                        : radiobutton === "ReviewerReports"
+                          ? "Reviewer Report"
+                          : "Super Checker Report"
+                    }
+                    data={currentData}
+                    columns={columns.filter((col) =>
+                      selectedColumns.includes(col.name),
+                    )}
+                    options={{
+                      ...options,
+                      tableBodyHeight: `${typeof window !== "undefined"
                         ? window.innerHeight - 200
                         : 400
-                    }px`,
-                  }}
-                />
+                        }px`,
+                    }}
+                  />
+                </Box>
               ) : (
                 <Grid container justifyContent="center">
                   <Grid item sx={{ mt: "10%" }}>
@@ -656,10 +815,14 @@ const ReportsTable = (props) => {
                   transform: "none",
                 }}
               />
-            ))
+            )
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1 }}>
+              Select a report type, pick a date range, then click Submit to display the table.
+            </Typography>
           )}
         </ThemeProvider>
-      </>
+      </div>
     </React.Fragment>
   );
 };
