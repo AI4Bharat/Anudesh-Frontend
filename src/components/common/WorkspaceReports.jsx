@@ -12,6 +12,8 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import Checkbox from "@mui/material/Checkbox";
+import ListItemText from "@mui/material/ListItemText";
 import Skeleton from "@mui/material/Skeleton";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -34,6 +36,7 @@ import { fetchWorkspaceUserReports } from "@/Lib/Features/projects/WorkspaceUser
 import { fetchWorkspaceProjectReport } from "@/Lib/Features/projects/WorkspaceProjectReport";
 import { fetchWorkspaceDetailedProjectReports } from "@/Lib/Features/projects/WorkspaceDetailedProjectReports";
 import { fetchSendWorkspaceUserReports } from "@/Lib/Features/projects/SendWorkspaceUserReports";
+import { fetchDownloadWorkspacePaymentReport } from "@/Lib/Features/projects/DownloadWorkspacePaymentReport";
 import { styled } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -128,7 +131,7 @@ const WorkspaceReports = () => {
   const [projectType, setProjectType] = useState({
     user: "InstructionDrivenChat",
     project: "InstructionDrivenChat",
-    payment: "InstructionDrivenChat",
+    payment: ["InstructionDrivenChat"],
   });
   const [targetLanguage, setTargetLanguage] = useState({
     user: "all",
@@ -600,6 +603,15 @@ const WorkspaceReports = () => {
   const handleDateSubmit = (sendMail) => {
     setLoading(true);
     if (radioButton === "payment") {
+      if (!projectType[radioButton]?.length) {
+        setSnackbarInfo({
+          open: true,
+          message: "Please select at least one Project Type",
+          variant: "error",
+        });
+        setLoading(false);
+        return;
+      }
       dispatch(
         fetchSendWorkspaceUserReports({
           orgId: id,
@@ -690,6 +702,44 @@ const WorkspaceReports = () => {
         }
       }
     }
+  };
+
+  const handleDownloadCsv = () => {
+    if (!projectType[radioButton]?.length) {
+      setSnackbarInfo({
+        open: true,
+        message: "Please select at least one Project Type",
+        variant: "error",
+      });
+      return;
+    }
+    setLoading(true);
+    dispatch(
+      fetchDownloadWorkspacePaymentReport({
+        orgId: id,
+        userId: UserDetails.id,
+        projectType: projectType[radioButton],
+        participationTypes: participationTypes,
+        fromDate: format(selectRange[0]?.startDate, "yyyy-MM-dd"),
+        toDate: format(selectRange[0]?.endDate, "yyyy-MM-dd"),
+      }),
+    )
+      .unwrap()
+      .then(() => {
+        setSnackbarInfo({
+          open: true,
+          message: "Report downloaded successfully",
+          variant: "success",
+        });
+      })
+      .catch((error) => {
+        setSnackbarInfo({
+          open: true,
+          message: error?.message || "Failed to download report",
+          variant: "error",
+        });
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleChangeprojectFilter = (event) => {
@@ -838,21 +888,72 @@ const WorkspaceReports = () => {
             <Select
               labelId="project-type-label"
               id="project-type-select"
+              multiple={radioButton === "payment"}
               value={projectType[radioButton]}
               label="Project Type"
+              renderValue={
+                radioButton === "payment"
+                  ? (selected) => selected.join(", ")
+                  : undefined
+              }
               onChange={(e) => {
                 setProjectType({
                   ...projectType,
                   [radioButton]: e.target.value,
                 });
               }}
-              MenuProps={MenuProps}
+              MenuProps={{
+                ...MenuProps,
+                PaperProps: {
+                  ...MenuProps.PaperProps,
+                  style: {
+                    ...MenuProps.PaperProps.style,
+                    overflowX: "auto",
+                  },
+                  sx: {
+                    "&::-webkit-scrollbar": {
+                      height: "4px",
+                      width: "4px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                      background: "transparent",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#c9c7c7",
+                      borderRadius: "20px",
+                    },
+                    "&::-webkit-scrollbar-thumb:hover": {
+                      background: "#a6a4a4",
+                    },
+                  },
+                },
+              }}
             >
-              {projectTypes.map((type, index) => (
-                <MenuItem value={type} key={index}>
-                  {type}
-                </MenuItem>
-              ))}
+              {projectTypes.map((type, index) =>
+                radioButton === "payment" ? (
+                  <MenuItem
+                    value={type}
+                    key={index}
+                    sx={{ whiteSpace: "nowrap" }}
+                  >
+                    <Checkbox
+                      checked={projectType[radioButton].indexOf(type) > -1}
+                    />
+                    <ListItemText
+                      primary={type}
+                      primaryTypographyProps={{ sx: { whiteSpace: "nowrap" } }}
+                    />
+                  </MenuItem>
+                ) : (
+                  <MenuItem
+                    value={type}
+                    key={index}
+                    sx={{ whiteSpace: "nowrap" }}
+                  >
+                    {type}
+                  </MenuItem>
+                ),
+              )}
             </Select>
           </FormControl>
         </Grid>
@@ -1008,6 +1109,18 @@ const WorkspaceReports = () => {
             E-mail CSV
           </Button>
         </Grid>
+        {radioButton === "payment" && (
+          <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleDownloadCsv}
+              sx={{ width: "170px", whiteSpace: "nowrap" }}
+            >
+              Download CSV
+            </Button>
+          </Grid>
+        )}
       </Grid>
       {showPicker && (
         <Box
