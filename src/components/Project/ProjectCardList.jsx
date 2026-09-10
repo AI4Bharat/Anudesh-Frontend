@@ -64,11 +64,13 @@ const ProjectCardList = (props) => {
   /* eslint-disable-next-line react/jsx-key */
   const [loading,setLoading] = useState(false);
   
-  const [page, setPage] = useState(() => {
+   const [page, setPage] = useState(() => {
+    if (typeof window === 'undefined') return 0;
     const savedPage = localStorage.getItem(PAGE_STORAGE_KEY);
     return savedPage ? parseInt(savedPage, 10) : 0;
   });
   const [rowsPerPage, setRowsPerPage] = useState(() => {
+    if (typeof window === 'undefined') return 10;
     const savedRowsPerPage = localStorage.getItem(ROWS_PER_PAGE_STORAGE_KEY);
     return savedRowsPerPage ? parseInt(savedRowsPerPage, 10) : 10;
   });
