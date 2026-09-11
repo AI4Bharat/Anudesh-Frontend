@@ -1495,7 +1495,7 @@ const CreateProject = () => {
                                     {selected.map((key) => (
                                       <Chip
                                         key={key}
-                                        label={instanceIds[key]}
+                                        label={`${instanceIds[key]} (ID: ${key})`}
                                         size="small"
                                         deleteIcon={
                                           <CancelIcon
@@ -1521,7 +1521,7 @@ const CreateProject = () => {
                               >
                                 {Object.keys(instanceIds).map((key) => (
                                   <MenuItem key={instanceIds[key]} value={key}>
-                                    {instanceIds[key]}
+                                    {instanceIds[key]} (ID: {key})
                                   </MenuItem>
                                 ))}
                               </Select>
