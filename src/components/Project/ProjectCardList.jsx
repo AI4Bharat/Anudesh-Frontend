@@ -56,11 +56,24 @@ const MUIDataTable = dynamic(
     )
   }
 );
+const PAGE_STORAGE_KEY = "projectSelectedPage";
+const ROWS_PER_PAGE_STORAGE_KEY = "projectSelectedRowsPerPage";
 
 const ProjectCardList = (props) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   /* eslint-disable-next-line react/jsx-key */
   const [loading,setLoading] = useState(false);
+  
+   const [page, setPage] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const savedPage = localStorage.getItem(PAGE_STORAGE_KEY);
+    return savedPage ? parseInt(savedPage, 10) : 0;
+  });
+  const [rowsPerPage, setRowsPerPage] = useState(() => {
+    if (typeof window === 'undefined') return 10;
+    const savedRowsPerPage = localStorage.getItem(ROWS_PER_PAGE_STORAGE_KEY);
+    return savedRowsPerPage ? parseInt(savedRowsPerPage, 10) : 10;
+  });
 
 const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds = new Set(), onBookmarkChange } = props;
   const [displayWidth, setDisplayWidth] = useState(0);
@@ -414,6 +427,15 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
         ];
       })
       : [];
+      
+  useEffect(() => {
+    const totalPages = Math.ceil((data?.length || 0) / rowsPerPage);
+    if (totalPages > 0 && page > totalPages - 1) {
+      const clampedPage = totalPages - 1;
+      setPage(clampedPage);
+      localStorage.setItem(PAGE_STORAGE_KEY, clampedPage);
+    }
+  }, [data.length, rowsPerPage]);
 
   const areFiltersApplied = (filters) => {
     return Object.values(filters).some((value) => value !== "");
@@ -464,6 +486,18 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
   };
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
+  };
+  
+  const handleChangePage = (newPage) => {
+    setPage(newPage);
+    localStorage.setItem(PAGE_STORAGE_KEY, newPage);
+  };
+
+  const handleChangeRowsPerPage = (newRowsPerPage) => {
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+    localStorage.setItem(ROWS_PER_PAGE_STORAGE_KEY, newRowsPerPage);
+    localStorage.setItem(PAGE_STORAGE_KEY, 0);
   };
   const CustomFooter = ({ count, page, rowsPerPage, changeRowsPerPage, changePage }) => {
     return (
@@ -551,9 +585,11 @@ const { projectData, selectedFilters, setsSelectedFilters, bookmarkedProjectIds 
     download: false,
     print: false,
     rowsPerPageOptions: [10, 25, 50, 100],
-    // rowsPerPage: PageInfo.count,
+    rowsPerPage: rowsPerPage,
     filter: false,
-    // page: PageInfo.page,
+    page: page,
+    onChangePage: handleChangePage,
+    onChangeRowsPerPage: handleChangeRowsPerPage,
     viewColumns: false,
     selectableRows: "none",
     search: false,
