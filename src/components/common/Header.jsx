@@ -134,10 +134,10 @@ const translationServices = {
         console.error("Error fetching notifications:", error);
       });
   };
-  const fetchUnreadCount = async () => {
+    const fetchUnreadCount = async () => {
     try {
       let apiObj = new NotificationAPI();
-      const endpoint = `${apiObj.apiEndPoint()}unread`;
+      const endpoint = `${apiObj.apiEndPoint()}/unread`;
       const response = await fetch(endpoint, {
         method: "GET",
         headers: apiObj.getHeaders().headers,
@@ -159,19 +159,21 @@ const translationServices = {
   }, []);
 
 
-  const markAsRead =  (notificationId) => {
-    const task = new NotificationPatchAPI(notificationId);
-    setSelectedNotificationId(notificationId);
-    dispatch(APITransport(task));
-    fetchNotifications();
-  };
+    const markAsRead = async (notificationId) => {
+  const task = new NotificationPatchAPI(notificationId);
+  setSelectedNotificationId(notificationId);
+  await dispatch(APITransport(task));
+  fetchNotifications();
+  fetchUnreadCount();
+};
 
-  const markAllAsRead = () => {
+      const markAllAsRead = async () => {
     const notificationIds = Notification.map((notification) => notification.id);
     const tasks = new NotificationPatchAPI(notificationIds);
     setSelectedNotificationId(notificationIds);
-    dispatch(APITransport(tasks));
+    await dispatch(APITransport(tasks));
     fetchNotifications();
+    fetchUnreadCount();
   };
 
   const handleMarkAllAsReadClick = () => {
@@ -182,9 +184,9 @@ const translationServices = {
     markAsRead(notificationId);
   };
 
-  // useEffect(() => {
-  //   fetchNotifications();
-  // }, [unread,selectedNotificationId]);
+  useEffect(() => {
+  fetchNotifications();
+   }, [unread,selectedNotificationId]);
   
   useEffect(() => {
     getLoggedInUserData();
@@ -261,6 +263,7 @@ const translationServices = {
 
   const handleOpenNotification = (event) => {
     setAnchorElNotification(event.currentTarget);
+    fetchNotifications();
   };
 
   const handleCloseNotification = () => {
@@ -1207,27 +1210,38 @@ useEffect(() => {
                   ))}
                 </Menu>
                 <Menu
-                  sx={{ mt: "45px", display: "flex", flexDirection: "row" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElNotification}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  style={{ overflow: "scroll" }}
-                  open={Boolean(anchorElNotification)}
-                  onClose={handleCloseNotification}
-                >
+                    id="menu-appbar"
+                    anchorEl={anchorElNotification}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "center",
+                    }}
+                    open={Boolean(anchorElNotification)}
+                    onClose={handleCloseNotification}
+                    PaperProps={{
+                      sx: {
+                        mt: "45px",
+                        width: 500,
+                        maxHeight: 500,
+                        overflowY: "auto",
+                        bgcolor: "background.paper",
+                      },
+                    }}
+                  >
                   <Stack
                     direction="row"
-                    style={{
+                    sx={{
                       justifyContent: "space-between",
                       padding: "0 10px 0 10px",
+                      position: "sticky",
+                      top: 0,
+                      bgcolor: "background.paper",
+                      zIndex: 1,
                     }}
                   >
                     <Typography variant="h4">Notifications</Typography>
