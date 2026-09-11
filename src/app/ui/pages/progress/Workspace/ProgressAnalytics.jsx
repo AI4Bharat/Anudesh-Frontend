@@ -225,9 +225,11 @@ function ProgressList() {
   useEffect(() => {
     if (radiobutton === "Annotation") {
       setProjectTypes([
-       "ModelOutputEvaluvation",
-       "ModelInteractionEvaluation",
-       "InstructionDrivenChat",
+        "ModelOutputEvaluation",
+        "ModelInteractionEvaluation",
+        "MultipleInteractionEvaluation",
+        "InstructionDrivenChat",
+        "MultipleLLMInstructionDrivenChat",
       ]);
       setSelectedType("InstructionDrivenChat");
       
