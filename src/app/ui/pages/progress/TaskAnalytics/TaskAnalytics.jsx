@@ -9,7 +9,6 @@ import Menu from "@mui/material/Menu";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import React from "react";
-import TaskAnalyticsDataAPI from "@/app/actions/api/Progress/TaskAnalytics";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Spinner from "@/components/common/Spinner";
@@ -24,9 +23,10 @@ import CustomizedSnackbars from "@/components/common/Snackbar";
 import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
 import { KeyboardArrowDown } from "@material-ui/icons";
-import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
 import { fetchWorkspaceData } from "@/Lib/Features/GetWorkspace";
+import { format } from "date-fns";
+import TaskAnalyticsDateRangeFilter from "@/components/common/TaskAnalyticsDateRangeFilter";
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -60,6 +60,7 @@ const TaskAnalytics = (props) => {
   const [submit,setsubmit] = useState(false);
   const [isWorkspaceLevel, setIsWorkspaceLevel] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState("");
+  const [dateRange, setDateRange] = useState(null);
   const workspaces = useSelector((state) => state.GetWorkspace.data || []);
   const [selectedType, setSelectedType] = useState("AllTypes");
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
@@ -87,13 +88,24 @@ if(isWorkspaceLevel && submit==true){
   console.log(selectedType);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const organizationId = props.loggedInUserData?.organization?.id;
 
   const getTaskAnalyticsdata = () => {
-    setLoading(true)
- 
-      const userObj = new TaskAnalyticsDataAPI(selectedType);
-      dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType}))
-  
+    if (!organizationId) return;
+
+    setLoading(true);
+    const startDate = dateRange
+      ? format(dateRange.startDate, "yyyy-MM-dd")
+      : null;
+    const endDate = dateRange
+      ? format(dateRange.endDate, "yyyy-MM-dd")
+      : null;
+    dispatch(fetchTaskAnalyticsData({
+      organizationId,
+      project_type_filter: selectedType,
+      startDate,
+      endDate,
+    }));
   };
 
   const showSnackbar = (message) => {
@@ -135,7 +147,7 @@ if(isWorkspaceLevel && submit==true){
 
   useEffect(() => {
     getTaskAnalyticsdata();
-  }, []);
+  }, [organizationId]);
 
   useEffect(() => {
     dispatch(fetchWorkspaceData());
@@ -146,16 +158,30 @@ if(isWorkspaceLevel && submit==true){
   };
 
   const handleSubmit = async () => {
-    setLoading(true)
+    const startDate = dateRange
+      ? format(dateRange.startDate, "yyyy-MM-dd")
+      : null;
+    const endDate = dateRange
+      ? format(dateRange.endDate, "yyyy-MM-dd")
+      : null;
+
+    setLoading(true);
     if(isWorkspaceLevel){
-      const userObj = new wsTaskAnalyticsAPI(selectedWorkspace,selectedType);
-      dispatch(fetchwsTaskAnalyticsData({id:selectedWorkspace,project_type_filter:selectedType}))
-      setsubmit(true)
+      dispatch(fetchwsTaskAnalyticsData({
+        id: selectedWorkspace,
+        project_type_filter: selectedType,
+        startDate,
+        endDate,
+      }));
+      setsubmit(true);
     }
     else{
-      const userObj = new TaskAnalyticsDataAPI(selectedType);
-      dispatch(fetchTaskAnalyticsData({project_type_filter:selectedType}))
-  
+      dispatch(fetchTaskAnalyticsData({
+        organizationId,
+        project_type_filter: selectedType,
+        startDate,
+        endDate,
+      }));
     }
   };
 
@@ -319,6 +345,12 @@ if(isWorkspaceLevel && submit==true){
             </FormControl>
           </Grid>
         )}
+          <Grid item xs={12} sm={4} md={4}>
+            <TaskAnalyticsDateRangeFilter
+              value={dateRange}
+              onChange={setDateRange}
+            />
+          </Grid>
         </Grid>
       </Grid>
 
@@ -335,6 +367,10 @@ if(isWorkspaceLevel && submit==true){
               label="Submit"
               sx={{ width: { xs: "100%", sm: "45%" }, height: "40px", mb: { xs: 2, sm: 0 } }}
               onClick={handleSubmit}
+              disabled={
+                loading ||
+                (isWorkspaceLevel ? !selectedWorkspace : !organizationId)
+              }
               size="small"
             />
 
