@@ -461,29 +461,30 @@ const AdvancedOperation = (props) => {
     }
   };
 
-  const getPublishProjectButton = async () => {
-    const projectObj = new GetPublishProjectButtonAPI(id);
-    const res = await fetch(projectObj.apiEndPoint(), {
-      method: "POST",
-      body: JSON.stringify(projectObj.getBody()),
-      headers: projectObj.getHeaders().headers,
+ const getPublishProjectButton = async () => {
+  const projectObj = new GetPublishProjectButtonAPI(id);
+  const res = await fetch(projectObj.apiEndPoint(), {
+    method: "POST",
+    body: JSON.stringify(projectObj.getBody()),
+    headers: projectObj.getHeaders().headers,
+  });
+  const resp = await res.json();
+  setLoading(false);
+  if (res.ok) {
+    setSnackbarInfo({
+      open: true,
+      message: resp?.message,
+      variant: "success",
     });
-    const resp = await res.json();
-    setLoading(false);
-    if (res.ok) {
-      setSnackbarInfo({
-        open: true,
-        message: resp?.message,
-        variant: "success",
-      });
-    } else {
-      setSnackbarInfo({
-        open: true,
-        message: resp?.message,
-        variant: "error",
-      });
-    }
-  };
+    getProjectDetails(); 
+  } else {
+    setSnackbarInfo({
+      open: true,
+      message: resp?.message,
+      variant: "error",
+    });
+  }
+};
 
   const getPullNewDataAPI = async () => {
     const projectObj = new GetPullNewDataAPI(id);
@@ -511,6 +512,7 @@ const AdvancedOperation = (props) => {
 
   const ArchiveProject = useSelector((state) => state.GetArchiveProject?.data);
   const [isArchived, setIsArchived] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const [downloadMetadataToggle, setDownloadMetadataToggle] = useState(true);
   const [blankResponse, setBlankResponse] = useState(ProjectDetails?.metadata_json?.blank_response||false);
 
@@ -521,6 +523,10 @@ const AdvancedOperation = (props) => {
   useEffect(() => {
     setIsArchived(ProjectDetails?.is_archived);
   }, [ProjectDetails]);
+
+  useEffect(() => {
+  setIsPublished(ProjectDetails?.is_published);
+}, [ProjectDetails]);
 
   const handleDownloadProjectAnnotations = () => {
     getDownloadProjectAnnotations();
@@ -673,21 +679,27 @@ const AdvancedOperation = (props) => {
           }}
         >
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <Tooltip title="Make this project visible and available to assigned annotators">
-              <span style={{ display: "block", width: "100%" }}>
-                <CustomButton
-                  sx={{
-                    inlineSize: "max-content",
-                    borderRadius: 3,
-                    width: "100%"
-                  }}
-                  onClick={handlePublishProject}
-                  label="Publish Project"
-                />
-              </span>
-            </Tooltip>
-          </Grid>
-
+  <Tooltip
+    title={
+      isPublished
+        ? "This project is already published"
+        : "Make this project visible and available to assigned annotators"
+    }
+  >
+    <span style={{ display: "block", width: "100%" }}>
+      <CustomButton
+        sx={{
+          inlineSize: "max-content",
+          borderRadius: 3,
+          width: "100%"
+        }}
+        onClick={handlePublishProject}
+        label={isPublished ? "Published" : "Publish Project"}
+        disabled={isPublished}
+      />
+    </span>
+  </Tooltip>
+</Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <Tooltip title={isArchived ? "This project is already archived" : "Archive this project to hide it from active projects"}
             >
