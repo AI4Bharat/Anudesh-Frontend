@@ -30,13 +30,17 @@ const diffAnnotationReview = (payload) => {
 
 export const fetchTaskAnalyticsData = createAsyncThunk(
   'getTaskAnalyticsData/fetchTaskAnalyticsData',
-  async ({project_type_filter,progressObj}) => {
+  async ({project_type_filter,progressObj, fromDate, toDate}) => {
     let endpoint ;
     const body = progressObj
     project_type_filter=='AllTypes'?
     endpoint = `${ENDPOINTS.getOrganizations}public/1/cumulative_tasks_count/`
     :
     endpoint = `${ENDPOINTS.getOrganizations}public/1/cumulative_tasks_count/?project_type=${project_type_filter}`
+    
+    if (fromDate && toDate) {
+      endpoint += (endpoint.includes('?') ? '&' : '?') + `from_date=${fromDate}&to_date=${toDate}`;
+    }
     const params = fetchParams(endpoint,"GET",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
