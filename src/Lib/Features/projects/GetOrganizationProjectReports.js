@@ -9,7 +9,7 @@ const initialState = {
 
 export const fetchOrganizationProjectReports = createAsyncThunk(
   'GetOrganizationProjectReports/fetchOrganizationProjectReports',
-  async ({orgId, projectType, targetLanguage, userId, sendMail, sortByColumn, descOrder}) => {
+  async ({orgId, projectType, targetLanguage, userId, sendMail, sortByColumn, descOrder, startDate, endDate}) => {
     const body = {
         project_type: projectType,
       tgt_language: targetLanguage === "all" ? undefined : targetLanguage,
@@ -17,6 +17,8 @@ export const fetchOrganizationProjectReports = createAsyncThunk(
       descending_order: descOrder ?? undefined,
       user_id: userId,
       send_mail: sendMail,
+      from_date: startDate,
+      to_date: endDate,
       };
     const params = fetchParams(`${ENDPOINTS.getOrganizations}${orgId}/project_analytics/`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)
