@@ -14,11 +14,12 @@ import { fetchTaskAnalyticsData } from "@/Lib/Features/Analytics/getTaskAnalytic
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import { fetchwsTaskAnalyticsData } from "@/Lib/Features/Analytics/Workspace/wsgetTaskAnalytics";
 import TaskCountAnalyticsChart from "../TaskAnalytics/TaskCountAnalyticsChart";
-import wsTaskAnalyticsAPI from "@/app/actions/api/Progress/wsTaskAnalyticsAPI";
 import exportFromJSON from 'export-from-json';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { KeyboardArrowDown } from "@material-ui/icons";
+import { format } from "date-fns";
+import TaskAnalyticsDateRangeFilter from "@/components/common/TaskAnalyticsDateRangeFilter";
 const StyledMenu = styled((props) => (
   <Menu
     elevation={3}
@@ -49,6 +50,7 @@ const TaskAnalytics = () => {
   const dispatch = useDispatch();
   const [projectTypes, setProjectTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("AllTypes");
+  const [dateRange, setDateRange] = useState(null);
   const ProjectTypes = useSelector((state) => state.getProjectDomains.data);
   const workspaceDetails = useSelector((state) => state.getWorkspaceDetails.data);
   const taskAnalyticsData = useSelector(
@@ -66,9 +68,21 @@ console.log(selectedType);
 
 
   const getTaskAnalyticsdata = () => {
-    setLoading(true)
-    const userObj = new wsTaskAnalyticsAPI(workspaceDetails?.id,selectedType);
-    dispatch(fetchwsTaskAnalyticsData({id:workspaceDetails?.id,project_type_filter:selectedType}))
+    if (!workspaceDetails?.id) return;
+
+    setLoading(true);
+    const startDate = dateRange
+      ? format(dateRange.startDate, "yyyy-MM-dd")
+      : null;
+    const endDate = dateRange
+      ? format(dateRange.endDate, "yyyy-MM-dd")
+      : null;
+    dispatch(fetchwsTaskAnalyticsData({
+      id: workspaceDetails.id,
+      project_type_filter: selectedType,
+      startDate,
+      endDate,
+    }));
   };
 
   const showSnackbar = (message) => {
@@ -110,7 +124,7 @@ console.log(selectedType);
 
   useEffect(() => {
     getTaskAnalyticsdata();
-  }, []);
+  }, [workspaceDetails?.id]);
 
 
   const handleSubmit = async () => {
@@ -244,6 +258,12 @@ console.log(selectedType);
             </Select>
           </FormControl>
           </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+            <TaskAnalyticsDateRangeFilter
+              value={dateRange}
+              onChange={setDateRange}
+            />
+          </Grid>
           </Grid>
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
           <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -251,6 +271,7 @@ console.log(selectedType);
         label="Submit"
         sx={{ width: "35%", height: "40px" }}
         onClick={handleSubmit}
+        disabled={loading || !workspaceDetails?.id}
         size="small"
       />
 
