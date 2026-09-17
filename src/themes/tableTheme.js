@@ -81,6 +81,42 @@ const tableTheme = createTheme({
         },
       },
     },
+    // ── Responsive Layout Fixes (≤960px) ───────────────────────────
+    // Fixes MUIDataTable bugs on small screens: prevents inline minWidths from 
+    // causing horizontal scroll, and forces long text to truncate cleanly.
+    MUIDataTableBodyCell: {
+      styleOverrides: {
+        stackedParent: {
+          "@media screen and (max-width: 960px)": {
+            minWidth: "0 !important",
+            maxWidth: "none !important",
+            display: "flex !important",
+            flexDirection: "row",
+          },
+        },
+        stackedHeader: {
+          "@media screen and (max-width: 960px)": {
+            flexShrink: "0 !important",
+          },
+        },
+        stackedCommon: {
+          "@media screen and (max-width: 960px)": {
+            minWidth: "0 !important",
+            wordBreak: "break-word",
+          },
+        },
+      },
+    },
+    MUIDataTableBodyRow: {
+      styleOverrides: {
+        root: {
+          "@media screen and (max-width: 960px)": {
+            display: "block !important",
+            width: "100% !important",
+          },
+        },
+      },
+    },
   },
 });
 
