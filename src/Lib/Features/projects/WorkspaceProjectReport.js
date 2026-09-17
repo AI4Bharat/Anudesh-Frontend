@@ -9,16 +9,20 @@ const initialState = {
 
 export const fetchWorkspaceProjectReport = createAsyncThunk(
   'WorkspaceProjectReport/fetchWorkspaceProjectReport',
-  async ({workspaceId, projectType, language, sendMail, reportsType,}) => {
+  async ({workspaceId, projectType, language, sendMail, reportsType, startDate, endDate}) => {
     const body = language === "all" ? {
         project_type: projectType,
         reports_type: reportsType,
         send_mail: sendMail,
+        from_date: startDate,
+        to_date: endDate,
       } : {
           project_type: projectType,
           tgt_language: language,
           reports_type: reportsType,
           send_mail: sendMail,
+          from_date: startDate,
+          to_date: endDate,
         };
     const params = fetchParams(`${ENDPOINTS.getWorkspaces}${workspaceId}/project_analytics/`,"POST",JSON.stringify(body));
     return fetch(params.url, params.options)

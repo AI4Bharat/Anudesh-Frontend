@@ -634,6 +634,8 @@ const OrganizationReports = () => {
               targetLanguage: targetLanguage[radioButton],
               userId: userId,
               sendMail: sendMail,
+              startDate: format(selectRange[0].startDate, "yyyy-MM-dd"),
+              endDate: format(selectRange[0].endDate, "yyyy-MM-dd"),
             }),
           );
           if (sendMail) {
@@ -974,7 +976,7 @@ const OrganizationReports = () => {
           </>
         )}
 
-        {["UsersReports", "PaymentReports"].includes(radioButton) && (
+        {["UsersReports", "PaymentReports", "ProjectReports"].includes(radioButton) && (
           <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
             <Button
               endIcon={showPicker ? <ArrowRightIcon /> : <ArrowDropDownIcon />}
