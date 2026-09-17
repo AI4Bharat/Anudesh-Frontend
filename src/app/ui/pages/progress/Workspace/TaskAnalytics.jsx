@@ -118,7 +118,7 @@ console.log(selectedType);
   ]
 
   useEffect(() => {
-    let types=["ModelOutputEvaluation","ModelInteractionEvaluation","InstructionDrivenChat",'AllTypes']
+    let types=["ModelOutputEvaluation","ModelInteractionEvaluation","MultipleInteractionEvaluation","InstructionDrivenChat","MultipleLLMInstructionDrivenChat",'AllTypes']
     setProjectTypes(types);
   }, []);
 
