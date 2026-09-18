@@ -176,6 +176,15 @@ const CreateProject = () => {
   const [selectedLanguageModels, setSelectedLanguageModels] = useState(fixedModels);
   const [numSelectedModels, setNumSelectedModels] = useState(fixedModels.length);
   const [defaultValue, setDefaultValue] = useState(0);
+  const DEFAULT_SYSTEM_PROMPT = "We will be rendering your response on a frontend. So, please add spaces or indentation or nextline chars or bullet or numberings etc. suitably for code or the text, wherever required.";
+  const [systemPrompt, setSystemPrompt] = useState({});
+
+  const handleSystemPromptChange = (model, value) => {
+    setSystemPrompt(prev => ({
+      ...prev,
+      [model]: value
+    }));
+  };
 
   const handleTextareaChange = (event) => {
     setDefaultValue(event.target.value);
@@ -204,7 +213,8 @@ const CreateProject = () => {
       selectedLanguageModels,
       fixedModels,
       numSelectedModels,
-      defaultValue
+      defaultValue,
+      systemPrompt
     }));
   };
 
@@ -214,7 +224,7 @@ const CreateProject = () => {
     title, description, selectedDomain, selectedType, sourceLanguage, targetLanguage,
     selectedInstances, confirmed, samplingMode, random, batchSize, batchNumber,
     selectedAnnotatorsNum, taskReviews, createannotationsAutomatically, is_published, conceal, jsonInput, isModelSelectionEnabled, selectedLanguageModels,
-    fixedModels, numSelectedModels, defaultValue
+    fixedModels, numSelectedModels, defaultValue, systemPrompt
   ]);
     useEffect(() => {
     setTitle(formData.title);
@@ -240,6 +250,7 @@ const CreateProject = () => {
     setFixedModels(formData.fixedModels);
     setNumSelectedModels(formData.numSelectedModels);
     setDefaultValue(formData.defaultValue);
+    setSystemPrompt(formData.systemPrompt || {});
   }, []);
 
   // Clear form function
@@ -270,6 +281,7 @@ const CreateProject = () => {
     setFixedModels(fixed_Models);
     setNumSelectedModels();
     setDefaultValue(0);
+    setSystemPrompt({});
   };
 
   useEffect(() => {
@@ -611,6 +623,21 @@ const CreateProject = () => {
     };
   } else {
     baseMetadata = questionsJSON;
+  }
+
+  // Add system_prompt to metadata if provided
+  if (systemPrompt && Object.keys(systemPrompt).length > 0) {
+    // Only save entries that are non-empty strings
+    const cleanedSystemPrompt = Object.fromEntries(
+      Object.entries(systemPrompt).filter(([k, v]) => v && v.trim() !== '')
+    );
+    if (Object.keys(cleanedSystemPrompt).length > 0) {
+      if (typeof baseMetadata === 'object' && baseMetadata !== null) {
+        baseMetadata = { ...baseMetadata, system_prompt: cleanedSystemPrompt };
+      } else {
+        baseMetadata = { system_prompt: cleanedSystemPrompt };
+      }
+    }
   }
 
   if (workspaceDtails?.guest_workspace_display === "Yes") {
@@ -1144,12 +1171,13 @@ const CreateProject = () => {
                 </Grid>
               </Card>
             )}
-            {selectedType === "MultipleLLMInstructionDrivenChat" && selectedDomain === "Chat" && (
+            {(selectedType === "MultipleLLMInstructionDrivenChat" || selectedType === "InstructionDrivenChat") && selectedDomain === "Chat" && (
               <Card sx={{ p: 1, mb: 1 }}>
                 <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
                   Chat Configuration
                 </Typography>
 
+                {selectedType === "MultipleLLMInstructionDrivenChat" && (
                 <Grid container spacing={2} alignItems="center">
                   {/* Toggle on the left */}
                   <Grid item xs={12} md={2}>
@@ -1333,6 +1361,71 @@ const CreateProject = () => {
                   ) : null}
 
                 </Grid>
+                )}
+
+                  {/* System Prompt Fields */}
+                  <Grid container spacing={2} sx={{ mt: 1 }}>
+                    {selectedType === "MultipleLLMInstructionDrivenChat" ? (
+                      selectedLanguageModels.map((model) => (
+                        <Grid item xs={12} key={model}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal' }}>
+                              System Prompt for {model}:
+                              <Tooltip
+                                title={`Optional custom system prompt for ${model}.`}
+                                arrow
+                                placement="top"
+                              >
+                                <IconButton size="small" sx={{ color: 'primary.main' }}>
+                                  <InfoOutlined fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Typography>
+                            <TextField
+                              fullWidth
+                              multiline
+                              minRows={3}
+                              maxRows={6}
+                              size="small"
+                              value={systemPrompt[model] !== undefined ? systemPrompt[model] : DEFAULT_SYSTEM_PROMPT}
+                              onChange={(e) => handleSystemPromptChange(model, e.target.value)}
+                              placeholder={`Enter a custom system prompt for ${model}`}
+                              variant="outlined"
+                            />
+                          </Box>
+                        </Grid>
+                      ))
+                    ) : (
+                      <Grid item xs={12}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" sx={{ mr: 1, fontWeight: 'normal' }}>
+                            System Prompt:
+                            <Tooltip
+                              title="Optional custom system prompt for the LLM."
+                              arrow
+                              placement="top"
+                            >
+                              <IconButton size="small" sx={{ color: 'primary.main' }}>
+                                <InfoOutlined fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Typography>
+                          <TextField
+                            fullWidth
+                            multiline
+                            minRows={3}
+                            maxRows={6}
+                            size="small"
+                            value={systemPrompt["default"] !== undefined ? systemPrompt["default"] : DEFAULT_SYSTEM_PROMPT}
+                            onChange={(e) => handleSystemPromptChange("default", e.target.value)}
+                            placeholder="Enter a custom system prompt for the LLM"
+                            variant="outlined"
+                          />
+                        </Box>
+                      </Grid>
+                    )}
+                  </Grid>
+
               </Card>
             )}
             {/* {selectedType === "MultipleLLMInstructionDrivenChat" &&

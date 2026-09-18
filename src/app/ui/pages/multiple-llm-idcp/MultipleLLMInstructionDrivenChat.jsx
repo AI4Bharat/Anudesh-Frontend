@@ -9,12 +9,13 @@ import Modal from "@mui/material/Modal";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import ReactMarkdown from "react-markdown";
+import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
-import React, { useState, useEffect, useRef,useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
@@ -24,6 +25,7 @@ import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
 import CloseIcon from "@mui/icons-material/Close";
 import PatchAnnotationAPI from "@/app/actions/api/Dashboard/PatchAnnotations";
+import useStreamingLLM from "@/hooks/useStreamingLLM";
 import ChatLang from "@/utils/Chatlang";
 import { IndicTransliterate } from "@ai4bharat/indic-transliterate-transcribe";
 import configs from "@/config/config";
@@ -45,6 +47,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Slider from '@mui/material/Slider';
+import linkifyText from '@/utils/linkifyText';
 
 const orange = {
   200: "pink",
@@ -82,8 +90,116 @@ const viewFullResponseModalStyle = {
   p: 4,
   borderRadius: "20px",
   padding: "2.4rem",
-      background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+  background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
 };
+
+// Font size slider component
+const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
+  const [localValue, setLocalValue] = useState(value);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const handleChange = useCallback((_e, newVal) => {
+    setLocalValue(newVal);
+
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--chat-font-size', `${newVal}rem`);
+      }
+    });
+  }, [containerRef]);
+
+  const handleCommit = useCallback((_e, newVal) => {
+    onCommit(newVal);
+  }, [onCommit]);
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        px: "0.5rem",
+        pb: "0.5rem",
+        flexShrink: 0,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+        Aa
+      </Typography>
+      <Slider
+        value={localValue}
+        min={0.7}
+        max={1.4}
+        step={0.05}
+        onChange={handleChange}
+        onChangeCommitted={handleCommit}
+        size="small"
+        sx={{
+          color: "#EE6633",
+          width: "100%",
+          minWidth: 0,
+          "& .MuiSlider-thumb": { width: 12, height: 12 },
+        }}
+      />
+      <Typography sx={{ fontSize: "0.7rem", color: "#888", whiteSpace: "nowrap" }}>
+        {Math.round(localValue * 16)}px
+      </Typography>
+      <Tooltip title={<span style={{ fontFamily: "Roboto, sans-serif" }}>Reset font size</span>}>
+        <IconButton
+          size="small"
+          onClick={onReset}
+          sx={{ padding: "4px", minWidth: "auto", marginLeft: "4px" }}
+        >
+          <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+});
+
+const isErrorOutput = (value) => {
+  if (typeof value !== "string") return false;
+  const lower = value.toLowerCase().trim();
+  return (
+    lower.startsWith("[error]") ||
+    lower.startsWith("the model is temporarily unavailable") ||
+    lower.startsWith("encountered an error") ||
+    lower.startsWith("streaming timed out") ||
+    lower.startsWith("failed to generate a response")
+  );
+};
+
+
+const reverseFormatResponse = (formattedOutput) => {
+  let response = "";
+  if (typeof formattedOutput === "string") return formattedOutput;
+  if (Array.isArray(formattedOutput)) {
+    formattedOutput.forEach((item) => {
+      if (item.type === "text") {
+        response += item.value;
+      } else if (item.type === "code") {
+        response += "```" + item.language + "\n" + item.value + "\n```";
+      }
+    });
+  }
+  return response;
+};
+
 
 const MultipleLLMInstructionDrivenChat = ({
   chatHistory,
@@ -101,32 +217,90 @@ const MultipleLLMInstructionDrivenChat = ({
   setIsModelFailing,
   submittedEvalForms,
   setSubmittedEvalForms,
-  fontSize = "medium",
+  setLoading,
+  loading,
+  setIsModelStreaming,
+  fontSize: initialFontSize = 1.0,
 }) => {
-  /* eslint-disable react-hooks/exhaustive-deps */
-  const getFontSize = () => {
-    switch(fontSize) {
-      case 'small':
-        return '0.75rem';
-      case 'medium':
-        return '1rem';
-      case 'large':
-        return '1.25rem';
-      case 'xlarge':
-        return '1.5rem';
-      default:
-        return '1rem';
-    }
-  };
+  const [fontSize, setFontSize] = useState(
+    typeof initialFontSize === 'number' ? initialFontSize : 1.0
+  );
 
+  const getFontSize = () => 'var(--chat-font-size)';
+  const [pendingResendPromptMulti, setPendingResendPromptMulti] = useState(null);
+  /* eslint-disable react-hooks/exhaustive-deps */
   const [inputValue, setInputValue] = useState("");
   const { taskId } = useParams();
   const [annotationId, setAnnotationId] = useState();
+  const dispatch = useDispatch();
+
+
+
   const bottomRef = useRef(null);
   const [showChatContainer, setShowChatContainer] = useState(true);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollingCount, setPollingCount] = useState(0);
+
+  useEffect(() => {
+    let intervalId;
+    if (isPolling) {
+      intervalId = setInterval(() => {
+        dispatch(fetchAnnotationsTask(taskId));
+        setPollingCount((prev) => prev + 1);
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isPolling, taskId, dispatch]);
+  useEffect(() => {
+    if (pendingResendPromptMulti && !isStreaming && chatHistory !== null) {
+      const prompt = pendingResendPromptMulti;
+      setPendingResendPromptMulti(null);
+      setTimeout(() => {
+        handleButtonClick(null, null, null, prompt);
+      }, 500);
+    }
+  }, [pendingResendPromptMulti, chatHistory]);
+
+  useEffect(() => {
+    if (pollingCount > 6) {
+      setIsPolling(false);
+      setIsStreaming(false);
+      setPollingCount(0);
+
+      setSnackbarInfo({
+        open: true,
+        message: "Streaming timed out. Please refresh the page.",
+        variant: "error",
+      });
+    }
+  }, [pollingCount, taskId]);
+
   const [loadtime, setloadtime] = useState(new Date());
+  const { streamMultiModelResponse, abortStream } = useStreamingLLM();
+
+  // Abort any in-flight stream when the page unmounts (e.g. browser back).
+  // Otherwise the detached stream keeps running, completes in the background,
+  // and its completion handler removes the `in_progress_chat_${taskId}` recovery
+  // key (and PATCHes the server). Returning before the server refetch would then
+  // find no recovery breadcrumb, so the prompt vanishes until a manual refresh.
+  // Aborting keeps the breadcrumb so recovery can restore it.
+  useEffect(() => {
+    return () => {
+      abortStream();
+    };
+  }, [abortStream]);
+
+  useEffect(() => {
+    if (setIsModelStreaming) {
+      setIsModelStreaming(isStreaming);
+    }
+  }, [isStreaming, setIsModelStreaming]);
   const [activeModalIdentifier, setActiveModalIdentifier] = useState(null);
   const [visibleMessages, setVisibleMessages] = useState({});
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
@@ -146,61 +320,160 @@ const MultipleLLMInstructionDrivenChat = ({
   const [targetLang, setTargetLang] = useState("");
   const [globalTransliteration, setGlobalTransliteration] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
-const containerRef = useRef(null);
+  const [instructionWidth, setInstructionWidth] = useState(30); // percentage for desktop
+  const [isPinned, setIsPinned] = useState(false);
+  const containerRef = useRef(null);
+  const instructionPanelRef = useRef(null);
+  const widthRef = useRef(30);
+  const isSendInFlightRef = useRef(false);
+  const hasRecoveredRef = useRef(false);
+  const chatHistoryRef = useRef(chatHistory);
+  useEffect(() => {
+    chatHistoryRef.current = chatHistory;
+  }, [chatHistory]);
+  const isDraggingRef = useRef(false);
 
-// Add these handler functions inside the component
-const startDragging = useCallback((e) => {
-  e.preventDefault();
-  setIsDragging(true);
-}, []);
+  const saveAnnotationUIPref = useCallback((newPrefs) => {
+    try {
+      const localPrefs = localStorage.getItem("annotation_ui_preferences");
+      let prefs = {};
+      if (localPrefs) {
+        prefs = JSON.parse(localPrefs);
+      }
+      prefs = { ...prefs, ...newPrefs };
+      localStorage.setItem("annotation_ui_preferences", JSON.stringify(prefs));
+    } catch (err) {
+      console.error('Failed to save local annotation UI preferences', err);
+    }
+  }, []);
 
-const stopDragging = useCallback(() => {
-  setIsDragging(false);
-}, []);
-  
+  // Drag handler functions
+  const onDrag = useCallback((e) => {
+    if (!isDraggingRef.current || !containerRef.current) return;
 
-const onDrag = useCallback((e) => {
-  if (!isDragging || !containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    let newWidth;
 
-  const containerRect = containerRef.current.getBoundingClientRect();
-  let newWidth;
+    if (window.innerWidth < 768) {
+      // For mobile, use percentage of screen height
+      const dragY = e.clientY;
+      const containerTop = containerRect.top;
+      const containerBottom = containerRect.bottom;
+      const containerHeight = containerBottom - containerTop;
 
-  if (window.innerWidth < 768) {
-    // For mobile, use percentage of screen height
-    const dragY = e.clientY;
-    const containerTop = containerRect.top;
-    const containerBottom = containerRect.bottom;
-    const containerHeight = containerBottom - containerTop;
-    
-    // Calculate percentage based on Y position (inverted for top panel)
-    const percentage = ((dragY - containerTop) / containerHeight) * 100;
-    newWidth = Math.min(70, Math.max(20, percentage)); // Limit between 20% and 70%
-  } else {
-    // For desktop, use percentage of width
-    const dragX = e.clientX;
-    const containerLeft = containerRect.left;
-    const containerWidth = containerRect.width;
-    
-    // Calculate percentage based on X position
-    const percentage = ((dragX - containerLeft) / containerWidth) * 100;
-    newWidth = Math.min(60, Math.max(20, percentage)); // Limit between 20% and 60%
-  }
+      const percentage = ((dragY - containerTop) / containerHeight) * 100;
+      newWidth = Math.min(70, Math.max(20, percentage));
+    } else {
+      // For desktop, use percentage of width
+      const dragX = e.clientX;
+      const containerLeft = containerRect.left;
+      const containerWidth = containerRect.width;
 
-  setInstructionWidth(newWidth);
-}, [isDragging]);
+      const percentage = ((dragX - containerLeft) / containerWidth) * 100;
+      newWidth = Math.min(60, Math.max(20, percentage));
+    }
 
-useEffect(() => {
-  if (isDragging) {
-    window.addEventListener('mousemove', onDrag);
-    window.addEventListener('mouseup', stopDragging);
-  }
-  return () => {
+    widthRef.current = newWidth;
+    if (instructionPanelRef.current) {
+      if (window.innerWidth < 768) {
+        instructionPanelRef.current.style.height = `${newWidth}dvh`;
+      } else {
+        instructionPanelRef.current.style.width = `${newWidth}%`;
+      }
+    }
+  }, []);
+
+  const stopDragging = useCallback(() => {
+    isDraggingRef.current = false;
+
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.transition = 'all 0.3s ease';
+      if (window.innerWidth < 768) {
+        instructionPanelRef.current.style.removeProperty('height');
+      } else {
+        instructionPanelRef.current.style.removeProperty('width');
+      }
+    }
+
     window.removeEventListener('mousemove', onDrag);
     window.removeEventListener('mouseup', stopDragging);
-  };
-}, [isDragging, onDrag, stopDragging]);
+
+    const roundedWidth = Math.round(widthRef.current * 10) / 10;
+    setInstructionWidth(roundedWidth);
+    saveAnnotationUIPref({
+      instruction_panel_width: roundedWidth
+    });
+  }, [onDrag, saveAnnotationUIPref]);
+
+  const startDragging = useCallback((e) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+
+    if (instructionPanelRef.current) {
+      instructionPanelRef.current.style.transition = 'none';
+    }
+
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }, [onDrag, stopDragging]);
+
+  const handlePinToggle = useCallback(() => {
+    const newPinned = !isPinned;
+    setIsPinned(newPinned);
+    saveAnnotationUIPref({
+      instruction_panel_pinned: newPinned,
+      instruction_panel_width: Math.round(instructionWidth * 10) / 10,
+    });
+  }, [isPinned, instructionWidth, saveAnnotationUIPref]);
+
+  const handleResetFontSize = useCallback((e) => {
+    if (e) e.stopPropagation();
+    setFontSize(1.0);
+    saveAnnotationUIPref({ annotation_font_size: 1.0 });
+  }, [saveAnnotationUIPref]);
+
+  const handleResetPanelWidth = useCallback((e) => {
+    if (e) e.stopPropagation();
+    setInstructionWidth(30);
+    setIsPinned(false);
+    saveAnnotationUIPref({
+      instruction_panel_width: 30,
+      instruction_panel_pinned: false
+    });
+  }, [saveAnnotationUIPref]);
+
+  // Sync annotation UI preferences from localStorage on mount
+  useEffect(() => {
+    const localPrefs = localStorage.getItem("annotation_ui_preferences");
+    if (localPrefs) {
+      try {
+        const prefs = JSON.parse(localPrefs);
+        if (typeof prefs.instruction_panel_width === 'number') {
+          setInstructionWidth(prefs.instruction_panel_width);
+        }
+        if (typeof prefs.annotation_font_size === 'number') {
+          setFontSize(prefs.annotation_font_size);
+        }
+        if (typeof prefs.instruction_panel_pinned === 'boolean') {
+          setIsPinned(prefs.instruction_panel_pinned);
+        }
+      } catch (err) {
+        console.error('Failed to parse local annotation UI preferences', err);
+      }
+    }
+  }, []);
+
+
+  useEffect(() => {
+    widthRef.current = instructionWidth;
+  }, [instructionWidth]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--chat-font-size', `${fontSize}rem`);
+    }
+  }, [fontSize]);
+
   const labels = {
     1: "Poor",
     2: "Fair",
@@ -247,8 +520,9 @@ useEffect(() => {
   }, [chatHistory]);
 
   useEffect(() => {
-      setEvalFormResponse({});
-  setSubmittedEvalForms({});
+    if (!taskId) return;
+    setEvalFormResponse({});
+    setSubmittedEvalForms({});
 
     let modifiedChatHistory = [];
     if (
@@ -333,13 +607,77 @@ useEffect(() => {
           });
         }
       }
-      setChatHistory(modifiedChatHistory);
     } else {
-      setChatHistory([]);
+      modifiedChatHistory = [];
+    }
+
+    if (!hasRecoveredRef.current && annotation && annotation.length > 0) {
+      hasRecoveredRef.current = true;
+      const localInProgress = localStorage.getItem(`in_progress_chat_${taskId}`);
+      if (localInProgress) {
+        try {
+          const parsedLocal = JSON.parse(localInProgress);
+          const lastLocalPrompt = parsedLocal[parsedLocal.length - 1]?.prompt;
+
+          const serverTurnWithValidResponse = modifiedChatHistory.find(
+            (c) =>
+              c.prompt === lastLocalPrompt &&
+              c.output &&
+              c.output.length > 0 &&
+              c.output.every(
+                (modelOut) =>
+                  modelOut.output &&
+                  modelOut.output.length > 0 &&
+                  modelOut.output[0]?.value &&
+                  modelOut.output[0].value.trim() !== ""
+              )
+          );
+
+          if (!serverTurnWithValidResponse) {
+            const lastPromptToResend = lastLocalPrompt;
+
+            // Drop the in-progress last turn (its response never finished streaming)
+            // so the resend below re-appends it once, instead of rendering the prompt
+            // twice — once as an empty-response placeholder and again as the streamed
+            // resend.
+            const priorTurns = Array.isArray(parsedLocal) ? parsedLocal.slice(0, -1) : [];
+            modifiedChatHistory = priorTurns;
+            setChatHistory(priorTurns);
+
+            setIsStreaming(false);
+            setIsPolling(false);
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
+            setPendingResendPromptMulti(lastPromptToResend);
+          } else {
+            localStorage.removeItem(`in_progress_chat_${taskId}`);
+            setIsStreaming(false);
+            setIsPolling(false);
+            setPollingCount(0);
+          }
+        } catch (e) {
+          console.error(e);
+          localStorage.removeItem(`in_progress_chat_${taskId}`);
+        }
+      }
+    }
+
+    const hasLocalError = chatHistoryRef.current && chatHistoryRef.current.length > 0 && (
+      Array.isArray(chatHistoryRef.current[chatHistoryRef.current.length - 1]?.output) &&
+      chatHistoryRef.current[chatHistoryRef.current.length - 1].output.some(
+        (modelOut) =>
+          modelOut.status === "error" ||
+          (Array.isArray(modelOut.output) &&
+           modelOut.output[0]?.value &&
+           isErrorOutput(modelOut.output[0].value))
+      )
+    );
+
+    if (!isSendInFlightRef.current && !pendingResendPromptMulti && !hasLocalError) {
+      setChatHistory(modifiedChatHistory);
+      setShowChatContainer(!!annotation?.[0]?.result);
     }
     setAnnotationId(annotation?.[0]?.id);
-    setShowChatContainer(!!annotation?.[0]?.result);
-  }, [annotation]);
+  }, [annotation, taskId, pendingResendPromptMulti]);
 
   const handleClosePreferredResponseModal = (index) => {
     setVisibleMessages((prev) => ({
@@ -389,6 +727,23 @@ useEffect(() => {
     return typeof value === "string" || value instanceof String;
   }
 
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setSnackbarInfo({
+        open: true,
+        message: "Copied to clipboard!",
+        variant: "success",
+      });
+    } catch (error) {
+      setSnackbarInfo({
+        open: true,
+        message: "Failed to copy to clipboard!",
+        variant: "error",
+      });
+    }
+  };
+
   const generateUniquePromptOutputPairId = () => {
     const time = Date.now();
     const rand = Math.floor(Math.random() * 1000);
@@ -398,13 +753,509 @@ useEffect(() => {
         .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000;
     return Number(`${time}${deviceHash}${rand}`);
   };
+  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null, promptOverride = null) => {
+    console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
+    const isMultipleResponse = ProjectDetails?.metadata_json;
+    const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
 
-  const handleButtonClick = async (prompt_output_pair_id, modelResponses, index = null) => {
-    console.log(prompt_output_pair_id, modelResponses, index,inputValue,evalFormResponse);
-        const isMultipleResponse = ProjectDetails?.metadata_json;
-
-    if (inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
+    if (promptOverride || inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
+
+      const currentPrompt = promptOverride ?? inputValue;
+
+      if (isNewPrompt) {
+        isSendInFlightRef.current = true;
+        // Get the models list from task data
+        const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
+        const rawModel = taskData?.data?.model;
+        const modelsToRun = Array.isArray(rawModel) ? rawModel : (typeof rawModel === "string" ? [rawModel] : []);
+
+        const isBlankResponse = !!ProjectDetails?.metadata_json?.blank_response;
+
+        if (isBlankResponse) {
+          const generatedPairId = generateUniquePromptOutputPairId();
+          const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
+            model_id: modelName,
+            model_name: modelName,
+            output: [{ type: "text", value: "" }],
+            status: "success",
+            prompt_output_pair_id: generatedPairId,
+          }));
+
+          const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: generatedPairId };
+          const optimisticHistory = [...chatHistoryRef.current, optimisticEntry];
+          setChatHistory(optimisticHistory);
+          localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
+          setShowChatContainer(true);
+
+          const body = {
+            result: currentPrompt,
+            lead_time:
+              (new Date() - loadtime) / 1000 +
+              Number(id?.lead_time?.lead_time ?? 0),
+            auto_save: true,
+            task_id: taskId,
+            prompt_output_pair_id: generatedPairId,
+          };
+
+          if (stage === "Alltask") {
+            body.annotation_status = id?.annotation_status;
+          } else {
+            body.annotation_status = localStorage.getItem("labellingMode");
+          }
+          if (stage === "Review") {
+            body.review_notes = JSON.stringify(
+              notes?.current?.getEditor().getContents(),
+            );
+          } else if (stage === "SuperChecker") {
+            body.superchecker_notes = JSON.stringify(
+              notes?.current?.getEditor().getContents(),
+            );
+          } else {
+            body.annotation_notes = JSON.stringify(
+              notes?.current?.getEditor().getContents(),
+            );
+          }
+          if (stage === "Review" || stage === "SuperChecker") {
+            body.parentannotation = id?.parent_annotation;
+          }
+
+          try {
+            const modelMap = {};
+            chatHistoryRef.current.forEach((entry) => {
+              if (Array.isArray(entry.output)) {
+                entry.output.forEach((modelResp) => {
+                  const modelName = modelResp.model_name || modelResp.model_id;
+                  if (modelName) {
+                    if (!modelMap[modelName]) {
+                      modelMap[modelName] = [];
+                    }
+                    modelMap[modelName].push({
+                      prompt: entry.prompt,
+                      output: reverseFormatResponse(modelResp.output),
+                      preferred_response: false,
+                      prompt_output_pair_id: modelResp.prompt_output_pair_id
+                    });
+                  }
+                });
+              }
+            });
+
+            // Append the new blank response for each model to run
+            modelsToRun.forEach((modelName) => {
+              if (!modelMap[modelName]) {
+                modelMap[modelName] = [];
+              }
+              modelMap[modelName].push({
+                prompt: currentPrompt,
+                output: "",
+                preferred_response: false,
+                prompt_output_pair_id: generatedPairId
+              });
+            });
+
+            const newModelInteractions = Object.entries(modelMap).map(([model_name, interaction_json]) => ({
+              model_name,
+              model_id: model_name,
+              interaction_json
+            }));
+
+            const evalForm = submittedEvalForms ? Object.values(submittedEvalForms) : [];
+
+            body.result = [{
+              eval_form: evalForm,
+              model_interactions: newModelInteractions
+            }];
+
+
+            const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+            const res = await fetch(AnnotationObj.apiEndPoint(), {
+              method: "PATCH",
+              body: JSON.stringify(AnnotationObj.getBody()),
+              headers: AnnotationObj.getHeaders().headers,
+            });
+            const data = await res.json();
+
+            if (data && data.result) {
+              const allModelsInteractions = data?.result?.[0]?.model_interactions;
+              if (
+                allModelsInteractions &&
+                Array.isArray(allModelsInteractions) &&
+                allModelsInteractions.length > 0
+              ) {
+                const interactions_length = Math.max(
+                  ...allModelsInteractions.map((m) => m?.interaction_json?.length || 0),
+                  0
+                );
+                let modifiedChatHistory = [];
+                for (let i = 0; i < interactions_length; i++) {
+                  const prompt = allModelsInteractions.find(
+                    (m) => m?.interaction_json?.[i]?.prompt
+                  )?.interaction_json?.[i]?.prompt;
+                  const modelOutputs = [];
+                  let turnPromptOutputPairId = null;
+
+                  allModelsInteractions.forEach((modelData, modelIdx) => {
+                    const interaction = modelData?.interaction_json?.[i];
+                    if (interaction) {
+                      if (modelIdx === 0) {
+                        turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                      }
+
+                      modelOutputs.push({
+                        model_id: modelData?.model_id || modelData?.model_name,
+                        model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                        output: formatResponse(interaction?.output),
+                        status: "success",
+                        prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                        output_error: null,
+                      });
+                    }
+                  });
+
+                  if (prompt !== undefined && modelOutputs.length > 0) {
+                    modifiedChatHistory.push({
+                      prompt: prompt,
+                      output: modelOutputs,
+                      prompt_output_pair_id: turnPromptOutputPairId,
+                    });
+                  }
+                }
+                setChatHistory([...modifiedChatHistory]);
+              }
+              localStorage.removeItem(`in_progress_chat_${taskId}`);
+            }
+          } catch (error) {
+            console.error("Error saving blank responses multi:", error);
+          } finally {
+            isSendInFlightRef.current = false;
+            setChatLoading(false);
+            setIsStreaming(false);
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Create optimistic output entries for each model (empty, will be filled by stream)
+        const optimisticOutputs = modelsToRun.map((modelName, idx) => ({
+          model_id: modelName,
+          model_name: modelName,
+          output: [{ type: "text", value: "" }],
+          status: "streaming",
+          prompt_output_pair_id: null,
+        }));
+
+        const optimisticEntry = { prompt: currentPrompt, output: optimisticOutputs, prompt_output_pair_id: null };
+        const optimisticHistory = [...chatHistoryRef.current, optimisticEntry];
+        setChatHistory(optimisticHistory);
+        localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(optimisticHistory));
+        setShowChatContainer(true);
+        setIsStreaming(true);
+
+        // Build the model_interactions history dynamically from chatHistoryRef.current
+        const modelMap = {};
+        chatHistoryRef.current.forEach((entry) => {
+          if (Array.isArray(entry.output)) {
+            entry.output.forEach((modelResp) => {
+              const modelName = modelResp.model_name || modelResp.model_id;
+              if (modelName) {
+                if (!modelMap[modelName]) {
+                  modelMap[modelName] = [];
+                }
+                modelMap[modelName].push({
+                  prompt: entry.prompt,
+                  output: reverseFormatResponse(modelResp.output),
+                  preferred_response: false,
+                  prompt_output_pair_id: modelResp.prompt_output_pair_id
+                });
+              }
+            });
+          }
+        });
+
+        const modelInteractions = Object.entries(modelMap).map(([model_name, interaction_json]) => ({
+          model_name,
+          model_id: model_name,
+          interaction_json
+        }));
+
+
+
+
+        const projectMetadata = ProjectDetails?.metadata_json || {};
+        const sysPromptData = projectMetadata.system_prompt || {};
+
+        const streamPromise = streamMultiModelResponse({
+          prompt: currentPrompt, modelInteractions: modelInteractions,
+          models: modelsToRun,
+          systemPromptData: typeof sysPromptData === 'string' ? { default: sysPromptData } : sysPromptData,
+          onToken: (modelName, token, fullTextForModel) => {
+            // Update the specific model's output in the last chat entry
+            setChatHistory((prev) => {
+              const updated = [...prev];
+              const lastIdx = updated.length - 1;
+              if (lastIdx >= 0) {
+                const lastEntry = { ...updated[lastIdx] };
+                lastEntry.output = lastEntry.output.map((modelOutput) => {
+                  if (modelOutput.model_id === modelName || modelOutput.model_name === modelName) {
+                    return {
+                      ...modelOutput,
+                      output: [{ type: "text", value: fullTextForModel }],
+                    };
+                  }
+                  return modelOutput;
+                });
+                updated[lastIdx] = lastEntry;
+              }
+              // ✅ keep localStorage in sync so refresh can recover progress
+              localStorage.setItem(`in_progress_chat_${taskId}`, JSON.stringify(updated));
+              return updated;
+            });
+            // Auto-scroll as tokens arrive (use auto instead of smooth to prevent animation cancellation stutter)
+            bottomRef.current?.scrollIntoView({ behavior: "auto" });
+          },
+          onError: (errMsg) => {
+            console.error("Multi-model streaming error:", errMsg);
+            setSnackbarInfo({
+              open: true,
+              message: `Streaming error: ${errMsg}`,
+              variant: "error",
+            });
+            setChatHistory((prev) => {
+              const updated = [...prev];
+              const lastIdx = updated.length - 1;
+              if (lastIdx >= 0) {
+                const lastEntry = { ...updated[lastIdx] };
+                lastEntry.output = lastEntry.output.map((modelOutput) => {
+                  return {
+                    ...modelOutput,
+                    output: [{ type: "text", value: `[ERROR] ${errMsg}` }],
+                    status: "error",
+                  };
+                });
+                updated[lastIdx] = lastEntry;
+              }
+              return updated;
+            });
+            setChatLoading(false);
+            setIsStreaming(false);
+          },
+        });
+
+        // Simultaneously send the PATCH to save prompt + get LLM output on the backend
+        const body = {
+          result: currentPrompt,
+          lead_time:
+            (new Date() - loadtime) / 1000 +
+            Number(id?.lead_time?.lead_time ?? 0),
+          auto_save: true,
+          task_id: taskId,
+          prompt_output_pair_id: generateUniquePromptOutputPairId(),
+        };
+
+        if (stage === "Alltask") {
+          body.annotation_status = id?.annotation_status;
+        } else {
+          body.annotation_status = localStorage.getItem("labellingMode");
+        }
+        if (stage === "Review") {
+          body.review_notes = JSON.stringify(
+            notes?.current?.getEditor().getContents(),
+          );
+        } else if (stage === "SuperChecker") {
+          body.superchecker_notes = JSON.stringify(
+            notes?.current?.getEditor().getContents(),
+          );
+        } else {
+          body.annotation_notes = JSON.stringify(
+            notes?.current?.getEditor().getContents(),
+          );
+        }
+        if (stage === "Review" || stage === "SuperChecker") {
+          body.parentannotation = id?.parent_annotation;
+        }
+
+        try {
+          // Wait for the stream to complete
+          const streamedTexts = await streamPromise;
+
+          if (streamedTexts) {
+            const modelMap = {};
+            // 1. Process all previous turns from chatHistoryRef.current (excluding the current turn which is the last entry)
+            chatHistoryRef.current.slice(0, -1).forEach((entry) => {
+              if (Array.isArray(entry.output)) {
+                entry.output.forEach((modelResp) => {
+                  const modelName = modelResp.model_name || modelResp.model_id;
+                  if (modelName) {
+                    if (!modelMap[modelName]) {
+                      modelMap[modelName] = [];
+                    }
+                    modelMap[modelName].push({
+                      prompt: entry.prompt,
+                      output: reverseFormatResponse(modelResp.output),
+                      preferred_response: false,
+                      prompt_output_pair_id: modelResp.prompt_output_pair_id
+                    });
+                  }
+                });
+              }
+            });
+
+            // 2. Append the current turn from streamedTexts
+            Object.entries(streamedTexts).forEach(([modelName, text]) => {
+              if (!modelMap[modelName]) {
+                modelMap[modelName] = [];
+              }
+              modelMap[modelName].push({
+                prompt: currentPrompt,
+                output: text,
+                preferred_response: false,
+                prompt_output_pair_id: body.prompt_output_pair_id
+              });
+            });
+
+            const newModelInteractions = Object.entries(modelMap).map(([model_name, interaction_json]) => ({
+              model_name,
+              model_id: model_name,
+              interaction_json
+            }));
+
+            const evalForm = submittedEvalForms ? Object.values(submittedEvalForms) : [];
+
+            body.result = [{
+              eval_form: evalForm,
+              model_interactions: newModelInteractions
+            }];
+
+
+            const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
+            const res = await fetch(AnnotationObj.apiEndPoint(), {
+              method: "PATCH",
+              body: JSON.stringify(AnnotationObj.getBody()),
+              headers: AnnotationObj.getHeaders().headers,
+            });
+            const data = await res.json();
+
+            let errorMessage = null;
+            if (data && data.output) {
+              for (const [modelName, modelResponse] of Object.entries(data.output)) {
+                if (modelResponse?.error) {
+                  errorMessage = `${modelName} error: ${modelResponse.error}`;
+                  break;
+                }
+              }
+            }
+
+            if (!res.ok) {
+              setChatHistory((prev) => prev.slice(0, -1));
+              setSnackbarInfo({
+                open: true,
+                message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+                variant: "error",
+              });
+              return;
+            }
+
+            if (errorMessage) {
+              setSnackbarInfo({
+                open: true,
+                message: errorMessage,
+                variant: "error",
+              });
+            }
+
+            // Once PATCH completes, sync the full result from DB (source of truth)
+            if (data && data.result && data.result.length > 0 && data.result[0].model_interactions) {
+              const allModelsInteractions = data.result[0].model_interactions;
+              const interactions_length =
+                allModelsInteractions[0]?.interaction_json?.length || 0;
+              let modifiedChatHistory = [];
+
+              for (let i = 0; i < interactions_length; i++) {
+                const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
+                const modelOutputs = [];
+                let turnPromptOutputPairId = null;
+
+                allModelsInteractions.forEach((modelData, modelIdx) => {
+                  const interaction = modelData?.interaction_json?.[i];
+                  if (interaction) {
+                    const response_valid = isString(interaction?.output);
+                    if (!response_valid) {
+                      setIsModelFailing(true);
+                    }
+                    if (modelIdx === 0) {
+                      turnPromptOutputPairId = interaction?.prompt_output_pair_id;
+                    }
+                    modelOutputs.push({
+                      model_id: modelData?.model_id || modelData?.model_name,
+                      model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
+                      output: response_valid
+                        ? formatResponse(interaction?.output)
+                        : formatResponse(
+                          `${modelData?.model_name || `Model ${modelIdx + 1}`} failed to generate a response`,
+                        ),
+                      status: response_valid ? "success" : "error",
+                      prompt_output_pair_id: interaction?.prompt_output_pair_id,
+                      output_error: response_valid
+                        ? null
+                        : JSON.stringify(interaction?.output),
+                    });
+                  }
+                });
+
+                if (turnPromptOutputPairId) {
+                  const eval_form = (
+                    Array.isArray(data?.result[0]?.eval_form)
+                      ? data.result[0].eval_form
+                      : []
+                  ).find(
+                    (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
+                  );
+                  if (eval_form) {
+                    setEvalFormResponse((prev) => ({
+                      ...prev,
+                      [turnPromptOutputPairId]: eval_form,
+                    }));
+                  }
+                }
+
+                if (prompt !== undefined && modelOutputs.length > 0) {
+                  modifiedChatHistory.push({
+                    prompt: prompt,
+                    output: modelOutputs,
+                    prompt_output_pair_id: turnPromptOutputPairId,
+                  });
+                }
+              }
+              setChatHistory([...modifiedChatHistory]);
+              // Only clear localStorage after server confirms successful save
+              localStorage.removeItem(`in_progress_chat_${taskId}`);
+            }
+          }
+        } catch (error) {
+          console.error("Error in multi-model chat save/stream operation:", error);
+          localStorage.removeItem(`in_progress_chat_${taskId}`);
+        } finally {
+          isSendInFlightRef.current = false;
+          setChatLoading(false);
+          setIsStreaming(false);
+          setLoading(false);
+        }
+
+        setVisibleMessages((prev) => ({
+          ...prev,
+          [chatHistoryRef.current.length]: true,
+        }));
+
+        setTimeout(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 1000);
+        setShowChatContainer(true);
+        setInputValue("");
+        return;
+      }
+
+      // ── Non-streaming path: eval form submissions (modelResponses && prompt_output_pair_id >= 0) ──
       const body = {
         result: modelResponses && prompt_output_pair_id >= 0 ? "" : inputValue,
         lead_time:
@@ -421,7 +1272,6 @@ useEffect(() => {
           model_responses_json: modelResponses?.model_responses_json,
         }),
       };
-      console.log(body);
 
       if (stage === "Alltask") {
         body.annotation_status = id?.annotation_status;
@@ -444,6 +1294,7 @@ useEffect(() => {
       if (stage === "Review" || stage === "SuperChecker") {
         body.parentannotation = id?.parent_annotation;
       }
+
       const AnnotationObj = new PatchAnnotationAPI(id?.id, body);
       const res = await fetch(AnnotationObj.apiEndPoint(), {
         method: "PATCH",
@@ -451,14 +1302,25 @@ useEffect(() => {
         headers: AnnotationObj.getHeaders().headers,
       });
       const data = await res.json();
-      console.log("hello", data);
       let errorMessage = null;
 
-      for (const [modelName, modelResponse] of Object.entries(data.output)) {
-        if (modelResponse?.error) {
-          errorMessage = `${modelName} error: ${modelResponse.error}`;
-          break;
+      if (data && data.output) {
+        for (const [modelName, modelResponse] of Object.entries(data.output)) {
+          if (modelResponse?.error) {
+            errorMessage = `${modelName} error: ${modelResponse.error}`;
+            break;
+          }
         }
+      }
+
+      if (!res.ok) {
+        setSnackbarInfo({
+          open: true,
+          message: data?.message || errorMessage || "An error occurred while saving the annotation.",
+          variant: "error",
+        });
+        setLoading(false);
+        return;
       }
 
       if (errorMessage) {
@@ -493,7 +1355,7 @@ useEffect(() => {
           [prompt_output_pair_id]: modelResponses,
         }));
       }
-      let modifiedChatHistory = [];
+
       setChatHistory((prevChatHistory) => {
         data && data.result && setLoading(false);
         let modifiedChatHistory = [];
@@ -504,26 +1366,20 @@ useEffect(() => {
             allModelsInteractions[0]?.interaction_json?.length || 0;
 
           for (let i = 0; i < interactions_length; i++) {
-            const prompt =
-              allModelsInteractions[0]?.interaction_json[i]?.prompt;
-
+            const prompt = allModelsInteractions[0]?.interaction_json[i]?.prompt;
             const modelOutputs = [];
             let turnPromptOutputPairId = null;
 
             allModelsInteractions.forEach((modelData, modelIdx) => {
               const interaction = modelData?.interaction_json?.[i];
-              console.log("lead", interaction,)
-
               if (interaction) {
                 const response_valid = isString(interaction?.output);
-                console.log("lead", response_valid, interaction)
                 if (!response_valid) {
                   setIsModelFailing(true);
                 }
                 if (modelIdx === 0) {
                   turnPromptOutputPairId = interaction?.prompt_output_pair_id;
                 }
-
                 modelOutputs.push({
                   model_id: modelData?.model_id || modelData?.model_name,
                   model_name: modelData?.model_name || `Model ${modelIdx + 1}`,
@@ -547,11 +1403,8 @@ useEffect(() => {
                   ? data.result[0].eval_form
                   : []
               ).find(
-                (item) =>
-                  item.prompt_output_pair_id ===
-                  turnPromptOutputPairId,
+                (item) => item.prompt_output_pair_id === turnPromptOutputPairId,
               );
-
               if (eval_form) {
                 setEvalFormResponse((prev) => ({
                   ...prev,
@@ -584,7 +1437,7 @@ useEffect(() => {
 
       setVisibleMessages((prev) => ({
         ...prev,
-        [chatHistory.length]: true,
+        [chatHistoryRef.current.length]: true,
       }));
     } else {
       setSnackbarInfo({
@@ -595,12 +1448,33 @@ useEffect(() => {
     }
     !(modelResponses && prompt_output_pair_id >= 0) &&
       setTimeout(() => {
-        bottomRef.current.scrollIntoView({ behavior: "smooth" });
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 1000);
     setShowChatContainer(true);
     setInputValue("");
   };
+  const hasFailedLastResponse = useMemo(() => {
+    if (!chatHistory || chatHistory.length === 0) return false;
+    const last = chatHistory[chatHistory.length - 1];
+    if (!last?.output || last.output.length === 0) return true;
+    return last.output.every(modelOutput =>
+      modelOutput.status === 'error' ||
+      (modelOutput.output && modelOutput.output.length === 0)
+    );
+  }, [chatHistory]);
 
+  const handleRetry = useCallback(async () => {
+    if (!chatHistory || chatHistory.length === 0) return;
+    const lastMessage = chatHistory[chatHistory.length - 1];
+    if (!lastMessage?.prompt) return;
+
+    const lastPrompt = lastMessage.prompt;
+
+    await handleClick('delete-pair', id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+
+    // Pass the prompt directly as an override — bypasses the inputValue check
+    await handleButtonClick(null, null, chatHistory.length - 1, lastPrompt);
+  }, [chatHistory, handleClick, id, handleButtonClick]);
   const handleOnchange = (prompt) => {
     setInputValue(prompt);
   };
@@ -710,215 +1584,215 @@ useEffect(() => {
       };
     });
   };
-// Updated handlers for single response mode
-// 1. Fill in Blanks Handler
-// 1. Fill in Blanks Handler
-const handleSingleInputChange = (value, questionIdx, blankIndex, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+  // Updated handlers for single response mode
+  // 1. Fill in Blanks Handler
+  // 1. Fill in Blanks Handler
+  const handleSingleInputChange = (value, questionIdx, blankIndex, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [...(modelResponses[questionIdx].response || [])]
-    };
-    
-    // Ensure we have enough blank spaces
-    const updatedResponse = [...questionToUpdate.response];
-    while (updatedResponse.length <= blankIndex) {
-      updatedResponse.push("");
-    }
-    
-    // Update the specific blank
-    updatedResponse[blankIndex] = value;
-    questionToUpdate.response = updatedResponse;
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};// 2. Rating Handler
-const handleSingleRating = (newValue, questionIdx, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [...(modelResponses[questionIdx].response || [])]
+      };
+
+      // Ensure we have enough blank spaces
+      const updatedResponse = [...questionToUpdate.response];
+      while (updatedResponse.length <= blankIndex) {
+        updatedResponse.push("");
+      }
+
+      // Update the specific blank
+      updatedResponse[blankIndex] = value;
+      questionToUpdate.response = updatedResponse;
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };// 2. Rating Handler
+  const handleSingleRating = (newValue, questionIdx, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [newValue?.toString() || ""] // Direct array with the rating value
-    };
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};
-const handleSingleMCQ = (value, questionIdx, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [newValue?.toString() || ""] // Direct array with the rating value
+      };
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };
+  const handleSingleMCQ = (value, questionIdx, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [value] // Direct array with the MCQ value
-    };
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};
-const handleSingleMultiSelect = (checked, option, questionIdx, promptOutputPairId) => {
-  setEvalFormResponse((prev) => {
-    const safePrev = prev || {};
-    
-    // Create a deep copy of the current entry or initialize a new one
-    const currentEntry = safePrev[promptOutputPairId] 
-      ? {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [value] // Direct array with the MCQ value
+      };
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };
+  const handleSingleMultiSelect = (checked, option, questionIdx, promptOutputPairId) => {
+    setEvalFormResponse((prev) => {
+      const safePrev = prev || {};
+
+      // Create a deep copy of the current entry or initialize a new one
+      const currentEntry = safePrev[promptOutputPairId]
+        ? {
           ...safePrev[promptOutputPairId],
           model_responses_json: [...(safePrev[promptOutputPairId].model_responses_json || [])]
         }
-      : {
+        : {
           prompt_output_pair_id: promptOutputPairId,
           model_responses_json: []
         };
-    
-    // Create a copy of model_responses_json array
-    const modelResponses = [...currentEntry.model_responses_json];
-    
-    // Ensure we have enough questions
-    while (modelResponses.length <= questionIdx) {
-      modelResponses.push({
-        question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
-        response: []
-      });
-    }
-    
-    // Update the specific question's response - create a new object for the question
-    const questionToUpdate = { 
-      ...modelResponses[questionIdx],
-      response: [...(modelResponses[questionIdx].response || [])] // Copy existing responses
-    };
-    
-    // Update the response array based on checked status
-    const updatedResponse = checked
-      ? [...questionToUpdate.response, option]
-      : questionToUpdate.response.filter(item => item !== option);
-    
-    questionToUpdate.response = updatedResponse;
-    
-    // Update the model responses array with the new question
-    modelResponses[questionIdx] = questionToUpdate;
-    
-    return {
-      ...safePrev,
-      [promptOutputPairId]: {
-        ...currentEntry,
-        model_responses_json: modelResponses
+
+      // Create a copy of model_responses_json array
+      const modelResponses = [...currentEntry.model_responses_json];
+
+      // Ensure we have enough questions
+      while (modelResponses.length <= questionIdx) {
+        modelResponses.push({
+          question: ProjectDetails?.metadata_json?.questions_json?.[modelResponses.length] || {},
+          response: []
+        });
       }
-    };
-  });
-};
-const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex = 0) => {
-  console.log(evalFormResponse);
-  
-  const questionResponseJson = evalFormResponse?.model_responses_json;
-  if (!questionResponseJson) return responseIndex === 0 ? "" : 0;
-  
-  const formEntry = questionResponseJson.find(entry => entry.promptoutputid === promptOutputPairId.toString());
-  if (!formEntry?.questions_response) return responseIndex === 0 ? "" : 0;
-  
-  return formEntry.questions_response[questionIdx]?.response?.[responseIndex] || 
-         (responseIndex === 0 ? "" : 0);
-};
-const handleRating = (newValue, message, index, questionIdx, model_idx) => {
+
+      // Update the specific question's response - create a new object for the question
+      const questionToUpdate = {
+        ...modelResponses[questionIdx],
+        response: [...(modelResponses[questionIdx].response || [])] // Copy existing responses
+      };
+
+      // Update the response array based on checked status
+      const updatedResponse = checked
+        ? [...questionToUpdate.response, option]
+        : questionToUpdate.response.filter(item => item !== option);
+
+      questionToUpdate.response = updatedResponse;
+
+      // Update the model responses array with the new question
+      modelResponses[questionIdx] = questionToUpdate;
+
+      return {
+        ...safePrev,
+        [promptOutputPairId]: {
+          ...currentEntry,
+          model_responses_json: modelResponses
+        }
+      };
+    });
+  };
+  const getSingleResponseValue = (promptOutputPairId, questionIdx, responseIndex = 0) => {
+    console.log(evalFormResponse);
+
+    const questionResponseJson = evalFormResponse?.model_responses_json;
+    if (!questionResponseJson) return responseIndex === 0 ? "" : 0;
+
+    const formEntry = questionResponseJson.find(entry => entry.promptoutputid === promptOutputPairId.toString());
+    if (!formEntry?.questions_response) return responseIndex === 0 ? "" : 0;
+
+    return formEntry.questions_response[questionIdx]?.response?.[responseIndex] ||
+      (responseIndex === 0 ? "" : 0);
+  };
+  const handleRating = (newValue, message, index, questionIdx, model_idx) => {
     setEvalFormResponse((prev) => {
       const targetModelId = getModelId(message?.output?.[model_idx]);
       const targetModelName = message?.output?.[model_idx]?.model_name || `Model ${model_idx + 1}`;
@@ -1236,70 +2110,70 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
   const validateEvalFormResponse = (form, prompt_output_pair_id) => {
     console.log(form);
 
-      const formdata = form?.model_responses_json
+    const formdata = form?.model_responses_json
     console.log(formdata);
-    
+
     if (!formdata) {
       return false;
     }
 
     const allModelsValid = formdata.every((modelResponse) => {
       console.log("something");
-      
+
       const allMandatoryAnswered = questions.every((question) => {
         let expectedParts = 0;
-              console.log("something");
+        console.log("something");
 
         if (question.question_type === "fill_in_blanks") {
           expectedParts =
             question?.input_question?.split("<blank>")?.length - 1;
         }
-            if(ProjectDetails?.metadata_json?.single_model_response){
-      var responseForQuestion = formdata?.find(
-          (qr) =>
-            qr?.question?.input_question === question?.input_question &&
-            qr?.question?.question_type === question?.question_type,
-        );
-    }else{
-      var responseForQuestion = modelResponse?.questions_response?.find(
-          (qr) =>
-            qr?.question?.input_question === question?.input_question &&
-            qr?.question?.question_type === question?.question_type,
-        );
-    }
-        
+        if (ProjectDetails?.metadata_json?.single_model_response) {
+          var responseForQuestion = formdata?.find(
+            (qr) =>
+              qr?.question?.input_question === question?.input_question &&
+              qr?.question?.question_type === question?.question_type,
+          );
+        } else {
+          var responseForQuestion = modelResponse?.questions_response?.find(
+            (qr) =>
+              qr?.question?.input_question === question?.input_question &&
+              qr?.question?.question_type === question?.question_type,
+          );
+        }
 
-      if (!responseForQuestion?.response) {
-        console.log("No response for question", questionIdx);
-        return false;
-      }
 
-      if (question.question_type === "fill_in_blanks") {
-        const isCorrectLength = responseForQuestion.response.length === expectedParts;
-        const hasNoEmptyResponse = !responseForQuestion.response.some(
-          (response) => response === "" || response === undefined,
-        );
-        return isCorrectLength && hasNoEmptyResponse;
-      }
+        if (!responseForQuestion?.response) {
+          console.log("No response for question", questionIdx);
+          return false;
+        }
 
-      if (question.question_type === "comparison") {
-        const isValidComparison =
-          responseForQuestion.response.length === 1 &&
-          responseForQuestion.response[0] !== "";
-        return isValidComparison;
-      }
+        if (question.question_type === "fill_in_blanks") {
+          const isCorrectLength = responseForQuestion.response.length === expectedParts;
+          const hasNoEmptyResponse = !responseForQuestion.response.some(
+            (response) => response === "" || response === undefined,
+          );
+          return isCorrectLength && hasNoEmptyResponse;
+        }
 
-      const hasValidResponse =
-        responseForQuestion.response.length > 0 &&
-        !responseForQuestion.response.some(
-          (response) =>
-            response === "" || response === undefined || response === null,
-        );
-      return hasValidResponse;
+        if (question.question_type === "comparison") {
+          const isValidComparison =
+            responseForQuestion.response.length === 1 &&
+            responseForQuestion.response[0] !== "";
+          return isValidComparison;
+        }
+
+        const hasValidResponse =
+          responseForQuestion.response.length > 0 &&
+          !responseForQuestion.response.some(
+            (response) =>
+              response === "" || response === undefined || response === null,
+          );
+        return hasValidResponse;
+      });
+
+      return allMandatoryAnswered;
     });
-
-    return allMandatoryAnswered;
-  });
 
     return allModelsValid;
   };
@@ -1316,40 +2190,44 @@ const handleRating = (newValue, message, index, questionIdx, model_idx) => {
       return updated;
     });
   };
-console.log(evalFormResponse);
+  console.log(evalFormResponse);
 
-    const scrollOutputs = (index, direction) => {
-        const container = document.getElementById(`output-container-${index}`);
-        if (container) {
-            const scrollAmount = 300;
-            container.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    };
-useEffect(() => {
-    if (chatHistory && chatHistory.length > 0) {
-        const lastIndex = chatHistory.length - 1;
-        
-        // Create new shrinked state based on current state
-        setShrinkedMessages(prev => {
-            const newState = { ...prev };
-            
-            // Ensure all previous messages are shrinked
-            chatHistory.forEach((_, idx) => {
-                if (idx < lastIndex) {
-                    newState[idx] = true; // Shrink all previous
-                } else if (idx === lastIndex) {
-                    newState[idx] = false; // Expand latest
-                }
-            });
-            
-            return newState;
-        });
+  const scrollOutputs = (index, direction) => {
+    const container = document.getElementById(`output-container-${index}`);
+    if (container) {
+      const scrollAmount = 300;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
     }
-}, [chatHistory?.length]); 
- // Helper function to detect if text is in Urdu/Kashmiri script
+  };
+  useEffect(() => {
+    if (chatHistory && chatHistory.length > 0) {
+      const lastIndex = chatHistory.length - 1;
+
+      // Create new shrinked state based on current state
+      setShrinkedMessages(prev => {
+        const newState = { ...prev };
+
+        // Ensure all previous messages are shrinked
+        chatHistory.forEach((_, idx) => {
+          if (idx < lastIndex) {
+            newState[idx] = true; // Shrink all previous
+          } else if (idx === lastIndex) {
+            newState[idx] = false; // Expand latest
+          }
+        });
+
+        return newState;
+      });
+
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 500);
+    }
+  }, [chatHistory?.length]);
+
   const isRTLLanguage = (text) => {
     if (!text) return false;
     // Both Urdu and Kashmiri use Arabic/Persian script (Unicode range U+0600 to U+06FF)
@@ -1359,30 +2237,36 @@ useEffect(() => {
   };
 
   const renderChatHistory = () => {
+    // Delete/retry are disabled while a response is streaming; grey the icons to
+    // match so they visibly read as unavailable (their hardcoded orange would
+    // otherwise override MUI's disabled dimming).
+    const actionsDisabled = isStreaming || chatLoading || loading;
+    const actionIconColor = actionsDisabled ? grey[300] : "#EE6633";
+
     const toggleShrink = (index) => {
       setShrinkedMessages(prev => ({ ...prev, [index]: !prev[index] }));
     };
 
-        const getResponsesPerView = () => {
-        // Check if instruction pane is visible (you'll need to determine this)
-        const isInstructionPaneVisible = false; // Replace with your actual state
-        
-        if (isInstructionPaneVisible) {
-            return 2; // Show only 2 when instruction pane is visible
-        }
-        
-        // Otherwise use default behavior
-        return 3; // Show up to 3 in full width
+    const getResponsesPerView = () => {
+      // Check if instruction pane is visible (you'll need to determine this)
+      const isInstructionPaneVisible = false; // Replace with your actual state
+
+      if (isInstructionPaneVisible) {
+        return 2; // Show only 2 when instruction pane is visible
+      }
+
+      // Otherwise use default behavior
+      return 3; // Show up to 3 in full width
     };
 
     const responsesPerView = getResponsesPerView();
 
-    
+
 
     const chatElements = chatHistory?.map((message, index) => {
-            const responseCount = message?.output?.length || 0;
+      const responseCount = message?.output?.length || 0;
 
-            const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
+      const shouldScroll = responseCount > 3; // Show scroll only when > 3 responses
       return (
         <Grid
           container
@@ -1433,7 +2317,7 @@ useEffect(() => {
                 <Avatar
                   alt="user_profile_pic"
                   src={loggedInUserData?.profile_photo || ""}
-                  style={{ 
+                  style={{
                     marginRight: "0.8rem",
                     width: "28px",
                     height: "28px"
@@ -1520,63 +2404,103 @@ useEffect(() => {
                   >
                     <ReactMarkdown
                       className="flex-col"
-                      children={message?.prompt?.replace(/\\n/gi, "&nbsp; \\n")}
+                      children={linkifyText(message?.prompt?.replace(/\\n/gi, "&nbsp; \\n"))}
                       components={{
                         p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.3rem 0', lineHeight: '1.3' }} {...props} />,
+                        a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                       }}
                     />
                   </div>
                 )}
               </Grid>
 
-              <IconButton
-                size="small"
-                onClick={() => toggleShrink(index)}
+              <Grid
+                item
                 style={{
-                  position: "absolute",
-                  bottom: "0.3rem",
-                  right: "0.3rem",
-                  padding: "2px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  flexShrink: 0,
                 }}
               >
-                {shrinkedMessages[index] ? (
-                  <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
-                ) : (
-                  <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
-                )}
-              </IconButton>
 
-              {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                {/* Copy prompt button */}
+                <Tooltip title="Copy prompt">
+                  <IconButton
+                    size="small"
+                    onClick={() => copyToClipboard(message?.prompt || "")}
+                    style={{
+                      padding: "4px"
+                    }}
+                  >
+                    <ContentCopyIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  </IconButton>
+                </Tooltip>
+
                 <IconButton
                   size="small"
+                  onClick={() => toggleShrink(index)}
                   style={{
-                    position: "absolute",
-                    bottom: "0.3rem",
-                    right: "2rem",
-                    padding: "2px",
-                  }}
-                  onClick={() => {
-                    setEvalFormResponse((prev) => {
-                      const newResponse = { ...prev };
-                      delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
-                      return newResponse;
-                    });
-                    setVisibleMessages((prev) => {
-                      const keys = Object.keys(prev);
-                      delete prev[keys[keys.length - 1]];
-                      return { ...prev };
-                    });
-                    setSubmittedEvalForms((prev) => {
-                      const newResponse = { ...prev };
-                      delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
-                      return newResponse;
-                    });
-                    handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+                    padding: "4px"
                   }}
                 >
-                  <DeleteOutlinedIcon style={{ color: "#EE6633", fontSize: "0.9rem" }} />
+                  {shrinkedMessages[index] ? (
+                    <ExpandMoreIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  ) : (
+                    <ExpandLessIcon style={{ fontSize: "0.9rem", color: "#EE6633" }} />
+                  )}
                 </IconButton>
-              )}
+                {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                  <Tooltip title="Re-send the same prompt to get new responses">
+                    <IconButton
+                      size="small"
+                      style={{
+                        // Position to the left of delete button
+                        padding: "4px",
+                      }}
+                      onClick={handleRetry}
+                      // Match delete: block retry while a response is streaming so
+                      // an in-flight stream can't clash with a re-send.
+                      disabled={actionsDisabled}
+                    >
+                      <RestartAltIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {index === chatHistory.length - 1 && stage !== "Alltask" && !disableUpdateButton && (
+                  <IconButton
+                    size="small"
+                    // Disable while a response is streaming: an in-flight stream
+                    // would re-save the turn on completion and silently undo the
+                    // delete. Re-enabled once streaming finishes.
+                    disabled={actionsDisabled}
+                    style={{
+                      padding: "4px"
+                    }}
+                    onClick={() => {
+                      setEvalFormResponse((prev) => {
+                        const newResponse = { ...prev };
+                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
+                        return newResponse;
+                      });
+                      setVisibleMessages((prev) => {
+                        const keys = Object.keys(prev);
+                        delete prev[keys[keys.length - 1]];
+                        return { ...prev };
+                      });
+                      setSubmittedEvalForms((prev) => {
+                        const newResponse = { ...prev };
+                        delete newResponse[message?.output?.[0]?.prompt_output_pair_id];
+                        return newResponse;
+                      });
+                      handleClick("delete-pair", id?.id, 0.0, "MultipleLLMInstructionDrivenChat");
+                    }}
+                  >
+                    <DeleteOutlinedIcon style={{ color: actionIconColor, fontSize: "0.9rem" }} />
+                  </IconButton>
+                )}
+              </Grid>
             </Grid>
           </Grid>
 
@@ -1652,7 +2576,7 @@ useEffect(() => {
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
-                              flexGrow: 1, 
+                              flexGrow: 1,
                               height: "auto",
                               display: "flex",
                               justifyContent: "center",
@@ -1660,12 +2584,12 @@ useEffect(() => {
                               borderRadius: "8px",
                               color: "red",
                               fontWeight: "bold",
-                               backgroundColor: "#fff0f0",
+                              backgroundColor: "#fff0f0",
                               padding: "0.8rem",
                             }}
                           >
                             <ErrorIcon sx={{ marginRight: "8px", fontSize: "0.9rem" }} />
-                            <Typography style={{ fontSize: getFontSize() }}>
+                            <Typography style={{ fontSize: "0.8rem" }}>
                               {modelOutput?.model_name} failed to load the response!
                             </Typography>
                           </Box>
@@ -1677,14 +2601,15 @@ useEffect(() => {
                               width: shouldScroll ? "300px" : `calc((100% - ${(Math.min(responseCount, 3) - 1) * 0.8}rem) / ${Math.min(responseCount, 3)})`,
                               minWidth: shouldScroll ? "300px" : "200px",
                               flexShrink: 0,
-                              flexGrow: 1, 
-                              fontSize: getFontSize(),
+                              flexGrow: 1,
+                              fontSize: "0.85rem",
                               display: "flex",
                               flexDirection: "column",
                               borderRadius: "8px",
                               backgroundColor: "white",
                               height: "auto",
                               minHeight: "150px",
+                              // Ensure box doesn't overflow
                               boxSizing: "border-box",
                             }}
                           >
@@ -1727,7 +2652,7 @@ useEffect(() => {
                                         sx={{
                                           fontWeight: "bold",
                                           color: orange[400],
-                                          fontSize: getFontSize(),
+                                          fontSize: "1.25rem",
                                         }}
                                       >
                                         {"Model " + (modelIdx + 1)}
@@ -1741,14 +2666,15 @@ useEffect(() => {
                                     <Typography
                                       component="div"
                                       sx={{
-                                        fontSize: getFontSize(),
+                                        fontSize: "1.2rem",
                                         maxHeight: "60vh",
                                         overflowY: "scroll",
                                       }}
                                     >
+
                                       {modelOutput?.output?.map((segment, segmentIdx) =>
                                         segment.type === "text" ? (
-                                          ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                          (ProjectDetails?.metadata_json?.editable_response || (segment.value == "" && !ProjectDetails?.metadata_json?.blank_response)) && !(isStreaming && index === chatHistory.length - 1) ? (
                                             globalTransliteration ? (
                                               <IndicTransliterate
                                                 key={segmentIdx}
@@ -1759,7 +2685,7 @@ useEffect(() => {
                                                   <textarea
                                                     {...props}
                                                     style={{
-                                                      fontSize: getFontSize(),
+                                                      fontSize: `${fontSize}rem`,
                                                       padding: "6px",
                                                       borderRadius: "6px",
                                                       color: grey[900],
@@ -1779,7 +2705,7 @@ useEffect(() => {
                                                 value={segment.value}
                                                 onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
                                                 style={{
-                                                  fontSize: getFontSize(),
+                                                  fontSize: `${fontSize}rem`,
                                                   width: "100%",
                                                   padding: "6px",
                                                   borderRadius: "6px",
@@ -1797,14 +2723,17 @@ useEffect(() => {
                                             <div
                                               key={segmentIdx}
                                               style={{
+                                                // textAlign: isRTLLanguage(segment.value) ? "right" : "left",
+                                                // direction: isRTLLanguage(segment.value) ? "rtl" : "ltr",
                                                 width: "100%",
                                               }}
                                             >
                                               <ReactMarkdown
                                                 key={segmentIdx}
-                                                children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
+                                                children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
                                                 components={{
-                                                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />,
+                                                  p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />, // UPDATED
+                                                  a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                                                 }}
                                               />
                                             </div>
@@ -1817,7 +2746,7 @@ useEffect(() => {
                                             customStyle={{
                                               padding: "0.5rem",
                                               borderRadius: "4px",
-                                              fontSize: getFontSize(),
+                                              fontSize: getFontSize(), // UPDATED
                                               margin: "0.2rem 0"
                                             }}
                                           >
@@ -1833,7 +2762,7 @@ useEffect(() => {
                             <Box
                               sx={{
                                 flex: 1,
-                                height:"auto",
+                                height: "auto",
                                 overflowY: "auto",
                                 padding: "0 12px 8px 12px",
                                 width: "100%",
@@ -1843,7 +2772,7 @@ useEffect(() => {
                             >
                               {modelOutput?.output?.map((segment, segmentIdx) =>
                                 segment.type === "text" ? (
-                                  ProjectDetails?.metadata_json?.editable_response || segment.value == "" ? (
+                                  (ProjectDetails?.metadata_json?.editable_response || (segment.value == "" && !ProjectDetails?.metadata_json?.blank_response)) && !(isStreaming && index === chatHistory.length - 1) ? (
                                     globalTransliteration ? (
                                       <IndicTransliterate
                                         key={segmentIdx}
@@ -1854,7 +2783,7 @@ useEffect(() => {
                                           <textarea
                                             {...props}
                                             style={{
-                                              fontSize: getFontSize(),
+                                              fontSize: `${fontSize}rem`,
                                               padding: "6px",
                                               borderRadius: "6px",
                                               color: grey[900],
@@ -1874,7 +2803,7 @@ useEffect(() => {
                                         value={segment.value}
                                         onChange={(e) => handleTextChange(e.target.value, message, modelIdx, segmentIdx, "output")}
                                         style={{
-                                          fontSize: getFontSize(),
+                                          fontSize: `${fontSize}rem`,
                                           width: "100%",
                                           padding: "6px",
                                           borderRadius: "6px",
@@ -1889,24 +2818,33 @@ useEffect(() => {
                                       />
                                     )
                                   ) : (
-                                    <ReactMarkdown
-                                      key={segmentIdx}
-                                      children={segment?.value?.replace(/\\n/gi, "&nbsp; \\n")}
-                                      components={{
-                                        p: ({node, ...props}) => <p style={{fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2'}} {...props} />,
-                                      }}
-                                    />
+                                    isStreaming && index === chatHistory.length - 1 && segment.value === "" ? (
+                                      <div className="streaming-dots">
+                                        <span></span><span></span><span></span>
+                                      </div>
+                                    ) : (
+                                      <div className={isStreaming && index === chatHistory.length - 1 ? "streaming-cursor" : ""}>
+                                        <ReactMarkdown
+                                          key={segmentIdx}
+                                          children={linkifyText(segment?.value?.replace(/\\n/gi, "&nbsp; \\n"))}
+                                          components={{
+                                            p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), margin: '0.2rem 0', lineHeight: '1.2' }} {...props} />, // UPDATED
+                                            a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
+                                          }}
+                                        />
+                                      </div>
+                                    )
                                   )
                                 ) : (
                                   <SyntaxHighlighter
                                     key={segmentIdx}
                                     language={segment.language}
                                     style={gruvboxDark}
-                                    customStyle={{ 
-                                      padding: "0.5rem", 
-                                      borderRadius: "4px", 
+                                    customStyle={{
+                                      padding: "0.5rem",
+                                      borderRadius: "4px",
                                       fontSize: getFontSize(),
-                                      margin: "0.2rem 0" 
+                                      margin: "0.2rem 0"
                                     }}
                                   >
                                     {segment.value}
@@ -1914,6 +2852,7 @@ useEffect(() => {
                                 )
                               )}
                             </Box>
+
 
                             <Box sx={{ padding: "6px 12px", borderTop: "1px solid #f0f0f0" }}>
                               <Typography
@@ -1933,8 +2872,11 @@ useEffect(() => {
                       </React.Fragment>
                     ))}
                   </Box>
+
+
                 </Grid>
 
+                {/* Show right scroll arrow only when > 3 responses */}
                 {shouldScroll && (
                   <IconButton
                     onClick={() => scrollOutputs(index, 'right')}
@@ -1954,11 +2896,13 @@ useEffect(() => {
                     <ChevronRightIcon style={{ color: "#EE6633" }} />
                   </IconButton>
                 )}
+
               </Grid>
             </Grid>
           )}
 
-          {!shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && (
+          {/* Evaluation form section - also reduced */}
+          {message?.prompt_output_pair_id !== null && !shrinkedMessages[index] && ProjectDetails?.metadata_json?.enable_preference_selection && visibleMessages[index] && !(isStreaming && index === chatHistory.length - 1) && (
             <Grid
               item
               sx={{
@@ -1977,13 +2921,15 @@ useEffect(() => {
                   </IconButton>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", maxHeight: "12rem", overflowY: "auto" }}>
+                  {/* Reduced font sizes in evaluation form as well */}
                   {!ProjectDetails?.metadata_json?.single_model_response ? (
+
                     ProjectDetails?.metadata_json?.questions_json?.map(
                       (question, questionIdx) => (
                         <div key={questionIdx}>
                           {question.question_type === "comparison" && (
                             <div style={{ marginBottom: "4px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                              <div className={classes.inputQuestion} style={{ fontSize: "0.85rem" }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{ color: "#d93025", fontSize: "18px" }}
@@ -2001,7 +2947,7 @@ useEffect(() => {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "space-between",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       <span>{option}:</span>
@@ -2081,7 +3027,7 @@ useEffect(() => {
                                                   key={outputIdx}
                                                   value={response.model_name}
                                                   control={<Radio />}
-                                                  label={<span style={{ fontSize: getFontSize() }}>{"Model " + (outputIdx + 1)}</span>}
+                                                  label={<span style={{ fontSize: "0.8rem" }}>{"Model " + (outputIdx + 1)}</span>}
                                                   labelPlacement="start"
                                                 />
                                               ),
@@ -2096,13 +3042,19 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "fill_in_blanks" && (
-                            <div style={{ marginBottom: "5px" }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
                               <p className={classes.inputQuestion}>
                                 {questionIdx + 1}.{" "}
                                 {question.input_question
                                   .split("<blank>")
                                   .map((part, index) => (
-                                    <span key={`${questionIdx}-${index}`} style={{ fontSize: getFontSize() }}>
+                                    <span key={`${questionIdx}-${index}`} style={{
+                                      fontSize: "0.9rem",
+                                    }}>
                                       {part}
                                       {index <
                                         question.input_question.split("<blank>")
@@ -2115,7 +3067,7 @@ useEffect(() => {
                                               width: "100px",
                                               margin: "0 4px",
                                               verticalAlign: "middle",
-                                              fontSize: getFontSize()
+                                              fontSize: "0.85rem"
                                             }}
                                           >
                                             &nbsp;
@@ -2133,6 +3085,7 @@ useEffect(() => {
                                   *
                                 </span>
                               </p>
+
                               <div
                                 style={{
                                   padding: "10px 0 0 20px",
@@ -2141,7 +3094,7 @@ useEffect(() => {
                                   justifyContent: "space-between",
                                   alignItems: "center",
                                   flexWrap: "wrap",
-                                  fontSize: getFontSize()
+                                  fontSize: "0.85rem"
                                 }}
                               >
                                 {message?.output?.map((response, outputIdx) => (
@@ -2159,7 +3112,7 @@ useEffect(() => {
                                         color: "#6C5F5B",
                                         marginRight: "15px",
                                         marginTop: "0.7rem",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {"Model " + (outputIdx + 1)}
@@ -2203,7 +3156,7 @@ useEffect(() => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             maxWidth: "200px",
-                                            fontSize: getFontSize()
+                                            fontSize: "0.85rem"
                                           }}
                                           required
                                         />
@@ -2214,9 +3167,15 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "rating" && (
-                            <div style={{ marginBottom: "5px" }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
                               <div className={classes.inputQuestion}>
-                                <span style={{ fontSize: getFontSize() }}>
+                                <span style={{
+                                  fontSize: "0.9rem",
+                                }}>
                                   {questionIdx + 1}. {question.input_question}
                                 </span>
                                 <span
@@ -2254,7 +3213,7 @@ useEffect(() => {
                                             marginRight: "15px",
                                             marginTop: "0.5rem",
                                             color: "#6C5F5B",
-                                            fontSize: getFontSize()
+                                            fontSize: "0.85rem"
                                           }}
                                         >
                                           {response?.model_name}
@@ -2290,9 +3249,9 @@ useEffect(() => {
                                                 newValue,
                                                 message,
                                                 message?.output?.[0]
-                                                  ?.prompt_output_pair_id,
+                                                  ?.prompt_output_pair_id, // index
                                                 questionIdx,
-                                                outputIdx,
+                                                outputIdx, // model_idx
                                               );
                                             }}
                                             sx={{
@@ -2323,8 +3282,14 @@ useEffect(() => {
                             </div>
                           )}
                           {question.question_type === "mcq" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
+                            <div
+                              style={{
+                                marginBottom: "5px",
+                              }}
+                            >
+                              <div className={classes.inputQuestion} style={{
+                                fontSize: "0.9rem",
+                              }}>
                                 {questionIdx + 1}. {question.input_question}
                                 <span
                                   style={{
@@ -2353,7 +3318,9 @@ useEffect(() => {
                                         flexDirection: "row",
                                       }}
                                     >
-                                      <span style={{ fontSize: getFontSize() }}>{option} :</span>{" "}
+                                      <span style={{
+                                        fontSize: "0.85rem",
+                                      }}>{option} :</span>{" "}
                                       <div
                                         style={{
                                           display: "flex",
@@ -2400,11 +3367,11 @@ useEffect(() => {
                                                   onChange={(e) =>
                                                     handleMCQ(
                                                       message?.output?.[0]
-                                                        ?.prompt_output_pair_id,
+                                                        ?.prompt_output_pair_id, // index
                                                       message,
                                                       option,
                                                       questionIdx,
-                                                      outputIdx,
+                                                      outputIdx, // model_idx
                                                     )
                                                   }
                                                 >
@@ -2418,7 +3385,7 @@ useEffect(() => {
                                                         variant="subtitle2"
                                                         sx={{
                                                           color: "#6C5F5B",
-                                                          fontSize: getFontSize()
+                                                          fontSize: "0.85rem"
                                                         }}
                                                       >
                                                         {response?.model_name}
@@ -2437,10 +3404,17 @@ useEffect(() => {
                               </div>
                             </div>
                           )}
-                          {question.question_type === "multi_select_options" && (
-                            <div style={{ marginBottom: "5px" }}>
-                              <div className={classes.inputQuestion} style={{ fontSize: getFontSize() }}>
-                                {questionIdx + 1}. {question.input_question}
+                          {question.question_type ===
+                            "multi_select_options" && (
+                              <div
+                                style={{
+                                  marginBottom: "5px",
+                                }}
+                              >
+                                <div className={classes.inputQuestion} style={{
+                                  fontSize: "0.9rem",
+                                }}>
+                                  {questionIdx + 1}. {question.input_question}
                                   <span
                                     style={{
                                       color: "#d93025",
@@ -2467,7 +3441,9 @@ useEffect(() => {
                                           justifyContent: "space-between",
                                         }}
                                       >
-                                        <span style={{fontSize: getFontSize() }}>{option} :</span>{" "}
+                                        <span style={{
+                                          fontSize: "0.85rem",
+                                        }}>{option} :</span>{" "}
                                         <div
                                           style={{
                                             display: "flex",
@@ -2532,25 +3508,25 @@ useEffect(() => {
                                                           variant="subtitle2"
                                                           sx={{
                                                             color: "#6C5F5B",
-                                                          fontSize: getFontSize()
-                                                        }}
-                                                      >
-                                                        {response?.model_name}
-                                                      </Typography>
-                                                    }
-                                                  />{" "}
-                                                </FormGroup>
-                                              </FormControl>
-                                            </div>
-                                          ),
-                                        )}
+                                                            fontSize: "0.85rem"
+                                                          }}
+                                                        >
+                                                          {response?.model_name}
+                                                        </Typography>
+                                                      }
+                                                    />{" "}
+                                                  </FormGroup>
+                                                </FormControl>
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ),
-                                )}
+                                    ),
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       ))) : (<>{!shrinkedMessages[index] && ProjectDetails?.metadata_json?.questions_json?.map((question, questionIdx) => {
                         const promptOutputPairId = message?.output?.[0]?.prompt_output_pair_id;
@@ -2564,7 +3540,7 @@ useEffect(() => {
                                   {splitQuestion?.map((part, index) => (
                                     <span
                                       key={`${questionIdx}-${index}`}
-                                      style={{ fontSize: getFontSize() }}
+                                      style={{ fontSize: "0.9rem" }}
                                     >
                                       {part}
                                       {index < splitQuestion.length - 1 && (
@@ -2580,7 +3556,8 @@ useEffect(() => {
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
                                             padding: "4px",
-                                            fontSize: getFontSize(),
+                                            fontSize: "0.85rem",
+                                            // lineHeight: "1.5",
                                             verticalAlign: "middle",
                                             width: "100%",
                                             maxWidth: "200px",
@@ -2595,7 +3572,10 @@ useEffect(() => {
                                     </span>
                                   ))}
                                   {
-                                    <span style={{ color: "#d93025", fontSize: "25px" }}> *</span>
+                                    <span style={{ color: "#d93025", fontSize: "25px" }}>
+                                      {" "}
+                                      *
+                                    </span>
                                   }
                                 </p>
                               </div>
@@ -2605,7 +3585,7 @@ useEffect(() => {
                             return (
                               <div key={questionIdx}>
                                 <div className={classes.inputQuestion}>
-                                  <span style={{ fontSize: getFontSize() }}>
+                                  <span style={{ fontSize: "0.9rem" }}>
                                     {questionIdx + 1}. {question.input_question}
                                   </span>
                                   {
@@ -2674,7 +3654,7 @@ useEffect(() => {
                                       sx={{
                                         ml: 2,
                                         color: "#EE6633",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {(() => {
@@ -2709,7 +3689,7 @@ useEffect(() => {
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: getFontSize() }}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -2728,7 +3708,7 @@ useEffect(() => {
                                   <FormGroup>
                                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                                       {question.input_selections_list.map((option, idx) => (
-                                        <div style={{ width: "50%", fontSize: getFontSize() }} key={idx}>
+                                        <div style={{ width: "50%", fontSize: "0.85rem" }} key={idx}>
                                           <FormControlLabel
                                             key={idx}
                                             control={
@@ -2746,6 +3726,7 @@ useEffect(() => {
                                                     ?.model_responses_json?.[questionIdx]
                                                     ?.response?.includes(option) || false
                                                 }
+
                                               />
                                             }
                                             label={option}
@@ -2763,7 +3744,7 @@ useEffect(() => {
                               <div key={questionIdx}>
                                 <div
                                   className={classes.inputQuestion}
-                                  style={{ fontSize: getFontSize() }}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
                                   {questionIdx + 1}. {question.input_question}
                                   {
@@ -2786,6 +3767,7 @@ useEffect(() => {
                                         ?.model_responses_json?.[questionIdx]
                                         ?.response?.[0] || ""
                                     }
+
                                     onChange={(e) => handleSingleMCQ(e.target.value, questionIdx, promptOutputPairId)}
                                   >
                                     <div
@@ -2793,14 +3775,14 @@ useEffect(() => {
                                         display: "flex",
                                         flexWrap: "wrap",
                                         gap: "16px",
-                                        fontSize: getFontSize()
+                                        fontSize: "0.85rem"
                                       }}
                                     >
                                       {question?.input_selections_list?.map(
                                         (option, idx) => (
                                           <div
                                             key={idx}
-                                            style={{ width: "calc(50% - 8px)" }}
+                                            style={{ width: "calc(50% - 8px)" }} // 2 per row with spacing
                                           >
                                             <FormControlLabel
                                               value={option}
@@ -2820,6 +3802,7 @@ useEffect(() => {
                             return null;
                         }
                       })}</>)}
+
                   <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", width: "100%" }}>
                     <Button
                       variant="contained"
@@ -2833,7 +3816,7 @@ useEffect(() => {
                         maxWidth: "fit-content",
                         marginBottom: "16px",
                         marginRight: "16px",
-                        fontSize: getFontSize(),
+                        fontSize: `${fontSize}rem`,
                         minHeight: "auto",
                       }}
                       onClick={() => {
@@ -2868,7 +3851,6 @@ useEffect(() => {
 
     return chatElements;
   };
-
   const ChildModal = () => {
     const [open, setOpen] = useState(false);
 
@@ -2930,308 +3912,381 @@ useEffect(() => {
   if (!isMounted) {
     return null;
   }
-  
 
-return (
-  <>
-    {renderSnackBar()}
-    <Box
-      ref={containerRef}
-      sx={{
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        width: "100%",
-        height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
-        overflow: "hidden",
-        position: { xs: "fixed", md: "relative" },
-        top: { xs: "150px", md: "0" },
-        left: { xs: 0, md: "0" },
-        right: { xs: 0, md: "0" },
-        bottom: { xs: "0", md: "0" },
-        bgcolor: "#fff",
-        zIndex: { xs: 1000, md: "0" },
-      }}
-    >
-      {/* Instruction Panel - Left Side */}
+
+  return (
+    <>
+      {renderSnackBar()}
       <Box
+        ref={containerRef}
         sx={{
-          width: { 
-            xs: "100%", 
-            md: isInstructionExpanded ? `${instructionWidth}%` : "40px" 
-          },
-          height: { 
-            xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px", 
-            md: "100%" 
-          },
-          maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
-          transition: isDragging ? "none" : "all 0.3s ease",
-          padding: isInstructionExpanded ? "1rem" : "0.5rem",
-          paddingBottom: "0rem!important",
-          paddingTop: "0.3rem!important",
-          borderRight: { xs: "none", md: "1px solid #e0e0e0" },
-          backgroundColor: "#fafafa",
-          overflow: "auto",
           display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-          position: "relative",
+          flexDirection: { xs: "column", md: "row" },
+          width: "100%",
+          height: { xs: "calc(100dvh - 290px)", md: "calc(100vh - 190px)" },
+          overflow: "hidden",
+          position: { xs: "fixed", md: "relative" },
+          top: { xs: "150px", md: "0" },
+          left: { xs: 0, md: "0" },
+          right: { xs: 0, md: "0" },
+          bottom: { xs: "0", md: "0" },
+          bgcolor: "#fff",
+          zIndex: { xs: 1000, md: "0" },
         }}
       >
-        {/* Draggable handle */}
-        {isInstructionExpanded && (
-          <Box
-            onMouseDown={startDragging}
-            sx={{
-              position: "absolute",
-              [window.innerWidth < 768 ? 'bottom' : 'right']: 0,
-              [window.innerWidth < 768 ? 'left' : 'top']: 0,
-              [window.innerWidth < 768 ? 'height' : 'width']: "4px",
-              [window.innerWidth < 768 ? 'width' : 'height']: "100%",
-              cursor: window.innerWidth < 768 ? 'row-resize' : 'col-resize',
-              backgroundColor: "transparent",
-              zIndex: 10,
-              '&:hover': {
-                backgroundColor: "rgba(238, 102, 51, 0.3)",
-              },
-              '&:active': {
-                backgroundColor: "rgba(238, 102, 51, 0.5)",
-              },
-            }}
-          />
-        )}
-
-        {/* Rest of your instruction panel content remains exactly the same */}
+        {/* Instruction Panel - Left Side */}
         <Box
+          ref={instructionPanelRef}
           sx={{
+            width: {
+              xs: "100%",
+              md: isInstructionExpanded ? `${instructionWidth}%` : "40px"
+            },
+            height: {
+              xs: isInstructionExpanded ? `${instructionWidth}dvh` : "60px",
+              md: "100%"
+            },
+            maxHeight: { xs: isInstructionExpanded ? "70vh" : "none", md: "100%" },
+            transition: "all 0.3s ease",
+            padding: isInstructionExpanded ? "1rem" : "0px",
+            paddingBottom: "0rem!important",
+            paddingTop: isInstructionExpanded ? "0.3rem!important" : "0.5rem!important",
+            borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+            backgroundColor: "#fafafa",
+            overflowY: "auto",
+            overflowX: "hidden",
             display: "flex",
-            alignItems: "center",
-            justifyContent: isInstructionExpanded ? "space-between" : "center",
-            marginBottom: isInstructionExpanded ? "1rem" : 0,
-            padding: "0.5rem",
-            backgroundColor: "rgba(247, 184, 171, 0.2)",
-            borderRadius: "8px",
-            cursor: "pointer",
-            minHeight: "40px",
+            flexDirection: "column",
             flexShrink: 0,
+            position: "relative",
           }}
-          onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
         >
+          {/* Draggable handle */}
           {isInstructionExpanded && (
-            <Typography
-              variant="h6"
+            <Box
+              onMouseDown={!isPinned ? startDragging : undefined}
               sx={{
-                color: "#636363",
-                fontWeight: "600",
-                fontSize: getFontSize()
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                width: '6px',
+                height: '100%',
+                cursor: !isPinned ? 'col-resize' : 'default',
+                backgroundColor: 'transparent',
+                zIndex: 10,
+                ...(!isPinned && {
+                  '&:hover': {
+                    backgroundColor: 'rgba(238, 102, 51, 0.2)',
+                  },
+                  '&:active': {
+                    backgroundColor: 'rgba(238, 102, 51, 0.3)',
+                  },
+                }),
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  right: '2px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '4px',
+                  height: '40px',
+                  backgroundColor: !isPinned ? '#EE6633' : '#B0B0B0',
+                  borderRadius: '2px',
+                  opacity: !isPinned ? 0.6 : 0.4,
+                }
               }}
-            >
-              {translate("typography.instructions")}
-            </Typography>
+            />
           )}
-          <Tooltip
-            title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
+
+          {/* Rest of your instruction panel content remains exactly the same */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isInstructionExpanded ? "space-between" : "center",
+              marginBottom: isInstructionExpanded ? "1rem" : 0,
+              padding: isInstructionExpanded ? "0.5rem" : 0,
+              backgroundColor: isInstructionExpanded ? "rgba(247, 184, 171, 0.2)" : "transparent",
+              borderRadius: "8px",
+              cursor: "pointer",
+              minHeight: "40px",
+              flexShrink: 0,
+            }}
+            onClick={() => setIsInstructionExpanded(!isInstructionExpanded)}
           >
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsInstructionExpanded(!isInstructionExpanded);
-              }}
-              sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
-            >
-              {isInstructionExpanded ? (
-                <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              ) : (
-                <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
-              )}
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {isInstructionExpanded && (
-          <Box sx={{ flex: 1, overflow: "auto", padding: "0.5rem" }}>
-            {/* Main Instructions */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
-              <Typography paragraph sx={{ fontSize: "0.9rem", lineHeight: "1.5", color: "#333" }}>
-                {info.instruction_data}
+            {isInstructionExpanded && (
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "#636363",
+                  fontWeight: "600",
+                  fontSize: "1rem"
+                }}
+              >
+                {translate("typography.instructions")}
               </Typography>
+            )}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              {isInstructionExpanded && (
+                <>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        {isPinned ? "Unpin panel width" : "Pin panel width"}
+                      </span>
+                    }
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={(e) => { e.stopPropagation(); handlePinToggle(); }}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      {isPinned
+                        ? <PushPinIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                        : <PushPinOutlinedIcon style={{ fontSize: "1rem", color: "#888" }} />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip
+                    title={
+                      <span style={{ fontFamily: "Roboto, sans-serif" }}>
+                        Reset panel width
+                      </span>
+                    }
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={handleResetPanelWidth}
+                      sx={{ padding: "4px", minWidth: "auto" }}
+                    >
+                      <RestartAltIcon style={{ fontSize: "1rem", color: "#EE6633" }} />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+              <Tooltip
+                title={<span style={{ fontFamily: "Roboto, sans-serif" }}>{isInstructionExpanded ? "Collapse" : "Expand"}</span>}
+              >
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsInstructionExpanded(!isInstructionExpanded);
+                  }}
+                  sx={{ padding: isInstructionExpanded ? '8px' : '4px', minWidth: 'auto' }}
+                >
+                  {isInstructionExpanded ? (
+                    <ChevronLeftIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  ) : (
+                    <ChevronRightIcon style={{ fontSize: "1.2rem", color: "#EE6633" }} />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Box>
+          </Box>
 
-            {/* Metadata Information - Now directly in the panel */}
-            <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
-              {/* Hint Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                      fontSize: getFontSize(),
-                    mb: 1,
+          {/* Font size slider — shown when expanded */}
+          {isInstructionExpanded && (
+            <FontSizeSlider
+              value={fontSize}
+              containerRef={containerRef}
+              onCommit={(newVal) => {
+                setFontSize(newVal);
+                saveAnnotationUIPref({ annotation_font_size: newVal });
+              }}
+              onReset={() => handleResetFontSize()}
+            />
+          )}
+
+
+          {isInstructionExpanded && (
+            <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "0.5rem" }}>
+              {/* Main Instructions */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", marginBottom: "1rem" }}>
+                <ReactMarkdown
+                  className="flex-col"
+                  children={info?.instruction_data ? info.instruction_data.replace(/\n/gi, "  \n").replace(/(^|\s)([A-Z][A-Za-z0-9]*(?:\s[A-Z0-9][A-Za-z0-9]*){0,3}):/g, '\n\n**$2:** ') : ""}
+                  components={{
+                    p: ({ node, ...props }) => <p style={{ fontSize: getFontSize(), lineHeight: "1.5", color: "#333", margin: '0 0 1rem 0' }} {...props} />,
+                    a: ({ node, ...props }) => <a style={{ color: '#EE6633', textDecoration: 'underline', fontWeight: 500 }} target="_blank" rel="noopener noreferrer" {...props} />,
                   }}
-                >
-                  {translate("modal.hint")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                      fontSize: getFontSize(),
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #F18359",
-                  }}
-                >
-                  {info.hint || "No hints available"}
-                </Typography>
+                />
               </Box>
 
-              {/* Examples Section */}
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                      fontSize: getFontSize(),
+              {/* Metadata Information - Now directly in the panel */}
+              <Box sx={{ backgroundColor: "white", borderRadius: "8px", padding: "1rem", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" }}>
+                {/* Hint Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
                       mb: 1,
-                  }}
-                >
-                  {translate("modal.examples")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                      fontSize: getFontSize(),
-                    lineHeight: "1.4",
-                    color: "#555",
-                    backgroundColor: "#f8f9fa",
-                    padding: "0.75rem",
-                    borderRadius: "4px",
-                    borderLeft: "3px solid #4CAF50",
-                  }}
-                >
-                  {info.examples || "No examples available"}
-                </Typography>
-              </Box>
+                    }}
+                  >
+                    {translate("modal.hint")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #F18359",
+                    }}
+                  >
+                    {info.hint || "No hints available"}
+                  </Typography>
+                </Box>
 
-              {/* Additional Metadata Information */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#F18359",
-                    fontWeight: "bold",
-                      fontSize: getFontSize(),
-                    mb: 1,
-                  }}
-                >
-                  Additional Information
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {info.meta_info_language && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <CodeIcon fontSize="small" color="primary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
-                        Language: {info.meta_info_language}
-                      </Typography>
-                    </Box>
-                  )}
-                  {taskId && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <AssignmentIcon fontSize="small" color="secondary" />
-                      <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#666" }}>
-                        Task ID: {taskId}
-                      </Typography>
-                    </Box>
-                  )}
+                {/* Examples Section */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
+                      mb: 1,
+                    }}
+                  >
+                    {translate("modal.examples")}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.05rem))',
+                      lineHeight: "1.4",
+                      color: "#555",
+                      backgroundColor: "#f8f9fa",
+                      padding: "0.75rem",
+                      borderRadius: "4px",
+                      borderLeft: "3px solid #4CAF50",
+                    }}
+                  >
+                    {info.examples || "No examples available"}
+                  </Typography>
+                </Box>
+
+                {/* Additional Metadata Information */}
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#F18359",
+                      fontWeight: "bold",
+                      fontSize: 'calc(var(--chat-font-size) + 0.1rem)',
+                      mb: 1,
+                    }}
+                  >
+                    Additional Information
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    {info.meta_info_language && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <CodeIcon fontSize="small" color="primary" />
+                        <Typography variant="body2" sx={{ fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.1rem))', color: "#666" }}>
+                          Language: {info.meta_info_language}
+                        </Typography>
+                      </Box>
+                    )}
+                    {taskId && (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <AssignmentIcon fontSize="small" color="secondary" />
+                        <Typography variant="body2" sx={{ fontSize: 'max(0.6rem, calc(var(--chat-font-size) - 0.1rem))', color: "#666" }}>
+                          Task ID: {taskId}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
+          )}
+        </Box>
 
-      {/* Chat Section - Right Side - remains exactly the same */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          overflow: "hidden",
-          minWidth: 0,
-          paddingBottom:"0rem!important",
-        }}
-      >
+        {/* Chat Section - Right Side - remains exactly the same */}
         <Box
           sx={{
             flex: 1,
-            overflowY: "auto",
-            padding: "1rem",
-            paddingBottom:"0rem!important",
-            background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
-            width: "100%",
-            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            overflow: "hidden",
+            minWidth: 0,
+            paddingBottom: "0rem!important",
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
-            {showChatContainer ? renderChatHistory() : null}
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "1rem",
+              paddingBottom: "0rem!important",
+              background: 'linear-gradient(135deg, #fff5f5 0%, #fff9f0 50%, #f5f0ff 100%)',
+              width: "100%",
+              minHeight: 0,
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center !important", padding: "0 0" }}>
+              {showChatContainer ? renderChatHistory() : null}
+            </Box>
+            <Box ref={bottomRef} />
           </Box>
-          <Box ref={bottomRef} />
         </Box>
       </Box>
-    </Box>
 
-    {/* Textarea placed outside the main container - remains exactly the same */}
-    {stage !== "Alltask" && !disableUpdateButton ? (
-      <Box
-        sx={{
-
-    bgcolor: "white",
-    borderTop: "1px solid #e0e0e0",
-    position: "fixed",
-    bottom: 0,
-    left: 0,
-    right:0,
-    flex:1,
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-              py: "0.5rem",
-          px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
-
-    alignItems: "center",
-    boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
-        }}
-      >
-        
-      <Box
+      {/* Textarea placed outside the main container - remains exactly the same */}
+      {stage !== "Alltask" && !disableUpdateButton ? (
+        <Box
           sx={{
+
+            bgcolor: "white",
+            borderTop: "1px solid #e0e0e0",
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            flex: 1,
             width: "100%",
-            maxWidth: "100%", // Always full width
-            mx: 0, // No margin
-            paddingLeft:"1.5rem",
+            display: "flex",
+            justifyContent: "center",
+            py: "0.5rem",
+            px: { xs: "0", md: "4rem" }, // Remove horizontal padding on desktop
+
+            alignItems: "center",
+            boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
           }}
         >
-        <Textarea
-          handleButtonClick={handleButtonClick}
-          handleOnchange={handleOnchange}
-          size={12}
-            sx={{ 
-              width: "100%", 
-              margin: 0, 
-              padding: 0,
-              "& .MuiInputBase-root": {
-                height: "50px",
+
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "100%", // Always full width
+              mx: 0, // No margin
+              paddingLeft: "1.5rem",
+            }}
+          >
+            <Textarea
+              handleButtonClick={handleButtonClick}
+              handleOnchange={handleOnchange}
+              size={12}
+              sx={{
                 width: "100%",
-              },
-              "& textarea": {
+                margin: 0,
+                padding: 0,
+                "& .MuiInputBase-root": {
+                  height: "50px",
+                  width: "100%",
+                },
+                "& textarea": {
                   fontSize: getFontSize(),
                   width: "100%",
                 }

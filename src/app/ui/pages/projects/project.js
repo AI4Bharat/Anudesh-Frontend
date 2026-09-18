@@ -95,6 +95,17 @@ const ProjectList = React.memo(function ProjectList({ data }) {
       return new Set(bookmarkedProjects.map(project => project.id));
     }, [bookmarkedProjects]);
 
+    const handleBookmarkChange = (projectId, isBookmarked) => {
+      if (isBookmarked) {
+        setBookmarkedProjects((prev) => {
+          if (prev.some((p) => p.id === projectId)) return prev;
+          return [...prev, { id: projectId, is_bookmarked: true }];
+        });
+      } else {
+        setBookmarkedProjects((prev) => prev.filter((p) => p.id !== projectId));
+      }
+    };
+
 
 
 
@@ -212,6 +223,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
                   selectedFilters={selectedFilters}
                   setsSelectedFilters={setsSelectedFilters}
                   bookmarkedProjectIds={bookmarkedProjectIds}
+                  onBookmarkChange={handleBookmarkChange}
                 />
               ) : (
                 <ProjectCard

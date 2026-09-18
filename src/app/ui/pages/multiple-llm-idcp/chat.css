@@ -95,4 +95,45 @@
     padding: 10px;
     margin-bottom: 8px;
   }
-  
+
+  /* Streaming cursor blink animation */
+  @keyframes streaming-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .streaming-cursor::after {
+    content: '▋';
+    animation: streaming-blink 0.7s infinite;
+    color: #EE6633;
+    font-weight: bold;
+  }
+
+  /* Streaming typing dots */
+  @keyframes streaming-dots {
+    0%, 80%, 100% { opacity: 0; transform: scale(0.6); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  .streaming-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .streaming-dots span {
+    width: 6px;
+    height: 6px;
+    background-color: #EE6633;
+    border-radius: 50%;
+    animation: streaming-dots 1.4s infinite;
+  }
+
+  .streaming-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .streaming-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+  }

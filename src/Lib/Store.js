@@ -69,6 +69,7 @@ import getDomain from './Features/actions/getDomain';
 import taskPaginationSlice from './Features/user/taskPaginationSlice'
 import EditOrganization from './Features/user/EditOrganization';
 import SendWorkspaceUserReports from './Features/projects/SendWorkspaceUserReports';
+import DownloadWorkspacePaymentReport from './Features/projects/DownloadWorkspacePaymentReport';
 import WorkspaceUserReports from './Features/projects/WorkspaceUserReports';
 import WorkspaceProjectReport from './Features/projects/WorkspaceProjectReport';
 import GetExportProjectButton from './Features/datasets/GetExportProjectButton';
@@ -89,6 +90,7 @@ const makeStore = () => {
         WorkspaceProjectReport:WorkspaceProjectReport,
         WorkspaceUserReports:WorkspaceUserReports,
         SendWorkspaceUserReports:SendWorkspaceUserReports,
+        DownloadWorkspacePaymentReport:DownloadWorkspacePaymentReport,
         EditOrganization:EditOrganization,
         getTaskDetails:getTaskDetails,
         AddGlossary:AddGlossary,
