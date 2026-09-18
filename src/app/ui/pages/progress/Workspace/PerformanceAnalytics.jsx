@@ -96,6 +96,7 @@ const options = {
     y: {
       stacked: true,
       display: true,
+      beginAtZero: true,
       title: {
         display: true,
         text: "Compleated Count",
