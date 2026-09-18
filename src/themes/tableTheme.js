@@ -38,6 +38,7 @@ const tableTheme = createTheme({
         },
       },
     },
+
     MuiTableCell: {
       styleOverrides: {
         root: {
