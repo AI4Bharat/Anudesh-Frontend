@@ -108,13 +108,19 @@ const Chat = () => {
           let language = response.substring(0, next_space);
           response = response.slice(next_space + 1);
           let new_index = response.indexOf("```");
-          let value = response.substring(0, new_index);
+          let value = "";
+          if (new_index === -1) {
+            value = response;
+            response = "";
+          } else {
+            value = response.substring(0, new_index);
+            response = response.slice(new_index + 3);
+          }
           output.push({
             type: "code",
             value: value,
             language: language,
           });
-          response = response.slice(new_index + 3);
         }
       }
     }

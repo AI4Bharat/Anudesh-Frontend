@@ -5,26 +5,33 @@ import { IconButton, CircularProgress, Tooltip } from '@mui/material';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 
-const BookmarkButton = ({ projectId, onBookmarkChange }) => {
+const BookmarkButton = ({ projectId, onBookmarkChange, initialBookmarked }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(initialBookmarked ?? false);
 
     useEffect(() => {
-    async function fetchAndCheckBookmark() {
-      try {
-        const response = await getUserProjects();        
-        if (response && Array.isArray(response.results)) {
-          const project = response.results.find(p => p.id === Number(projectId));
-          if (project) {
-            setIsBookmarked(!!project.is_bookmarked);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user projects:', error);
+      if (initialBookmarked !== undefined) {
+        setIsBookmarked(initialBookmarked);
       }
-    }
-    fetchAndCheckBookmark();
-  }, [projectId]);
+    }, [initialBookmarked]);
+
+    useEffect(() => {
+      if (initialBookmarked !== undefined) return;
+      async function fetchAndCheckBookmark() {
+        try {
+          const response = await getUserProjects();        
+          if (response && Array.isArray(response.results)) {
+            const project = response.results.find(p => p.id === Number(projectId));
+            if (project) {
+              setIsBookmarked(!!project.is_bookmarked);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user projects:', error);
+        }
+      }
+      fetchAndCheckBookmark();
+    }, [projectId, initialBookmarked]);
 
   const handleBookmarkToggle = async () => {
     setIsLoading(true);
