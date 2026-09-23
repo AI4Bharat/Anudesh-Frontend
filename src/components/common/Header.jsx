@@ -137,7 +137,7 @@ const translationServices = {
     const fetchUnreadCount = async () => {
     try {
       let apiObj = new NotificationAPI();
-      const endpoint = `${apiObj.apiEndPoint()}/unread`;
+      const endpoint = `${apiObj.apiEndPoint().replace(/\/$/, "")}/unread`;
       const response = await fetch(endpoint, {
         method: "GET",
         headers: apiObj.getHeaders().headers,
