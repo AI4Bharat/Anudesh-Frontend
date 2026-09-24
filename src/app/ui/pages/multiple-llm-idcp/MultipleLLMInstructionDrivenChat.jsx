@@ -1026,10 +1026,10 @@ const MultipleLLMInstructionDrivenChat = ({
               const lastIdx = updated.length - 1;
               if (lastIdx >= 0) {
                 const lastEntry = { ...updated[lastIdx] };
-                lastEntry.output = lastEntry.output.map((modelOutput) => {
+lastEntry.output = lastEntry.output.map((modelOutput) => {
                   return {
                     ...modelOutput,
-                    output: [{ type: "text", value: `[ERROR] ${errMsg}` }],
+                    output: [{ type: "text", value: errMsg }],
                     status: "error",
                   };
                 });
