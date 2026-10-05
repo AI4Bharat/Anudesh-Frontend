@@ -49,7 +49,7 @@ const ProjectList = React.memo(function ProjectList({ data }) {
     (state) => state.getProjects.status === "loading",
   );
   const projectData = useSelector((state) => state.getProjects.data);
-  console.log(projectData);
+ 
   useEffect(() => {
     dispatch(FetchLoggedInUserData("me"));
   }, []);
