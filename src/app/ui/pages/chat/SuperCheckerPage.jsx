@@ -33,6 +33,7 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import LightTooltip from "@/components/common/Tooltip";
 import { ArrowDropDown } from "@material-ui/icons";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
+import { getSubmitBlockedReason } from "@/utils/chatTurnStatus";
 import ModelInteractionEvaluation from "../model_response_evaluation/model_response_evaluation";
 import CustomizedSnackbars from "@/components/common/Snackbar";
 import PreferenceRanking from "../n-screen-preference-ranking/PreferenceRanking";
@@ -171,36 +172,49 @@ const SuperCheckerPage = () => {
   const [isModelStreaming, setIsModelStreaming] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const hasEmptyResponse = (() => {
-    if (!chatHistory || chatHistory.length === 0) return false;
-    let empty = false;
-    chatHistory.forEach((turn) => {
+  // First turn with an empty response (blocks the button), or null.
+  const emptyTurn = (() => {
+    if (!chatHistory || chatHistory.length === 0) return null;
+    for (let index = 0; index < chatHistory.length; index++) {
+      const turn = chatHistory[index];
       if (ProjectDetails?.project_type === "InstructionDrivenChat") {
         if (!turn.output || (typeof turn.output === "string" && turn.output.trim() === "")) {
-          empty = true;
+          return { index, problem: "empty", modelName: null };
         }
       } else if (ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") {
         if (!turn.output || !Array.isArray(turn.output)) {
-          empty = true;
-        } else {
-          turn.output.forEach((modelResp) => {
-            if (
-              !modelResp.output ||
-              !Array.isArray(modelResp.output) ||
-              !modelResp.output[0] ||
-              typeof modelResp.output[0].value !== "string" ||
-              modelResp.output[0].value.trim() === ""
-            ) {
-              empty = true;
-            }
-          });
+          return { index, problem: "empty", modelName: null };
+        }
+        for (const modelResp of turn.output) {
+          if (
+            !modelResp.output ||
+            !Array.isArray(modelResp.output) ||
+            !modelResp.output[0] ||
+            typeof modelResp.output[0].value !== "string" ||
+            modelResp.output[0].value.trim() === ""
+          ) {
+            return { index, problem: "empty", modelName: modelResp.model_name || modelResp.model_id || null };
+          }
         }
       }
-    });
-    return empty;
+    }
+    return null;
   })();
+  const hasEmptyResponse = !!emptyTurn;
 
   const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyResponse) && !ProjectDetails?.metadata_json?.blank_response);
+
+  // Shown as a tooltip on the disabled Validate button.
+  const submitBlockedReason =
+    !disableUpdateButton && isSubmitDisabled
+      ? getSubmitBlockedReason({
+          isModelStreaming,
+          blockingTurn: emptyTurn,
+          projectType: ProjectDetails?.project_type,
+          turnCount: chatHistory?.length ?? 0,
+          action: "validating",
+        })
+      : "";
 
   // ── useState replacements for the .value workaround on the refs ──
   const [reviewNotesValue, setReviewNotesValue] = useState("");
@@ -1346,7 +1360,9 @@ const SuperCheckerPage = () => {
 
             {/* Validate Button with Menu */}
             {taskData?.super_check_user === userData?.id && (
-              <Tooltip title="Validate">
+              <Tooltip title={submitBlockedReason || "Validate"}>
+                {/* span keeps the tooltip working while the button is disabled */}
+                <span style={{ display: "inline-flex" }}>
                 <Button
                   variant="outlined"
                   size="small"
@@ -1369,6 +1385,7 @@ const SuperCheckerPage = () => {
                 >
                   Validate
                 </Button>
+                </span>
               </Tooltip>
             )}
             <StyledMenu

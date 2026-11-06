@@ -16,6 +16,12 @@ import { fetchAnnotationsTask } from "@/Lib/Features/projects/getAnnotationsTask
 import headerStyle from "@/styles/Header";
 import ReactMarkdown from "react-markdown";
 import linkifyText from "@/utils/linkifyText";
+import {
+  isErrorOutput,
+  getOutputText,
+  findBlockingTurn,
+  getSendBlockedReason,
+} from "@/utils/chatTurnStatus";
 import { useParams } from "react-router-dom";
 import { translate } from "@/config/localisation";
 import Textarea from "@/components/Chat/TextArea";
@@ -160,17 +166,6 @@ const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
   );
 });
 
-const isErrorOutput = (value) => {
-  if (typeof value !== "string") return false;
-  const lower = value.toLowerCase().trim();
-  return (
-    lower.startsWith("[error]") ||
-    lower.startsWith("the model is temporarily unavailable") ||
-    lower.startsWith("encountered an error") ||
-    lower.startsWith("streaming timed out") ||
-    lower.startsWith("failed to generate a response")
-  );
-};
 
 const InstructionDrivenChatPage = ({
   chatHistory,
@@ -383,6 +378,21 @@ const InstructionDrivenChatPage = ({
   });
   const ProjectDetails = useSelector((state) => state.getProjectDetails?.data);
 
+  // Blank-response projects expect empty outputs, so nothing is blocked there.
+  const isBlankResponseProject = !!ProjectDetails?.metadata_json?.blank_response;
+  const blockingTurn = useMemo(
+    () => (isBlankResponseProject ? null : findBlockingTurn(chatHistory, "InstructionDrivenChat")),
+    [chatHistory, isBlankResponseProject],
+  );
+  // While a response is streaming its turn is empty on purpose, so don't block on it.
+  const sendBlockedReason =
+    !isStreaming && !chatLoading && blockingTurn
+      ? getSendBlockedReason({
+          blockingTurn,
+          turnCount: chatHistory?.length ?? 0,
+        })
+      : "";
+
   const loggedInUserData = useSelector((state) => state.getLoggedInData?.data);
 
   // Sync annotation UI preferences from localStorage on mount
@@ -581,6 +591,14 @@ const InstructionDrivenChatPage = ({
   const formattedText = formatTextWithTooltips(info.instruction_data, info);
 
 const handleButtonClick = async (promptOverride, retry = false) => {
+  // A new prompt can't be sent while an earlier turn has an error or empty response.
+  // The send box already blocks this; this guards the other typed-prompt callers.
+  // Prompts passed in directly (retry, or re-sending a prompt interrupted by a
+  // page refresh) are not new prompts, so they aren't blocked.
+  if (!retry && promptOverride == null && sendBlockedReason) {
+    setSnackbarInfo({ open: true, message: sendBlockedReason, variant: "error" });
+    return;
+  }
   const prompt = promptOverride ?? inputValue;
   if (prompt) {
     isSendInFlightRef.current = true;
@@ -588,6 +606,7 @@ const handleButtonClick = async (promptOverride, retry = false) => {
     setIsStreaming(true);
 
     const currentPrompt = prompt;
+    const turnsBefore = chatHistoryRef.current || [];
     // Add optimistic entry with a streaming placeholder
     setChatHistory((prev) => {
       let updated;
@@ -698,17 +717,17 @@ const handleButtonClick = async (promptOverride, retry = false) => {
       return;
     }
 
-    // Build the history for the streaming endpoint (previous turns only)
-    const streamHistory = chatHistoryRef.current
+    // Build the history for the streaming endpoint (previous turns only).
+    // On a retry, leave out the last turn: it's the one being regenerated.
+    const streamHistory = (retry ? turnsBefore.slice(0, -1) : turnsBefore)
       .map((chat) => ({
         prompt: chat.prompt,
-        output: typeof chat.output === "string"
-          ? chat.output
-          : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+        output: getOutputText(chat.output),
       }))
       // Filter out any previous turns that had an empty output (e.g. interrupted ones)
-      // because passing empty outputs to the LLM backend causes generation to crash
-      .filter((chat) => chat.output.trim() !== "");
+      // because passing empty outputs to the LLM backend causes generation to crash.
+      // Failed turns are dropped too, so the model doesn't see its own error text.
+      .filter((chat) => chat.output.trim() !== "" && !isErrorOutput(chat.output));
 
     const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
     const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
@@ -729,7 +748,7 @@ onToken: (token, fullText) => {
               output: [{ type: "text", value: fullText }],
             };
           }
-         
+
           localStorage.setItem(`in_progress_chat_single_${taskId}`, JSON.stringify(updated));
           return updated;
         });
@@ -797,9 +816,7 @@ onToken: (token, fullText) => {
         // Construct the full history array for the backend so it doesn't re-trigger LLM generation
         const previousHistory = chatHistoryRef.current.slice(0, -1).map((chat) => ({
           prompt: chat.prompt,
-          output: typeof chat.output === "string"
-            ? chat.output
-            : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+          output: getOutputText(chat.output),
         }));
 
         const fullHistoryPayload = [
@@ -1856,6 +1873,10 @@ const ChildModal = () => {    const [open, setOpen] = useState(false);
               overrideGT={true}
               task_id={taskId}
               script={info.meta_info_language}
+              sendBlockedReason={sendBlockedReason}
+              onSendBlocked={(reason) =>
+                setSnackbarInfo({ open: true, message: reason, variant: "error" })
+              }
             />
           </Box>
         </Box>

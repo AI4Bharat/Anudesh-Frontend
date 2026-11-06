@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { Box, Grid } from "@mui/material";
 import { translate } from "@/config/localisation";
 import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
@@ -42,6 +43,10 @@ export default function Textarea({
   overrideGT = false,
   task_id = "",
   script = "",
+  // When set, sending is blocked (the typed prompt is kept) and this text
+  // explains why, e.g. an earlier turn has an error response.
+  sendBlockedReason = "",
+  onSendBlocked,
 }) {
   /* eslint-disable react-hooks/exhaustive-deps */
 
@@ -106,6 +111,10 @@ export default function Textarea({
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
+      if (sendBlockedReason) {
+        onSendBlocked?.(sendBlockedReason);
+        return;
+      }
       handleButtonClick();
       setText("");
     } else if (event.key === "Enter" && event.shiftKey) {
@@ -415,18 +424,28 @@ export default function Textarea({
       </div>
       </Grid>
       <Grid item>
-        <IconButton
-          size="large"
-          onClick={() => {
-            handleButtonClick();
-            setText("");
-          }}
-          disabled={!text?.trim()}
-        >
-          <SendRoundedIcon
-                style={{ color: "#EE6633", width: "32px", height: "32px" }}
-              />
-        </IconButton>
+        <Tooltip title={sendBlockedReason || ""}>
+          {/* span keeps the tooltip working while the button is disabled */}
+          <span>
+            <IconButton
+              size="large"
+              onClick={() => {
+                if (sendBlockedReason) return;
+                handleButtonClick();
+                setText("");
+              }}
+              disabled={!text?.trim() || !!sendBlockedReason}
+            >
+              <SendRoundedIcon
+                    style={{
+                      color: sendBlockedReason ? grey[300] : "#EE6633",
+                      width: "32px",
+                      height: "32px",
+                    }}
+                  />
+            </IconButton>
+          </span>
+        </Tooltip>
       </Grid>
       {/* loading && (
         <Grid item>
