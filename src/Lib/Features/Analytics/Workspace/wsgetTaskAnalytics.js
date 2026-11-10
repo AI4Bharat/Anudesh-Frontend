@@ -30,13 +30,20 @@ const diffAnnotationReview = (payload) => {
 
 export const fetchwsTaskAnalyticsData = createAsyncThunk(
   'getwsTaskAnalyticsData/fetchwsTaskAnalyticsData',
-  async ({id,project_type_filter,progressObj}) => {
-    let endpoint ;
-    const body = progressObj
-    project_type_filter=='AllTypes'?
-    endpoint = `${ENDPOINTS.getWorkspaces}${id}/cumulative_tasks_count_all/`
-    :
-    endpoint = `${ENDPOINTS.getWorkspaces}${id}/cumulative_tasks_count_all/?project_type_filter=${project_type_filter}`
+  async ({id, project_type_filter, progressObj, startDate, endDate}) => {
+    const queryParams = new URLSearchParams();
+    const body = progressObj;
+
+    if (project_type_filter !== 'AllTypes') {
+      queryParams.set('project_type_filter', project_type_filter);
+    }
+    if (startDate && endDate) {
+      queryParams.set('start_date', startDate);
+      queryParams.set('end_date', endDate);
+    }
+
+    const queryString = queryParams.toString();
+    const endpoint = `${ENDPOINTS.getWorkspaces}${id}/cumulative_tasks_count_all/${queryString ? `?${queryString}` : ''}`;
     const params = fetchParams(endpoint,"GET",JSON.stringify(body));
     return fetch(params.url, params.options)
         .then(response => response.json())
