@@ -20,6 +20,7 @@ import LightTooltip from "@/components/common/Tooltip";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { setTaskDetails } from "@/Lib/Features/getTaskDetails";
 import getTaskAssignedUsers from "@/utils/getTaskAssignedUsers";
+import { findBlockingTurn, getSubmitBlockedReason } from "@/utils/chatTurnStatus";
 import InstructionDrivenChatPage from "./InstructionDrivenChatPage";
 import GetTaskDetailsAPI from "@/app/actions/api/Dashboard/getTaskDetails";
 import GetNextProjectAPI from "@/app/actions/api/Projects/GetNextProjectAPI";
@@ -130,59 +131,22 @@ const AnnotatePage = () => {
   const [isModelFailing, setIsModelFailing] = useState(false);
   const [isModelStreaming, setIsModelStreaming] = useState(false);
 
-  const isErrorOutput = (value) => {
-    if (typeof value !== "string") return false;
-    const lower = value.toLowerCase().trim();
-    return (
-      lower.startsWith("[error]") ||
-      lower.startsWith("the model is temporarily unavailable") ||
-      lower.startsWith("encountered an error") ||
-      lower.startsWith("streaming timed out") ||
-      lower.startsWith("failed to generate a response")
-    );
-  };
+  // First turn with an empty or error response (blocks Submit), or null.
+  const blockingTurn = findBlockingTurn(chatHistory, ProjectDetails?.project_type);
+  const hasEmptyOrErrorResponse = !!blockingTurn;
 
-  const hasEmptyOrErrorResponse = (() => {
-    if (!chatHistory || chatHistory.length === 0) return false;
-    let invalid = false;
-    chatHistory.forEach((turn) => {
-      if (ProjectDetails?.project_type === "InstructionDrivenChat") {
-        if (!turn.output) {
-          invalid = true;
-        } else if (typeof turn.output === "string") {
-          if (turn.output.trim() === "" || isErrorOutput(turn.output)) {
-            invalid = true;
-          }
-        } else if (Array.isArray(turn.output)) {
-          const text = turn.output.map((seg) => seg.value || "").join("");
-          if (text.trim() === "" || isErrorOutput(text)) {
-            invalid = true;
-          }
-        }
-      } else if (ProjectDetails?.project_type === "MultipleLLMInstructionDrivenChat") {
-        if (!turn.output || !Array.isArray(turn.output)) {
-          invalid = true;
-        } else {
-          turn.output.forEach((modelResp) => {
-            if (
-              !modelResp.output ||
-              !Array.isArray(modelResp.output) ||
-              !modelResp.output[0] ||
-              typeof modelResp.output[0].value !== "string" ||
-              modelResp.output[0].value.trim() === "" ||
-              isErrorOutput(modelResp.output[0].value) ||
-              modelResp.status === "error"
-            ) {
-              invalid = true;
-            }
-          });
-        }
-      }
-    });
-    return invalid;
-  })();
-
-  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyOrErrorResponse) && !ProjectDetails?.metadata_json?.blank_response);
+  const isBlankResponseProject = !!ProjectDetails?.metadata_json?.blank_response;
+  const isSubmitDisabled = disableUpdateButton || ((isModelStreaming || hasEmptyOrErrorResponse) && !isBlankResponseProject);
+  // Shown as a tooltip on the disabled Submit button.
+  const submitBlockedReason =
+    !disableUpdateButton && isSubmitDisabled
+      ? getSubmitBlockedReason({
+          isModelStreaming,
+          blockingTurn,
+          projectType: ProjectDetails?.project_type,
+          turnCount: chatHistory?.length ?? 0,
+        })
+      : "";
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -1336,7 +1300,9 @@ const AnnotatePage = () => {
               taskData?.annotation_users?.some(
                 (users) => users === userData.id,
               ) && (
-                <Tooltip>
+                <Tooltip title={submitBlockedReason}>
+                  {/* span keeps the tooltip working while the button is disabled */}
+                  <span style={{ display: "inline-flex" }}>
                   <Button
                     variant="contained"
                     size="small"
@@ -1375,6 +1341,7 @@ const AnnotatePage = () => {
                   >
                     Submit
                   </Button>
+                  </span>
                 </Tooltip>
               )}
           </Box>

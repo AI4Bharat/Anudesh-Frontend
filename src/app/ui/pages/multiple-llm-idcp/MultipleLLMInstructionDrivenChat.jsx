@@ -53,6 +53,7 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Slider from '@mui/material/Slider';
 import linkifyText from '@/utils/linkifyText';
+import { isErrorOutput, findBlockingTurn, getSendBlockedReason } from "@/utils/chatTurnStatus";
 
 const orange = {
   200: "pink",
@@ -172,17 +173,6 @@ const FontSizeSlider = memo(({ value, containerRef, onCommit, onReset }) => {
   );
 });
 
-const isErrorOutput = (value) => {
-  if (typeof value !== "string") return false;
-  const lower = value.toLowerCase().trim();
-  return (
-    lower.startsWith("[error]") ||
-    lower.startsWith("the model is temporarily unavailable") ||
-    lower.startsWith("encountered an error") ||
-    lower.startsWith("streaming timed out") ||
-    lower.startsWith("failed to generate a response")
-  );
-};
 
 
 const reverseFormatResponse = (formattedOutput) => {
@@ -315,6 +305,21 @@ const MultipleLLMInstructionDrivenChat = ({
     message: "",
     variant: "success",
   });
+
+  // Blank-response projects expect empty outputs, so nothing is blocked there.
+  const isBlankResponseProject = !!ProjectDetails?.metadata_json?.blank_response;
+  const blockingTurn = useMemo(
+    () => (isBlankResponseProject ? null : findBlockingTurn(chatHistory, "MultipleLLMInstructionDrivenChat")),
+    [chatHistory, isBlankResponseProject],
+  );
+  // While responses are streaming the turn is empty on purpose, so don't block on it.
+  const sendBlockedReason =
+    !isStreaming && !chatLoading && !loading && blockingTurn
+      ? getSendBlockedReason({
+          blockingTurn,
+          turnCount: chatHistory?.length ?? 0,
+        })
+      : "";
   const [shrinkedMessages, setShrinkedMessages] = useState({});
   const [isInstructionExpanded, setIsInstructionExpanded] = useState(true);
   const [targetLang, setTargetLang] = useState("");
@@ -757,6 +762,13 @@ const MultipleLLMInstructionDrivenChat = ({
     console.log(prompt_output_pair_id, modelResponses, index, inputValue, evalFormResponse);
     const isMultipleResponse = ProjectDetails?.metadata_json;
     const isNewPrompt = !!(promptOverride || inputValue) && !(modelResponses && prompt_output_pair_id >= 0);
+
+    // A new typed prompt can't be sent while an earlier turn has an error or empty
+    // response. Prompts passed in directly (retry, refresh recovery) aren't blocked.
+    if (isNewPrompt && promptOverride == null && sendBlockedReason) {
+      setSnackbarInfo({ open: true, message: sendBlockedReason, variant: "error" });
+      return;
+    }
 
     if (promptOverride || inputValue || (modelResponses && prompt_output_pair_id >= 0)) {
       setLoading(true);
@@ -4297,6 +4309,10 @@ const MultipleLLMInstructionDrivenChat = ({
               overrideGT={true}
               task_id={taskId}
               script={info.meta_info_language}
+              sendBlockedReason={sendBlockedReason}
+              onSendBlocked={(reason) =>
+                setSnackbarInfo({ open: true, message: reason, variant: "error" })
+              }
             />
           </Box>
         </Box>
