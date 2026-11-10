@@ -246,11 +246,11 @@ export default function useStreamingLLM() {
                 return null;
               }
 
-              if (parsed.error && parsed.model) {
-                // Per-model error
+             if (parsed.error && parsed.model) {
+                // Per-model error — no raw [ERROR] prefix
                 const cleanedErr = cleanErrorMessage(parsed.error);
-                modelTexts[parsed.model] = `[ERROR] ${cleanedErr}`;
-                if (onToken) onToken(parsed.model, `[ERROR] ${cleanedErr}`, modelTexts[parsed.model]);
+                modelTexts[parsed.model] = cleanedErr;
+                if (onToken) onToken(parsed.model, cleanedErr, modelTexts[parsed.model]);
                 continue;
               }
 
