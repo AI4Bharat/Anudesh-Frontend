@@ -644,6 +644,7 @@ const handleButtonClick = async (promptOverride, retry = false) => {
         output: typeof chat.output === "string"
           ? chat.output
           : chat.output?.map?.((seg) => seg.value || "").join("") || "",
+        ...(chat.model_used && { model_used: chat.model_used }),
       }));
 
       const fullHistoryPayload = [
@@ -731,11 +732,17 @@ const handleButtonClick = async (promptOverride, retry = false) => {
 
     const taskData = JSON.parse(localStorage.getItem("TaskData") || "{}");
     const model = taskData?.data?.model || "google/gemma-4-26B-A4B-it";
+    // The backend may answer with a fallback model when `model` is busy;
+    // the done event reports which one actually answered.
+    let modelUsed = model;
 
     const streamPromise = streamResponse({
       prompt: currentPrompt,
       history: streamHistory,
       model: model,
+      onDone: (_fullText, _finishReason, reportedModel) => {
+        if (reportedModel) modelUsed = reportedModel;
+      },
 onToken: (token, fullText) => {
         setIsPolling(false);
         setPollingCount(0);
@@ -817,6 +824,7 @@ onToken: (token, fullText) => {
         const previousHistory = chatHistoryRef.current.slice(0, -1).map((chat) => ({
           prompt: chat.prompt,
           output: getOutputText(chat.output),
+          ...(chat.model_used && { model_used: chat.model_used }),
         }));
 
         const fullHistoryPayload = [
@@ -824,6 +832,7 @@ onToken: (token, fullText) => {
           {
             prompt: currentPrompt,
             output: streamedText,
+            model_used: modelUsed,
           }
         ];
         body.result = fullHistoryPayload;

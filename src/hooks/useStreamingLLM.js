@@ -12,7 +12,9 @@ import configs from "@/config/config";
  *     history: [{prompt: "hi", output: "hello"}],
  *     model: "google/gemma-4-26B-A4B-it",
  *     onToken: (token) => { ... },        // called for each streamed token
- *     onDone: (fullText, finishReason) => { ... }, // called when stream completes; finishReason is "stop", "length", or null
+ *     onDone: (fullText, finishReason, modelUsed) => { ... }, // called when stream completes; finishReason is "stop", "length", or null.
+ *                                                    // modelUsed is the model that actually answered (differs from `model`
+ *                                                    // when the backend fell back to another model), or null if not reported.
  *     onError: (errorMsg) => { ... },      // called on error
  *   });
  */
@@ -103,7 +105,7 @@ export default function useStreamingLLM() {
 
               // JSON stream completion with finish_reason
               if (parsed.done) {
-                if (onDone) onDone(fullText, parsed.finish_reason || null);
+                if (onDone) onDone(fullText, parsed.finish_reason || null, parsed.model_used || null);
                 return fullText;
               }
 
