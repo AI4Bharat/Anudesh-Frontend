@@ -173,15 +173,25 @@ const ReviewTasksTable = () => {
   };
 
   return (
-    <div>
+    <React.Fragment>
       {/* 👥 People Icon trigger */}
-      <div className="flex items-center justify-between mb-3">
-        <Tooltip title="Unassigned Annotator's Task Summary">
-          <IconButton color="primary" onClick={handleOpen}>
-            <PeopleAltIcon />
-          </IconButton>
-        </Tooltip>
-      </div>
+      <Tooltip title="Unassigned Annotator's Task Summary">
+        <Button 
+          variant="outlined"
+          onClick={handleOpen}
+          sx={{ 
+            position: "relative",
+            borderRadius: "4px",
+            borderWidth: "1px",
+            gap: 0.5,
+            borderColor: "#ebebeb",
+            padding: "6px 12px",
+            minWidth: "auto",
+          }}
+        >
+          <PeopleAltIcon />
+        </Button>
+      </Tooltip>
 
       {/* 💬 Dialog Box */}
       <Dialog open={openDialog} onClose={handleClose} fullWidth maxWidth="sm">
@@ -249,7 +259,7 @@ const ReviewTasksTable = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </React.Fragment>
   );
 };
 

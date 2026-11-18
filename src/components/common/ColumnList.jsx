@@ -8,7 +8,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
-import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import { Sort as SortIcon } from '@mui/icons-material';
 import  "../../styles/Dataset.css";
 import { translate } from "../../config/localisation";
 
@@ -26,17 +26,22 @@ const ColumnList = (props) => {
         </Button>
       </Tooltip> */}
 
-      <Tooltip
-      title={
-        <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-          View Columns
-        </span>
-      }
-    >
-      <Button onClick={() => setIsOpen(!isOpen)} ref={buttonRef}>
-        <ViewColumnIcon />
-      </Button>
-    </Tooltip>
+      <Tooltip title="View Columns">
+        <Button 
+          variant="outlined"
+          onClick={() => setIsOpen(!isOpen)} 
+          ref={buttonRef}
+          sx={{ 
+            position: "relative",
+            borderRadius: "4px",
+            borderWidth: "1px",
+            borderColor: "#ebebeb",
+            gap: 0.5,
+          }}
+        >
+          <SortIcon sx={{ transform: "scaleX(-1)" }} />
+        </Button>
+      </Tooltip>
       <Popover
         id={props.id}
         open={isOpen}

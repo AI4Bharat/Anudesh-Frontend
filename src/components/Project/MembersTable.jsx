@@ -22,7 +22,7 @@ import TablePagination from '@mui/material/TablePagination';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
-import tableTheme from "../../themes/tableTheme";
+import tableTheme from "../../themes/projectDetailTableTheme";
 import CustomizedSnackbars from "../common/Snackbar";
 import Search from "../common/Search";
 import UserRolesList from "../../utils/UsersRolesList";
@@ -721,7 +721,7 @@ const MembersTable = (props) => {
     <React.Fragment>
       {loggedInUserData?.role !== 1 && !hideButton ? (
         <CustomButton
-          sx={{ borderRadius: 2, whiteSpace: "nowrap" }}
+          sx={{ borderRadius: 2, whiteSpace: "nowrap", mt: { xs: 1.5, sm: 2 } }}
           startIcon={<PersonAddAlt />}
           label={props.type ? addLabel[props.type] : "Add Users"}
           fullWidth
