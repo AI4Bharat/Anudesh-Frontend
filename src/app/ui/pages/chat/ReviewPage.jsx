@@ -654,6 +654,7 @@ const [fontSize, setFontSize] = useState("medium");
         resultValue = chatHistory.map((chat) => ({
           prompt: chat.prompt,
           output: reverseFormatResponse(chat.output),
+          ...(chat.model_used && { model_used: chat.model_used }),
         }));
       } else if (
         ProjectDetails.project_type == "MultipleInteractionEvaluation"
